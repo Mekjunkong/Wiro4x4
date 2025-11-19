@@ -1,7 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { OptimizedImage } from '@/components/OptimizedImage';
 import { Clock, Mountain, Utensils, Users, Calendar, ArrowRight } from 'lucide-react';
 
 export function Tours() {
@@ -125,8 +124,8 @@ export function Tours() {
               key={tour.id}
               className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
             >
-              <div className="relative h-64 overflow-hidden">
-                <OptimizedImage
+              <div className="relative h-64 overflow-hidden bg-muted">
+                <img
                   src={tour.image}
                   alt={tour.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
