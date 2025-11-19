@@ -1,9 +1,29 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
 
 export function Hero() {
   const { t } = useLanguage();
+
+  // Preload critical images
+  const preloadImages = () => {
+    const images = [
+      '/images/1000000136.jpg',
+      '/images/1000000126_compressed.jpg',
+      '/images/1000000139_compressed.jpg',
+      '/images/1000000117_compressed.jpg',
+    ];
+    images.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  };
+
+  // Preload on mount
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', preloadImages);
+  }
 
   const handleBookNow = () => {
     const element = document.getElementById('tours');
@@ -27,12 +47,12 @@ export function Hero() {
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/20" />
-        <img
+        <OptimizedImage
           src="/images/1000000136.jpg"
           alt="Chiang Mai Waterfall Adventure"
           className="w-full h-full object-cover scale-105"
           loading="eager"
-          style={{ transform: 'translateZ(0)' }}
+          priority={true}
         />
         {/* Elegant Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/80" />
@@ -115,7 +135,7 @@ export function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
-              <span>{t('Kosher Certified', 'כשרות מאושרת')}</span>
+              <span>{t('Kosher Meals Available', 'ארוחות כשרות זמינות')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
