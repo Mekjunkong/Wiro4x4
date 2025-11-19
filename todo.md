@@ -76,3 +76,8 @@
 - [x] Fix image loading - images not displaying
 - [x] Optimize and replace hero banner with new waterfall photo
 - [x] Ensure all images load quickly with high quality
+
+## Image Display Issues
+- [x] Fix tour images showing as gray placeholders - removed heavy gradient overlay
+- [x] Debug why images are not displaying in browser - images were loading but hidden by dark gradient
+- [x] Replace with working image solution - lightened gradient from black/60 to black/20

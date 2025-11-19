@@ -124,14 +124,14 @@ export function Tours() {
               key={tour.id}
               className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
             >
-              <div className="relative h-64 overflow-hidden bg-muted">
+              <div className="relative h-64 overflow-hidden">
                 <img
                   src={tour.image}
                   alt={tour.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
 
               <div className="p-6 space-y-4">
