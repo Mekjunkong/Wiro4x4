@@ -87,3 +87,6 @@
 - [x] Replace tour photos with authentic Indochina images (Vietnam, Laos, Thailand)
 - [x] Improve photo positioning and layout quality
 - [x] Keep one waterfall photo, replace others with diverse Indochina adventure scenes
+
+## Image Positioning Adjustments
+- [x] Adjust Hill Tribe Cultural Journey image to focus on face

@@ -128,7 +128,9 @@ export function Tours() {
                 <img
                   src={tour.image}
                   alt={tour.title}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ${
+                    tour.id === 6 ? 'object-[50%_30%]' : 'object-center'
+                  }`}
                   loading="eager"
                 />
               </div>
