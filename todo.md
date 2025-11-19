@@ -81,3 +81,9 @@
 - [x] URGENT: Tour images still showing as gray - FIXED: removed opacity:0 from lazy loading CSS
 - [x] Remove all overlays and verify images display
 - [x] Test in actual browser to confirm images are visible
+
+## Design Improvements
+- [x] Remove "Real Chiang Mai Photography" section
+- [x] Replace tour photos with authentic Indochina images (Vietnam, Laos, Thailand)
+- [x] Improve photo positioning and layout quality
+- [x] Keep one waterfall photo, replace others with diverse Indochina adventure scenes

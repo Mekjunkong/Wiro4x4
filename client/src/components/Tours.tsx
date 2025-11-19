@@ -23,7 +23,7 @@ export function Tours() {
     },
     {
       id: 2,
-      image: '/images/1000000139_compressed.jpg',
+      image: '/images/vietnam_rice_terraces.jpg',
       title: t('Mountain & Valley Explorer', 'מגלה הרים ועמקים'),
       description: t(
         'Scenic mountain routes with breathtaking valley views and local villages',
@@ -37,7 +37,7 @@ export function Tours() {
     },
     {
       id: 3,
-      image: '/images/1000000117_compressed.jpg',
+      image: '/images/laos_jungle.jpg',
       title: t('Jungle & River Expedition', 'משלחת ג\'ונגל ונהר'),
       description: t(
         'Deep jungle exploration with river crossings and natural pools',
@@ -124,14 +124,13 @@ export function Tours() {
               key={tour.id}
               className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
             >
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-72 overflow-hidden">
                 <img
                   src={tour.image}
                   alt={tour.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  loading="eager"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
 
               <div className="p-6 space-y-4">

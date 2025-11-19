@@ -108,27 +108,7 @@ export function WhyWiro() {
         </div>
 
         {/* Real Photo Background Section */}
-        <div className="mt-16 relative rounded-2xl overflow-hidden shadow-premium-lg">
-          <img
-            src="/images/1000000143.jpg"
-            alt="Chiang Mai Rice Fields"
-            className="w-full h-96 object-cover"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
-            <div className="p-8 text-white">
-              <h3 className="text-3xl font-bold mb-3">
-                {t('Real Chiang Mai Photography', 'צילומי צ\'יאנג מאי אמיתיים')}
-              </h3>
-              <p className="text-lg text-white/90">
-                {t(
-                  'Every photo on our website is from actual tours and real locations in Northern Thailand.',
-                  'כל תמונה באתר שלנו היא מסיורים אמיתיים ומיקומים אמיתיים בצפון תאילנד.'
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
   );
