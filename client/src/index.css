@@ -263,12 +263,4 @@
   animation: fadeIn 0.6s ease-out;
 }
 
-/* Lazy load image fade-in */
-img[loading="lazy"] {
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-img[loading="lazy"].loaded {
-  opacity: 1;
-}
+/* Lazy load image fade-in - removed to ensure images display immediately */

@@ -78,6 +78,6 @@
 - [x] Ensure all images load quickly with high quality
 
 ## Image Display Issues
-- [x] Fix tour images showing as gray placeholders - removed heavy gradient overlay
-- [x] Debug why images are not displaying in browser - images were loading but hidden by dark gradient
-- [x] Replace with working image solution - lightened gradient from black/60 to black/20
+- [x] URGENT: Tour images still showing as gray - FIXED: removed opacity:0 from lazy loading CSS
+- [x] Remove all overlays and verify images display
+- [x] Test in actual browser to confirm images are visible
