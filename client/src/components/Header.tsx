@@ -3,6 +3,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
 import { Mountain } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'wouter';
 
 export function Header() {
   const { t } = useLanguage();
@@ -68,6 +69,16 @@ export function Header() {
             >
               {t('Contact', 'צור קשר')}
             </button>
+            <Link href="/pricing">
+              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+                {t('Pricing', 'מחירים')}
+              </span>
+            </Link>
+            <Link href="/blog">
+              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+                {t('Blog', 'בלוג')}
+              </span>
+            </Link>
             <LanguageSwitcher />
           </nav>
 

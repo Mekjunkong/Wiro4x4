@@ -93,13 +93,13 @@ export function Tours() {
     },
   ];
 
-  const handleBookTour = () => {
-    const message = encodeURIComponent(
-      t(
-        'Hi WIRO 4x4 – I want to book a tour.',
-        'שלום WIRO 4x4 – אני רוצה להזמין סיור.'
-      )
+  const handleBookTour = (tour: typeof tours[0]) => {
+    const tourDetails = t(
+      `Tour: ${tour.title}\nDuration: ${tour.duration}\nDifficulty: ${tour.difficulty}\n\nGroup Size: [Please specify 1-4 people]\nPreferred Date: [Please specify]\n\nI would like to know about pricing and availability.`,
+      `סיור: ${tour.title}\nמשך: ${tour.duration}\nרמת קושי: ${tour.difficulty}\n\nגודל קבוצה: [אנא ציין 1-4 אנשים]\nתאריך מועדף: [אנא ציין]\n\nאשמח לדעת על מחירים וזמינות.`
     );
+    const greeting = t('Hi WIRO 4x4!', 'שלום WIRO 4x4!');
+    const message = encodeURIComponent(`${greeting}\n\n${tourDetails}`);
     window.open(`https://wa.me/66123456789?text=${message}`, '_blank');
   };
 
@@ -172,11 +172,11 @@ export function Tours() {
                 </div>
 
                 <Button
-                  onClick={handleBookTour}
+                  onClick={() => handleBookTour(tour)}
                   className="w-full gap-2 mt-4"
                   variant="default"
                 >
-                  {t('Book Now', 'הזמן עכשיו')}
+                  {t('Book via WhatsApp', 'הזמן בוואטסאפ')}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>

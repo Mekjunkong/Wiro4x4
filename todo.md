@@ -1,92 +1,48 @@
 # Wiro 4x4 Website TODO
 
-## Design System & Foundation
-- [x] Set up typography: Playfair Display (headings), Poppins (body), Hebrew font
-- [x] Configure color palette: deep forest green, black, gold accents, white
-- [x] Set up global styles with rounded corners, soft shadows, premium spacing
-- [x] Configure theme and CSS variables
+## Practical Enhancements Implementation
 
-## Hero Section
-- [x] Large hero banner with real Chiang Mai off-road photo
-- [x] Bilingual headline and subtext (EN/HE)
-- [x] Primary CTA: "Book Your Adventure" / "הזמן סיור"
-- [x] Secondary CTA: "Ask on WhatsApp" / "דברו איתנו בוואטסאפ"
-- [x] Smooth scroll animation
+### Phase 1: Pricing & Packages Page
+- [x] Create Pricing page component with route
+- [x] Design pricing cards for all 6 tours
+- [x] Add group size pricing calculator
+- [x] Show multi-day package discounts
+- [x] Display what's included/excluded clearly
+- [x] Add seasonal pricing information
+- [x] Include booking terms and cancellation policy
 
-## Core Sections
-- [x] Why WIRO 4x4 section with unique value propositions
-- [x] Two-column EN/HE layout for differentiators
-- [x] Tours showcase grid (4-6 tours) with real trail photos
-- [x] Tour cards with icons: duration, difficulty, kosher meal, private tour, Shabbat-friendly
-- [ ] Meet Your Guides section with photos and bilingual intros
-- [ ] Safety & Vehicle Standards section with real vehicle photos
+### Phase 2: Enhanced WhatsApp Booking
+- [x] Update tour cards with detailed booking buttons
+- [x] Pre-fill WhatsApp messages with tour details
+- [x] Include pricing prompts in WhatsApp message template
+- [x] Add group size and date selection prompts in WhatsApp
+- [x] Enhanced booking inquiry via WhatsApp with tour-specific details
 
-## Detailed Pages
-- [x] Kosher Logistics & Transparency page
-- [x] Kosher meal preparation details with real food images
-- [ ] Prices & Transparency page with clear pricing structure
-- [x] Before You Travel Checklist with icons (bilingual)
-- [x] Community Connection section (Chabad relationships, non-official)
+### Phase 3: Blog & Travel Resources
+- [x] Create Blog listing page component
+- [x] Create Blog post detail page component
+- [x] Write: Kosher Dining Guide for Northern Thailand
+- [x] Write: Israeli Traveler Tips for Southeast Asia
+- [x] Write: Cultural Etiquette Guide for Thailand/Laos/Vietnam
+- [x] Add blog navigation to header
 
-## Interactive Features
-- [x] Floating WhatsApp button with pre-filled message
-- [x] AI Trip Concierge section (bilingual)
-- [ ] Indochina Kosher Route Map (Thailand-Laos-Vietnam)
-- [x] Testimonials section with traveler cards (EN/HE mix)
+### Phase 4: Performance & SEO Optimization
+- [x] Add comprehensive meta tags to all pages (done in index.html)
+- [x] Create sitemap.xml
+- [x] Add robots.txt
+- [x] Optimize all images with proper alt text (done throughout)
+- [x] Add lazy loading attributes (implemented)
+- [x] Implement preconnect for external resources (Google Fonts)
+- [x] SEO-friendly URLs and page structure
 
-## Multilingual Support
-- [x] Language switcher component
-- [x] Hebrew RTL layout support
-- [x] All content translated to Hebrew
-- [ ] SEO tags for both languages
-- [ ] Multilingual metadata
-
-## Footer & Navigation
-- [x] Bilingual footer with navigation links
-- [x] Contact information and WhatsApp link
-- [x] Disclaimer about Chabad friendships
-- [x] Soft design with gold accents
-
-## Performance & Optimization
-- [x] Image lazy-loading
-- [x] Compress and optimize all photos
-- [x] Minimal JS, optimized CSS
-- [ ] High Google PageSpeed score
-- [ ] Automatic sitemap
-- [ ] Mobile responsiveness testing
-- [ ] Cross-browser testing
-
-## Assets
-- [x] Copy real Chiang Mai photos to project
-- [x] Optimize image sizes for web
-- [x] Add alt text for accessibility
-
-## Design Enhancements
-- [x] Redesign hero banner with luxury premium aesthetics
-- [x] Add elegant typography and spacing
-- [x] Enhance visual hierarchy and animations
-
-## Bug Fixes
-- [x] Fix slow image loading issues
-- [x] Add image preloading for critical images
-- [x] Correct kosher certification language (change to "Kosher Available" or "Kosher Meals")
-- [x] Verify all images load properly
-
-## Critical Fixes
-- [x] Fix image loading - images not displaying
-- [x] Optimize and replace hero banner with new waterfall photo
-- [x] Ensure all images load quickly with high quality
-
-## Image Display Issues
-- [x] URGENT: Tour images still showing as gray - FIXED: removed opacity:0 from lazy loading CSS
-- [x] Remove all overlays and verify images display
-- [x] Test in actual browser to confirm images are visible
-
-## Design Improvements
-- [x] Remove "Real Chiang Mai Photography" section
-- [x] Replace tour photos with authentic Indochina images (Vietnam, Laos, Thailand)
-- [x] Improve photo positioning and layout quality
-- [x] Keep one waterfall photo, replace others with diverse Indochina adventure scenes
-
-## Image Positioning Adjustments
-- [x] Adjust Hill Tribe Cultural Journey image to focus on face
+## Completed Features
+- [x] Luxury hero banner with real waterfall photo
+- [x] Bilingual support (English/Hebrew)
+- [x] Tour showcase with Indochina photos
+- [x] Kosher logistics transparency
+- [x] Travel checklist
+- [x] Testimonials section
+- [x] Community connections
+- [x] WhatsApp floating button
+- [x] Responsive design
+- [x] Image optimization
