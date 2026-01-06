@@ -142,7 +142,7 @@ export default function Pricing() {
         `שלום WIRO 4x4! אני מעוניין ב${tourName} (${price} ฿). האם תוכלו לספק פרטים נוספים?`
       )
     );
-    window.open(`https://wa.me/66123456789?text=${message}`, '_blank');
+    window.open(`https://wa.me/66819611398?text=${message}`, '_blank');
   };
 
   return (

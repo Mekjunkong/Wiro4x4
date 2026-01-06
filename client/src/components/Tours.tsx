@@ -100,7 +100,7 @@ export function Tours() {
     );
     const greeting = t('Hi WIRO 4x4!', 'שלום WIRO 4x4!');
     const message = encodeURIComponent(`${greeting}\n\n${tourDetails}`);
-    window.open(`https://wa.me/66123456789?text=${message}`, '_blank');
+    window.open(`https://wa.me/66819611398?text=${message}`, '_blank');
   };
 
   return (

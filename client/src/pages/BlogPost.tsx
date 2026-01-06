@@ -164,7 +164,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
 ## אנשי קשר לשעת חירום
 
 - **חב"ד צ'יאנג מאי**: [צרו קשר בוואטסאפ]
-- **רכז כשרות WIRO 4x4**: 66123456789+
+- **רכז כשרות WIRO 4x4**: 66819611398+
 - **מסעדות כשרות בבנגקוק**: לטיולים ארוכים יותר
 
 ## סיכום
@@ -1118,7 +1118,7 @@ Cultural sensitivity isn't about being perfect - it's about showing respect and 
                 'צרו קשר עם WIRO 4x4 לתכנון חוויית השטח המושלמת והידידותית לכשרות שלכם באינדוסין.'
               )}
             </p>
-            <Button size="lg" onClick={() => window.open('https://wa.me/66123456789', '_blank')}>
+            <Button size="lg" onClick={() => window.open('https://wa.me/66819611398', '_blank')}>
               {t('Contact Us on WhatsApp', 'צרו קשר בוואטסאפ')}
             </Button>
           </div>
