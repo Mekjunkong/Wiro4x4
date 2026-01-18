@@ -1,3 +1,7 @@
+import { Agent } from './agent';
+
+export type BookingStatus = 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+
 export interface TourBookingFormData {
   // Adults
   numberOfAdults: number;
@@ -54,6 +58,40 @@ export interface TourBookingFormData {
   contactName: string;
   contactEmail: string;
   contactPhone: string;
+}
+
+// Cost breakdown interface
+export interface BookingCosts {
+  guideFee: number;
+  transportCost: number;
+  accommodationCost: number;
+  attractionsCost: number;
+  foodCost: number;
+  otherCosts: number;
+}
+
+// Complete Booking interface (database model)
+export interface Booking extends TourBookingFormData {
+  _id: string;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
+  adminNotes?: string;
+
+  // Agent Assignment
+  agentId?: string | Agent; // Can be populated or just ID
+  agentAssignedAt?: string;
+
+  // Revenue and Commission
+  estimatedRevenue: number;
+  actualRevenue: number;
+  agentCommission: number;
+
+  // Cost Tracking
+  costs: BookingCosts;
+  totalCosts: number;
+  profit: number;
+  profitMargin: number;
 }
 
 export const ATTRACTIONS = [

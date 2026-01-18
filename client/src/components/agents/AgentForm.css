@@ -1,0 +1,110 @@
+.agent-form-container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.agent-form-container h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #3498db;
+}
+
+.agent-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.agent-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.agent-form .form-group input,
+.agent-form .form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+
+.agent-form .form-group input:focus,
+.agent-form .form-group textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.agent-form .form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.agent-form .form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #7f8c8d;
+  font-size: 0.85rem;
+}
+
+.agent-form .error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.agent-form .form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.agent-form .btn-cancel,
+.agent-form .btn-submit {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.agent-form .btn-cancel {
+  background: #95a5a6;
+  color: white;
+}
+
+.agent-form .btn-cancel:hover:not(:disabled) {
+  background: #7f8c8d;
+}
+
+.agent-form .btn-submit {
+  background: #3498db;
+  color: white;
+}
+
+.agent-form .btn-submit:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.agent-form .btn-cancel:disabled,
+.agent-form .btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

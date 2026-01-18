@@ -1,21 +1,92 @@
 import { useState, useEffect } from 'react';
+import { Booking } from '../types/tourBooking';
+import AgentAssignment from './agents/AgentAssignment';
+import CostTrackingForm from './financial/CostTrackingForm';
 import './AdminDashboard.css';
 
-interface Booking {
-  _id: string;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
-  numberOfAdults: number;
-  numberOfChildren?: number;
-  pickupDate: string;
-  endDate: string;
-  status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
-  createdAt: string;
-  suggestedDestinations: string[];
-  includesHotels: boolean;
-  includesGuide: boolean;
-  includesTrip: boolean;
+interface RevenueCommissionFormProps {
+  booking: Booking;
+  onCalculate: (bookingId: string, estimatedRevenue: number, actualRevenue: number) => void;
+}
+
+function RevenueCommissionForm({ booking, onCalculate }: RevenueCommissionFormProps) {
+  const [estimatedRevenue, setEstimatedRevenue] = useState(booking.estimatedRevenue || 0);
+  const [actualRevenue, setActualRevenue] = useState(booking.actualRevenue || 0);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'THB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const getAgentInfo = () => {
+    if (typeof booking.agentId === 'object' && booking.agentId !== null) {
+      return booking.agentId;
+    }
+    return null;
+  };
+
+  const agent = getAgentInfo();
+
+  if (!agent) {
+    return (
+      <div className="no-agent-warning">
+        Please assign an agent first to calculate commission
+      </div>
+    );
+  }
+
+  return (
+    <div className="revenue-commission-form">
+      <div className="form-row">
+        <div className="form-field">
+          <label>Estimated Revenue (THB)</label>
+          <input
+            type="number"
+            value={estimatedRevenue}
+            onChange={(e) => setEstimatedRevenue(Number(e.target.value))}
+            min="0"
+            step="100"
+          />
+        </div>
+        <div className="form-field">
+          <label>Actual Revenue (THB)</label>
+          <input
+            type="number"
+            value={actualRevenue}
+            onChange={(e) => setActualRevenue(Number(e.target.value))}
+            min="0"
+            step="100"
+          />
+          <small>For completed bookings</small>
+        </div>
+      </div>
+
+      <div className="commission-info">
+        <div className="info-row">
+          <span>Agent Commission Rate:</span>
+          <strong>{agent.commissionRate}%</strong>
+        </div>
+        {booking.agentCommission > 0 && (
+          <div className="info-row commission-amount">
+            <span>Current Commission:</span>
+            <strong>{formatCurrency(booking.agentCommission)}</strong>
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={() => onCalculate(booking._id, estimatedRevenue, actualRevenue)}
+        className="calculate-button"
+        disabled={estimatedRevenue === 0 && actualRevenue === 0}
+      >
+        Calculate Commission
+      </button>
+    </div>
+  );
 }
 
 export default function AdminDashboard() {
@@ -98,13 +169,11 @@ export default function AdminDashboard() {
     }
   };
 
-  // TODO: Implement the filtering logic
-  // This function should filter bookings based on the statusFilter
-  // If statusFilter is 'all', return all bookings
-  // Otherwise, return only bookings matching the selected status
   const getFilteredBookings = (): Booking[] => {
-    // TODO: Replace this with your filtering implementation
-    return bookings;
+    if (statusFilter === 'all') {
+      return bookings;
+    }
+    return bookings.filter(booking => booking.status === statusFilter);
   };
 
   const formatDate = (dateString: string) => {
@@ -124,6 +193,49 @@ export default function AdminDashboard() {
       cancelled: '#e74c3c'
     };
     return colors[status as keyof typeof colors] || '#95a5a6';
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'THB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const calculateCommission = async (bookingId: string, estimatedRevenue: number, actualRevenue: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/bookings/${bookingId}/commission`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ estimatedRevenue, actualRevenue })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`Commission calculated: ${formatCurrency(data.commission)}`);
+        fetchBookings();
+      } else {
+        alert(data.message || 'Failed to calculate commission');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error calculating commission');
+    }
+  };
+
+  const getAgentInfo = (booking: Booking) => {
+    if (typeof booking.agentId === 'object' && booking.agentId !== null) {
+      return booking.agentId;
+    }
+    return null;
   };
 
   if (loading) {
@@ -190,12 +302,19 @@ export default function AdminDashboard() {
               >
                 <div className="booking-header">
                   <h3>{booking.contactName}</h3>
-                  <span
-                    className="status-badge"
-                    style={{ backgroundColor: getStatusColor(booking.status) }}
-                  >
-                    {booking.status}
-                  </span>
+                  <div className="badges">
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: getStatusColor(booking.status) }}
+                    >
+                      {booking.status}
+                    </span>
+                    {getAgentInfo(booking) && (
+                      <span className="agent-badge">
+                        👤 {getAgentInfo(booking)!.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="booking-info">
                   <p>📧 {booking.contactEmail}</p>
@@ -277,6 +396,62 @@ export default function AdminDashboard() {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </section>
+
+              <section>
+                <h3>Agent Assignment</h3>
+                <AgentAssignment
+                  bookingId={selectedBooking._id}
+                  currentAgentId={typeof selectedBooking.agentId === 'object' && selectedBooking.agentId !== null ? selectedBooking.agentId._id : (typeof selectedBooking.agentId === 'string' ? selectedBooking.agentId : undefined)}
+                  currentAgentName={getAgentInfo(selectedBooking)?.name}
+                  onAssigned={fetchBookings}
+                />
+              </section>
+
+              <section>
+                <h3>Revenue & Commission</h3>
+                <RevenueCommissionForm
+                  booking={selectedBooking}
+                  onCalculate={calculateCommission}
+                />
+              </section>
+
+              <section>
+                <h3>Cost Tracking</h3>
+                <CostTrackingForm
+                  booking={selectedBooking}
+                  onUpdate={fetchBookings}
+                />
+              </section>
+
+              {selectedBooking.profit !== undefined && selectedBooking.actualRevenue > 0 && (
+                <section>
+                  <h3>Financial Summary</h3>
+                  <div className="financial-summary-box">
+                    <div className="summary-item">
+                      <span>Total Revenue:</span>
+                      <strong>{formatCurrency(selectedBooking.actualRevenue)}</strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Total Costs:</span>
+                      <strong>{formatCurrency(selectedBooking.totalCosts || 0)}</strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Agent Commission:</span>
+                      <strong>{formatCurrency(selectedBooking.agentCommission)}</strong>
+                    </div>
+                    <div className="summary-item profit-item">
+                      <span>Net Profit:</span>
+                      <strong className={selectedBooking.profit >= 0 ? 'profit-positive' : 'profit-negative'}>
+                        {formatCurrency(selectedBooking.profit)}
+                      </strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Profit Margin:</span>
+                      <strong>{selectedBooking.profitMargin.toFixed(1)}%</strong>
+                    </div>
+                  </div>
+                </section>
+              )}
 
               <div className="details-actions">
                 <button

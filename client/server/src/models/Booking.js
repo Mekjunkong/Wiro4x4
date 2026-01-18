@@ -158,12 +158,125 @@ const bookingSchema = new mongoose.Schema({
   // Notes from admin
   adminNotes: {
     type: String
+  },
+
+  // Agent Assignment
+  agentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Agent'
+  },
+  agentAssignedAt: {
+    type: Date
+  },
+
+  // Tour Package Link
+  tourPackageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TourPackage'
+  },
+  packageName: {
+    type: String
+  },
+
+  // Revenue and Commission
+  estimatedRevenue: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  actualRevenue: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  agentCommission: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+
+  // Cost Tracking
+  costs: {
+    guideFee: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    transportCost: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    accommodationCost: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    attractionsCost: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    foodCost: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    otherCosts: {
+      type: Number,
+      default: 0,
+      min: 0
+    }
+  },
+
+  // Financial Calculations (auto-calculated)
+  totalCosts: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  profit: {
+    type: Number,
+    default: 0
+  },
+  profitMargin: {
+    type: Number,
+    default: 0
   }
 });
 
 // Update the updatedAt timestamp before saving
 bookingSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
+  next();
+});
+
+// Calculate financial metrics before saving
+bookingSchema.pre('save', function(next) {
+  // Calculate total costs
+  if (this.costs) {
+    this.totalCosts =
+      (this.costs.guideFee || 0) +
+      (this.costs.transportCost || 0) +
+      (this.costs.accommodationCost || 0) +
+      (this.costs.attractionsCost || 0) +
+      (this.costs.foodCost || 0) +
+      (this.costs.otherCosts || 0);
+  }
+
+  // Calculate profit: actualRevenue - totalCosts - agentCommission
+  const revenue = this.actualRevenue || 0;
+  const costs = this.totalCosts || 0;
+  const commission = this.agentCommission || 0;
+  this.profit = revenue - costs - commission;
+
+  // Calculate profit margin: (profit / revenue) * 100
+  if (revenue > 0) {
+    this.profitMargin = (this.profit / revenue) * 100;
+  } else {
+    this.profitMargin = 0;
+  }
+
   next();
 });
 

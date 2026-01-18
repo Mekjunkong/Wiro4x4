@@ -1,0 +1,235 @@
+.quote-generator {
+  background: #f8f9fa;
+  padding: 1.25rem;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.quote-status {
+  text-align: center;
+}
+
+.quote-generated-label {
+  color: #27ae60;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.quote-status p {
+  margin: 0.5rem 0;
+  color: #2c3e50;
+}
+
+.quote-sent {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  border-left: 3px solid #e74c3c;
+}
+
+.btn-generate,
+.btn-send {
+  width: 100%;
+  padding: 0.75rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-generate:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-generate:disabled,
+.btn-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quote-display {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.quote-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.season-badge {
+  padding: 0.25rem 0.75rem;
+  background: #f39c12;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.quote-summary {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #555;
+}
+
+.quote-row span {
+  color: #7f8c8d;
+}
+
+.quote-row strong {
+  color: #2c3e50;
+}
+
+.cost-breakdown {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.cost-breakdown h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #555;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cost-item:last-child {
+  border-bottom: none;
+}
+
+.cost-item.total-cost {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid #e0e0e0;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.quote-pricing {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1.25rem;
+  border-radius: 6px;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.price-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.profit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.profit-positive {
+  color: #d4edda;
+  font-weight: 600;
+}
+
+.profit-negative {
+  color: #f8d7da;
+  font-weight: 600;
+}
+
+.validity {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  text-align: center;
+}
+
+.btn-send-quote {
+  width: 100%;
+  padding: 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-send-quote:hover:not(:disabled) {
+  background: #229954;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-send-quote:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

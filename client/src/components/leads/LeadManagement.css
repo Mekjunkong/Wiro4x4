@@ -1,4 +1,4 @@
-.admin-dashboard {
+.lead-management {
   min-height: 100vh;
   background: #f5f7fa;
   padding: 2rem;
@@ -16,9 +16,22 @@
 }
 
 .dashboard-header h1 {
-  margin: 0;
+  margin: 0 0 0.5rem 0;
   color: #2c3e50;
   font-size: 1.8rem;
+}
+
+.stats-summary {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.stats-summary .separator {
+  color: #bdc3c7;
 }
 
 .refresh-button {
@@ -63,9 +76,26 @@
   cursor: pointer;
 }
 
-.booking-count {
+.conversion-metrics {
+  display: flex;
+  gap: 2rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.metric-label {
+  font-size: 0.85rem;
   color: #7f8c8d;
-  font-size: 0.95rem;
+}
+
+.metric-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #27ae60;
 }
 
 .dashboard-content {
@@ -74,16 +104,16 @@
   gap: 1.5rem;
 }
 
-.bookings-list {
+.leads-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   padding-right: 0.5rem;
 }
 
-.booking-card {
+.lead-card {
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
@@ -93,42 +123,54 @@
   border-left: 4px solid transparent;
 }
 
-.booking-card:hover {
+.lead-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
-.booking-card.selected {
+.lead-card.selected {
   border-left-color: #3498db;
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
 }
 
-.booking-header {
+.lead-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 0.75rem;
 }
 
-.booking-header h3 {
+.lead-header h3 {
   margin: 0;
   color: #2c3e50;
   font-size: 1.2rem;
 }
 
-.status-badge {
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.status-badge,
+.priority-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.booking-info p {
+.lead-info p {
   margin: 0.4rem 0;
   color: #555;
   font-size: 0.95rem;
+}
+
+.quote-price {
+  color: #27ae60;
+  font-weight: 600;
 }
 
 .created-at {
@@ -139,11 +181,19 @@
   font-size: 0.85rem;
 }
 
-.booking-details {
+.no-leads {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  background: white;
+  border-radius: 8px;
+}
+
+.lead-details {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   position: sticky;
   top: 1rem;
@@ -204,14 +254,13 @@
   color: #555;
 }
 
-.details-content ul {
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
+.details-content a {
+  color: #3498db;
+  text-decoration: none;
 }
 
-.details-content li {
-  margin: 0.25rem 0;
-  color: #555;
+.details-content a:hover {
+  text-decoration: underline;
 }
 
 .status-select {
@@ -222,6 +271,55 @@
   font-size: 1rem;
   cursor: pointer;
   background: white;
+  margin-bottom: 1rem;
+}
+
+.activity-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.activity-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.convert-button {
+  width: 100%;
+  padding: 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.convert-button:hover {
+  background: #229954;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.converted-section {
+  background: #d4edda;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+}
+
+.converted-section h3 {
+  color: #155724;
+  margin-top: 0;
+}
+
+.converted-section p {
+  color: #155724;
 }
 
 .details-actions {
@@ -242,13 +340,17 @@
   transition: background 0.3s;
 }
 
-.delete-button:hover {
+.delete-button:hover:not(:disabled) {
   background: #c0392b;
 }
 
+.delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .loading,
-.error,
-.no-bookings {
+.error {
   text-align: center;
   padding: 3rem;
   color: #7f8c8d;
@@ -259,201 +361,26 @@
   color: #e74c3c;
 }
 
-.retry-button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-/* Agent Management Integration */
-.badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.agent-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  background: #3498db;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Revenue & Commission Form */
-.revenue-commission-form {
-  background: #f8f9fa;
-  padding: 1.25rem;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-field label {
-  display: block;
-  color: #2c3e50;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.form-field input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  transition: border-color 0.3s;
-}
-
-.form-field input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.form-field small {
-  display: block;
-  margin-top: 0.25rem;
-  color: #7f8c8d;
-  font-size: 0.8rem;
-}
-
-.commission-info {
-  background: white;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  color: #2c3e50;
-  font-size: 0.95rem;
-}
-
-.info-row.commission-amount {
-  padding-top: 0.75rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid #e0e0e0;
-  color: #27ae60;
-  font-size: 1rem;
-}
-
-.calculate-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.calculate-button:hover:not(:disabled) {
-  background: #229954;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
-}
-
-.calculate-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.no-agent-warning {
-  text-align: center;
-  color: #e67e22;
-  padding: 1rem;
-  background: #fef5e7;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-/* Financial Summary */
-.financial-summary-box {
-  background: #f8f9fa;
-  padding: 1.25rem;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.summary-item:last-child {
-  border-bottom: none;
-}
-
-.summary-item.profit-item {
-  padding-top: 1rem;
-  margin-top: 0.5rem;
-  border-top: 2px solid #d0d0d0;
-  font-size: 1.05rem;
-}
-
-.summary-item span {
-  color: #7f8c8d;
-  font-size: 0.95rem;
-}
-
-.summary-item strong {
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.profit-positive {
-  color: #27ae60 !important;
-}
-
-.profit-negative {
-  color: #e74c3c !important;
-}
-
-/* Responsive design */
+/* Responsive Design */
 @media (max-width: 1024px) {
   .dashboard-content {
     grid-template-columns: 1fr;
   }
 
-  .booking-details {
+  .lead-details {
     position: relative;
     max-height: none;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
+  .conversion-metrics {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
   }
 }
 
 @media (max-width: 768px) {
-  .admin-dashboard {
+  .lead-management {
     padding: 1rem;
   }
 
@@ -469,8 +396,13 @@
     align-items: flex-start;
   }
 
-  .badges {
+  .stats-summary {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .stats-summary .separator {
+    display: none;
   }
 }

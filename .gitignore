@@ -14,6 +14,9 @@ client/build/
 client/server/.env
 client/server/.env.local
 
+# MCP Configuration (contains secrets)
+.mcp.json
+
 # Logs
 *.log
 npm-debug.log*
