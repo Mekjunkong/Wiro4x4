@@ -1,14 +1,18 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
-import { Mountain, Menu, X } from 'lucide-react';
+import { Mountain, Menu, X, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import { useAuth } from '@/_core/hooks/useAuth';
 
 export function Header() {
   const { t } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const isAdmin = isAuthenticated && user?.role === 'admin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,6 +103,14 @@ export function Header() {
                 {t('Blog', 'בלוג')}
               </span>
             </Link>
+            {isAdmin && (
+              <Link href="/admin">
+                <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
+                  <Shield className="h-4 w-4" />
+                  {t('Admin', 'ניהול')}
+                </span>
+              </Link>
+            )}
             <Link href="/book">
               <Button className="bg-primary hover:bg-primary/90 text-white">
                 {t('Book Now', 'הזמן עכשיו')}
@@ -181,6 +193,14 @@ export function Header() {
                 {t('Blog', 'בלוג')}
               </span>
             </Link>
+            {isAdmin && (
+              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  {t('Admin', 'ניהול')}
+                </span>
+              </Link>
+            )}
             <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
               <Button className="w-full bg-primary hover:bg-primary/90 text-white mt-2">
                 {t('Book Now', 'הזמן עכשיו')}
