@@ -126,13 +126,13 @@ export function Header() {
             <LanguageSwitcher />
             <button
               onClick={toggleMobileMenu}
-              className="p-4 hover:bg-primary/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
+              className="p-5 -m-2 hover:bg-primary/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
               type="button"
-              style={{ minWidth: '60px', minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ minWidth: '64px', minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              {mobileMenuOpen ? <X className="h-8 w-8" /> : <Menu className="h-8 w-8" />}
+              {mobileMenuOpen ? <X className="h-9 w-9" /> : <Menu className="h-9 w-9" />}
             </button>
           </div>
         </div>

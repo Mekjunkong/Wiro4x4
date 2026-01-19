@@ -43,10 +43,24 @@ export default function AdminDashboard() {
 
   // Mutations
   const updateBooking = trpc.booking.update.useMutation({
-    onSuccess: () => refetchBookings(),
+    onSuccess: () => {
+      refetchBookings();
+      alert('Booking status updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to update booking:', error);
+      alert('Failed to update booking status. Please try again.');
+    },
   });
   const deleteBooking = trpc.booking.delete.useMutation({
-    onSuccess: () => refetchBookings(),
+    onSuccess: () => {
+      refetchBookings();
+      alert('Booking deleted successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to delete booking:', error);
+      alert('Failed to delete booking. Please try again.');
+    },
   });
 
   // Auth check

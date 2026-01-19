@@ -272,3 +272,15 @@
 - [x] Remove "AI Trip Concierge" section from homepage (removed from Home.tsx)
 - [x] Remove "Before You Travel Checklist" section from homepage (removed from Home.tsx)
 - [x] Remove "Sample Kosher Trail Meal" section from homepage (removed from KosherInfo.tsx)
+
+
+## Hamburger Menu Positioning Fix
+
+- [x] Fix hamburger menu button - clickable area doesn't match visual position (added -m-2 negative margin, increased to 64x64px with 9x9 icons)
+- [x] Adjust header padding/layout so button is clickable where it appears (negative margin extends clickable area)
+
+
+## Admin Panel Functionality Fixes
+
+- [x] Fix admin panel - cannot change booking status (added error handling and success alerts)
+- [x] Fix admin panel - cannot delete bookings (added error handling and success alerts)
