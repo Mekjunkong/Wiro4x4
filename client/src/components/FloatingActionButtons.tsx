@@ -20,7 +20,7 @@ export function FloatingActionButtons() {
       {/* Book Now Button */}
       <Link href="/book">
         <button
-          className="bg-forest-600 hover:bg-forest-700 text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group"
+          className="bg-forest-600 hover:bg-forest-700 text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle"
           aria-label={t('Book Now', 'הזמן עכשיו')}
         >
           <Calendar className="h-6 w-6" />
@@ -33,7 +33,7 @@ export function FloatingActionButtons() {
       {/* WhatsApp Button */}
       <button
         onClick={handleWhatsAppClick}
-        className="bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group"
+        className="bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle"
         aria-label={t('Contact us on WhatsApp', 'צור קשר בוואטסאפ')}
       >
         <MessageCircle className="h-6 w-6" />

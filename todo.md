@@ -177,3 +177,8 @@
 ## Bug Fixes
 
 - [x] Fix floating Book Now button 404 error (changed /booking to /book)
+
+
+## UI Enhancements
+
+- [x] Add pulse animation to floating action buttons (3s subtle pulse with scale 1.02)
