@@ -1,9 +1,19 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export function Hero() {
   const { t } = useLanguage();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
 
 
@@ -34,6 +44,10 @@ export function Hero() {
           alt="Chiang Mai Waterfall Adventure"
           className="w-full h-full object-cover scale-105"
           loading="eager"
+          style={{
+            transform: `translateY(${scrollY * 0.5}px)`,
+            transition: 'transform 0.1s ease-out'
+          }}
         />
         {/* Elegant Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/80" />

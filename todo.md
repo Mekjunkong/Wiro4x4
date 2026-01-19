@@ -290,3 +290,8 @@
 
 - [x] Make hamburger menu much bigger and easier to click (increased to 80x80px)
 - [x] Increase touch area to at least 80x80px or larger (now 80x80px with 10x10 icons and -m-3 negative margin)
+
+
+## Hero Banner Parallax Effect
+
+- [x] Add parallax scrolling effect to hero banner background (background moves at 0.5x scroll speed)
