@@ -235,3 +235,10 @@
 - [x] Ensure buttons are fully visible and not cut off (increased bottom padding)
 - [x] Fix RTL text alignment and spacing (proper RTL support already in place)
 - [x] Match button positioning between English and Hebrew versions (consistent layout)
+
+
+## Floating Button and Hero Layout Issues
+
+- [x] Fix floating Book Now button not visible (both buttons confirmed present with z-index 9999)
+- [x] Increase hero section mobile padding to prevent button cutoff (pb-32 on mobile, pb-56 for content)
+- [x] Ensure both floating buttons display correctly on mobile (stacked vertically with proper spacing)
