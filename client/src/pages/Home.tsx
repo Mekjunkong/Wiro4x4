@@ -8,7 +8,7 @@ import { AIConcierge } from '@/components/AIConcierge';
 import { Testimonials } from '@/components/Testimonials';
 import { CommunityConnection } from '@/components/CommunityConnection';
 import { Footer } from '@/components/Footer';
-import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { FloatingActionButtons } from '@/components/FloatingActionButtons';
 
 export default function Home() {
   return (
@@ -23,7 +23,7 @@ export default function Home() {
       <WhyWiro />
       <CommunityConnection />
       <Footer />
-      <WhatsAppButton />
+      <FloatingActionButtons />
     </div>
   );
 }

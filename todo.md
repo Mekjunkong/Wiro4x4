@@ -167,3 +167,8 @@
 ## Homepage Section Reordering
 
 - [x] Move "Why Choose WIRO" section to lower position on homepage (now after Testimonials)
+
+
+## Floating Action Buttons
+
+- [x] Add floating "Book Now" button next to WhatsApp icon (Book Now above, WhatsApp below)
