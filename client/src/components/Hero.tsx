@@ -58,20 +58,20 @@ export function Hero() {
           {/* Main Heading with Luxury Typography */}
           <div className="space-y-4 md:space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold leading-none tracking-tight">
-              <span className="block text-white drop-shadow-2xl">WIRO 4x4</span>
+              <span className="block text-white" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>WIRO 4x4</span>
             </h1>
             <div className="h-1 w-24 md:w-32 mx-auto bg-gradient-to-r from-transparent via-secondary to-transparent" />
           </div>
 
           {/* Tagline with Elegant Spacing */}
           <div className="space-y-3 md:space-y-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <p className="text-xl sm:text-2xl md:text-4xl font-light text-secondary tracking-wide px-4">
+            <p className="text-xl sm:text-2xl md:text-4xl font-semibold text-secondary tracking-wide px-4" style={{ textShadow: '0 3px 8px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.7)' }}>
               {t(
                 'Kosher Off-Road Adventures',
                 'חוויות שטח כשרות'
               )}
             </p>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-light max-w-3xl mx-auto leading-relaxed px-4">
+            <p className="text-lg sm:text-xl md:text-2xl text-white font-normal max-w-3xl mx-auto leading-relaxed px-4" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)' }}>
               {t(
                 'in Chiang Mai',
                 'בצ\'יאנג מאי'
@@ -80,7 +80,7 @@ export function Hero() {
           </div>
 
           {/* Description with Premium Styling */}
-          <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto text-white/80 leading-relaxed font-light animate-fade-in-up px-4" style={{ animationDelay: '0.6s' }}>
+          <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto text-white leading-relaxed font-normal animate-fade-in-up px-4" style={{ animationDelay: '0.6s', textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.7)' }}>
             {t(
               'Experience the pinnacle of authentic Northern Thailand exploration with bespoke 4x4 tours, gourmet kosher cuisine, and expert Hebrew-speaking guides.',
               'חוו את שיא החקירה האותנטית של צפון תאילנד עם סיורי 4x4 מותאמים אישית, מטבח כשר גורמה ומדריכים מומחים דוברי עברית.'
@@ -109,7 +109,7 @@ export function Hero() {
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 pt-8 md:pt-12 text-xs sm:text-sm text-white/70 animate-fade-in px-4" style={{ animationDelay: '1s' }}>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 pt-8 md:pt-12 text-xs sm:text-sm text-white font-medium animate-fade-in px-4" style={{ animationDelay: '1s', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
               <span>{t('Hebrew Speaking', 'דוברי עברית')}</span>

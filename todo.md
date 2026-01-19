@@ -212,3 +212,11 @@
 - [x] Enhance Hebrew version of booking form for mobile (better spacing, RTL support, mobile-first text sizes)
 - [x] Improve form mobile responsiveness and touch targets (pb-24 for floating buttons clearance)
 - [x] Improve overall form UI design (enhanced hero section with mt-20, better padding)
+
+
+## Text Visibility Issues
+
+- [x] Fix hero section text visibility (added strong text shadows, increased font weight, changed to full white)
+- [x] Fix header logo text visibility (white with text shadow when not scrolled, primary when scrolled)
+- [x] Add text shadows for better readability (all hero and header text)
+- [x] Ensure all text has sufficient contrast ratio (white text with dark shadows)

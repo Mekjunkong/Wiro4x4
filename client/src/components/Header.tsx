@@ -60,10 +60,12 @@ export function Header() {
       <div className="container">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-2">
-            <Mountain className="h-8 w-8 text-primary" />
+            <Mountain className={`h-8 w-8 ${scrolled ? 'text-primary' : 'text-white drop-shadow-lg'}`} />
             <div>
-              <h1 className="text-xl font-bold text-primary">WIRO 4x4</h1>
-              <p className="text-xs text-muted-foreground">
+              <h1 className={`text-xl font-bold ${scrolled ? 'text-primary' : 'text-white'}`} style={!scrolled ? { textShadow: '0 2px 4px rgba(0,0,0,0.8)' } : {}}>
+                WIRO 4x4
+              </h1>
+              <p className={`text-xs ${scrolled ? 'text-muted-foreground' : 'text-white/90'}`} style={!scrolled ? { textShadow: '0 1px 3px rgba(0,0,0,0.8)' } : {}}>
                 {t('Kosher Off-Road Adventures', 'חוויות שטח כשרות')}
               </p>
             </div>
