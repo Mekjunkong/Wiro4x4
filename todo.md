@@ -284,3 +284,9 @@
 
 - [x] Fix admin panel - cannot change booking status (added error handling and success alerts)
 - [x] Fix admin panel - cannot delete bookings (added error handling and success alerts)
+
+
+## Hamburger Menu Size Increase
+
+- [x] Make hamburger menu much bigger and easier to click (increased to 80x80px)
+- [x] Increase touch area to at least 80x80px or larger (now 80x80px with 10x10 icons and -m-3 negative margin)
