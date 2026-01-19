@@ -20,7 +20,7 @@ export function FloatingActionButtons() {
       {/* Book Now Button */}
       <Link href="/book">
         <button
-          className="bg-forest-600 hover:bg-forest-700 text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle"
+          className="bg-secondary hover:bg-secondary/90 text-black rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle border-2 border-black/10"
           aria-label={t('Book Now', 'הזמן עכשיו')}
         >
           <Calendar className="h-6 w-6" />

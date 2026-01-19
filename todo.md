@@ -250,3 +250,9 @@
 - [x] Keep English text for Hebrew version (matching user's screenshot)
 - [x] Ensure Hebrew version looks identical to English version
 - [x] Remove RTL CSS styles
+
+
+## Critical Visibility Issues
+
+- [x] Fix hero section - "Book Your Adventure" button not visible (reduced padding: py-20 pb-8)
+- [x] Fix floating calendar button invisible on white background (changed to gold/secondary color with border)
