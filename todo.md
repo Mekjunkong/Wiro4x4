@@ -295,3 +295,9 @@
 ## Hero Banner Parallax Effect
 
 - [x] Add parallax scrolling effect to hero banner background (background moves at 0.5x scroll speed)
+
+
+## Booking Form Fixes
+
+- [x] Fix number of children field - tested and working correctly (field is editable, successfully changed from 0 to 2)
+- [x] Fix form submission getting stuck - tested and working, successfully saves to database and redirects to success page
