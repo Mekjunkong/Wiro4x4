@@ -1,13 +1,14 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
-import { Mountain } from 'lucide-react';
+import { Mountain, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 
 export function Header() {
   const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,10 +88,76 @@ export function Header() {
             <LanguageSwitcher />
           </nav>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-3">
             <LanguageSwitcher />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg">
+            <nav className="container py-4 flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  scrollToSection('tours');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                {t('Tours', 'סיורים')}
+              </button>
+              <button
+                onClick={() => {
+                  scrollToSection('why-wiro');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                {t('Why WIRO', 'למה WIRO')}
+              </button>
+              <button
+                onClick={() => {
+                  scrollToSection('kosher');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                {t('Kosher Info', 'כשרות')}
+              </button>
+              <button
+                onClick={() => {
+                  scrollToSection('contact');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                {t('Contact', 'צור קשר')}
+              </button>
+              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
+                <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+                  {t('Pricing', 'מחירים')}
+                </span>
+              </Link>
+              <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>
+                <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+                  {t('Blog', 'בלוג')}
+                </span>
+              </Link>
+              <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white mt-2">
+                  {t('Book Now', 'הזמן עכשיו')}
+                </Button>
+              </Link>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

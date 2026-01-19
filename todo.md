@@ -94,3 +94,18 @@
 - [ ] Verify a custom domain at resend.com/domains to enable sending to multiple recipients
 - [ ] After domain verification, update SENDER_EMAIL in resendEmailService.ts
 - [ ] After domain verification, add pasuthunjunkong@gmail.com to NOTIFICATION_RECIPIENTS
+
+
+## Mobile Responsiveness Optimization
+
+- [x] Audit all components for mobile viewport (375px - 768px)
+- [x] Fix Hero section mobile layout (responsive text sizing, button widths, spacing)
+- [x] Fix Header/Navigation mobile menu (hamburger menu with slide-down navigation)
+- [x] Fix Tours section mobile cards (responsive grid, padding, text sizing)
+- [x] Fix WhyWiro section mobile layout (responsive grid and text)
+- [ ] Fix Pricing page mobile layout
+- [ ] Fix Booking form mobile responsiveness
+- [ ] Fix Admin dashboard mobile view
+- [ ] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
+- [ ] Ensure touch targets are at least 44x44px
+- [ ] Verify text is readable without zooming

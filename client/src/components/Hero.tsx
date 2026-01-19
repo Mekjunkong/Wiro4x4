@@ -56,22 +56,22 @@ export function Hero() {
           </div>
 
           {/* Main Heading with Luxury Typography */}
-          <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <h1 className="text-6xl md:text-8xl font-bold leading-none tracking-tight">
+          <div className="space-y-4 md:space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold leading-none tracking-tight">
               <span className="block text-white drop-shadow-2xl">WIRO 4x4</span>
             </h1>
-            <div className="h-1 w-32 mx-auto bg-gradient-to-r from-transparent via-secondary to-transparent" />
+            <div className="h-1 w-24 md:w-32 mx-auto bg-gradient-to-r from-transparent via-secondary to-transparent" />
           </div>
 
           {/* Tagline with Elegant Spacing */}
-          <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <p className="text-2xl md:text-4xl font-light text-secondary tracking-wide">
+          <div className="space-y-3 md:space-y-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <p className="text-xl sm:text-2xl md:text-4xl font-light text-secondary tracking-wide px-4">
               {t(
                 'Kosher Off-Road Adventures',
                 'חוויות שטח כשרות'
               )}
             </p>
-            <p className="text-xl md:text-2xl text-white/90 font-light max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-light max-w-3xl mx-auto leading-relaxed px-4">
               {t(
                 'in Chiang Mai',
                 'בצ\'יאנג מאי'
@@ -80,7 +80,7 @@ export function Hero() {
           </div>
 
           {/* Description with Premium Styling */}
-          <p className="text-lg md:text-xl max-w-2xl mx-auto text-white/80 leading-relaxed font-light animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto text-white/80 leading-relaxed font-light animate-fade-in-up px-4" style={{ animationDelay: '0.6s' }}>
             {t(
               'Experience the pinnacle of authentic Northern Thailand exploration with bespoke 4x4 tours, gourmet kosher cuisine, and expert Hebrew-speaking guides.',
               'חוו את שיא החקירה האותנטית של צפון תאילנד עם סיורי 4x4 מותאמים אישית, מטבח כשר גורמה ומדריכים מומחים דוברי עברית.'
@@ -88,11 +88,11 @@ export function Hero() {
           </p>
 
           {/* Premium CTAs */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center pt-6 md:pt-8 animate-fade-in-up px-4" style={{ animationDelay: '0.8s' }}>
             <Button
               size="lg"
               onClick={handleBookNow}
-              className="bg-secondary hover:bg-secondary/90 text-foreground px-10 py-7 text-lg font-semibold gap-3 shadow-premium-lg hover:shadow-premium hover:scale-105 transition-all duration-300 rounded-full"
+              className="bg-secondary hover:bg-secondary/90 text-foreground px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-semibold gap-2 sm:gap-3 shadow-premium-lg hover:shadow-premium hover:scale-105 transition-all duration-300 rounded-full w-full sm:w-auto"
             >
               {t('Book Your Adventure', 'הזמן סיור')}
               <ArrowRight className="h-5 w-5" />
@@ -101,7 +101,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={handleWhatsApp}
-              className="bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 px-10 py-7 text-lg font-semibold gap-3 hover:scale-105 transition-all duration-300 rounded-full"
+              className="bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-semibold gap-2 sm:gap-3 hover:scale-105 transition-all duration-300 rounded-full w-full sm:w-auto"
             >
               <MessageCircle className="h-5 w-5" />
               {t('WhatsApp Concierge', 'קונסיירז׳ וואטסאפ')}
@@ -109,7 +109,7 @@ export function Hero() {
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center gap-8 pt-12 text-sm text-white/70 animate-fade-in" style={{ animationDelay: '1s' }}>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 pt-8 md:pt-12 text-xs sm:text-sm text-white/70 animate-fade-in px-4" style={{ animationDelay: '1s' }}>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
               <span>{t('Hebrew Speaking', 'דוברי עברית')}</span>

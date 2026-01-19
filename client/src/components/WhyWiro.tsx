@@ -73,13 +73,13 @@ export function WhyWiro() {
   ];
 
   return (
-    <section id="why-wiro" className="py-20 bg-muted/30">
+    <section id="why-wiro" className="py-12 md:py-20 bg-muted/30">
       <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
             {t('Why Choose WIRO 4x4?', 'למה לבחור ב-WIRO 4x4?')}
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             {t(
               'We combine authentic off-road adventures with the comfort and cultural understanding that Israeli travelers deserve.',
               'אנחנו משלבים הרפתקאות שטח אותנטיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים.'
@@ -87,7 +87,7 @@ export function WhyWiro() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-4 md:px-0">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
