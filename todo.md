@@ -1,76 +1,68 @@
 # Wiro 4x4 Website TODO
 
-## Completed Features
+## Booking System Rebuild (Full Rewrite)
 
-### Design System & Foundation
-- [x] Set up typography: Playfair Display (headings), Poppins (body), Heebo (Hebrew)
-- [x] Configure color palette: deep forest green, black, gold accents, white
-- [x] Set up global styles with rounded corners, soft shadows, premium spacing
-- [x] Configure theme and CSS variables
+### Phase 1: Database Schema
+- [x] Design bookings table (customer info, tour details, dates, status)
+- [x] Design agents table (name, email, phone, specialties, availability)
+- [x] Design leads table (inquiry details, source, conversion status)
+- [x] Design financial_records table (costs, revenue, profit tracking)
+- [x] Run database migrations
 
-### Hero Section
-- [x] Large hero banner with real Chiang Mai waterfall photo
-- [x] Bilingual headline and subtext (EN/HE)
-- [x] Primary CTA: "Book Your Adventure"
-- [x] Secondary CTA: "WhatsApp Concierge"
-- [x] Smooth scroll animation
-- [x] Luxury premium design with elegant typography
+### Phase 2: tRPC Backend
+- [x] Create booking procedures (create, list, update, delete)
+- [x] Create agent procedures (CRUD operations)
+- [x] Create lead procedures (capture, convert, track)
+- [x] Create financial procedures (record costs, calculate profit)
+- [x] Implement booking status workflow
 
-### Core Sections
-- [x] Why WIRO 4x4 section with unique value propositions
-- [x] Two-column EN/HE layout for differentiators
-- [x] Tours showcase grid with real Indochina photos
-- [x] Tour cards with icons: duration, difficulty, kosher meals, private tour, Shabbat-friendly
-- [x] Community Connection section
+### Phase 3: Customer Booking Form
+- [x] Build booking form component matching wiro4x4enquiry.manus.space
+- [x] Add date range picker
+- [x] Add group size calculator with children support
+- [x] Add optional services (hotels, guide, attractions, kosher meals)
+- [x] Add Shabbat hotel selection
+- [x] Add pickup/dropoff location selection (airport/hotel)
+- [x] Include all destinations (Pai, Chiang Rai, Chiang Mai, Doi Inthanon, Mae Hong Son, Golden Triangle)
+- [x] Add bilingual support (Hebrew/English)
+- [x] Integrate with WhatsApp for confirmation
+- [x] Add agent name field for quick agent form
+- [x] Add form validation and error handling
 
-### Multilingual Support
-- [x] Language switcher component with flag icons (🇬🇧 English, 🇮🇱 Hebrew)
-- [x] Hebrew RTL layout support
-- [x] All content translated to Hebrew
-- [x] SEO tags for both languages
+### Phase 4: Admin Dashboard
+- [x] Create admin layout with header navigation
+- [x] Build bookings list view with filters
+- [x] Build booking detail view (expandable cards)
+- [x] Add booking status management
+- [x] Add booking delete functionality
+- [x] Add search and filtering
+- [x] Stats cards (total, pending, confirmed, revenue)
 
-### Interactive Features
-- [x] Floating WhatsApp button with pre-filled message
-- [x] Enhanced WhatsApp booking with tour-specific details
-- [x] AI Trip Concierge section (bilingual)
-- [x] Testimonials section
+### Phase 5: Agent Management
+- [x] Create agent list view
+- [x] Display agent profiles with status
+- [ ] Add agent assignment to bookings
+- [ ] Track agent performance metrics
+- [ ] Add agent availability calendar
 
-### Detailed Pages
-- [x] Comprehensive Pricing page with transparent costs
-- [x] Multi-day packages with savings
-- [x] Group size pricing calculator
-- [x] Booking terms and cancellation policy
-- [x] Kosher Logistics & Transparency section
-- [x] Before You Travel Checklist
+### Phase 6: Financial & Leads
+- [x] Build financial records table view
+- [x] Build lead management table view
+- [ ] Add cost tracking per booking
+- [ ] Calculate profit margins with charts
+- [ ] Add lead-to-booking conversion tracking
 
-### Blog & Travel Resources
-- [x] Blog listing page component
-- [x] Blog post detail page component
-- [x] Kosher Dining Guide for Northern Thailand
-- [x] Israeli Traveler Tips for Southeast Asia
-- [x] Cultural Etiquette Guide for Thailand/Laos/Vietnam
-- [x] Blog navigation in header
+### Phase 7: Testing & Integration
+- [ ] Test booking form submission
+- [ ] Test admin dashboard functionality
+- [ ] Test agent assignment workflow
+- [ ] Test financial calculations
+- [ ] Verify database integrity
 
-### Performance & SEO
-- [x] Comprehensive meta tags
-- [x] Sitemap.xml
-- [x] Robots.txt
-- [x] Optimized images with proper alt text
-- [x] Image lazy loading
-- [x] Preconnect for Google Fonts
-- [x] SEO-friendly URLs
-
-### Footer & Navigation
-- [x] Bilingual footer with navigation links
-- [x] Contact information with actual WhatsApp: +66 81 961 1398
-- [x] Disclaimer about Chabad friendships
-- [x] Premium design with gold accents
-
-### Assets
-- [x] Real Chiang Mai and Indochina photos integrated
-- [x] Images optimized for web performance
-- [x] Alt text for accessibility
-
-## Recent Updates
-- [x] Language switcher updated to flag icons (🇬🇧/🇮🇱)
-- [x] WhatsApp number updated to +66 81 961 1398 across all components
+## Previously Completed Features
+- [x] Language switcher with flag icons
+- [x] WhatsApp number updated to +66 81 961 1398
+- [x] Pricing page with transparent costs
+- [x] Blog with travel resources
+- [x] SEO optimization
+- [x] Book Now button in header navigation

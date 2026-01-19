@@ -25,4 +25,115 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// Booking System Tables
+
+export const bookings = mysqlTable("bookings", {
+  id: int("id").autoincrement().primaryKey(),
+  // Customer Information
+  contactName: varchar("contactName", { length: 255 }).notNull(),
+  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+  contactPhone: varchar("contactPhone", { length: 50 }).notNull(),
+  contactWhatsApp: varchar("contactWhatsApp", { length: 50 }),
+  
+  // Trip Details
+  arrivalDate: timestamp("arrivalDate").notNull(),
+  departureDate: timestamp("departureDate").notNull(),
+  numberOfAdults: int("numberOfAdults").notNull().default(1),
+  hasChildren: int("hasChildren").notNull().default(0), // boolean as int
+  numberOfChildren: int("numberOfChildren"),
+  childrenAges: text("childrenAges"), // JSON string
+  
+  // Services
+  includesHotels: int("includesHotels").notNull().default(0),
+  hotelPreferences: text("hotelPreferences"),
+  includesGuide: int("includesGuide").notNull().default(0),
+  includesTrip: int("includesTrip").notNull().default(0),
+  includesAttractions: int("includesAttractions").notNull().default(0),
+  selectedAttractions: text("selectedAttractions"), // JSON array
+  includesFood: int("includesFood").notNull().default(0),
+  foodPreferences: text("foodPreferences"),
+  needsShabbatHotel: int("needsShabbatHotel").notNull().default(0),
+  shabbatHotel: varchar("shabbatHotel", { length: 255 }),
+  
+  // Logistics
+  pickupPoint: varchar("pickupPoint", { length: 255 }).notNull(),
+  customPickupLocation: text("customPickupLocation"),
+  dropoffPoint: varchar("dropoffPoint", { length: 255 }).notNull(),
+  customDropoffLocation: text("customDropoffLocation"),
+  suggestedDestinations: text("suggestedDestinations"), // JSON array
+  
+  // Additional Info
+  specialRequests: text("specialRequests"),
+  dietaryRestrictions: text("dietaryRestrictions"),
+  budget: varchar("budget", { length: 100 }),
+  
+  // Booking Status
+  status: mysqlEnum("status", ["pending", "confirmed", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  totalPrice: int("totalPrice"), // in THB
+  depositPaid: int("depositPaid").default(0),
+  balancePaid: int("balancePaid").default(0),
+  
+  // Assignment
+  assignedAgentId: int("assignedAgentId"),
+  
+  // Metadata
+  source: varchar("source", { length: 100 }).default("website"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const agents = mysqlTable("agents", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  whatsapp: varchar("whatsapp", { length: 50 }),
+  specialties: text("specialties"), // JSON array: ["kosher tours", "adventure", "cultural"]
+  languages: text("languages"), // JSON array: ["Hebrew", "English", "Thai"]
+  status: mysqlEnum("status", ["active", "inactive", "on_leave"]).default("active").notNull(),
+  rating: int("rating").default(5), // 1-5 stars
+  totalBookings: int("totalBookings").default(0),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const leads = mysqlTable("leads", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  source: varchar("source", { length: 100 }).default("website"), // website, whatsapp, referral, etc.
+  interestedTours: text("interestedTours"), // JSON array
+  message: text("message"),
+  status: mysqlEnum("status", ["new", "contacted", "quoted", "converted", "lost"]).default("new").notNull(),
+  convertedToBookingId: int("convertedToBookingId"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const financialRecords = mysqlTable("financialRecords", {
+  id: int("id").autoincrement().primaryKey(),
+  bookingId: int("bookingId").notNull(),
+  type: mysqlEnum("type", ["revenue", "cost", "refund"]).notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // hotel, guide, vehicle, food, attraction, etc.
+  amount: int("amount").notNull(), // in THB
+  currency: varchar("currency", { length: 10 }).default("THB").notNull(),
+  description: text("description"),
+  paymentMethod: varchar("paymentMethod", { length: 50 }), // cash, bank_transfer, card
+  paymentDate: timestamp("paymentDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Booking = typeof bookings.$inferSelect;
+export type InsertBooking = typeof bookings.$inferInsert;
+export type Agent = typeof agents.$inferSelect;
+export type InsertAgent = typeof agents.$inferInsert;
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = typeof leads.$inferInsert;
+export type FinancialRecord = typeof financialRecords.$inferSelect;
+export type InsertFinancialRecord = typeof financialRecords.$inferInsert;

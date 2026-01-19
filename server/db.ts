@@ -89,4 +89,119 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Booking System Database Helpers
+
+import { bookings, agents, leads, financialRecords, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
+
+// Bookings
+export async function createBooking(booking: InsertBooking) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(bookings).values(booking);
+  return result;
+}
+
+export async function getAllBookings() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(bookings).orderBy(desc(bookings.createdAt));
+}
+
+export async function getBookingById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(bookings).where(eq(bookings.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateBooking(id: number, data: Partial<InsertBooking>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(bookings).set(data).where(eq(bookings.id, id));
+}
+
+export async function deleteBooking(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(bookings).where(eq(bookings.id, id));
+}
+
+// Agents
+export async function createAgent(agent: InsertAgent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(agents).values(agent);
+}
+
+export async function getAllAgents() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(agents).orderBy(desc(agents.totalBookings));
+}
+
+export async function getAgentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(agents).where(eq(agents.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateAgent(id: number, data: Partial<InsertAgent>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(agents).set(data).where(eq(agents.id, id));
+}
+
+// Leads
+export async function createLead(lead: InsertLead) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(leads).values(lead);
+}
+
+export async function getAllLeads() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(leads).orderBy(desc(leads.createdAt));
+}
+
+export async function updateLead(id: number, data: Partial<InsertLead>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(leads).set(data).where(eq(leads.id, id));
+}
+
+// Financial Records
+export async function createFinancialRecord(record: InsertFinancialRecord) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(financialRecords).values(record);
+}
+
+export async function getFinancialRecordsByBookingId(bookingId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(financialRecords).where(eq(financialRecords.bookingId, bookingId));
+}
+
+export async function getAllFinancialRecords() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt));
+}

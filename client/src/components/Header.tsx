@@ -79,6 +79,11 @@ export function Header() {
                 {t('Blog', 'בלוג')}
               </span>
             </Link>
+            <Link href="/book">
+              <Button className="bg-primary hover:bg-primary/90 text-white">
+                {t('Book Now', 'הזמן עכשיו')}
+              </Button>
+            </Link>
             <LanguageSwitcher />
           </nav>
 
