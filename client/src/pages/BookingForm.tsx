@@ -215,18 +215,18 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#f5a623] to-[#e6951a] py-12 text-center text-white">
-        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+      <section className="bg-gradient-to-b from-[#f5a623] to-[#e6951a] py-16 md:py-20 text-center text-white mt-20">
+        <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4 px-4">
           {isHebrew ? 'טופס הזמנת סיור' : 'Tour Booking Form'}
         </h1>
-        <p className="text-xl opacity-90">
+        <p className="text-lg md:text-xl opacity-90 px-4">
           {isHebrew 
             ? 'טופס קליטה מהירה לשיחות טלפון ופגישות אישיות'
             : 'Quick intake form for phone calls and personal meetings'}
         </p>
       </section>
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl pb-24">
         <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           
           {/* Trip Details Section */}

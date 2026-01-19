@@ -50,11 +50,12 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled
           ? 'bg-background/95 backdrop-blur-md shadow-md'
           : 'bg-transparent'
       }`}
+      style={{ zIndex: 10000 }}
     >
       <div className="container">
         <div className="flex items-center justify-between h-20">
@@ -136,11 +137,12 @@ export function Header() {
 
       {/* Mobile Menu */}
       <div 
-        className={`md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg z-40 max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300 ease-in-out ${
+        className={`md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300 ease-in-out ${
           mobileMenuOpen 
             ? 'opacity-100 translate-y-0' 
             : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
+        style={{ zIndex: 9998 }}
       >
           <nav className="container py-4 flex flex-col gap-3">
             <button

@@ -16,7 +16,7 @@ export function FloatingActionButtons() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+    <div className="fixed bottom-6 right-6 flex flex-col gap-3" style={{ zIndex: 9999 }}>
       {/* Book Now Button */}
       <Link href="/book">
         <button

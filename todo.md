@@ -203,3 +203,12 @@
 - [x] Include tour details, dates, times, location in calendar event
 - [x] Include contact information in calendar event (phone, WhatsApp, website)
 - [x] Update booking flow to send confirmation emails to customers (added to booking.create procedure)
+
+
+## UI Enhancements
+
+- [x] Fix floating calendar button visibility and functionality when scrolling (z-index: 9999)
+- [x] Fix hamburger menu not working when scrolling down (z-index: 10000 for header, 9998 for menu)
+- [x] Enhance Hebrew version of booking form for mobile (better spacing, RTL support, mobile-first text sizes)
+- [x] Improve form mobile responsiveness and touch targets (pb-24 for floating buttons clearance)
+- [x] Improve overall form UI design (enhanced hero section with mt-20, better padding)
