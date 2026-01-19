@@ -224,17 +224,17 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
         </p>
       </section>
 
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           
           {/* Trip Details Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <Users className="w-6 h-6" />
               {isHebrew ? 'פרטי הטיול' : 'Trip Details'}
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               {/* Number of Adults */}
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -245,7 +245,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   min="1"
                   value={formData.numberOfAdults}
                   onChange={(e) => setFormData(prev => ({ ...prev, numberOfAdults: parseInt(e.target.value) || 1 }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                   required
                 />
               </div>
@@ -257,7 +257,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   id="hasChildren"
                   checked={formData.hasChildren}
                   onChange={(e) => setFormData(prev => ({ ...prev, hasChildren: e.target.checked }))}
-                  className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
+                  className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
                 />
                 <label htmlFor="hasChildren" className="text-sm font-medium">
                   {isHebrew ? 'יש ילדים' : 'Has Children'}
@@ -275,7 +275,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       min="0"
                       value={formData.numberOfChildren}
                       onChange={(e) => setFormData(prev => ({ ...prev, numberOfChildren: parseInt(e.target.value) || 0 }))}
-                      className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                     />
                   </div>
                   <div>
@@ -287,7 +287,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       placeholder={isHebrew ? 'לדוגמה: 5, 8, 12' : 'e.g., 5, 8, 12'}
                       value={formData.childrenAges}
                       onChange={(e) => setFormData(prev => ({ ...prev, childrenAges: e.target.value }))}
-                      className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                     />
                   </div>
                 </>
@@ -296,13 +296,13 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Dates & Logistics Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <Calendar className="w-6 h-6" />
               {isHebrew ? 'תאריכים ולוגיסטיקה' : 'Dates & Logistics'}
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               {/* Pickup Date */}
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -312,7 +312,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   type="date"
                   value={formData.arrivalDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, arrivalDate: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                   required
                 />
               </div>
@@ -330,7 +330,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       value="airport"
                       checked={formData.pickupPoint === 'airport'}
                       onChange={(e) => setFormData(prev => ({ ...prev, pickupPoint: e.target.value }))}
-                      className="w-4 h-4 text-primary focus:ring-primary"
+                      className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
                     {isHebrew ? 'שדה תעופה' : 'Airport'}
                   </label>
@@ -341,7 +341,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       value="hotel"
                       checked={formData.pickupPoint === 'hotel'}
                       onChange={(e) => setFormData(prev => ({ ...prev, pickupPoint: e.target.value }))}
-                      className="w-4 h-4 text-primary focus:ring-primary"
+                      className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
                     {isHebrew ? 'מלון' : 'Hotel'}
                   </label>
@@ -357,7 +357,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   type="date"
                   value={formData.departureDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, departureDate: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                   required
                 />
               </div>
@@ -375,7 +375,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       value="airport"
                       checked={formData.dropoffPoint === 'airport'}
                       onChange={(e) => setFormData(prev => ({ ...prev, dropoffPoint: e.target.value }))}
-                      className="w-4 h-4 text-primary focus:ring-primary"
+                      className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
                     {isHebrew ? 'שדה תעופה' : 'Airport'}
                   </label>
@@ -386,7 +386,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       value="hotel"
                       checked={formData.dropoffPoint === 'hotel'}
                       onChange={(e) => setFormData(prev => ({ ...prev, dropoffPoint: e.target.value }))}
-                      className="w-4 h-4 text-primary focus:ring-primary"
+                      className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
                     {isHebrew ? 'מלון' : 'Hotel'}
                   </label>
@@ -396,8 +396,8 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Services Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <Car className="w-6 h-6" />
               {isHebrew ? 'שירותים נדרשים' : 'Required Services'}
             </h2>
@@ -416,7 +416,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                     type="checkbox"
                     checked={formData[key as keyof typeof formData] as boolean}
                     onChange={(e) => setFormData(prev => ({ ...prev, [key]: e.target.checked }))}
-                    className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
+                    className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
                   />
                   <Icon className="w-5 h-5 text-primary" />
                   <span className="font-medium">{isHebrew ? he : en}</span>
@@ -432,7 +432,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 <select
                   value={formData.shabbatHotel}
                   onChange={(e) => setFormData(prev => ({ ...prev, shabbatHotel: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                 >
                   <option value="">{isHebrew ? 'בחר...' : 'Select...'}</option>
                   {SHABBAT_HOTELS.map(hotel => (
@@ -446,8 +446,8 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Destinations Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <MapPin className="w-6 h-6" />
               {isHebrew ? 'יעדי נסיעה מוצעים למכירה' : 'Suggested Travel Destinations'}
             </h2>
@@ -466,7 +466,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                     type="checkbox"
                     checked={formData.suggestedDestinations.includes(dest.id)}
                     onChange={() => toggleDestination(dest.id)}
-                    className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
+                    className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
                   />
                   <span className="font-medium">{isHebrew ? dest.he : dest.en}</span>
                 </label>
@@ -475,13 +475,13 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Contact Information Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <User className="w-6 h-6" />
               {isHebrew ? 'פרטי לקוח' : 'Customer Details'}
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {isHebrew ? 'שם לקוח *' : 'Customer Name *'}
@@ -491,7 +491,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder={isHebrew ? 'שם מלא' : 'Full Name'}
                   value={formData.contactName}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                   required
                 />
               </div>
@@ -505,7 +505,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder="+972-XX-XXX-XXXX"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                   required
                 />
               </div>
@@ -519,7 +519,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder="email@example.com"
                   value={formData.contactEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                 />
               </div>
 
@@ -532,7 +532,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder="+972-XX-XXX-XXXX"
                   value={formData.contactWhatsApp}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactWhatsApp: e.target.value }))}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                 />
               </div>
             </div>
@@ -560,8 +560,8 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Special Requests */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
               <MessageCircle className="w-6 h-6" />
               {isHebrew ? 'בקשות מיוחדות' : 'Special Requests'}
             </h2>

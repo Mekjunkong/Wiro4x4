@@ -123,8 +123,13 @@ export function Header() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg z-40 max-h-[calc(100vh-5rem)] overflow-y-auto">
+      <div 
+        className={`md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg z-40 max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300 ease-in-out ${
+          mobileMenuOpen 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 -translate-y-4 pointer-events-none'
+        }`}
+      >
           <nav className="container py-4 flex flex-col gap-3">
             <button
               onClick={() => {
@@ -183,7 +188,6 @@ export function Header() {
             </Link>
           </nav>
         </div>
-      )}
     </header>
   );
 }
