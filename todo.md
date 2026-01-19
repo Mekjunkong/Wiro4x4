@@ -242,3 +242,11 @@
 - [x] Fix floating Book Now button not visible (both buttons confirmed present with z-index 9999)
 - [x] Increase hero section mobile padding to prevent button cutoff (pb-32 on mobile, pb-56 for content)
 - [x] Ensure both floating buttons display correctly on mobile (stacked vertically with proper spacing)
+
+
+## Hebrew Version Layout (Keep English Text + LTR)
+
+- [x] Remove RTL direction change - Hebrew version keeps LTR layout like English
+- [x] Keep English text for Hebrew version (matching user's screenshot)
+- [x] Ensure Hebrew version looks identical to English version
+- [x] Remove RTL CSS styles
