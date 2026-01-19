@@ -24,6 +24,41 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Performance optimizations
+    minify: 'esbuild', // Use esbuild for faster builds
+    cssMinify: true,
+    // Code splitting configuration
+    rollupOptions: {
+      output: {
+        // Manual chunks for better caching
+        manualChunks: {
+          // React and core libraries
+          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          // Routing
+          'router': ['wouter'],
+          // UI components
+          'ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-label',
+            '@radix-ui/react-checkbox',
+          ],
+          // Icons
+          'icons': ['lucide-react'],
+          // Utilities
+          'utils': ['clsx', 'tailwind-merge', 'date-fns'],
+        },
+        // Optimize chunk file names
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
+    // Chunk size warnings
+    chunkSizeWarningLimit: 1000, // Warn if chunk > 1MB
+    // Source maps for debugging (disable in production for smaller builds)
+    sourcemap: false,
   },
   server: {
     host: true,
