@@ -77,8 +77,20 @@
 - [x] Add status change notifications
 
 ### Booking Calendar View
-- [ ] Create calendar component for admin dashboard
-- [ ] Display bookings by date with color-coded status
-- [ ] Show booking details on click/hover
-- [ ] Add month/week navigation
-- [ ] Integrate with existing admin dashboard tabs
+- [x] Create calendar component for admin dashboard
+- [x] Display bookings by date with color-coded status
+- [x] Show booking details on click/hover
+- [x] Add month/week navigation
+- [x] Integrate with existing admin dashboard tabs
+
+## Email Recipients Configuration
+
+- [x] Configure Resend email service with API key
+- [x] Configure email notifications to send to wiro.adventures@gmail.com
+- [ ] Configure email notifications to send to pasuthunjunkong@gmail.com (requires domain verification)
+
+## Domain Verification Required
+
+- [ ] Verify a custom domain at resend.com/domains to enable sending to multiple recipients
+- [ ] After domain verification, update SENDER_EMAIL in resendEmailService.ts
+- [ ] After domain verification, add pasuthunjunkong@gmail.com to NOTIFICATION_RECIPIENTS

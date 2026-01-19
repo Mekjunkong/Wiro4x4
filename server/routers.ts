@@ -21,6 +21,7 @@ import {
   getAllFinancialRecords,
 } from "./db";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
+import { sendNewBookingEmail } from "./resendEmailService";
 
 // Validation schemas
 const bookingInputSchema = z.object({
@@ -116,7 +117,7 @@ export const appRouter = router({
         };
         await createBooking(bookingData);
         
-        // Send notification to owner about new booking
+        // Send notification to owner about new booking (Manus notification)
         await sendNewBookingNotification({
           contactName: input.contactName,
           contactEmail: input.contactEmail,
@@ -134,7 +135,27 @@ export const appRouter = router({
           dropoffPoint: input.dropoffPoint,
           suggestedDestinations: input.suggestedDestinations,
           specialRequests: input.specialRequests,
-        }).catch(err => console.error('[Booking] Failed to send notification:', err));
+        }).catch(err => console.error('[Booking] Failed to send Manus notification:', err));
+        
+        // Send email notification via Resend to wiro.adventures@gmail.com and pasuthunjunkong@gmail.com
+        await sendNewBookingEmail({
+          contactName: input.contactName,
+          contactEmail: input.contactEmail,
+          contactPhone: input.contactPhone,
+          arrivalDate: input.arrivalDate,
+          departureDate: input.departureDate,
+          numberOfAdults: input.numberOfAdults,
+          numberOfChildren: input.numberOfChildren,
+          includesHotels: input.includesHotels,
+          includesGuide: input.includesGuide,
+          includesTrip: input.includesTrip,
+          includesFood: input.includesFood,
+          needsShabbatHotel: input.needsShabbatHotel,
+          pickupPoint: input.pickupPoint,
+          dropoffPoint: input.dropoffPoint,
+          suggestedDestinations: input.suggestedDestinations,
+          specialRequests: input.specialRequests,
+        }).catch(err => console.error('[Booking] Failed to send Resend email:', err));
         
         return { success: true, message: "Booking created successfully" };
       }),
