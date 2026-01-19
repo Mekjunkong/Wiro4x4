@@ -109,3 +109,8 @@
 - [ ] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
 - [ ] Ensure touch targets are at least 44x44px
 - [ ] Verify text is readable without zooming
+
+
+## Bug Fixes
+
+- [x] Fix hamburger menu not working when clicked on mobile (improved with touch-manipulation, fixed positioning, click-outside handler)
