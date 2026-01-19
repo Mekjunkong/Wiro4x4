@@ -301,3 +301,11 @@
 
 - [x] Fix number of children field - tested and working correctly (field is editable, successfully changed from 0 to 2)
 - [x] Fix form submission getting stuck - tested and working, successfully saves to database and redirects to success page
+
+
+## Booking Form Submission Timeout Issue
+
+- [x] Debug why form gets stuck on "Submitting..." with real user data (found email domain verification error)
+- [x] Check backend logs for errors during submission (gmail.com domain not verified in Resend)
+- [x] Fix timeout/error causing submission to hang (removed await from sendCustomerConfirmation to make it non-blocking)
+- [x] Test with complete form data to verify fix (successfully submitted and redirected to WhatsApp)

@@ -163,7 +163,8 @@ export const appRouter = router({
         const pickupLocation = input.pickupPoint === 'custom' ? input.customPickupLocation : input.pickupPoint;
         const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
         
-        await sendCustomerConfirmation({
+        // Send customer confirmation email asynchronously (non-blocking)
+        sendCustomerConfirmation({
           customerName: input.contactName,
           customerEmail: input.contactEmail,
           tourDate: input.arrivalDate.toISOString(),
