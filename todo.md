@@ -188,3 +188,8 @@
 
 - [x] Add admin link to header navigation (visible only for admin users with shield icon)
 - [x] Create admin access guide document (ADMIN_GUIDE.md)
+
+
+## Bug Fixes
+
+- [x] Fix booking form getting stuck on submission (added setIsSubmitting(false) in onSuccess and onError)

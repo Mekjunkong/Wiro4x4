@@ -78,12 +78,14 @@ export default function BookingForm() {
 
   const createBooking = trpc.booking.create.useMutation({
     onSuccess: () => {
+      setIsSubmitting(false);
       setSubmitSuccess(true);
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
       window.open(`https://wa.me/66819611398?text=${encodeURIComponent(message)}`, '_blank');
     },
     onError: (error) => {
+      setIsSubmitting(false);
       alert(isHebrew ? 'שגיאה בשליחת הטופס. נסה שוב.' : 'Error submitting form. Please try again.');
       console.error(error);
     },
