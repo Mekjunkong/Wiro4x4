@@ -82,7 +82,7 @@ export default function BookingForm() {
       setSubmitSuccess(true);
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
-      window.open(`https://wa.me/66819611398?text=${encodeURIComponent(message)}`, '_blank');
+      window.open(`https://wa.me/66929894495?text=${encodeURIComponent(message)}`, '_blank');
     },
     onError: (error) => {
       setIsSubmitting(false);

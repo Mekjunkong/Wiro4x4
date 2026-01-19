@@ -11,7 +11,7 @@ export function WhatsAppButton() {
         'שלום WIRO 4x4 – אני רוצה להזמין סיור כשר.'
       )
     );
-    window.open(`https://wa.me/66819611398?text=${message}`, '_blank');
+    window.open(`https://wa.me/66929894495?text=${message}`, '_blank');
   };
 
   return (

@@ -309,3 +309,20 @@
 - [x] Check backend logs for errors during submission (gmail.com domain not verified in Resend)
 - [x] Fix timeout/error causing submission to hang (removed await from sendCustomerConfirmation to make it non-blocking)
 - [x] Test with complete form data to verify fix (successfully submitted and redirected to WhatsApp)
+
+
+## Booking Form Real Submission Issue
+
+- [x] Verify test booking saved to database (confirmed - John Doe 2/15/2026 exists in database)
+- [x] Check admin panel for test booking entry (found in admin panel - booking #14)
+- [x] Investigate why user's real submissions don't work while test submissions do (they DO work - booking saves and WhatsApp redirects)
+- [x] Check if there's a difference in form data or validation (no difference - form works correctly)
+- [x] Verify WhatsApp redirect and database save both work for real user submissions (both work - issue is email notifications fail due to domain verification)
+
+
+## WhatsApp Number Update
+
+- [x] Update WhatsApp number to +66929894495 in all components (updated 8 files)
+- [x] Update WhatsApp floating button (FloatingActionButtons.tsx)
+- [x] Update booking form WhatsApp redirect (BookingForm.tsx)
+- [x] Update any other WhatsApp references (Footer, Hero, Tours, WhatsAppButton, Pricing, BlogPost)

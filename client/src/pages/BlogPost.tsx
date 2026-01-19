@@ -1118,7 +1118,7 @@ Cultural sensitivity isn't about being perfect - it's about showing respect and 
                 'צרו קשר עם WIRO 4x4 לתכנון חוויית השטח המושלמת והידידותית לכשרות שלכם באינדוסין.'
               )}
             </p>
-            <Button size="lg" onClick={() => window.open('https://wa.me/66819611398', '_blank')}>
+            <Button size="lg" onClick={() => window.open('https://wa.me/66929894495', '_blank')}>
               {t('Contact Us on WhatsApp', 'צרו קשר בוואטסאפ')}
             </Button>
           </div>

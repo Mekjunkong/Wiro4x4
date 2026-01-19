@@ -87,8 +87,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-secondary" />
-                <a href="tel:+66819611398" className="hover:text-secondary transition-colors">
-                  +66 81 961 1398
+                <a href="tel:+66929894495" className="hover:text-secondary transition-colors">
+                  +66 92 989 4495
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-secondary" />
                 <a
-                  href="https://wa.me/66819611398"
+                  href="https://wa.me/66929894495"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-secondary transition-colors"
