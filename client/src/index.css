@@ -133,9 +133,8 @@
     font-family: 'Playfair Display', serif;
     font-weight: 700;
   }
-  /* Hebrew text support */
+  /* Hebrew text support - using LTR layout like English */
   [lang="he"], .rtl {
-    direction: rtl;
     font-family: 'Heebo', 'Poppins', sans-serif;
   }
   [lang="he"] h1, [lang="he"] h2, [lang="he"] h3, 
@@ -215,23 +214,7 @@
     scroll-behavior: smooth;
   }
   
-  /* RTL-specific utilities */
-  .rtl {
-    direction: rtl;
-  }
-  
-  .rtl .flex {
-    flex-direction: row-reverse;
-  }
-  
-  /* Ensure proper text alignment in RTL */
-  .rtl .text-left {
-    text-align: right;
-  }
-  
-  .rtl .text-right {
-    text-align: left;
-  }
+  /* RTL removed - Hebrew version uses same LTR layout as English */
 }
 
 /* Smooth animations */
