@@ -20,6 +20,7 @@ import {
   getFinancialRecordsByBookingId,
   getAllFinancialRecords,
 } from "./db";
+import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
 
 // Validation schemas
 const bookingInputSchema = z.object({
@@ -114,6 +115,27 @@ export const appRouter = router({
           needsShabbatHotel: input.needsShabbatHotel ? 1 : 0,
         };
         await createBooking(bookingData);
+        
+        // Send notification to owner about new booking
+        await sendNewBookingNotification({
+          contactName: input.contactName,
+          contactEmail: input.contactEmail,
+          contactPhone: input.contactPhone,
+          arrivalDate: input.arrivalDate,
+          departureDate: input.departureDate,
+          numberOfAdults: input.numberOfAdults,
+          numberOfChildren: input.numberOfChildren,
+          includesHotels: input.includesHotels,
+          includesGuide: input.includesGuide,
+          includesTrip: input.includesTrip,
+          includesFood: input.includesFood,
+          needsShabbatHotel: input.needsShabbatHotel,
+          pickupPoint: input.pickupPoint,
+          dropoffPoint: input.dropoffPoint,
+          suggestedDestinations: input.suggestedDestinations,
+          specialRequests: input.specialRequests,
+        }).catch(err => console.error('[Booking] Failed to send notification:', err));
+        
         return { success: true, message: "Booking created successfully" };
       }),
 

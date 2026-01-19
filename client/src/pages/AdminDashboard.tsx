@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { getLoginUrl } from '@/const';
+import { BookingCalendar } from '@/components/BookingCalendar';
 import { 
   Calendar, Users, DollarSign, TrendingUp, 
   CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
@@ -29,7 +30,7 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'bookings' | 'agents' | 'leads' | 'financial'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial'>('bookings');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
@@ -181,6 +182,7 @@ export default function AdminDashboard() {
             <nav className="flex gap-8 px-6">
               {[
                 { id: 'bookings', label: 'Bookings', icon: Calendar },
+                { id: 'calendar', label: 'Calendar View', icon: Calendar },
                 { id: 'agents', label: 'Agents', icon: Users },
                 { id: 'leads', label: 'Leads', icon: TrendingUp },
                 { id: 'financial', label: 'Financial', icon: DollarSign },
@@ -339,6 +341,34 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Calendar Tab */}
+          {activeTab === 'calendar' && (
+            <div className="p-6">
+              {bookingsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+                </div>
+              ) : (
+                <BookingCalendar 
+                  bookings={bookings?.map(b => ({
+                    id: b.id,
+                    contactName: b.contactName || '',
+                    contactEmail: b.contactEmail || '',
+                    contactPhone: b.contactPhone || '',
+                    arrivalDate: b.arrivalDate?.toString() || '',
+                    departureDate: b.departureDate?.toString() || '',
+                    numberOfAdults: b.numberOfAdults || 1,
+                    numberOfChildren: b.numberOfChildren || 0,
+                    status: b.status || 'pending',
+                    suggestedDestinations: b.suggestedDestinations || '',
+                    pickupPoint: b.pickupPoint || '',
+                    dropoffPoint: b.dropoffPoint || '',
+                  })) || []}
+                />
               )}
             </div>
           )}

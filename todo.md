@@ -66,3 +66,19 @@
 - [x] Blog with travel resources
 - [x] SEO optimization
 - [x] Book Now button in header navigation
+
+
+## New Features - Email & Calendar
+
+### Email Notifications
+- [x] Create email notification service using built-in notification API
+- [x] Send new booking alert to admin/owner
+- [x] Include booking details in email (dates, services, contact info)
+- [x] Add status change notifications
+
+### Booking Calendar View
+- [ ] Create calendar component for admin dashboard
+- [ ] Display bookings by date with color-coded status
+- [ ] Show booking details on click/hover
+- [ ] Add month/week navigation
+- [ ] Integrate with existing admin dashboard tabs
