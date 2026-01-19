@@ -172,3 +172,8 @@
 ## Floating Action Buttons
 
 - [x] Add floating "Book Now" button next to WhatsApp icon (Book Now above, WhatsApp below)
+
+
+## Bug Fixes
+
+- [x] Fix floating Book Now button 404 error (changed /booking to /book)
