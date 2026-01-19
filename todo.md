@@ -162,3 +162,8 @@
 - [x] Document all changes made (PERFORMANCE_OPTIMIZATION_GUIDE.md)
 - [x] Provide maintenance guidelines (image optimization workflow)
 - [x] Include verification steps (browser testing, performance metrics)
+
+
+## Homepage Section Reordering
+
+- [x] Move "Why Choose WIRO" section to lower position on homepage (now after Testimonials)

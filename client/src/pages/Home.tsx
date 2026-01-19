@@ -15,12 +15,12 @@ export default function Home() {
     <div className="min-h-screen smooth-scroll">
       <Header />
       <Hero />
-      <WhyWiro />
       <Tours />
       <KosherInfo />
       <TravelChecklist />
       <AIConcierge />
       <Testimonials />
+      <WhyWiro />
       <CommunityConnection />
       <Footer />
       <WhatsAppButton />
