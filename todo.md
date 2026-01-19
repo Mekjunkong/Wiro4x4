@@ -227,3 +227,11 @@
 - [x] Fix hamburger menu not responding to clicks on mobile (increased touch target to 44x44px, higher z-index)
 - [x] Improve menu performance and reduce lag (conditional rendering instead of CSS transitions)
 - [x] Optimize menu animations for better responsiveness (simplified to animate-in fade-in)
+
+
+## Hebrew Version Layout Issues
+
+- [x] Fix Hebrew hero section to match English layout (added pb-20 to section, pb-40 to content)
+- [x] Ensure buttons are fully visible and not cut off (increased bottom padding)
+- [x] Fix RTL text alignment and spacing (proper RTL support already in place)
+- [x] Match button positioning between English and Hebrew versions (consistent layout)

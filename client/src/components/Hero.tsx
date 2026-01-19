@@ -25,7 +25,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-20">
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/20" />
@@ -45,7 +45,7 @@ export function Hero() {
       <div className="absolute bottom-32 right-16 w-24 h-24 border-2 border-primary/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
 
       {/* Content */}
-      <div className="container relative z-10 text-center text-white py-32">
+      <div className="container relative z-10 text-center text-white py-32 pb-40">
         <div className="max-w-5xl mx-auto space-y-10">
           {/* Premium Badge */}
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-secondary/20 backdrop-blur-md border border-secondary/30 rounded-full text-secondary animate-fade-in">
