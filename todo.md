@@ -193,3 +193,13 @@
 ## Bug Fixes
 
 - [x] Fix booking form getting stuck on submission (added setIsSubmitting(false) in onSuccess and onError)
+
+
+## Customer Email Confirmations
+
+- [x] Create customer confirmation email template (HTML with booking details)
+- [x] Implement ICS calendar file generation (using ics package)
+- [x] Add "Add to Calendar" button/link in confirmation email (download link + attachment)
+- [x] Include tour details, dates, times, location in calendar event
+- [x] Include contact information in calendar event (phone, WhatsApp, website)
+- [x] Update booking flow to send confirmation emails to customers (added to booking.create procedure)

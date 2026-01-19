@@ -22,6 +22,7 @@ import {
 } from "./db";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
 import { sendNewBookingEmail } from "./resendEmailService";
+import { sendCustomerConfirmation } from "./customerEmailService";
 
 // Validation schemas
 const bookingInputSchema = z.object({
@@ -156,6 +157,23 @@ export const appRouter = router({
           suggestedDestinations: input.suggestedDestinations,
           specialRequests: input.specialRequests,
         }).catch(err => console.error('[Booking] Failed to send Resend email:', err));
+        
+        // Send confirmation email to customer with calendar attachment
+        const tourType = input.includesTrip ? 'Custom Tour' : 'Tour Package';
+        const pickupLocation = input.pickupPoint === 'custom' ? input.customPickupLocation : input.pickupPoint;
+        const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
+        
+        await sendCustomerConfirmation({
+          customerName: input.contactName,
+          customerEmail: input.contactEmail,
+          tourDate: input.arrivalDate.toISOString(),
+          tourType: tourType,
+          groupSize: totalGuests,
+          pickupLocation: pickupLocation,
+          pickupTime: '08:00',
+          specialRequests: input.specialRequests,
+          bookingId: `WIRO-${Date.now()}`,
+        }).catch(err => console.error('[Booking] Failed to send customer confirmation:', err));
         
         return { success: true, message: "Booking created successfully" };
       }),
