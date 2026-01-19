@@ -95,64 +95,7 @@ export function KosherInfo() {
           })}
         </div>
 
-        {/* Kosher Meal Example */}
-        <div className="max-w-4xl mx-auto">
-          <Card className="overflow-hidden shadow-premium-lg">
-            <div className="grid md:grid-cols-2 gap-0">
-              <div className="relative h-64 md:h-auto">
-                <img
-                  src="/images/5teF9HoTLUSG.jpg"
-                  alt="Kosher Meal Example"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-8 flex flex-col justify-center bg-muted/30">
-                <h3 className="text-2xl font-bold mb-4">
-                  {t('Sample Kosher Trail Meal', 'דוגמה לארוחת שטח כשרה')}
-                </h3>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>
-                      {t(
-                        'Sealed kosher-certified ready-to-eat meals',
-                        'ארוחות מוכנות לאכילה עם אישור כשרות אטומות'
-                      )}
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>
-                      {t(
-                        'Fresh fruits and vegetables washed according to halacha',
-                        'פירות וירקות טריים שנשטפו על פי ההלכה'
-                      )}
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>
-                      {t(
-                        'Kosher-certified snacks and beverages',
-                        'חטיפים ומשקאות עם אישור כשרות'
-                      )}
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>
-                      {t(
-                        'Dedicated utensils and serving equipment',
-                        'כלי אוכל וציוד הגשה ייעודיים'
-                      )}
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Card>
-        </div>
+
       </div>
     </section>
   );

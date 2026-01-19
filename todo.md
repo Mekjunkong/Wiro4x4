@@ -264,3 +264,11 @@
 - [x] Move tour card images above text content (matching English version) - already correct in component
 - [x] Increase tour card image size to match English version (removed flex-direction: row-reverse)
 - [x] Ensure all Hebrew version sections match English version layout exactly (removed all RTL CSS)
+
+
+## Hamburger Menu & Homepage Cleanup
+
+- [x] Improve hamburger menu clickability - increased to 60x60px touch area with larger 8x8 icons
+- [x] Remove "AI Trip Concierge" section from homepage (removed from Home.tsx)
+- [x] Remove "Before You Travel Checklist" section from homepage (removed from Home.tsx)
+- [x] Remove "Sample Kosher Trail Meal" section from homepage (removed from KosherInfo.tsx)

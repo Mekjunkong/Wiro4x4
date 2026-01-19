@@ -3,8 +3,7 @@ import { Hero } from '@/components/Hero';
 import { WhyWiro } from '@/components/WhyWiro';
 import { Tours } from '@/components/Tours';
 import { KosherInfo } from '@/components/KosherInfo';
-import { TravelChecklist } from '@/components/TravelChecklist';
-import { AIConcierge } from '@/components/AIConcierge';
+
 import { Testimonials } from '@/components/Testimonials';
 import { CommunityConnection } from '@/components/CommunityConnection';
 import { Footer } from '@/components/Footer';
@@ -17,8 +16,6 @@ export default function Home() {
       <Hero />
       <Tours />
       <KosherInfo />
-      <TravelChecklist />
-      <AIConcierge />
       <Testimonials />
       <WhyWiro />
       <CommunityConnection />
