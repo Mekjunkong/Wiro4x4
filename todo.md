@@ -220,3 +220,10 @@
 - [x] Fix header logo text visibility (white with text shadow when not scrolled, primary when scrolled)
 - [x] Add text shadows for better readability (all hero and header text)
 - [x] Ensure all text has sufficient contrast ratio (white text with dark shadows)
+
+
+## Hamburger Menu Issues
+
+- [x] Fix hamburger menu not responding to clicks on mobile (increased touch target to 44x44px, higher z-index)
+- [x] Improve menu performance and reduce lag (conditional rendering instead of CSS transitions)
+- [x] Optimize menu animations for better responsiveness (simplified to animate-in fade-in)

@@ -126,24 +126,22 @@ export function Header() {
             <LanguageSwitcher />
             <button
               onClick={toggleMobileMenu}
-              className="p-2 hover:bg-primary/10 rounded-lg transition-colors touch-manipulation"
+              className="p-3 hover:bg-primary/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
               type="button"
+              style={{ minWidth: '44px', minHeight: '44px' }}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
+      {mobileMenuOpen && (
       <div 
-        className={`md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300 ease-in-out ${
-          mobileMenuOpen 
-            ? 'opacity-100 translate-y-0' 
-            : 'opacity-0 -translate-y-4 pointer-events-none'
-        }`}
+        className="md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
         style={{ zIndex: 9998 }}
       >
           <nav className="container py-4 flex flex-col gap-3">
@@ -212,6 +210,7 @@ export function Header() {
             </Link>
           </nav>
         </div>
+      )}
     </header>
   );
 }
