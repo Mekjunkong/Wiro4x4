@@ -1,4 +1,5 @@
 import { Agent } from './agent';
+import { Guide } from './guide';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
 
@@ -81,6 +82,10 @@ export interface Booking extends TourBookingFormData {
   // Agent Assignment
   agentId?: string | Agent; // Can be populated or just ID
   agentAssignedAt?: string;
+
+  // Guide Assignment
+  guideId?: string | Guide; // Can be populated or just ID
+  guideAssignedAt?: string;
 
   // Revenue and Commission
   estimatedRevenue: number;

@@ -169,6 +169,15 @@ const bookingSchema = new mongoose.Schema({
     type: Date
   },
 
+  // Guide Assignment
+  guideId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Guide'
+  },
+  guideAssignedAt: {
+    type: Date
+  },
+
   // Tour Package Link
   tourPackageId: {
     type: mongoose.Schema.Types.ObjectId,

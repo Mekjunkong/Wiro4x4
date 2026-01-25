@@ -102,6 +102,12 @@ const feedbackSchema = new mongoose.Schema({
     ref: 'Agent'
   },
 
+  // Guide Reference (for performance tracking)
+  guideId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Guide'
+  },
+
   // Photos (optional - URLs to uploaded images)
   photos: [{
     type: String

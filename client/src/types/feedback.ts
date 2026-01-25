@@ -3,6 +3,7 @@
 import { Booking } from './tourBooking';
 import { TourPackage } from './tourPackage';
 import { Agent } from './agent';
+import { Guide } from './guide';
 
 export interface Feedback {
   _id: string;
@@ -19,6 +20,7 @@ export interface Feedback {
   tourPackageId?: string | TourPackage;
   tourDate?: string;
   agentId?: string | Agent;
+  guideId?: string | Guide;
   photos: string[];
   status: FeedbackStatus;
   publishedAt?: string;

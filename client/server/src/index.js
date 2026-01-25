@@ -7,6 +7,7 @@ const Agent = require('./models/Agent');
 const TourPackage = require('./models/TourPackage');
 const Lead = require('./models/Lead');
 const Feedback = require('./models/Feedback');
+const Guide = require('./models/Guide');
 const emailService = require('./services/emailService');
 
 // Load environment variables
@@ -75,6 +76,7 @@ app.get('/api/bookings', async (req, res) => {
 
     const bookings = await Booking.find(filter)
       .populate('agentId')
+      .populate('guideId')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -452,6 +454,60 @@ app.get('/api/agents/:id/bookings', async (req, res) => {
 });
 
 // ============= BOOKING-AGENT INTEGRATION =============
+
+// Assign or unassign guide to booking
+app.patch('/api/bookings/:id/assign-guide', async (req, res) => {
+  try {
+    const { guideId } = req.body;
+
+    // If assigning a guide, verify the guide exists and is active
+    if (guideId) {
+      const guide = await Guide.findById(guideId);
+      if (!guide) {
+        return res.status(404).json({
+          success: false,
+          message: 'Guide not found'
+        });
+      }
+      if (guide.status !== 'active') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot assign inactive guide'
+        });
+      }
+    }
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Update booking
+    booking.guideId = guideId || null;
+    booking.guideAssignedAt = guideId ? new Date() : null;
+    await booking.save();
+
+    const updatedBooking = await Booking.findById(req.params.id)
+      .populate('agentId')
+      .populate('guideId');
+
+    res.json({
+      success: true,
+      message: guideId ? 'Guide assigned successfully' : 'Guide unassigned successfully',
+      booking: updatedBooking
+    });
+  } catch (error) {
+    console.error('❌ Error assigning guide:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error assigning guide',
+      error: error.message
+    });
+  }
+});
 
 // Assign or unassign agent to booking
 app.patch('/api/bookings/:id/assign-agent', async (req, res) => {
@@ -1623,6 +1679,7 @@ app.post('/api/feedback', async (req, res) => {
     feedbackData.tourPackageId = booking.tourPackageId;
     feedbackData.tourDate = booking.pickupDate;
     feedbackData.agentId = booking.agentId;
+    feedbackData.guideId = booking.guideId;
 
     const feedback = new Feedback(feedbackData);
     await feedback.save();
@@ -1937,6 +1994,652 @@ app.get('/api/feedback/booking/:bookingId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error checking feedback',
+      error: error.message
+    });
+  }
+});
+
+// ============= GUIDE MANAGEMENT =============
+
+// Create new guide
+app.post('/api/guides', async (req, res) => {
+  try {
+    const guideData = req.body;
+
+    // Check if email already exists
+    const existingGuide = await Guide.findOne({ email: guideData.email });
+    if (existingGuide) {
+      return res.status(400).json({
+        success: false,
+        message: 'Guide with this email already exists'
+      });
+    }
+
+    const guide = new Guide(guideData);
+    await guide.save();
+
+    console.log('✅ New guide created:', guide._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Guide created successfully',
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error creating guide:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error creating guide',
+      error: error.message
+    });
+  }
+});
+
+// Get all guides (with optional filters)
+app.get('/api/guides', async (req, res) => {
+  try {
+    const {
+      status,
+      language,
+      specialization,
+      activitySkill,
+      region,
+      minRating,
+      employmentType
+    } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (employmentType) filter.employmentType = employmentType;
+    if (language) filter['languages.language'] = language;
+    if (specialization) filter.specializations = specialization;
+    if (activitySkill) filter.activitySkills = activitySkill;
+    if (region) filter['availability.preferredRegions'] = region;
+    if (minRating) filter['performance.averageRating'] = { $gte: parseFloat(minRating) };
+
+    const guides = await Guide.find(filter).sort({ 'performance.averageRating': -1, createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: guides.length,
+      guides
+    });
+  } catch (error) {
+    console.error('❌ Error fetching guides:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching guides',
+      error: error.message
+    });
+  }
+});
+
+// Get single guide by ID
+app.get('/api/guides/:id', async (req, res) => {
+  try {
+    const guide = await Guide.findById(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error fetching guide:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching guide',
+      error: error.message
+    });
+  }
+});
+
+// Update guide
+app.patch('/api/guides/:id', async (req, res) => {
+  try {
+    const updateData = req.body;
+
+    // If updating email, check uniqueness
+    if (updateData.email) {
+      const existingGuide = await Guide.findOne({
+        email: updateData.email,
+        _id: { $ne: req.params.id }
+      });
+      if (existingGuide) {
+        return res.status(400).json({
+          success: false,
+          message: 'Another guide with this email already exists'
+        });
+      }
+    }
+
+    const guide = await Guide.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Guide updated successfully',
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error updating guide:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error updating guide',
+      error: error.message
+    });
+  }
+});
+
+// Delete guide
+app.delete('/api/guides/:id', async (req, res) => {
+  try {
+    // TODO: Check if guide is assigned to any upcoming bookings
+    // For now, allow deletion
+
+    const guide = await Guide.findByIdAndDelete(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Guide deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting guide:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting guide',
+      error: error.message
+    });
+  }
+});
+
+// Find available guides for specific dates and region
+app.post('/api/guides/search/available', async (req, res) => {
+  try {
+    const { startDate, endDate, region, requiredSkills, requiredLanguages } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required'
+      });
+    }
+
+    // Build query
+    const query = {
+      status: 'active'
+    };
+
+    // Filter by region if provided
+    if (region) {
+      query['availability.preferredRegions'] = region;
+    }
+
+    // Filter by required skills if provided
+    if (requiredSkills && requiredSkills.length > 0) {
+      query.activitySkills = { $all: requiredSkills };
+    }
+
+    // Filter by required languages if provided
+    if (requiredLanguages && requiredLanguages.length > 0) {
+      query['languages.language'] = { $in: requiredLanguages };
+    }
+
+    // Find guides not in blackout dates
+    query['availability.blackoutDates'] = {
+      $not: {
+        $elemMatch: {
+          startDate: { $lte: new Date(endDate) },
+          endDate: { $gte: new Date(startDate) }
+        }
+      }
+    };
+
+    const guides = await Guide.find(query).sort({ 'performance.averageRating': -1 });
+
+    res.json({
+      success: true,
+      count: guides.length,
+      guides,
+      searchCriteria: {
+        startDate,
+        endDate,
+        region,
+        requiredSkills,
+        requiredLanguages
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error searching guides:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error searching for available guides',
+      error: error.message
+    });
+  }
+});
+
+// Find guides by specific skill
+app.get('/api/guides/search/by-skill', async (req, res) => {
+  try {
+    const { skillType, skillValue } = req.query;
+
+    if (!skillType || !skillValue) {
+      return res.status(400).json({
+        success: false,
+        message: 'skillType and skillValue are required'
+      });
+    }
+
+    const query = { status: 'active' };
+
+    // Build dynamic query based on skill type
+    if (skillType === 'language') {
+      query['languages.language'] = skillValue;
+    } else if (skillType === 'activity') {
+      query.activitySkills = skillValue;
+    } else if (skillType === 'specialization') {
+      query.specializations = skillValue;
+    } else if (skillType === 'driving') {
+      query['drivingSkills.specializedSkills'] = skillValue;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid skillType. Must be: language, activity, specialization, or driving'
+      });
+    }
+
+    const guides = await Guide.find(query).sort({ 'performance.averageRating': -1 });
+
+    res.json({
+      success: true,
+      count: guides.length,
+      guides,
+      searchCriteria: { skillType, skillValue }
+    });
+  } catch (error) {
+    console.error('❌ Error searching guides by skill:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error searching guides by skill',
+      error: error.message
+    });
+  }
+});
+
+// Get guide performance statistics
+app.get('/api/guides/:id/stats', async (req, res) => {
+  try {
+    const guide = await Guide.findById(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    // Get feedback for this guide
+    const feedbacks = await Feedback.find({ guideId: req.params.id });
+
+    const stats = {
+      guideId: guide._id,
+      guideName: `${guide.firstName} ${guide.lastName}`,
+      performance: guide.performance,
+      experience: guide.experience,
+
+      // Skills summary
+      totalLanguages: guide.languages.length,
+      totalActivitySkills: guide.activitySkills.length,
+      totalSpecializations: guide.specializations.length,
+      totalCertifications: guide.certifications.length,
+      activeCertifications: guide.certifications.filter(c => c.status === 'active').length,
+      expiringSoonCertifications: guide.certifications.filter(c => {
+        if (!c.expiryDate || c.status !== 'active') return false;
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        return new Date(c.expiryDate) <= thirtyDaysFromNow;
+      }).length,
+
+      // Feedback analysis
+      totalFeedback: feedbacks.length,
+      averageFeedbackRating: feedbacks.length > 0
+        ? feedbacks.reduce((sum, f) => sum + (f.ratings?.guide || 0), 0) / feedbacks.length
+        : 0,
+      recentFeedback: feedbacks.slice(0, 5).map(f => ({
+        rating: f.ratings?.guide,
+        overallRating: f.overallRating,
+        date: f.submittedAt,
+        comments: f.comments
+      })),
+
+      // Pricing
+      dailyRate: guide.pricing.baseDayRate,
+      currency: guide.pricing.currency,
+      isPremium: guide.performance.averageRating >= 4.5 && guide.performance.totalReviews >= 20 && guide.experience.yearsGuiding >= 3
+    };
+
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('❌ Error fetching guide stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching guide statistics',
+      error: error.message
+    });
+  }
+});
+
+// Update guide performance after tour completion
+app.patch('/api/guides/:id/update-performance', async (req, res) => {
+  try {
+    const { rating, tipAmount, compliment, complaint } = req.body;
+
+    const guide = await Guide.findById(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    // Update performance metrics
+    if (rating !== undefined) {
+      const totalRatings = guide.performance.totalReviews;
+      const currentAvg = guide.performance.averageRating;
+
+      // Calculate new average
+      const newAverage = ((currentAvg * totalRatings) + rating) / (totalRatings + 1);
+
+      guide.performance.averageRating = newAverage;
+      guide.performance.totalReviews += 1;
+    }
+
+    if (tipAmount !== undefined && tipAmount > 0) {
+      const totalTips = guide.performance.tipAverage * guide.performance.totalReviews;
+      guide.performance.tipAverage = (totalTips + tipAmount) / (guide.performance.totalReviews || 1);
+    }
+
+    if (compliment) {
+      guide.performance.customerCompliments += 1;
+    }
+
+    if (complaint) {
+      guide.performance.customerComplaints += 1;
+    }
+
+    // Update experience metrics
+    guide.experience.totalToursLed += 1;
+    guide.lastActiveDate = new Date();
+
+    await guide.save();
+
+    console.log(`✅ Guide performance updated: ${guide._id}`);
+
+    res.json({
+      success: true,
+      message: 'Guide performance updated successfully',
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error updating guide performance:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating guide performance',
+      error: error.message
+    });
+  }
+});
+
+// Add certification to guide
+app.post('/api/guides/:id/certifications', async (req, res) => {
+  try {
+    const certificationData = req.body;
+
+    const guide = await Guide.findById(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    guide.certifications.push(certificationData);
+    await guide.save();
+
+    console.log(`✅ Certification added to guide ${guide._id}: ${certificationData.name}`);
+
+    res.json({
+      success: true,
+      message: 'Certification added successfully',
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error adding certification:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error adding certification',
+      error: error.message
+    });
+  }
+});
+
+// Add blackout dates to guide
+app.post('/api/guides/:id/blackout-dates', async (req, res) => {
+  try {
+    const { startDate, endDate, reason } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required'
+      });
+    }
+
+    const guide = await Guide.findById(req.params.id);
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found'
+      });
+    }
+
+    guide.availability.blackoutDates.push({
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      reason: reason || ''
+    });
+
+    await guide.save();
+
+    console.log(`✅ Blackout dates added to guide ${guide._id}`);
+
+    res.json({
+      success: true,
+      message: 'Blackout dates added successfully',
+      guide
+    });
+  } catch (error) {
+    console.error('❌ Error adding blackout dates:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error adding blackout dates',
+      error: error.message
+    });
+  }
+});
+
+// Get guides ranked by profitability (considering rates and ratings)
+app.get('/api/guides/analytics/profitability', async (req, res) => {
+  try {
+    const guides = await Guide.find({ status: 'active' });
+
+    const profitabilityRanking = guides.map(guide => {
+      // Calculate profitability score
+      // Higher rating + reasonable rate = more profitable
+      const ratingScore = guide.performance.averageRating * 20; // Max 100
+      const experienceScore = Math.min(guide.experience.yearsGuiding * 10, 50); // Max 50
+      const reviewCountScore = Math.min(guide.performance.totalReviews, 30); // Max 30
+      const recommendationScore = guide.performance.recommendationRate * 0.2; // Max 20
+
+      const profitabilityScore = ratingScore + experienceScore + reviewCountScore + recommendationScore;
+
+      return {
+        guideId: guide._id,
+        guideName: `${guide.firstName} ${guide.lastName}`,
+        dailyRate: guide.pricing.baseDayRate,
+        averageRating: guide.performance.averageRating,
+        totalReviews: guide.performance.totalReviews,
+        yearsExperience: guide.experience.yearsGuiding,
+        totalToursLed: guide.experience.totalToursLed,
+        recommendationRate: guide.performance.recommendationRate,
+        profitabilityScore,
+        isPremium: guide.performance.averageRating >= 4.5 && guide.performance.totalReviews >= 20 && guide.experience.yearsGuiding >= 3,
+        languages: guide.languages.map(l => l.language),
+        topSkills: guide.activitySkills.slice(0, 5),
+        preferredRegions: guide.availability.preferredRegions
+      };
+    });
+
+    // Sort by profitability score descending
+    profitabilityRanking.sort((a, b) => b.profitabilityScore - a.profitabilityScore);
+
+    res.json({
+      success: true,
+      count: profitabilityRanking.length,
+      guides: profitabilityRanking,
+      averageRate: profitabilityRanking.length > 0
+        ? profitabilityRanking.reduce((sum, g) => sum + g.dailyRate, 0) / profitabilityRanking.length
+        : 0
+    });
+  } catch (error) {
+    console.error('❌ Error fetching profitability analytics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching profitability analytics',
+      error: error.message
+    });
+  }
+});
+
+// Get skills gap analysis (what skills are lacking)
+app.get('/api/guides/analytics/skills-gap', async (req, res) => {
+  try {
+    const guides = await Guide.find({ status: 'active' });
+
+    // Count guides by skill
+    const languageCount = {};
+    const activityCount = {};
+    const specializationCount = {};
+    const drivingCount = {};
+
+    guides.forEach(guide => {
+      // Languages
+      guide.languages.forEach(lang => {
+        languageCount[lang.language] = (languageCount[lang.language] || 0) + 1;
+      });
+
+      // Activity skills
+      guide.activitySkills.forEach(skill => {
+        activityCount[skill] = (activityCount[skill] || 0) + 1;
+      });
+
+      // Specializations
+      guide.specializations.forEach(spec => {
+        specializationCount[spec] = (specializationCount[spec] || 0) + 1;
+      });
+
+      // Driving skills
+      if (guide.drivingSkills && guide.drivingSkills.specializedSkills) {
+        guide.drivingSkills.specializedSkills.forEach(skill => {
+          drivingCount[skill] = (drivingCount[skill] || 0) + 1;
+        });
+      }
+    });
+
+    // Identify gaps (skills with few guides)
+    const getTopGaps = (countObj, threshold = 3) => {
+      return Object.entries(countObj)
+        .filter(([skill, count]) => count < threshold)
+        .sort((a, b) => a[1] - b[1])
+        .map(([skill, count]) => ({ skill, guideCount: count }));
+    };
+
+    const analysis = {
+      totalActiveGuides: guides.length,
+
+      languageGaps: getTopGaps(languageCount, 5),
+      mostCommonLanguages: Object.entries(languageCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([lang, count]) => ({ language: lang, guideCount: count })),
+
+      activitySkillGaps: getTopGaps(activityCount, 3),
+      mostCommonActivitySkills: Object.entries(activityCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([skill, count]) => ({ skill, guideCount: count })),
+
+      specializationGaps: getTopGaps(specializationCount, 2),
+      mostCommonSpecializations: Object.entries(specializationCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([spec, count]) => ({ specialization: spec, guideCount: count })),
+
+      drivingSkillGaps: getTopGaps(drivingCount, 2),
+
+      recommendations: []
+    };
+
+    // Generate hiring recommendations
+    if (analysis.languageGaps.length > 0) {
+      analysis.recommendations.push(`Consider hiring guides with ${analysis.languageGaps[0].skill} language skills`);
+    }
+    if (analysis.activitySkillGaps.length > 0) {
+      analysis.recommendations.push(`Need more guides with ${analysis.activitySkillGaps[0].skill} skills`);
+    }
+    if (analysis.specializationGaps.length > 0) {
+      analysis.recommendations.push(`Expand ${analysis.specializationGaps[0].skill} expertise`);
+    }
+
+    res.json({
+      success: true,
+      analysis
+    });
+  } catch (error) {
+    console.error('❌ Error fetching skills gap analysis:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching skills gap analysis',
       error: error.message
     });
   }
