@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -91,7 +91,7 @@ export async function getUserByOpenId(openId: string) {
 
 // Booking System Database Helpers
 
-import { bookings, agents, leads, financialRecords, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord } from "../drizzle/schema";
+import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
 // Bookings
@@ -204,4 +204,129 @@ export async function getAllFinancialRecords() {
   if (!db) return [];
   
   return await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt));
+}
+
+// ─── Gallery Photos ────────────────────────────────────────
+
+export async function createGalleryPhoto(photo: InsertGalleryPhoto) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(galleryPhotos).values(photo);
+}
+
+export async function getAllPublishedPhotos() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(galleryPhotos)
+    .where(eq(galleryPhotos.isPublished, 1))
+    .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt));
+}
+
+export async function getAllGalleryPhotos() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(galleryPhotos)
+    .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt));
+}
+
+export async function updateGalleryPhoto(id: number, data: Partial<InsertGalleryPhoto>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(galleryPhotos).set(data).where(eq(galleryPhotos.id, id));
+}
+
+export async function deleteGalleryPhoto(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(galleryPhotos).where(eq(galleryPhotos.id, id));
+}
+
+// ─── Reviews ───────────────────────────────────────────────
+
+export async function createReview(review: InsertReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(reviews).values(review);
+}
+
+export async function getApprovedReviews() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(reviews)
+    .where(and(eq(reviews.isApproved, 1), eq(reviews.isPublished, 1)))
+    .orderBy(desc(reviews.createdAt));
+}
+
+export async function getAllReviews() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(reviews).orderBy(desc(reviews.createdAt));
+}
+
+export async function getReviewById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(reviews).where(eq(reviews.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateReview(id: number, data: Partial<InsertReview>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(reviews).set(data).where(eq(reviews.id, id));
+}
+
+export async function deleteReview(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(reviews).where(eq(reviews.id, id));
+}
+
+export async function getReviewStats() {
+  const db = await getDb();
+  if (!db) return { totalReviews: 0, averageRating: 0, approvedCount: 0 };
+  const all = await db.select().from(reviews);
+  const approved = all.filter(r => r.isApproved === 1);
+  const avgRating = all.length > 0
+    ? all.reduce((sum, r) => sum + r.rating, 0) / all.length
+    : 0;
+  return {
+    totalReviews: all.length,
+    averageRating: Math.round(avgRating * 10) / 10,
+    approvedCount: approved.length,
+  };
+}
+
+// ─── Payments ──────────────────────────────────────────────
+
+export async function createPayment(payment: InsertPayment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(payments).values(payment);
+}
+
+export async function getPaymentsByBookingId(bookingId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(payments)
+    .where(eq(payments.bookingId, bookingId))
+    .orderBy(desc(payments.createdAt));
+}
+
+export async function getAllPayments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(payments).orderBy(desc(payments.createdAt));
+}
+
+export async function getPaymentStats() {
+  const db = await getDb();
+  if (!db) return { totalPayments: 0, totalAmount: 0, completedAmount: 0 };
+  const all = await db.select().from(payments);
+  const completed = all.filter(p => p.status === "completed");
+  return {
+    totalPayments: all.length,
+    totalAmount: all.reduce((sum, p) => sum + p.amount, 0),
+    completedAmount: completed.reduce((sum, p) => sum + p.amount, 0),
+  };
 }

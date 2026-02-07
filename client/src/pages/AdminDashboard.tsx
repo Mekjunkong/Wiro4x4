@@ -3,11 +3,12 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { getLoginUrl } from '@/const';
 import { BookingCalendar } from '@/components/BookingCalendar';
-import { 
-  Calendar, Users, DollarSign, TrendingUp, 
+import {
+  Calendar, Users, DollarSign, TrendingUp,
   CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
   Phone, Mail, MapPin, User, Filter, Search,
-  ChevronDown, ChevronUp, RefreshCw, LogOut
+  ChevronDown, ChevronUp, RefreshCw, LogOut,
+  Camera, Star
 } from 'lucide-react';
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
@@ -30,7 +31,7 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial' | 'gallery' | 'reviews'>('bookings');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
@@ -40,6 +41,20 @@ export default function AdminDashboard() {
   const { data: agents, isLoading: agentsLoading, refetch: refetchAgents } = trpc.agent.list.useQuery();
   const { data: leads, isLoading: leadsLoading, refetch: refetchLeads } = trpc.lead.list.useQuery();
   const { data: financials, isLoading: financialsLoading } = trpc.financial.listAll.useQuery();
+  const { data: galleryPhotos, isLoading: galleryLoading, refetch: refetchGallery } = trpc.gallery.listAll.useQuery();
+  const { data: allReviews, isLoading: reviewsLoading, refetch: refetchReviews } = trpc.review.listAll.useQuery();
+  const { data: reviewStats } = trpc.review.stats.useQuery();
+
+  // Gallery state
+  const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState<any>(null);
+  const [photoForm, setPhotoForm] = useState({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true });
+  const resetPhotoForm = () => { setPhotoForm({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true }); setEditingPhoto(null); };
+
+  // Reviews state
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [respondingReview, setRespondingReview] = useState<number | null>(null);
+  const [adminResponseText, setAdminResponseText] = useState('');
 
   // Mutations
   const updateBooking = trpc.booking.update.useMutation({
@@ -62,6 +77,15 @@ export default function AdminDashboard() {
       alert('Failed to delete booking. Please try again.');
     },
   });
+
+  // Gallery mutations
+  const createPhoto = trpc.gallery.create.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
+  const updatePhotoMut = trpc.gallery.update.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
+  const deletePhotoMut = trpc.gallery.delete.useMutation({ onSuccess: () => refetchGallery() });
+
+  // Review mutations
+  const updateReviewMut = trpc.review.update.useMutation({ onSuccess: () => refetchReviews() });
+  const deleteReviewMut = trpc.review.delete.useMutation({ onSuccess: () => refetchReviews() });
 
   // Auth check
   if (authLoading) {
@@ -200,6 +224,8 @@ export default function AdminDashboard() {
                 { id: 'agents', label: 'Agents', icon: Users },
                 { id: 'leads', label: 'Leads', icon: TrendingUp },
                 { id: 'financial', label: 'Financial', icon: DollarSign },
+                { id: 'gallery', label: 'Gallery', icon: Camera },
+                { id: 'reviews', label: 'Reviews', icon: Star },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -537,6 +563,178 @@ export default function AdminDashboard() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Gallery Tab */}
+          {activeTab === 'gallery' && (
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">Gallery Management</h3>
+                <button onClick={() => { resetPhotoForm(); setGalleryDialogOpen(true); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                  + Add Photo
+                </button>
+              </div>
+
+              {galleryLoading ? (
+                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
+              ) : !galleryPhotos?.length ? (
+                <div className="text-center py-12 text-gray-500">No gallery photos yet.</div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {galleryPhotos.map(photo => (
+                    <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img src={photo.imageUrl} alt={photo.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-sm truncate">{photo.title}</h4>
+                          <span className={`px-2 py-0.5 rounded text-xs ${photo.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                            {photo.isPublished ? 'Published' : 'Draft'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">{photo.category} | Order: {photo.sortOrder}</p>
+                        <div className="flex gap-2">
+                          <button onClick={() => { setEditingPhoto(photo); setPhotoForm({ title: photo.title, imageUrl: photo.imageUrl, description: photo.description || '', category: photo.category || 'other', sortOrder: photo.sortOrder || 0, isPublished: !!photo.isPublished }); setGalleryDialogOpen(true); }} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">Edit</button>
+                          <button onClick={() => updatePhotoMut.mutate({ id: photo.id, data: { isPublished: !photo.isPublished } })} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200">{photo.isPublished ? 'Unpublish' : 'Publish'}</button>
+                          <button onClick={() => { if (confirm('Delete this photo?')) deletePhotoMut.mutate({ id: photo.id }); }} className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Gallery Dialog */}
+              {galleryDialogOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <h3 className="text-lg font-semibold mb-4">{editingPhoto ? 'Edit Photo' : 'Add Photo'}</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Title *</label>
+                        <input type="text" value={photoForm.title} onChange={e => setPhotoForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Image URL *</label>
+                        <input type="text" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Description</label>
+                        <textarea value={photoForm.description} onChange={e => setPhotoForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={3} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Category</label>
+                        <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                          <option value="tours">Tours</option>
+                          <option value="vehicles">Vehicles</option>
+                          <option value="destinations">Destinations</option>
+                          <option value="activities">Activities</option>
+                          <option value="food">Food</option>
+                          <option value="accommodation">Accommodation</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Sort Order</label>
+                        <input type="number" value={photoForm.sortOrder} onChange={e => setPhotoForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" id="isPublished" checked={photoForm.isPublished} onChange={e => setPhotoForm(p => ({ ...p, isPublished: e.target.checked }))} className="w-4 h-4" />
+                        <label htmlFor="isPublished" className="text-sm font-medium">Published</label>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 mt-6">
+                      <button onClick={() => { setGalleryDialogOpen(false); resetPhotoForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+                      <button onClick={() => { if (editingPhoto) { updatePhotoMut.mutate({ id: editingPhoto.id, data: photoForm }); } else { createPhoto.mutate(photoForm); } }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">{editingPhoto ? 'Save Changes' : 'Add Photo'}</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Reviews Tab */}
+          {activeTab === 'reviews' && (
+            <div className="p-6">
+              {/* Stats */}
+              {reviewStats && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-700">{reviewStats.totalReviews}</p>
+                    <p className="text-sm text-blue-600">Total</p>
+                  </div>
+                  <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-yellow-700">{reviewStats.averageRating}</p>
+                    <p className="text-sm text-yellow-600">Avg Rating</p>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-green-700">{reviewStats.approvedCount}</p>
+                    <p className="text-sm text-green-600">Approved</p>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-orange-700">{reviewStats.totalReviews - reviewStats.approvedCount}</p>
+                    <p className="text-sm text-orange-600">Pending/Rejected</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Filter */}
+              <div className="flex gap-2 mb-6">
+                {(['all', 'pending', 'approved', 'rejected'] as const).map(f => (
+                  <button key={f} onClick={() => setReviewFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${reviewFilter === f ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {reviewsLoading ? (
+                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
+              ) : (
+                <div className="space-y-4">
+                  {allReviews?.filter(r => reviewFilter === 'all' || r.status === reviewFilter).map(review => (
+                    <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-semibold">{review.name}</h4>
+                          <p className="text-sm text-gray-500">{review.email}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex">{[1,2,3,4,5].map(s => <span key={s} className={s <= review.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}</div>
+                            {review.tourType && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{review.tourType}</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${review.status === 'approved' ? 'bg-green-100 text-green-800' : review.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{review.status}</span>
+                          <span className="text-xs text-gray-400">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-3">{review.text}</p>
+
+                      {review.adminResponse && (
+                        <div className="mb-3 pl-3 border-l-4 border-primary bg-primary/5 rounded-r p-2">
+                          <p className="text-xs font-semibold text-primary">Admin Response:</p>
+                          <p className="text-sm text-gray-600">{review.adminResponse}</p>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2">
+                        {review.status !== 'approved' && <button onClick={() => updateReviewMut.mutate({ id: review.id, data: { status: 'approved' } })} className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200">Approve</button>}
+                        {review.status !== 'rejected' && <button onClick={() => updateReviewMut.mutate({ id: review.id, data: { status: 'rejected' } })} className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200">Reject</button>}
+                        <button onClick={() => { setRespondingReview(respondingReview === review.id ? null : review.id); setAdminResponseText(review.adminResponse || ''); }} className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200">{respondingReview === review.id ? 'Cancel' : 'Respond'}</button>
+                        <button onClick={() => { if (confirm('Delete this review?')) deleteReviewMut.mutate({ id: review.id }); }} className="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
+                      </div>
+
+                      {respondingReview === review.id && (
+                        <div className="mt-3 flex gap-2">
+                          <textarea value={adminResponseText} onChange={e => setAdminResponseText(e.target.value)} placeholder="Write admin response..." className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
+                          <button onClick={() => { updateReviewMut.mutate({ id: review.id, data: { adminResponse: adminResponseText } }); setRespondingReview(null); }} className="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">Save</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

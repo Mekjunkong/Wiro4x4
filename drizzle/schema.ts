@@ -137,3 +137,58 @@ export type Lead = typeof leads.$inferSelect;
 export type InsertLead = typeof leads.$inferInsert;
 export type FinancialRecord = typeof financialRecords.$inferSelect;
 export type InsertFinancialRecord = typeof financialRecords.$inferInsert;
+
+// Gallery Photos Table
+export const galleryPhotos = mysqlTable("galleryPhotos", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  s3Key: varchar("s3Key", { length: 512 }).notNull(),
+  s3Url: varchar("s3Url", { length: 1024 }).notNull(),
+  category: mysqlEnum("category", ["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).default("other").notNull(),
+  sortOrder: int("sortOrder").default(0),
+  isPublished: int("isPublished").default(1).notNull(), // boolean as int
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Customer Reviews Table
+export const reviews = mysqlTable("reviews", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  rating: int("rating").notNull(), // 1-5
+  title: varchar("title", { length: 255 }),
+  text: text("text").notNull(),
+  tourType: varchar("tourType", { length: 100 }),
+  travelDate: timestamp("travelDate"),
+  isApproved: int("isApproved").default(0).notNull(), // boolean as int
+  isPublished: int("isPublished").default(0).notNull(), // boolean as int
+  adminResponse: text("adminResponse"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Payments Table (schema only — Stripe integration deferred)
+export const payments = mysqlTable("payments", {
+  id: int("id").autoincrement().primaryKey(),
+  bookingId: int("bookingId").notNull(),
+  type: mysqlEnum("type", ["deposit", "balance", "full", "refund"]).notNull(),
+  amount: int("amount").notNull(), // in THB
+  currency: varchar("currency", { length: 10 }).default("THB").notNull(),
+  status: mysqlEnum("status", ["pending", "completed", "failed", "refunded"]).default("pending").notNull(),
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+  paymentMethod: varchar("paymentMethod", { length: 50 }),
+  notes: text("notes"),
+  paidAt: timestamp("paidAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
+export type InsertGalleryPhoto = typeof galleryPhotos.$inferInsert;
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = typeof payments.$inferInsert;
