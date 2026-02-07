@@ -48,8 +48,8 @@ export default function AdminDashboard() {
   // Gallery state
   const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<any>(null);
-  const [photoForm, setPhotoForm] = useState({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true });
-  const resetPhotoForm = () => { setPhotoForm({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true }); setEditingPhoto(null); };
+  const [photoForm, setPhotoForm] = useState<{ title: string; imageUrl: string; description: string; category: 'tours' | 'vehicles' | 'destinations' | 'activities' | 'food' | 'accommodation' | 'other'; sortOrder: number; isPublished: boolean }>({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true });
+  const resetPhotoForm = () => { setPhotoForm({ title: '', imageUrl: '', description: '', category: 'other' as const, sortOrder: 0, isPublished: true }); setEditingPhoto(null); };
 
   // Reviews state
   const [reviewFilter, setReviewFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
@@ -628,7 +628,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1">Category</label>
-                        <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value as 'tours' | 'vehicles' | 'destinations' | 'activities' | 'food' | 'accommodation' | 'other' }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                           <option value="tours">Tours</option>
                           <option value="vehicles">Vehicles</option>
                           <option value="destinations">Destinations</option>
