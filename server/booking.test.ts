@@ -75,7 +75,7 @@ describe("booking.create", () => {
     expect(result).toBeDefined();
     expect(result.success).toBe(true);
     expect(result.message).toBe("Booking created successfully");
-  });
+  }, 10000); // Increase timeout to 10s for email operations
 
   it("creates a booking with minimal required data", async () => {
     const { ctx } = createPublicContext();

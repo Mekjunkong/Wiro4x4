@@ -1,0 +1,23 @@
+CREATE TABLE `tours` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`nameHe` varchar(255) NOT NULL,
+	`description` text NOT NULL,
+	`descriptionHe` text NOT NULL,
+	`duration` varchar(100) NOT NULL,
+	`difficulty` enum('easy','moderate','challenging') NOT NULL DEFAULT 'moderate',
+	`price` int NOT NULL,
+	`groupMinSize` int DEFAULT 1,
+	`groupMaxSize` int DEFAULT 10,
+	`imageUrl` varchar(1024) NOT NULL,
+	`highlights` text,
+	`highlightsHe` text,
+	`isKosher` int NOT NULL DEFAULT 1,
+	`isPrivate` int NOT NULL DEFAULT 1,
+	`isShabbatOk` int NOT NULL DEFAULT 1,
+	`isActive` int NOT NULL DEFAULT 1,
+	`sortOrder` int DEFAULT 0,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `tours_id` PRIMARY KEY(`id`)
+);
