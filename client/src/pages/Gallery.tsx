@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const CATEGORIES = [
   { id: 'all', en: 'All', he: 'הכל' },
@@ -23,6 +24,7 @@ const CATEGORIES = [
 export default function Gallery() {
   const { t, language } = useLanguage();
   const isHebrew = language === 'he';
+  usePageMeta('Photo Gallery', 'Explore adventure photos from WIRO 4x4 kosher off-road tours in Chiang Mai, Northern Thailand.');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 

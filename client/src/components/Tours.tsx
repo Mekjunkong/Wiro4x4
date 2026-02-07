@@ -1,102 +1,135 @@
 import { useLanguage } from '@/contexts/LanguageContext';
+import { trpc } from '@/lib/trpc';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, Mountain, Utensils, Users, Calendar, ArrowRight } from 'lucide-react';
 
+const HARDCODED_TOURS = [
+  {
+    id: 1,
+    image: '/images/1000000126_compressed.jpg',
+    title: 'Waterfall Adventure Tour',
+    titleHe: 'סיור מפלים והרפתקאות',
+    description: 'Explore hidden waterfalls and jungle trails in premium 4x4 vehicles',
+    descriptionHe: 'חקור מפלים נסתרים ושבילי ג\'ונגל ברכבי 4x4 פרימיום',
+    duration: '6-8 hours',
+    durationHe: '6-8 שעות',
+    difficulty: 'moderate' as const,
+    kosher: true,
+    private: true,
+    shabbat: true,
+  },
+  {
+    id: 2,
+    image: '/images/vietnam_rice_terraces.jpg',
+    title: 'Mountain & Valley Explorer',
+    titleHe: 'מגלה הרים ועמקים',
+    description: 'Scenic mountain routes with breathtaking valley views and local villages',
+    descriptionHe: 'מסלולי הרים נופיים עם נוף עוצר נשימה של עמקים וכפרים מקומיים',
+    duration: 'Full Day',
+    durationHe: 'יום שלם',
+    difficulty: 'moderate' as const,
+    kosher: true,
+    private: true,
+    shabbat: true,
+  },
+  {
+    id: 3,
+    image: '/images/laos_jungle.jpg',
+    title: 'Jungle & River Expedition',
+    titleHe: 'משלחת ג\'ונגל ונהר',
+    description: 'Deep jungle exploration with river crossings and natural pools',
+    descriptionHe: 'חקירת ג\'ונגל עמוקה עם חציית נהרות ובריכות טבעיות',
+    duration: '8-10 hours',
+    durationHe: '8-10 שעות',
+    difficulty: 'challenging' as const,
+    kosher: true,
+    private: true,
+    shabbat: false,
+  },
+  {
+    id: 4,
+    image: '/images/1000000149.jpg',
+    title: 'Rice Fields & Culture Tour',
+    titleHe: 'סיור שדות אורז ותרבות',
+    description: 'Experience traditional Thai culture, rice terraces, and local communities',
+    descriptionHe: 'חוו תרבות תאילנדית מסורתית, מדרגות אורז וקהילות מקומיות',
+    duration: '4-6 hours',
+    durationHe: '4-6 שעות',
+    difficulty: 'easy' as const,
+    kosher: true,
+    private: true,
+    shabbat: true,
+  },
+  {
+    id: 5,
+    image: '/images/1000000140.jpg',
+    title: 'Elephant Sanctuary Visit',
+    titleHe: 'ביקור במקלט פילים',
+    description: 'Ethical elephant interaction and care experience in natural habitat',
+    descriptionHe: 'אינטראקציה אתית עם פילים וחוויית טיפול בסביבה טבעית',
+    duration: 'Half Day',
+    durationHe: 'חצי יום',
+    difficulty: 'easy' as const,
+    kosher: true,
+    private: true,
+    shabbat: true,
+  },
+  {
+    id: 6,
+    image: '/images/1000000135.jpg',
+    title: 'Hill Tribe Cultural Journey',
+    titleHe: 'מסע תרבותי לשבטי ההרים',
+    description: 'Visit authentic hill tribe villages and learn about local traditions',
+    descriptionHe: 'בקרו בכפרי שבטי הרים אותנטיים ולמדו על מסורות מקומיות',
+    duration: '6-8 hours',
+    durationHe: '6-8 שעות',
+    difficulty: 'moderate' as const,
+    kosher: true,
+    private: true,
+    shabbat: true,
+  },
+];
+
+const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
+  easy: { en: 'Easy', he: 'קל' },
+  moderate: { en: 'Moderate', he: 'בינוני' },
+  challenging: { en: 'Challenging', he: 'מאתגר' },
+};
+
 export function Tours() {
   const { t } = useLanguage();
+  const { data: dbTours } = trpc.tour.list.useQuery();
 
-  const tours = [
-    {
-      id: 1,
-      image: '/images/1000000126_compressed.jpg',
-      title: t('Waterfall Adventure Tour', 'סיור מפלים והרפתקאות'),
-      description: t(
-        'Explore hidden waterfalls and jungle trails in premium 4x4 vehicles',
-        'חקור מפלים נסתרים ושבילי ג\'ונגל ברכבי 4x4 פרימיום'
-      ),
-      duration: t('6-8 hours', '6-8 שעות'),
-      difficulty: t('Moderate', 'בינוני'),
-      kosher: true,
-      private: true,
-      shabbat: true,
-    },
-    {
-      id: 2,
-      image: '/images/vietnam_rice_terraces.jpg',
-      title: t('Mountain & Valley Explorer', 'מגלה הרים ועמקים'),
-      description: t(
-        'Scenic mountain routes with breathtaking valley views and local villages',
-        'מסלולי הרים נופיים עם נוף עוצר נשימה של עמקים וכפרים מקומיים'
-      ),
-      duration: t('Full Day', 'יום שלם'),
-      difficulty: t('Easy-Moderate', 'קל-בינוני'),
-      kosher: true,
-      private: true,
-      shabbat: true,
-    },
-    {
-      id: 3,
-      image: '/images/laos_jungle.jpg',
-      title: t('Jungle & River Expedition', 'משלחת ג\'ונגל ונהר'),
-      description: t(
-        'Deep jungle exploration with river crossings and natural pools',
-        'חקירת ג\'ונגל עמוקה עם חציית נהרות ובריכות טבעיות'
-      ),
-      duration: t('8-10 hours', '8-10 שעות'),
-      difficulty: t('Challenging', 'מאתגר'),
-      kosher: true,
-      private: true,
-      shabbat: false,
-    },
-    {
-      id: 4,
-      image: '/images/1000000149.jpg',
-      title: t('Rice Fields & Culture Tour', 'סיור שדות אורז ותרבות'),
-      description: t(
-        'Experience traditional Thai culture, rice terraces, and local communities',
-        'חוו תרבות תאילנדית מסורתית, מדרגות אורז וקהילות מקומיות'
-      ),
-      duration: t('4-6 hours', '4-6 שעות'),
-      difficulty: t('Easy', 'קל'),
-      kosher: true,
-      private: true,
-      shabbat: true,
-    },
-    {
-      id: 5,
-      image: '/images/1000000140.jpg',
-      title: t('Elephant Sanctuary Visit', 'ביקור במקלט פילים'),
-      description: t(
-        'Ethical elephant interaction and care experience in natural habitat',
-        'אינטראקציה אתית עם פילים וחוויית טיפול בסביבה טבעית'
-      ),
-      duration: t('Half Day', 'חצי יום'),
-      difficulty: t('Easy', 'קל'),
-      kosher: true,
-      private: true,
-      shabbat: true,
-    },
-    {
-      id: 6,
-      image: '/images/1000000135.jpg',
-      title: t('Hill Tribe Cultural Journey', 'מסע תרבותי לשבטי ההרים'),
-      description: t(
-        'Visit authentic hill tribe villages and learn about local traditions',
-        'בקרו בכפרי שבטי הרים אותנטיים ולמדו על מסורות מקומיות'
-      ),
-      duration: t('6-8 hours', '6-8 שעות'),
-      difficulty: t('Moderate', 'בינוני'),
-      kosher: true,
-      private: true,
-      shabbat: true,
-    },
-  ];
+  const tours = dbTours && dbTours.length > 0
+    ? dbTours.map(tour => ({
+        id: tour.id,
+        image: tour.imageUrl,
+        title: t(tour.name, tour.nameHe),
+        description: t(tour.description, tour.descriptionHe),
+        duration: tour.duration,
+        difficulty: tour.difficulty,
+        kosher: tour.isKosher === 1,
+        private: tour.isPrivate === 1,
+        shabbat: tour.isShabbatOk === 1,
+      }))
+    : HARDCODED_TOURS.map(tour => ({
+        id: tour.id,
+        image: tour.image,
+        title: t(tour.title, tour.titleHe),
+        description: t(tour.description, tour.descriptionHe),
+        duration: t(tour.duration, tour.durationHe),
+        difficulty: tour.difficulty,
+        kosher: tour.kosher,
+        private: tour.private,
+        shabbat: tour.shabbat,
+      }));
 
   const handleBookTour = (tour: typeof tours[0]) => {
+    const diffLabel = DIFFICULTY_LABELS[tour.difficulty] || DIFFICULTY_LABELS.moderate;
     const tourDetails = t(
-      `Tour: ${tour.title}\nDuration: ${tour.duration}\nDifficulty: ${tour.difficulty}\n\nGroup Size: [Please specify 1-4 people]\nPreferred Date: [Please specify]\n\nI would like to know about pricing and availability.`,
-      `סיור: ${tour.title}\nמשך: ${tour.duration}\nרמת קושי: ${tour.difficulty}\n\nגודל קבוצה: [אנא ציין 1-4 אנשים]\nתאריך מועדף: [אנא ציין]\n\nאשמח לדעת על מחירים וזמינות.`
+      `Tour: ${tour.title}\nDuration: ${tour.duration}\nDifficulty: ${diffLabel.en}\n\nGroup Size: [Please specify 1-4 people]\nPreferred Date: [Please specify]\n\nI would like to know about pricing and availability.`,
+      `סיור: ${tour.title}\nמשך: ${tour.duration}\nרמת קושי: ${diffLabel.he}\n\nגודל קבוצה: [אנא ציין 1-4 אנשים]\nתאריך מועדף: [אנא ציין]\n\nאשמח לדעת על מחירים וזמינות.`
     );
     const greeting = t('Hi WIRO 4x4!', 'שלום WIRO 4x4!');
     const message = encodeURIComponent(`${greeting}\n\n${tourDetails}`);
@@ -146,7 +179,10 @@ export function Tours() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Mountain className="h-4 w-4 text-primary" />
-                    <span>{tour.difficulty}</span>
+                    <span>{t(
+                      DIFFICULTY_LABELS[tour.difficulty]?.en || tour.difficulty,
+                      DIFFICULTY_LABELS[tour.difficulty]?.he || tour.difficulty
+                    )}</span>
                   </div>
                 </div>
 

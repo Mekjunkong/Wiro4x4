@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -91,7 +91,7 @@ export async function getUserByOpenId(openId: string) {
 
 // Booking System Database Helpers
 
-import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment } from "../drizzle/schema";
+import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, tours, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment, InsertTour } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
 // Bookings
@@ -158,8 +158,14 @@ export async function getAgentById(id: number) {
 export async function updateAgent(id: number, data: Partial<InsertAgent>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.update(agents).set(data).where(eq(agents.id, id));
+}
+
+export async function deleteAgent(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(agents).where(eq(agents.id, id));
 }
 
 // Leads
@@ -180,8 +186,14 @@ export async function getAllLeads() {
 export async function updateLead(id: number, data: Partial<InsertLead>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.update(leads).set(data).where(eq(leads.id, id));
+}
+
+export async function deleteLead(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(leads).where(eq(leads.id, id));
 }
 
 // Financial Records
@@ -202,8 +214,30 @@ export async function getFinancialRecordsByBookingId(bookingId: number) {
 export async function getAllFinancialRecords() {
   const db = await getDb();
   if (!db) return [];
-  
+
   return await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt));
+}
+
+export async function updateFinancialRecord(id: number, data: Partial<InsertFinancialRecord>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(financialRecords).set(data).where(eq(financialRecords.id, id));
+}
+
+export async function deleteFinancialRecord(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(financialRecords).where(eq(financialRecords.id, id));
+}
+
+export async function getFinancialStats() {
+  const db = await getDb();
+  if (!db) return { totalRevenue: 0, totalCosts: 0, totalRefunds: 0, netProfit: 0 };
+  const all = await db.select().from(financialRecords);
+  const revenue = all.filter(r => r.type === 'revenue').reduce((sum, r) => sum + r.amount, 0);
+  const costs = all.filter(r => r.type === 'cost').reduce((sum, r) => sum + r.amount, 0);
+  const refunds = all.filter(r => r.type === 'refund').reduce((sum, r) => sum + r.amount, 0);
+  return { totalRevenue: revenue, totalCosts: costs, totalRefunds: refunds, netProfit: revenue - costs - refunds };
 }
 
 // ─── Gallery Photos ────────────────────────────────────────
@@ -329,4 +363,108 @@ export async function getPaymentStats() {
     totalAmount: all.reduce((sum, p) => sum + p.amount, 0),
     completedAmount: completed.reduce((sum, p) => sum + p.amount, 0),
   };
+}
+
+// ─── Tours ──────────────────────────────────────────────────
+
+export async function createTour(tour: InsertTour) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(tours).values(tour);
+}
+
+export async function getAllActiveTours() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(tours)
+    .where(eq(tours.isActive, 1))
+    .orderBy(tours.sortOrder, desc(tours.createdAt));
+}
+
+export async function getAllTours() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(tours)
+    .orderBy(tours.sortOrder, desc(tours.createdAt));
+}
+
+export async function getTourById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(tours).where(eq(tours.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateTour(id: number, data: Partial<InsertTour>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(tours).set(data).where(eq(tours.id, id));
+}
+
+export async function deleteTour(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(tours).where(eq(tours.id, id));
+}
+
+// ─── Paginated List Functions ─────────────────────────────
+
+export async function getAllBookingsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(bookings).orderBy(desc(bookings.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(bookings);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getAllReviewsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(reviews).orderBy(desc(reviews.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(reviews);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getAllFinancialRecordsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(financialRecords);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getAllGalleryPhotosPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(galleryPhotos).orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(galleryPhotos);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getAllLeadsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(leads).orderBy(desc(leads.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(leads);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getAllToursPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(tours).orderBy(tours.sortOrder, desc(tours.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(tours);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
 }

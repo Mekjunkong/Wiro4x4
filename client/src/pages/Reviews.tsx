@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Check, MessageSquare, Send } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const TOUR_TYPES = [
   { id: 'waterfall', en: 'Waterfall Adventure', he: 'הרפתקאות מפלים' },
@@ -40,6 +41,7 @@ function StarRating({ rating, onRate, interactive = false }: { rating: number; o
 export default function Reviews() {
   const { t, language } = useLanguage();
   const isHebrew = language === 'he';
+  usePageMeta('Guest Reviews', 'Read what our guests say about their WIRO 4x4 kosher off-road adventures in Chiang Mai.');
   const [filterTourType, setFilterTourType] = useState('all');
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState('');

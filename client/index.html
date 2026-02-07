@@ -26,7 +26,59 @@
     
     <!-- Hebrew Language Support -->
     <meta name="language" content="English, Hebrew" />
-    
+
+    <!-- Canonical & Hreflang -->
+    <link rel="canonical" href="https://wiro-4x4.manus.space/" />
+    <link rel="alternate" hreflang="en" href="https://wiro-4x4.manus.space/" />
+    <link rel="alternate" hreflang="he" href="https://wiro-4x4.manus.space/?lang=he" />
+
+    <!-- Geo Meta Tags -->
+    <meta name="geo.region" content="TH-50" />
+    <meta name="geo.position" content="18.7883;98.9853" />
+    <meta name="ICBM" content="18.7883, 98.9853" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://wiro-4x4.manus.space/#organization",
+          "name": "WIRO 4x4",
+          "alternateName": "WIRO 4x4 Kosher Off-Road Adventures",
+          "url": "https://wiro-4x4.manus.space",
+          "logo": "https://wiro-4x4.manus.space/images/logo.png",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+66929894495",
+            "contactType": "reservations",
+            "availableLanguage": ["English", "Hebrew", "Thai"]
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Chiang Mai",
+            "addressCountry": "TH"
+          }
+        },
+        {
+          "@type": "TouristTrip",
+          "name": "Kosher Off-Road Adventures in Chiang Mai",
+          "description": "Premium kosher-friendly 4x4 off-road tours in Northern Thailand with Hebrew-speaking guides",
+          "touristType": ["Jewish travelers", "Kosher travelers", "Adventure seekers"],
+          "provider": {"@id": "https://wiro-4x4.manus.space/#organization"}
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://wiro-4x4.manus.space/#website",
+          "url": "https://wiro-4x4.manus.space",
+          "name": "WIRO 4x4",
+          "inLanguage": ["en", "he"]
+        }
+      ]
+    }
+    </script>
+
     <link rel="icon" type="image/png" href="%VITE_APP_LOGO%" />
     <link rel="apple-touch-icon" href="%VITE_APP_LOGO%" />
     <title>%VITE_APP_TITLE%</title>

@@ -192,3 +192,29 @@ export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
 export type InsertPayment = typeof payments.$inferInsert;
+
+// Tours Table
+export const tours = mysqlTable("tours", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  nameHe: varchar("nameHe", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  descriptionHe: text("descriptionHe").notNull(),
+  duration: varchar("duration", { length: 100 }).notNull(), // e.g., "6-8 hours"
+  difficulty: mysqlEnum("difficulty", ["easy", "moderate", "challenging"]).default("moderate").notNull(),
+  price: int("price").notNull(), // THB
+  groupMinSize: int("groupMinSize").default(1),
+  groupMaxSize: int("groupMaxSize").default(10),
+  imageUrl: varchar("imageUrl", { length: 1024 }).notNull(),
+  highlights: text("highlights"), // JSON array of strings
+  highlightsHe: text("highlightsHe"), // JSON array of Hebrew strings
+  isKosher: int("isKosher").default(1).notNull(),
+  isPrivate: int("isPrivate").default(1).notNull(),
+  isShabbatOk: int("isShabbatOk").default(1).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  sortOrder: int("sortOrder").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Tour = typeof tours.$inferSelect;
+export type InsertTour = typeof tours.$inferInsert;

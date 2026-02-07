@@ -1,103 +1,142 @@
 import { useLanguage } from '@/contexts/LanguageContext';
+import { trpc } from '@/lib/trpc';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Users, Clock, Utensils, Car, Shield, Calendar, MessageCircle } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
+
+const HARDCODED_TOURS = [
+  {
+    id: 1,
+    name: 'Waterfall Adventure Tour',
+    nameHe: 'סיור מפלים והרפתקאות',
+    duration: '6-8 hours',
+    durationHe: '6-8 שעות',
+    basePrice: 3500,
+    image: '/images/1000000126_compressed.jpg',
+    included: [
+      { en: 'Private 4x4 vehicle with driver', he: 'רכב 4x4 פרטי עם נהג' },
+      { en: 'Hebrew-speaking guide', he: 'מדריך דובר עברית' },
+      { en: 'Kosher packed lunch', he: 'ארוחת צהריים כשרה ארוזה' },
+      { en: 'Water and snacks', he: 'מים וחטיפים' },
+      { en: 'Entrance fees', he: 'דמי כניסה' },
+      { en: 'Insurance coverage', he: 'כיסוי ביטוחי' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'Mountain & Valley Explorer',
+    nameHe: 'מגלה הרים ועמקים',
+    duration: 'Full Day (8-10 hours)',
+    durationHe: 'יום שלם (8-10 שעות)',
+    basePrice: 4200,
+    image: '/images/vietnam_rice_terraces.jpg',
+    included: [
+      { en: 'Private 4x4 vehicle with driver', he: 'רכב 4x4 פרטי עם נהג' },
+      { en: 'Hebrew-speaking guide', he: 'מדריך דובר עברית' },
+      { en: 'Kosher lunch at local restaurant', he: 'ארוחת צהריים כשרה במסעדה מקומית' },
+      { en: 'Water and refreshments', he: 'מים ומשקאות' },
+      { en: 'All entrance fees', he: 'כל דמי הכניסה' },
+      { en: 'Photo stops at scenic viewpoints', he: 'עצירות צילום בנקודות תצפית' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'Jungle & River Expedition',
+    nameHe: 'משלחת ג\'ונגל ונהר',
+    duration: '8-10 hours',
+    durationHe: '8-10 שעות',
+    basePrice: 4800,
+    image: '/images/laos_jungle.jpg',
+    included: [
+      { en: 'Private 4x4 vehicle with experienced driver', he: 'רכב 4x4 פרטי עם נהג מנוסה' },
+      { en: 'Hebrew-speaking adventure guide', he: 'מדריך הרפתקאות דובר עברית' },
+      { en: 'Kosher meals and snacks', he: 'ארוחות וחטיפים כשרים' },
+      { en: 'Safety equipment', he: 'ציוד בטיחות' },
+      { en: 'First aid kit', he: 'ערכת עזרה ראשונה' },
+      { en: 'Waterproof bags for belongings', he: 'תיקים עמידים במים' },
+    ],
+  },
+  {
+    id: 4,
+    name: 'Rice Fields & Culture Tour',
+    nameHe: 'סיור שדות אורז ותרבות',
+    duration: '4-6 hours',
+    durationHe: '4-6 שעות',
+    basePrice: 2800,
+    image: '/images/1000000149.jpg',
+    included: [
+      { en: 'Private vehicle with driver', he: 'רכב פרטי עם נהג' },
+      { en: 'Hebrew-speaking cultural guide', he: 'מדריך תרבות דובר עברית' },
+      { en: 'Light kosher refreshments', he: 'כיבוד קל כשר' },
+      { en: 'Village visit permissions', he: 'אישורי ביקור בכפרים' },
+      { en: 'Cultural interaction opportunities', he: 'הזדמנויות לאינטראקציה תרבותית' },
+    ],
+  },
+  {
+    id: 5,
+    name: 'Elephant Sanctuary Visit',
+    nameHe: 'ביקור במקלט פילים',
+    duration: 'Half Day (4-5 hours)',
+    durationHe: 'חצי יום (4-5 שעות)',
+    basePrice: 3200,
+    image: '/images/1000000140.jpg',
+    included: [
+      { en: 'Private transportation', he: 'הסעה פרטית' },
+      { en: 'Hebrew-speaking guide', he: 'מדריך דובר עברית' },
+      { en: 'Sanctuary entrance and activities', he: 'כניסה ופעילויות במקלט' },
+      { en: 'Kosher snacks', he: 'חטיפים כשרים' },
+      { en: 'Ethical elephant interaction', he: 'אינטראקציה אתית עם פילים' },
+    ],
+  },
+  {
+    id: 6,
+    name: 'Hill Tribe Cultural Journey',
+    nameHe: 'מסע תרבותי לשבטי ההרים',
+    duration: '6-8 hours',
+    durationHe: '6-8 שעות',
+    basePrice: 3800,
+    image: '/images/1000000135.jpg',
+    included: [
+      { en: 'Private 4x4 vehicle', he: 'רכב 4x4 פרטי' },
+      { en: 'Hebrew-speaking cultural guide', he: 'מדריך תרבות דובר עברית' },
+      { en: 'Kosher packed lunch', he: 'ארוחת צהריים כשרה ארוזה' },
+      { en: 'Village visit permissions', he: 'אישורי ביקור בכפרים' },
+      { en: 'Cultural gifts for communities', he: 'מתנות תרבותיות לקהילות' },
+    ],
+  },
+];
 
 export default function Pricing() {
   const { t } = useLanguage();
+  usePageMeta('Tour Pricing', 'Transparent pricing for WIRO 4x4 kosher off-road tours in Chiang Mai. Private vehicle, Hebrew guide, kosher meals included.');
+  const { data: dbTours } = trpc.tour.list.useQuery();
 
-  const tours = [
-    {
-      id: 1,
-      name: t('Waterfall Adventure Tour', 'סיור מפלים והרפתקאות'),
-      duration: t('6-8 hours', '6-8 שעות'),
-      basePrice: 3500,
-      image: '/images/1000000126_compressed.jpg',
-      included: [
-        t('Private 4x4 vehicle with driver', 'רכב 4x4 פרטי עם נהג'),
-        t('Hebrew-speaking guide', 'מדריך דובר עברית'),
-        t('Kosher packed lunch', 'ארוחת צהריים כשרה ארוזה'),
-        t('Water and snacks', 'מים וחטיפים'),
-        t('Entrance fees', 'דמי כניסה'),
-        t('Insurance coverage', 'כיסוי ביטוחי'),
-      ],
-    },
-    {
-      id: 2,
-      name: t('Mountain & Valley Explorer', 'מגלה הרים ועמקים'),
-      duration: t('Full Day (8-10 hours)', 'יום שלם (8-10 שעות)'),
-      basePrice: 4200,
-      image: '/images/vietnam_rice_terraces.jpg',
-      included: [
-        t('Private 4x4 vehicle with driver', 'רכב 4x4 פרטי עם נהג'),
-        t('Hebrew-speaking guide', 'מדריך דובר עברית'),
-        t('Kosher lunch at local restaurant', 'ארוחת צהריים כשרה במסעדה מקומית'),
-        t('Water and refreshments', 'מים ומשקאות'),
-        t('All entrance fees', 'כל דמי הכניסה'),
-        t('Photo stops at scenic viewpoints', 'עצירות צילום בנקודות תצפית'),
-      ],
-    },
-    {
-      id: 3,
-      name: t('Jungle & River Expedition', 'משלחת ג\'ונגל ונהר'),
-      duration: t('8-10 hours', '8-10 שעות'),
-      basePrice: 4800,
-      image: '/images/laos_jungle.jpg',
-      included: [
-        t('Private 4x4 vehicle with experienced driver', 'רכב 4x4 פרטי עם נהג מנוסה'),
-        t('Hebrew-speaking adventure guide', 'מדריך הרפתקאות דובר עברית'),
-        t('Kosher meals and snacks', 'ארוחות וחטיפים כשרים'),
-        t('Safety equipment', 'ציוד בטיחות'),
-        t('First aid kit', 'ערכת עזרה ראשונה'),
-        t('Waterproof bags for belongings', 'תיקים עמידים במים'),
-      ],
-    },
-    {
-      id: 4,
-      name: t('Rice Fields & Culture Tour', 'סיור שדות אורז ותרבות'),
-      duration: t('4-6 hours', '4-6 שעות'),
-      basePrice: 2800,
-      image: '/images/1000000149.jpg',
-      included: [
-        t('Private vehicle with driver', 'רכב פרטי עם נהג'),
-        t('Hebrew-speaking cultural guide', 'מדריך תרבות דובר עברית'),
-        t('Light kosher refreshments', 'כיבוד קל כשר'),
-        t('Village visit permissions', 'אישורי ביקור בכפרים'),
-        t('Cultural interaction opportunities', 'הזדמנויות לאינטראקציה תרבותית'),
-      ],
-    },
-    {
-      id: 5,
-      name: t('Elephant Sanctuary Visit', 'ביקור במקלט פילים'),
-      duration: t('Half Day (4-5 hours)', 'חצי יום (4-5 שעות)'),
-      basePrice: 3200,
-      image: '/images/1000000140.jpg',
-      included: [
-        t('Private transportation', 'הסעה פרטית'),
-        t('Hebrew-speaking guide', 'מדריך דובר עברית'),
-        t('Sanctuary entrance and activities', 'כניסה ופעילויות במקלט'),
-        t('Kosher snacks', 'חטיפים כשרים'),
-        t('Ethical elephant interaction', 'אינטראקציה אתית עם פילים'),
-      ],
-    },
-    {
-      id: 6,
-      name: t('Hill Tribe Cultural Journey', 'מסע תרבותי לשבטי ההרים'),
-      duration: t('6-8 hours', '6-8 שעות'),
-      basePrice: 3800,
-      image: '/images/1000000135.jpg',
-      included: [
-        t('Private 4x4 vehicle', 'רכב 4x4 פרטי'),
-        t('Hebrew-speaking cultural guide', 'מדריך תרבות דובר עברית'),
-        t('Kosher packed lunch', 'ארוחת צהריים כשרה ארוזה'),
-        t('Village visit permissions', 'אישורי ביקור בכפרים'),
-        t('Cultural gifts for communities', 'מתנות תרבותיות לקהילות'),
-      ],
-    },
-  ];
+  const tours = dbTours && dbTours.length > 0
+    ? dbTours.map(tour => {
+        const highlights: string[] = tour.highlights ? JSON.parse(tour.highlights) : [];
+        const highlightsHe: string[] = tour.highlightsHe ? JSON.parse(tour.highlightsHe) : [];
+        const included = highlights.map((h, i) => t(h, highlightsHe[i] || h));
+        return {
+          id: tour.id,
+          name: t(tour.name, tour.nameHe),
+          duration: tour.duration,
+          basePrice: tour.price,
+          image: tour.imageUrl,
+          included,
+        };
+      })
+    : HARDCODED_TOURS.map(tour => ({
+        id: tour.id,
+        name: t(tour.name, tour.nameHe),
+        duration: t(tour.duration, tour.durationHe),
+        basePrice: tour.basePrice,
+        image: tour.image,
+        included: tour.included.map(item => t(item.en, item.he)),
+      }));
 
   const packages = [
     {
@@ -148,7 +187,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="container">
@@ -186,7 +225,7 @@ export default function Pricing() {
           <h2 className="text-3xl font-bold text-center mb-12">
             {t('Individual Tours', 'סיורים בודדים')}
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {tours.map((tour) => (
               <Card key={tour.id} className="overflow-hidden hover:shadow-premium-lg transition-all duration-300">
@@ -197,7 +236,7 @@ export default function Pricing() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                
+
                 <div className="p-6 space-y-4">
                   <div>
                     <h3 className="text-xl font-bold mb-2">{tour.name}</h3>
@@ -228,9 +267,11 @@ export default function Pricing() {
                         </li>
                       ))}
                     </ul>
-                    <p className="text-xs text-muted-foreground">
-                      {t('+ 3 more inclusions', '+ 3 פריטים נוספים')}
-                    </p>
+                    {tour.included.length > 3 && (
+                      <p className="text-xs text-muted-foreground">
+                        {t(`+ ${tour.included.length - 3} more inclusions`, `+ ${tour.included.length - 3} פריטים נוספים`)}
+                      </p>
+                    )}
                   </div>
 
                   <Button
@@ -298,7 +339,7 @@ export default function Pricing() {
                     {t('Save', 'חסכו')} ฿{pkg.savings}
                   </div>
                 )}
-                
+
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
                   <div className="text-sm text-muted-foreground mb-4">
@@ -342,7 +383,7 @@ export default function Pricing() {
             <h3 className="text-2xl font-bold mb-6">
               {t('Booking Terms & Policies', 'תנאי הזמנה ומדיניות')}
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <h4 className="font-bold mb-2">{t('Payment', 'תשלום')}</h4>

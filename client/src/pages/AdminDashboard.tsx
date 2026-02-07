@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { getLoginUrl } from '@/const';
@@ -8,7 +8,7 @@ import {
   CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
   Phone, Mail, MapPin, User, Filter, Search,
   ChevronDown, ChevronUp, RefreshCw, LogOut,
-  Camera, Star
+  Camera, Star, Upload, Mountain
 } from 'lucide-react';
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
@@ -31,19 +31,74 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial' | 'gallery' | 'reviews'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial' | 'gallery' | 'reviews' | 'tours'>('bookings');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
 
-  // Fetch data
-  const { data: bookings, isLoading: bookingsLoading, refetch: refetchBookings } = trpc.booking.list.useQuery();
+  // Pagination state
+  const [bookingsPage, setBookingsPage] = useState(1);
+  const [leadsPage, setLeadsPage] = useState(1);
+  const [financialsPage, setFinancialsPage] = useState(1);
+  const [galleryPage, setGalleryPage] = useState(1);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [toursPage, setToursPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  // Fetch data (paginated)
+  const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = trpc.booking.listPaginated.useQuery({ page: bookingsPage, pageSize: PAGE_SIZE });
+  const bookings = bookingsData?.items;
+  const bookingsTotal = bookingsData?.total ?? 0;
+  const bookingsTotalPages = bookingsData?.totalPages ?? 1;
+
   const { data: agents, isLoading: agentsLoading, refetch: refetchAgents } = trpc.agent.list.useQuery();
-  const { data: leads, isLoading: leadsLoading, refetch: refetchLeads } = trpc.lead.list.useQuery();
-  const { data: financials, isLoading: financialsLoading } = trpc.financial.listAll.useQuery();
-  const { data: galleryPhotos, isLoading: galleryLoading, refetch: refetchGallery } = trpc.gallery.listAll.useQuery();
-  const { data: allReviews, isLoading: reviewsLoading, refetch: refetchReviews } = trpc.review.listAll.useQuery();
+
+  const { data: leadsData, isLoading: leadsLoading, refetch: refetchLeads } = trpc.lead.listPaginated.useQuery({ page: leadsPage, pageSize: PAGE_SIZE });
+  const leads = leadsData?.items;
+  const leadsTotal = leadsData?.total ?? 0;
+  const leadsTotalPages = leadsData?.totalPages ?? 1;
+
+  const { data: financialsData, isLoading: financialsLoading } = trpc.financial.listAllPaginated.useQuery({ page: financialsPage, pageSize: PAGE_SIZE });
+  const financials = financialsData?.items;
+  const financialsTotal = financialsData?.total ?? 0;
+  const financialsTotalPages = financialsData?.totalPages ?? 1;
+
+  const { data: galleryData, isLoading: galleryLoading, refetch: refetchGallery } = trpc.gallery.listAllPaginated.useQuery({ page: galleryPage, pageSize: PAGE_SIZE });
+  const galleryPhotos = galleryData?.items;
+  const galleryTotal = galleryData?.total ?? 0;
+  const galleryTotalPages = galleryData?.totalPages ?? 1;
+
+  const { data: reviewsData, isLoading: reviewsLoading, refetch: refetchReviews } = trpc.review.listAllPaginated.useQuery({ page: reviewsPage, pageSize: PAGE_SIZE });
+  const allReviews = reviewsData?.items;
+  const reviewsTotal = reviewsData?.total ?? 0;
+  const reviewsTotalPages = reviewsData?.totalPages ?? 1;
+
   const { data: reviewStats } = trpc.review.stats.useQuery();
+
+  const { data: toursData, isLoading: toursLoading, refetch: refetchTours } = trpc.tour.listAllPaginated.useQuery({ page: toursPage, pageSize: PAGE_SIZE });
+  const allTours = toursData?.items;
+  const toursTotal = toursData?.total ?? 0;
+  const toursTotalPages = toursData?.totalPages ?? 1;
+
+  // Tours state
+  const [tourDialogOpen, setTourDialogOpen] = useState(false);
+  const [editingTour, setEditingTour] = useState<any>(null);
+  const [tourForm, setTourForm] = useState({
+    name: '', nameHe: '', description: '', descriptionHe: '',
+    duration: '', difficulty: 'moderate' as 'easy' | 'moderate' | 'challenging',
+    price: 0, groupMinSize: 1, groupMaxSize: 10,
+    imageUrl: '', highlights: '', highlightsHe: '',
+    isKosher: true, isPrivate: true, isShabbatOk: true, isActive: true, sortOrder: 0,
+  });
+  const resetTourForm = () => {
+    setTourForm({
+      name: '', nameHe: '', description: '', descriptionHe: '',
+      duration: '', difficulty: 'moderate', price: 0, groupMinSize: 1, groupMaxSize: 10,
+      imageUrl: '', highlights: '', highlightsHe: '',
+      isKosher: true, isPrivate: true, isShabbatOk: true, isActive: true, sortOrder: 0,
+    });
+    setEditingTour(null);
+  };
 
   // Gallery state
   const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
@@ -78,14 +133,24 @@ export default function AdminDashboard() {
     },
   });
 
+  // Gallery upload state
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Gallery mutations
   const createPhoto = trpc.gallery.create.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
   const updatePhotoMut = trpc.gallery.update.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
   const deletePhotoMut = trpc.gallery.delete.useMutation({ onSuccess: () => refetchGallery() });
+  const uploadPhoto = trpc.gallery.upload.useMutation();
 
   // Review mutations
   const updateReviewMut = trpc.review.update.useMutation({ onSuccess: () => refetchReviews() });
   const deleteReviewMut = trpc.review.delete.useMutation({ onSuccess: () => refetchReviews() });
+
+  // Tour mutations
+  const createTourMut = trpc.tour.create.useMutation({ onSuccess: () => { refetchTours(); setTourDialogOpen(false); resetTourForm(); } });
+  const updateTourMut = trpc.tour.update.useMutation({ onSuccess: () => { refetchTours(); setTourDialogOpen(false); resetTourForm(); } });
+  const deleteTourMut = trpc.tour.delete.useMutation({ onSuccess: () => refetchTours() });
 
   // Auth check
   if (authLoading) {
@@ -125,7 +190,7 @@ export default function AdminDashboard() {
 
   // Calculate stats
   const stats = {
-    totalBookings: bookings?.length || 0,
+    totalBookings: bookingsTotal,
     pendingBookings: bookings?.filter(b => b.status === 'pending').length || 0,
     confirmedBookings: bookings?.filter(b => b.status === 'confirmed').length || 0,
     totalRevenue: financials?.filter(f => f.type === 'revenue').reduce((sum, f) => sum + Number(f.amount), 0) || 0,
@@ -219,13 +284,14 @@ export default function AdminDashboard() {
           <div className="border-b border-gray-200">
             <nav className="flex gap-8 px-6">
               {[
-                { id: 'bookings', label: 'Bookings', icon: Calendar },
-                { id: 'calendar', label: 'Calendar View', icon: Calendar },
-                { id: 'agents', label: 'Agents', icon: Users },
-                { id: 'leads', label: 'Leads', icon: TrendingUp },
-                { id: 'financial', label: 'Financial', icon: DollarSign },
-                { id: 'gallery', label: 'Gallery', icon: Camera },
-                { id: 'reviews', label: 'Reviews', icon: Star },
+                { id: 'bookings', label: 'Bookings', icon: Calendar, count: bookingsTotal },
+                { id: 'calendar', label: 'Calendar View', icon: Calendar, count: undefined },
+                { id: 'agents', label: 'Agents', icon: Users, count: agents?.length },
+                { id: 'leads', label: 'Leads', icon: TrendingUp, count: leadsTotal },
+                { id: 'financial', label: 'Financial', icon: DollarSign, count: financialsTotal },
+                { id: 'tours', label: 'Tours', icon: Mountain, count: toursTotal },
+                { id: 'gallery', label: 'Gallery', icon: Camera, count: galleryTotal },
+                { id: 'reviews', label: 'Reviews', icon: Star, count: reviewsTotal },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -237,7 +303,7 @@ export default function AdminDashboard() {
                   }`}
                 >
                   <tab.icon className="w-5 h-5" />
-                  {tab.label}
+                  {tab.label}{tab.count !== undefined && tab.count > 0 ? ` (${tab.count})` : ''}
                 </button>
               ))}
             </nav>
@@ -292,7 +358,7 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   {filteredBookings.map(booking => (
                     <div key={booking.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div 
+                      <div
                         className="p-4 bg-gray-50 flex items-center justify-between cursor-pointer"
                         onClick={() => setExpandedBooking(expandedBooking === booking.id ? null : booking.id)}
                       >
@@ -303,7 +369,7 @@ export default function AdminDashboard() {
                           <div>
                             <p className="font-semibold">{booking.contactName}</p>
                             <p className="text-sm text-gray-500">
-                              {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : 'No date'} - 
+                              {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : 'No date'} -
                               {booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : 'No date'}
                             </p>
                           </div>
@@ -322,7 +388,7 @@ export default function AdminDashboard() {
                           )}
                         </div>
                       </div>
-                      
+
                       {expandedBooking === booking.id && (
                         <div className="p-4 border-t border-gray-200">
                           <div className="grid md:grid-cols-3 gap-6">
@@ -380,6 +446,31 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {bookingsTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((bookingsPage - 1) * PAGE_SIZE) + 1}-{Math.min(bookingsPage * PAGE_SIZE, bookingsTotal)} of {bookingsTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setBookingsPage(p => Math.max(1, p - 1))}
+                      disabled={bookingsPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {bookingsPage} of {bookingsTotalPages}</span>
+                    <button
+                      onClick={() => setBookingsPage(p => Math.min(bookingsTotalPages, p + 1))}
+                      disabled={bookingsPage === bookingsTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -513,6 +604,31 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               )}
+
+              {leadsTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((leadsPage - 1) * PAGE_SIZE) + 1}-{Math.min(leadsPage * PAGE_SIZE, leadsTotal)} of {leadsTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setLeadsPage(p => Math.max(1, p - 1))}
+                      disabled={leadsPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {leadsPage} of {leadsTotalPages}</span>
+                    <button
+                      onClick={() => setLeadsPage(p => Math.min(leadsTotalPages, p + 1))}
+                      disabled={leadsPage === leadsTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -565,6 +681,230 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               )}
+
+              {financialsTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((financialsPage - 1) * PAGE_SIZE) + 1}-{Math.min(financialsPage * PAGE_SIZE, financialsTotal)} of {financialsTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setFinancialsPage(p => Math.max(1, p - 1))}
+                      disabled={financialsPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {financialsPage} of {financialsTotalPages}</span>
+                    <button
+                      onClick={() => setFinancialsPage(p => Math.min(financialsTotalPages, p + 1))}
+                      disabled={financialsPage === financialsTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tours Tab */}
+          {activeTab === 'tours' && (
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold">Tour Management</h3>
+                <button onClick={() => { resetTourForm(); setTourDialogOpen(true); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                  + Add Tour
+                </button>
+              </div>
+
+              {toursLoading ? (
+                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
+              ) : !allTours?.length ? (
+                <div className="text-center py-12 text-gray-500">No tours yet. Add your first tour.</div>
+              ) : (
+                <div className="space-y-4">
+                  {allTours.map(tour => (
+                    <div key={tour.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="flex items-center gap-4 p-4">
+                        <div className="w-20 h-16 rounded overflow-hidden shrink-0">
+                          <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold truncate">{tour.name}</h4>
+                            <span className="text-sm text-gray-500">/ {tour.nameHe}</span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                            <span>{tour.duration}</span>
+                            <span className="capitalize">{tour.difficulty}</span>
+                            <span className="font-semibold text-primary">฿{tour.price.toLocaleString()}</span>
+                            <span>Group: {tour.groupMinSize}-{tour.groupMaxSize}</span>
+                          </div>
+                          <div className="flex gap-1.5 mt-1.5">
+                            {tour.isKosher === 1 && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Kosher</span>}
+                            {tour.isPrivate === 1 && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">Private</span>}
+                            {tour.isShabbatOk === 1 && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">Shabbat OK</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${tour.isActive === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                            {tour.isActive === 1 ? 'Active' : 'Inactive'}
+                          </span>
+                          <button onClick={() => updateTourMut.mutate({ id: tour.id, data: { isActive: tour.isActive !== 1 } })} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200">
+                            {tour.isActive === 1 ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button onClick={() => {
+                            setEditingTour(tour);
+                            setTourForm({
+                              name: tour.name, nameHe: tour.nameHe,
+                              description: tour.description, descriptionHe: tour.descriptionHe,
+                              duration: tour.duration, difficulty: tour.difficulty,
+                              price: tour.price, groupMinSize: tour.groupMinSize ?? 1, groupMaxSize: tour.groupMaxSize ?? 10,
+                              imageUrl: tour.imageUrl, highlights: tour.highlights || '', highlightsHe: tour.highlightsHe || '',
+                              isKosher: tour.isKosher === 1, isPrivate: tour.isPrivate === 1,
+                              isShabbatOk: tour.isShabbatOk === 1, isActive: tour.isActive === 1,
+                              sortOrder: tour.sortOrder ?? 0,
+                            });
+                            setTourDialogOpen(true);
+                          }} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">Edit</button>
+                          <button onClick={() => { if (confirm('Delete this tour?')) deleteTourMut.mutate({ id: tour.id }); }} className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {toursTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((toursPage - 1) * PAGE_SIZE) + 1}-{Math.min(toursPage * PAGE_SIZE, toursTotal)} of {toursTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setToursPage(p => Math.max(1, p - 1))}
+                      disabled={toursPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {toursPage} of {toursTotalPages}</span>
+                    <button
+                      onClick={() => setToursPage(p => Math.min(toursTotalPages, p + 1))}
+                      disabled={toursPage === toursTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Tour Dialog */}
+              {tourDialogOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <h3 className="text-lg font-semibold mb-4">{editingTour ? 'Edit Tour' : 'Add Tour'}</h3>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Name (English) *</label>
+                          <input type="text" value={tourForm.name} onChange={e => setTourForm(p => ({ ...p, name: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Name (Hebrew) *</label>
+                          <input type="text" dir="rtl" value={tourForm.nameHe} onChange={e => setTourForm(p => ({ ...p, nameHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Description (English) *</label>
+                        <textarea value={tourForm.description} onChange={e => setTourForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Description (Hebrew) *</label>
+                        <textarea dir="rtl" value={tourForm.descriptionHe} onChange={e => setTourForm(p => ({ ...p, descriptionHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Duration *</label>
+                          <input type="text" placeholder="e.g. 6-8 hours" value={tourForm.duration} onChange={e => setTourForm(p => ({ ...p, duration: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Difficulty</label>
+                          <select value={tourForm.difficulty} onChange={e => setTourForm(p => ({ ...p, difficulty: e.target.value as any }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="easy">Easy</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="challenging">Challenging</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Price (THB) *</label>
+                          <input type="number" value={tourForm.price} onChange={e => setTourForm(p => ({ ...p, price: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Min Group Size</label>
+                          <input type="number" value={tourForm.groupMinSize} onChange={e => setTourForm(p => ({ ...p, groupMinSize: parseInt(e.target.value) || 1 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Max Group Size</label>
+                          <input type="number" value={tourForm.groupMaxSize} onChange={e => setTourForm(p => ({ ...p, groupMaxSize: parseInt(e.target.value) || 10 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Image URL *</label>
+                        <input type="text" value={tourForm.imageUrl} onChange={e => setTourForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="/images/tour.jpg or https://..." />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Highlights (JSON array, English)</label>
+                        <textarea value={tourForm.highlights} onChange={e => setTourForm(p => ({ ...p, highlights: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder='["Private 4x4 vehicle", "Kosher lunch", ...]' />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Highlights (JSON array, Hebrew)</label>
+                        <textarea dir="rtl" value={tourForm.highlightsHe} onChange={e => setTourForm(p => ({ ...p, highlightsHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder='["רכב 4x4 פרטי", "ארוחת צהריים כשרה", ...]' />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Sort Order</label>
+                          <input type="number" value={tourForm.sortOrder} onChange={e => setTourForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-4">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={tourForm.isKosher} onChange={e => setTourForm(p => ({ ...p, isKosher: e.target.checked }))} className="w-4 h-4" />
+                          Kosher
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={tourForm.isPrivate} onChange={e => setTourForm(p => ({ ...p, isPrivate: e.target.checked }))} className="w-4 h-4" />
+                          Private
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={tourForm.isShabbatOk} onChange={e => setTourForm(p => ({ ...p, isShabbatOk: e.target.checked }))} className="w-4 h-4" />
+                          Shabbat OK
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input type="checkbox" checked={tourForm.isActive} onChange={e => setTourForm(p => ({ ...p, isActive: e.target.checked }))} className="w-4 h-4" />
+                          Active
+                        </label>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 mt-6">
+                      <button onClick={() => { setTourDialogOpen(false); resetTourForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+                      <button onClick={() => {
+                        const data = { ...tourForm, highlights: tourForm.highlights || undefined, highlightsHe: tourForm.highlightsHe || undefined };
+                        if (editingTour) {
+                          updateTourMut.mutate({ id: editingTour.id, data });
+                        } else {
+                          createTourMut.mutate(data);
+                        }
+                      }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">{editingTour ? 'Save Changes' : 'Add Tour'}</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -608,6 +948,31 @@ export default function AdminDashboard() {
                 </div>
               )}
 
+              {galleryTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((galleryPage - 1) * PAGE_SIZE) + 1}-{Math.min(galleryPage * PAGE_SIZE, galleryTotal)} of {galleryTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setGalleryPage(p => Math.max(1, p - 1))}
+                      disabled={galleryPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {galleryPage} of {galleryTotalPages}</span>
+                    <button
+                      onClick={() => setGalleryPage(p => Math.min(galleryTotalPages, p + 1))}
+                      disabled={galleryPage === galleryTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Gallery Dialog */}
               {galleryDialogOpen && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -619,8 +984,67 @@ export default function AdminDashboard() {
                         <input type="text" value={photoForm.title} onChange={e => setPhotoForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">Image URL *</label>
-                        <input type="text" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        <label className="block text-sm font-medium mb-1">Upload Image</label>
+                        <div className="space-y-2">
+                          <div
+                            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {isUploading ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                                <span className="text-sm text-gray-500">Uploading...</span>
+                              </div>
+                            ) : photoForm.imageUrl ? (
+                              <div>
+                                <img src={photoForm.imageUrl} alt="Preview" className="max-h-32 mx-auto rounded mb-2" />
+                                <p className="text-xs text-gray-500">Click to change image</p>
+                              </div>
+                            ) : (
+                              <div>
+                                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                                <p className="text-sm text-gray-500">Click to upload an image</p>
+                                <p className="text-xs text-gray-400">JPG, PNG, WebP</p>
+                              </div>
+                            )}
+                          </div>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setIsUploading(true);
+                              try {
+                                const reader = new FileReader();
+                                const base64 = await new Promise<string>((resolve, reject) => {
+                                  reader.onload = () => {
+                                    const result = reader.result as string;
+                                    resolve(result.split(',')[1]);
+                                  };
+                                  reader.onerror = reject;
+                                  reader.readAsDataURL(file);
+                                });
+                                const result = await uploadPhoto.mutateAsync({
+                                  filename: file.name,
+                                  contentType: file.type,
+                                  base64Data: base64,
+                                });
+                                setPhotoForm(p => ({ ...p, imageUrl: result.url }));
+                              } catch (err) {
+                                console.error('Upload failed:', err);
+                                alert('Failed to upload image. Please try again or paste a URL.');
+                              } finally {
+                                setIsUploading(false);
+                                if (fileInputRef.current) fileInputRef.current.value = '';
+                              }
+                            }}
+                          />
+                          <div className="text-center text-xs text-gray-400">or</div>
+                          <input type="text" placeholder="Paste image URL" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1">Description</label>
@@ -649,7 +1073,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex gap-3 mt-6">
                       <button onClick={() => { setGalleryDialogOpen(false); resetPhotoForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-                      <button onClick={() => { if (editingPhoto) { updatePhotoMut.mutate({ id: editingPhoto.id, data: photoForm }); } else { createPhoto.mutate(photoForm); } }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">{editingPhoto ? 'Save Changes' : 'Add Photo'}</button>
+                      <button disabled={isUploading} onClick={() => { if (editingPhoto) { updatePhotoMut.mutate({ id: editingPhoto.id, data: photoForm }); } else { createPhoto.mutate(photoForm); } }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">{editingPhoto ? 'Save Changes' : 'Add Photo'}</button>
                     </div>
                   </div>
                 </div>
@@ -735,6 +1159,31 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {reviewsTotalPages > 1 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {((reviewsPage - 1) * PAGE_SIZE) + 1}-{Math.min(reviewsPage * PAGE_SIZE, reviewsTotal)} of {reviewsTotal}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setReviewsPage(p => Math.max(1, p - 1))}
+                      disabled={reviewsPage === 1}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">Page {reviewsPage} of {reviewsTotalPages}</span>
+                    <button
+                      onClick={() => setReviewsPage(p => Math.min(reviewsTotalPages, p + 1))}
+                      disabled={reviewsPage === reviewsTotalPages}
+                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

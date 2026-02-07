@@ -3,7 +3,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 import { Calendar, Users, MapPin, Utensils, Hotel, Car, Mountain, Phone, Mail, User, MessageCircle, Check } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const DESTINATIONS = [
   { id: 'pai', en: 'Pai', he: 'פאי' },
@@ -30,9 +32,13 @@ const ATTRACTIONS = [
 ];
 
 export default function BookingForm() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isHebrew = language === 'he';
-  
+  usePageMeta('Book Your Tour', 'Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling.');
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [bookingRef, setBookingRef] = useState('');
+
   const [formData, setFormData] = useState({
     // Contact
     contactName: '',
@@ -73,20 +79,116 @@ export default function BookingForm() {
     budget: '',
   });
 
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // contactName required, min 2 chars
+    if (!formData.contactName || formData.contactName.trim().length < 2) {
+      errors.contactName = t(
+        'Name must be at least 2 characters',
+        'השם חייב להכיל לפחות 2 תווים'
+      );
+    }
+
+    // Email format validation
+    if (formData.contactEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.contactEmail)) {
+        errors.contactEmail = t(
+          'Please enter a valid email address',
+          'נא להזין כתובת אימייל תקינה'
+        );
+      }
+    }
+
+    // Phone: digits, +, spaces, dashes, min 8 chars
+    if (!formData.contactPhone || formData.contactPhone.trim().length < 8) {
+      errors.contactPhone = t(
+        'Phone number must be at least 8 characters',
+        'מספר טלפון חייב להכיל לפחות 8 תווים'
+      );
+    } else if (!/^[\d+\s\-()]+$/.test(formData.contactPhone.trim())) {
+      errors.contactPhone = t(
+        'Phone number can only contain digits, +, spaces, and dashes',
+        'מספר טלפון יכול להכיל רק ספרות, +, רווחים ומקפים'
+      );
+    }
+
+    // arrivalDate must be at least 24 hours in the future
+    if (!formData.arrivalDate) {
+      errors.arrivalDate = t(
+        'Pickup date is required',
+        'תאריך איסוף הוא שדה חובה'
+      );
+    } else {
+      const arrival = new Date(formData.arrivalDate);
+      const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      if (arrival < minDate) {
+        errors.arrivalDate = t(
+          'Pickup date must be at least 24 hours from now',
+          'תאריך איסוף חייב להיות לפחות 24 שעות מעכשיו'
+        );
+      }
+    }
+
+    // departureDate must be after arrivalDate
+    if (!formData.departureDate) {
+      errors.departureDate = t(
+        'End date is required',
+        'תאריך סיום הוא שדה חובה'
+      );
+    } else if (formData.arrivalDate && formData.departureDate <= formData.arrivalDate) {
+      errors.departureDate = t(
+        'End date must be after pickup date',
+        'תאריך סיום חייב להיות אחרי תאריך האיסוף'
+      );
+    }
+
+    // numberOfChildren required if hasChildren is true
+    if (formData.hasChildren && (!formData.numberOfChildren || formData.numberOfChildren < 1)) {
+      errors.numberOfChildren = t(
+        'Please specify the number of children',
+        'נא לציין את מספר הילדים'
+      );
+    }
+
+    // At least one service must be selected
+    const hasService = formData.includesHotels || formData.includesGuide || formData.includesTrip || formData.includesAttractions || formData.includesFood;
+    if (!hasService) {
+      errors.services = t(
+        'Please select at least one service',
+        'נא לבחור לפחות שירות אחד'
+      );
+    }
+
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.error(t(
+        'Please fix the errors in the form before submitting',
+        'נא לתקן את השגיאות בטופס לפני השליחה'
+      ));
+      return false;
+    }
+    return true;
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const createBooking = trpc.booking.create.useMutation({
     onSuccess: () => {
       setIsSubmitting(false);
+      setBookingRef(`WIRO-${Date.now()}`);
       setSubmitSuccess(true);
+      toast.success(t('Booking submitted successfully!', 'ההזמנה נשלחה בהצלחה!'));
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
       window.open(`https://wa.me/66929894495?text=${encodeURIComponent(message)}`, '_blank');
     },
     onError: (error) => {
       setIsSubmitting(false);
-      alert(isHebrew ? 'שגיאה בשליחת הטופס. נסה שוב.' : 'Error submitting form. Please try again.');
+      toast.error(t('Error submitting form. Please try again.', 'שגיאה בשליחת הטופס. נסה שוב.'));
       console.error(error);
     },
   });
@@ -148,8 +250,9 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setIsSubmitting(true);
-    
+
     try {
       await createBooking.mutateAsync({
         ...formData,
@@ -190,12 +293,18 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
               <Check className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-serif font-bold text-primary mb-4">
-              {isHebrew ? 'ההזמנה נשלחה בהצלחה!' : 'Booking Submitted Successfully!'}
+              {t('Booking Submitted Successfully!', 'ההזמנה נשלחה בהצלחה!')}
             </h2>
+            {bookingRef && (
+              <p className="text-lg font-mono font-semibold text-primary/80 mb-3">
+                {t('Booking Reference:', 'מספר הזמנה:')} {bookingRef}
+              </p>
+            )}
             <p className="text-muted-foreground mb-6">
-              {isHebrew 
-                ? 'תודה על פנייתך! נציג יצור איתך קשר בהקדם. הודעה נשלחה גם לוואטסאפ.'
-                : 'Thank you for your inquiry! A representative will contact you soon. A message was also sent to WhatsApp.'}
+              {t(
+                'Thank you for your inquiry! A representative will contact you soon. A message was also sent to WhatsApp.',
+                'תודה על פנייתך! נציג יצור איתך קשר בהקדם. הודעה נשלחה גם לוואטסאפ.'
+              )}
             </p>
             <a 
               href="/"
@@ -277,8 +386,11 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       min="0"
                       value={formData.numberOfChildren}
                       onChange={(e) => setFormData(prev => ({ ...prev, numberOfChildren: parseInt(e.target.value) || 0 }))}
-                      className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                      className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.numberOfChildren ? 'border-red-500' : 'border-border'}`}
                     />
+                    {formErrors.numberOfChildren && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.numberOfChildren}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -314,9 +426,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   type="date"
                   value={formData.arrivalDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, arrivalDate: e.target.value }))}
-                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                  className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.arrivalDate ? 'border-red-500' : 'border-border'}`}
                   required
                 />
+                {formErrors.arrivalDate && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.arrivalDate}</p>
+                )}
               </div>
 
               {/* Pickup Point */}
@@ -359,9 +474,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   type="date"
                   value={formData.departureDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, departureDate: e.target.value }))}
-                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                  className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.departureDate ? 'border-red-500' : 'border-border'}`}
                   required
                 />
+                {formErrors.departureDate && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.departureDate}</p>
+                )}
               </div>
 
               {/* Dropoff Point */}
@@ -425,6 +543,9 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 </label>
               ))}
             </div>
+            {formErrors.services && (
+              <p className="text-red-500 text-sm mt-2">{formErrors.services}</p>
+            )}
 
             {formData.needsShabbatHotel && (
               <div className="mt-4">
@@ -493,9 +614,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder={isHebrew ? 'שם מלא' : 'Full Name'}
                   value={formData.contactName}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                  className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactName ? 'border-red-500' : 'border-border'}`}
                   required
                 />
+                {formErrors.contactName && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.contactName}</p>
+                )}
               </div>
 
               <div>
@@ -507,9 +631,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder="+972-XX-XXX-XXXX"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                  className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactPhone ? 'border-red-500' : 'border-border'}`}
                   required
                 />
+                {formErrors.contactPhone && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.contactPhone}</p>
+                )}
               </div>
 
               <div>
@@ -521,8 +648,11 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   placeholder="email@example.com"
                   value={formData.contactEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                  className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
+                  className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactEmail ? 'border-red-500' : 'border-border'}`}
                 />
+                {formErrors.contactEmail && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.contactEmail}</p>
+                )}
               </div>
 
               <div>

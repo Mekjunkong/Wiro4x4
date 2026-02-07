@@ -6,9 +6,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'wouter';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 export default function Blog() {
   const { t } = useLanguage();
+  usePageMeta('Travel Blog', 'Travel tips, kosher dining guides, and cultural insights for Israeli travelers exploring Northern Thailand.');
 
   const posts = [
     {

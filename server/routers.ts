@@ -34,7 +34,25 @@ import {
   getPaymentsByBookingId,
   getAllPayments,
   getPaymentStats,
+  deleteAgent,
+  deleteLead,
+  updateFinancialRecord,
+  deleteFinancialRecord,
+  getFinancialStats,
+  createTour,
+  getAllActiveTours,
+  getAllTours,
+  getTourById,
+  updateTour,
+  deleteTour,
+  getAllBookingsPaginated,
+  getAllReviewsPaginated,
+  getAllFinancialRecordsPaginated,
+  getAllGalleryPhotosPaginated,
+  getAllLeadsPaginated,
+  getAllToursPaginated,
 } from "./db";
+import { storagePut } from "./storage";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
 import { sendNewBookingEmail } from "./resendEmailService";
 import { sendCustomerConfirmation } from "./customerEmailService";
@@ -102,6 +120,31 @@ const financialRecordInputSchema = z.object({
   paymentMethod: z.string().optional(),
   paymentDate: z.string().optional().transform((s) => s ? new Date(s) : undefined),
   notes: z.string().optional(),
+});
+
+const tourInputSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  nameHe: z.string().min(1, "Hebrew name is required"),
+  description: z.string().min(1, "Description is required"),
+  descriptionHe: z.string().min(1, "Hebrew description is required"),
+  duration: z.string().min(1, "Duration is required"),
+  difficulty: z.enum(["easy", "moderate", "challenging"]).default("moderate"),
+  price: z.number().min(0, "Price must be positive"),
+  groupMinSize: z.number().min(1).default(1),
+  groupMaxSize: z.number().min(1).default(10),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  highlights: z.string().optional(),
+  highlightsHe: z.string().optional(),
+  isKosher: z.boolean().default(true),
+  isPrivate: z.boolean().default(true),
+  isShabbatOk: z.boolean().default(true),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().default(0),
+});
+
+const paginationInput = z.object({
+  page: z.number().min(1).default(1),
+  pageSize: z.number().min(1).max(100).default(20),
 });
 
 export const appRouter = router({
@@ -198,6 +241,14 @@ export const appRouter = router({
       return await getAllBookings();
     }),
 
+    listPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllBookingsPaginated(page, pageSize);
+        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
+
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
@@ -257,6 +308,13 @@ export const appRouter = router({
         await updateAgent(input.id, input.data);
         return { success: true };
       }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteAgent(input.id);
+        return { success: true };
+      }),
   }),
 
   // Lead procedures
@@ -272,6 +330,14 @@ export const appRouter = router({
       return await getAllLeads();
     }),
 
+    listPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllLeadsPaginated(page, pageSize);
+        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
+
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -283,6 +349,13 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         await updateLead(input.id, input.data);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteLead(input.id);
         return { success: true };
       }),
   }),
@@ -305,6 +378,42 @@ export const appRouter = router({
     listAll: protectedProcedure.query(async () => {
       return await getAllFinancialRecords();
     }),
+
+    listAllPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllFinancialRecordsPaginated(page, pageSize);
+        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          type: z.enum(["revenue", "cost", "refund"]).optional(),
+          category: z.string().optional(),
+          amount: z.number().optional(),
+          description: z.string().optional(),
+          paymentMethod: z.string().optional(),
+          notes: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input }) => {
+        await updateFinancialRecord(input.id, input.data);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteFinancialRecord(input.id);
+        return { success: true };
+      }),
+
+    stats: protectedProcedure.query(async () => {
+      return await getFinancialStats();
+    }),
   }),
 
   // Gallery procedures
@@ -318,6 +427,14 @@ export const appRouter = router({
       const photos = await getAllGalleryPhotos();
       return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
     }),
+
+    listAllPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllGalleryPhotosPaginated(page, pageSize);
+        return { items: items.map(p => ({ ...p, imageUrl: p.s3Url })), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
 
     create: protectedProcedure
       .input(z.object({
@@ -376,6 +493,19 @@ export const appRouter = router({
         await deleteGalleryPhoto(input.id);
         return { success: true };
       }),
+
+    upload: protectedProcedure
+      .input(z.object({
+        filename: z.string(),
+        contentType: z.string(),
+        base64Data: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const buffer = Buffer.from(input.base64Data, 'base64');
+        const key = `gallery/${Date.now()}-${input.filename}`;
+        const result = await storagePut(key, buffer, input.contentType);
+        return { url: result.url, key: result.key };
+      }),
   }),
 
   // Review procedures
@@ -408,6 +538,20 @@ export const appRouter = router({
         status: r.isApproved === 1 ? "approved" as const : r.isPublished === 0 && r.isApproved === 0 ? "pending" as const : "rejected" as const,
       }));
     }),
+
+    listAllPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllReviewsPaginated(page, pageSize);
+        return {
+          items: items.map(r => ({
+            ...r,
+            status: r.isApproved === 1 ? "approved" as const : r.isPublished === 0 && r.isApproved === 0 ? "pending" as const : "rejected" as const,
+          })),
+          total, page, pageSize, totalPages: Math.ceil(total / pageSize),
+        };
+      }),
 
     stats: protectedProcedure.query(async () => {
       return await getReviewStats();
@@ -461,6 +605,64 @@ export const appRouter = router({
     stats: protectedProcedure.query(async () => {
       return await getPaymentStats();
     }),
+  }),
+
+  // Tour procedures
+  tour: router({
+    list: publicProcedure.query(async () => {
+      return await getAllActiveTours();
+    }),
+
+    listAll: protectedProcedure.query(async () => {
+      return await getAllTours();
+    }),
+
+    listAllPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllToursPaginated(page, pageSize);
+        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
+
+    create: protectedProcedure
+      .input(tourInputSchema)
+      .mutation(async ({ input }) => {
+        await createTour({
+          ...input,
+          isKosher: input.isKosher ? 1 : 0,
+          isPrivate: input.isPrivate ? 1 : 0,
+          isShabbatOk: input.isShabbatOk ? 1 : 0,
+          isActive: input.isActive ? 1 : 0,
+        });
+        return { success: true, message: "Tour created successfully" };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: tourInputSchema.partial(),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: Record<string, unknown> = {};
+        const fields = ['name', 'nameHe', 'description', 'descriptionHe', 'duration', 'difficulty', 'price', 'groupMinSize', 'groupMaxSize', 'imageUrl', 'highlights', 'highlightsHe', 'sortOrder'] as const;
+        for (const field of fields) {
+          if (input.data[field] !== undefined) updateData[field] = input.data[field];
+        }
+        if (input.data.isKosher !== undefined) updateData.isKosher = input.data.isKosher ? 1 : 0;
+        if (input.data.isPrivate !== undefined) updateData.isPrivate = input.data.isPrivate ? 1 : 0;
+        if (input.data.isShabbatOk !== undefined) updateData.isShabbatOk = input.data.isShabbatOk ? 1 : 0;
+        if (input.data.isActive !== undefined) updateData.isActive = input.data.isActive ? 1 : 0;
+        await updateTour(input.id, updateData as any);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteTour(input.id);
+        return { success: true };
+      }),
   }),
 });
 
