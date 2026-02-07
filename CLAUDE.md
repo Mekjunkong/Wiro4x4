@@ -1,0 +1,405 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with the Wiro 4x4 tour booking website.
+
+## Project Overview
+
+**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. The site features bilingual support (English/Hebrew), booking system, admin panel, WhatsApp integration, and parallax effects.
+
+**Tech Stack:**
+- **Frontend:** React 19 + TypeScript + Tailwind CSS 4 + Wouter (routing)
+- **Backend:** Express 4 + tRPC 11 + Drizzle ORM
+- **Database:** MySQL/TiDB (provided by Manus platform)
+- **Auth:** Manus OAuth (built-in)
+- **Hosting:** Manus platform (with custom domain support)
+
+## Development Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server (frontend + backend)
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Database operations
+pnpm db:push          # Push schema changes to database
+
+# Build for production
+pnpm build
+
+# Format code
+pnpm format
+```
+
+## Project Structure
+
+```
+/home/ubuntu/wiro-4x4/
+├── client/                      # Frontend React application
+│   ├── src/
+│   │   ├── components/          # Reusable UI components
+│   │   │   ├── Header.tsx       # Navigation with language switcher
+│   │   │   ├── Hero.tsx         # Hero banner with parallax effect
+│   │   │   ├── Tours.tsx        # Tour cards display
+│   │   │   ├── Footer.tsx       # Footer with contact info
+│   │   │   ├── WhyWiro.tsx      # Why choose us section
+│   │   │   ├── Testimonials.tsx # Customer testimonials
+│   │   │   ├── CommunityConnection.tsx
+│   │   │   ├── KosherInfo.tsx   # Kosher information
+│   │   │   ├── FloatingActionButtons.tsx  # WhatsApp + Calendar buttons
+│   │   │   └── DashboardLayout.tsx  # Admin layout wrapper
+│   │   ├── pages/               # Page components
+│   │   │   ├── Home.tsx         # Landing page
+│   │   │   ├── BookingForm.tsx  # Tour booking form
+│   │   │   ├── BookingSuccess.tsx  # Success page
+│   │   │   ├── AdminDashboard.tsx  # Admin panel
+│   │   │   ├── Pricing.tsx      # Pricing page
+│   │   │   ├── Blog.tsx         # Blog listing
+│   │   │   └── BlogPost.tsx     # Individual blog post
+│   │   ├── lib/
+│   │   │   └── trpc.ts          # tRPC client setup
+│   │   ├── hooks/
+│   │   │   └── useAuth.ts       # Authentication hook
+│   │   ├── const.ts             # Constants (WhatsApp, logos, etc.)
+│   │   ├── App.tsx              # Main app with routing
+│   │   ├── main.tsx             # Entry point with providers
+│   │   └── index.css            # Global styles + Tailwind
+│   ├── public/                  # Static assets
+│   └── index.html               # HTML template
+├── server/                      # Backend Node.js application
+│   ├── _core/                   # Manus framework core (DO NOT EDIT)
+│   │   ├── index.ts             # Express server setup
+│   │   ├── trpc.ts              # tRPC configuration
+│   │   ├── context.ts           # Request context
+│   │   ├── llm.ts               # LLM integration helper
+│   │   ├── imageGeneration.ts   # Image generation helper
+│   │   ├── voiceTranscription.ts  # Audio transcription helper
+│   │   ├── map.ts               # Google Maps integration
+│   │   ├── notification.ts      # Owner notification helper
+│   │   └── oauth.ts             # Manus OAuth handler
+│   ├── routers.ts               # tRPC API routes (EDIT THIS)
+│   ├── db.ts                    # Database query helpers
+│   └── storage.ts               # S3 file storage helpers
+├── drizzle/                     # Database schema and migrations
+│   ├── schema.ts                # Database tables definition
+│   └── migrations/              # Auto-generated migrations
+├── shared/                      # Shared types between frontend/backend
+│   └── types.ts                 # Shared TypeScript interfaces
+├── todo.md                      # Project task tracking
+├── package.json                 # Dependencies and scripts
+└── vite.config.ts               # Vite configuration
+```
+
+## Key Features
+
+### 1. Bilingual Support (English/Hebrew)
+- Language switcher in header (flag icons)
+- All content translated in components
+- RTL support removed (caused layout issues)
+- Language state managed in `Header.tsx`
+
+### 2. Booking System
+- **Frontend:** `client/src/pages/BookingForm.tsx`
+- **Backend:** `server/routers.ts` → `booking.create` procedure
+- **Database:** `drizzle/schema.ts` → `bookings` table
+- **Flow:** Form → tRPC mutation → Database → WhatsApp redirect
+- **WhatsApp Number:** +66929894495
+
+### 3. Admin Panel
+- **URL:** `/admin` (requires authentication)
+- **Features:** View bookings, change status, delete bookings
+- **File:** `client/src/pages/AdminDashboard.tsx`
+- **API:** `booking.list`, `booking.update`, `booking.delete`
+
+### 4. Authentication
+- **System:** Manus OAuth (automatic)
+- **Hook:** `useAuth()` from `client/src/_core/hooks/useAuth.ts`
+- **Protected Routes:** Admin panel requires login
+- **Login URL:** Generated by `getLoginUrl()` in `client/src/const.ts`
+
+### 5. WhatsApp Integration
+- **Floating button:** Bottom-right corner (green)
+- **Booking redirect:** After form submission
+- **Number:** +66929894495 (update in `client/src/const.ts`)
+
+## Development Workflow
+
+### Adding New Features
+
+1. **Update todo.md** - Add task to track progress
+2. **Database changes:**
+   - Edit `drizzle/schema.ts`
+   - Run `pnpm db:push`
+3. **Backend API:**
+   - Add procedure in `server/routers.ts`
+   - Add query helper in `server/db.ts` if needed
+4. **Frontend UI:**
+   - Create/update component in `client/src/components/` or `client/src/pages/`
+   - Use `trpc.*.useQuery()` or `trpc.*.useMutation()` to call API
+5. **Test:** Run `pnpm test`
+6. **Mark complete:** Update todo.md with `[x]`
+
+### Making UI Changes
+
+**Styling:**
+- Use Tailwind CSS utility classes
+- Global styles in `client/src/index.css`
+- Color palette defined in CSS variables
+- Responsive: mobile-first approach
+
+**Components:**
+- Use shadcn/ui components from `@/components/ui/*`
+- Keep components small and reusable
+- Extract repeated UI patterns
+
+**Images:**
+- Store in `client/public/` or upload to S3
+- Use `storagePut()` from `server/storage.ts` for user uploads
+- Add content hash to filenames for cache busting
+
+### Working with Database
+
+```typescript
+// 1. Define schema in drizzle/schema.ts
+export const bookings = mysqlTable('bookings', {
+  id: int('id').primaryKey().autoincrement(),
+  customerName: varchar('customer_name', { length: 255 }).notNull(),
+  // ... more fields
+});
+
+// 2. Push to database
+// Run: pnpm db:push
+
+// 3. Create query helper in server/db.ts
+export async function getBookingById(id: number) {
+  return db.query.bookings.findFirst({
+    where: eq(bookings.id, id),
+  });
+}
+
+// 4. Use in tRPC procedure (server/routers.ts)
+booking: router({
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      return await getBookingById(input.id);
+    }),
+}),
+
+// 5. Call from frontend
+const { data } = trpc.booking.getById.useQuery({ id: 123 });
+```
+
+### Working with tRPC
+
+**Backend (server/routers.ts):**
+```typescript
+export const appRouter = router({
+  booking: router({
+    // Query (read data)
+    list: publicProcedure.query(async () => {
+      return await getAllBookings();
+    }),
+    
+    // Mutation (write data)
+    create: publicProcedure
+      .input(bookingSchema)
+      .mutation(async ({ input }) => {
+        return await createBooking(input);
+      }),
+  }),
+});
+```
+
+**Frontend:**
+```typescript
+// Query
+const { data, isLoading } = trpc.booking.list.useQuery();
+
+// Mutation
+const createMutation = trpc.booking.create.useMutation({
+  onSuccess: () => {
+    alert('Booking created!');
+  },
+});
+
+createMutation.mutate({ name: 'John', ... });
+```
+
+## Important Files to Edit
+
+### Frequently Modified:
+- `client/src/pages/Home.tsx` - Landing page content
+- `client/src/components/Tours.tsx` - Tour offerings
+- `client/src/pages/BookingForm.tsx` - Booking form
+- `server/routers.ts` - API endpoints
+- `drizzle/schema.ts` - Database tables
+- `client/src/const.ts` - Constants (WhatsApp, logos)
+
+### DO NOT EDIT:
+- `server/_core/*` - Manus framework internals
+- `client/src/_core/*` - Manus framework internals
+- `drizzle/migrations/*` - Auto-generated
+- `node_modules/*` - Dependencies
+
+## Manus Platform Features
+
+### Built-in Services (No Setup Required):
+
+1. **Database:** MySQL/TiDB automatically provisioned
+2. **Authentication:** OAuth with user management
+3. **File Storage:** S3-compatible storage via `storagePut()`
+4. **Email:** Resend integration (requires domain verification)
+5. **LLM:** OpenAI API via `invokeLLM()`
+6. **Image Generation:** via `generateImage()`
+7. **Voice Transcription:** via `transcribeAudio()`
+8. **Maps:** Google Maps proxy via `makeRequest()`
+9. **Notifications:** Owner alerts via `notifyOwner()`
+
+### Environment Variables (Auto-injected):
+- `DATABASE_URL` - MySQL connection
+- `JWT_SECRET` - Session signing
+- `VITE_APP_ID` - OAuth app ID
+- `OAUTH_SERVER_URL` - OAuth backend
+- `VITE_OAUTH_PORTAL_URL` - Login portal
+- `BUILT_IN_FORGE_API_KEY` - Manus API key
+- `RESEND_API_KEY` - Email service
+- `STRIPE_SECRET_KEY` - Payment processing
+- `VITE_APP_TITLE` - App name
+- `VITE_APP_LOGO` - App logo URL
+
+## Common Tasks
+
+### Update WhatsApp Number:
+Edit `client/src/const.ts`:
+```typescript
+export const WHATSAPP_NUMBER = '+66929894495';
+```
+
+### Add New Tour:
+Edit `client/src/components/Tours.tsx` and add to `tours` array.
+
+### Change Colors:
+Edit CSS variables in `client/src/index.css`:
+```css
+:root {
+  --primary: 142 76% 36%;  /* Forest green */
+  --secondary: 43 74% 66%;  /* Gold */
+  /* ... more colors */
+}
+```
+
+### Add New Page:
+1. Create `client/src/pages/NewPage.tsx`
+2. Add route in `client/src/App.tsx`:
+```typescript
+<Route path="/new-page" component={NewPage} />
+```
+
+## Testing
+
+```bash
+# Run all tests
+pnpm test
+
+# Tests are in server/*.test.ts
+# Example: server/auth.logout.test.ts
+```
+
+## Deployment
+
+### Option 1: Manus Platform (Recommended)
+1. Tell Manus agent: "Save checkpoint"
+2. Click "Publish" button in Manus UI
+3. Site live at `wiro4x4.manus.space`
+4. Add custom domain in Settings → Domains
+
+### Option 2: Manual Deployment
+1. Build: `pnpm build`
+2. Deploy `dist/` folder
+3. Set environment variables manually
+4. Configure database connection
+5. Set up OAuth redirect URLs
+
+## Syncing with Manus
+
+After making changes in Claude Code:
+
+1. **Commit and push to GitHub:**
+```bash
+git add .
+git commit -m "Your changes"
+git push origin main
+```
+
+2. **Tell Manus agent:**
+"Pull updates from GitHub"
+
+3. **Manus will:**
+- Pull your changes
+- Run tests
+- Save checkpoint
+- Make it ready to publish
+
+## Troubleshooting
+
+### Build Errors:
+```bash
+pnpm install  # Reinstall dependencies
+pnpm db:push  # Sync database schema
+```
+
+### Database Issues:
+- Schema changes require `pnpm db:push`
+- Check `drizzle/schema.ts` for table definitions
+
+### tRPC Errors:
+- Check `server/routers.ts` for procedure definitions
+- Ensure input validation with Zod schemas
+- Check browser console for error messages
+
+### Styling Issues:
+- Tailwind classes not working? Check `tailwind.config.js`
+- Custom CSS in `client/src/index.css`
+- Use browser DevTools to inspect elements
+
+## Contact & Support
+
+- **GitHub:** https://github.com/Mekjunkong/Wiro4x4
+- **WhatsApp:** +66929894495
+- **Email:** wiro.adventures@gmail.com, pasuthunjunkong@gmail.com
+
+## Notes for Claude Code
+
+- This is a **Manus platform project** - some features are platform-specific
+- **DO NOT** modify files in `server/_core/` or `client/src/_core/`
+- **ALWAYS** update `todo.md` when making changes
+- **TEST** before pushing to GitHub (`pnpm test`)
+- **USE** tRPC for all API calls (not REST/fetch)
+- **STORE** files in S3 using `storagePut()`, not local filesystem
+- **FOLLOW** the existing code patterns and conventions
+- **ASK** user before making major architectural changes
+
+## Quick Reference
+
+| Task | Command/File |
+|------|--------------|
+| Start dev server | `pnpm dev` |
+| Run tests | `pnpm test` |
+| Update database | `pnpm db:push` |
+| Add API endpoint | Edit `server/routers.ts` |
+| Add page | Create in `client/src/pages/` + add route in `App.tsx` |
+| Update styles | Edit `client/src/index.css` or use Tailwind classes |
+| Change WhatsApp | Edit `client/src/const.ts` |
+| View bookings | Visit `/admin` (requires login) |
+| Add tour | Edit `client/src/components/Tours.tsx` |
+
+---
+
+**Last Updated:** 2026-02-07  
+**Version:** 1.0  
+**Platform:** Manus

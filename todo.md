@@ -333,3 +333,12 @@
 - [x] Connect project to GitHub repository wiro4x4 (added github remote)
 - [x] Push all current code to GitHub (pushed 605 objects successfully)
 - [x] Verify repository is updated with latest code (force pushed to main branch)
+
+
+## Create Claude Code Documentation
+
+- [x] Create CLAUDE.md with project overview and architecture
+- [x] Document development commands and workflow
+- [x] Explain Manus platform features and limitations
+- [x] Add key files and folder structure guide
+- [ ] Push to GitHub for Claude Code to use
