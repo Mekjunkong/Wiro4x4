@@ -12,6 +12,8 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BookingForm from "./pages/BookingForm";
 import AdminDashboard from "./pages/AdminDashboard";
+import Gallery from "./pages/Gallery";
+import Reviews from "./pages/Reviews";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -21,6 +23,8 @@ function Router() {
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:id"} component={BlogPost} />
+      <Route path={"/gallery"} component={Gallery} />
+      <Route path={"/reviews"} component={Reviews} />
       <Route path={"/book"} component={BookingForm} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />

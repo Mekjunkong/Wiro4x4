@@ -19,6 +19,21 @@ import {
   createFinancialRecord,
   getFinancialRecordsByBookingId,
   getAllFinancialRecords,
+  createGalleryPhoto,
+  getAllPublishedPhotos,
+  getAllGalleryPhotos,
+  updateGalleryPhoto,
+  deleteGalleryPhoto,
+  createReview,
+  getApprovedReviews,
+  getAllReviews,
+  updateReview,
+  deleteReview,
+  getReviewStats,
+  createPayment,
+  getPaymentsByBookingId,
+  getAllPayments,
+  getPaymentStats,
 } from "./db";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
 import { sendNewBookingEmail } from "./resendEmailService";
@@ -289,6 +304,162 @@ export const appRouter = router({
 
     listAll: protectedProcedure.query(async () => {
       return await getAllFinancialRecords();
+    }),
+  }),
+
+  // Gallery procedures
+  gallery: router({
+    list: publicProcedure.query(async () => {
+      const photos = await getAllPublishedPhotos();
+      return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
+    }),
+
+    listAll: protectedProcedure.query(async () => {
+      const photos = await getAllGalleryPhotos();
+      return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
+    }),
+
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        imageUrl: z.string().min(1),
+        description: z.string().optional(),
+        category: z.enum(["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).default("other"),
+        sortOrder: z.number().default(0),
+        isPublished: z.boolean().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        const url = new URL(input.imageUrl, "https://placeholder.local");
+        await createGalleryPhoto({
+          title: input.title,
+          s3Key: url.pathname,
+          s3Url: input.imageUrl,
+          description: input.description,
+          category: input.category,
+          sortOrder: input.sortOrder,
+          isPublished: input.isPublished ? 1 : 0,
+        });
+        return { success: true };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          title: z.string().optional(),
+          imageUrl: z.string().optional(),
+          description: z.string().optional(),
+          category: z.enum(["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).optional(),
+          sortOrder: z.number().optional(),
+          isPublished: z.boolean().optional(),
+        }),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: Record<string, unknown> = {};
+        if (input.data.title !== undefined) updateData.title = input.data.title;
+        if (input.data.imageUrl !== undefined) {
+          updateData.s3Url = input.data.imageUrl;
+          const url = new URL(input.data.imageUrl, "https://placeholder.local");
+          updateData.s3Key = url.pathname;
+        }
+        if (input.data.description !== undefined) updateData.description = input.data.description;
+        if (input.data.category !== undefined) updateData.category = input.data.category;
+        if (input.data.sortOrder !== undefined) updateData.sortOrder = input.data.sortOrder;
+        if (input.data.isPublished !== undefined) updateData.isPublished = input.data.isPublished ? 1 : 0;
+        await updateGalleryPhoto(input.id, updateData as any);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteGalleryPhoto(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // Review procedures
+  review: router({
+    create: publicProcedure
+      .input(z.object({
+        name: z.string().min(1, "Name is required"),
+        email: z.string().email("Invalid email"),
+        rating: z.number().min(1).max(5),
+        text: z.string().min(1, "Review text is required"),
+        tourType: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await createReview({
+          ...input,
+          isApproved: 0,
+          isPublished: 0,
+        });
+        return { success: true, message: "Review submitted for approval" };
+      }),
+
+    listPublic: publicProcedure.query(async () => {
+      return await getApprovedReviews();
+    }),
+
+    listAll: protectedProcedure.query(async () => {
+      const all = await getAllReviews();
+      return all.map(r => ({
+        ...r,
+        status: r.isApproved === 1 ? "approved" as const : r.isPublished === 0 && r.isApproved === 0 ? "pending" as const : "rejected" as const,
+      }));
+    }),
+
+    stats: protectedProcedure.query(async () => {
+      return await getReviewStats();
+    }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          status: z.enum(["pending", "approved", "rejected"]).optional(),
+          adminResponse: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: Record<string, unknown> = {};
+        if (input.data.adminResponse !== undefined) updateData.adminResponse = input.data.adminResponse;
+        if (input.data.status === "approved") {
+          updateData.isApproved = 1;
+          updateData.isPublished = 1;
+        } else if (input.data.status === "rejected") {
+          updateData.isApproved = 0;
+          updateData.isPublished = 0;
+        } else if (input.data.status === "pending") {
+          updateData.isApproved = 0;
+          updateData.isPublished = 0;
+        }
+        await updateReview(input.id, updateData as any);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteReview(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // Payment procedures (schema only — Stripe integration deferred)
+  payment: router({
+    listByBooking: protectedProcedure
+      .input(z.object({ bookingId: z.number() }))
+      .query(async ({ input }) => {
+        return await getPaymentsByBookingId(input.bookingId);
+      }),
+
+    listAll: protectedProcedure.query(async () => {
+      return await getAllPayments();
+    }),
+
+    stats: protectedProcedure.query(async () => {
+      return await getPaymentStats();
     }),
   }),
 });

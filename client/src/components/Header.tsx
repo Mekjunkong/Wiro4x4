@@ -106,6 +106,16 @@ export function Header() {
                 {t('Blog', 'בלוג')}
               </span>
             </Link>
+            <Link href="/gallery">
+              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+                {t('Gallery', 'גלריה')}
+              </span>
+            </Link>
+            <Link href="/reviews">
+              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+                {t('Reviews', 'ביקורות')}
+              </span>
+            </Link>
             {isAdmin && (
               <Link href="/admin">
                 <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
@@ -193,6 +203,16 @@ export function Header() {
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>
               <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
                 {t('Blog', 'בלוג')}
+              </span>
+            </Link>
+            <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+                {t('Gallery', 'גלריה')}
+              </span>
+            </Link>
+            <Link href="/reviews" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+                {t('Reviews', 'ביקורות')}
               </span>
             </Link>
             {isAdmin && (
