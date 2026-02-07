@@ -341,4 +341,4 @@
 - [x] Document development commands and workflow
 - [x] Explain Manus platform features and limitations
 - [x] Add key files and folder structure guide
-- [ ] Push to GitHub for Claude Code to use
+- [x] Push to GitHub for Claude Code to use (pushed CLAUDE.md and todo.md)
