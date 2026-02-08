@@ -3,6 +3,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { getLoginUrl } from '@/const';
 import { BookingCalendar } from '@/components/BookingCalendar';
+import { toast } from 'sonner';
 import {
   Calendar, Users, DollarSign, TrendingUp,
   CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
@@ -115,21 +116,21 @@ export default function AdminDashboard() {
   const updateBooking = trpc.booking.update.useMutation({
     onSuccess: () => {
       refetchBookings();
-      alert('Booking status updated successfully!');
+      toast.success('Booking status updated successfully!');
     },
     onError: (error) => {
       console.error('Failed to update booking:', error);
-      alert('Failed to update booking status. Please try again.');
+      toast.error('Failed to update booking status. Please try again.');
     },
   });
   const deleteBooking = trpc.booking.delete.useMutation({
     onSuccess: () => {
       refetchBookings();
-      alert('Booking deleted successfully!');
+      toast.success('Booking deleted successfully!');
     },
     onError: (error) => {
       console.error('Failed to delete booking:', error);
-      alert('Failed to delete booking. Please try again.');
+      toast.error('Failed to delete booking. Please try again.');
     },
   });
 
@@ -210,21 +211,21 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-primary">WIRO 4x4 Admin</h1>
-            <span className="text-sm text-gray-500">Welcome, {user.name || user.email}</span>
+        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-primary truncate">WIRO 4x4 Admin</h1>
+            <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">Welcome, {user.name || user.email}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="/" className="text-gray-600 hover:text-primary transition-colors">
-              View Website
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <a href="/" className="text-sm text-gray-600 hover:text-primary transition-colors hidden sm:inline">
+              View Site
             </a>
             <button
               onClick={() => logout()}
-              className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
+              className="flex items-center gap-1 md:gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors min-h-[44px] min-w-[44px] justify-center"
             >
               <LogOut className="w-4 h-4" />
-              Logout
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -232,48 +233,48 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Bookings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
+                <p className="text-xs md:text-sm text-gray-500">Total Bookings</p>
+                <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-blue-600" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Pending</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
+                <p className="text-xs md:text-sm text-gray-500">Pending</p>
+                <p className="text-2xl md:text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <Clock className="w-6 h-6 text-yellow-600" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Confirmed</p>
-                <p className="text-3xl font-bold text-green-600">{stats.confirmedBookings}</p>
+                <p className="text-xs md:text-sm text-gray-500">Confirmed</p>
+                <p className="text-2xl md:text-3xl font-bold text-green-600">{stats.confirmedBookings}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Revenue</p>
-                <p className="text-3xl font-bold text-primary">฿{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-xs md:text-sm text-gray-500">Revenue</p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">฿{stats.totalRevenue.toLocaleString()}</p>
               </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-primary" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
             </div>
           </div>
@@ -282,10 +283,10 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm mb-6">
           <div className="border-b border-gray-200">
-            <nav className="flex gap-8 px-6">
+            <nav className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide">
               {[
                 { id: 'bookings', label: 'Bookings', icon: Calendar, count: bookingsTotal },
-                { id: 'calendar', label: 'Calendar View', icon: Calendar, count: undefined },
+                { id: 'calendar', label: 'Calendar', icon: Calendar, count: undefined },
                 { id: 'agents', label: 'Agents', icon: Users, count: agents?.length },
                 { id: 'leads', label: 'Leads', icon: TrendingUp, count: leadsTotal },
                 { id: 'financial', label: 'Financial', icon: DollarSign, count: financialsTotal },
@@ -296,14 +297,16 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-2 py-4 border-b-2 transition-colors ${
+                  className={`flex items-center gap-1.5 md:gap-2 py-3 md:py-4 px-2 md:px-1 border-b-2 transition-colors whitespace-nowrap text-sm md:text-base min-h-[44px] ${
                     activeTab === tab.id
                       ? 'border-primary text-primary'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <tab.icon className="w-5 h-5" />
-                  {tab.label}{tab.count !== undefined && tab.count > 0 ? ` (${tab.count})` : ''}
+                  <tab.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                  {tab.count !== undefined && tab.count > 0 ? <span className="text-xs">({tab.count})</span> : ''}
                 </button>
               ))}
             </nav>
@@ -359,55 +362,55 @@ export default function AdminDashboard() {
                   {filteredBookings.map(booking => (
                     <div key={booking.id} className="border border-gray-200 rounded-lg overflow-hidden">
                       <div
-                        className="p-4 bg-gray-50 flex items-center justify-between cursor-pointer"
+                        className="p-3 md:p-4 bg-gray-50 flex items-center justify-between cursor-pointer gap-2 min-h-[56px]"
                         onClick={() => setExpandedBooking(expandedBooking === booking.id ? null : booking.id)}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-primary" />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                            <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-semibold">{booking.contactName}</p>
-                            <p className="text-sm text-gray-500">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm md:text-base truncate">{booking.contactName}</p>
+                            <p className="text-xs md:text-sm text-gray-500">
                               {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : 'No date'} -
                               {booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : 'No date'}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}>
+                        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                          <span className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}>
                             {STATUS_LABELS[booking.status as BookingStatus]}
                           </span>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">
                             {booking.numberOfAdults} adults
                           </span>
                           {expandedBooking === booking.id ? (
-                            <ChevronUp className="w-5 h-5 text-gray-400" />
+                            <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                            <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                           )}
                         </div>
                       </div>
 
                       {expandedBooking === booking.id && (
-                        <div className="p-4 border-t border-gray-200">
-                          <div className="grid md:grid-cols-3 gap-6">
+                        <div className="p-3 md:p-4 border-t border-gray-200">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             <div>
-                              <h4 className="font-semibold mb-2 text-gray-700">Contact Info</h4>
+                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Contact Info</h4>
                               <div className="space-y-2 text-sm">
                                 <p className="flex items-center gap-2">
-                                  <Mail className="w-4 h-4 text-gray-400" />
-                                  {booking.contactEmail || 'No email'}
+                                  <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                                  <span className="truncate">{booking.contactEmail || 'No email'}</span>
                                 </p>
                                 <p className="flex items-center gap-2">
-                                  <Phone className="w-4 h-4 text-gray-400" />
+                                  <Phone className="w-4 h-4 text-gray-400 shrink-0" />
                                   {booking.contactPhone}
                                 </p>
                               </div>
                             </div>
                             <div>
-                              <h4 className="font-semibold mb-2 text-gray-700">Services</h4>
-                              <div className="flex flex-wrap gap-2">
+                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Services</h4>
+                              <div className="flex flex-wrap gap-1.5">
                                 {booking.includesHotels && <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Hotels</span>}
                                 {booking.includesGuide && <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Guide</span>}
                                 {booking.includesTrip && <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">4x4 Trip</span>}
@@ -416,12 +419,12 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="font-semibold mb-2 text-gray-700">Actions</h4>
+                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Actions</h4>
                               <div className="flex flex-wrap gap-2">
                                 <select
                                   value={booking.status}
                                   onChange={(e) => handleStatusChange(booking.id, e.target.value as BookingStatus)}
-                                  className="px-3 py-1 border border-gray-300 rounded text-sm"
+                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
                                 >
                                   {Object.entries(STATUS_LABELS).map(([value, label]) => (
                                     <option key={value} value={value}>{label}</option>
@@ -429,7 +432,7 @@ export default function AdminDashboard() {
                                 </select>
                                 <button
                                   onClick={() => handleDeleteBooking(booking.id)}
-                                  className="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 transition-colors"
+                                  className="px-3 py-2 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -727,32 +730,30 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   {allTours.map(tour => (
                     <div key={tour.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="flex items-center gap-4 p-4">
-                        <div className="w-20 h-16 rounded overflow-hidden shrink-0">
-                          <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" />
+                      <div className="p-3 md:p-4">
+                        <div className="flex items-start gap-3 md:gap-4">
+                          <div className="w-16 h-14 md:w-20 md:h-16 rounded overflow-hidden shrink-0">
+                            <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm md:text-base truncate">{tour.name}</h4>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500 mt-1">
+                              <span>{tour.duration}</span>
+                              <span className="capitalize">{tour.difficulty}</span>
+                              <span className="font-semibold text-primary">฿{tour.price.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                              {tour.isKosher === 1 && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Kosher</span>}
+                              {tour.isPrivate === 1 && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">Private</span>}
+                              {tour.isShabbatOk === 1 && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">Shabbat OK</span>}
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${tour.isActive === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                {tour.isActive === 1 ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-semibold truncate">{tour.name}</h4>
-                            <span className="text-sm text-gray-500">/ {tour.nameHe}</span>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                            <span>{tour.duration}</span>
-                            <span className="capitalize">{tour.difficulty}</span>
-                            <span className="font-semibold text-primary">฿{tour.price.toLocaleString()}</span>
-                            <span>Group: {tour.groupMinSize}-{tour.groupMaxSize}</span>
-                          </div>
-                          <div className="flex gap-1.5 mt-1.5">
-                            {tour.isKosher === 1 && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Kosher</span>}
-                            {tour.isPrivate === 1 && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">Private</span>}
-                            {tour.isShabbatOk === 1 && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">Shabbat OK</span>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${tour.isActive === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {tour.isActive === 1 ? 'Active' : 'Inactive'}
-                          </span>
-                          <button onClick={() => updateTourMut.mutate({ id: tour.id, data: { isActive: tour.isActive !== 1 } })} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200">
+                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                          <button onClick={() => updateTourMut.mutate({ id: tour.id, data: { isActive: tour.isActive !== 1 } })} className="px-3 py-1.5 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200 min-h-[36px]">
                             {tour.isActive === 1 ? 'Deactivate' : 'Activate'}
                           </button>
                           <button onClick={() => {
@@ -768,8 +769,8 @@ export default function AdminDashboard() {
                               sortOrder: tour.sortOrder ?? 0,
                             });
                             setTourDialogOpen(true);
-                          }} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">Edit</button>
-                          <button onClick={() => { if (confirm('Delete this tour?')) deleteTourMut.mutate({ id: tour.id }); }} className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
+                          }} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200 min-h-[36px]">Edit</button>
+                          <button onClick={() => { if (confirm('Delete this tour?')) deleteTourMut.mutate({ id: tour.id }); }} className="px-3 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 min-h-[36px]">Delete</button>
                         </div>
                       </div>
                     </div>
@@ -1035,7 +1036,7 @@ export default function AdminDashboard() {
                                 setPhotoForm(p => ({ ...p, imageUrl: result.url }));
                               } catch (err) {
                                 console.error('Upload failed:', err);
-                                alert('Failed to upload image. Please try again or paste a URL.');
+                                toast.error('Failed to upload image. Please try again or paste a URL.');
                               } finally {
                                 setIsUploading(false);
                                 if (fileInputRef.current) fileInputRef.current.value = '';

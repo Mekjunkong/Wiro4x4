@@ -103,12 +103,12 @@
 - [x] Fix Header/Navigation mobile menu (hamburger menu with slide-down navigation)
 - [x] Fix Tours section mobile cards (responsive grid, padding, text sizing)
 - [x] Fix WhyWiro section mobile layout (responsive grid and text)
-- [ ] Fix Pricing page mobile layout
-- [ ] Fix Booking form mobile responsiveness
-- [ ] Fix Admin dashboard mobile view
-- [ ] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
-- [ ] Ensure touch targets are at least 44x44px
-- [ ] Verify text is readable without zooming
+- [x] Fix Pricing page mobile layout (2-col group pricing grid, responsive package cards, mobile-friendly terms)
+- [x] Fix Booking form mobile responsiveness (replaced hardcoded hex colors with design tokens)
+- [x] Fix Admin dashboard mobile view (scrollable tabs, 2-col stats, responsive booking cards, mobile-friendly tour cards)
+- [x] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
+- [x] Ensure touch targets are at least 44x44px (all buttons/selects min-h-[44px])
+- [x] Verify text is readable without zooming (responsive text-xs/text-sm/text-base scaling)
 
 
 ## Bug Fixes
@@ -384,3 +384,32 @@
 - [x] Shared Zod schemas (shared/schemas.ts — reused by server/routers.ts)
 - [x] Drizzle relations (drizzle/relations.ts — bookings↔agents, leads↔bookings, payments↔bookings)
 - [x] Lazy Resend initialization (no crash without API key)
+
+## Phase 3: Mobile Responsiveness + UI Polish
+
+### Admin Dashboard Mobile
+- [x] Horizontal-scrollable tabs with hidden scrollbar (overflow-x-auto scrollbar-hide)
+- [x] 2-column stats grid on mobile (grid-cols-2 md:grid-cols-4)
+- [x] Responsive header (truncated title, hidden welcome text on mobile, 44px touch targets)
+- [x] Mobile-friendly booking cards (smaller avatars, truncated names, responsive expanded view)
+- [x] Tour cards: separated info and action rows for mobile
+- [x] All action buttons have min-h-[44px] for touch accessibility
+
+### Admin Dashboard UI Cleanup
+- [x] Replace all alert() with toast() (sonner) for success/error messages
+- [x] Keep confirm() for destructive actions (delete bookings/tours/photos/reviews)
+
+### Pricing Page Mobile
+- [x] Group size pricing: 2-column grid on mobile with bg-primary/5 cards
+- [x] Package cards: responsive padding and text sizes
+- [x] Booking terms: responsive padding
+
+### BookingForm Design Token Cleanup
+- [x] Replace #f5a623 hex → bg-secondary/text-secondary/border-secondary Tailwind tokens
+- [x] Replace #10b981/#059669 hex → bg-emerald-500/hover:bg-emerald-600
+- [x] Zero hardcoded hex colors remaining in BookingForm and AdminDashboard
+
+### CSS Enhancements
+- [x] Add scrollbar-hide utility class (WebKit + Firefox)
+- [x] Add form element focus/border transitions (0.2s ease)
+- [x] Add card hover lift effect (translateY -2px on hover)
