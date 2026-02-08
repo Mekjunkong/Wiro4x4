@@ -1,7 +1,14 @@
 import { Resend } from 'resend';
 import { createEvents, EventAttributes } from 'ics';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
+let _resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!_resend && process.env.RESEND_API_KEY) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 const SENDER_EMAIL = 'wiro.adventures@gmail.com';
 const COMPANY_NAME = 'WIRO 4x4 - Kosher Off-Road Adventures';
@@ -239,6 +246,12 @@ export async function sendCustomerConfirmation(booking: BookingDetails): Promise
       ];
     }
     
+    const resend = getResend();
+    if (!resend) {
+      console.warn('[Customer Email] Resend API key not configured, skipping email');
+      return false;
+    }
+
     const { data, error } = await resend.emails.send(emailData);
     
     if (error) {

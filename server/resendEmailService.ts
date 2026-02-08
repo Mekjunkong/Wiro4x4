@@ -1,7 +1,13 @@
 import { Resend } from 'resend';
 
-// Initialize Resend with API key from environment
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
+let _resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!_resend && process.env.RESEND_API_KEY) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 // Email recipients for booking notifications
 // NOTE: Until a custom domain is verified at resend.com/domains, 
@@ -147,6 +153,12 @@ export async function sendNewBookingEmail(data: BookingEmailData): Promise<boole
   `;
 
   try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn("[Resend] API key not configured, skipping email");
+      return false;
+    }
+
     const { data: result, error } = await resend.emails.send({
       from: SENDER_EMAIL,
       to: NOTIFICATION_RECIPIENTS,
@@ -224,6 +236,12 @@ export async function sendBookingStatusEmail(
   `;
 
   try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn("[Resend] API key not configured, skipping email");
+      return false;
+    }
+
     const { data: result, error } = await resend.emails.send({
       from: SENDER_EMAIL,
       to: NOTIFICATION_RECIPIENTS,
@@ -249,6 +267,11 @@ export async function sendBookingStatusEmail(
  */
 export async function testResendConnection(): Promise<{ success: boolean; message: string }> {
   try {
+    const resend = getResend();
+    if (!resend) {
+      return { success: false, message: "Resend API key not configured" };
+    }
+
     // Try to send a test email to verify the API key works
     const { data, error } = await resend.emails.send({
       from: SENDER_EMAIL,
