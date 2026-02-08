@@ -9,7 +9,7 @@ import {
   CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
   Phone, Mail, MapPin, User, Filter, Search,
   ChevronDown, ChevronUp, RefreshCw, LogOut,
-  Camera, Star, Upload, Mountain
+  Camera, Star, Upload, Mountain, ArrowRightLeft
 } from 'lucide-react';
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
@@ -75,6 +75,8 @@ export default function AdminDashboard() {
   const reviewsTotalPages = reviewsData?.totalPages ?? 1;
 
   const { data: reviewStats } = trpc.review.stats.useQuery();
+  const { data: agentStats } = trpc.agent.stats.useQuery();
+  const { data: finStats } = trpc.financial.stats.useQuery();
 
   const { data: toursData, isLoading: toursLoading, refetch: refetchTours } = trpc.tour.listAllPaginated.useQuery({ page: toursPage, pageSize: PAGE_SIZE });
   const allTours = toursData?.items;
@@ -153,6 +155,28 @@ export default function AdminDashboard() {
   const updateTourMut = trpc.tour.update.useMutation({ onSuccess: () => { refetchTours(); setTourDialogOpen(false); resetTourForm(); } });
   const deleteTourMut = trpc.tour.delete.useMutation({ onSuccess: () => refetchTours() });
 
+  // Lead mutations
+  const updateLeadMut = trpc.lead.update.useMutation({
+    onSuccess: () => {
+      refetchLeads();
+      toast.success('Lead updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to update lead:', error);
+      toast.error('Failed to update lead. Please try again.');
+    },
+  });
+  const deleteLeadMut = trpc.lead.delete.useMutation({
+    onSuccess: () => {
+      refetchLeads();
+      toast.success('Lead deleted successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to delete lead:', error);
+      toast.error('Failed to delete lead. Please try again.');
+    },
+  });
+
   // Auth check
   if (authLoading) {
     return (
@@ -205,6 +229,18 @@ export default function AdminDashboard() {
     if (confirm('Are you sure you want to delete this booking?')) {
       deleteBooking.mutate({ id: bookingId });
     }
+  };
+
+  const handleAgentAssign = (bookingId: number, agentId: number | null) => {
+    updateBooking.mutate({ id: bookingId, data: { assignedAgentId: agentId ?? undefined } });
+  };
+
+  const handleLeadStatusChange = (leadId: number, newStatus: string) => {
+    updateLeadMut.mutate({ id: leadId, data: { status: newStatus as 'new' | 'contacted' | 'quoted' | 'converted' | 'lost' } });
+  };
+
+  const handleConvertLead = (leadId: number) => {
+    updateLeadMut.mutate({ id: leadId, data: { status: 'converted' } });
   };
 
   return (
@@ -378,6 +414,11 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                          {booking.assignedAgentId && agents?.find(a => a.id === booking.assignedAgentId) && (
+                            <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs hidden sm:inline">
+                              {agents.find(a => a.id === booking.assignedAgentId)?.name}
+                            </span>
+                          )}
                           <span className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}>
                             {STATUS_LABELS[booking.status as BookingStatus]}
                           </span>
@@ -428,6 +469,16 @@ export default function AdminDashboard() {
                                 >
                                   {Object.entries(STATUS_LABELS).map(([value, label]) => (
                                     <option key={value} value={value}>{label}</option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={booking.assignedAgentId ?? ''}
+                                  onChange={(e) => handleAgentAssign(booking.id, e.target.value ? Number(e.target.value) : null)}
+                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
+                                >
+                                  <option value="">Assign Agent</option>
+                                  {agents?.map(agent => (
+                                    <option key={agent.id} value={agent.id}>{agent.name}</option>
                                   ))}
                                 </select>
                                 <button
@@ -520,37 +571,63 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {agents?.map(agent => (
-                    <div key={agent.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-primary" />
+                  {agents?.map(agent => {
+                    const stats = agentStats?.find((s: { id: number }) => s.id === agent.id);
+                    const rating = stats?.rating ?? agent.rating ?? 5;
+                    return (
+                      <div key={agent.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold truncate">{agent.name}</p>
+                            <p className="text-sm text-gray-500 truncate">{agent.email}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-semibold">{agent.name}</p>
-                          <p className="text-sm text-gray-500">{agent.email}</p>
+                        {/* Star Rating */}
+                        <div className="flex items-center gap-1 mb-3">
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <span key={s} className={`text-lg ${s <= rating ? 'text-yellow-400' : 'text-gray-300'}`}>&#9733;</span>
+                          ))}
+                          <span className="text-xs text-gray-500 ml-1">({rating}/5)</span>
+                        </div>
+                        {/* Performance Metrics */}
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                          <div className="bg-blue-50 rounded-lg p-2 text-center">
+                            <p className="text-lg font-bold text-blue-700">{stats?.totalBookings ?? 0}</p>
+                            <p className="text-xs text-blue-600">Total</p>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-2 text-center">
+                            <p className="text-lg font-bold text-green-700">{stats?.completedBookings ?? 0}</p>
+                            <p className="text-xs text-green-600">Completed</p>
+                          </div>
+                          <div className="bg-purple-50 rounded-lg p-2 text-center">
+                            <p className="text-lg font-bold text-purple-700">{stats?.activeBookings ?? 0}</p>
+                            <p className="text-xs text-purple-600">Active</p>
+                          </div>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <p className="flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            {agent.phone}
+                          </p>
+                          {agent.languages && (
+                            <p className="text-gray-500">Languages: {agent.languages}</p>
+                          )}
+                        </div>
+                        <div className="mt-3">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                            agent.status === 'on_leave' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {agent.status}
+                          </span>
                         </div>
                       </div>
-                      <div className="space-y-1 text-sm">
-                        <p className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          {agent.phone}
-                        </p>
-                        {agent.languages && (
-                          <p className="text-gray-500">Languages: {agent.languages}</p>
-                        )}
-                      </div>
-                      <div className="mt-3">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          agent.status === 'active' ? 'bg-green-100 text-green-800' :
-                          agent.status === 'on_leave' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {agent.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -572,34 +649,57 @@ export default function AdminDashboard() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Name</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Contact</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Source</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Name</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden sm:table-cell">Contact</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Source</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Status</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {leads?.map(lead => (
                         <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4">{lead.name}</td>
-                          <td className="py-3 px-4">
+                          <td className="py-3 px-4 text-sm">{lead.name}</td>
+                          <td className="py-3 px-4 hidden sm:table-cell">
                             <p className="text-sm">{lead.email}</p>
                             {lead.phone && <p className="text-sm text-gray-500">{lead.phone}</p>}
                           </td>
-                          <td className="py-3 px-4">{lead.source}</td>
+                          <td className="py-3 px-4 text-sm hidden md:table-cell">{lead.source}</td>
                           <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              lead.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                              lead.status === 'contacted' ? 'bg-yellow-100 text-yellow-800' :
-                              lead.status === 'converted' ? 'bg-green-100 text-green-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {lead.status}
-                            </span>
+                            <select
+                              value={lead.status}
+                              onChange={(e) => handleLeadStatusChange(lead.id, e.target.value)}
+                              className="px-2 py-1 border border-gray-300 rounded text-xs md:text-sm min-h-[44px]"
+                            >
+                              <option value="new">New</option>
+                              <option value="contacted">Contacted</option>
+                              <option value="quoted">Quoted</option>
+                              <option value="converted">Converted</option>
+                              <option value="lost">Lost</option>
+                            </select>
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-500">
+                          <td className="py-3 px-4 text-sm text-gray-500 hidden md:table-cell">
                             {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-wrap gap-1">
+                              {lead.status !== 'converted' && (
+                                <button
+                                  onClick={() => handleConvertLead(lead.id)}
+                                  className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1"
+                                >
+                                  <ArrowRightLeft className="w-3 h-3" />
+                                  <span className="hidden sm:inline">Convert</span>
+                                </button>
+                              )}
+                              <button
+                                onClick={() => { if (confirm('Delete this lead?')) deleteLeadMut.mutate({ id: lead.id }); }}
+                                className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -638,6 +738,28 @@ export default function AdminDashboard() {
           {/* Financial Tab */}
           {activeTab === 'financial' && (
             <div className="p-6">
+              {/* Financial Summary Cards */}
+              {finStats && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <p className="text-xs md:text-sm text-green-600 font-medium">Total Revenue</p>
+                    <p className="text-xl md:text-2xl font-bold text-green-700 mt-1">&#3647;{finStats.totalRevenue.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-xs md:text-sm text-red-600 font-medium">Total Costs</p>
+                    <p className="text-xl md:text-2xl font-bold text-red-700 mt-1">&#3647;{finStats.totalCosts.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <p className="text-xs md:text-sm text-yellow-600 font-medium">Refunds</p>
+                    <p className="text-xl md:text-2xl font-bold text-yellow-700 mt-1">&#3647;{finStats.totalRefunds.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                    <p className="text-xs md:text-sm text-primary font-medium">Net Profit</p>
+                    <p className="text-xl md:text-2xl font-bold text-primary mt-1">&#3647;{finStats.netProfit.toLocaleString()}</p>
+                  </div>
+                </div>
+              )}
+
               {financialsLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>

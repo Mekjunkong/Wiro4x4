@@ -168,6 +168,35 @@ export async function deleteAgent(id: number) {
   return await db.delete(agents).where(eq(agents.id, id));
 }
 
+export async function getBookingsByAgentId(agentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(bookings).where(eq(bookings.assignedAgentId, agentId)).orderBy(desc(bookings.createdAt));
+}
+
+export async function getAgentPerformanceStats() {
+  const db = await getDb();
+  if (!db) return [];
+  const allAgents = await db.select().from(agents);
+  const allBookings = await db.select({
+    assignedAgentId: bookings.assignedAgentId,
+    status: bookings.status,
+  }).from(bookings);
+
+  return allAgents.map(agent => {
+    const agentBookings = allBookings.filter(b => b.assignedAgentId === agent.id);
+    return {
+      id: agent.id,
+      name: agent.name,
+      status: agent.status,
+      rating: agent.rating ?? 5,
+      totalBookings: agentBookings.length,
+      completedBookings: agentBookings.filter(b => b.status === 'completed').length,
+      activeBookings: agentBookings.filter(b => b.status === 'confirmed' || b.status === 'in_progress').length,
+    };
+  });
+}
+
 // Leads
 export async function createLead(lead: InsertLead) {
   const db = await getDb();

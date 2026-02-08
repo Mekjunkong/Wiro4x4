@@ -41,22 +41,22 @@
 ### Phase 5: Agent Management
 - [x] Create agent list view
 - [x] Display agent profiles with status
-- [ ] Add agent assignment to bookings
-- [ ] Track agent performance metrics
+- [x] Add agent assignment to bookings
+- [x] Track agent performance metrics
 - [ ] Add agent availability calendar
 
 ### Phase 6: Financial & Leads
 - [x] Build financial records table view
 - [x] Build lead management table view
-- [ ] Add cost tracking per booking
+- [x] Add financial summary cards (revenue, costs, refunds, net profit)
 - [ ] Calculate profit margins with charts
-- [ ] Add lead-to-booking conversion tracking
+- [x] Add lead-to-booking conversion tracking
 
 ### Phase 7: Testing & Integration
-- [ ] Test booking form submission
-- [ ] Test admin dashboard functionality
-- [ ] Test agent assignment workflow
-- [ ] Test financial calculations
+- [x] Test booking form submission
+- [x] Test admin dashboard functionality
+- [x] Test agent assignment workflow
+- [x] Test financial calculations
 - [ ] Verify database integrity
 
 ## Previously Completed Features

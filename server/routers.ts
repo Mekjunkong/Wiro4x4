@@ -35,6 +35,8 @@ import {
   getAllPayments,
   getPaymentStats,
   deleteAgent,
+  getBookingsByAgentId,
+  getAgentPerformanceStats,
   deleteLead,
   updateFinancialRecord,
   deleteFinancialRecord,
@@ -243,6 +245,16 @@ export const appRouter = router({
         await deleteAgent(input.id);
         return { success: true };
       }),
+
+    bookings: protectedProcedure
+      .input(z.object({ agentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getBookingsByAgentId(input.agentId);
+      }),
+
+    stats: protectedProcedure.query(async () => {
+      return await getAgentPerformanceStats();
+    }),
   }),
 
   // Lead procedures
