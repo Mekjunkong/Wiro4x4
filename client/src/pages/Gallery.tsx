@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -47,7 +47,7 @@ export default function Gallery() {
   ) || [];
 
   const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => setLightboxIndex(null);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
 
   const goToPrev = useCallback(() => {
     if (lightboxIndex === null) return;
@@ -68,11 +68,44 @@ export default function Gallery() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex, goToPrev, goToNext]);
+  }, [lightboxIndex, goToPrev, goToNext, closeLightbox]);
+
+  // N7: Touch swipe gesture support for lightbox
+  const swipeRef = useRef<{ startX: number; startY: number } | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    swipeRef.current = { startX: touch.clientX, startY: touch.clientY };
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!swipeRef.current) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - swipeRef.current.startX;
+    const deltaY = touch.clientY - swipeRef.current.startY;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+    const SWIPE_THRESHOLD = 50;
+
+    if (absDeltaY > absDeltaX && deltaY > SWIPE_THRESHOLD) {
+      // Swipe down: close lightbox
+      closeLightbox();
+    } else if (absDeltaX > absDeltaY && absDeltaX > SWIPE_THRESHOLD) {
+      if (deltaX < 0) {
+        // Swipe left: next photo
+        goToNext();
+      } else {
+        // Swipe right: previous photo
+        goToPrev();
+      }
+    }
+    swipeRef.current = null;
+  }, [closeLightbox, goToNext, goToPrev]);
 
   return (
     <div className="min-h-screen">
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-white mt-20">
@@ -183,7 +216,11 @@ export default function Gallery() {
       <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && closeLightbox()}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none">
           {lightboxIndex !== null && filteredPhotos[lightboxIndex] && (
-            <div className="relative flex flex-col items-center justify-center min-h-[60vh]">
+            <div
+              className="relative flex flex-col items-center justify-center min-h-[60vh]"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <button
                 onClick={closeLightbox}
                 className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
@@ -211,7 +248,8 @@ export default function Gallery() {
               <img
                 src={filteredPhotos[lightboxIndex].imageUrl}
                 alt={filteredPhotos[lightboxIndex].title}
-                className="max-w-full max-h-[80vh] object-contain"
+                className="max-w-full max-h-[80vh] object-contain select-none"
+                draggable={false}
               />
 
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
@@ -228,6 +266,7 @@ export default function Gallery() {
         </DialogContent>
       </Dialog>
 
+      </main>
       <Footer />
     </div>
   );

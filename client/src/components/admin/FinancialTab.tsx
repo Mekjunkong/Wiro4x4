@@ -44,9 +44,9 @@ export function FinancialTab() {
           ? Math.round((finStats.netProfit / finStats.totalRevenue) * 100)
           : 0;
         return (
-          <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 mb-6">
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-              <h4 className="text-sm md:text-base font-semibold text-gray-700">Revenue vs Costs vs Profit</h4>
+              <h4 className="text-sm md:text-base font-semibold text-foreground">Revenue vs Costs vs Profit</h4>
               <span className={`text-sm font-semibold px-3 py-1 rounded-full ${profitMargin >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 Profit Margin: {profitMargin}%
               </span>
@@ -54,10 +54,10 @@ export function FinancialTab() {
             <div className="space-y-3">
               <div>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Revenue</span>
+                  <span className="text-muted-foreground">Revenue</span>
                   <span className="font-semibold text-green-700">&#3647;{finStats.totalRevenue.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
+                <div className="w-full bg-muted rounded-full h-6 md:h-8">
                   <div
                     className="bg-green-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                     style={{ width: `${Math.max((finStats.totalRevenue / maxVal) * 100, 2)}%` }}
@@ -68,10 +68,10 @@ export function FinancialTab() {
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Costs</span>
+                  <span className="text-muted-foreground">Costs</span>
                   <span className="font-semibold text-red-700">&#3647;{finStats.totalCosts.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
+                <div className="w-full bg-muted rounded-full h-6 md:h-8">
                   <div
                     className="bg-red-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                     style={{ width: `${Math.max((finStats.totalCosts / maxVal) * 100, 2)}%` }}
@@ -82,10 +82,10 @@ export function FinancialTab() {
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Refunds</span>
+                  <span className="text-muted-foreground">Refunds</span>
                   <span className="font-semibold text-yellow-700">&#3647;{finStats.totalRefunds.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
+                <div className="w-full bg-muted rounded-full h-6 md:h-8">
                   <div
                     className="bg-yellow-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                     style={{ width: `${Math.max((finStats.totalRefunds / maxVal) * 100, 2)}%` }}
@@ -96,10 +96,10 @@ export function FinancialTab() {
               </div>
               <div>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Net Profit</span>
+                  <span className="text-muted-foreground">Net Profit</span>
                   <span className={`font-semibold ${finStats.netProfit >= 0 ? 'text-primary' : 'text-red-700'}`}>&#3647;{finStats.netProfit.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
+                <div className="w-full bg-muted rounded-full h-6 md:h-8">
                   <div
                     className={`h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2 ${finStats.netProfit >= 0 ? 'bg-primary' : 'bg-red-400'}`}
                     style={{ width: `${Math.max((Math.abs(finStats.netProfit) / maxVal) * 100, 2)}%` }}
@@ -118,25 +118,25 @@ export function FinancialTab() {
           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
         </div>
       ) : financials?.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted-foreground">
           No financial records yet.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Amount</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Date</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Type</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden sm:table-cell">Category</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Amount</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">Description</th>
               </tr>
             </thead>
             <tbody>
               {financials?.map(record => (
-                <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm">
+                <tr key={record.id} className="border-b border-border/50 hover:bg-muted/50">
+                  <td className="py-3 px-4 text-xs md:text-sm">
                     {record.createdAt ? new Date(record.createdAt).toLocaleDateString() : '-'}
                   </td>
                   <td className="py-3 px-4">
@@ -148,11 +148,11 @@ export function FinancialTab() {
                       {record.type}
                     </span>
                   </td>
-                  <td className="py-3 px-4">{record.category}</td>
-                  <td className="py-3 px-4 font-semibold">
+                  <td className="py-3 px-4 text-sm hidden sm:table-cell">{record.category}</td>
+                  <td className="py-3 px-4 font-semibold text-xs md:text-sm">
                     {record.currency} {Number(record.amount).toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-500">{record.description || '-'}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground hidden md:table-cell">{record.description || '-'}</td>
                 </tr>
               ))}
             </tbody>

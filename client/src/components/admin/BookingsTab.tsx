@@ -72,20 +72,20 @@ export function BookingsTab() {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as BookingStatus | 'all')}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         >
           <option value="all">All Status</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -94,7 +94,7 @@ export function BookingsTab() {
         </select>
         <button
           onClick={() => refetchBookings()}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -107,15 +107,15 @@ export function BookingsTab() {
           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
         </div>
       ) : filteredBookings.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted-foreground">
           No bookings found
         </div>
       ) : (
         <div className="space-y-4">
           {filteredBookings.map(booking => (
-            <div key={booking.id} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={booking.id} className="border border-border rounded-lg overflow-hidden">
               <div
-                className="p-3 md:p-4 bg-gray-50 flex items-center justify-between cursor-pointer gap-2 min-h-[56px]"
+                className="p-3 md:p-4 bg-muted/50 flex items-center justify-between cursor-pointer gap-2 min-h-[56px]"
                 onClick={() => setExpandedBooking(expandedBooking === booking.id ? null : booking.id)}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -124,7 +124,7 @@ export function BookingsTab() {
                   </div>
                   <div className="min-w-0">
                     <p className="font-semibold text-sm md:text-base truncate">{booking.contactName}</p>
-                    <p className="text-xs md:text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : 'No date'} -
                       {booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : 'No date'}
                     </p>
@@ -139,35 +139,35 @@ export function BookingsTab() {
                   <span className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}>
                     {STATUS_LABELS[booking.status as BookingStatus]}
                   </span>
-                  <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">
+                  <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
                     {booking.numberOfAdults} adults
                   </span>
                   {expandedBooking === booking.id ? (
-                    <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                    <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                    <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                   )}
                 </div>
               </div>
 
               {expandedBooking === booking.id && (
-                <div className="p-3 md:p-4 border-t border-gray-200">
+                <div className="p-3 md:p-4 border-t border-border">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                     <div>
-                      <h4 className="font-semibold mb-2 text-gray-700 text-sm">Contact Info</h4>
+                      <h4 className="font-semibold mb-2 text-foreground text-sm">Contact Info</h4>
                       <div className="space-y-2 text-sm">
                         <p className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                          <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
                           <span className="truncate">{booking.contactEmail || 'No email'}</span>
                         </p>
                         <p className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-gray-400 shrink-0" />
+                          <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
                           {booking.contactPhone}
                         </p>
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-2 text-gray-700 text-sm">Services</h4>
+                      <h4 className="font-semibold mb-2 text-foreground text-sm">Services</h4>
                       <div className="flex flex-wrap gap-1.5">
                         {booking.includesHotels && <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Hotels</span>}
                         {booking.includesGuide && <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Guide</span>}
@@ -177,12 +177,12 @@ export function BookingsTab() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-2 text-gray-700 text-sm">Actions</h4>
+                      <h4 className="font-semibold mb-2 text-foreground text-sm">Actions</h4>
                       <div className="flex flex-wrap gap-2">
                         <select
                           value={booking.status}
                           onChange={(e) => handleStatusChange(booking.id, e.target.value as BookingStatus)}
-                          className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
+                          className="px-3 py-2 border border-border rounded text-sm min-h-[44px]"
                         >
                           {Object.entries(STATUS_LABELS).map(([value, label]) => (
                             <option key={value} value={value}>{label}</option>
@@ -191,7 +191,7 @@ export function BookingsTab() {
                         <select
                           value={booking.assignedAgentId ?? ''}
                           onChange={(e) => handleAgentAssign(booking.id, e.target.value ? Number(e.target.value) : null)}
-                          className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
+                          className="px-3 py-2 border border-border rounded text-sm min-h-[44px]"
                         >
                           <option value="">Assign Agent</option>
                           {agents?.map(agent => (
@@ -208,9 +208,9 @@ export function BookingsTab() {
                     </div>
                   </div>
                   {booking.specialRequests && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded">
-                      <h4 className="font-semibold text-sm text-gray-700 mb-1">Special Requests</h4>
-                      <p className="text-sm text-gray-600">{booking.specialRequests}</p>
+                    <div className="mt-4 p-3 bg-muted/50 rounded">
+                      <h4 className="font-semibold text-sm text-foreground mb-1">Special Requests</h4>
+                      <p className="text-sm text-muted-foreground">{booking.specialRequests}</p>
                     </div>
                   )}
                 </div>

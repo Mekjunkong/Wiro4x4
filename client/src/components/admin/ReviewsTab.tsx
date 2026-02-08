@@ -46,7 +46,7 @@ export function ReviewsTab() {
       {/* Filter */}
       <div className="flex gap-2 mb-6">
         {(['all', 'pending', 'approved', 'rejected'] as const).map(f => (
-          <button key={f} onClick={() => setReviewFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${reviewFilter === f ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          <button key={f} onClick={() => setReviewFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${reviewFilter === f ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
@@ -57,27 +57,27 @@ export function ReviewsTab() {
       ) : (
         <div className="space-y-4">
           {allReviews?.filter(r => reviewFilter === 'all' || r.status === reviewFilter).map(review => (
-            <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+            <div key={review.id} className="border border-border rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h4 className="font-semibold">{review.name}</h4>
-                  <p className="text-sm text-gray-500">{review.email}</p>
+                  <p className="text-sm text-muted-foreground">{review.email}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="flex">{[1,2,3,4,5].map(s => <span key={s} className={s <= review.rating ? 'text-yellow-400' : 'text-gray-300'}>&#9733;</span>)}</div>
+                    <div className="flex">{[1,2,3,4,5].map(s => <span key={s} className={s <= review.rating ? 'text-yellow-400' : 'text-muted-foreground/50'}>&#9733;</span>)}</div>
                     {review.tourType && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{review.tourType}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${review.status === 'approved' ? 'bg-green-100 text-green-800' : review.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{review.status}</span>
-                  <span className="text-xs text-gray-400">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
+                  <span className="text-xs text-muted-foreground">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
                 </div>
               </div>
-              <p className="text-sm text-gray-700 mb-3">{review.text}</p>
+              <p className="text-sm text-foreground mb-3">{review.text}</p>
 
               {review.adminResponse && (
                 <div className="mb-3 pl-3 border-l-4 border-primary bg-primary/5 rounded-r p-2">
                   <p className="text-xs font-semibold text-primary">Admin Response:</p>
-                  <p className="text-sm text-gray-600">{review.adminResponse}</p>
+                  <p className="text-sm text-muted-foreground">{review.adminResponse}</p>
                 </div>
               )}
 
@@ -90,7 +90,7 @@ export function ReviewsTab() {
 
               {respondingReview === review.id && (
                 <div className="mt-3 flex gap-2">
-                  <textarea value={adminResponseText} onChange={e => setAdminResponseText(e.target.value)} placeholder="Write admin response..." className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
+                  <textarea value={adminResponseText} onChange={e => setAdminResponseText(e.target.value)} placeholder="Write admin response..." className="flex-1 px-3 py-2 border border-border rounded-lg text-sm" rows={2} />
                   <button onClick={() => { updateReviewMut.mutate({ id: review.id, data: { adminResponse: adminResponseText } }); setRespondingReview(null); }} className="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">Save</button>
                 </div>
               )}

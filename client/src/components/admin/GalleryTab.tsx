@@ -48,22 +48,22 @@ export function GalleryTab() {
       {galleryLoading ? (
         <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
       ) : !galleryPhotos?.length ? (
-        <div className="text-center py-12 text-gray-500">No gallery photos yet.</div>
+        <div className="text-center py-12 text-muted-foreground">No gallery photos yet.</div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {galleryPhotos.map(photo => (
-            <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={photo.id} className="border border-border rounded-lg overflow-hidden">
               <div className="aspect-[4/3] overflow-hidden">
                 <img src={photo.imageUrl} alt={photo.title} className="w-full h-full object-cover" />
               </div>
               <div className="p-3">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold text-sm truncate">{photo.title}</h4>
-                  <span className={`px-2 py-0.5 rounded text-xs ${photo.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                  <span className={`px-2 py-0.5 rounded text-xs ${photo.isPublished ? 'bg-green-100 text-green-800' : 'bg-muted text-foreground'}`}>
                     {photo.isPublished ? 'Published' : 'Draft'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mb-2">{photo.category} | Order: {photo.sortOrder}</p>
+                <p className="text-xs text-muted-foreground mb-2">{photo.category} | Order: {photo.sortOrder}</p>
                 <div className="flex gap-2">
                   <button onClick={() => { setEditingPhoto(photo); setPhotoForm({ title: photo.title, imageUrl: photo.imageUrl, description: photo.description || '', category: photo.category || 'other', sortOrder: photo.sortOrder || 0, isPublished: !!photo.isPublished }); setGalleryDialogOpen(true); }} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">Edit</button>
                   <button onClick={() => updatePhotoMut.mutate({ id: photo.id, data: { isPublished: !photo.isPublished } })} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200">{photo.isPublished ? 'Unpublish' : 'Publish'}</button>
@@ -85,35 +85,35 @@ export function GalleryTab() {
       {/* Gallery Dialog */}
       {galleryDialogOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">{editingPhoto ? 'Edit Photo' : 'Add Photo'}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Title *</label>
-                <input type="text" value={photoForm.title} onChange={e => setPhotoForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                <input type="text" value={photoForm.title} onChange={e => setPhotoForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-border rounded-lg text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Upload Image</label>
                 <div className="space-y-2">
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
+                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {isUploading ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
-                        <span className="text-sm text-gray-500">Uploading...</span>
+                        <span className="text-sm text-muted-foreground">Uploading...</span>
                       </div>
                     ) : photoForm.imageUrl ? (
                       <div>
                         <img src={photoForm.imageUrl} alt="Preview" className="max-h-32 mx-auto rounded mb-2" />
-                        <p className="text-xs text-gray-500">Click to change image</p>
+                        <p className="text-xs text-muted-foreground">Click to change image</p>
                       </div>
                     ) : (
                       <div>
-                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-1" />
-                        <p className="text-sm text-gray-500">Click to upload an image</p>
-                        <p className="text-xs text-gray-400">JPG, PNG, WebP</p>
+                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-1" />
+                        <p className="text-sm text-muted-foreground">Click to upload an image</p>
+                        <p className="text-xs text-muted-foreground">JPG, PNG, WebP</p>
                       </div>
                     )}
                   </div>
@@ -151,17 +151,17 @@ export function GalleryTab() {
                       }
                     }}
                   />
-                  <div className="text-center text-xs text-gray-400">or</div>
-                  <input type="text" placeholder="Paste image URL" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  <div className="text-center text-xs text-muted-foreground">or</div>
+                  <input type="text" placeholder="Paste image URL" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-border rounded-lg text-sm" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Description</label>
-                <textarea value={photoForm.description} onChange={e => setPhotoForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={3} />
+                <textarea value={photoForm.description} onChange={e => setPhotoForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-border rounded-lg text-sm" rows={3} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Category</label>
-                <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value as GalleryCategory }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value as GalleryCategory }))} className="w-full px-3 py-2 border border-border rounded-lg text-sm">
                   <option value="tours">Tours</option>
                   <option value="vehicles">Vehicles</option>
                   <option value="destinations">Destinations</option>
@@ -173,7 +173,7 @@ export function GalleryTab() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Sort Order</label>
-                <input type="number" value={photoForm.sortOrder} onChange={e => setPhotoForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                <input type="number" value={photoForm.sortOrder} onChange={e => setPhotoForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-border rounded-lg text-sm" />
               </div>
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="isPublished" checked={photoForm.isPublished} onChange={e => setPhotoForm(p => ({ ...p, isPublished: e.target.checked }))} className="w-4 h-4" />
@@ -181,7 +181,7 @@ export function GalleryTab() {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setGalleryDialogOpen(false); resetPhotoForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+              <button onClick={() => { setGalleryDialogOpen(false); resetPhotoForm(); }} className="flex-1 px-4 py-2 border border-border rounded-lg text-sm hover:bg-muted/50">Cancel</button>
               <button disabled={isUploading} onClick={() => { if (editingPhoto) { updatePhotoMut.mutate({ id: editingPhoto.id, data: photoForm }); } else { createPhoto.mutate(photoForm); } }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">{editingPhoto ? 'Save Changes' : 'Add Photo'}</button>
             </div>
           </div>

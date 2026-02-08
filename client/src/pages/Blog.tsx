@@ -4,7 +4,7 @@ import { Footer } from '@/components/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, FileText } from 'lucide-react';
 import { Link } from 'wouter';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { trpc } from '@/lib/trpc';
@@ -66,6 +66,7 @@ export default function Blog() {
   return (
     <div className="min-h-screen">
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-primary/5 to-primary/10">
@@ -87,6 +88,20 @@ export default function Blog() {
       {/* Blog Posts Grid */}
       <section className="py-16">
         <div className="container">
+          {/* N2: Empty state when no blog posts */}
+          {posts.length === 0 && (
+            <div className="text-center py-16">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold text-muted-foreground mb-2">
+                {t('No blog posts yet', 'אין פוסטים בבלוג עדיין')}
+              </h3>
+              <p className="text-muted-foreground">
+                {t('Check back soon for travel tips and adventure stories!', 'חזרו בקרוב לטיפים לטיולים וסיפורי הרפתקאות!')}
+              </p>
+            </div>
+          )}
+
+          {posts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {posts.map((post) => (
               <Card key={post.slug} className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group">
@@ -128,9 +143,11 @@ export default function Blog() {
               </Card>
             ))}
           </div>
+          )}
         </div>
       </section>
 
+      </main>
       <Footer />
       <WhatsAppButton />
     </div>

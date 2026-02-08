@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MessageCircle, Calendar, Plus, X } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 export function FloatingActionButtons() {
   const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [location] = useLocation();
+  const isBookingPage = location === '/book';
+
+  // N4: Only pulse 3 times on mount, then stop
+  const [showPulse, setShowPulse] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowPulse(false), 9000); // 3s x 3 cycles
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(
@@ -19,7 +28,7 @@ export function FloatingActionButtons() {
 
   return (
     <div
-      className="fixed bottom-6 right-6 flex flex-col gap-3"
+      className={`fixed right-6 flex flex-col gap-3 ${isBookingPage ? 'bottom-20' : 'bottom-6'}`}
       style={{ zIndex: 9999 }}
       role="group"
       aria-label={t('Quick actions', 'פעולות מהירות')}
@@ -30,7 +39,7 @@ export function FloatingActionButtons() {
         {/* Book Now Button */}
         <Link href="/book">
           <button
-            className="bg-secondary hover:bg-secondary/90 text-black rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle border-2 border-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className={`bg-secondary hover:bg-secondary/90 text-black rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group border-2 border-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${showPulse ? 'animate-pulse-subtle' : ''}`}
             aria-label={t('Book Now', 'הזמן עכשיו')}
           >
             <Calendar className="h-6 w-6" />
@@ -43,7 +52,7 @@ export function FloatingActionButtons() {
         {/* WhatsApp Button */}
         <button
           onClick={handleWhatsAppClick}
-          className="bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group animate-pulse-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
+          className={`bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 ${showPulse ? 'animate-pulse-subtle' : ''}`}
           aria-label={t('Contact us on WhatsApp', 'צור קשר בוואטסאפ')}
         >
           <MessageCircle className="h-6 w-6" />

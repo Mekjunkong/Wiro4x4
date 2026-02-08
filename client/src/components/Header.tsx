@@ -1,18 +1,23 @@
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
-import { Mountain, Menu, X, Shield } from 'lucide-react';
+import { Mountain, Menu, X, Shield, Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 
 export function Header() {
   const { t } = useLanguage();
+  const { theme, toggleTheme, switchable } = useTheme();
   const { user, isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const isAdmin = isAuthenticated && user?.role === 'admin';
+  const [currentPath] = useLocation();
+
+  const isActive = (path: string) => currentPath === path;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,22 +102,22 @@ export function Header() {
               {t('Contact', 'צור קשר')}
             </button>
             <Link href="/pricing">
-              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+              <span className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive('/pricing') ? 'text-primary border-b-2 border-primary pb-1' : ''}`} {...(isActive('/pricing') ? { 'aria-current': 'page' as const } : {})}>
                 {t('Pricing', 'מחירים')}
               </span>
             </Link>
             <Link href="/blog">
-              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+              <span className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive('/blog') ? 'text-primary border-b-2 border-primary pb-1' : ''}`} {...(isActive('/blog') ? { 'aria-current': 'page' as const } : {})}>
                 {t('Blog', 'בלוג')}
               </span>
             </Link>
             <Link href="/gallery">
-              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+              <span className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive('/gallery') ? 'text-primary border-b-2 border-primary pb-1' : ''}`} {...(isActive('/gallery') ? { 'aria-current': 'page' as const } : {})}>
                 {t('Gallery', 'גלריה')}
               </span>
             </Link>
             <Link href="/reviews">
-              <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">
+              <span className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive('/reviews') ? 'text-primary border-b-2 border-primary pb-1' : ''}`} {...(isActive('/reviews') ? { 'aria-current': 'page' as const } : {})}>
                 {t('Reviews', 'ביקורות')}
               </span>
             </Link>
@@ -129,10 +134,28 @@ export function Header() {
                 {t('Book Now', 'הזמן עכשיו')}
               </Button>
             </Link>
+            {switchable && toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                aria-label={theme === 'dark' ? t('Switch to light mode', 'עבור למצב בהיר') : t('Switch to dark mode', 'עבור למצב כהה')}
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            )}
             <LanguageSwitcher />
           </nav>
 
           <div className="md:hidden flex items-center gap-3">
+            {switchable && toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                aria-label={theme === 'dark' ? t('Switch to light mode', 'עבור למצב בהיר') : t('Switch to dark mode', 'עבור למצב כהה')}
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            )}
             <LanguageSwitcher />
             <button
               onClick={toggleMobileMenu}

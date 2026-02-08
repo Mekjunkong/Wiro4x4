@@ -46,7 +46,8 @@ export function Hero() {
           loading="eager"
           style={{
             transform: `translateY(${scrollY * 0.5}px)`,
-            transition: 'transform 0.1s ease-out'
+            transition: 'transform 0.1s ease-out',
+            willChange: 'transform',
           }}
         />
         {/* Elegant Gradient Overlays */}
@@ -71,7 +72,7 @@ export function Hero() {
 
           {/* Main Heading with Luxury Typography */}
           <div className="space-y-4 md:space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold leading-none tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold leading-none tracking-tight">
               <span className="block text-white" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>WIRO 4x4</span>
             </h1>
             <div className="h-1 w-24 md:w-32 mx-auto bg-gradient-to-r from-transparent via-secondary to-transparent" />

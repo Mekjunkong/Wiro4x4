@@ -15,12 +15,14 @@ export default function Home() {
   return (
     <div className="min-h-screen smooth-scroll">
       <Header />
-      <Hero />
-      <Tours />
-      <KosherInfo />
-      <Testimonials />
-      <WhyWiro />
-      <CommunityConnection />
+      <main id="main-content">
+        <Hero />
+        <Tours />
+        <KosherInfo />
+        <Testimonials />
+        <WhyWiro />
+        <CommunityConnection />
+      </main>
       <Footer />
       <FloatingActionButtons />
     </div>

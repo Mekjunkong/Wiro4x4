@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { Calendar, Users, MapPin, Utensils, Hotel, Car, Mountain, Phone, Mail, User, MessageCircle, Check, Loader2 } from 'lucide-react';
+import { Calendar, Users, MapPin, Utensils, Hotel, Car, Mountain, Phone, Mail, User, MessageCircle, Check, Loader2, Save } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
+
+// I9: Get today's date in YYYY-MM-DD for min attribute
+function getTodayISO(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1); // minimum tomorrow (24h ahead)
+  return d.toISOString().split('T')[0];
+}
+
+const DRAFT_KEY = 'wiro-booking-draft';
 
 const DESTINATIONS = [
   { id: 'pai', en: 'Pai', he: 'פאי' },
@@ -38,8 +47,41 @@ export default function BookingForm() {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [bookingRef, setBookingRef] = useState('');
+  const [draftSaved, setDraftSaved] = useState(false);
 
-  const [formData, setFormData] = useState({
+  // N5: Load draft from localStorage on mount
+  type FormData = {
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+    contactWhatsApp: string;
+    agentName: string;
+    arrivalDate: string;
+    departureDate: string;
+    numberOfAdults: number;
+    hasChildren: boolean;
+    numberOfChildren: number;
+    childrenAges: string;
+    includesHotels: boolean;
+    hotelPreferences: string;
+    includesGuide: boolean;
+    includesTrip: boolean;
+    includesAttractions: boolean;
+    selectedAttractions: string[];
+    includesFood: boolean;
+    foodPreferences: string;
+    needsShabbatHotel: boolean;
+    shabbatHotel: string;
+    pickupPoint: string;
+    customPickupLocation: string;
+    dropoffPoint: string;
+    customDropoffLocation: string;
+    suggestedDestinations: string[];
+    specialRequests: string;
+    budget: string;
+  };
+
+  const defaultFormData: FormData = {
     // Contact
     contactName: '',
     contactEmail: '',
@@ -61,7 +103,7 @@ export default function BookingForm() {
     includesGuide: false,
     includesTrip: false,
     includesAttractions: false,
-    selectedAttractions: [] as string[],
+    selectedAttractions: [],
     includesFood: false,
     foodPreferences: '',
     needsShabbatHotel: false,
@@ -72,12 +114,37 @@ export default function BookingForm() {
     customPickupLocation: '',
     dropoffPoint: 'airport',
     customDropoffLocation: '',
-    suggestedDestinations: [] as string[],
+    suggestedDestinations: [],
 
     // Additional
     specialRequests: '',
     budget: '',
+  };
+
+  const [formData, setFormData] = useState<FormData>(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...defaultFormData, ...parsed };
+      }
+    } catch { /* ignore parse errors */ }
+    return defaultFormData;
   });
+
+  // N5: Auto-save draft to localStorage (debounced)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
+        setDraftSaved(true);
+        setTimeout(() => setDraftSaved(false), 2000);
+      } catch { /* ignore storage errors */ }
+    }, 1000);
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+  }, [formData]);
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -181,6 +248,8 @@ export default function BookingForm() {
       setIsSubmitting(false);
       setBookingRef(`WIRO-${Date.now()}`);
       setSubmitSuccess(true);
+      // N5: Clear draft on successful submission
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       toast.success(t('Booking submitted successfully!', 'ההזמנה נשלחה בהצלחה!'));
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
@@ -195,7 +264,7 @@ export default function BookingForm() {
 
   const generateWhatsAppMessage = () => {
     const destinations = formData.suggestedDestinations
-      .map(id => DESTINATIONS.find(d => d.id === id)?.[isHebrew ? 'he' : 'en'])
+      .map((id: string) => DESTINATIONS.find((d) => d.id === id)?.[isHebrew ? 'he' : 'en'])
       .filter(Boolean)
       .join(', ');
 
@@ -322,6 +391,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
   return (
     <div className={`min-h-screen ${isHebrew ? 'rtl' : 'ltr'}`} dir={isHebrew ? 'rtl' : 'ltr'}>
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-secondary to-secondary/85 py-16 md:py-20 text-center text-white mt-20">
@@ -337,6 +407,35 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
       </section>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl pb-24">
+        {/* I3: Progress indicator showing form sections */}
+        <div className="mb-8 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center justify-between min-w-[500px] px-2">
+            {[
+              { num: 1, label: t('Trip Details', 'פרטי הטיול'), icon: Users },
+              { num: 2, label: t('Dates', 'תאריכים'), icon: Calendar },
+              { num: 3, label: t('Services', 'שירותים'), icon: Car },
+              { num: 4, label: t('Destinations', 'יעדים'), icon: MapPin },
+              { num: 5, label: t('Contact', 'פרטי קשר'), icon: User },
+              { num: 6, label: t('Submit', 'שליחה'), icon: MessageCircle },
+            ].map((step, idx, arr) => {
+              const StepIcon = step.icon;
+              return (
+                <div key={step.num} className="flex items-center flex-1 last:flex-initial">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold border-2 border-primary/30">
+                      <StepIcon className="w-4 h-4 md:w-5 md:h-5" />
+                    </div>
+                    <span className="text-[10px] md:text-xs text-muted-foreground font-medium text-center whitespace-nowrap">{step.label}</span>
+                  </div>
+                  {idx < arr.length - 1 && (
+                    <div className="flex-1 h-0.5 bg-primary/20 mx-1 md:mx-2 mt-[-16px]" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8" noValidate>
 
           {/* Trip Details Section */}
@@ -433,6 +532,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 <input
                   id="arrivalDate"
                   type="date"
+                  min={getTodayISO()}
                   value={formData.arrivalDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, arrivalDate: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.arrivalDate ? 'border-red-500' : 'border-border'}`}
@@ -486,6 +586,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 <input
                   id="departureDate"
                   type="date"
+                  min={formData.arrivalDate || getTodayISO()}
                   value={formData.departureDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, departureDate: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.departureDate ? 'border-red-500' : 'border-border'}`}
@@ -754,6 +855,14 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
             </div>
           </fieldset>
 
+          {/* Draft saved indicator (N5) */}
+          {draftSaved && (
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground animate-fade-in">
+              <Save className="w-4 h-4" />
+              {t('Draft saved', 'טיוטה נשמרה')}
+            </div>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -774,6 +883,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </button>
         </form>
       </div>
+      </main>
 
       <Footer />
     </div>

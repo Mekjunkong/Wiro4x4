@@ -49,36 +49,36 @@ export function LeadsTab() {
           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
         </div>
       ) : leads?.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-muted-foreground">
           No leads captured yet.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Name</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden sm:table-cell">Contact</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Source</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Date</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Actions</th>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden sm:table-cell">Contact</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">Source</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Status</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">Date</th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {leads?.map(lead => (
-                <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={lead.id} className="border-b border-border/50 hover:bg-muted/50">
                   <td className="py-3 px-4 text-sm">{lead.name}</td>
                   <td className="py-3 px-4 hidden sm:table-cell">
                     <p className="text-sm">{lead.email}</p>
-                    {lead.phone && <p className="text-sm text-gray-500">{lead.phone}</p>}
+                    {lead.phone && <p className="text-sm text-muted-foreground">{lead.phone}</p>}
                   </td>
                   <td className="py-3 px-4 text-sm hidden md:table-cell">{lead.source}</td>
                   <td className="py-3 px-4">
                     <select
                       value={lead.status}
                       onChange={(e) => handleLeadStatusChange(lead.id, e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-xs md:text-sm min-h-[44px]"
+                      className="px-2 py-1 border border-border rounded text-xs md:text-sm min-h-[44px]"
                     >
                       <option value="new">New</option>
                       <option value="contacted">Contacted</option>
@@ -87,7 +87,7 @@ export function LeadsTab() {
                       <option value="lost">Lost</option>
                     </select>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-500 hidden md:table-cell">
+                  <td className="py-3 px-4 text-sm text-muted-foreground hidden md:table-cell">
                     {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : '-'}
                   </td>
                   <td className="py-3 px-4">
