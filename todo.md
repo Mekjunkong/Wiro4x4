@@ -403,10 +403,10 @@
 
 - [x] Pull latest changes from GitHub (Stripe placeholder, rate limiting, shared schemas, 59 tests)
 - [x] Resolve merge conflicts in todo.md
-- [ ] Review new Stripe placeholder structure (server/stripe.ts)
-- [ ] Review rate limiting implementation (10/min booking, 10/min lead, 5/min review)
-- [ ] Review shared Zod schemas (shared/schemas.ts)
-- [ ] Review 8 new test files (agent, lead, financial, gallery, review, pagination, rate limit, validation)
-- [ ] Run full test suite to verify all 59+ tests pass
-- [ ] Test rate limiting on public endpoints
-- [ ] Verify Resend lazy initialization works without API key
+- [x] Review new Stripe placeholder structure (server/stripe.ts - deposit/balance/full payment model)
+- [x] Review rate limiting implementation (10/min booking, 10/min lead, 5/min review - in-memory sliding window)
+- [x] Review shared Zod schemas (shared/schemas.ts - single source of truth for validation)
+- [x] Review 8 new test files (agent, lead, financial, gallery, review, pagination, rate limit, validation)
+- [x] Run full test suite to verify all 59+ tests pass (13 test files, 59 tests passing)
+- [x] Test rate limiting on public endpoints (3 tests passing in rateLimit.test.ts)
+- [x] Verify Resend lazy initialization works without API key (tests run without crashes)
