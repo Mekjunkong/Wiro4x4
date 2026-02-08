@@ -107,8 +107,6 @@ export function WhyWiro() {
           })}
         </div>
 
-        {/* Real Photo Background Section */}
-
       </div>
     </section>
   );

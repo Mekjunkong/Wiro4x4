@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Database:** MySQL/TiDB (provided by Manus platform)
 - **Auth:** Manus OAuth (built-in)
 - **Email:** Resend (lazy initialization — no crash without API key)
-- **Testing:** Vitest (59 tests across 13 files)
+- **Testing:** Vitest (63 tests across 14 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -94,9 +94,9 @@ pnpm format
 │   ├── test-helpers.ts          # Shared test context + itWithDb helper
 │   ├── *.test.ts                # 13 test files (see Testing section)
 ├── drizzle/                     # Database schema and migrations
-│   ├── schema.ts                # 9 tables (users, bookings, agents, leads,
+│   ├── schema.ts                # 10 tables (users, bookings, agents, leads,
 │   │                            #   financialRecords, galleryPhotos, reviews,
-│   │                            #   payments, tours)
+│   │                            #   payments, tours, blogPosts)
 │   ├── relations.ts             # Drizzle relations (FK relationships)
 │   └── migrations/              # Auto-generated migrations
 ├── shared/                      # Shared types between frontend/backend
@@ -107,7 +107,7 @@ pnpm format
 └── vite.config.ts               # Vite configuration
 ```
 
-## Database Schema (9 tables)
+## Database Schema (10 tables)
 
 | Table | Purpose | Key Fields |
 |-------|---------|------------|
@@ -120,6 +120,7 @@ pnpm format
 | `reviews` | Customer reviews | name, rating (1-5), text, isApproved, adminResponse |
 | `payments` | Payment records | bookingId, type (deposit/balance/full/refund), stripeSessionId |
 | `tours` | Tour offerings | name/nameHe, price, difficulty, isKosher, isActive |
+| `blogPosts` | Blog articles | title/titleHe, slug, content/contentHe, isPublished, publishedAt |
 
 **Relations** (defined in `drizzle/relations.ts`):
 - bookings → agents (assignedAgentId)
@@ -153,6 +154,8 @@ All procedures are in `server/routers.ts`. Validation schemas are in `shared/sch
 | `gallery.create` / `listAll` / `update` / `delete` / `upload` | CRUD | Gallery photos |
 | `review.listAll` / `listAllPaginated` / `update` / `delete` / `stats` | CRUD | Manage reviews |
 | `tour.create` / `listAll` / `update` / `delete` | CRUD | Manage tours |
+| `blog.list` / `getBySlug` (public) | query | Blog posts |
+| `blog.listAll` / `listAllPaginated` / `create` / `update` / `delete` | CRUD | Manage blog |
 | `payment.listByBooking` / `listAll` / `stats` | query | Payment records (read-only) |
 
 ### Pagination Pattern
@@ -178,7 +181,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ### 3. Admin Panel (6 tabs)
 - **URL:** `/admin` (requires authentication)
-- **Tabs:** Bookings, Calendar, Agents, Leads, Financial, Gallery, Reviews, Tours
+- **Tabs:** Bookings, Calendar, Agents, Leads, Financial, Tours, Gallery, Blog, Reviews
 - **File:** `client/src/pages/AdminDashboard.tsx`
 - **All tabs are paginated** (20 items per page with Previous/Next navigation)
 - **CRUD operations** for all entities with toast notifications
@@ -219,7 +222,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ## Testing
 
-**Framework:** Vitest | **59 total tests** | **13 test files**
+**Framework:** Vitest | **63 total tests** | **14 test files**
 
 ```bash
 pnpm test          # Run all tests
@@ -243,6 +246,7 @@ npx vitest run     # Same thing
 | `gallery.test.ts` | 3 | Gallery create + public list + admin list |
 | `resendEmailService.test.ts` | 1 | Graceful fallback without API key |
 | `auth.logout.test.ts` | 1 | Cookie clearing |
+| `blog.test.ts` | 4 | Blog list, getBySlug, create, listAll |
 
 ### Test Patterns
 
@@ -446,4 +450,4 @@ pnpm db:push  # Sync database schema
 **Last Updated:** 2026-02-08
 **Version:** 2.0
 **Platform:** Manus
-**Test Coverage:** 59 tests (13 files) — 43 pass locally, 16 DB-dependent skipped
+**Test Coverage:** 63 tests (14 files) — 46 pass locally, 17 DB-dependent skipped

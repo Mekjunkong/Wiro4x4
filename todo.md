@@ -43,13 +43,13 @@
 - [x] Display agent profiles with status
 - [x] Add agent assignment to bookings
 - [x] Track agent performance metrics
-- [ ] Add agent availability calendar
+- [x] Add agent availability calendar
 
 ### Phase 6: Financial & Leads
 - [x] Build financial records table view
 - [x] Build lead management table view
 - [x] Add financial summary cards (revenue, costs, refunds, net profit)
-- [ ] Calculate profit margins with charts
+- [x] Calculate profit margins with charts
 - [x] Add lead-to-booking conversion tracking
 
 ### Phase 7: Testing & Integration
@@ -413,3 +413,61 @@
 - [x] Add scrollbar-hide utility class (WebKit + Firefox)
 - [x] Add form element focus/border transitions (0.2s ease)
 - [x] Add card hover lift effect (translateY -2px on hover)
+
+
+## Blog System (DB-backed)
+
+### Schema & Backend
+- [x] Add `blogPosts` table to `drizzle/schema.ts` (title, titleHe, slug, excerpt, content, coverImage, category, tags, isPublished, publishedAt, author)
+- [x] Add blog DB helpers to `server/db.ts` (create, getAllPublished, getAll, getBySlug, update, delete, paginated)
+- [x] Add `blogPostInputSchema` to `shared/schemas.ts`
+- [x] Add blog tRPC procedures to `server/routers.ts` (list, getBySlug, listAll, listAllPaginated, create, update, delete)
+- [x] Add blog test file `server/blog.test.ts` (4 tests: list, getBySlug, create, listAll)
+
+### Frontend
+- [x] Update `Blog.tsx` to fetch from `trpc.blog.list` with hardcoded fallback
+- [x] Update `BlogPost.tsx` to fetch by slug from `trpc.blog.getBySlug` with hardcoded fallback
+- [x] Add Blog tab to `AdminDashboard.tsx` with full CRUD (create, edit, delete, publish/unpublish)
+- [x] Blog post form dialog with: title, slug (auto-generated), excerpt, content, cover image, category, tags, author, publish checkbox
+- [x] Hebrew fields (titleHe, excerptHe, contentHe) in blog post form
+- [ ] Run `pnpm db:push` to create blogPosts table in production database
+
+### Future Blog Enhancements
+- [ ] Rich text editor for blog content (replace textarea with markdown editor)
+- [ ] Blog post image upload via S3 (like gallery photos)
+- [ ] Blog post preview before publishing
+- [ ] Blog search/filter by category and tags
+- [ ] Blog RSS feed
+
+
+## Financial Charts
+
+- [x] Add horizontal bar chart to Financial tab (Revenue vs Costs vs Refunds vs Net Profit)
+- [x] Profit margin percentage label
+- [x] Responsive: stacks vertically on mobile
+
+
+## Agent Availability Calendar
+
+- [x] Add weekly availability grid to Agents tab
+- [x] Color-coded: green=active, yellow=on_leave, gray=inactive, purple=Shabbat
+- [x] Shows active booking count per agent
+- [x] Legend with color indicators
+
+
+## Booking Success Page
+
+- [x] Verified existing success view in BookingForm.tsx (check icon, booking ref, WhatsApp info, back to home)
+- [x] Success view already includes Header and Footer components
+
+
+## WhyWiro Empty Section Fix
+
+- [x] Removed empty "Real Photo Background Section" comment stub from WhyWiro.tsx
+
+
+## Cleanup
+
+- [x] Removed accidentally installed `add` package from devDependencies
+- [x] Deleted unused `ComponentShowcase.tsx` (not referenced in routes)
+- [x] Verified `axios` is used by `server/_core/sdk.ts` (must keep)
