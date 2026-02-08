@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. The site features bilingual support (English/Hebrew), booking system, admin panel, WhatsApp integration, and parallax effects.
+**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. The site features bilingual support (English/Hebrew), booking system, admin panel with 6 tabs, photo gallery, customer reviews, WhatsApp integration, and parallax effects.
 
 **Tech Stack:**
 - **Frontend:** React 19 + TypeScript + Tailwind CSS 4 + Wouter (routing)
 - **Backend:** Express 4 + tRPC 11 + Drizzle ORM
 - **Database:** MySQL/TiDB (provided by Manus platform)
 - **Auth:** Manus OAuth (built-in)
+- **Email:** Resend (lazy initialization — no crash without API key)
+- **Testing:** Vitest (63 tests across 14 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -22,8 +24,11 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests
+# Run tests (59 tests: 43 pass locally, 16 DB-dependent skipped)
 pnpm test
+
+# Type check
+npx tsc --noEmit
 
 # Database operations
 pnpm db:push          # Push schema changes to database
@@ -38,207 +43,239 @@ pnpm format
 ## Project Structure
 
 ```
-/home/ubuntu/wiro-4x4/
 ├── client/                      # Frontend React application
 │   ├── src/
 │   │   ├── components/          # Reusable UI components
 │   │   │   ├── Header.tsx       # Navigation with language switcher
 │   │   │   ├── Hero.tsx         # Hero banner with parallax effect
-│   │   │   ├── Tours.tsx        # Tour cards display
+│   │   │   ├── Tours.tsx        # Tour cards (dynamic from DB with fallback)
 │   │   │   ├── Footer.tsx       # Footer with contact info
 │   │   │   ├── WhyWiro.tsx      # Why choose us section
 │   │   │   ├── Testimonials.tsx # Customer testimonials
 │   │   │   ├── CommunityConnection.tsx
 │   │   │   ├── KosherInfo.tsx   # Kosher information
-│   │   │   ├── FloatingActionButtons.tsx  # WhatsApp + Calendar buttons
+│   │   │   ├── FloatingActionButtons.tsx  # WhatsApp + Book Now buttons
 │   │   │   └── DashboardLayout.tsx  # Admin layout wrapper
+│   │   ├── contexts/
+│   │   │   └── LanguageContext.tsx  # Bilingual state (useLanguage hook)
 │   │   ├── pages/               # Page components
 │   │   │   ├── Home.tsx         # Landing page
-│   │   │   ├── BookingForm.tsx  # Tour booking form
+│   │   │   ├── BookingForm.tsx  # Tour booking form (7-rule validation)
 │   │   │   ├── BookingSuccess.tsx  # Success page
-│   │   │   ├── AdminDashboard.tsx  # Admin panel
-│   │   │   ├── Pricing.tsx      # Pricing page
+│   │   │   ├── AdminDashboard.tsx  # Admin panel (6 tabs, paginated)
+│   │   │   ├── Pricing.tsx      # Pricing page (dynamic from DB)
+│   │   │   ├── Gallery.tsx      # Photo gallery with category filters
+│   │   │   ├── Reviews.tsx      # Customer reviews + submission form
 │   │   │   ├── Blog.tsx         # Blog listing
 │   │   │   └── BlogPost.tsx     # Individual blog post
+│   │   ├── hooks/
+│   │   │   ├── useAuth.ts       # Authentication hook
+│   │   │   └── usePageMeta.ts   # Per-page title + meta description
 │   │   ├── lib/
 │   │   │   └── trpc.ts          # tRPC client setup
-│   │   ├── hooks/
-│   │   │   └── useAuth.ts       # Authentication hook
 │   │   ├── const.ts             # Constants (WhatsApp, logos, etc.)
 │   │   ├── App.tsx              # Main app with routing
 │   │   ├── main.tsx             # Entry point with providers
 │   │   └── index.css            # Global styles + Tailwind
-│   ├── public/                  # Static assets
-│   └── index.html               # HTML template
+│   ├── public/
+│   │   ├── robots.txt           # SEO crawl rules
+│   │   └── sitemap.xml          # SEO sitemap
+│   └── index.html               # HTML template (OG tags, JSON-LD)
 ├── server/                      # Backend Node.js application
 │   ├── _core/                   # Manus framework core (DO NOT EDIT)
-│   │   ├── index.ts             # Express server setup
-│   │   ├── trpc.ts              # tRPC configuration
-│   │   ├── context.ts           # Request context
-│   │   ├── llm.ts               # LLM integration helper
-│   │   ├── imageGeneration.ts   # Image generation helper
-│   │   ├── voiceTranscription.ts  # Audio transcription helper
-│   │   ├── map.ts               # Google Maps integration
-│   │   ├── notification.ts      # Owner notification helper
-│   │   └── oauth.ts             # Manus OAuth handler
-│   ├── routers.ts               # tRPC API routes (EDIT THIS)
-│   ├── db.ts                    # Database query helpers
-│   └── storage.ts               # S3 file storage helpers
+│   ├── routers.ts               # tRPC API routes — imports shared schemas
+│   ├── db.ts                    # Database query helpers (50+ functions)
+│   ├── storage.ts               # S3 file storage helpers
+│   ├── emailService.ts          # Manus notification emails
+│   ├── resendEmailService.ts    # Resend email (lazy init)
+│   ├── customerEmailService.ts  # Customer confirmation + ICS calendar
+│   ├── rateLimit.ts             # In-memory rate limiter
+│   ├── stripe.ts                # Stripe placeholder (TODO — deferred)
+│   ├── test-helpers.ts          # Shared test context + itWithDb helper
+│   ├── *.test.ts                # 13 test files (see Testing section)
 ├── drizzle/                     # Database schema and migrations
-│   ├── schema.ts                # Database tables definition
+│   ├── schema.ts                # 10 tables (users, bookings, agents, leads,
+│   │                            #   financialRecords, galleryPhotos, reviews,
+│   │                            #   payments, tours, blogPosts)
+│   ├── relations.ts             # Drizzle relations (FK relationships)
 │   └── migrations/              # Auto-generated migrations
 ├── shared/                      # Shared types between frontend/backend
-│   └── types.ts                 # Shared TypeScript interfaces
+│   ├── types.ts                 # Shared TypeScript interfaces
+│   └── schemas.ts               # Shared Zod validation schemas (single source of truth)
 ├── todo.md                      # Project task tracking
 ├── package.json                 # Dependencies and scripts
 └── vite.config.ts               # Vite configuration
 ```
 
+## Database Schema (10 tables)
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `users` | Auth accounts | openId, email, role (user/admin) |
+| `bookings` | Tour bookings | contact info, dates, services, status, assignedAgentId |
+| `agents` | Tour agents | name, email, specialties, languages, status |
+| `leads` | Sales leads | name, source, status (new→contacted→quoted→converted→lost) |
+| `financialRecords` | Revenue/costs | bookingId, type (revenue/cost/refund), amount |
+| `galleryPhotos` | Photo gallery | title, s3Key, s3Url, category, isPublished |
+| `reviews` | Customer reviews | name, rating (1-5), text, isApproved, adminResponse |
+| `payments` | Payment records | bookingId, type (deposit/balance/full/refund), stripeSessionId |
+| `tours` | Tour offerings | name/nameHe, price, difficulty, isKosher, isActive |
+| `blogPosts` | Blog articles | title/titleHe, slug, content/contentHe, isPublished, publishedAt |
+
+**Relations** (defined in `drizzle/relations.ts`):
+- bookings → agents (assignedAgentId)
+- bookings → financialRecords (one-to-many)
+- bookings → payments (one-to-many)
+- leads → bookings (convertedToBookingId)
+
+## tRPC API Reference
+
+All procedures are in `server/routers.ts`. Validation schemas are in `shared/schemas.ts`.
+
+### Public Procedures (no auth required)
+| Procedure | Type | Purpose |
+|-----------|------|---------|
+| `booking.create` | mutation | Create booking (rate limited: 10/min) |
+| `lead.create` | mutation | Capture lead (rate limited: 10/min) |
+| `review.create` | mutation | Submit review for approval (rate limited: 5/min) |
+| `review.listPublic` | query | Get approved reviews |
+| `gallery.list` | query | Get published photos |
+| `tour.list` | query | Get active tours |
+| `auth.me` | query | Get current user |
+
+### Protected Procedures (admin auth required)
+| Procedure | Type | Purpose |
+|-----------|------|---------|
+| `booking.list` / `listPaginated` | query | List all bookings |
+| `booking.update` / `delete` | mutation | Manage bookings |
+| `agent.create` / `list` / `update` / `delete` | CRUD | Manage agents |
+| `lead.list` / `listPaginated` / `update` / `delete` | CRUD | Manage leads |
+| `financial.create` / `listAll` / `update` / `delete` / `stats` | CRUD | Financial records |
+| `gallery.create` / `listAll` / `update` / `delete` / `upload` | CRUD | Gallery photos |
+| `review.listAll` / `listAllPaginated` / `update` / `delete` / `stats` | CRUD | Manage reviews |
+| `tour.create` / `listAll` / `update` / `delete` | CRUD | Manage tours |
+| `blog.list` / `getBySlug` (public) | query | Blog posts |
+| `blog.listAll` / `listAllPaginated` / `create` / `update` / `delete` | CRUD | Manage blog |
+| `payment.listByBooking` / `listAll` / `stats` | query | Payment records (read-only) |
+
+### Pagination Pattern
+All `listPaginated` procedures accept `{ page: number, pageSize: number }` and return:
+```typescript
+{ items: T[], total: number, page: number, pageSize: number, totalPages: number }
+```
+
 ## Key Features
 
 ### 1. Bilingual Support (English/Hebrew)
+- `useLanguage()` hook from `contexts/LanguageContext.tsx`
+- `t('English text', 'Hebrew text')` pattern in all components
 - Language switcher in header (flag icons)
-- All content translated in components
-- RTL support removed (caused layout issues)
-- Language state managed in `Header.tsx`
+- RTL removed (caused layout issues — English layout used for both)
 
 ### 2. Booking System
-- **Frontend:** `client/src/pages/BookingForm.tsx`
-- **Backend:** `server/routers.ts` → `booking.create` procedure
+- **Frontend:** `client/src/pages/BookingForm.tsx` (7-rule validation, inline errors, toast)
+- **Backend:** `server/routers.ts` → `booking.create` (rate limited)
 - **Database:** `drizzle/schema.ts` → `bookings` table
-- **Flow:** Form → tRPC mutation → Database → WhatsApp redirect
-- **WhatsApp Number:** +66929894495
+- **Flow:** Form → tRPC mutation → DB save → Email notifications → WhatsApp redirect
+- **Emails:** 3-layer system (Manus notification + Resend email + Customer confirmation with ICS)
 
-### 3. Admin Panel
+### 3. Admin Panel (6 tabs)
 - **URL:** `/admin` (requires authentication)
-- **Features:** View bookings, change status, delete bookings
+- **Tabs:** Bookings, Calendar, Agents, Leads, Financial, Tours, Gallery, Blog, Reviews
 - **File:** `client/src/pages/AdminDashboard.tsx`
-- **API:** `booking.list`, `booking.update`, `booking.delete`
+- **All tabs are paginated** (20 items per page with Previous/Next navigation)
+- **CRUD operations** for all entities with toast notifications
 
-### 4. Authentication
-- **System:** Manus OAuth (automatic)
-- **Hook:** `useAuth()` from `client/src/_core/hooks/useAuth.ts`
-- **Protected Routes:** Admin panel requires login
-- **Login URL:** Generated by `getLoginUrl()` in `client/src/const.ts`
+### 4. Photo Gallery
+- **Public:** `/gallery` — masonry grid with category filters
+- **Admin:** Upload + manage photos via Gallery tab
+- **Storage:** S3 via `storagePut()` in `server/storage.ts`
+- **Categories:** tours, vehicles, destinations, activities, food, accommodation, other
 
-### 5. WhatsApp Integration
-- **Floating button:** Bottom-right corner (green)
-- **Booking redirect:** After form submission
-- **Number:** +66929894495 (update in `client/src/const.ts`)
+### 5. Customer Reviews
+- **Public:** `/reviews` — submit reviews + view approved ones
+- **Admin:** Approve/reject reviews, add admin responses
+- **Moderation:** Reviews start as pending, require admin approval
 
-## Development Workflow
+### 6. Dynamic Tours
+- `client/src/components/Tours.tsx` fetches from `trpc.tour.list`
+- Hardcoded fallback if DB returns empty
+- Admin can create/edit/delete tours
 
-### Adding New Features
+### 7. Rate Limiting
+- **File:** `server/rateLimit.ts` — in-memory sliding window
+- `booking.create`: 10 requests/minute per IP
+- `lead.create`: 10 requests/minute per IP
+- `review.create`: 5 requests/minute per IP
 
-1. **Update todo.md** - Add task to track progress
-2. **Database changes:**
-   - Edit `drizzle/schema.ts`
-   - Run `pnpm db:push`
-3. **Backend API:**
-   - Add procedure in `server/routers.ts`
-   - Add query helper in `server/db.ts` if needed
-4. **Frontend UI:**
-   - Create/update component in `client/src/components/` or `client/src/pages/`
-   - Use `trpc.*.useQuery()` or `trpc.*.useMutation()` to call API
-5. **Test:** Run `pnpm test`
-6. **Mark complete:** Update todo.md with `[x]`
+### 8. SEO
+- `robots.txt` + `sitemap.xml` in `client/public/`
+- JSON-LD structured data (TourOperator, LocalBusiness) in `index.html`
+- OG tags, Twitter cards, canonical/hreflang/geo meta tags
+- Per-page meta via `usePageMeta()` hook
 
-### Making UI Changes
+### 9. Stripe Payments (Deferred)
+- Schema ready: `payments` table with Stripe fields
+- Placeholder: `server/stripe.ts` with typed functions + TODO comments
+- Read-only procedures: `payment.listByBooking`, `payment.listAll`, `payment.stats`
+- **Not yet active** — waiting for Stripe credentials
 
-**Styling:**
-- Use Tailwind CSS utility classes
-- Global styles in `client/src/index.css`
-- Color palette defined in CSS variables
-- Responsive: mobile-first approach
+## Testing
 
-**Components:**
-- Use shadcn/ui components from `@/components/ui/*`
-- Keep components small and reusable
-- Extract repeated UI patterns
+**Framework:** Vitest | **63 total tests** | **14 test files**
 
-**Images:**
-- Store in `client/public/` or upload to S3
-- Use `storagePut()` from `server/storage.ts` for user uploads
-- Add content hash to filenames for cache busting
-
-### Working with Database
-
-```typescript
-// 1. Define schema in drizzle/schema.ts
-export const bookings = mysqlTable('bookings', {
-  id: int('id').primaryKey().autoincrement(),
-  customerName: varchar('customer_name', { length: 255 }).notNull(),
-  // ... more fields
-});
-
-// 2. Push to database
-// Run: pnpm db:push
-
-// 3. Create query helper in server/db.ts
-export async function getBookingById(id: number) {
-  return db.query.bookings.findFirst({
-    where: eq(bookings.id, id),
-  });
-}
-
-// 4. Use in tRPC procedure (server/routers.ts)
-booking: router({
-  getById: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
-      return await getBookingById(input.id);
-    }),
-}),
-
-// 5. Call from frontend
-const { data } = trpc.booking.getById.useQuery({ id: 123 });
+```bash
+pnpm test          # Run all tests
+npx vitest run     # Same thing
 ```
 
-### Working with tRPC
+### Test Files
 
-**Backend (server/routers.ts):**
-```typescript
-export const appRouter = router({
-  booking: router({
-    // Query (read data)
-    list: publicProcedure.query(async () => {
-      return await getAllBookings();
-    }),
-    
-    // Mutation (write data)
-    create: publicProcedure
-      .input(bookingSchema)
-      .mutation(async ({ input }) => {
-        return await createBooking(input);
-      }),
-  }),
-});
-```
+| File | Tests | Covers |
+|------|-------|--------|
+| `validation.test.ts` | 12 | All 6 Zod schemas from `shared/schemas.ts` |
+| `emailService.test.ts` | 6 | Manus notification emails (mocked) |
+| `booking.test.ts` | 6 | Booking create + list + agent/lead/financial list |
+| `lead.test.ts` | 6 | Lead create + list + status transitions |
+| `review.test.ts` | 6 | Review create + list + approve + stats |
+| `agent.test.ts` | 5 | Agent create + list + update + delete |
+| `financial.test.ts` | 4 | Financial create (revenue/cost/refund) + stats |
+| `pagination.test.ts` | 3 | Paginated query structure verification |
+| `rateLimit.test.ts` | 3 | Under/over limit + independent key tracking |
+| `stripe.test.ts` | 3 | Placeholder functions throw correctly |
+| `gallery.test.ts` | 3 | Gallery create + public list + admin list |
+| `resendEmailService.test.ts` | 1 | Graceful fallback without API key |
+| `auth.logout.test.ts` | 1 | Cookie clearing |
+| `blog.test.ts` | 4 | Blog list, getBySlug, create, listAll |
 
-**Frontend:**
-```typescript
-// Query
-const { data, isLoading } = trpc.booking.list.useQuery();
+### Test Patterns
 
-// Mutation
-const createMutation = trpc.booking.create.useMutation({
-  onSuccess: () => {
-    alert('Booking created!');
-  },
-});
+- **tRPC caller:** Tests use `appRouter.createCaller(ctx)` — no HTTP server needed
+- **Auth contexts:** `createAuthContext()` / `createPublicContext()` in `server/test-helpers.ts`
+- **DB-dependent tests:** Use `itWithDb` (auto-skips when `DATABASE_URL` not set)
+- **Mocks:** `emailService.test.ts` mocks `notifyOwner`; Resend uses lazy init
 
-createMutation.mutate({ name: 'John', ... });
-```
+### Shared Validation Schemas
+
+All Zod schemas live in `shared/schemas.ts` (single source of truth):
+- `bookingInputSchema`, `agentInputSchema`, `leadInputSchema`
+- `financialRecordInputSchema`, `tourInputSchema`, `reviewInputSchema`
+- `paginationInput`
+
+Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 
 ## Important Files to Edit
 
 ### Frequently Modified:
-- `client/src/pages/Home.tsx` - Landing page content
-- `client/src/components/Tours.tsx` - Tour offerings
+- `server/routers.ts` - API endpoints (imports schemas from `shared/schemas.ts`)
+- `server/db.ts` - Database query helpers (50+ functions)
+- `drizzle/schema.ts` - Database tables (9 tables)
+- `client/src/pages/AdminDashboard.tsx` - Admin panel (6 tabs)
 - `client/src/pages/BookingForm.tsx` - Booking form
-- `server/routers.ts` - API endpoints
-- `drizzle/schema.ts` - Database tables
+- `client/src/components/Tours.tsx` - Tour offerings
+- `client/src/pages/Home.tsx` - Landing page content
 - `client/src/const.ts` - Constants (WhatsApp, logos)
+- `shared/schemas.ts` - Shared Zod validation schemas
 
 ### DO NOT EDIT:
 - `server/_core/*` - Manus framework internals
@@ -267,8 +304,8 @@ createMutation.mutate({ name: 'John', ... });
 - `OAUTH_SERVER_URL` - OAuth backend
 - `VITE_OAUTH_PORTAL_URL` - Login portal
 - `BUILT_IN_FORGE_API_KEY` - Manus API key
-- `RESEND_API_KEY` - Email service
-- `STRIPE_SECRET_KEY` - Payment processing
+- `RESEND_API_KEY` - Email service (lazy — no crash if missing)
+- `STRIPE_SECRET_KEY` - Payment processing (not yet configured)
 - `VITE_APP_TITLE` - App name
 - `VITE_APP_LOGO` - App logo URL
 
@@ -281,17 +318,14 @@ export const WHATSAPP_NUMBER = '+66929894495';
 ```
 
 ### Add New Tour:
-Edit `client/src/components/Tours.tsx` and add to `tours` array.
+1. Admin panel → Tours tab → Create tour (or)
+2. Edit `client/src/components/Tours.tsx` hardcoded fallback array
 
-### Change Colors:
-Edit CSS variables in `client/src/index.css`:
-```css
-:root {
-  --primary: 142 76% 36%;  /* Forest green */
-  --secondary: 43 74% 66%;  /* Gold */
-  /* ... more colors */
-}
-```
+### Add New API Endpoint:
+1. Add Zod schema in `shared/schemas.ts`
+2. Add DB helper in `server/db.ts`
+3. Add tRPC procedure in `server/routers.ts`
+4. Add test in `server/*.test.ts`
 
 ### Add New Page:
 1. Create `client/src/pages/NewPage.tsx`
@@ -299,15 +333,15 @@ Edit CSS variables in `client/src/index.css`:
 ```typescript
 <Route path="/new-page" component={NewPage} />
 ```
+3. Add to `client/public/sitemap.xml`
 
-## Testing
-
-```bash
-# Run all tests
-pnpm test
-
-# Tests are in server/*.test.ts
-# Example: server/auth.logout.test.ts
+### Change Colors:
+Edit CSS variables in `client/src/index.css`:
+```css
+:root {
+  --primary: 142 76% 36%;  /* Forest green */
+  --secondary: 43 74% 66%;  /* Gold */
+}
 ```
 
 ## Deployment
@@ -356,11 +390,17 @@ pnpm db:push  # Sync database schema
 ### Database Issues:
 - Schema changes require `pnpm db:push`
 - Check `drizzle/schema.ts` for table definitions
+- Locally, DB is unavailable — DB-dependent tests auto-skip via `itWithDb`
 
 ### tRPC Errors:
 - Check `server/routers.ts` for procedure definitions
-- Ensure input validation with Zod schemas
+- Validation schemas are in `shared/schemas.ts` (not duplicated in routers)
 - Check browser console for error messages
+
+### Test Failures:
+- "Database not available" → Expected locally (no `DATABASE_URL`), tests use `itWithDb`
+- "Missing API key" → Resend uses lazy init, should not crash
+- Run `npx tsc --noEmit` to check TypeScript errors separately
 
 ### Styling Issues:
 - Tailwind classes not working? Check `tailwind.config.js`
@@ -378,11 +418,14 @@ pnpm db:push  # Sync database schema
 - This is a **Manus platform project** - some features are platform-specific
 - **DO NOT** modify files in `server/_core/` or `client/src/_core/`
 - **ALWAYS** update `todo.md` when making changes
-- **TEST** before pushing to GitHub (`pnpm test`)
+- **TEST** before pushing to GitHub (`pnpm test` + `npx tsc --noEmit`)
 - **USE** tRPC for all API calls (not REST/fetch)
+- **USE** `shared/schemas.ts` for new Zod validation (don't duplicate in routers)
+- **USE** `itWithDb` in test files for DB-dependent tests
 - **STORE** files in S3 using `storagePut()`, not local filesystem
 - **FOLLOW** the existing code patterns and conventions
 - **ASK** user before making major architectural changes
+- **Resend/email services** use lazy initialization — never eagerly construct `new Resend()` at module level
 
 ## Quick Reference
 
@@ -390,16 +433,21 @@ pnpm db:push  # Sync database schema
 |------|--------------|
 | Start dev server | `pnpm dev` |
 | Run tests | `pnpm test` |
+| Type check | `npx tsc --noEmit` |
 | Update database | `pnpm db:push` |
-| Add API endpoint | Edit `server/routers.ts` |
+| Add API endpoint | `shared/schemas.ts` + `server/db.ts` + `server/routers.ts` |
 | Add page | Create in `client/src/pages/` + add route in `App.tsx` |
+| Add test | Create `server/*.test.ts` using `test-helpers.ts` |
 | Update styles | Edit `client/src/index.css` or use Tailwind classes |
 | Change WhatsApp | Edit `client/src/const.ts` |
 | View bookings | Visit `/admin` (requires login) |
-| Add tour | Edit `client/src/components/Tours.tsx` |
+| Add tour | Admin panel → Tours tab, or edit `Tours.tsx` fallback |
+| Add gallery photo | Admin panel → Gallery tab |
+| Manage reviews | Admin panel → Reviews tab |
 
 ---
 
-**Last Updated:** 2026-02-07  
-**Version:** 1.0  
+**Last Updated:** 2026-02-08
+**Version:** 2.0
 **Platform:** Manus
+**Test Coverage:** 63 tests (14 files) — 46 pass locally, 17 DB-dependent skipped

@@ -289,29 +289,29 @@ export default function Pricing() {
           {/* Group Size Pricing */}
           <div className="mt-12 max-w-4xl mx-auto">
             <Card className="p-8">
-              <h3 className="text-2xl font-bold mb-6 text-center">
+              <h3 className="text-xl md:text-2xl font-bold mb-6 text-center">
                 {t('Group Size Pricing', 'תמחור לפי גודל קבוצה')}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="font-bold">1-2 {t('people', 'אנשים')}</div>
-                  <div className="text-sm text-muted-foreground">{t('Base price', 'מחיר בסיס')}</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <div className="text-center p-3 rounded-lg bg-primary/5">
+                  <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="font-bold text-sm md:text-base">1-2 {t('people', 'אנשים')}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t('Base price', 'מחיר בסיס')}</div>
                 </div>
-                <div className="text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="font-bold">3-4 {t('people', 'אנשים')}</div>
-                  <div className="text-sm text-muted-foreground">{t('Same price', 'אותו מחיר')}</div>
+                <div className="text-center p-3 rounded-lg bg-primary/5">
+                  <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="font-bold text-sm md:text-base">3-4 {t('people', 'אנשים')}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t('Same price', 'אותו מחיר')}</div>
                 </div>
-                <div className="text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="font-bold">5-6 {t('people', 'אנשים')}</div>
-                  <div className="text-sm text-muted-foreground">{t('+20%', '+20%')}</div>
+                <div className="text-center p-3 rounded-lg bg-primary/5">
+                  <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="font-bold text-sm md:text-base">5-6 {t('people', 'אנשים')}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t('+20%', '+20%')}</div>
                 </div>
-                <div className="text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="font-bold">7+ {t('people', 'אנשים')}</div>
-                  <div className="text-sm text-muted-foreground">{t('Custom quote', 'הצעת מחיר')}</div>
+                <div className="text-center p-3 rounded-lg bg-primary/5">
+                  <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="font-bold text-sm md:text-base">7+ {t('people', 'אנשים')}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t('Custom quote', 'הצעת מחיר')}</div>
                 </div>
               </div>
             </Card>
@@ -331,21 +331,21 @@ export default function Pricing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             {packages.map((pkg, idx) => (
-              <Card key={idx} className="p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden">
+              <Card key={idx} className="p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden">
                 {pkg.savings > 0 && (
-                  <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
+                  <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs md:text-sm font-bold">
                     {t('Save', 'חסכו')} ฿{pkg.savings}
                   </div>
                 )}
 
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">{pkg.name}</h3>
                   <div className="text-sm text-muted-foreground mb-4">
                     {pkg.days} {t('Days', 'ימים')}
                   </div>
-                  <div className="text-4xl font-bold text-primary">
+                  <div className="text-3xl md:text-4xl font-bold text-primary">
                     ฿{pkg.price.toLocaleString()}
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
@@ -379,8 +379,8 @@ export default function Pricing() {
       {/* Additional Information */}
       <section className="py-16">
         <div className="container max-w-4xl">
-          <Card className="p-8">
-            <h3 className="text-2xl font-bold mb-6">
+          <Card className="p-5 md:p-8">
+            <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
               {t('Booking Terms & Policies', 'תנאי הזמנה ומדיניות')}
             </h3>
 

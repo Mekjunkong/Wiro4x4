@@ -35,6 +35,8 @@ import {
   getAllPayments,
   getPaymentStats,
   deleteAgent,
+  getBookingsByAgentId,
+  getAgentPerformanceStats,
   deleteLead,
   updateFinancialRecord,
   deleteFinancialRecord,
@@ -51,6 +53,13 @@ import {
   getAllGalleryPhotosPaginated,
   getAllLeadsPaginated,
   getAllToursPaginated,
+  createBlogPost,
+  getAllPublishedBlogPosts,
+  getAllBlogPosts,
+  getBlogPostBySlug,
+  updateBlogPost,
+  deleteBlogPost,
+  getAllBlogPostsPaginated,
 } from "./db";
 import { storagePut } from "./storage";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
@@ -65,6 +74,7 @@ import {
   leadInputSchema,
   financialRecordInputSchema,
   tourInputSchema,
+  blogPostInputSchema,
   paginationInput,
 } from "../shared/schemas";
 
@@ -243,6 +253,16 @@ export const appRouter = router({
         await deleteAgent(input.id);
         return { success: true };
       }),
+
+    bookings: protectedProcedure
+      .input(z.object({ agentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getBookingsByAgentId(input.agentId);
+      }),
+
+    stats: protectedProcedure.query(async () => {
+      return await getAgentPerformanceStats();
+    }),
   }),
 
   // Lead procedures
@@ -599,6 +619,70 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         await deleteTour(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // Blog procedures
+  blog: router({
+    list: publicProcedure.query(async () => {
+      return await getAllPublishedBlogPosts();
+    }),
+
+    getBySlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        return await getBlogPostBySlug(input.slug);
+      }),
+
+    listAll: protectedProcedure.query(async () => {
+      return await getAllBlogPosts();
+    }),
+
+    listAllPaginated: protectedProcedure
+      .input(paginationInput)
+      .query(async ({ input }) => {
+        const { page, pageSize } = input;
+        const { items, total } = await getAllBlogPostsPaginated(page, pageSize);
+        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      }),
+
+    create: protectedProcedure
+      .input(blogPostInputSchema)
+      .mutation(async ({ input }) => {
+        await createBlogPost({
+          ...input,
+          isPublished: input.isPublished ? 1 : 0,
+          publishedAt: input.isPublished ? new Date() : undefined,
+        });
+        return { success: true, message: "Blog post created successfully" };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: blogPostInputSchema.partial(),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: Record<string, unknown> = {};
+        const fields = ['title', 'titleHe', 'slug', 'excerpt', 'excerptHe', 'content', 'contentHe', 'coverImage', 'category', 'tags', 'author'] as const;
+        for (const field of fields) {
+          if (input.data[field] !== undefined) updateData[field] = input.data[field];
+        }
+        if (input.data.isPublished !== undefined) {
+          updateData.isPublished = input.data.isPublished ? 1 : 0;
+          if (input.data.isPublished) {
+            updateData.publishedAt = new Date();
+          }
+        }
+        await updateBlogPost(input.id, updateData as any);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteBlogPost(input.id);
         return { success: true };
       }),
   }),

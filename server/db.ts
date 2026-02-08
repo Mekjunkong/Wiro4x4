@@ -91,7 +91,7 @@ export async function getUserByOpenId(openId: string) {
 
 // Booking System Database Helpers
 
-import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, tours, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment, InsertTour } from "../drizzle/schema";
+import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, tours, blogPosts, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment, InsertTour, InsertBlogPost } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
 // Bookings
@@ -166,6 +166,35 @@ export async function deleteAgent(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db.delete(agents).where(eq(agents.id, id));
+}
+
+export async function getBookingsByAgentId(agentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(bookings).where(eq(bookings.assignedAgentId, agentId)).orderBy(desc(bookings.createdAt));
+}
+
+export async function getAgentPerformanceStats() {
+  const db = await getDb();
+  if (!db) return [];
+  const allAgents = await db.select().from(agents);
+  const allBookings = await db.select({
+    assignedAgentId: bookings.assignedAgentId,
+    status: bookings.status,
+  }).from(bookings);
+
+  return allAgents.map(agent => {
+    const agentBookings = allBookings.filter(b => b.assignedAgentId === agent.id);
+    return {
+      id: agent.id,
+      name: agent.name,
+      status: agent.status,
+      rating: agent.rating ?? 5,
+      totalBookings: agentBookings.length,
+      completedBookings: agentBookings.filter(b => b.status === 'completed').length,
+      activeBookings: agentBookings.filter(b => b.status === 'confirmed' || b.status === 'in_progress').length,
+    };
+  });
 }
 
 // Leads
@@ -465,6 +494,57 @@ export async function getAllToursPaginated(page = 1, pageSize = 20) {
   const offset = (page - 1) * pageSize;
   const items = await db.select().from(tours).orderBy(tours.sortOrder, desc(tours.createdAt)).limit(pageSize).offset(offset);
   const countResult = await db.select({ count: sql<number>`count(*)` }).from(tours);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+// ─── Blog Posts ────────────────────────────────────────────
+
+export async function createBlogPost(post: InsertBlogPost) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(blogPosts).values(post);
+}
+
+export async function getAllPublishedBlogPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(blogPosts)
+    .where(eq(blogPosts.isPublished, 1))
+    .orderBy(desc(blogPosts.publishedAt), desc(blogPosts.createdAt));
+}
+
+export async function getAllBlogPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+}
+
+export async function getBlogPostBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateBlogPost(id: number, data: Partial<InsertBlogPost>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(blogPosts).set(data).where(eq(blogPosts.id, id));
+}
+
+export async function deleteBlogPost(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(blogPosts).where(eq(blogPosts.id, id));
+}
+
+export async function getAllBlogPostsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt)).limit(pageSize).offset(offset);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(blogPosts);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }

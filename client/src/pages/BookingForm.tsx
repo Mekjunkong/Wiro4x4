@@ -324,7 +324,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#f5a623] to-[#e6951a] py-16 md:py-20 text-center text-white mt-20">
+      <section className="bg-gradient-to-b from-secondary to-secondary/85 py-16 md:py-20 text-center text-white mt-20">
         <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4 px-4">
           {isHebrew ? 'טופס הזמנת סיור' : 'Tour Booking Form'}
         </h1>
@@ -671,8 +671,8 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           </div>
 
           {/* Agent Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-[#f5a623]/50 bg-[#f5a623]/5">
-            <h2 className="text-2xl font-serif font-bold text-[#f5a623] mb-6 flex items-center gap-2">
+          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-secondary/50 bg-secondary/5">
+            <h2 className="text-2xl font-serif font-bold text-secondary mb-6 flex items-center gap-2">
               <User className="w-6 h-6" />
               {isHebrew ? 'שם סוכן' : 'Agent Name'}
             </h2>
@@ -686,7 +686,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 placeholder={isHebrew ? 'השם שלך' : 'Your Name'}
                 value={formData.agentName}
                 onChange={(e) => setFormData(prev => ({ ...prev, agentName: e.target.value }))}
-                className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-[#f5a623] focus:border-transparent"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
               />
             </div>
           </div>
@@ -711,7 +711,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#10b981] hover:bg-[#059669] text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
             <MessageCircle className="w-6 h-6" />
             {isSubmitting 

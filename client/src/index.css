@@ -204,16 +204,25 @@
   .shadow-premium {
     box-shadow: 0 10px 40px rgba(26, 77, 46, 0.1);
   }
-  
+
   .shadow-premium-lg {
     box-shadow: 0 20px 60px rgba(26, 77, 46, 0.15);
   }
-  
+
   /* Smooth scroll behavior */
   .smooth-scroll {
     scroll-behavior: smooth;
   }
-  
+
+  /* Hide scrollbar but keep scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* RTL removed - Hebrew version uses same LTR layout as English */
 }
 
@@ -259,6 +268,21 @@
 
 .animate-pulse-subtle {
   animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+/* Form element transitions */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Card hover lift */
+.hover\:shadow-premium-lg {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.hover\:shadow-premium-lg:hover {
+  transform: translateY(-2px);
 }
 
 /* Lazy load image fade-in - removed to ensure images display immediately */

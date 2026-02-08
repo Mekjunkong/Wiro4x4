@@ -5,11 +5,19 @@ import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, ArrowLeft, Share2 } from 'lucide-react';
 import { Link, useRoute } from 'wouter';
+import { trpc } from '@/lib/trpc';
 
 export default function BlogPost() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const isHebrew = language === 'he';
   const [, params] = useRoute('/blog/:id');
   const postId = params?.id;
+
+  // Try to fetch from DB by slug
+  const { data: dbPost } = trpc.blog.getBySlug.useQuery(
+    { slug: postId || '' },
+    { enabled: !!postId }
+  );
 
   const posts: Record<string, any> = {
     'kosher-dining-guide': {
@@ -1028,7 +1036,18 @@ Cultural sensitivity isn't about being perfect - it's about showing respect and 
     },
   };
 
-  const post = postId ? posts[postId] : null;
+  // Use DB post if available, otherwise fall back to hardcoded
+  const post = dbPost
+    ? {
+        title: isHebrew && dbPost.titleHe ? dbPost.titleHe : dbPost.title,
+        date: dbPost.publishedAt
+          ? new Date(dbPost.publishedAt).toLocaleDateString(isHebrew ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+          : '',
+        readTime: '',
+        image: dbPost.coverImage || '/images/1000000149.jpg',
+        content: isHebrew && dbPost.contentHe ? dbPost.contentHe : dbPost.content,
+      }
+    : postId ? posts[postId] : null;
 
   if (!post) {
     return (

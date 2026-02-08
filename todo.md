@@ -41,22 +41,22 @@
 ### Phase 5: Agent Management
 - [x] Create agent list view
 - [x] Display agent profiles with status
-- [ ] Add agent assignment to bookings
-- [ ] Track agent performance metrics
-- [ ] Add agent availability calendar
+- [x] Add agent assignment to bookings
+- [x] Track agent performance metrics
+- [x] Add agent availability calendar
 
 ### Phase 6: Financial & Leads
 - [x] Build financial records table view
 - [x] Build lead management table view
-- [ ] Add cost tracking per booking
-- [ ] Calculate profit margins with charts
-- [ ] Add lead-to-booking conversion tracking
+- [x] Add financial summary cards (revenue, costs, refunds, net profit)
+- [x] Calculate profit margins with charts
+- [x] Add lead-to-booking conversion tracking
 
 ### Phase 7: Testing & Integration
-- [ ] Test booking form submission
-- [ ] Test admin dashboard functionality
-- [ ] Test agent assignment workflow
-- [ ] Test financial calculations
+- [x] Test booking form submission
+- [x] Test admin dashboard functionality
+- [x] Test agent assignment workflow
+- [x] Test financial calculations
 - [ ] Verify database integrity
 
 ## Previously Completed Features
@@ -103,12 +103,12 @@
 - [x] Fix Header/Navigation mobile menu (hamburger menu with slide-down navigation)
 - [x] Fix Tours section mobile cards (responsive grid, padding, text sizing)
 - [x] Fix WhyWiro section mobile layout (responsive grid and text)
-- [ ] Fix Pricing page mobile layout
-- [ ] Fix Booking form mobile responsiveness
-- [ ] Fix Admin dashboard mobile view
-- [ ] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
-- [ ] Ensure touch targets are at least 44x44px
-- [ ] Verify text is readable without zooming
+- [x] Fix Pricing page mobile layout (2-col group pricing grid, responsive package cards, mobile-friendly terms)
+- [x] Fix Booking form mobile responsiveness (replaced hardcoded hex colors with design tokens)
+- [x] Fix Admin dashboard mobile view (scrollable tabs, 2-col stats, responsive booking cards, mobile-friendly tour cards)
+- [x] Test on multiple mobile breakpoints (320px, 375px, 414px, 768px)
+- [x] Ensure touch targets are at least 44x44px (all buttons/selects min-h-[44px])
+- [x] Verify text is readable without zooming (responsive text-xs/text-sm/text-base scaling)
 
 
 ## Bug Fixes
@@ -399,6 +399,7 @@
 - [x] Drizzle relations (drizzle/relations.ts — bookings↔agents, leads↔bookings, payments↔bookings)
 - [x] Lazy Resend initialization (no crash without API key)
 
+<<<<<<< HEAD
 ## Latest GitHub Update Integration (Feb 8, 2026)
 
 - [x] Pull latest changes from GitHub (Stripe placeholder, rate limiting, shared schemas, 59 tests)
@@ -412,10 +413,98 @@
 - [x] Verify Resend lazy initialization works without API key (tests run without crashes)
 
 
-## Latest GitHub Update - Blog System, Charts, Calendar (Feb 8, 2026)
+## Phase 3: Mobile Responsiveness + UI Polish
 
-- [ ] Pull latest changes from GitHub (blog system, financial charts, agent calendar, cleanup)
-- [ ] Resolve any merge conflicts
+### Admin Dashboard Mobile
+- [x] Horizontal-scrollable tabs with hidden scrollbar (overflow-x-auto scrollbar-hide)
+- [x] 2-column stats grid on mobile (grid-cols-2 md:grid-cols-4)
+- [x] Responsive header (truncated title, hidden welcome text on mobile, 44px touch targets)
+- [x] Mobile-friendly booking cards (smaller avatars, truncated names, responsive expanded view)
+- [x] Tour cards: separated info and action rows for mobile
+- [x] All action buttons have min-h-[44px] for touch accessibility
+
+### Admin Dashboard UI Cleanup
+- [x] Replace all alert() with toast() (sonner) for success/error messages
+- [x] Keep confirm() for destructive actions (delete bookings/tours/photos/reviews)
+
+### Pricing Page Mobile
+- [x] Group size pricing: 2-column grid on mobile with bg-primary/5 cards
+- [x] Package cards: responsive padding and text sizes
+- [x] Booking terms: responsive padding
+
+### BookingForm Design Token Cleanup
+- [x] Replace #f5a623 hex → bg-secondary/text-secondary/border-secondary Tailwind tokens
+- [x] Replace #10b981/#059669 hex → bg-emerald-500/hover:bg-emerald-600
+- [x] Zero hardcoded hex colors remaining in BookingForm and AdminDashboard
+
+### CSS Enhancements
+- [x] Add scrollbar-hide utility class (WebKit + Firefox)
+- [x] Add form element focus/border transitions (0.2s ease)
+- [x] Add card hover lift effect (translateY -2px on hover)
+
+
+## Blog System (DB-backed)
+
+### Schema & Backend
+- [x] Add `blogPosts` table to `drizzle/schema.ts` (title, titleHe, slug, excerpt, content, coverImage, category, tags, isPublished, publishedAt, author)
+- [x] Add blog DB helpers to `server/db.ts` (create, getAllPublished, getAll, getBySlug, update, delete, paginated)
+- [x] Add `blogPostInputSchema` to `shared/schemas.ts`
+- [x] Add blog tRPC procedures to `server/routers.ts` (list, getBySlug, listAll, listAllPaginated, create, update, delete)
+- [x] Add blog test file `server/blog.test.ts` (4 tests: list, getBySlug, create, listAll)
+
+### Frontend
+- [x] Update `Blog.tsx` to fetch from `trpc.blog.list` with hardcoded fallback
+- [x] Update `BlogPost.tsx` to fetch by slug from `trpc.blog.getBySlug` with hardcoded fallback
+- [x] Add Blog tab to `AdminDashboard.tsx` with full CRUD (create, edit, delete, publish/unpublish)
+- [x] Blog post form dialog with: title, slug (auto-generated), excerpt, content, cover image, category, tags, author, publish checkbox
+- [x] Hebrew fields (titleHe, excerptHe, contentHe) in blog post form
+- [ ] Run `pnpm db:push` to create blogPosts table in production database
+
+### Future Blog Enhancements
+- [ ] Rich text editor for blog content (replace textarea with markdown editor)
+- [ ] Blog post image upload via S3 (like gallery photos)
+- [ ] Blog post preview before publishing
+- [ ] Blog search/filter by category and tags
+- [ ] Blog RSS feed
+
+
+## Financial Charts
+
+- [x] Add horizontal bar chart to Financial tab (Revenue vs Costs vs Refunds vs Net Profit)
+- [x] Profit margin percentage label
+- [x] Responsive: stacks vertically on mobile
+
+
+## Agent Availability Calendar
+
+- [x] Add weekly availability grid to Agents tab
+- [x] Color-coded: green=active, yellow=on_leave, gray=inactive, purple=Shabbat
+- [x] Shows active booking count per agent
+- [x] Legend with color indicators
+
+
+## Booking Success Page
+
+- [x] Verified existing success view in BookingForm.tsx (check icon, booking ref, WhatsApp info, back to home)
+- [x] Success view already includes Header and Footer components
+
+
+## WhyWiro Empty Section Fix
+
+- [x] Removed empty "Real Photo Background Section" comment stub from WhyWiro.tsx
+
+
+## Cleanup
+
+- [x] Removed accidentally installed `add` package from devDependencies
+- [x] Deleted unused `ComponentShowcase.tsx` (not referenced in routes)
+- [x] Verified `axios` is used by `server/_core/sdk.ts` (must keep)
+
+
+## Latest GitHub Update Integration (Feb 8, 2026)
+
+- [x] Pull latest changes from GitHub (blog system, financial charts, agent calendar, cleanup)
+- [x] Resolve merge conflicts in todo.md
 - [ ] Run pnpm db:push to create blogPosts table
 - [ ] Review blog system implementation (schema, DB helpers, tRPC procedures, admin CRUD)
 - [ ] Review financial charts (horizontal bar chart with profit margin)

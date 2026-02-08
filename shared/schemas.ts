@@ -96,6 +96,21 @@ export const reviewInputSchema = z.object({
   tourType: z.string().optional(),
 });
 
+export const blogPostInputSchema = z.object({
+  title: z.string().min(1),
+  titleHe: z.string().optional(),
+  slug: z.string().min(1),
+  excerpt: z.string().optional(),
+  excerptHe: z.string().optional(),
+  content: z.string().min(1),
+  contentHe: z.string().optional(),
+  coverImage: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.string().optional(),
+  isPublished: z.boolean().optional(),
+  author: z.string().optional(),
+});
+
 export const paginationInput = z.object({
   page: z.number().min(1).default(1),
   pageSize: z.number().min(1).max(100).default(20),
@@ -107,4 +122,5 @@ export type LeadInput = z.infer<typeof leadInputSchema>;
 export type FinancialRecordInput = z.infer<typeof financialRecordInputSchema>;
 export type TourInput = z.infer<typeof tourInputSchema>;
 export type ReviewInput = z.infer<typeof reviewInputSchema>;
+export type BlogPostInput = z.infer<typeof blogPostInputSchema>;
 export type PaginationInput = z.infer<typeof paginationInput>;
