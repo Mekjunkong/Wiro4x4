@@ -410,3 +410,18 @@
 - [x] Run full test suite to verify all 59+ tests pass (13 test files, 59 tests passing)
 - [x] Test rate limiting on public endpoints (3 tests passing in rateLimit.test.ts)
 - [x] Verify Resend lazy initialization works without API key (tests run without crashes)
+
+
+## Latest GitHub Update - Blog System, Charts, Calendar (Feb 8, 2026)
+
+- [ ] Pull latest changes from GitHub (blog system, financial charts, agent calendar, cleanup)
+- [ ] Resolve any merge conflicts
+- [ ] Run pnpm db:push to create blogPosts table
+- [ ] Review blog system implementation (schema, DB helpers, tRPC procedures, admin CRUD)
+- [ ] Review financial charts (horizontal bar chart with profit margin)
+- [ ] Review agent calendar (weekly availability grid with color-coded status)
+- [ ] Review cleanup changes (removed unused ComponentShowcase, WhyWiro stub, 'add' package)
+- [ ] Test blog CRUD in admin panel
+- [ ] Test financial charts display
+- [ ] Test agent calendar functionality
+- [ ] Run full test suite to verify all 14 test files pass (46 pass, 17 DB-skipped)
