@@ -1,53 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
-
-type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
-
-function createAuthContext(): { ctx: TrpcContext } {
-  const user: AuthenticatedUser = {
-    id: 1,
-    openId: "test-user",
-    email: "test@example.com",
-    name: "Test User",
-    loginMethod: "manus",
-    role: "admin",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
-  };
-
-  const ctx: TrpcContext = {
-    user,
-    req: {
-      protocol: "https",
-      headers: {},
-    } as TrpcContext["req"],
-    res: {
-      clearCookie: () => {},
-    } as TrpcContext["res"],
-  };
-
-  return { ctx };
-}
-
-function createPublicContext(): { ctx: TrpcContext } {
-  const ctx: TrpcContext = {
-    user: null,
-    req: {
-      protocol: "https",
-      headers: {},
-    } as TrpcContext["req"],
-    res: {
-      clearCookie: () => {},
-    } as TrpcContext["res"],
-  };
-
-  return { ctx };
-}
+import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
 
 describe("booking.create", () => {
-  it("creates a booking with valid data", async () => {
+  itWithDb("creates a booking with valid data", async () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
@@ -77,7 +33,7 @@ describe("booking.create", () => {
     expect(result.message).toBe("Booking created successfully");
   }, 10000); // Increase timeout to 10s for email operations
 
-  it("creates a booking with minimal required data", async () => {
+  itWithDb("creates a booking with minimal required data", async () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 

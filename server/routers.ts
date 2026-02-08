@@ -56,96 +56,17 @@ import { storagePut } from "./storage";
 import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
 import { sendNewBookingEmail } from "./resendEmailService";
 import { sendCustomerConfirmation } from "./customerEmailService";
+import { checkRateLimit } from "./rateLimit";
 
-// Validation schemas
-const bookingInputSchema = z.object({
-  contactName: z.string().min(1, "Name is required"),
-  contactEmail: z.string().email("Invalid email"),
-  contactPhone: z.string().min(1, "Phone is required"),
-  contactWhatsApp: z.string().optional(),
-  arrivalDate: z.string().transform((s) => new Date(s)),
-  departureDate: z.string().transform((s) => new Date(s)),
-  numberOfAdults: z.number().min(1).default(1),
-  hasChildren: z.boolean().default(false),
-  numberOfChildren: z.number().optional(),
-  childrenAges: z.string().optional(),
-  includesHotels: z.boolean().default(false),
-  hotelPreferences: z.string().optional(),
-  includesGuide: z.boolean().default(false),
-  includesTrip: z.boolean().default(false),
-  includesAttractions: z.boolean().default(false),
-  selectedAttractions: z.string().optional(),
-  includesFood: z.boolean().default(false),
-  foodPreferences: z.string().optional(),
-  needsShabbatHotel: z.boolean().default(false),
-  shabbatHotel: z.string().optional(),
-  pickupPoint: z.string().min(1, "Pickup point is required"),
-  customPickupLocation: z.string().optional(),
-  dropoffPoint: z.string().min(1, "Dropoff point is required"),
-  customDropoffLocation: z.string().optional(),
-  suggestedDestinations: z.string().optional(),
-  specialRequests: z.string().optional(),
-  dietaryRestrictions: z.string().optional(),
-  budget: z.string().optional(),
-  source: z.string().default("website"),
-});
-
-const agentInputSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  phone: z.string().min(1, "Phone is required"),
-  whatsapp: z.string().optional(),
-  specialties: z.string().optional(),
-  languages: z.string().optional(),
-  status: z.enum(["active", "inactive", "on_leave"]).default("active"),
-  notes: z.string().optional(),
-});
-
-const leadInputSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  phone: z.string().optional(),
-  source: z.string().default("website"),
-  interestedTours: z.string().optional(),
-  message: z.string().optional(),
-});
-
-const financialRecordInputSchema = z.object({
-  bookingId: z.number(),
-  type: z.enum(["revenue", "cost", "refund"]),
-  category: z.string().min(1, "Category is required"),
-  amount: z.number(),
-  currency: z.string().default("THB"),
-  description: z.string().optional(),
-  paymentMethod: z.string().optional(),
-  paymentDate: z.string().optional().transform((s) => s ? new Date(s) : undefined),
-  notes: z.string().optional(),
-});
-
-const tourInputSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  nameHe: z.string().min(1, "Hebrew name is required"),
-  description: z.string().min(1, "Description is required"),
-  descriptionHe: z.string().min(1, "Hebrew description is required"),
-  duration: z.string().min(1, "Duration is required"),
-  difficulty: z.enum(["easy", "moderate", "challenging"]).default("moderate"),
-  price: z.number().min(0, "Price must be positive"),
-  groupMinSize: z.number().min(1).default(1),
-  groupMaxSize: z.number().min(1).default(10),
-  imageUrl: z.string().min(1, "Image URL is required"),
-  highlights: z.string().optional(),
-  highlightsHe: z.string().optional(),
-  isKosher: z.boolean().default(true),
-  isPrivate: z.boolean().default(true),
-  isShabbatOk: z.boolean().default(true),
-  isActive: z.boolean().default(true),
-  sortOrder: z.number().default(0),
-});
-
-const paginationInput = z.object({
-  page: z.number().min(1).default(1),
-  pageSize: z.number().min(1).max(100).default(20),
-});
+// Shared validation schemas (single source of truth for client + server)
+import {
+  bookingInputSchema,
+  agentInputSchema,
+  leadInputSchema,
+  financialRecordInputSchema,
+  tourInputSchema,
+  paginationInput,
+} from "../shared/schemas";
 
 export const appRouter = router({
   system: systemRouter,
@@ -163,7 +84,14 @@ export const appRouter = router({
   booking: router({
     create: publicProcedure
       .input(bookingInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Rate limit: 10 booking submissions per minute per IP
+        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const { allowed } = checkRateLimit(`booking:${ip}`, 10, 60_000);
+        if (!allowed) {
+          throw new Error("Too many booking requests. Please try again in a minute.");
+        }
+
         const bookingData = {
           ...input,
           hasChildren: input.hasChildren ? 1 : 0,
@@ -321,7 +249,12 @@ export const appRouter = router({
   lead: router({
     create: publicProcedure
       .input(leadInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const { allowed } = checkRateLimit(`lead:${ip}`, 10, 60_000);
+        if (!allowed) {
+          throw new Error("Too many requests. Please try again in a minute.");
+        }
         await createLead(input);
         return { success: true, message: "Lead captured successfully" };
       }),
@@ -518,7 +451,12 @@ export const appRouter = router({
         text: z.string().min(1, "Review text is required"),
         tourType: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const { allowed } = checkRateLimit(`review:${ip}`, 5, 60_000);
+        if (!allowed) {
+          throw new Error("Too many review submissions. Please try again in a minute.");
+        }
         await createReview({
           ...input,
           isApproved: 0,

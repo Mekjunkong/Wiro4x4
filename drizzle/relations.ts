@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { bookings, agents, financialRecords, payments } from "./schema";
+import { bookings, agents, leads, financialRecords, payments } from "./schema";
 
 export const bookingsRelations = relations(bookings, ({ one, many }) => ({
   agent: one(agents, {
@@ -12,6 +12,13 @@ export const bookingsRelations = relations(bookings, ({ one, many }) => ({
 
 export const agentsRelations = relations(agents, ({ many }) => ({
   bookings: many(bookings),
+}));
+
+export const leadsRelations = relations(leads, ({ one }) => ({
+  convertedBooking: one(bookings, {
+    fields: [leads.convertedToBookingId],
+    references: [bookings.id],
+  }),
 }));
 
 export const financialRecordsRelations = relations(financialRecords, ({ one }) => ({
