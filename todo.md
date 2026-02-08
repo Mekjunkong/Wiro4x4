@@ -365,3 +365,17 @@
 - [x] Test admin panel new features (Gallery/Reviews/Tours tabs with drag-drop upload)
 - [x] Test pagination on all admin tabs
 - [x] Verify all existing features still work after update (all 14 tests passing)
+
+
+## Latest GitHub Update - Stripe, Rate Limiting, Tests (Feb 8, 2026)
+
+- [ ] Pull latest changes from GitHub (Stripe placeholder, rate limiting, shared schemas, 59 tests)
+- [ ] Resolve merge conflicts in todo.md
+- [ ] Review new Stripe placeholder structure (server/stripe.ts)
+- [ ] Review rate limiting implementation (10/min booking, 10/min lead, 5/min review)
+- [ ] Review shared Zod schemas (shared/schemas.ts)
+- [ ] Review 8 new test files (agent, lead, financial, gallery, review, pagination, rate limit, validation)
+- [ ] Run full test suite to verify all 59+ tests pass
+- [ ] Test rate limiting on public endpoints
+- [ ] Verify Resend lazy initialization works without API key
+- [ ] Push integrated changes to GitHub
