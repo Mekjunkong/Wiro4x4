@@ -50,7 +50,9 @@ function AppContent() {
   return (
     <TooltipProvider>
       <Toaster />
-      <Router />
+      <ErrorBoundary>
+        <Router />
+      </ErrorBoundary>
     </TooltipProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 type Language = 'en' | 'he';
 
@@ -8,10 +8,33 @@ interface LanguageContextType {
   t: (en: string, he: string) => string;
 }
 
+const STORAGE_KEY = 'wiro-preferred-language';
+
+function getStoredLanguage(): Language {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'en' || stored === 'he') {
+      return stored;
+    }
+  } catch {
+    // localStorage unavailable (SSR, private browsing, etc.)
+  }
+  return 'en';
+}
+
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(getStoredLanguage);
+
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+      // localStorage unavailable
+    }
+  }, []);
 
   const t = (en: string, he: string) => {
     return language === 'en' ? en : he;

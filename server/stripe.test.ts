@@ -11,7 +11,7 @@ describe("Stripe placeholder functions", () => {
   it("handleWebhook throws not-configured error", async () => {
     await expect(
       handleWebhook("{}", "fake-signature"),
-    ).rejects.toThrow("Stripe webhook handler not yet configured");
+    ).rejects.toThrow("Stripe integration not yet configured");
   });
 
   it("getSessionStatus throws not-configured error", async () => {
