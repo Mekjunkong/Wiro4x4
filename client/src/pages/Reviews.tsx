@@ -21,18 +21,45 @@ const TOUR_TYPES = [
 ];
 
 function StarRating({ rating, onRate, interactive = false }: { rating: number; onRate?: (r: number) => void; interactive?: boolean }) {
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  const { t } = useLanguage();
+
+  const displayRating = interactive && hoveredStar !== null ? hoveredStar : rating;
+
+  if (!interactive) {
+    return (
+      <div className="flex gap-1" role="img" aria-label={t(`${rating} out of 5 stars`, `${rating} מתוך 5 כוכבים`)}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            aria-hidden="true"
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1" role="radiogroup" aria-label={t('Star rating', 'דירוג כוכבים')}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <span
+        <button
           key={star}
-          className={`text-2xl ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''} ${
-            star <= rating ? 'text-yellow-400' : 'text-gray-300'
-          }`}
-          onClick={() => interactive && onRate?.(star)}
+          type="button"
+          className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+            star <= displayRating ? 'text-yellow-400' : 'text-gray-300'
+          } hover:scale-110`}
+          onClick={() => onRate?.(star)}
+          onMouseEnter={() => setHoveredStar(star)}
+          onMouseLeave={() => setHoveredStar(null)}
+          aria-label={t(`Rate ${star} out of 5 stars`, `דרג ${star} מתוך 5 כוכבים`)}
+          role="radio"
+          aria-checked={star === rating}
         >
-          ★
-        </span>
+          <span className="text-2xl leading-none select-none" style={{ fontSize: '24px' }} aria-hidden="true">★</span>
+        </button>
       ))}
     </div>
   );

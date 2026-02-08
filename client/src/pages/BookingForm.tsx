@@ -4,7 +4,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { Calendar, Users, MapPin, Utensils, Hotel, Car, Mountain, Phone, Mail, User, MessageCircle, Check } from 'lucide-react';
+import { Calendar, Users, MapPin, Utensils, Hotel, Car, Mountain, Phone, Mail, User, MessageCircle, Check, Loader2 } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 
 const DESTINATIONS = [
@@ -46,7 +46,7 @@ export default function BookingForm() {
     contactPhone: '',
     contactWhatsApp: '',
     agentName: '',
-    
+
     // Trip Details
     arrivalDate: '',
     departureDate: '',
@@ -54,7 +54,7 @@ export default function BookingForm() {
     hasChildren: false,
     numberOfChildren: 0,
     childrenAges: '',
-    
+
     // Services
     includesHotels: false,
     hotelPreferences: '',
@@ -66,14 +66,14 @@ export default function BookingForm() {
     foodPreferences: '',
     needsShabbatHotel: false,
     shabbatHotel: '',
-    
+
     // Logistics
     pickupPoint: 'airport',
     customPickupLocation: '',
     dropoffPoint: 'airport',
     customDropoffLocation: '',
     suggestedDestinations: [] as string[],
-    
+
     // Additional
     specialRequests: '',
     budget: '',
@@ -198,7 +198,7 @@ export default function BookingForm() {
       .map(id => DESTINATIONS.find(d => d.id === id)?.[isHebrew ? 'he' : 'en'])
       .filter(Boolean)
       .join(', ');
-    
+
     if (isHebrew) {
       return `🚙 בקשת הזמנה חדשה - WIRO 4x4
 
@@ -306,7 +306,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 'תודה על פנייתך! נציג יצור איתך קשר בהקדם. הודעה נשלחה גם לוואטסאפ.'
               )}
             </p>
-            <a 
+            <a
               href="/"
               className="inline-block bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors"
             >
@@ -322,36 +322,38 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
   return (
     <div className={`min-h-screen ${isHebrew ? 'rtl' : 'ltr'}`} dir={isHebrew ? 'rtl' : 'ltr'}>
       <Header />
-      
+
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-secondary to-secondary/85 py-16 md:py-20 text-center text-white mt-20">
         <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4 px-4">
-          {isHebrew ? 'טופס הזמנת סיור' : 'Tour Booking Form'}
+          {t('Tour Booking Form', 'טופס הזמנת סיור')}
         </h1>
         <p className="text-lg md:text-xl opacity-90 px-4">
-          {isHebrew 
-            ? 'טופס קליטה מהירה לשיחות טלפון ופגישות אישיות'
-            : 'Quick intake form for phone calls and personal meetings'}
+          {t(
+            'Quick intake form for phone calls and personal meetings',
+            'טופס קליטה מהירה לשיחות טלפון ופגישות אישיות'
+          )}
         </p>
       </section>
 
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl pb-24">
-        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-          
+        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8" noValidate>
+
           {/* Trip Details Section */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <Users className="w-6 h-6" />
-              {isHebrew ? 'פרטי הטיול' : 'Trip Details'}
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {t('Trip Details', 'פרטי הטיול')}
+            </legend>
+
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mt-4">
               {/* Number of Adults */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'כמה מבוגרים? *' : 'Number of Adults *'}
+                <label htmlFor="numberOfAdults" className="block text-sm font-medium mb-2">
+                  {t('Number of Adults', 'כמה מבוגרים?')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="numberOfAdults"
                   type="number"
                   min="1"
                   value={formData.numberOfAdults}
@@ -371,34 +373,40 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                   className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
                 />
                 <label htmlFor="hasChildren" className="text-sm font-medium">
-                  {isHebrew ? 'יש ילדים' : 'Has Children'}
+                  {t('Has Children', 'יש ילדים')}
                 </label>
               </div>
 
               {formData.hasChildren && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {isHebrew ? 'מספר ילדים' : 'Number of Children'}
+                    <label htmlFor="numberOfChildren" className="block text-sm font-medium mb-2">
+                      {t('Number of Children', 'מספר ילדים')} <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="numberOfChildren"
                       type="number"
                       min="0"
                       value={formData.numberOfChildren}
                       onChange={(e) => setFormData(prev => ({ ...prev, numberOfChildren: parseInt(e.target.value) || 0 }))}
                       className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.numberOfChildren ? 'border-red-500' : 'border-border'}`}
+                      aria-invalid={!!formErrors.numberOfChildren}
+                      aria-describedby={formErrors.numberOfChildren ? 'error-numberOfChildren' : undefined}
                     />
                     {formErrors.numberOfChildren && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.numberOfChildren}</p>
+                      <span id="error-numberOfChildren" className="text-red-500 text-sm mt-1 block" role="alert">
+                        {formErrors.numberOfChildren}
+                      </span>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {isHebrew ? 'גילאי הילדים' : 'Children Ages'}
+                    <label htmlFor="childrenAges" className="block text-sm font-medium mb-2">
+                      {t('Children Ages', 'גילאי הילדים')}
                     </label>
                     <input
+                      id="childrenAges"
                       type="text"
-                      placeholder={isHebrew ? 'לדוגמה: 5, 8, 12' : 'e.g., 5, 8, 12'}
+                      placeholder={t('e.g., 5, 8, 12', 'לדוגמה: 5, 8, 12')}
                       value={formData.childrenAges}
                       onChange={(e) => setFormData(prev => ({ ...prev, childrenAges: e.target.value }))}
                       className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
@@ -407,38 +415,43 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 </>
               )}
             </div>
-          </div>
+          </fieldset>
 
           {/* Dates & Logistics Section */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <Calendar className="w-6 h-6" />
-              {isHebrew ? 'תאריכים ולוגיסטיקה' : 'Dates & Logistics'}
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {t('Dates & Logistics', 'תאריכים ולוגיסטיקה')}
+            </legend>
+
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mt-4">
               {/* Pickup Date */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'תאריך איסוף *' : 'Pickup Date *'}
+                <label htmlFor="arrivalDate" className="block text-sm font-medium mb-2">
+                  {t('Pickup Date', 'תאריך איסוף')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="arrivalDate"
                   type="date"
                   value={formData.arrivalDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, arrivalDate: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.arrivalDate ? 'border-red-500' : 'border-border'}`}
                   required
+                  aria-invalid={!!formErrors.arrivalDate}
+                  aria-describedby={formErrors.arrivalDate ? 'error-arrivalDate' : undefined}
                 />
                 {formErrors.arrivalDate && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.arrivalDate}</p>
+                  <span id="error-arrivalDate" className="text-red-500 text-sm mt-1 block" role="alert">
+                    {formErrors.arrivalDate}
+                  </span>
                 )}
               </div>
 
               {/* Pickup Point */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'נקודת איסוף' : 'Pickup Point'}
-                </label>
+              <fieldset>
+                <legend className="block text-sm font-medium mb-2">
+                  {t('Pickup Point', 'נקודת איסוף')}
+                </legend>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2">
                     <input
@@ -449,7 +462,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       onChange={(e) => setFormData(prev => ({ ...prev, pickupPoint: e.target.value }))}
                       className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
-                    {isHebrew ? 'שדה תעופה' : 'Airport'}
+                    {t('Airport', 'שדה תעופה')}
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -460,33 +473,38 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       onChange={(e) => setFormData(prev => ({ ...prev, pickupPoint: e.target.value }))}
                       className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
-                    {isHebrew ? 'מלון' : 'Hotel'}
+                    {t('Hotel', 'מלון')}
                   </label>
                 </div>
-              </div>
+              </fieldset>
 
               {/* End Date */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'תאריך סיום *' : 'End Date *'}
+                <label htmlFor="departureDate" className="block text-sm font-medium mb-2">
+                  {t('End Date', 'תאריך סיום')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="departureDate"
                   type="date"
                   value={formData.departureDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, departureDate: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.departureDate ? 'border-red-500' : 'border-border'}`}
                   required
+                  aria-invalid={!!formErrors.departureDate}
+                  aria-describedby={formErrors.departureDate ? 'error-departureDate' : undefined}
                 />
                 {formErrors.departureDate && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.departureDate}</p>
+                  <span id="error-departureDate" className="text-red-500 text-sm mt-1 block" role="alert">
+                    {formErrors.departureDate}
+                  </span>
                 )}
               </div>
 
               {/* Dropoff Point */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'נקודת הורדה' : 'Dropoff Point'}
-                </label>
+              <fieldset>
+                <legend className="block text-sm font-medium mb-2">
+                  {t('Dropoff Point', 'נקודת הורדה')}
+                </legend>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2">
                     <input
@@ -497,7 +515,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       onChange={(e) => setFormData(prev => ({ ...prev, dropoffPoint: e.target.value }))}
                       className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
-                    {isHebrew ? 'שדה תעופה' : 'Airport'}
+                    {t('Airport', 'שדה תעופה')}
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -508,21 +526,21 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                       onChange={(e) => setFormData(prev => ({ ...prev, dropoffPoint: e.target.value }))}
                       className="w-5 h-5 md:w-4 md:h-4 text-primary focus:ring-primary touch-manipulation"
                     />
-                    {isHebrew ? 'מלון' : 'Hotel'}
+                    {t('Hotel', 'מלון')}
                   </label>
                 </div>
-              </div>
+              </fieldset>
             </div>
-          </div>
+          </fieldset>
 
           {/* Services Section */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <Car className="w-6 h-6" />
-              {isHebrew ? 'שירותים נדרשים' : 'Required Services'}
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4">
+              {t('Required Services', 'שירותים נדרשים')} <span className="text-red-500 text-base">*</span>
+            </legend>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
               {[
                 { key: 'includesHotels', icon: Hotel, en: 'Includes Hotels?', he: 'כולל מלונות?' },
                 { key: 'includesGuide', icon: User, en: 'Includes Guide?', he: 'כולל מדריך?' },
@@ -539,25 +557,28 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                     className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
                   />
                   <Icon className="w-5 h-5 text-primary" />
-                  <span className="font-medium">{isHebrew ? he : en}</span>
+                  <span className="font-medium">{t(en, he)}</span>
                 </label>
               ))}
             </div>
             {formErrors.services && (
-              <p className="text-red-500 text-sm mt-2">{formErrors.services}</p>
+              <span id="error-services" className="text-red-500 text-sm mt-2 block" role="alert">
+                {formErrors.services}
+              </span>
             )}
 
             {formData.needsShabbatHotel && (
               <div className="mt-4">
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'בחר מלון שבת' : 'Select Shabbat Hotel'}
+                <label htmlFor="shabbatHotel" className="block text-sm font-medium mb-2">
+                  {t('Select Shabbat Hotel', 'בחר מלון שבת')}
                 </label>
                 <select
+                  id="shabbatHotel"
                   value={formData.shabbatHotel}
                   onChange={(e) => setFormData(prev => ({ ...prev, shabbatHotel: e.target.value }))}
                   className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
                 >
-                  <option value="">{isHebrew ? 'בחר...' : 'Select...'}</option>
+                  <option value="">{t('Select...', 'בחר...')}</option>
                   {SHABBAT_HOTELS.map(hotel => (
                     <option key={hotel.id} value={hotel.id}>
                       {isHebrew ? hotel.he : hotel.en}
@@ -566,18 +587,18 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 </select>
               </div>
             )}
-          </div>
+          </fieldset>
 
           {/* Destinations Section */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <MapPin className="w-6 h-6" />
-              {isHebrew ? 'יעדי נסיעה מוצעים למכירה' : 'Suggested Travel Destinations'}
-            </h2>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {t('Suggested Travel Destinations', 'יעדי נסיעה מוצעים למכירה')}
+            </legend>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
               {DESTINATIONS.map(dest => (
-                <label 
+                <label
                   key={dest.id}
                   className={`flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     formData.suggestedDestinations.includes(dest.id)
@@ -595,71 +616,87 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Contact Information Section */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <User className="w-6 h-6" />
-              {isHebrew ? 'פרטי לקוח' : 'Customer Details'}
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {t('Customer Details', 'פרטי לקוח')}
+            </legend>
+
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mt-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'שם לקוח *' : 'Customer Name *'}
+                <label htmlFor="contactName" className="block text-sm font-medium mb-2">
+                  {t('Customer Name', 'שם לקוח')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="contactName"
                   type="text"
-                  placeholder={isHebrew ? 'שם מלא' : 'Full Name'}
+                  placeholder={t('Full Name', 'שם מלא')}
                   value={formData.contactName}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactName ? 'border-red-500' : 'border-border'}`}
                   required
+                  aria-invalid={!!formErrors.contactName}
+                  aria-describedby={formErrors.contactName ? 'error-contactName' : undefined}
                 />
                 {formErrors.contactName && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.contactName}</p>
+                  <span id="error-contactName" className="text-red-500 text-sm mt-1 block" role="alert">
+                    {formErrors.contactName}
+                  </span>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'מספר טלפון *' : 'Phone Number *'}
+                <label htmlFor="contactPhone" className="block text-sm font-medium mb-2">
+                  {t('Phone Number', 'מספר טלפון')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="contactPhone"
                   type="tel"
                   placeholder="+972-XX-XXX-XXXX"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactPhone ? 'border-red-500' : 'border-border'}`}
                   required
+                  aria-invalid={!!formErrors.contactPhone}
+                  aria-describedby={formErrors.contactPhone ? 'error-contactPhone' : undefined}
                 />
                 {formErrors.contactPhone && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.contactPhone}</p>
+                  <span id="error-contactPhone" className="text-red-500 text-sm mt-1 block" role="alert">
+                    {formErrors.contactPhone}
+                  </span>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'אימייל' : 'Email'}
+                <label htmlFor="contactEmail" className="block text-sm font-medium mb-2">
+                  {t('Email', 'אימייל')}
                 </label>
                 <input
+                  id="contactEmail"
                   type="email"
                   placeholder="email@example.com"
                   value={formData.contactEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
                   className={`w-full px-4 py-3 md:py-3 text-base border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation ${formErrors.contactEmail ? 'border-red-500' : 'border-border'}`}
+                  aria-invalid={!!formErrors.contactEmail}
+                  aria-describedby={formErrors.contactEmail ? 'error-contactEmail' : undefined}
                 />
                 {formErrors.contactEmail && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.contactEmail}</p>
+                  <span id="error-contactEmail" className="text-red-500 text-sm mt-1 block" role="alert">
+                    {formErrors.contactEmail}
+                  </span>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {isHebrew ? 'וואטסאפ' : 'WhatsApp'}
+                <label htmlFor="contactWhatsApp" className="block text-sm font-medium mb-2">
+                  {t('WhatsApp', 'וואטסאפ')}
                 </label>
                 <input
+                  id="contactWhatsApp"
                   type="tel"
                   placeholder="+972-XX-XXX-XXXX"
                   value={formData.contactWhatsApp}
@@ -668,44 +705,54 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
                 />
               </div>
             </div>
-          </div>
+          </fieldset>
 
           {/* Agent Section */}
-          <div className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-secondary/50 bg-secondary/5">
-            <h2 className="text-2xl font-serif font-bold text-secondary mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-secondary/50 bg-secondary/5">
+            <legend className="text-2xl font-serif font-bold text-secondary flex items-center gap-2 px-2">
               <User className="w-6 h-6" />
-              {isHebrew ? 'שם סוכן' : 'Agent Name'}
-            </h2>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                {isHebrew ? 'שם הסוכן (אם רלוונטי)' : 'Agent Name (if applicable)'}
+              {t('Agent Name', 'שם סוכן')}
+            </legend>
+
+            <div className="mt-4">
+              <label htmlFor="agentName" className="block text-sm font-medium mb-2">
+                {t('Agent Name (if applicable)', 'שם הסוכן (אם רלוונטי)')}
               </label>
               <input
+                id="agentName"
                 type="text"
-                placeholder={isHebrew ? 'השם שלך' : 'Your Name'}
+                placeholder={t('Your Name', 'השם שלך')}
                 value={formData.agentName}
                 onChange={(e) => setFormData(prev => ({ ...prev, agentName: e.target.value }))}
                 className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
               />
             </div>
-          </div>
+          </fieldset>
 
           {/* Special Requests */}
-          <div className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-primary mb-4 md:mb-6 flex items-center gap-2">
+          <fieldset disabled={isSubmitting} className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
+            <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
               <MessageCircle className="w-6 h-6" />
-              {isHebrew ? 'בקשות מיוחדות' : 'Special Requests'}
-            </h2>
-            
-            <textarea
-              placeholder={isHebrew ? 'הוסף בקשות מיוחדות, הגבלות תזונתיות, או הערות נוספות...' : 'Add special requests, dietary restrictions, or additional notes...'}
-              value={formData.specialRequests}
-              onChange={(e) => setFormData(prev => ({ ...prev, specialRequests: e.target.value }))}
-              rows={4}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            />
-          </div>
+              {t('Special Requests', 'בקשות מיוחדות')}
+            </legend>
+
+            <div className="mt-4">
+              <label htmlFor="specialRequests" className="sr-only">
+                {t('Special Requests', 'בקשות מיוחדות')}
+              </label>
+              <textarea
+                id="specialRequests"
+                placeholder={t(
+                  'Add special requests, dietary restrictions, or additional notes...',
+                  'הוסף בקשות מיוחדות, הגבלות תזונתיות, או הערות נוספות...'
+                )}
+                value={formData.specialRequests}
+                onChange={(e) => setFormData(prev => ({ ...prev, specialRequests: e.target.value }))}
+                rows={4}
+                className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              />
+            </div>
+          </fieldset>
 
           {/* Submit Button */}
           <button
@@ -713,10 +760,17 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ''}`;
             disabled={isSubmitting}
             className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
-            <MessageCircle className="w-6 h-6" />
-            {isSubmitting 
-              ? (isHebrew ? 'שולח...' : 'Submitting...')
-              : (isHebrew ? 'שלח ושלח לוואטסאפ' : 'Submit & Send to WhatsApp')}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                {t('Submitting...', 'שולח...')}
+              </>
+            ) : (
+              <>
+                <MessageCircle className="w-6 h-6" />
+                {t('Submit & Send to WhatsApp', 'שלח ושלח לוואטסאפ')}
+              </>
+            )}
           </button>
         </form>
       </div>

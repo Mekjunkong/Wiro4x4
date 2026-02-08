@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -29,6 +29,18 @@ export default function Gallery() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const { data: photos, isLoading } = trpc.gallery.list.useQuery();
+
+  // Compute counts per category from all photos
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    if (photos) {
+      for (const photo of photos) {
+        const cat = photo.category || 'other';
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [photos]);
 
   const filteredPhotos = photos?.filter(
     (photo) => selectedCategory === 'all' || photo.category === selectedCategory
@@ -81,16 +93,34 @@ export default function Gallery() {
       <div className="container py-8 md:py-12">
         {/* Category Filters */}
         <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {CATEGORIES.map((cat) => (
-            <Button
-              key={cat.id}
-              variant={selectedCategory === cat.id ? 'default' : 'outline'}
-              className="rounded-full"
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              {isHebrew ? cat.he : cat.en}
-            </Button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const count = cat.id === 'all'
+              ? (photos?.length ?? 0)
+              : (categoryCounts[cat.id] ?? 0);
+            const isZero = count === 0 && cat.id !== 'all';
+
+            return (
+              <Button
+                key={cat.id}
+                variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                className={`rounded-full gap-1.5 ${isZero ? 'opacity-50' : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                {isHebrew ? cat.he : cat.en}
+                <span
+                  className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium ${
+                    selectedCategory === cat.id
+                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      : isZero
+                        ? 'bg-muted text-muted-foreground'
+                        : 'bg-primary/10 text-primary'
+                  }`}
+                >
+                  {count}
+                </span>
+              </Button>
+            );
+          })}
         </div>
 
         {/* Loading State */}
