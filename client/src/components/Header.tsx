@@ -67,12 +67,12 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           <Link
             href="/"
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
           >
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
-              className={`h-12 w-auto object-contain ${!scrolled ? "drop-shadow-lg" : ""}`}
+              className={`h-16 md:h-20 w-auto object-contain ${!scrolled ? "drop-shadow-2xl" : "drop-shadow-lg"}`}
             />
           </Link>
 

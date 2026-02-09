@@ -66,7 +66,7 @@ export default function DashboardLayout({
                 <img
                   src={APP_LOGO}
                   alt={APP_TITLE}
-                  className="h-20 w-20 rounded-xl object-cover shadow"
+                  className="h-24 w-24 rounded-xl object-cover shadow-lg"
                 />
               </div>
             </div>
@@ -175,7 +175,7 @@ function DashboardLayoutContent({
                   <a href="/" className="block">
                     <img
                       src={APP_LOGO}
-                      className="h-8 w-8 rounded-md object-cover ring-1 ring-border cursor-pointer hover:opacity-80 transition-opacity"
+                      className="h-10 w-10 rounded-md object-cover ring-1 ring-border cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
                       alt="Logo"
                     />
                   </a>
@@ -194,7 +194,7 @@ function DashboardLayoutContent({
                   >
                     <img
                       src={APP_LOGO}
-                      className="h-8 w-8 rounded-md object-cover ring-1 ring-border shrink-0"
+                      className="h-10 w-10 rounded-md object-cover ring-1 ring-border shrink-0"
                       alt="Logo"
                     />
                     <span className="font-semibold tracking-tight truncate">

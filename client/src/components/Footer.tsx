@@ -21,12 +21,12 @@ export function Footer() {
           <div className="space-y-4">
             <a
               href="/"
-              className="cursor-pointer hover:opacity-80 transition-opacity inline-block"
+              className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105 inline-block"
             >
               <img
                 src={APP_LOGO}
                 alt="WIRO 4x4 Logo"
-                className="h-16 w-auto object-contain"
+                className="h-16 w-auto object-contain drop-shadow-lg"
               />
             </a>
             <p className="text-sm text-background/70">
