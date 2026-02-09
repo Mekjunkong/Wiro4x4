@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Download } from "lucide-react";
 import { PAGE_SIZE } from "./types";
+import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { downloadCSV } from "@/lib/csvExport";
 
@@ -203,9 +204,7 @@ export function FinancialTab() {
         })()}
 
       {financialsLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-        </div>
+        <TableSkeleton />
       ) : financials?.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           No financial records yet.

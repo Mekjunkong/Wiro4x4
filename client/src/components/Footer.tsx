@@ -73,6 +73,22 @@ export function Footer() {
                   {t("Contact", "צור קשר")}
                 </button>
               </li>
+              <li>
+                <a
+                  href="/terms"
+                  className="hover:text-secondary transition-colors"
+                >
+                  {t("Terms of Service", "תנאי שירות")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/privacy"
+                  className="hover:text-secondary transition-colors"
+                >
+                  {t("Privacy Policy", "מדיניות פרטיות")}
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -19,7 +19,7 @@ function createAuthContext(): { ctx: TrpcContext } {
   const ctx: TrpcContext = {
     user,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => {} } as TrpcContext["res"],
+    res: { clearCookie: () => {}, setHeader: () => {} } as TrpcContext["res"],
   };
   return { ctx };
 }
@@ -59,7 +59,10 @@ describe("paginated queries", () => {
     const { ctx } = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
-    const result = await caller.review.listAllPaginated({ page: 1, pageSize: 20 });
+    const result = await caller.review.listAllPaginated({
+      page: 1,
+      pageSize: 20,
+    });
 
     expect(result).toHaveProperty("items");
     expect(result).toHaveProperty("total");

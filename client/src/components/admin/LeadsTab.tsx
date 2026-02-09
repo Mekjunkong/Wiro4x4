@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Trash2, ArrowRightLeft, Download } from "lucide-react";
 import { PAGE_SIZE } from "./types";
+import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { downloadCSV } from "@/lib/csvExport";
 
@@ -148,9 +149,7 @@ export function LeadsTab() {
       )}
 
       {leadsLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-        </div>
+        <TableSkeleton />
       ) : leads?.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           No leads captured yet.
@@ -180,6 +179,9 @@ export function LeadsTab() {
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">
                   Source
+                </th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden sm:table-cell">
+                  Score
                 </th>
                 <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm">
                   Status
@@ -217,6 +219,23 @@ export function LeadsTab() {
                   </td>
                   <td className="py-3 px-4 text-sm hidden md:table-cell">
                     {lead.source}
+                  </td>
+                  <td className="py-3 px-4 hidden sm:table-cell">
+                    {(lead as any).score != null && (lead as any).score > 0 ? (
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          (lead as any).score >= 70
+                            ? "bg-green-100 text-green-700"
+                            : (lead as any).score >= 40
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {(lead as any).score}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <select

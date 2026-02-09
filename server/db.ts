@@ -476,6 +476,56 @@ export async function getPaymentStats() {
   };
 }
 
+export async function getPaymentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq(payments.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPaymentBySessionId(sessionId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq(payments.stripeSessionId, sessionId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllPendingPayments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(payments)
+    .where(eq(payments.status, "pending"))
+    .orderBy(payments.createdAt);
+}
+
+export async function updatePayment(id: number, data: Partial<InsertPayment>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(payments).set(data).where(eq(payments.id, id));
+}
+
+export async function getBookingTotalPaid(bookingId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`COALESCE(SUM(${payments.amount}), 0)` })
+    .from(payments)
+    .where(
+      and(eq(payments.bookingId, bookingId), eq(payments.status, "completed"))
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
 // ─── Tours ──────────────────────────────────────────────────
 
 export async function createTour(tour: InsertTour) {
@@ -724,7 +774,12 @@ export async function bulkDeleteReviews(ids: number[]) {
 
 // ─── Subscribers ─────────────────────────────────────────
 
-import { subscribers, InsertSubscriber } from "../drizzle/schema";
+import {
+  subscribers,
+  InsertSubscriber,
+  scheduledEmails,
+  InsertScheduledEmail,
+} from "../drizzle/schema";
 
 export async function createSubscriber(sub: InsertSubscriber) {
   const db = await getDb();
@@ -753,4 +808,236 @@ export async function logAdminAction(log: InsertAuditLog) {
   } catch (err) {
     console.error("[Audit] Failed to log action:", err);
   }
+}
+
+// ─── Scheduled Emails ─────────────────────────────────────
+
+export async function createScheduledEmail(record: InsertScheduledEmail) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(scheduledEmails).values(record);
+}
+
+export async function hasScheduledEmailBeenSent(
+  type: "reminder" | "feedback" | "lead_alert" | "daily_summary",
+  targetId: number
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const result = await db
+    .select()
+    .from(scheduledEmails)
+    .where(
+      and(
+        eq(scheduledEmails.type, type),
+        eq(scheduledEmails.targetId, targetId),
+        eq(scheduledEmails.status, "sent")
+      )
+    )
+    .limit(1);
+  return result.length > 0;
+}
+
+// ─── Agent Availability ───────────────────────────────────
+
+export async function getAgentBookingsInDateRange(
+  agentId: number,
+  startDate: Date,
+  endDate: Date
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.assignedAgentId, agentId),
+        sql`${bookings.status} IN ('confirmed', 'in_progress')`,
+        sql`${bookings.arrivalDate} <= ${endDate}`,
+        sql`${bookings.departureDate} >= ${startDate}`
+      )
+    );
+}
+
+// ─── Financial Auto-Generation ────────────────────────────
+
+export async function generateDefaultFinancialRecords(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const booking = await getBookingById(bookingId);
+  if (!booking) throw new Error("Booking not found");
+
+  // Check if records already exist
+  const existing = await getFinancialRecordsByBookingId(bookingId);
+  if (existing.length > 0) return existing;
+
+  // Calculate average costs from historical data
+  const allRecords = await db.select().from(financialRecords);
+  const costRecords = allRecords.filter(r => r.type === "cost");
+
+  function avgCostByCategory(category: string): number {
+    const matching = costRecords.filter(r => r.category === category);
+    if (matching.length === 0) return 0;
+    return Math.round(
+      matching.reduce((sum, r) => sum + r.amount, 0) / matching.length
+    );
+  }
+
+  const records: InsertFinancialRecord[] = [];
+  const guests = booking.numberOfAdults + (booking.numberOfChildren ?? 0);
+
+  // Revenue record from booking price
+  if (booking.totalPrice) {
+    records.push({
+      bookingId,
+      type: "revenue",
+      category: "tour_package",
+      amount: booking.totalPrice,
+      currency: "THB",
+      description: `Tour package for ${guests} guests`,
+    });
+  }
+
+  // Cost records based on selected services
+  if (booking.includesGuide) {
+    const avg = avgCostByCategory("guide_salary");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "guide_salary",
+      amount: avg || 2000,
+      currency: "THB",
+      description: "Guide salary (estimated)",
+    });
+  }
+
+  if (booking.includesHotels) {
+    const avg = avgCostByCategory("hotel_cost");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "hotel_cost",
+      amount: avg || 3000,
+      currency: "THB",
+      description: `Hotel cost for ${guests} guests (estimated)`,
+    });
+  }
+
+  if (booking.includesFood) {
+    const avg = avgCostByCategory("food_cost");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "food_cost",
+      amount: avg || 1500,
+      currency: "THB",
+      description: `Kosher food for ${guests} guests (estimated)`,
+    });
+  }
+
+  if (booking.includesTrip) {
+    const avg = avgCostByCategory("vehicle_rental");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "vehicle_rental",
+      amount: avg || 2500,
+      currency: "THB",
+      description: "4x4 vehicle rental (estimated)",
+    });
+  }
+
+  // Insert all records
+  for (const record of records) {
+    await db.insert(financialRecords).values(record);
+  }
+
+  return records;
+}
+
+// ─── Lead Scoring ─────────────────────────────────────────
+
+export async function updateLeadScore(leadId: number, score: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(leads)
+    .set({ score: Math.max(0, Math.min(100, Math.round(score))) })
+    .where(eq(leads.id, leadId));
+}
+
+// ─── Reminder Scheduler Queries ──────────────────────────
+
+/**
+ * Get confirmed bookings with arrivalDate within 24-48 hours that haven't had a reminder sent.
+ */
+export async function getBookingsNeedingReminder() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.status, "confirmed"),
+        sql`${bookings.reminderSentAt} IS NULL`,
+        sql`${bookings.arrivalDate} >= ${in24h}`,
+        sql`${bookings.arrivalDate} <= ${in48h}`
+      )
+    );
+}
+
+/**
+ * Get completed bookings where departureDate was ~1 day ago and no feedback email has been sent.
+ */
+export async function getBookingsNeedingFeedback() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        sql`${bookings.feedbackSentAt} IS NULL`,
+        sql`${bookings.departureDate} <= ${oneDayAgo}`,
+        sql`${bookings.departureDate} >= ${twoDaysAgo}`,
+        sql`${bookings.status} IN ('completed', 'confirmed', 'in_progress')`
+      )
+    );
+}
+
+/**
+ * Mark a booking as having had its reminder email sent.
+ */
+export async function markReminderSent(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(bookings)
+    .set({ reminderSentAt: new Date() } as any)
+    .where(eq(bookings.id, bookingId));
+}
+
+/**
+ * Mark a booking as having had its feedback email sent.
+ */
+export async function markFeedbackSent(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(bookings)
+    .set({ feedbackSentAt: new Date() } as any)
+    .where(eq(bookings.id, bookingId));
 }

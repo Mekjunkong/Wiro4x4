@@ -94,6 +94,10 @@ export const bookings = mysqlTable(
     // Assignment
     assignedAgentId: int("assignedAgentId"),
 
+    // Automated email tracking
+    reminderSentAt: timestamp("reminderSentAt"),
+    feedbackSentAt: timestamp("feedbackSentAt"),
+
     // Metadata
     source: varchar("source", { length: 100 }).default("website"),
     notes: text("notes"),
@@ -145,6 +149,7 @@ export const leads = mysqlTable(
       .notNull(),
     convertedToBookingId: int("convertedToBookingId"),
     notes: text("notes"),
+    score: int("score").default(0), // Lead score 0-100
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
@@ -337,3 +342,26 @@ export const subscribers = mysqlTable("subscribers", {
 });
 export type Subscriber = typeof subscribers.$inferSelect;
 export type InsertSubscriber = typeof subscribers.$inferInsert;
+
+// Scheduled Emails Table (tracks automated emails to prevent duplicates)
+export const scheduledEmails = mysqlTable(
+  "scheduledEmails",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    type: mysqlEnum("type", [
+      "reminder",
+      "feedback",
+      "lead_alert",
+      "daily_summary",
+    ]).notNull(),
+    targetId: int("targetId"), // bookingId or leadId
+    targetEmail: varchar("targetEmail", { length: 320 }),
+    sentAt: timestamp("sentAt").defaultNow().notNull(),
+    status: mysqlEnum("status", ["sent", "failed"]).default("sent").notNull(),
+  },
+  table => [
+    index("idx_scheduledEmails_type_targetId").on(table.type, table.targetId),
+  ]
+);
+export type ScheduledEmail = typeof scheduledEmails.$inferSelect;
+export type InsertScheduledEmail = typeof scheduledEmails.$inferInsert;

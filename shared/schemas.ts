@@ -134,6 +134,22 @@ export const blogPostInputSchema = z.object({
   author: z.string().optional(),
 });
 
+export const createCheckoutSchema = z.object({
+  bookingId: z.number(),
+  amount: z.number().positive(),
+  type: z.enum(["deposit", "balance", "full"]),
+});
+
+export const refundSchema = z.object({
+  paymentId: z.number(),
+  amount: z.number().positive().optional(),
+  reason: z.string().optional(),
+});
+
+export const verifySessionSchema = z.object({
+  sessionId: z.string(),
+});
+
 export const paginationInput = z.object({
   page: z.number().min(1).default(1),
   pageSize: z.number().min(1).max(100).default(20),
@@ -147,3 +163,6 @@ export type TourInput = z.infer<typeof tourInputSchema>;
 export type ReviewInput = z.infer<typeof reviewInputSchema>;
 export type BlogPostInput = z.infer<typeof blogPostInputSchema>;
 export type PaginationInput = z.infer<typeof paginationInput>;
+export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;
+export type RefundInput = z.infer<typeof refundSchema>;
+export type VerifySessionInput = z.infer<typeof verifySessionSchema>;

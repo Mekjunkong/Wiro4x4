@@ -1,13 +1,21 @@
-import { useState } from 'react';
-import { useAuth } from '@/_core/hooks/useAuth';
-import { trpc } from '@/lib/trpc';
-import { getLoginUrl } from '@/const';
+import { useState, useRef, useCallback } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { getLoginUrl } from "@/const";
 import {
-  Calendar, Users, DollarSign, TrendingUp,
-  CheckCircle, Clock, LogOut,
-  Camera, Star, Mountain, FileText
-} from 'lucide-react';
-import ErrorBoundary from '@/components/ErrorBoundary';
+  Calendar,
+  Users,
+  DollarSign,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  LogOut,
+  Camera,
+  Star,
+  Mountain,
+  FileText,
+} from "lucide-react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import {
   BookingsTab,
   CalendarTab,
@@ -19,37 +27,67 @@ import {
   ReviewsTab,
   BlogTab,
   PAGE_SIZE,
-} from '@/components/admin';
+} from "@/components/admin";
 
-type AdminTabId = 'bookings' | 'calendar' | 'agents' | 'leads' | 'financial' | 'gallery' | 'reviews' | 'tours' | 'blog';
+type AdminTabId =
+  | "bookings"
+  | "calendar"
+  | "agents"
+  | "leads"
+  | "financial"
+  | "gallery"
+  | "reviews"
+  | "tours"
+  | "blog";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTabId>('bookings');
+  const [activeTab, setActiveTab] = useState<AdminTabId>("bookings");
 
   // Fetch summary data for stats cards and tab counts
-  const { data: bookingsData } = trpc.booking.listPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: bookingsData } = trpc.booking.listPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const bookings = bookingsData?.items;
   const bookingsTotal = bookingsData?.total ?? 0;
 
   const { data: agents } = trpc.agent.list.useQuery();
-  const { data: leadsData } = trpc.lead.listPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: leadsData } = trpc.lead.listPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const leadsTotal = leadsData?.total ?? 0;
 
-  const { data: financialsData } = trpc.financial.listAllPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: financialsData } = trpc.financial.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const financials = financialsData?.items;
   const financialsTotal = financialsData?.total ?? 0;
 
-  const { data: galleryData } = trpc.gallery.listAllPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: galleryData } = trpc.gallery.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const galleryTotal = galleryData?.total ?? 0;
 
-  const { data: reviewsData } = trpc.review.listAllPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: reviewsData } = trpc.review.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const reviewsTotal = reviewsData?.total ?? 0;
 
-  const { data: toursData } = trpc.tour.listAllPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: toursData } = trpc.tour.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const toursTotal = toursData?.total ?? 0;
 
-  const { data: blogData } = trpc.blog.listAllPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
+  const { data: blogData } = trpc.blog.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const blogTotal = blogData?.total ?? 0;
 
   // Auth check
@@ -66,7 +104,9 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="bg-card p-8 rounded-2xl shadow-lg text-center max-w-md">
           <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
-          <p className="text-muted-foreground mb-6">Please log in to access the admin dashboard.</p>
+          <p className="text-muted-foreground mb-6">
+            Please log in to access the admin dashboard.
+          </p>
           <a
             href={getLoginUrl()}
             className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
@@ -81,22 +121,67 @@ export default function AdminDashboard() {
   // Calculate stats
   const stats = {
     totalBookings: bookingsTotal,
-    pendingBookings: bookings?.filter(b => b.status === 'pending').length || 0,
-    confirmedBookings: bookings?.filter(b => b.status === 'confirmed').length || 0,
-    totalRevenue: financials?.filter(f => f.type === 'revenue').reduce((sum, f) => sum + Number(f.amount), 0) || 0,
+    pendingBookings: bookings?.filter(b => b.status === "pending").length || 0,
+    confirmedBookings:
+      bookings?.filter(b => b.status === "confirmed").length || 0,
+    totalRevenue:
+      financials
+        ?.filter(f => f.type === "revenue")
+        .reduce((sum, f) => sum + Number(f.amount), 0) || 0,
   };
 
-  const tabs: { id: AdminTabId; label: string; icon: typeof Calendar; count: number | undefined }[] = [
-    { id: 'bookings', label: 'Bookings', icon: Calendar, count: bookingsTotal },
-    { id: 'calendar', label: 'Calendar', icon: Calendar, count: undefined },
-    { id: 'agents', label: 'Agents', icon: Users, count: agents?.length },
-    { id: 'leads', label: 'Leads', icon: TrendingUp, count: leadsTotal },
-    { id: 'financial', label: 'Financial', icon: DollarSign, count: financialsTotal },
-    { id: 'tours', label: 'Tours', icon: Mountain, count: toursTotal },
-    { id: 'gallery', label: 'Gallery', icon: Camera, count: galleryTotal },
-    { id: 'blog', label: 'Blog', icon: FileText, count: blogTotal },
-    { id: 'reviews', label: 'Reviews', icon: Star, count: reviewsTotal },
+  const tabs: {
+    id: AdminTabId;
+    label: string;
+    icon: typeof Calendar;
+    count: number | undefined;
+  }[] = [
+    { id: "bookings", label: "Bookings", icon: Calendar, count: bookingsTotal },
+    { id: "calendar", label: "Calendar", icon: Calendar, count: undefined },
+    { id: "agents", label: "Agents", icon: Users, count: agents?.length },
+    { id: "leads", label: "Leads", icon: TrendingUp, count: leadsTotal },
+    {
+      id: "financial",
+      label: "Financial",
+      icon: DollarSign,
+      count: financialsTotal,
+    },
+    { id: "tours", label: "Tours", icon: Mountain, count: toursTotal },
+    { id: "gallery", label: "Gallery", icon: Camera, count: galleryTotal },
+    { id: "blog", label: "Blog", icon: FileText, count: blogTotal },
+    { id: "reviews", label: "Reviews", icon: Star, count: reviewsTotal },
   ];
+
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+      let newIndex: number | null = null;
+
+      switch (e.key) {
+        case "ArrowRight":
+          newIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case "ArrowLeft":
+          newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case "Home":
+          newIndex = 0;
+          break;
+        case "End":
+          newIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      e.preventDefault();
+      setActiveTab(tabs[newIndex].id);
+      tabRefs.current[newIndex]?.focus();
+    },
+    [activeTab, tabs]
+  );
 
   return (
     <div className="min-h-screen bg-muted">
@@ -104,11 +189,18 @@ export default function AdminDashboard() {
       <header className="bg-card shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-primary truncate">WIRO 4x4 Admin</h1>
-            <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">Welcome, {user.name || user.email}</span>
+            <h1 className="text-lg md:text-2xl font-bold text-primary truncate">
+              WIRO 4x4 Admin
+            </h1>
+            <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
+              Welcome, {user.name || user.email}
+            </span>
           </div>
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <a href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors hidden sm:inline">
+            <a
+              href="/"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors hidden sm:inline"
+            >
               View Site
             </a>
             <button
@@ -128,8 +220,12 @@ export default function AdminDashboard() {
           <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Total Bookings</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">{stats.totalBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Total Bookings
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">
+                  {stats.totalBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
@@ -139,8 +235,12 @@ export default function AdminDashboard() {
           <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl md:text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Pending
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-yellow-600">
+                  {stats.pendingBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
                 <Clock className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
@@ -150,8 +250,12 @@ export default function AdminDashboard() {
           <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Confirmed</p>
-                <p className="text-2xl md:text-3xl font-bold text-green-600">{stats.confirmedBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Confirmed
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-green-600">
+                  {stats.confirmedBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                 <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -161,8 +265,12 @@ export default function AdminDashboard() {
           <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Revenue</p>
-                <p className="text-2xl md:text-3xl font-bold text-primary">&#3647;{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Revenue
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">
+                  &#3647;{stats.totalRevenue.toLocaleString()}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
                 <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-primary" />
@@ -174,70 +282,137 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="bg-card rounded-xl shadow-sm mb-6">
           <div className="border-b border-border">
-            <nav className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide">
-              {tabs.map(tab => (
+            <nav
+              role="tablist"
+              aria-label="Admin sections"
+              className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide"
+            >
+              {tabs.map((tab, index) => (
                 <button
                   key={tab.id}
+                  ref={el => {
+                    tabRefs.current[index] = el;
+                  }}
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`tabpanel-${tab.id}`}
+                  tabIndex={activeTab === tab.id ? 0 : -1}
                   onClick={() => setActiveTab(tab.id)}
+                  onKeyDown={handleTabKeyDown}
                   className={`flex items-center gap-1.5 md:gap-2 py-3 md:py-4 px-2 md:px-1 border-b-2 transition-colors whitespace-nowrap text-sm md:text-base min-h-[44px] ${
                     activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <tab.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-                  {tab.count !== undefined && tab.count > 0 ? <span className="text-xs">({tab.count})</span> : ''}
+                  <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
+                  {tab.count !== undefined && tab.count > 0 ? (
+                    <span className="text-xs">({tab.count})</span>
+                  ) : (
+                    ""
+                  )}
                 </button>
               ))}
             </nav>
           </div>
 
-          {activeTab === 'bookings' && (
-            <ErrorBoundary level="section" key="bookings">
-              <BookingsTab />
-            </ErrorBoundary>
+          {activeTab === "bookings" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-bookings"
+              aria-labelledby="tab-bookings"
+            >
+              <ErrorBoundary level="section" key="bookings">
+                <BookingsTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'calendar' && (
-            <ErrorBoundary level="section" key="calendar">
-              <CalendarTab />
-            </ErrorBoundary>
+          {activeTab === "calendar" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-calendar"
+              aria-labelledby="tab-calendar"
+            >
+              <ErrorBoundary level="section" key="calendar">
+                <CalendarTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'agents' && (
-            <ErrorBoundary level="section" key="agents">
-              <AgentsTab />
-            </ErrorBoundary>
+          {activeTab === "agents" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-agents"
+              aria-labelledby="tab-agents"
+            >
+              <ErrorBoundary level="section" key="agents">
+                <AgentsTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'leads' && (
-            <ErrorBoundary level="section" key="leads">
-              <LeadsTab />
-            </ErrorBoundary>
+          {activeTab === "leads" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-leads"
+              aria-labelledby="tab-leads"
+            >
+              <ErrorBoundary level="section" key="leads">
+                <LeadsTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'financial' && (
-            <ErrorBoundary level="section" key="financial">
-              <FinancialTab />
-            </ErrorBoundary>
+          {activeTab === "financial" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-financial"
+              aria-labelledby="tab-financial"
+            >
+              <ErrorBoundary level="section" key="financial">
+                <FinancialTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'tours' && (
-            <ErrorBoundary level="section" key="tours">
-              <ToursTab />
-            </ErrorBoundary>
+          {activeTab === "tours" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-tours"
+              aria-labelledby="tab-tours"
+            >
+              <ErrorBoundary level="section" key="tours">
+                <ToursTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'gallery' && (
-            <ErrorBoundary level="section" key="gallery">
-              <GalleryTab />
-            </ErrorBoundary>
+          {activeTab === "gallery" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-gallery"
+              aria-labelledby="tab-gallery"
+            >
+              <ErrorBoundary level="section" key="gallery">
+                <GalleryTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'reviews' && (
-            <ErrorBoundary level="section" key="reviews">
-              <ReviewsTab />
-            </ErrorBoundary>
+          {activeTab === "reviews" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-reviews"
+              aria-labelledby="tab-reviews"
+            >
+              <ErrorBoundary level="section" key="reviews">
+                <ReviewsTab />
+              </ErrorBoundary>
+            </div>
           )}
-          {activeTab === 'blog' && (
-            <ErrorBoundary level="section" key="blog">
-              <BlogTab />
-            </ErrorBoundary>
+          {activeTab === "blog" && (
+            <div role="tabpanel" id="tabpanel-blog" aria-labelledby="tab-blog">
+              <ErrorBoundary level="section" key="blog">
+                <BlogTab />
+              </ErrorBoundary>
+            </div>
           )}
         </div>
       </div>

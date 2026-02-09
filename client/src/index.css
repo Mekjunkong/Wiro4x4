@@ -61,13 +61,13 @@
   --card-foreground: oklch(0.15 0.01 155);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.01 155);
-  /* Gold secondary — darkened from 0.75 to 0.65 for WCAG AA contrast (>=4.5:1 on white) */
-  --secondary: oklch(0.65 0.14 85);
+  /* Gold secondary — darkened to 0.50 for WCAG AA contrast (>=4.5:1 on white) */
+  --secondary: oklch(0.5 0.14 85);
   --secondary-foreground: oklch(0.15 0.01 155);
   --muted: oklch(0.96 0.005 155);
   --muted-foreground: oklch(0.5 0.02 155);
   /* Gold accent — matches secondary for consistency */
-  --accent: oklch(0.65 0.14 85);
+  --accent: oklch(0.5 0.14 85);
   --accent-foreground: oklch(0.15 0.01 155);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
@@ -126,21 +126,38 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Poppins', 'Heebo', sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: "Poppins", "Heebo", sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display", serif;
     font-weight: 700;
   }
   /* Hebrew text support - using LTR layout like English */
-  [lang="he"], .rtl {
-    font-family: 'Heebo', 'Poppins', sans-serif;
+  [lang="he"],
+  .rtl {
+    font-family: "Heebo", "Poppins", sans-serif;
   }
-  [lang="he"] h1, [lang="he"] h2, [lang="he"] h3, 
-  [lang="he"] h4, [lang="he"] h5, [lang="he"] h6,
-  .rtl h1, .rtl h2, .rtl h3, .rtl h4, .rtl h5, .rtl h6 {
-    font-family: 'Heebo', serif;
+  [lang="he"] h1,
+  [lang="he"] h2,
+  [lang="he"] h3,
+  [lang="he"] h4,
+  [lang="he"] h5,
+  [lang="he"] h6,
+  .rtl h1,
+  .rtl h2,
+  .rtl h3,
+  .rtl h4,
+  .rtl h5,
+  .rtl h6 {
+    font-family: "Heebo", serif;
     font-weight: 700;
   }
   button:not(:disabled),
@@ -228,7 +245,8 @@
 
 /* Smooth animations */
 @keyframes pulse-subtle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -270,10 +288,25 @@
   animation: pulse-subtle 3s ease-in-out infinite;
 }
 
-/* Respect prefers-reduced-motion for pulse animation */
+.animate-page-in {
+  animation: fadeIn 0.2s ease-in;
+}
+
+/* Respect prefers-reduced-motion: disable all animations and transitions */
 @media (prefers-reduced-motion: reduce) {
-  .animate-pulse-subtle {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse-subtle,
+  .animate-fade-in-up,
+  .animate-fade-in {
+    animation: none !important;
   }
 }
 
@@ -281,12 +314,16 @@
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 /* Card hover lift */
 .hover\:shadow-premium-lg {
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 .hover\:shadow-premium-lg:hover {
   transform: translateY(-2px);

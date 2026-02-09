@@ -12,6 +12,7 @@ import {
   ChevronUp,
   Download,
   Bell,
+  Sparkles,
 } from "lucide-react";
 import {
   BookingStatus,
@@ -20,7 +21,9 @@ import {
   PAGE_SIZE,
 } from "./types";
 import { Pagination } from "./Pagination";
+import { PaymentSection } from "./PaymentSection";
 import { downloadCSV } from "@/lib/csvExport";
+import { TableSkeleton } from "./AdminSkeleton";
 
 export function BookingsTab() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -231,9 +234,7 @@ export function BookingsTab() {
 
       {/* Bookings List */}
       {bookingsLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-        </div>
+        <TableSkeleton />
       ) : filteredBookings.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           No bookings found
@@ -315,11 +316,26 @@ export function BookingsTab() {
                         }
                       </span>
                     )}
+                  {!booking.assignedAgentId && (
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs hidden sm:inline flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      Needs Agent
+                    </span>
+                  )}
                   <span
                     className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}
                   >
                     {STATUS_LABELS[booking.status as BookingStatus]}
                   </span>
+                  {booking.depositPaid === 1 && booking.balancePaid === 1 ? (
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hidden sm:inline">
+                      Paid
+                    </span>
+                  ) : booking.depositPaid === 1 ? (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs hidden sm:inline">
+                      Deposit Paid
+                    </span>
+                  ) : null}
                   <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
                     {booking.numberOfAdults} adults
                   </span>
@@ -453,6 +469,12 @@ export function BookingsTab() {
                       </p>
                     </div>
                   )}
+                  <PaymentSection
+                    bookingId={booking.id}
+                    totalPrice={booking.totalPrice}
+                    depositPaid={booking.depositPaid}
+                    balancePaid={booking.balancePaid}
+                  />
                 </div>
               )}
             </div>

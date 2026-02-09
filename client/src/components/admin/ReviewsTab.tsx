@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Trash2, CheckCircle } from "lucide-react";
 import { PAGE_SIZE } from "./types";
+import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 
 export function ReviewsTab() {
@@ -162,9 +163,7 @@ export function ReviewsTab() {
       )}
 
       {reviewsLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-        </div>
+        <TableSkeleton />
       ) : (
         <div className="space-y-4">
           {/* Select all */}

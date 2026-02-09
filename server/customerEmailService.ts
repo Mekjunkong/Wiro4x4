@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { createEvents, EventAttributes } from "ics";
+import { captureException } from "./sentry";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -275,6 +276,7 @@ export async function sendCustomerConfirmation(
 
     if (error) {
       console.error("[Customer Email] Error sending confirmation:", error);
+      captureException(error);
       return false;
     }
 
@@ -284,6 +286,7 @@ export async function sendCustomerConfirmation(
     return true;
   } catch (error) {
     console.error("[Customer Email] Error in sendCustomerConfirmation:", error);
+    captureException(error);
     return false;
   }
 }
@@ -369,6 +372,7 @@ export async function sendBookingReminder(
 
     if (error) {
       console.error("[Customer Email] Error sending reminder:", error);
+      captureException(error);
       return false;
     }
 
@@ -376,6 +380,158 @@ export async function sendBookingReminder(
     return true;
   } catch (error) {
     console.error("[Customer Email] Error in sendBookingReminder:", error);
+    captureException(error);
+    return false;
+  }
+}
+
+/**
+ * Send post-tour feedback request email (1 day after tour)
+ */
+/**
+ * Send payment confirmation email to customer
+ */
+export async function sendPaymentConfirmationEmail({
+  customerName,
+  customerEmail,
+  amount,
+  type,
+  bookingId,
+}: {
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  type: string;
+  bookingId: number;
+}): Promise<boolean> {
+  try {
+    const typeLabels: Record<string, string> = {
+      deposit: "Deposit",
+      balance: "Balance",
+      full: "Full Payment",
+      refund: "Refund",
+    };
+    const typeLabel = typeLabels[type] || type;
+    const formattedAmount = amount.toLocaleString("en-US");
+
+    const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .header p { margin: 10px 0 0 0; opacity: 0.9; }
+    .content { background: #ffffff; padding: 30px 20px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; }
+    .payment-details { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4a7c2c; }
+    .detail-row { margin: 10px 0; }
+    .detail-label { font-weight: bold; color: #2d5016; }
+    .amount { font-size: 32px; font-weight: bold; color: #2d5016; text-align: center; margin: 20px 0; }
+    .info-box { background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4a7c2c; }
+    .contact-info { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f5a623; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border-top: 1px solid #e0e0e0; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Payment Confirmed</h1>
+      <p>Thank you for your payment</p>
+    </div>
+
+    <div class="content">
+      <p>Dear ${customerName},</p>
+
+      <p>We have successfully received your payment. Here are the details:</p>
+
+      <div class="payment-details">
+        <div class="amount">${formattedAmount} THB</div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Type:</span> ${typeLabel}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Booking Reference:</span> #${bookingId}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span> Completed
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3 style="margin-top: 0; color: #2d5016;">What Happens Next?</h3>
+        <ul style="padding-left: 20px;">
+          <li>Your booking is being processed by our team</li>
+          <li>You will receive a confirmation with full tour details</li>
+          <li>A reminder will be sent 48 hours before your tour</li>
+        </ul>
+      </div>
+
+      <div class="contact-info">
+        <h3 style="margin-top: 0; color: #f5a623;">Need Help?</h3>
+        <p><strong>Phone:</strong> <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
+        <p><strong>Website:</strong> <a href="${COMPANY_WEBSITE}">${COMPANY_WEBSITE}</a></p>
+      </div>
+
+      <p>Thank you for choosing WIRO 4x4!</p>
+
+      <p style="margin-top: 30px;">
+        <strong>The WIRO 4x4 Team</strong><br>
+        <em>Kosher Off-Road Adventures in Chiang Mai</em>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p><strong>${COMPANY_NAME}</strong></p>
+      <p>Chiang Mai, Thailand</p>
+      <p>${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
+      <p style="margin-top: 15px; font-size: 12px;">
+        This is an automated payment confirmation. Please do not reply directly to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const resend = getResend();
+    if (!resend) {
+      console.warn(
+        "[Customer Email] Resend API key not configured, skipping payment confirmation"
+      );
+      return false;
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
+      to: [customerEmail],
+      subject: `Payment Confirmed - ${typeLabel} of ${formattedAmount} THB - Booking #${bookingId}`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error(
+        "[Customer Email] Error sending payment confirmation:",
+        error
+      );
+      captureException(error);
+      return false;
+    }
+
+    console.log(
+      `[Customer Email] Payment confirmation sent to ${customerEmail}. ID: ${data?.id}`
+    );
+    return true;
+  } catch (error) {
+    console.error(
+      "[Customer Email] Error in sendPaymentConfirmationEmail:",
+      error
+    );
+    captureException(error);
     return false;
   }
 }
@@ -441,6 +597,7 @@ export async function sendPostTourFeedback(
 
     if (error) {
       console.error("[Customer Email] Error sending feedback request:", error);
+      captureException(error);
       return false;
     }
 
@@ -450,6 +607,7 @@ export async function sendPostTourFeedback(
     return true;
   } catch (error) {
     console.error("[Customer Email] Error in sendPostTourFeedback:", error);
+    captureException(error);
     return false;
   }
 }

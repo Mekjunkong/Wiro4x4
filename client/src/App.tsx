@@ -7,6 +7,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import Home from "./pages/Home";
+import { CookieConsent } from "./components/CookieConsent";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
 const Blog = React.lazy(() => import("./pages/Blog"));
@@ -15,6 +16,10 @@ const BookingForm = React.lazy(() => import("./pages/BookingForm"));
 const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
 const Gallery = React.lazy(() => import("./pages/Gallery"));
 const Reviews = React.lazy(() => import("./pages/Reviews"));
+const BookingSuccess = React.lazy(() => import("./pages/BookingSuccess"));
+const BookingCancel = React.lazy(() => import("./pages/BookingCancel"));
+const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -34,24 +39,31 @@ function LoadingSpinner() {
 }
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  const [location] = useLocation();
+
   return (
     <>
       <ScrollToTop />
       <React.Suspense fallback={<LoadingSpinner />}>
-        <Switch>
-          <Route path={"/"} component={Home} />
-          <Route path={"/pricing"} component={Pricing} />
-          <Route path={"/blog"} component={Blog} />
-          <Route path={"/blog/:id"} component={BlogPost} />
-          <Route path={"/gallery"} component={Gallery} />
-          <Route path={"/reviews"} component={Reviews} />
-          <Route path={"/book"} component={BookingForm} />
-          <Route path={"/admin"} component={AdminDashboard} />
-          <Route path={"/404"} component={NotFound} />
-          {/* Final fallback route */}
-          <Route component={NotFound} />
-        </Switch>
+        <div key={location} className="animate-page-in">
+          <Switch>
+            <Route path={"/"} component={Home} />
+            <Route path={"/pricing"} component={Pricing} />
+            <Route path={"/blog"} component={Blog} />
+            <Route path={"/blog/:id"} component={BlogPost} />
+            <Route path={"/gallery"} component={Gallery} />
+            <Route path={"/reviews"} component={Reviews} />
+            <Route path={"/book"} component={BookingForm} />
+            <Route path={"/booking/success"} component={BookingSuccess} />
+            <Route path={"/booking/cancel"} component={BookingCancel} />
+            <Route path={"/terms"} component={TermsOfService} />
+            <Route path={"/privacy"} component={PrivacyPolicy} />
+            <Route path={"/admin"} component={AdminDashboard} />
+            <Route path={"/404"} component={NotFound} />
+            {/* Final fallback route */}
+            <Route component={NotFound} />
+          </Switch>
+        </div>
       </React.Suspense>
     </>
   );
@@ -83,6 +95,7 @@ function AppContent() {
       <ErrorBoundary>
         <Router />
       </ErrorBoundary>
+      <CookieConsent />
     </TooltipProvider>
   );
 }
