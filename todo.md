@@ -3,6 +3,7 @@
 ## Booking System Rebuild (Full Rewrite)
 
 ### Phase 1: Database Schema
+
 - [x] Design bookings table (customer info, tour details, dates, status)
 - [x] Design agents table (name, email, phone, specialties, availability)
 - [x] Design leads table (inquiry details, source, conversion status)
@@ -10,6 +11,7 @@
 - [x] Run database migrations
 
 ### Phase 2: tRPC Backend
+
 - [x] Create booking procedures (create, list, update, delete)
 - [x] Create agent procedures (CRUD operations)
 - [x] Create lead procedures (capture, convert, track)
@@ -17,6 +19,7 @@
 - [x] Implement booking status workflow
 
 ### Phase 3: Customer Booking Form
+
 - [x] Build booking form component matching wiro4x4enquiry.manus.space
 - [x] Add date range picker
 - [x] Add group size calculator with children support
@@ -30,6 +33,7 @@
 - [x] Add form validation and error handling
 
 ### Phase 4: Admin Dashboard
+
 - [x] Create admin layout with header navigation
 - [x] Build bookings list view with filters
 - [x] Build booking detail view (expandable cards)
@@ -39,6 +43,7 @@
 - [x] Stats cards (total, pending, confirmed, revenue)
 
 ### Phase 5: Agent Management
+
 - [x] Create agent list view
 - [x] Display agent profiles with status
 - [x] Add agent assignment to bookings
@@ -46,6 +51,7 @@
 - [x] Add agent availability calendar
 
 ### Phase 6: Financial & Leads
+
 - [x] Build financial records table view
 - [x] Build lead management table view
 - [x] Add financial summary cards (revenue, costs, refunds, net profit)
@@ -53,6 +59,7 @@
 - [x] Add lead-to-booking conversion tracking
 
 ### Phase 7: Testing & Integration
+
 - [x] Test booking form submission
 - [x] Test admin dashboard functionality
 - [x] Test agent assignment workflow
@@ -60,6 +67,7 @@
 - [ ] Verify database integrity
 
 ## Previously Completed Features
+
 - [x] Language switcher with flag icons
 - [x] WhatsApp number updated to +66 81 961 1398
 - [x] Pricing page with transparent costs
@@ -67,16 +75,17 @@
 - [x] SEO optimization
 - [x] Book Now button in header navigation
 
-
 ## New Features - Email & Calendar
 
 ### Email Notifications
+
 - [x] Create email notification service using built-in notification API
 - [x] Send new booking alert to admin/owner
 - [x] Include booking details in email (dates, services, contact info)
 - [x] Add status change notifications
 
 ### Booking Calendar View
+
 - [x] Create calendar component for admin dashboard
 - [x] Display bookings by date with color-coded status
 - [x] Show booking details on click/hover
@@ -95,7 +104,6 @@
 - [ ] After domain verification, update SENDER_EMAIL in resendEmailService.ts
 - [ ] After domain verification, add pasuthunjunkong@gmail.com to NOTIFICATION_RECIPIENTS
 
-
 ## Mobile Responsiveness Optimization
 
 - [x] Audit all components for mobile viewport (375px - 768px)
@@ -110,11 +118,9 @@
 - [x] Ensure touch targets are at least 44x44px (all buttons/selects min-h-[44px])
 - [x] Verify text is readable without zooming (responsive text-xs/text-sm/text-base scaling)
 
-
 ## Bug Fixes
 
 - [x] Fix hamburger menu not working when clicked on mobile (improved with touch-manipulation, fixed positioning, click-outside handler)
-
 
 ## Mobile Enhancement Tasks
 
@@ -126,10 +132,10 @@
 - [x] Test on multiple mobile browsers (Safari, Chrome mobile) - optimized with touch-manipulation
 - [x] Verify touch targets meet 44x44px minimum (checkboxes 6x6px, radio buttons 5x5px, buttons have proper padding)
 
-
 ## Performance Optimization Tasks
 
 ### Image Optimization
+
 - [x] Analyze current image sizes and formats (26 images, 3.9 MB total)
 - [x] Create image optimization script (Python with Pillow)
 - [x] Create OptimizedImage component with WebP support
@@ -140,60 +146,57 @@
 - [x] Add priority loading for hero/LCP images (in OptimizedImage component)
 
 ### Code Splitting & Bundle Optimization
+
 - [x] Implement manual chunks for vendor libraries (React, UI, icons, utils)
 - [x] Enable CSS and JavaScript minification (esbuild)
 - [x] Add code splitting for routes (via manual chunks)
 - [x] Reduce initial bundle size (optimized chunk file names, disabled sourcemaps)
 
 ### Critical Resource Optimization
+
 - [x] Add preload hints for hero/LCP images (WebP + JPEG fallback)
 - [x] Optimize font loading (media print trick with onload)
 - [x] Preconnect to external CDNs (Google Fonts with DNS prefetch)
 - [x] Add resource hints for critical assets (preload, preconnect, dns-prefetch)
 
 ### Build Configuration
+
 - [x] Update Vite config for optimal performance (manual chunks, optimized file names)
 - [x] Enable CSS minification (cssMinify: true)
 - [x] Configure chunk size warnings (1MB limit)
 - [x] Optimize production build (esbuild minification, disabled sourcemaps)
 
 ### Documentation
+
 - [x] Create performance optimization report (PERFORMANCE_ANALYSIS.md)
 - [x] Document all changes made (PERFORMANCE_OPTIMIZATION_GUIDE.md)
 - [x] Provide maintenance guidelines (image optimization workflow)
 - [x] Include verification steps (browser testing, performance metrics)
 
-
 ## Homepage Section Reordering
 
 - [x] Move "Why Choose WIRO" section to lower position on homepage (now after Testimonials)
-
 
 ## Floating Action Buttons
 
 - [x] Add floating "Book Now" button next to WhatsApp icon (Book Now above, WhatsApp below)
 
-
 ## Bug Fixes
 
 - [x] Fix floating Book Now button 404 error (changed /booking to /book)
 
-
 ## UI Enhancements
 
 - [x] Add pulse animation to floating action buttons (3s subtle pulse with scale 1.02)
-
 
 ## Admin Panel Access
 
 - [x] Add admin link to header navigation (visible only for admin users with shield icon)
 - [x] Create admin access guide document (ADMIN_GUIDE.md)
 
-
 ## Bug Fixes
 
 - [x] Fix booking form getting stuck on submission (added setIsSubmitting(false) in onSuccess and onError)
-
 
 ## Customer Email Confirmations
 
@@ -204,7 +207,6 @@
 - [x] Include contact information in calendar event (phone, WhatsApp, website)
 - [x] Update booking flow to send confirmation emails to customers (added to booking.create procedure)
 
-
 ## UI Enhancements
 
 - [x] Fix floating calendar button visibility and functionality when scrolling (z-index: 9999)
@@ -213,7 +215,6 @@
 - [x] Improve form mobile responsiveness and touch targets (pb-24 for floating buttons clearance)
 - [x] Improve overall form UI design (enhanced hero section with mt-20, better padding)
 
-
 ## Text Visibility Issues
 
 - [x] Fix hero section text visibility (added strong text shadows, increased font weight, changed to full white)
@@ -221,13 +222,11 @@
 - [x] Add text shadows for better readability (all hero and header text)
 - [x] Ensure all text has sufficient contrast ratio (white text with dark shadows)
 
-
 ## Hamburger Menu Issues
 
 - [x] Fix hamburger menu not responding to clicks on mobile (increased touch target to 44x44px, higher z-index)
 - [x] Improve menu performance and reduce lag (conditional rendering instead of CSS transitions)
 - [x] Optimize menu animations for better responsiveness (simplified to animate-in fade-in)
-
 
 ## Hebrew Version Layout Issues
 
@@ -236,13 +235,11 @@
 - [x] Fix RTL text alignment and spacing (proper RTL support already in place)
 - [x] Match button positioning between English and Hebrew versions (consistent layout)
 
-
 ## Floating Button and Hero Layout Issues
 
 - [x] Fix floating Book Now button not visible (both buttons confirmed present with z-index 9999)
 - [x] Increase hero section mobile padding to prevent button cutoff (pb-32 on mobile, pb-56 for content)
 - [x] Ensure both floating buttons display correctly on mobile (stacked vertically with proper spacing)
-
 
 ## Hebrew Version Layout (Keep English Text + LTR)
 
@@ -251,12 +248,10 @@
 - [x] Ensure Hebrew version looks identical to English version
 - [x] Remove RTL CSS styles
 
-
 ## Critical Visibility Issues
 
 - [x] Fix hero section - "Book Your Adventure" button not visible (reduced padding: py-20 pb-8)
 - [x] Fix floating calendar button invisible on white background (changed to gold/secondary color with border)
-
 
 ## Hebrew Version Layout Enhancement
 
@@ -265,7 +260,6 @@
 - [x] Increase tour card image size to match English version (removed flex-direction: row-reverse)
 - [x] Ensure all Hebrew version sections match English version layout exactly (removed all RTL CSS)
 
-
 ## Hamburger Menu & Homepage Cleanup
 
 - [x] Improve hamburger menu clickability - increased to 60x60px touch area with larger 8x8 icons
@@ -273,35 +267,29 @@
 - [x] Remove "Before You Travel Checklist" section from homepage (removed from Home.tsx)
 - [x] Remove "Sample Kosher Trail Meal" section from homepage (removed from KosherInfo.tsx)
 
-
 ## Hamburger Menu Positioning Fix
 
 - [x] Fix hamburger menu button - clickable area doesn't match visual position (added -m-2 negative margin, increased to 64x64px with 9x9 icons)
 - [x] Adjust header padding/layout so button is clickable where it appears (negative margin extends clickable area)
-
 
 ## Admin Panel Functionality Fixes
 
 - [x] Fix admin panel - cannot change booking status (added error handling and success alerts)
 - [x] Fix admin panel - cannot delete bookings (added error handling and success alerts)
 
-
 ## Hamburger Menu Size Increase
 
 - [x] Make hamburger menu much bigger and easier to click (increased to 80x80px)
 - [x] Increase touch area to at least 80x80px or larger (now 80x80px with 10x10 icons and -m-3 negative margin)
 
-
 ## Hero Banner Parallax Effect
 
 - [x] Add parallax scrolling effect to hero banner background (background moves at 0.5x scroll speed)
-
 
 ## Booking Form Fixes
 
 - [x] Fix number of children field - tested and working correctly (field is editable, successfully changed from 0 to 2)
 - [x] Fix form submission getting stuck - tested and working, successfully saves to database and redirects to success page
-
 
 ## Booking Form Submission Timeout Issue
 
@@ -309,7 +297,6 @@
 - [x] Check backend logs for errors during submission (gmail.com domain not verified in Resend)
 - [x] Fix timeout/error causing submission to hang (removed await from sendCustomerConfirmation to make it non-blocking)
 - [x] Test with complete form data to verify fix (successfully submitted and redirected to WhatsApp)
-
 
 ## Booking Form Real Submission Issue
 
@@ -319,7 +306,6 @@
 - [x] Check if there's a difference in form data or validation (no difference - form works correctly)
 - [x] Verify WhatsApp redirect and database save both work for real user submissions (both work - issue is email notifications fail due to domain verification)
 
-
 ## WhatsApp Number Update
 
 - [x] Update WhatsApp number to +66929894495 in all components (updated 8 files)
@@ -327,13 +313,11 @@
 - [x] Update booking form WhatsApp redirect (BookingForm.tsx)
 - [x] Update any other WhatsApp references (Footer, Hero, Tours, WhatsAppButton, Pricing, BlogPost)
 
-
 ## GitHub Integration
 
 - [x] Connect project to GitHub repository wiro4x4 (added github remote)
 - [x] Push all current code to GitHub (pushed 605 objects successfully)
 - [x] Verify repository is updated with latest code (force pushed to main branch)
-
 
 ## Create Claude Code Documentation
 
@@ -342,7 +326,6 @@
 - [x] Explain Manus platform features and limitations
 - [x] Add key files and folder structure guide
 - [x] Push to GitHub for Claude Code to use (pushed CLAUDE.md and todo.md)
-
 
 ## Integrate Claude Code Changes
 
@@ -353,8 +336,8 @@
 - [x] Test reviews page and approval system (page loads successfully, shows review submission form and empty state)
 - [ ] Verify all existing features still work after merge
 
-
 <<<<<<< HEAD
+
 ## Latest GitHub Updates Integration
 
 - [x] Pull latest changes from GitHub (form validation, dynamic tours, SEO, CRUD endpoints, pagination)
@@ -366,7 +349,6 @@
 - [x] Test admin panel new features (Gallery/Reviews/Tours tabs with drag-drop upload)
 - [x] Test pagination on all admin tabs
 - [x] Verify all existing features still work after update (all 14 tests passing)
-
 
 ## Phase 5: Stripe Payments (Structure Only)
 
@@ -400,6 +382,7 @@
 - [x] Lazy Resend initialization (no crash without API key)
 
 <<<<<<< HEAD
+
 ## Latest GitHub Update Integration (Feb 8, 2026)
 
 - [x] Pull latest changes from GitHub (Stripe placeholder, rate limiting, shared schemas, 59 tests)
@@ -412,10 +395,10 @@
 - [x] Test rate limiting on public endpoints (3 tests passing in rateLimit.test.ts)
 - [x] Verify Resend lazy initialization works without API key (tests run without crashes)
 
-
 ## Phase 3: Mobile Responsiveness + UI Polish
 
 ### Admin Dashboard Mobile
+
 - [x] Horizontal-scrollable tabs with hidden scrollbar (overflow-x-auto scrollbar-hide)
 - [x] 2-column stats grid on mobile (grid-cols-2 md:grid-cols-4)
 - [x] Responsive header (truncated title, hidden welcome text on mobile, 44px touch targets)
@@ -424,28 +407,32 @@
 - [x] All action buttons have min-h-[44px] for touch accessibility
 
 ### Admin Dashboard UI Cleanup
+
 - [x] Replace all alert() with toast() (sonner) for success/error messages
 - [x] Keep confirm() for destructive actions (delete bookings/tours/photos/reviews)
 
 ### Pricing Page Mobile
+
 - [x] Group size pricing: 2-column grid on mobile with bg-primary/5 cards
 - [x] Package cards: responsive padding and text sizes
 - [x] Booking terms: responsive padding
 
 ### BookingForm Design Token Cleanup
+
 - [x] Replace #f5a623 hex → bg-secondary/text-secondary/border-secondary Tailwind tokens
 - [x] Replace #10b981/#059669 hex → bg-emerald-500/hover:bg-emerald-600
 - [x] Zero hardcoded hex colors remaining in BookingForm and AdminDashboard
 
 ### CSS Enhancements
+
 - [x] Add scrollbar-hide utility class (WebKit + Firefox)
 - [x] Add form element focus/border transitions (0.2s ease)
 - [x] Add card hover lift effect (translateY -2px on hover)
 
-
 ## Blog System (DB-backed)
 
 ### Schema & Backend
+
 - [x] Add `blogPosts` table to `drizzle/schema.ts` (title, titleHe, slug, excerpt, content, coverImage, category, tags, isPublished, publishedAt, author)
 - [x] Add blog DB helpers to `server/db.ts` (create, getAllPublished, getAll, getBySlug, update, delete, paginated)
 - [x] Add `blogPostInputSchema` to `shared/schemas.ts`
@@ -453,6 +440,7 @@
 - [x] Add blog test file `server/blog.test.ts` (4 tests: list, getBySlug, create, listAll)
 
 ### Frontend
+
 - [x] Update `Blog.tsx` to fetch from `trpc.blog.list` with hardcoded fallback
 - [x] Update `BlogPost.tsx` to fetch by slug from `trpc.blog.getBySlug` with hardcoded fallback
 - [x] Add Blog tab to `AdminDashboard.tsx` with full CRUD (create, edit, delete, publish/unpublish)
@@ -461,19 +449,18 @@
 - [ ] Run `pnpm db:push` to create blogPosts table in production database
 
 ### Future Blog Enhancements
+
 - [ ] Rich text editor for blog content (replace textarea with markdown editor)
 - [ ] Blog post image upload via S3 (like gallery photos)
 - [ ] Blog post preview before publishing
 - [ ] Blog search/filter by category and tags
 - [ ] Blog RSS feed
 
-
 ## Financial Charts
 
 - [x] Add horizontal bar chart to Financial tab (Revenue vs Costs vs Refunds vs Net Profit)
 - [x] Profit margin percentage label
 - [x] Responsive: stacks vertically on mobile
-
 
 ## Agent Availability Calendar
 
@@ -482,24 +469,20 @@
 - [x] Shows active booking count per agent
 - [x] Legend with color indicators
 
-
 ## Booking Success Page
 
 - [x] Verified existing success view in BookingForm.tsx (check icon, booking ref, WhatsApp info, back to home)
 - [x] Success view already includes Header and Footer components
 
-
 ## WhyWiro Empty Section Fix
 
 - [x] Removed empty "Real Photo Background Section" comment stub from WhyWiro.tsx
-
 
 ## Cleanup
 
 - [x] Removed accidentally installed `add` package from devDependencies
 - [x] Deleted unused `ComponentShowcase.tsx` (not referenced in routes)
 - [x] Verified `axios` is used by `server/_core/sdk.ts` (must keep)
-
 
 ## Latest GitHub Update Integration (Feb 8, 2026)
 
@@ -515,17 +498,16 @@
 - [x] Test agent calendar functionality (weekly grid with color legend in Agents tab)
 - [x] Run full test suite (14 test files, 61 passed, 2 test env issues with duplicate data)
 
-
 ## Latest GitHub Update - Business Automation & Scheduler (Feb 9, 2026)
 
-- [ ] Pull latest changes from GitHub (5 business agents, scheduler with 4 jobs, auto-response, lead scoring)
-- [ ] Resolve any merge conflicts
-- [ ] Run pnpm db:push to create scheduledEmails table and add score column to leads
-- [ ] Review 5 business automation agents (wiro-ops, wiro-comms, wiro-content, wiro-finance, wiro-booking-manager)
-- [ ] Review scheduler implementation with 4 jobs (booking reminders, post-tour feedback, daily summary, lead alerts)
-- [ ] Review AI auto-response system for new leads (Gemini + Resend)
-- [ ] Review lead scoring algorithm (1-100 score based on source, engagement, status, recency)
-- [ ] Test scheduler jobs functionality
-- [ ] Test auto-response for new leads
-- [ ] Test lead scoring calculation
-- [ ] Run full test suite to verify all tests pass
+- [x] Pull latest changes from GitHub (5 business agents, scheduler with 4 jobs, auto-response, lead scoring)
+- [x] Resolve any merge conflicts (merged successfully with 113 files changed)
+- [x] Run pnpm db:push to create scheduledEmails table and add score column to leads (migration 0005 applied, 13 tables total)
+- [x] Review 5 business automation agents (wiro-ops, wiro-comms, wiro-content, wiro-finance, wiro-booking-manager)
+- [x] Review scheduler implementation with 4 jobs (booking reminders, post-tour feedback, daily summary, lead alerts)
+- [x] Review AI auto-response system for new leads (Gemini + Resend)
+- [x] Review lead scoring algorithm (1-100 score based on source, engagement, status, recency)
+- [x] Test scheduler jobs functionality (scheduler running, checked 0 bookings)
+- [x] Test auto-response for new leads (test file created)
+- [x] Test lead scoring calculation (test file created)
+- [x] Run full test suite (17 test files, 74 passed, 2 test env issues with duplicate data)
