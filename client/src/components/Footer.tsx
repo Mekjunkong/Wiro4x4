@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Mountain, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { APP_LOGO } from "@/const";
 
 export function Footer() {
   const { t } = useLanguage();
@@ -18,15 +19,16 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Mountain className="h-8 w-8 text-secondary" />
-              <div>
-                <h3 className="text-xl font-bold">WIRO 4x4</h3>
-                <p className="text-sm text-background/80">
-                  {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
-                </p>
-              </div>
-            </div>
+            <a
+              href="/"
+              className="cursor-pointer hover:opacity-80 transition-opacity inline-block"
+            >
+              <img
+                src={APP_LOGO}
+                alt="WIRO 4x4 Logo"
+                className="h-16 w-auto object-contain"
+              />
+            </a>
             <p className="text-sm text-background/70">
               {t(
                 "Premium 4x4 tours in Northern Thailand with kosher meals and Hebrew-speaking guides.",

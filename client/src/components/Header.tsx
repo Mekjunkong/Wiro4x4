@@ -2,7 +2,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { Mountain, Menu, X, Shield, Moon, Sun } from "lucide-react";
+import { Menu, X, Shield, Moon, Sun } from "lucide-react";
+import { APP_LOGO } from "@/const";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -64,29 +65,16 @@ export function Header() {
     >
       <div className="container">
         <div className="flex items-center justify-between h-20">
-          <div className="flex items-center gap-2">
-            <Mountain
-              className={`h-8 w-8 ${scrolled ? "text-primary" : "text-white drop-shadow-lg"}`}
+          <Link
+            href="/"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <img
+              src={APP_LOGO}
+              alt="WIRO 4x4 Logo"
+              className={`h-12 w-auto object-contain ${!scrolled ? "drop-shadow-lg" : ""}`}
             />
-            <div>
-              <h1
-                className={`text-xl font-bold ${scrolled ? "text-primary" : "text-white"}`}
-                style={
-                  !scrolled ? { textShadow: "0 2px 4px rgba(0,0,0,0.8)" } : {}
-                }
-              >
-                WIRO 4x4
-              </h1>
-              <p
-                className={`text-xs ${scrolled ? "text-muted-foreground" : "text-white/90"}`}
-                style={
-                  !scrolled ? { textShadow: "0 1px 3px rgba(0,0,0,0.8)" } : {}
-                }
-              >
-                {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
-              </p>
-            </div>
-          </div>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-6">
             <button
