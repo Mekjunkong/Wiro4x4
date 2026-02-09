@@ -24,7 +24,7 @@ export default function BookingCancel() {
             <p className="text-muted-foreground mb-8">
               {t(
                 "Your payment was not completed. No charges were made. You can try again or reach out to us for help.",
-                "התשלום שלך לא הושלם. לא בוצע חיוב. אתה יכול לנסות שוב או ליצור איתנו קשר."
+                "התשלום לא הושלם ולא בוצע חיוב. אפשר לנסות שוב או ליצור איתנו קשר."
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -32,13 +32,13 @@ export default function BookingCancel() {
                 href="/book"
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
-                {t("Try Again", "נסה שוב")}
+                {t("Try Again", "נסו שוב")}
               </a>
               <a
                 href="https://wa.me/66819611398"
                 className="inline-block border border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary/5 transition"
               >
-                {t("Contact Us on WhatsApp", "צור קשר בווטסאפ")}
+                {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
               </a>
             </div>
           </div>

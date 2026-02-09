@@ -1,6 +1,15 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { Check, Shield, Users, Calendar, MapPin, MessageSquare, Award, Heart } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
+import {
+  Check,
+  Shield,
+  Users,
+  Calendar,
+  MapPin,
+  MessageSquare,
+  Award,
+  Heart,
+} from "lucide-react";
 
 export function WhyWiro() {
   const { t } = useLanguage();
@@ -8,66 +17,69 @@ export function WhyWiro() {
   const features = [
     {
       icon: Award,
-      title: t('First Kosher-Focused Off-Road Company', 'חברת שטח כשרה ראשונה'),
+      title: t(
+        "First Kosher-Focused Off-Road Company",
+        "חברת טיולי השטח הכשרה הראשונה"
+      ),
       description: t(
-        'The first and only kosher-focused off-road tour company in Chiang Mai',
-        'חברת הסיורי שטח הכשרה הראשונה והיחידה בצ\'יאנג מאי'
+        "The first and only kosher-focused off-road tour company in Chiang Mai",
+        "הראשונים והיחידים שעושים טיולי שטח כשרים בצ'יאנג מאי"
       ),
     },
     {
       icon: MessageSquare,
-      title: t('Hebrew Communication', 'תקשורת בעברית'),
+      title: t("Hebrew Communication", "תקשורת בעברית"),
       description: t(
-        'Hebrew-speaking guides and support available throughout your journey',
-        'מדריכים ותמיכה דוברי עברית לאורך כל המסע'
+        "Hebrew-speaking guides and support available throughout your journey",
+        "מדריכים דוברי עברית ותמיכה בעברית לכל אורך הטיול"
       ),
     },
     {
       icon: Calendar,
-      title: t('Shabbat-Friendly Scheduling', 'תזמון ידידותי לשבת'),
+      title: t("Shabbat-Friendly Scheduling", "מותאם לשומרי שבת"),
       description: t(
-        'Flexible scheduling that respects Shabbat and Jewish holidays',
-        'תזמון גמיש שמכבד את השבת והחגים'
+        "Flexible scheduling that respects Shabbat and Jewish holidays",
+        "לוח זמנים גמיש שמתחשב בשבת ובחגים"
       ),
     },
     {
       icon: Users,
-      title: t('Private Premium Tours', 'סיורים פרטיים פרימיום'),
+      title: t("Private Premium Tours", "טיולים פרטיים ומפנקים"),
       description: t(
-        'Exclusive private 4x4 tours tailored to your preferences',
-        'סיורי 4x4 פרטיים בלעדיים המותאמים להעדפותיכם'
+        "Exclusive private 4x4 tours tailored to your preferences",
+        "טיולי 4x4 פרטיים, מותאמים בדיוק בשבילכם"
       ),
     },
     {
       icon: MapPin,
-      title: t('Real Off-Road Adventures', 'הרפתקאות שטח אמיתיות'),
+      title: t("Real Off-Road Adventures", "הרפתקאות שטח אמיתיות"),
       description: t(
-        'Authentic trails and hidden gems, not tourist traps',
-        'שבילים אותנטיים ואוצרות נסתרים, לא מלכודות תיירים'
+        "Authentic trails and hidden gems, not tourist traps",
+        "שבילים אותנטיים ואוצרות נסתרים, לא מלכודות תיירים"
       ),
     },
     {
       icon: MessageSquare,
-      title: t('Responsive WhatsApp Support', 'תמיכה מהירה בוואטסאפ'),
+      title: t("Responsive WhatsApp Support", "תמיכה מהירה בוואטסאפ"),
       description: t(
-        'Quick responses and real-time support via WhatsApp',
-        'מענה מהיר ותמיכה בזמן אמת דרך וואטסאפ'
+        "Quick responses and real-time support via WhatsApp",
+        "מענה מהיר ותמיכה בזמן אמת דרך וואטסאפ"
       ),
     },
     {
       icon: Shield,
-      title: t('Certified Guides', 'מדריכים מוסמכים'),
+      title: t("Certified Guides", "מדריכים מוסמכים"),
       description: t(
-        'Professional, certified guides with extensive local knowledge',
-        'מדריכים מקצועיים ומוסמכים עם ידע מקומי נרחב'
+        "Professional, certified guides with extensive local knowledge",
+        "מדריכים מקצועיים ומוסמכים עם ידע מקומי נרחב"
       ),
     },
     {
       icon: Heart,
-      title: t('Trusted by Israeli Travelers', 'מהימן על ידי מטיילים ישראלים'),
+      title: t("Trusted by Israeli Travelers", "מטיילים ישראלים סומכים עלינו"),
       description: t(
-        'Recommended and trusted by the Israeli travel community',
-        'מומלץ ומהימן על ידי קהילת המטיילים הישראלית'
+        "Recommended and trusted by the Israeli travel community",
+        "מומלצים בקרב מטיילים ישראלים"
       ),
     },
   ];
@@ -77,12 +89,12 @@ export function WhyWiro() {
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
-            {t('Why Choose WIRO 4x4?', 'למה לבחור ב-WIRO 4x4?')}
+            {t("Why Choose WIRO 4x4?", "למה לבחור ב-WIRO 4x4?")}
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
             {t(
-              'We combine authentic off-road adventures with the comfort and cultural understanding that Israeli travelers deserve.',
-              'אנחנו משלבים הרפתקאות שטח אותנטיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים.'
+              "We combine authentic off-road adventures with the comfort and cultural understanding that Israeli travelers deserve.",
+              "משלבים הרפתקאות שטח אמיתיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים."
             )}
           </p>
         </div>
@@ -100,13 +112,14 @@ export function WhyWiro() {
                     <Icon className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
                 </div>
               </Card>
             );
           })}
         </div>
-
       </div>
     </section>
   );

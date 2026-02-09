@@ -26,7 +26,7 @@ export function Hero() {
     const message = encodeURIComponent(
       t(
         "Hi WIRO 4x4 – I want to book a Kosher tour.",
-        "שלום WIRO 4x4 – אני רוצה להזמין סיור כשר."
+        "היי WIRO 4x4 -- אשמח לשמוע על הטיולים הכשרים שלכם."
       )
     );
     window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
@@ -74,7 +74,7 @@ export function Hero() {
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-secondary/20 backdrop-blur-md border border-secondary/30 rounded-full text-secondary animate-fade-in">
             <Sparkles className="h-4 w-4" />
             <span className="text-sm font-medium tracking-wider uppercase">
-              {t("Exclusive Premium Experience", "חוויה פרימיום בלעדית")}
+              {t("Exclusive Premium Experience", "חוויה בלעדית ומפנקת")}
             </span>
           </div>
 
@@ -109,7 +109,7 @@ export function Hero() {
                   "0 3px 8px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.7)",
               }}
             >
-              {t("Kosher Off-Road Adventures", "חוויות שטח כשרות")}
+              {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
             </p>
             <p
               className="text-lg sm:text-xl md:text-2xl text-white font-normal max-w-3xl mx-auto leading-relaxed px-4"
@@ -133,7 +133,7 @@ export function Hero() {
           >
             {t(
               "Experience the pinnacle of authentic Northern Thailand exploration with bespoke 4x4 tours, gourmet kosher cuisine, and expert Hebrew-speaking guides.",
-              "חוו את שיא החקירה האותנטית של צפון תאילנד עם סיורי 4x4 מותאמים אישית, מטבח כשר גורמה ומדריכים מומחים דוברי עברית."
+              "גלו את צפון תאילנד האמיתי -- טיולי 4x4 בהתאמה אישית, אוכל כשר ברמה הכי גבוהה, ומדריכים דוברי עברית."
             )}
           </p>
 
@@ -147,7 +147,7 @@ export function Hero() {
               onClick={handleBookNow}
               className="bg-secondary hover:bg-secondary/90 text-foreground px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-semibold gap-2 sm:gap-3 shadow-premium-lg hover:shadow-premium hover:scale-105 transition-all duration-300 rounded-full w-full sm:w-auto"
             >
-              {t("Book Your Adventure", "הזמן סיור")}
+              {t("Book Your Adventure", "הזמינו עכשיו")}
               <ArrowRight className="h-5 w-5" />
             </Button>
             <Button
@@ -157,7 +157,7 @@ export function Hero() {
               className="bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 px-8 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-semibold gap-2 sm:gap-3 hover:scale-105 transition-all duration-300 rounded-full w-full sm:w-auto"
             >
               <MessageCircle className="h-5 w-5" />
-              {t("WhatsApp Concierge", "קונסיירז׳ וואטסאפ")}
+              {t("WhatsApp Concierge", "שלחו לנו וואטסאפ")}
             </Button>
           </div>
 
@@ -175,15 +175,15 @@ export function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
-              <span>{t("Kosher Meals Available", "ארוחות כשרות זמינות")}</span>
+              <span>{t("Kosher Meals Available", "ארוחות כשרות")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
-              <span>{t("Shabbat Friendly", "ידידותי לשבת")}</span>
+              <span>{t("Shabbat Friendly", "מותאם לשומרי שבת")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full" />
-              <span>{t("Private Tours", "סיורים פרטיים")}</span>
+              <span>{t("Private Tours", "טיולים פרטיים")}</span>
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function TermsOfService() {
       <main id="main-content" className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-2">
-            {t("Terms of Service", "תנאי שירות")}
+            {t("Terms of Service", "תנאי שימוש ושירות")}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
             {t("Last updated: February 2026", "עדכון אחרון: פברואר 2026")}
@@ -32,7 +32,7 @@ export default function TermsOfService() {
               <p className="text-muted-foreground leading-relaxed">
                 {t(
                   "Welcome to WIRO 4x4. By booking a tour or using our services, you agree to the following terms and conditions. Please read them carefully before making a reservation.",
-                  "ברוכים הבאים ל-WIRO 4x4. בהזמנת סיור או שימוש בשירותינו, אתם מסכימים לתנאים וההגבלות הבאים. אנא קראו אותם בעיון לפני ביצוע הזמנה."
+                  "ברוכים הבאים ל-WIRO 4x4. עצם ביצוע הזמנה או שימוש בשירותינו מהווה הסכמה לתנאים המפורטים להלן. אנא קראו אותם בעיון לפני ביצוע הזמנה."
                 )}
               </p>
             </section>
@@ -46,31 +46,31 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "All bookings are subject to availability and confirmation by WIRO 4x4.",
-                    "כל ההזמנות כפופות לזמינות ולאישור על ידי WIRO 4x4."
+                    "כל ההזמנות כפופות לזמינות ולאישור מצד WIRO 4x4."
                   )}
                 </li>
                 <li>
                   {t(
                     "A booking is confirmed only after you receive a written confirmation via email or WhatsApp.",
-                    "הזמנה מאושרת רק לאחר קבלת אישור בכתב באימייל או בוואטסאפ."
+                    'הזמנה תיחשב מאושרת רק לאחר קבלת אישור בכתב בדוא"ל או בוואטסאפ.'
                   )}
                 </li>
                 <li>
                   {t(
                     "Tour dates must be at least 24 hours in advance.",
-                    "תאריכי סיור חייבים להיות לפחות 24 שעות מראש."
+                    "יש לבצע הזמנה לפחות 24 שעות לפני מועד הטיול."
                   )}
                 </li>
                 <li>
                   {t(
                     "Group sizes and tour details are subject to the information provided during booking.",
-                    "גודל הקבוצה ופרטי הסיור כפופים למידע שנמסר בעת ההזמנה."
+                    "גודל הקבוצה ופרטי הטיול ייקבעו בהתאם לפרטים שנמסרו בעת ההזמנה."
                   )}
                 </li>
                 <li>
                   {t(
                     "WIRO 4x4 reserves the right to modify tour itineraries due to weather, road conditions, or safety concerns.",
-                    "WIRO 4x4 שומרת לעצמה את הזכות לשנות מסלולי סיור בשל מזג אוויר, תנאי כביש או שיקולי בטיחות."
+                    "WIRO 4x4 שומרת לעצמה את הזכות לשנות מסלולי טיול בשל תנאי מזג אוויר, מצב הדרכים או שיקולי בטיחות."
                   )}
                 </li>
               </ul>
@@ -88,31 +88,31 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Cancellations made 48+ hours before the tour: full refund.",
-                    "ביטולים שנעשו 48+ שעות לפני הסיור: החזר מלא."
+                    "ביטול 48 שעות או יותר לפני הטיול: החזר מלא."
                   )}
                 </li>
                 <li>
                   {t(
                     "Cancellations made 24-48 hours before the tour: 50% refund.",
-                    "ביטולים שנעשו 24-48 שעות לפני הסיור: החזר של 50%."
+                    "ביטול 24-48 שעות לפני הטיול: החזר של 50%."
                   )}
                 </li>
                 <li>
                   {t(
                     "Cancellations made less than 24 hours before the tour: no refund.",
-                    "ביטולים שנעשו פחות מ-24 שעות לפני הסיור: ללא החזר."
+                    "ביטול פחות מ-24 שעות לפני הטיול: ללא החזר."
                   )}
                 </li>
                 <li>
                   {t(
                     "No-shows are non-refundable.",
-                    "אי-הגעה אינה זכאית להחזר."
+                    "אי-הגעה ללא הודעה מראש לא תזכה בהחזר כספי."
                   )}
                 </li>
                 <li>
                   {t(
                     "If WIRO 4x4 cancels a tour due to unforeseen circumstances, a full refund or rescheduling will be offered.",
-                    "אם WIRO 4x4 מבטלת סיור בשל נסיבות בלתי צפויות, יוצע החזר מלא או תיאום מחדש."
+                    "במקרה שהטיול יבוטל ביוזמת WIRO 4x4 עקב נסיבות בלתי צפויות, יוצע החזר כספי מלא או מועד חלופי, לפי בחירת הלקוח."
                   )}
                 </li>
               </ul>
@@ -127,13 +127,13 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Payments are processed securely via Stripe or other approved payment methods.",
-                    "תשלומים מעובדים בצורה מאובטחת דרך Stripe או אמצעי תשלום מאושרים אחרים."
+                    "התשלומים מתבצעים באופן מאובטח באמצעות Stripe או אמצעי תשלום מאושרים נוספים."
                   )}
                 </li>
                 <li>
                   {t(
                     "A deposit may be required to confirm your booking. The remaining balance is due before or on the tour date.",
-                    "ייתכן שיידרש פיקדון לאישור ההזמנה. היתרה משולמת לפני או בתאריך הסיור."
+                    "ייתכן שתידרש מקדמה לאישור ההזמנה. יתרת התשלום תשולם לפני הטיול או ביום הטיול עצמו."
                   )}
                 </li>
                 <li>
@@ -145,7 +145,7 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Prices are subject to change without notice, but confirmed bookings will honor the quoted price.",
-                    "המחירים עשויים להשתנות ללא הודעה מוקדמת, אך הזמנות מאושרות יכבדו את המחיר שצוטט."
+                    "המחירים עשויים להשתנות ללא הודעה מוקדמת, אולם הזמנה שאושרה תכובד במחיר שנקבע בעת האישור."
                   )}
                 </li>
               </ul>
@@ -160,31 +160,31 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Participants join tours at their own risk. Off-road activities involve inherent risks.",
-                    "המשתתפים מצטרפים לסיורים על אחריותם. פעילויות שטח כרוכות בסיכונים מובנים."
+                    "ההשתתפות בטיולים היא על אחריות המשתתפים בלבד. פעילויות שטח כרוכות בסיכונים טבעיים הכרוכים באופי הפעילות."
                   )}
                 </li>
                 <li>
                   {t(
                     "WIRO 4x4 is not liable for personal injury, loss, or damage except where caused by our negligence.",
-                    "WIRO 4x4 אינה אחראית לפציעה אישית, אובדן או נזק אלא אם נגרמו ברשלנותנו."
+                    "WIRO 4x4 לא תישא באחריות לפציעה גופנית, אובדן רכוש או נזק, למעט במקרים שנגרמו עקב רשלנות מצדנו."
                   )}
                 </li>
                 <li>
                   {t(
                     "Participants must follow all safety instructions provided by guides and drivers.",
-                    "על המשתתפים לפעול לפי כל הוראות הבטיחות שניתנות על ידי המדריכים והנהגים."
+                    "על המשתתפים לפעול בהתאם להנחיות הבטיחות של המדריכים והנהגים בכל עת."
                   )}
                 </li>
                 <li>
                   {t(
                     "Travel insurance is strongly recommended for all participants.",
-                    "ביטוח נסיעות מומלץ מאוד לכל המשתתפים."
+                    'מומלץ מאוד לרכוש ביטוח נסיעות לחו"ל הכולל כיסוי לפעילויות אתגריות.'
                   )}
                 </li>
                 <li>
                   {t(
                     "WIRO 4x4 is not responsible for delays or cancellations caused by force majeure events.",
-                    "WIRO 4x4 אינה אחראית לעיכובים או ביטולים שנגרמו על ידי אירועי כוח עליון."
+                    "WIRO 4x4 לא תישא באחריות לעיכובים או ביטולים הנובעים מנסיבות של כוח עליון (אסונות טבע, מגפות, אירועים ביטחוניים וכד')."
                   )}
                 </li>
               </ul>
@@ -198,7 +198,7 @@ export default function TermsOfService() {
               <p className="text-muted-foreground leading-relaxed">
                 {t(
                   "Your personal information is collected and processed in accordance with our Privacy Policy. By using our services, you consent to data collection as described in our Privacy Policy.",
-                  "המידע האישי שלכם נאסף ומעובד בהתאם למדיניות הפרטיות שלנו. בשימוש בשירותינו, אתם מסכימים לאיסוף נתונים כמתואר במדיניות הפרטיות שלנו."
+                  "המידע האישי שלכם נאסף ומעובד בהתאם למדיניות הפרטיות שלנו. השימוש בשירותינו מהווה הסכמה לאיסוף ולעיבוד המידע כמפורט במדיניות הפרטיות."
                 )}
               </p>
               <p className="text-muted-foreground leading-relaxed mt-2">
@@ -217,13 +217,13 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Kosher meals are provided as described in the tour package. Specific dietary requirements should be communicated at booking.",
-                    "ארוחות כשרות מסופקות כמתואר בחבילת הסיור. דרישות תזונתיות ספציפיות יש למסור בעת ההזמנה."
+                    "ארוחות כשרות מסופקות בהתאם לפירוט בחבילת הטיול. דרישות תזונתיות מיוחדות יש לציין בעת ביצוע ההזמנה."
                   )}
                 </li>
                 <li>
                   {t(
                     "Shabbat-friendly scheduling is available upon request and subject to accommodation availability.",
-                    "תזמון ידידותי לשבת זמין לפי בקשה ובכפוף לזמינות לינה."
+                    "ניתן לבקש התאמת לוח זמנים לשומרי שבת, בכפוף לזמינות מקומות לינה."
                   )}
                 </li>
               </ul>
@@ -237,12 +237,12 @@ export default function TermsOfService() {
               <p className="text-muted-foreground mb-2">
                 {t(
                   "If you have any questions about these terms, please contact us:",
-                  "אם יש לכם שאלות לגבי תנאים אלה, אנא צרו קשר:"
+                  "יש לכם שאלות לגבי תנאי השימוש? דברו איתנו:"
                 )}
               </p>
               <ul className="space-y-1 text-muted-foreground text-sm">
                 <li>
-                  {t("Email:", "אימייל:")}{" "}
+                  {t("Email:", "מייל:")}{" "}
                   <a
                     href="mailto:wiro.adventures@gmail.com"
                     className="text-primary hover:underline"

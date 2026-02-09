@@ -129,7 +129,7 @@ export default function BookingForm() {
       if (!emailRegex.test(formData.contactEmail)) {
         errors.contactEmail = t(
           "Please enter a valid email address",
-          "נא להזין כתובת אימייל תקינה"
+          "יש להזין כתובת מייל תקינה"
         );
       }
     }
@@ -138,45 +138,39 @@ export default function BookingForm() {
     if (!formData.contactPhone || formData.contactPhone.trim().length < 8) {
       errors.contactPhone = t(
         "Phone number must be at least 8 characters",
-        "מספר טלפון חייב להכיל לפחות 8 תווים"
+        "יש להזין מספר טלפון עם לפחות 8 ספרות"
       );
     } else if (!/^[\d+\s\-()]+$/.test(formData.contactPhone.trim())) {
       errors.contactPhone = t(
         "Phone number can only contain digits, +, spaces, and dashes",
-        "מספר טלפון יכול להכיל רק ספרות, +, רווחים ומקפים"
+        "מספר טלפון יכול להכיל רק ספרות, פלוס, רווחים ומקפים"
       );
     }
 
     // arrivalDate must be at least 24 hours in the future
     if (!formData.arrivalDate) {
-      errors.arrivalDate = t(
-        "Pickup date is required",
-        "תאריך איסוף הוא שדה חובה"
-      );
+      errors.arrivalDate = t("Pickup date is required", "יש לבחור תאריך הגעה");
     } else {
       const arrival = new Date(formData.arrivalDate);
       const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
       if (arrival < minDate) {
         errors.arrivalDate = t(
           "Pickup date must be at least 24 hours from now",
-          "תאריך איסוף חייב להיות לפחות 24 שעות מעכשיו"
+          "תאריך ההגעה חייב להיות לפחות 24 שעות מעכשיו"
         );
       }
     }
 
     // departureDate must be after arrivalDate
     if (!formData.departureDate) {
-      errors.departureDate = t(
-        "End date is required",
-        "תאריך סיום הוא שדה חובה"
-      );
+      errors.departureDate = t("End date is required", "יש לבחור תאריך עזיבה");
     } else if (
       formData.arrivalDate &&
       formData.departureDate <= formData.arrivalDate
     ) {
       errors.departureDate = t(
         "End date must be after pickup date",
-        "תאריך סיום חייב להיות אחרי תאריך האיסוף"
+        "תאריך העזיבה חייב להיות אחרי תאריך ההגעה"
       );
     }
 
@@ -187,7 +181,7 @@ export default function BookingForm() {
     ) {
       errors.numberOfChildren = t(
         "Please specify the number of children",
-        "נא לציין את מספר הילדים"
+        "יש לציין כמה ילדים"
       );
     }
 
@@ -201,7 +195,7 @@ export default function BookingForm() {
     if (!hasService) {
       errors.services = t(
         "Please select at least one service",
-        "נא לבחור לפחות שירות אחד"
+        "יש לבחור לפחות שירות אחד"
       );
     }
 
@@ -209,7 +203,7 @@ export default function BookingForm() {
     if (!consentGiven) {
       errors.consent = t(
         "You must agree to the Terms of Service and Privacy Policy",
-        "עליכם להסכים לתנאי השירות ולמדיניות הפרטיות"
+        "יש לאשר את תנאי השירות ומדיניות הפרטיות"
       );
     }
 
@@ -219,7 +213,7 @@ export default function BookingForm() {
       toast.error(
         t(
           "Please fix the errors in the form before submitting",
-          "נא לתקן את השגיאות בטופס לפני השליחה"
+          "יש לתקן את השגיאות בטופס לפני השליחה"
         )
       );
       return false;
@@ -256,7 +250,7 @@ export default function BookingForm() {
       toast.error(
         t(
           "Error submitting form. Please try again.",
-          "שגיאה בשליחת הטופס. נסה שוב."
+          "שגיאה בשליחת הטופס. אפשר לנסות שוב."
         )
       );
       console.error(error);
@@ -277,15 +271,15 @@ export default function BookingForm() {
 
 👤 שם: ${formData.contactName}
 📞 טלפון: ${formData.contactPhone}
-📧 אימייל: ${formData.contactEmail}
+📧 מייל: ${formData.contactEmail}
 
-📅 תאריכים: ${formData.arrivalDate} - ${formData.departureDate}
+📅 תאריכים: ${formData.arrivalDate} עד ${formData.departureDate}
 👥 מבוגרים: ${formData.numberOfAdults}
 ${formData.hasChildren ? `👶 ילדים: ${formData.numberOfChildren}` : ""}
 
 🗺️ יעדים: ${destinations || "לא נבחרו"}
 
-שירותים:
+🛎️ שירותים:
 ${formData.includesHotels ? "✅ מלונות" : ""}
 ${formData.includesGuide ? "✅ מדריך" : ""}
 ${formData.includesTrip ? "✅ טיול 4x4" : ""}
@@ -356,12 +350,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ""}`;
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-secondary to-secondary/85 py-16 md:py-20 text-center text-white mt-20">
           <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4 px-4">
-            {t("Tour Booking Form", "טופס הזמנת סיור")}
+            {t("Tour Booking Form", "טופס הזמנת טיול")}
           </h1>
           <p className="text-lg md:text-xl opacity-90 px-4">
             {t(
               "Quick intake form for phone calls and personal meetings",
-              "טופס קליטה מהירה לשיחות טלפון ופגישות אישיות"
+              "מלאו את הפרטים ונחזור אליכם בהקדם"
             )}
           </p>
         </section>
@@ -480,12 +474,12 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ""}`;
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-6 h-6 animate-spin" />
-                  {t("Submitting...", "שולח...")}
+                  {t("Submitting...", "שולחים...")}
                 </>
               ) : (
                 <>
                   <MessageCircle className="w-6 h-6" />
-                  {t("Submit & Send to WhatsApp", "שלח ושלח לוואטסאפ")}
+                  {t("Submit & Send to WhatsApp", "שליחה דרך וואטסאפ")}
                 </>
               )}
             </button>

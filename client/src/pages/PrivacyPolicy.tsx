@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground leading-relaxed">
                 {t(
                   "WIRO 4x4 is committed to protecting your privacy. This policy describes how we collect, use, and safeguard your personal information when you use our website and services.",
-                  "WIRO 4x4 מחויבת להגנה על פרטיותכם. מדיניות זו מתארת כיצד אנו אוספים, משתמשים ומגנים על המידע האישי שלכם בעת שימוש באתר ובשירותים שלנו."
+                  "ב-WIRO 4x4 אנחנו מחויבים לשמירה על פרטיותכם. מדיניות זו מפרטת כיצד אנו אוספים, משתמשים ומגנים על המידע האישי שלכם בעת גלישה באתר או שימוש בשירותינו."
                 )}
               </p>
             </section>
@@ -45,32 +45,32 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground mb-2">
                 {t(
                   "We collect the following types of personal information:",
-                  "אנו אוספים את סוגי המידע האישי הבאים:"
+                  "אנו עשויים לאסוף את סוגי המידע הבאים:"
                 )}
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 <li>
                   {t(
                     "Contact information: name, email address, phone number, WhatsApp number",
-                    "פרטי קשר: שם, כתובת אימייל, מספר טלפון, מספר וואטסאפ"
+                    "פרטי קשר: שם, כתובת מייל, מספר טלפון, מספר וואטסאפ"
                   )}
                 </li>
                 <li>
                   {t(
                     "Booking details: travel dates, group size, service preferences, dietary requirements, special requests",
-                    "פרטי הזמנה: תאריכי נסיעה, גודל קבוצה, העדפות שירות, דרישות תזונתיות, בקשות מיוחדות"
+                    "פרטי הזמנה: תאריכי טיול, גודל קבוצה, העדפות שירות, דרישות כשרות ותזונה, בקשות מיוחדות"
                   )}
                 </li>
                 <li>
                   {t(
                     "Payment information: processed securely by Stripe (we do not store credit card details)",
-                    "מידע תשלום: מעובד בצורה מאובטחת על ידי Stripe (אנו לא שומרים פרטי כרטיס אשראי)"
+                    "פרטי תשלום: מעובדים בצורה מאובטחת דרך Stripe (אנחנו לא שומרים פרטי כרטיס אשראי)"
                   )}
                 </li>
                 <li>
                   {t(
                     "Account information: login credentials if you create an account",
-                    "מידע חשבון: פרטי התחברות אם אתם יוצרים חשבון"
+                    "פרטי חשבון: פרטי התחברות אם פתחתם חשבון"
                   )}
                 </li>
                 <li>
@@ -87,44 +87,44 @@ export default function PrivacyPolicy() {
               <h2 className="text-xl font-serif font-bold text-foreground mb-3">
                 {t(
                   "2. How We Use Your Information",
-                  "2. כיצד אנו משתמשים במידע שלכם"
+                  "2. למה אנחנו משתמשים במידע"
                 )}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 <li>
                   {t(
                     "To process and manage your tour bookings",
-                    "לעיבוד וניהול הזמנות הסיורים שלכם"
+                    "טיפול וניהול הזמנות הטיולים שלכם"
                   )}
                 </li>
                 <li>
                   {t(
                     "To communicate with you about your booking via email, WhatsApp, or phone",
-                    "ליצירת קשר אתכם לגבי ההזמנה באמצעות אימייל, וואטסאפ או טלפון"
+                    'יצירת קשר אתכם בנוגע להזמנה -- בדוא"ל, בוואטסאפ או בטלפון'
                   )}
                 </li>
                 <li>
                   {t(
                     "To send booking confirmation emails and calendar invitations",
-                    "לשליחת אישורי הזמנה והזמנות ליומן"
+                    "שליחת אישורי הזמנה והזמנות יומן"
                   )}
                 </li>
                 <li>
                   {t(
                     "To process payments securely",
-                    "לעיבוד תשלומים בצורה מאובטחת"
+                    "עיבוד תשלומים באופן מאובטח"
                   )}
                 </li>
                 <li>
                   {t(
                     "To improve our website and services",
-                    "לשיפור האתר והשירותים שלנו"
+                    "שיפור האתר והשירותים שלנו"
                   )}
                 </li>
                 <li>
                   {t(
                     "To respond to inquiries and provide customer support",
-                    "למענה לפניות ומתן תמיכת לקוחות"
+                    "מענה לפניות ומתן שירות לקוחות"
                   )}
                 </li>
               </ul>
@@ -138,7 +138,7 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground mb-2">
                 {t(
                   "We share your information with the following trusted third parties only as needed to provide our services:",
-                  "אנו משתפים את המידע שלכם עם צדדים שלישיים מהימנים הבאים רק כפי הנדרש לספק את שירותינו:"
+                  "אנו משתפים מידע עם צדדים שלישיים מהימנים, אך ורק לצורך מתן השירות:"
                 )}
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -146,21 +146,21 @@ export default function PrivacyPolicy() {
                   <strong>Stripe</strong> -{" "}
                   {t(
                     "For secure payment processing. Stripe has its own privacy policy governing how payment data is handled.",
-                    "לעיבוד תשלומים מאובטח. ל-Stripe מדיניות פרטיות משלה המסדירה את הטיפול בנתוני תשלום."
+                    "עיבוד תשלומים מאובטח. ל-Stripe מדיניות פרטיות עצמאית המסדירה את אופן הטיפול בנתוני התשלום."
                   )}
                 </li>
                 <li>
                   <strong>Resend</strong> -{" "}
                   {t(
                     "For sending transactional emails (booking confirmations, notifications). Only your email address and name are shared.",
-                    "לשליחת אימיילים עסקיים (אישורי הזמנה, התראות). רק כתובת האימייל והשם שלכם משותפים."
+                    'שליחת הודעות דוא"ל תפעוליות (אישורי הזמנה, עדכונים). רק כתובת הדוא"ל והשם שלכם מועברים לשירות זה.'
                   )}
                 </li>
               </ul>
               <p className="text-muted-foreground mt-2">
                 {t(
                   "We do not sell, trade, or rent your personal information to third parties for marketing purposes.",
-                  "אנו לא מוכרים, סוחרים או משכירים את המידע האישי שלכם לצדדים שלישיים למטרות שיווק."
+                  "אנו לא מוכרים, סוחרים או משכירים את המידע האישי שלכם לצדדים שלישיים לצרכי שיווק."
                 )}
               </p>
             </section>
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
                 <li>
                   {t(
                     "Booking data is retained for up to 3 years after the tour date for record-keeping and legal compliance.",
-                    "נתוני הזמנה נשמרים עד 3 שנים לאחר תאריך הסיור לצורכי תיעוד ועמידה בדרישות חוק."
+                    "נתוני הזמנה נשמרים עד 3 שנים ממועד הטיול, לצורכי תיעוד ועמידה בדרישות החוק."
                   )}
                 </li>
                 <li>
@@ -186,7 +186,7 @@ export default function PrivacyPolicy() {
                 <li>
                   {t(
                     "You may request deletion of your data at any time by contacting us.",
-                    "תוכלו לבקש מחיקת המידע שלכם בכל עת על ידי פנייה אלינו."
+                    "ניתן לבקש מחיקת המידע שלכם בכל עת באמצעות פנייה אלינו."
                   )}
                 </li>
               </ul>
@@ -198,13 +198,13 @@ export default function PrivacyPolicy() {
                 {t("5. Your Rights", "5. הזכויות שלכם")}
               </h2>
               <p className="text-muted-foreground mb-2">
-                {t("You have the right to:", "יש לכם את הזכות:")}
+                {t("You have the right to:", "עומדות לכם הזכויות הבאות:")}
               </p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 <li>
                   {t(
                     "Access the personal data we hold about you",
-                    "לגשת למידע האישי שאנו מחזיקים עליכם"
+                    "לעיין במידע האישי שאנו מחזיקים אודותיכם"
                   )}
                 </li>
                 <li>
@@ -222,13 +222,13 @@ export default function PrivacyPolicy() {
                 <li>
                   {t(
                     "Withdraw consent for data processing at any time",
-                    "לבטל הסכמה לעיבוד מידע בכל עת"
+                    "לחזור בכם מהסכמה לעיבוד המידע בכל עת"
                   )}
                 </li>
                 <li>
                   {t(
                     "Request a copy of your data in a portable format",
-                    "לבקש עותק של המידע שלכם בפורמט נייד"
+                    "לקבל עותק של המידע שלכם בפורמט דיגיטלי נגיש"
                   )}
                 </li>
               </ul>
@@ -243,19 +243,19 @@ export default function PrivacyPolicy() {
                 <li>
                   {t(
                     "We use essential cookies for authentication and session management.",
-                    "אנו משתמשים בעוגיות חיוניות לאימות וניהול הפעלה."
+                    "אנו משתמשים בעוגיות (cookies) הכרחיות לצורך זיהוי משתמשים וניהול חיבור."
                   )}
                 </li>
                 <li>
                   {t(
                     "Booking form drafts are saved locally in your browser using localStorage to prevent data loss.",
-                    "טיוטות טופס הזמנה נשמרות מקומית בדפדפן שלכם באמצעות localStorage למניעת אובדן מידע."
+                    "טיוטות של טופס ההזמנה נשמרות באופן מקומי בדפדפן שלכם, כדי למנוע אובדן נתונים שהזנתם."
                   )}
                 </li>
                 <li>
                   {t(
                     "Language preference is stored locally in your browser.",
-                    "העדפת שפה נשמרת מקומית בדפדפן שלכם."
+                    "העדפת השפה שלכם נשמרת באופן מקומי בדפדפן."
                   )}
                 </li>
               </ul>
@@ -269,12 +269,12 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground mb-2">
                 {t(
                   "If you have questions about this privacy policy or wish to exercise your rights, please contact us:",
-                  "אם יש לכם שאלות לגבי מדיניות פרטיות זו או שאתם רוצים לממש את זכויותיכם, אנא צרו קשר:"
+                  "יש לכם שאלות בנושא מדיניות הפרטיות, או שתרצו לממש את זכויותיכם? פנו אלינו:"
                 )}
               </p>
               <ul className="space-y-1 text-muted-foreground text-sm">
                 <li>
-                  {t("Email:", "אימייל:")}{" "}
+                  {t("Email:", "מייל:")}{" "}
                   <a
                     href="mailto:wiro.adventures@gmail.com"
                     className="text-primary hover:underline"

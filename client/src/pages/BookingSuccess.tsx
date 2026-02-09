@@ -35,12 +35,12 @@ export default function BookingSuccess() {
             <div className="text-center py-12">
               <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-2">
-                {t("Invalid Session", "הפעלה לא תקינה")}
+                {t("Invalid Session", "שגיאה בתהליך")}
               </h1>
               <p className="text-muted-foreground">
                 {t(
                   "No payment session found. Please try again or contact us.",
-                  "לא נמצאה הפעלת תשלום. אנא נסה שוב או צור קשר."
+                  "לא נמצא תהליך תשלום. נסו שוב או צרו איתנו קשר."
                 )}
               </p>
             </div>
@@ -48,12 +48,12 @@ export default function BookingSuccess() {
             <div className="text-center py-12">
               <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
               <h1 className="text-2xl font-bold mb-2">
-                {t("Verifying Payment...", "מאמת תשלום...")}
+                {t("Verifying Payment...", "מאמתים תשלום...")}
               </h1>
               <p className="text-muted-foreground">
                 {t(
                   "Please wait while we confirm your payment.",
-                  "אנא המתן בזמן שאנו מאשרים את התשלום שלך."
+                  "רגע, מוודאים שהתשלום עבר."
                 )}
               </p>
             </div>
@@ -67,14 +67,14 @@ export default function BookingSuccess() {
                 {error?.message ||
                   t(
                     "We could not verify your payment. Please contact us.",
-                    "לא הצלחנו לאמת את התשלום שלך. אנא צור קשר."
+                    "לא הצלחנו לאמת את התשלום. צרו איתנו קשר."
                   )}
               </p>
               <a
                 href="https://wa.me/66819611398"
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
-                {t("Contact Us on WhatsApp", "צור קשר בווטסאפ")}
+                {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
               </a>
             </div>
           ) : data?.success ? (
@@ -104,19 +104,19 @@ export default function BookingSuccess() {
                   <li>
                     {t(
                       "A confirmation email has been sent to your email address",
-                      "אימייל אישור נשלח לכתובת שלך"
+                      "מייל אישור נשלח אליכם"
                     )}
                   </li>
                   <li>
                     {t(
                       "Our team will finalize your booking details",
-                      "הצוות שלנו יסיים את פרטי ההזמנה"
+                      "הצוות שלנו יחזור אליכם לסגור פרטים"
                     )}
                   </li>
                   <li>
                     {t(
                       "You will receive a reminder 48 hours before your tour",
-                      "תקבל תזכורת 48 שעות לפני הטיול"
+                      "תקבלו תזכורת 48 שעות לפני הטיול"
                     )}
                   </li>
                 </ul>
@@ -137,14 +137,14 @@ export default function BookingSuccess() {
               <p className="text-muted-foreground mb-6">
                 {t(
                   "Your payment is still being processed. Please check back shortly.",
-                  "התשלום שלך עדיין מעובד. אנא בדוק שוב בקרוב."
+                  "התשלום שלכם עדיין בתהליך. בדקו שוב בעוד כמה דקות."
                 )}
               </p>
               <a
                 href="https://wa.me/66819611398"
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
-                {t("Contact Us on WhatsApp", "צור קשר בווטסאפ")}
+                {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
               </a>
             </div>
           )}

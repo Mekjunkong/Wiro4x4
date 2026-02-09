@@ -25,7 +25,7 @@ export function BookingFormSuccess({
             <Check className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-3xl font-serif font-bold text-primary mb-4">
-            {t("Booking Submitted Successfully!", "ההזמנה נשלחה בהצלחה!")}
+            {t("Booking Submitted Successfully!", "ההזמנה נקלטה בהצלחה!")}
           </h2>
           {bookingRef && (
             <p className="text-lg font-mono font-semibold text-primary/80 mb-3">
@@ -35,7 +35,7 @@ export function BookingFormSuccess({
           <p className="text-muted-foreground mb-6">
             {t(
               "Thank you for your inquiry! A representative will contact you soon. A message was also sent to WhatsApp.",
-              "תודה על פנייתך! נציג יצור איתך קשר בהקדם. הודעה נשלחה גם לוואטסאפ."
+              "תודה רבה! ניצור איתכם קשר בהקדם. הודעה נשלחה גם בוואטסאפ."
             )}
           </p>
           <a

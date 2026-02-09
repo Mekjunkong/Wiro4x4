@@ -23,7 +23,7 @@ export function TripDetailsStep({
               htmlFor="numberOfAdults"
               className="block text-sm font-medium mb-2"
             >
-              {t("Number of Adults", "כמה מבוגרים?")}{" "}
+              {t("Number of Adults", "מספר מבוגרים")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -58,7 +58,7 @@ export function TripDetailsStep({
               className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"
             />
             <label htmlFor="hasChildren" className="text-sm font-medium">
-              {t("Has Children", "יש ילדים")}
+              {t("Has Children", "מגיעים עם ילדים")}
             </label>
           </div>
 
@@ -143,7 +143,7 @@ export function TripDetailsStep({
               htmlFor="arrivalDate"
               className="block text-sm font-medium mb-2"
             >
-              {t("Pickup Date", "תאריך איסוף")}{" "}
+              {t("Pickup Date", "תאריך הגעה")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -220,7 +220,7 @@ export function TripDetailsStep({
               htmlFor="departureDate"
               className="block text-sm font-medium mb-2"
             >
-              {t("End Date", "תאריך סיום")}{" "}
+              {t("End Date", "תאריך עזיבה")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -256,7 +256,7 @@ export function TripDetailsStep({
           {/* Dropoff Point */}
           <fieldset>
             <legend className="block text-sm font-medium mb-2">
-              {t("Dropoff Point", "נקודת הורדה")}
+              {t("Dropoff Point", "נקודת פיזור")}
             </legend>
             <div className="flex gap-4">
               <label className="flex items-center gap-2">

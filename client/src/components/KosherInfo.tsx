@@ -1,6 +1,13 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { ShoppingBasket, Package, Shield, Utensils, CheckCircle2, Info } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
+import {
+  ShoppingBasket,
+  Package,
+  Shield,
+  Utensils,
+  CheckCircle2,
+  Info,
+} from "lucide-react";
 
 export function KosherInfo() {
   const { t } = useLanguage();
@@ -8,50 +15,50 @@ export function KosherInfo() {
   const kosherFeatures = [
     {
       icon: ShoppingBasket,
-      title: t('Ingredient Sourcing', 'מקור רכיבים'),
+      title: t("Ingredient Sourcing", "חומרי גלם מוסמכים"),
       description: t(
-        'All ingredients are sourced from certified suppliers and carefully selected for kosher compliance.',
-        'כל הרכיבים מקורם מספקים מוסמכים ונבחרים בקפידה לעמידה בכשרות.'
+        "All ingredients are sourced from certified suppliers and carefully selected for kosher compliance.",
+        "כל חומרי הגלם מגיעים מספקים בעלי הכשר ונבחרים בקפידה."
       ),
     },
     {
       icon: Utensils,
-      title: t('Meal Preparation', 'הכנת ארוחות'),
+      title: t("Meal Preparation", "הכנת ארוחות"),
       description: t(
-        'Meals are prepared in dedicated kosher facilities with strict separation and supervision.',
-        'הארוחות מוכנות במתקנים כשרים ייעודיים עם הפרדה ופיקוח קפדניים.'
+        "Meals are prepared in dedicated kosher facilities with strict separation and supervision.",
+        "הארוחות מוכנות במטבחים כשרים ייעודיים, עם הפרדה מלאה ופיקוח קפדני."
       ),
     },
     {
       icon: Package,
-      title: t('Storage & Packaging', 'אחסון ואריזה'),
+      title: t("Storage & Packaging", "אחסון ואריזה"),
       description: t(
-        'Sealed packaging and proper storage systems maintain kosher integrity throughout the journey.',
-        'אריזה אטומה ומערכות אחסון נכונות שומרות על שלמות הכשרות לאורך המסע.'
+        "Sealed packaging and proper storage systems maintain kosher integrity throughout the journey.",
+        "אריזות אטומות ואחסון מוקפד שומרים על הכשרות לאורך כל הטיול."
       ),
     },
     {
       icon: Shield,
-      title: t('Contamination Prevention', 'מניעת זיהום'),
+      title: t("Contamination Prevention", "מניעת עירוב"),
       description: t(
-        'Strict protocols ensure no cross-contamination with non-kosher items during transport and serving.',
-        'פרוטוקולים קפדניים מבטיחים אי-זיהום צולב עם פריטים לא כשרים במהלך הובלה והגשה.'
+        "Strict protocols ensure no cross-contamination with non-kosher items during transport and serving.",
+        "נהלים קפדניים מבטיחים שאין עירוב עם מאכלים שאינם כשרים -- בהובלה ובהגשה."
       ),
     },
     {
       icon: CheckCircle2,
-      title: t('Observance Levels', 'רמות שמירה'),
+      title: t("Observance Levels", "כל רמות הכשרות"),
       description: t(
-        'We accommodate different levels of observance - from basic kosher to mehadrin standards.',
-        'אנו מתאימים רמות שמירה שונות - מכשרות בסיסית ועד סטנדרטים מהדרין.'
+        "We accommodate different levels of observance - from basic kosher to mehadrin standards.",
+        "מתאימים לכל רמות השמירה -- מכשרות רגילה ועד למהדרין."
       ),
     },
     {
       icon: Info,
-      title: t('Non-Kosher Guests Welcome', 'אורחים לא כשרים מוזמנים'),
+      title: t("Non-Kosher Guests Welcome", "גם למי שלא שומר כשרות"),
       description: t(
-        'Our fresh, clean, and disciplined kitchen serves high-quality meals for all dietary preferences.',
-        'המטבח הטרי, הנקי והממושמע שלנו מגיש ארוחות איכותיות לכל העדפות תזונתיות.'
+        "Our fresh, clean, and disciplined kitchen serves high-quality meals for all dietary preferences.",
+        "המטבח שלנו טרי, נקי ומקפיד -- ומגיש ארוחות ברמה גבוהה שמתאימות לכולם."
       ),
     },
   ];
@@ -61,12 +68,12 @@ export function KosherInfo() {
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            {t('Kosher Logistics & Transparency', 'לוגיסטיקת כשרות ושקיפות')}
+            {t("Kosher Logistics & Transparency", "כשרות -- איך זה עובד")}
           </h2>
           <p className="text-lg text-muted-foreground">
             {t(
-              'We take kosher seriously. Here is exactly how we maintain kosher standards throughout your adventure.',
-              'אנחנו לוקחים כשרות ברצינות. הנה בדיוק איך אנחנו שומרים על סטנדרטים כשרים לאורך ההרפתקה שלכם.'
+              "We take kosher seriously. Here is exactly how we maintain kosher standards throughout your adventure.",
+              "הכשרות חשובה לנו. כך אנחנו שומרים על הרמה לאורך כל הטיול."
             )}
           </p>
         </div>
@@ -94,8 +101,6 @@ export function KosherInfo() {
             );
           })}
         </div>
-
-
       </div>
     </section>
   );
