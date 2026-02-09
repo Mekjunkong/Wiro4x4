@@ -526,3 +526,12 @@
 - [x] Replace Mountain icon with actual logo image in Footer
 - [x] Test logo navigation on all pages (all logos clickable and navigate to home)
 - [ ] Save checkpoint
+
+## Logo Fix & Hebrew Translation Verification (Feb 9, 2026)
+
+- [x] Create new logo with truly transparent background (not gray, 2752x1536px)
+- [x] Upload new logo to S3 (CDN URL: https://files.manuscdn.com/user_upload_by_module/session_file/310519663190487952/ODkhpPYhmNKbmdPW.png)
+- [x] Update APP_LOGO constant with new logo URL
+- [x] Verify Hebrew translations are working on the website (LanguageSwitcher with flags, extensive Hebrew strings in all components)
+- [x] Test logo display on light and dark backgrounds (logo displays correctly with transparent background)
+- [ ] Save checkpoint
