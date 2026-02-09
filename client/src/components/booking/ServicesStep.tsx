@@ -15,7 +15,7 @@ export function ServicesStep({
     >
       <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
         <Car className="w-6 h-6" />
-        {t("Required Services", "שירותים נדרשים")}{" "}
+        {t("Required Services", "מה לכלול בטיול?")}{" "}
         <span className="text-red-500 text-base">*</span>
       </legend>
 
@@ -37,19 +37,19 @@ export function ServicesStep({
             key: "includesTrip",
             icon: Car,
             en: "Includes 4x4 Trip?",
-            he: "כולל טיול ונהיגת 4x4?",
+            he: "כולל טיול 4x4?",
           },
           {
             key: "includesAttractions",
             icon: Mountain,
             en: "Includes Attractions?",
-            he: "כולל אטרקציות בדרך?",
+            he: "כולל אטרקציות?",
           },
           {
             key: "includesFood",
             icon: Utensils,
             en: "Includes Food (Kosher/Vegan)?",
-            he: "כולל אוכל: כשר, צמחוני, טבעוני?",
+            he: "כולל ארוחות? (כשר / צמחוני / טבעוני)",
           },
           {
             key: "needsShabbatHotel",
@@ -91,7 +91,7 @@ export function ServicesStep({
             htmlFor="shabbatHotel"
             className="block text-sm font-medium mb-2"
           >
-            {t("Select Shabbat Hotel", "בחר מלון שבת")}
+            {t("Select Shabbat Hotel", "בחרו מלון לשבת")}
           </label>
           <select
             id="shabbatHotel"
@@ -101,7 +101,7 @@ export function ServicesStep({
             }
             className="w-full px-4 py-3 md:py-3 text-base border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
           >
-            <option value="">{t("Select...", "בחר...")}</option>
+            <option value="">{t("Select...", "בחרו...")}</option>
             {SHABBAT_HOTELS.map(hotel => (
               <option key={hotel.id} value={hotel.id}>
                 {isHebrew ? hotel.he : hotel.en}

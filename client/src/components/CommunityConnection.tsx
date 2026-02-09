@@ -1,17 +1,17 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { Heart, MapPin } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
+import { Heart, MapPin } from "lucide-react";
 
 export function CommunityConnection() {
   const { t } = useLanguage();
 
   const communities = [
-    { city: t('Chiang Mai', 'צ\'יאנג מאי'), country: t('Thailand', 'תאילנד') },
-    { city: t('Phuket', 'פוקט'), country: t('Thailand', 'תאילנד') },
-    { city: t('Bangkok', 'בנגקוק'), country: t('Thailand', 'תאילנד') },
-    { city: t('Hanoi', 'האנוי'), country: t('Vietnam', 'וייטנאם') },
-    { city: t('Saigon', 'סייגון'), country: t('Vietnam', 'וייטנאם') },
-    { city: t('Vientiane', 'ויאנטיאן'), country: t('Laos', 'לאוס') },
+    { city: t("Chiang Mai", "צ'יאנג מאי"), country: t("Thailand", "תאילנד") },
+    { city: t("Phuket", "פוקט"), country: t("Thailand", "תאילנד") },
+    { city: t("Bangkok", "בנגקוק"), country: t("Thailand", "תאילנד") },
+    { city: t("Hanoi", "האנוי"), country: t("Vietnam", "וייטנאם") },
+    { city: t("Saigon", "סייגון"), country: t("Vietnam", "וייטנאם") },
+    { city: t("Vientiane", "ויאנטיאן"), country: t("Laos", "לאוס") },
   ];
 
   return (
@@ -21,15 +21,15 @@ export function CommunityConnection() {
           <div className="flex items-center justify-center gap-3 mb-8">
             <Heart className="h-8 w-8 text-primary" />
             <h2 className="text-3xl md:text-4xl font-bold text-center">
-              {t('Community Connection', 'קשר קהילתי')}
+              {t("Community Connection", "קשר קהילתי")}
             </h2>
           </div>
 
           <div className="max-w-4xl mx-auto space-y-6 text-center">
             <p className="text-lg leading-relaxed">
               {t(
-                'We maintain long-standing friendships with Chabad communities across Chiang Mai, Phuket, Bangkok, Hanoi, Saigon, and Vientiane. These relationships help us support Israeli travelers with cultural understanding and local knowledge.',
-                'יש לנו קשרים חמים עם קהילות חב״ד בצ\'יאנג מאי, פוקט, בנגקוק, האנוי, סייגון וויאנטיאן. הקשרים האלו מאפשרים לנו ללוות מטיילים ישראלים ברגישות ובהיכרות עמוקה עם הצרכים שלהם.'
+                "We maintain long-standing friendships with Chabad communities across Chiang Mai, Phuket, Bangkok, Hanoi, Saigon, and Vientiane. These relationships help us support Israeli travelers with cultural understanding and local knowledge.",
+                "אנחנו שומרים על קשר חם עם קהילות חב״ד בצ'יאנג מאי, פוקט, בנגקוק, האנוי, סייגון וויינטיאן. הקשרים האלה עוזרים לנו ללוות מטיילים ישראלים עם הבנה אמיתית של הצרכים שלהם."
               )}
             </p>
 
@@ -42,7 +42,9 @@ export function CommunityConnection() {
                   <MapPin className="h-4 w-4 text-primary" />
                   <div className="text-sm">
                     <div className="font-semibold">{location.city}</div>
-                    <div className="text-muted-foreground text-xs">{location.country}</div>
+                    <div className="text-muted-foreground text-xs">
+                      {location.country}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -50,8 +52,8 @@ export function CommunityConnection() {
 
             <p className="text-sm text-muted-foreground italic pt-4">
               {t(
-                '* These are personal friendships and community connections. WIRO 4x4 is not officially affiliated with or endorsed by any Chabad organization.',
-                '* אלו קשרים אישיים וקהילתיים. WIRO 4x4 אינה מסונפת רשמית או מאושרת על ידי ארגון חב״ד כלשהו.'
+                "* These are personal friendships and community connections. WIRO 4x4 is not officially affiliated with or endorsed by any Chabad organization.",
+                "* אלו קשרים אישיים וקהילתיים. WIRO 4x4 אינה קשורה רשמית לארגון חב״ד כלשהו ואינה פועלת מטעמו."
               )}
             </p>
           </div>

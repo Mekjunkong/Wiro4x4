@@ -1,8 +1,17 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Bot, MessageSquare, Calendar, DollarSign, Cloud, MapPin, Sparkles, Utensils } from 'lucide-react';
-import { toast } from 'sonner';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Bot,
+  MessageSquare,
+  Calendar,
+  DollarSign,
+  Cloud,
+  MapPin,
+  Sparkles,
+  Utensils,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export function AIConcierge() {
   const { t } = useLanguage();
@@ -10,51 +19,51 @@ export function AIConcierge() {
   const capabilities = [
     {
       icon: MessageSquare,
-      title: t('Hebrew + English', 'עברית + אנגלית'),
-      description: t('Fluent in both languages', 'שולט בשתי השפות'),
+      title: t("Hebrew + English", "עברית + אנגלית"),
+      description: t("Fluent in both languages", "שולט בשתי השפות"),
     },
     {
       icon: DollarSign,
-      title: t('Instant Quotation', 'הצעת מחיר מיידית'),
-      description: t('Get pricing immediately', 'קבלו מחיר מיד'),
+      title: t("Instant Quotation", "הצעת מחיר מיידית"),
+      description: t("Get pricing immediately", "קבלו מחיר מיד"),
     },
     {
       icon: Calendar,
-      title: t('Automatic Booking', 'הזמנה אוטומטית'),
-      description: t('Book tours instantly', 'הזמינו סיורים מיד'),
+      title: t("Automatic Booking", "הזמנה אוטומטית"),
+      description: t("Book tours instantly", "הזמינו טיולים מיד"),
     },
     {
       icon: Utensils,
-      title: t('Kosher-Aware Planning', 'תכנון מודע כשרות'),
-      description: t('Understands kosher needs', 'מבין צרכי כשרות'),
+      title: t("Kosher-Aware Planning", "תכנון מודע כשרות"),
+      description: t("Understands kosher needs", "מבין צרכי כשרות"),
     },
     {
       icon: Calendar,
-      title: t('Shabbat-Friendly', 'ידידותי לשבת'),
-      description: t('Respects Shabbat timing', 'מכבד זמני שבת'),
+      title: t("Shabbat-Friendly", "ידידותי לשבת"),
+      description: t("Respects Shabbat timing", "מכבד זמני שבת"),
     },
     {
       icon: Cloud,
-      title: t('Weather Alerts', 'התראות מזג אוויר'),
-      description: t('Real-time weather updates', 'עדכוני מזג אוויר בזמן אמת'),
+      title: t("Weather Alerts", "התראות מזג אוויר"),
+      description: t("Real-time weather updates", "עדכוני מזג אוויר בזמן אמת"),
     },
     {
       icon: MessageSquare,
-      title: t('WhatsApp Integration', 'שילוב וואטסאפ'),
-      description: t('Sends messages directly', 'שולח הודעות ישירות'),
+      title: t("WhatsApp Integration", "שילוב וואטסאפ"),
+      description: t("Sends messages directly", "שולח הודעות ישירות"),
     },
     {
       icon: MapPin,
-      title: t('Route Suggestions', 'הצעות מסלולים'),
-      description: t('Tailored to your interests', 'מותאם לתחומי העניין שלכם'),
+      title: t("Route Suggestions", "הצעות מסלולים"),
+      description: t("Tailored to your interests", "מותאם לתחומי העניין שלכם"),
     },
   ];
 
   const handleAskAI = () => {
     toast.info(
       t(
-        'AI Concierge coming soon! For now, please contact us via WhatsApp.',
-        'הקונסיירז׳ החכם בקרוב! בינתיים, אנא צרו קשר דרך וואטסאפ.'
+        "AI Concierge coming soon! For now, please contact us via WhatsApp.",
+        "הקונסיירז׳ החכם בקרוב! בינתיים, צרו קשר דרך וואטסאפ."
       )
     );
   };
@@ -66,13 +75,13 @@ export function AIConcierge() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <Bot className="h-12 w-12 text-primary" />
             <h2 className="text-4xl md:text-5xl font-bold">
-              {t('AI Trip Concierge', 'הקונסיירז׳ החכם שלכם')}
+              {t("AI Trip Concierge", "הקונסיירז׳ החכם שלכם")}
             </h2>
           </div>
           <p className="text-lg text-muted-foreground">
             {t(
-              'Our intelligent AI assistant helps you plan, book, and optimize your Chiang Mai adventure in Hebrew or English.',
-              'העוזר החכם שלנו עוזר לכם לתכנן, להזמין ולייעל את ההרפתקה שלכם בצ\'יאנג מאי בעברית או אנגלית.'
+              "Our intelligent AI assistant helps you plan, book, and optimize your Chiang Mai adventure in Hebrew or English.",
+              "העוזר החכם שלנו עוזר לכם לתכנן ולהזמין את ההרפתקה שלכם בצ'יאנג מאי -- בעברית או באנגלית."
             )}
           </p>
         </div>
@@ -90,7 +99,9 @@ export function AIConcierge() {
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="text-sm font-semibold">{capability.title}</h3>
-                  <p className="text-xs text-muted-foreground">{capability.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {capability.description}
+                  </p>
                 </div>
               </Card>
             );
@@ -102,21 +113,17 @@ export function AIConcierge() {
             <div className="text-center space-y-6">
               <Sparkles className="h-16 w-16 text-primary mx-auto" />
               <h3 className="text-2xl font-bold">
-                {t('Coming Soon', 'בקרוב')}
+                {t("Coming Soon", "בקרוב")}
               </h3>
               <p className="text-muted-foreground">
                 {t(
-                  'Our AI Concierge is currently in development. In the meantime, our team is ready to assist you via WhatsApp with the same level of personalized service.',
-                  'הקונסיירז׳ החכם שלנו נמצא כעת בפיתוח. בינתיים, הצוות שלנו מוכן לסייע לכם דרך וואטסאפ עם אותה רמת שירות אישי.'
+                  "Our AI Concierge is currently in development. In the meantime, our team is ready to assist you via WhatsApp with the same level of personalized service.",
+                  "הקונסיירז׳ החכם שלנו עכשיו בפיתוח. בינתיים, הצוות שלנו כאן לעזור לכם דרך וואטסאפ עם אותה רמת שירות אישי."
                 )}
               </p>
-              <Button
-                onClick={handleAskAI}
-                size="lg"
-                className="gap-2"
-              >
+              <Button onClick={handleAskAI} size="lg" className="gap-2">
                 <MessageSquare className="h-5 w-5" />
-                {t('Contact Us on WhatsApp', 'צרו קשר בוואטסאפ')}
+                {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
               </Button>
             </div>
           </Card>

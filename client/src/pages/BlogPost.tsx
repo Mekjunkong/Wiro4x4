@@ -56,18 +56,10 @@ export default function BlogPost() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">
-            {t(
-              "Post not found",
-              "\u05E4\u05D5\u05E1\u05D8 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0"
-            )}
+            {t("Post not found", "הפוסט לא נמצא")}
           </h1>
           <Link href="/blog">
-            <Button>
-              {t(
-                "Back to Blog",
-                "\u05D7\u05D6\u05E8\u05D4 \u05DC\u05D1\u05DC\u05D5\u05D2"
-              )}
-            </Button>
+            <Button>{t("Back to Blog", "חזרה לבלוג")}</Button>
           </Link>
         </div>
       </div>
@@ -87,10 +79,7 @@ export default function BlogPost() {
           <Link href="/blog">
             <Button variant="ghost" className="mb-6">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t(
-                "Back to Blog",
-                "\u05D7\u05D6\u05E8\u05D4 \u05DC\u05D1\u05DC\u05D5\u05D2"
-              )}
+              {t("Back to Blog", "חזרה לבלוג")}
             </Button>
           </Link>
 

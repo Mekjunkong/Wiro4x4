@@ -32,14 +32,14 @@ export function CookieConsent() {
     <div
       className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-fade-in-up"
       role="dialog"
-      aria-label={t("Cookie consent", "הסכמת עוגיות")}
+      aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
       <div className="container mx-auto max-w-4xl">
         <div className="bg-card/95 backdrop-blur-sm border border-border rounded-xl p-4 md:p-6 shadow-premium-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <p className="text-sm text-muted-foreground flex-1">
             {t(
               "We use cookies and local storage for essential site functionality, such as authentication and saving your booking draft.",
-              "אנו משתמשים בעוגיות ואחסון מקומי לפונקציונליות חיונית של האתר, כגון אימות ושמירת טיוטת ההזמנה שלכם."
+              "האתר משתמש בעוגיות ואחסון מקומי לתפקוד בסיסי, כמו התחברות ושמירת טיוטת הזמנה."
             )}{" "}
             <a
               href="/privacy"

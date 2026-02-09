@@ -13,7 +13,7 @@ export function ContactStep({
       <fieldset className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
         <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
           <User className="w-6 h-6" />
-          {t("Customer Details", "פרטי לקוח")}
+          {t("Customer Details", "פרטים אישיים")}
         </legend>
 
         <div className="grid md:grid-cols-2 gap-4 md:gap-6 mt-4">
@@ -22,7 +22,7 @@ export function ContactStep({
               htmlFor="contactName"
               className="block text-sm font-medium mb-2"
             >
-              {t("Customer Name", "שם לקוח")}{" "}
+              {t("Customer Name", "שם מלא")}{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -92,7 +92,7 @@ export function ContactStep({
               htmlFor="contactEmail"
               className="block text-sm font-medium mb-2"
             >
-              {t("Email", "אימייל")}
+              {t("Email", "מייל")}
             </label>
             <input
               id="contactEmail"
@@ -152,7 +152,7 @@ export function ContactStep({
 
         <div className="mt-4">
           <label htmlFor="agentName" className="block text-sm font-medium mb-2">
-            {t("Agent Name (if applicable)", "שם הסוכן (אם רלוונטי)")}
+            {t("Agent Name (if applicable)", "שם סוכן (אם יש)")}
           </label>
           <input
             id="agentName"
@@ -182,7 +182,7 @@ export function ContactStep({
             id="specialRequests"
             placeholder={t(
               "Add special requests, dietary restrictions, or additional notes...",
-              "הוסף בקשות מיוחדות, הגבלות תזונתיות, או הערות נוספות..."
+              "בקשות מיוחדות, מגבלות תזונתיות, הערות נוספות..."
             )}
             value={formData.specialRequests}
             onChange={e =>

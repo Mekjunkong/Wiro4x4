@@ -59,9 +59,9 @@ export const SHABBAT_HOTELS = [
 ];
 
 export const ATTRACTIONS = [
-  { id: "elephant-sanctuary", en: "Elephant Sanctuary", he: "שמורת פילים" },
-  { id: "waterfall", en: "Waterfall Trek", he: "טיול מפלים" },
-  { id: "hill-tribe", en: "Hill Tribe Village", he: "כפר שבטי הרים" },
+  { id: "elephant-sanctuary", en: "Elephant Sanctuary", he: "מקלט פילים" },
+  { id: "waterfall", en: "Waterfall Trek", he: "טרק למפלים" },
+  { id: "hill-tribe", en: "Hill Tribe Village", he: "כפר שבטים" },
   { id: "temple", en: "Temple Visit", he: "ביקור במקדש" },
   { id: "night-market", en: "Night Market", he: "שוק לילה" },
   { id: "hot-springs", en: "Hot Springs", he: "מעיינות חמים" },

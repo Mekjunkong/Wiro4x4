@@ -32,7 +32,7 @@ export function NewsletterSignup() {
       <p className="text-sm text-background/70 mb-3">
         {t(
           "Get the latest tour updates and special offers",
-          "קבלו עדכוני סיורים ומבצעים מיוחדים"
+          "קבלו עדכונים על טיולים ומבצעים"
         )}
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2">
@@ -42,7 +42,7 @@ export function NewsletterSignup() {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder={t("Your email", "האימייל שלכם")}
+            placeholder={t("Your email", "המייל שלכם")}
             className="w-full pl-10 pr-4 py-2 bg-background/10 border border-background/20 rounded-lg text-background placeholder:text-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
             required
           />

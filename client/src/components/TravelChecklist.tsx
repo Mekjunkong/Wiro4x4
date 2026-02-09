@@ -1,5 +1,5 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
 import {
   Cloud,
   Shirt,
@@ -11,7 +11,7 @@ import {
   Droplet,
   Heart,
   CheckCircle2,
-} from 'lucide-react';
+} from "lucide-react";
 
 export function TravelChecklist() {
   const { t } = useLanguage();
@@ -19,81 +19,132 @@ export function TravelChecklist() {
   const checklistItems = [
     {
       icon: Cloud,
-      title: t('Weather', 'מזג אוויר'),
+      title: t("Weather", "מזג אוויר"),
       items: [
-        t('Check seasonal conditions (Nov-Feb cool, Mar-May hot, Jun-Oct rainy)', 'בדקו תנאים עונתיים (נוב׳-פבר׳ קריר, מרץ-מאי חם, יוני-אוק׳ גשום)'),
-        t('Bring layers for mountain temperature changes', 'הביאו שכבות לשינויי טמפרטורה בהרים'),
+        t(
+          "Check seasonal conditions (Nov-Feb cool, Mar-May hot, Jun-Oct rainy)",
+          "בדקו תנאים עונתיים (נוב׳-פבר׳ קריר, מרץ-מאי חם, יוני-אוק׳ גשום)"
+        ),
+        t(
+          "Bring layers for mountain temperature changes",
+          "הביאו שכבות לשינויי טמפרטורה בהרים"
+        ),
       ],
     },
     {
       icon: Shirt,
-      title: t('Clothing', 'ביגוד'),
+      title: t("Clothing", "ביגוד"),
       items: [
-        t('Comfortable, breathable outdoor clothing', 'בגדים נוחים ונושמים לחוץ'),
-        t('Closed-toe shoes with good grip', 'נעליים סגורות עם אחיזה טובה'),
-        t('Hat and sunglasses', 'כובע ומשקפי שמש'),
-        t('Light rain jacket (rainy season)', 'ז\'קט גשם קל (עונת גשמים)'),
+        t(
+          "Comfortable, breathable outdoor clothing",
+          "בגדים נוחים ונושמים לחוץ"
+        ),
+        t("Closed-toe shoes with good grip", "נעליים סגורות עם אחיזה טובה"),
+        t("Hat and sunglasses", "כובע ומשקפי שמש"),
+        t("Light rain jacket (rainy season)", "ז'קט גשם קל (עונת גשמים)"),
       ],
     },
     {
       icon: Battery,
-      title: t('Power Bank', 'פאוור בנק'),
+      title: t("Power Bank", "פאוור בנק"),
       items: [
-        t('Fully charged power bank for phones and cameras', 'פאוור בנק טעון במלואו לטלפונים ומצלמות'),
-        t('Limited charging options on remote trails', 'אפשרויות טעינה מוגבלות בשבילים מרוחקים'),
+        t(
+          "Fully charged power bank for phones and cameras",
+          "פאוור בנק טעון במלואו לטלפונים ומצלמות"
+        ),
+        t(
+          "Limited charging options on remote trails",
+          "אפשרויות טעינה מוגבלות בשבילים מרוחקים"
+        ),
       ],
     },
     {
       icon: Sun,
-      title: t('Sun Protection', 'הגנה מהשמש'),
+      title: t("Sun Protection", "הגנה מהשמש"),
       items: [
-        t('High SPF sunscreen (30+ recommended)', 'קרם הגנה SPF גבוה (30+ מומלץ)'),
-        t('Lip balm with SPF', 'שפתון עם SPF'),
-        t('Sunglasses with UV protection', 'משקפי שמש עם הגנת UV'),
+        t(
+          "High SPF sunscreen (30+ recommended)",
+          "קרם הגנה SPF גבוה (30+ מומלץ)"
+        ),
+        t("Lip balm with SPF", "שפתון עם SPF"),
+        t("Sunglasses with UV protection", "משקפי שמש עם הגנת UV"),
       ],
     },
     {
       icon: Church,
-      title: t('Temple Etiquette', 'נימוסי מקדשים'),
+      title: t("Temple Etiquette", "נימוסי מקדשים"),
       items: [
-        t('Shoulders and knees must be covered', 'כתפיים וברכיים חייבות להיות מכוסות'),
-        t('Remove shoes before entering temples', 'הסירו נעליים לפני כניסה למקדשים'),
-        t('Respectful behavior and quiet voices', 'התנהגות מכובדת וקולות שקטים'),
+        t(
+          "Shoulders and knees must be covered",
+          "כתפיים וברכיים חייבות להיות מכוסות"
+        ),
+        t(
+          "Remove shoes before entering temples",
+          "הסירו נעליים לפני כניסה למקדשים"
+        ),
+        t(
+          "Respectful behavior and quiet voices",
+          "התנהגות מכובדת וקולות שקטים"
+        ),
       ],
     },
     {
       icon: Utensils,
-      title: t('Kosher Instructions', 'הוראות כשרות'),
+      title: t("Kosher Instructions", "הוראות כשרות"),
       items: [
-        t('Inform us of your observance level when booking', 'עדכנו אותנו על רמת השמירה שלכם בהזמנה'),
-        t('Specify any dietary restrictions or allergies', 'ציינו כל הגבלה תזונתית או אלרגיות'),
-        t('Meals can be customized to your needs', 'ארוחות ניתנות להתאמה אישית'),
+        t(
+          "Inform us of your observance level when booking",
+          "עדכנו אותנו על רמת השמירה שלכם בהזמנה"
+        ),
+        t(
+          "Specify any dietary restrictions or allergies",
+          "ציינו כל הגבלה תזונתית או אלרגיות"
+        ),
+        t(
+          "Meals can be customized to your needs",
+          "ארוחות ניתנות להתאמה אישית"
+        ),
       ],
     },
     {
       icon: Calendar,
-      title: t('Shabbat Timing', 'תזמון שבת'),
+      title: t("Shabbat Timing", "תזמון שבת"),
       items: [
-        t('Tours can be scheduled around Shabbat', 'סיורים ניתנים לתזמון סביב השבת'),
-        t('Notify us in advance for Shabbat-friendly itineraries', 'עדכנו אותנו מראש למסלולים ידידותיים לשבת'),
+        t(
+          "Tours can be scheduled around Shabbat",
+          "אפשר לתאם טיולים סביב השבת"
+        ),
+        t(
+          "Notify us in advance for Shabbat-friendly itineraries",
+          "ספרו לנו מראש ונתאים מסלול לשומרי שבת"
+        ),
       ],
     },
     {
       icon: Droplet,
-      title: t('Water Safety', 'בטיחות מים'),
+      title: t("Water Safety", "בטיחות מים"),
       items: [
-        t('Drink only bottled or purified water', 'שתו רק מים בבקבוקים או מטוהרים'),
-        t('We provide water during tours', 'אנחנו מספקים מים במהלך הסיורים'),
-        t('Stay hydrated, especially in hot weather', 'הישארו מהודרטים, במיוחד במזג אוויר חם'),
+        t(
+          "Drink only bottled or purified water",
+          "שתו רק מים בבקבוקים או מטוהרים"
+        ),
+        t("We provide water during tours", "אנחנו מספקים מים בטיולים"),
+        t(
+          "Stay hydrated, especially in hot weather",
+          "דאגו לשתות הרבה, במיוחד בחום"
+        ),
       ],
     },
     {
       icon: Heart,
-      title: t('Health Considerations', 'שיקולי בריאות'),
+      title: t("Health Considerations", "שיקולי בריאות"),
       items: [
-        t('Inform us of any medical conditions', 'עדכנו אותנו על כל מצב רפואי'),
-        t('Bring personal medications', 'הביאו תרופות אישיות'),
-        t('Basic first-aid kit provided on all tours', 'ערכת עזרה ראשונה בסיסית מסופקת בכל הסיורים'),
+        t("Inform us of any medical conditions", "עדכנו אותנו על כל מצב רפואי"),
+        t("Bring personal medications", "הביאו תרופות אישיות"),
+        t(
+          "Basic first-aid kit provided on all tours",
+          "ערכת עזרה ראשונה בכל טיול"
+        ),
       ],
     },
   ];
@@ -103,12 +154,12 @@ export function TravelChecklist() {
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            {t('Before You Travel Checklist', 'רשימת בדיקה לפני הנסיעה')}
+            {t("Before You Travel Checklist", "רשימת בדיקה לפני הנסיעה")}
           </h2>
           <p className="text-lg text-muted-foreground">
             {t(
-              'Prepare for your adventure with our comprehensive travel checklist.',
-              'התכוננו להרפתקה שלכם עם רשימת הבדיקה המקיפה שלנו.'
+              "Prepare for your adventure with our comprehensive travel checklist.",
+              "התכוננו להרפתקה שלכם עם רשימת הבדיקה המקיפה שלנו."
             )}
           </p>
         </div>
