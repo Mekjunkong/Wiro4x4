@@ -514,3 +514,18 @@
 - [x] Test financial charts display (horizontal bar chart implemented in Financial tab)
 - [x] Test agent calendar functionality (weekly grid with color legend in Agents tab)
 - [x] Run full test suite (14 test files, 61 passed, 2 test env issues with duplicate data)
+
+
+## Latest GitHub Update - Business Automation & Scheduler (Feb 9, 2026)
+
+- [ ] Pull latest changes from GitHub (5 business agents, scheduler with 4 jobs, auto-response, lead scoring)
+- [ ] Resolve any merge conflicts
+- [ ] Run pnpm db:push to create scheduledEmails table and add score column to leads
+- [ ] Review 5 business automation agents (wiro-ops, wiro-comms, wiro-content, wiro-finance, wiro-booking-manager)
+- [ ] Review scheduler implementation with 4 jobs (booking reminders, post-tour feedback, daily summary, lead alerts)
+- [ ] Review AI auto-response system for new leads (Gemini + Resend)
+- [ ] Review lead scoring algorithm (1-100 score based on source, engagement, status, recency)
+- [ ] Test scheduler jobs functionality
+- [ ] Test auto-response for new leads
+- [ ] Test lead scoring calculation
+- [ ] Run full test suite to verify all tests pass
