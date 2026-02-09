@@ -511,3 +511,16 @@
 - [x] Test auto-response for new leads (test file created)
 - [x] Test lead scoring calculation (test file created)
 - [x] Run full test suite (17 test files, 74 passed, 2 test env issues with duplicate data)
+
+## Logo Update & Navigation Fix (Feb 9, 2026)
+
+- [ ] Pull latest GitHub updates
+- [ ] Resolve any merge conflicts
+- [ ] Create optimized logo using Nano Banana (based on WIRO 4X4 INDOCHINA ADVENTURE design)
+- [ ] Upload optimized logo to S3
+- [ ] Update APP_LOGO constant in client/src/const.ts
+- [ ] Update Header component to make logo clickable to home page
+- [ ] Update Footer component logo (if exists) to be clickable to home
+- [ ] Update AdminDashboard logo (if exists) to be clickable to home
+- [ ] Test logo navigation on all pages
+- [ ] Save checkpoint
