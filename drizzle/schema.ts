@@ -1,4 +1,12 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  index,
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -27,61 +35,80 @@ export type InsertUser = typeof users.$inferInsert;
 
 // Booking System Tables
 
-export const bookings = mysqlTable("bookings", {
-  id: int("id").autoincrement().primaryKey(),
-  // Customer Information
-  contactName: varchar("contactName", { length: 255 }).notNull(),
-  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
-  contactPhone: varchar("contactPhone", { length: 50 }).notNull(),
-  contactWhatsApp: varchar("contactWhatsApp", { length: 50 }),
-  
-  // Trip Details
-  arrivalDate: timestamp("arrivalDate").notNull(),
-  departureDate: timestamp("departureDate").notNull(),
-  numberOfAdults: int("numberOfAdults").notNull().default(1),
-  hasChildren: int("hasChildren").notNull().default(0), // boolean as int
-  numberOfChildren: int("numberOfChildren"),
-  childrenAges: text("childrenAges"), // JSON string
-  
-  // Services
-  includesHotels: int("includesHotels").notNull().default(0),
-  hotelPreferences: text("hotelPreferences"),
-  includesGuide: int("includesGuide").notNull().default(0),
-  includesTrip: int("includesTrip").notNull().default(0),
-  includesAttractions: int("includesAttractions").notNull().default(0),
-  selectedAttractions: text("selectedAttractions"), // JSON array
-  includesFood: int("includesFood").notNull().default(0),
-  foodPreferences: text("foodPreferences"),
-  needsShabbatHotel: int("needsShabbatHotel").notNull().default(0),
-  shabbatHotel: varchar("shabbatHotel", { length: 255 }),
-  
-  // Logistics
-  pickupPoint: varchar("pickupPoint", { length: 255 }).notNull(),
-  customPickupLocation: text("customPickupLocation"),
-  dropoffPoint: varchar("dropoffPoint", { length: 255 }).notNull(),
-  customDropoffLocation: text("customDropoffLocation"),
-  suggestedDestinations: text("suggestedDestinations"), // JSON array
-  
-  // Additional Info
-  specialRequests: text("specialRequests"),
-  dietaryRestrictions: text("dietaryRestrictions"),
-  budget: varchar("budget", { length: 100 }),
-  
-  // Booking Status
-  status: mysqlEnum("status", ["pending", "confirmed", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
-  totalPrice: int("totalPrice"), // in THB
-  depositPaid: int("depositPaid").default(0),
-  balancePaid: int("balancePaid").default(0),
-  
-  // Assignment
-  assignedAgentId: int("assignedAgentId"),
-  
-  // Metadata
-  source: varchar("source", { length: 100 }).default("website"),
-  notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const bookings = mysqlTable(
+  "bookings",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    // Customer Information
+    contactName: varchar("contactName", { length: 255 }).notNull(),
+    contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+    contactPhone: varchar("contactPhone", { length: 50 }).notNull(),
+    contactWhatsApp: varchar("contactWhatsApp", { length: 50 }),
+
+    // Trip Details
+    arrivalDate: timestamp("arrivalDate").notNull(),
+    departureDate: timestamp("departureDate").notNull(),
+    numberOfAdults: int("numberOfAdults").notNull().default(1),
+    hasChildren: int("hasChildren").notNull().default(0), // boolean as int
+    numberOfChildren: int("numberOfChildren"),
+    childrenAges: text("childrenAges"), // JSON string
+
+    // Services
+    includesHotels: int("includesHotels").notNull().default(0),
+    hotelPreferences: text("hotelPreferences"),
+    includesGuide: int("includesGuide").notNull().default(0),
+    includesTrip: int("includesTrip").notNull().default(0),
+    includesAttractions: int("includesAttractions").notNull().default(0),
+    selectedAttractions: text("selectedAttractions"), // JSON array
+    includesFood: int("includesFood").notNull().default(0),
+    foodPreferences: text("foodPreferences"),
+    needsShabbatHotel: int("needsShabbatHotel").notNull().default(0),
+    shabbatHotel: varchar("shabbatHotel", { length: 255 }),
+
+    // Logistics
+    pickupPoint: varchar("pickupPoint", { length: 255 }).notNull(),
+    customPickupLocation: text("customPickupLocation"),
+    dropoffPoint: varchar("dropoffPoint", { length: 255 }).notNull(),
+    customDropoffLocation: text("customDropoffLocation"),
+    suggestedDestinations: text("suggestedDestinations"), // JSON array
+
+    // Additional Info
+    specialRequests: text("specialRequests"),
+    dietaryRestrictions: text("dietaryRestrictions"),
+    budget: varchar("budget", { length: 100 }),
+
+    // Booking Status
+    status: mysqlEnum("status", [
+      "pending",
+      "confirmed",
+      "in_progress",
+      "completed",
+      "cancelled",
+    ])
+      .default("pending")
+      .notNull(),
+    totalPrice: int("totalPrice"), // in THB
+    depositPaid: int("depositPaid").default(0),
+    balancePaid: int("balancePaid").default(0),
+
+    // Assignment
+    assignedAgentId: int("assignedAgentId"),
+
+    // Automated email tracking
+    reminderSentAt: timestamp("reminderSentAt"),
+    feedbackSentAt: timestamp("feedbackSentAt"),
+
+    // Metadata
+    source: varchar("source", { length: 100 }).default("website"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_bookings_assignedAgentId").on(table.assignedAgentId),
+    index("idx_bookings_status_createdAt").on(table.status, table.createdAt),
+  ]
+);
 
 export const agents = mysqlTable("agents", {
   id: int("id").autoincrement().primaryKey(),
@@ -91,7 +118,9 @@ export const agents = mysqlTable("agents", {
   whatsapp: varchar("whatsapp", { length: 50 }),
   specialties: text("specialties"), // JSON array: ["kosher tours", "adventure", "cultural"]
   languages: text("languages"), // JSON array: ["Hebrew", "English", "Thai"]
-  status: mysqlEnum("status", ["active", "inactive", "on_leave"]).default("active").notNull(),
+  status: mysqlEnum("status", ["active", "inactive", "on_leave"])
+    .default("active")
+    .notNull(),
   rating: int("rating").default(5), // 1-5 stars
   totalBookings: int("totalBookings").default(0),
   notes: text("notes"),
@@ -99,35 +128,54 @@ export const agents = mysqlTable("agents", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export const leads = mysqlTable("leads", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  phone: varchar("phone", { length: 50 }),
-  source: varchar("source", { length: 100 }).default("website"), // website, whatsapp, referral, etc.
-  interestedTours: text("interestedTours"), // JSON array
-  message: text("message"),
-  status: mysqlEnum("status", ["new", "contacted", "quoted", "converted", "lost"]).default("new").notNull(),
-  convertedToBookingId: int("convertedToBookingId"),
-  notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const leads = mysqlTable(
+  "leads",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 320 }).notNull(),
+    phone: varchar("phone", { length: 50 }),
+    source: varchar("source", { length: 100 }).default("website"), // website, whatsapp, referral, etc.
+    interestedTours: text("interestedTours"), // JSON array
+    message: text("message"),
+    status: mysqlEnum("status", [
+      "new",
+      "contacted",
+      "quoted",
+      "converted",
+      "lost",
+    ])
+      .default("new")
+      .notNull(),
+    convertedToBookingId: int("convertedToBookingId"),
+    notes: text("notes"),
+    score: int("score").default(0), // Lead score 0-100
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_leads_convertedToBookingId").on(table.convertedToBookingId),
+  ]
+);
 
-export const financialRecords = mysqlTable("financialRecords", {
-  id: int("id").autoincrement().primaryKey(),
-  bookingId: int("bookingId").notNull(),
-  type: mysqlEnum("type", ["revenue", "cost", "refund"]).notNull(),
-  category: varchar("category", { length: 100 }).notNull(), // hotel, guide, vehicle, food, attraction, etc.
-  amount: int("amount").notNull(), // in THB
-  currency: varchar("currency", { length: 10 }).default("THB").notNull(),
-  description: text("description"),
-  paymentMethod: varchar("paymentMethod", { length: 50 }), // cash, bank_transfer, card
-  paymentDate: timestamp("paymentDate"),
-  notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const financialRecords = mysqlTable(
+  "financialRecords",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    bookingId: int("bookingId").notNull(),
+    type: mysqlEnum("type", ["revenue", "cost", "refund"]).notNull(),
+    category: varchar("category", { length: 100 }).notNull(), // hotel, guide, vehicle, food, attraction, etc.
+    amount: int("amount").notNull(), // in THB
+    currency: varchar("currency", { length: 10 }).default("THB").notNull(),
+    description: text("description"),
+    paymentMethod: varchar("paymentMethod", { length: 50 }), // cash, bank_transfer, card
+    paymentDate: timestamp("paymentDate"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [index("idx_financialRecords_bookingId").on(table.bookingId)]
+);
 
 export type Booking = typeof bookings.$inferSelect;
 export type InsertBooking = typeof bookings.$inferInsert;
@@ -145,7 +193,17 @@ export const galleryPhotos = mysqlTable("galleryPhotos", {
   description: text("description"),
   s3Key: varchar("s3Key", { length: 512 }).notNull(),
   s3Url: varchar("s3Url", { length: 1024 }).notNull(),
-  category: mysqlEnum("category", ["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).default("other").notNull(),
+  category: mysqlEnum("category", [
+    "tours",
+    "vehicles",
+    "destinations",
+    "activities",
+    "food",
+    "accommodation",
+    "other",
+  ])
+    .default("other")
+    .notNull(),
   sortOrder: int("sortOrder").default(0),
   isPublished: int("isPublished").default(1).notNull(), // boolean as int
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -170,21 +228,27 @@ export const reviews = mysqlTable("reviews", {
 });
 
 // Payments Table (schema only — Stripe integration deferred)
-export const payments = mysqlTable("payments", {
-  id: int("id").autoincrement().primaryKey(),
-  bookingId: int("bookingId").notNull(),
-  type: mysqlEnum("type", ["deposit", "balance", "full", "refund"]).notNull(),
-  amount: int("amount").notNull(), // in THB
-  currency: varchar("currency", { length: 10 }).default("THB").notNull(),
-  status: mysqlEnum("status", ["pending", "completed", "failed", "refunded"]).default("pending").notNull(),
-  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
-  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
-  paymentMethod: varchar("paymentMethod", { length: 50 }),
-  notes: text("notes"),
-  paidAt: timestamp("paidAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const payments = mysqlTable(
+  "payments",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    bookingId: int("bookingId").notNull(),
+    type: mysqlEnum("type", ["deposit", "balance", "full", "refund"]).notNull(),
+    amount: int("amount").notNull(), // in THB
+    currency: varchar("currency", { length: 10 }).default("THB").notNull(),
+    status: mysqlEnum("status", ["pending", "completed", "failed", "refunded"])
+      .default("pending")
+      .notNull(),
+    stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+    stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+    paymentMethod: varchar("paymentMethod", { length: 50 }),
+    notes: text("notes"),
+    paidAt: timestamp("paidAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [index("idx_payments_bookingId").on(table.bookingId)]
+);
 
 export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
 export type InsertGalleryPhoto = typeof galleryPhotos.$inferInsert;
@@ -201,7 +265,9 @@ export const tours = mysqlTable("tours", {
   description: text("description").notNull(),
   descriptionHe: text("descriptionHe").notNull(),
   duration: varchar("duration", { length: 100 }).notNull(), // e.g., "6-8 hours"
-  difficulty: mysqlEnum("difficulty", ["easy", "moderate", "challenging"]).default("moderate").notNull(),
+  difficulty: mysqlEnum("difficulty", ["easy", "moderate", "challenging"])
+    .default("moderate")
+    .notNull(),
   price: int("price").notNull(), // THB
   groupMinSize: int("groupMinSize").default(1),
   groupMaxSize: int("groupMaxSize").default(10),
@@ -240,3 +306,62 @@ export const blogPosts = mysqlTable("blogPosts", {
 });
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// Audit Logs Table
+export const auditLogs = mysqlTable(
+  "auditLogs",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId"),
+    action: varchar("action", { length: 50 }).notNull(), // create, update, delete
+    resourceType: varchar("resourceType", { length: 50 }).notNull(), // booking, agent, lead, etc.
+    resourceId: int("resourceId"),
+    oldValue: text("oldValue"), // JSON string
+    newValue: text("newValue"), // JSON string
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("idx_auditLogs_userId").on(table.userId),
+    index("idx_auditLogs_resourceType_resourceId").on(
+      table.resourceType,
+      table.resourceId
+    ),
+  ]
+);
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+// Newsletter Subscribers Table
+export const subscribers = mysqlTable("subscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  language: varchar("language", { length: 10 }).default("en"),
+  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+  isActive: int("isActive").default(1).notNull(),
+});
+export type Subscriber = typeof subscribers.$inferSelect;
+export type InsertSubscriber = typeof subscribers.$inferInsert;
+
+// Scheduled Emails Table (tracks automated emails to prevent duplicates)
+export const scheduledEmails = mysqlTable(
+  "scheduledEmails",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    type: mysqlEnum("type", [
+      "reminder",
+      "feedback",
+      "lead_alert",
+      "daily_summary",
+    ]).notNull(),
+    targetId: int("targetId"), // bookingId or leadId
+    targetEmail: varchar("targetEmail", { length: 320 }),
+    sentAt: timestamp("sentAt").defaultNow().notNull(),
+    status: mysqlEnum("status", ["sent", "failed"]).default("sent").notNull(),
+  },
+  table => [
+    index("idx_scheduledEmails_type_targetId").on(table.type, table.targetId),
+  ]
+);
+export type ScheduledEmail = typeof scheduledEmails.$inferSelect;
+export type InsertScheduledEmail = typeof scheduledEmails.$inferInsert;

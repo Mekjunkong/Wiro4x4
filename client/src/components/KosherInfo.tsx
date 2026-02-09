@@ -57,9 +57,9 @@ export function KosherInfo() {
   ];
 
   return (
-    <section id="kosher" className="py-20 bg-background">
+    <section id="kosher" className="py-16 md:py-20 bg-background">
       <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             {t('Kosher Logistics & Transparency', 'לוגיסטיקת כשרות ושקיפות')}
           </h2>

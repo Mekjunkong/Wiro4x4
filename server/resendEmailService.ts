@@ -1,4 +1,5 @@
-import { Resend } from 'resend';
+import { Resend } from "resend";
+import { captureException } from "./sentry";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -10,17 +11,17 @@ function getResend(): Resend | null {
 }
 
 // Email recipients for booking notifications
-// NOTE: Until a custom domain is verified at resend.com/domains, 
+// NOTE: Until a custom domain is verified at resend.com/domains,
 // emails can only be sent to the account owner's email (wiro.adventures@gmail.com)
 // After domain verification, add pasuthunjunkong@gmail.com back to this list
 const NOTIFICATION_RECIPIENTS = [
-  'wiro.adventures@gmail.com'
+  "wiro.adventures@gmail.com",
   // 'pasuthunjunkong@gmail.com' // Add after domain verification
 ];
 
 // Sender email - using Resend's default for unverified domains
 // After verifying a domain (e.g., wiro4x4.com), change to: 'WIRO 4x4 Bookings <bookings@wiro4x4.com>'
-const SENDER_EMAIL = 'WIRO 4x4 Bookings <onboarding@resend.dev>';
+const SENDER_EMAIL = "WIRO 4x4 Bookings <onboarding@resend.dev>";
 
 export interface BookingEmailData {
   contactName: string;
@@ -42,11 +43,11 @@ export interface BookingEmailData {
 }
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -63,9 +64,11 @@ function formatServices(data: BookingEmailData): string {
 /**
  * Send email notification when a new booking is received
  */
-export async function sendNewBookingEmail(data: BookingEmailData): Promise<boolean> {
+export async function sendNewBookingEmail(
+  data: BookingEmailData
+): Promise<boolean> {
   const subject = `🎉 New Booking Request: ${data.contactName}`;
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -104,7 +107,7 @@ export async function sendNewBookingEmail(data: BookingEmailData): Promise<boole
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #666;">Group Size:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${data.numberOfAdults} Adults${data.numberOfChildren ? `, ${data.numberOfChildren} Children` : ''}</td>
+            <td style="padding: 8px 0; font-weight: bold;">${data.numberOfAdults} Adults${data.numberOfChildren ? `, ${data.numberOfChildren} Children` : ""}</td>
           </tr>
         </table>
         
@@ -125,19 +128,27 @@ export async function sendNewBookingEmail(data: BookingEmailData): Promise<boole
             <td style="padding: 8px 0; color: #666;">Dropoff:</td>
             <td style="padding: 8px 0;">${data.dropoffPoint}</td>
           </tr>
-          ${data.suggestedDestinations ? `
+          ${
+            data.suggestedDestinations
+              ? `
           <tr>
             <td style="padding: 8px 0; color: #666;">Destinations:</td>
             <td style="padding: 8px 0;">${data.suggestedDestinations}</td>
           </tr>
-          ` : ''}
+          `
+              : ""
+          }
         </table>
         
-        ${data.specialRequests ? `
+        ${
+          data.specialRequests
+            ? `
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <h2 style="color: #1a4d2e;">💬 Special Requests</h2>
         <p style="background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #d4af37;">${data.specialRequests}</p>
-        ` : ''}
+        `
+            : ""
+        }
         
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <p style="color: #888; font-size: 12px; text-align: center;">
@@ -168,13 +179,17 @@ export async function sendNewBookingEmail(data: BookingEmailData): Promise<boole
 
     if (error) {
       console.error("[Resend] Failed to send new booking email:", error);
+      captureException(error);
       return false;
     }
 
-    console.log(`[Resend] New booking email sent successfully. ID: ${result?.id}`);
+    console.log(
+      `[Resend] New booking email sent successfully. ID: ${result?.id}`
+    );
     return true;
   } catch (error) {
     console.error("[Resend] Error sending new booking email:", error);
+    captureException(error);
     return false;
   }
 }
@@ -190,15 +205,15 @@ export async function sendBookingStatusEmail(
   newStatus: string
 ): Promise<boolean> {
   const statusEmoji: Record<string, string> = {
-    pending: '⏳',
-    confirmed: '✅',
-    cancelled: '❌',
-    completed: '🎉',
-    in_progress: '🚙'
+    pending: "⏳",
+    confirmed: "✅",
+    cancelled: "❌",
+    completed: "🎉",
+    in_progress: "🚙",
   };
 
-  const subject = `${statusEmoji[newStatus] || '📋'} Booking #${bookingId} Status: ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`;
-  
+  const subject = `${statusEmoji[newStatus] || "📋"} Booking #${bookingId} Status: ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`;
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -220,11 +235,11 @@ export async function sendBookingStatusEmail(
           </tr>
           <tr>
             <td style="padding: 12px 0; color: #666;">Previous Status:</td>
-            <td style="padding: 12px 0;">${statusEmoji[oldStatus] || ''} ${oldStatus}</td>
+            <td style="padding: 12px 0;">${statusEmoji[oldStatus] || ""} ${oldStatus}</td>
           </tr>
           <tr>
             <td style="padding: 12px 0; color: #666;">New Status:</td>
-            <td style="padding: 12px 0; font-weight: bold; font-size: 18px;">${statusEmoji[newStatus] || ''} ${newStatus.toUpperCase()}</td>
+            <td style="padding: 12px 0; font-weight: bold; font-size: 18px;">${statusEmoji[newStatus] || ""} ${newStatus.toUpperCase()}</td>
           </tr>
         </table>
       </div>
@@ -251,6 +266,7 @@ export async function sendBookingStatusEmail(
 
     if (error) {
       console.error("[Resend] Failed to send status email:", error);
+      captureException(error);
       return false;
     }
 
@@ -258,6 +274,7 @@ export async function sendBookingStatusEmail(
     return true;
   } catch (error) {
     console.error("[Resend] Error sending status email:", error);
+    captureException(error);
     return false;
   }
 }
@@ -265,7 +282,10 @@ export async function sendBookingStatusEmail(
 /**
  * Test the Resend API connection
  */
-export async function testResendConnection(): Promise<{ success: boolean; message: string }> {
+export async function testResendConnection(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   try {
     const resend = getResend();
     if (!resend) {
@@ -276,15 +296,18 @@ export async function testResendConnection(): Promise<{ success: boolean; messag
     const { data, error } = await resend.emails.send({
       from: SENDER_EMAIL,
       to: NOTIFICATION_RECIPIENTS[0], // Send test to first recipient only
-      subject: '🔧 WIRO 4x4 Email Test',
-      html: '<p>This is a test email to verify the Resend integration is working correctly.</p>',
+      subject: "🔧 WIRO 4x4 Email Test",
+      html: "<p>This is a test email to verify the Resend integration is working correctly.</p>",
     });
 
     if (error) {
       return { success: false, message: `Resend API error: ${error.message}` };
     }
 
-    return { success: true, message: `Email sent successfully. ID: ${data?.id}` };
+    return {
+      success: true,
+      message: `Email sent successfully. ID: ${data?.id}`,
+    };
   } catch (error) {
     return { success: false, message: `Connection error: ${error}` };
   }

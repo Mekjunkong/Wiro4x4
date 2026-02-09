@@ -15,7 +15,7 @@ export function CommunityConnection() {
   ];
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-16 md:py-20 bg-muted/30">
       <div className="container">
         <Card className="p-8 md:p-12 bg-card shadow-premium-lg">
           <div className="flex items-center justify-center gap-3 mb-8">

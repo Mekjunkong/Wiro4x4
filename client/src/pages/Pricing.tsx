@@ -187,6 +187,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen">
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-primary/5 to-primary/10">
@@ -228,7 +229,7 @@ export default function Pricing() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {tours.map((tour) => (
-              <Card key={tour.id} className="overflow-hidden hover:shadow-premium-lg transition-all duration-300">
+              <Card key={tour.id} className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col">
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={tour.image}
@@ -237,7 +238,7 @@ export default function Pricing() {
                   />
                 </div>
 
-                <div className="p-6 space-y-4">
+                <div className="p-6 flex flex-col flex-1">
                   <div>
                     <h3 className="text-xl font-bold mb-2">{tour.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -246,16 +247,16 @@ export default function Pricing() {
                     </div>
                   </div>
 
-                  <div className="border-t border-b py-4">
+                  <div className="border-t border-b py-4 mt-4">
                     <div className="text-3xl font-bold text-primary mb-1">
-                      ฿{tour.basePrice.toLocaleString()}
+                      &#3647;{tour.basePrice.toLocaleString()}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {t('Per group (1-4 people)', 'לקבוצה (1-4 אנשים)')}
                     </p>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-4 flex-1">
                     <p className="font-semibold text-sm">
                       {t('What\'s Included:', 'מה כלול:')}
                     </p>
@@ -276,7 +277,7 @@ export default function Pricing() {
 
                   <Button
                     onClick={() => handleWhatsAppInquiry(tour.name, tour.basePrice)}
-                    className="w-full"
+                    className="w-full mt-4"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
                     {t('Book via WhatsApp', 'הזמן בוואטסאפ')}
@@ -333,14 +334,19 @@ export default function Pricing() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             {packages.map((pkg, idx) => (
-              <Card key={idx} className="p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden">
+              <Card key={idx} className={`p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden flex flex-col ${idx === 1 ? 'ring-2 ring-primary shadow-premium-lg' : ''}`}>
+                {idx === 1 && (
+                  <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-center py-1.5 text-xs md:text-sm font-bold">
+                    {t('Most Popular', 'הכי פופולרי')}
+                  </div>
+                )}
                 {pkg.savings > 0 && (
-                  <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs md:text-sm font-bold">
-                    {t('Save', 'חסכו')} ฿{pkg.savings}
+                  <div className={`absolute ${idx === 1 ? 'top-10' : 'top-3'} right-3 md:right-4 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}>
+                    {t('Save', 'חסכו')} &#3647;{pkg.savings}
                   </div>
                 )}
 
-                <div className="text-center mb-6">
+                <div className={`text-center mb-6 ${idx === 1 ? 'pt-4' : ''}`}>
                   <h3 className="text-xl md:text-2xl font-bold mb-2">{pkg.name}</h3>
                   <div className="text-sm text-muted-foreground mb-4">
                     {pkg.days} {t('Days', 'ימים')}
@@ -353,7 +359,7 @@ export default function Pricing() {
                   </p>
                 </div>
 
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-3 mb-6 flex-1">
                   {pkg.tours.map((tour, tourIdx) => (
                     <li key={tourIdx} className="flex items-start gap-2">
                       <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -364,7 +370,7 @@ export default function Pricing() {
 
                 <Button
                   onClick={() => handleWhatsAppInquiry(pkg.name, pkg.price)}
-                  className="w-full"
+                  className="w-full mt-auto"
                   variant={idx === 1 ? 'default' : 'outline'}
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
@@ -428,6 +434,7 @@ export default function Pricing() {
         </div>
       </section>
 
+      </main>
       <Footer />
       <WhatsAppButton />
     </div>

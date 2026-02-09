@@ -1,226 +1,99 @@
-import { useState, useRef } from 'react';
-import { useAuth } from '@/_core/hooks/useAuth';
-import { trpc } from '@/lib/trpc';
-import { getLoginUrl } from '@/const';
-import { BookingCalendar } from '@/components/BookingCalendar';
-import { toast } from 'sonner';
+import { useState, useRef, useCallback } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { getLoginUrl } from "@/const";
 import {
-  Calendar, Users, DollarSign, TrendingUp,
-  CheckCircle, Clock, XCircle, Eye, Edit, Trash2,
-  Phone, Mail, MapPin, User, Filter, Search,
-  ChevronDown, ChevronUp, RefreshCw, LogOut,
-  Camera, Star, Upload, Mountain, ArrowRightLeft, FileText
-} from 'lucide-react';
+  Calendar,
+  Users,
+  DollarSign,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  LogOut,
+  Camera,
+  Star,
+  Mountain,
+  FileText,
+} from "lucide-react";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import {
+  BookingsTab,
+  CalendarTab,
+  AgentsTab,
+  LeadsTab,
+  FinancialTab,
+  ToursTab,
+  GalleryTab,
+  ReviewsTab,
+  BlogTab,
+  PAGE_SIZE,
+} from "@/components/admin";
 
-type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-
-const STATUS_COLORS: Record<BookingStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  in_progress: 'bg-purple-100 text-purple-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
-
-const STATUS_LABELS: Record<BookingStatus, string> = {
-  pending: 'Pending',
-  confirmed: 'Confirmed',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-};
+type AdminTabId =
+  | "bookings"
+  | "calendar"
+  | "agents"
+  | "leads"
+  | "financial"
+  | "gallery"
+  | "reviews"
+  | "tours"
+  | "blog";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'agents' | 'leads' | 'financial' | 'gallery' | 'reviews' | 'tours' | 'blog'>('bookings');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
-  const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<AdminTabId>("bookings");
 
-  // Pagination state
-  const [bookingsPage, setBookingsPage] = useState(1);
-  const [leadsPage, setLeadsPage] = useState(1);
-  const [financialsPage, setFinancialsPage] = useState(1);
-  const [galleryPage, setGalleryPage] = useState(1);
-  const [reviewsPage, setReviewsPage] = useState(1);
-  const [toursPage, setToursPage] = useState(1);
-  const [blogPage, setBlogPage] = useState(1);
-  const PAGE_SIZE = 20;
-
-  // Fetch data (paginated)
-  const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = trpc.booking.listPaginated.useQuery({ page: bookingsPage, pageSize: PAGE_SIZE });
+  // Fetch summary data for stats cards and tab counts
+  const { data: bookingsData } = trpc.booking.listPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const bookings = bookingsData?.items;
   const bookingsTotal = bookingsData?.total ?? 0;
-  const bookingsTotalPages = bookingsData?.totalPages ?? 1;
 
-  const { data: agents, isLoading: agentsLoading, refetch: refetchAgents } = trpc.agent.list.useQuery();
-
-  const { data: leadsData, isLoading: leadsLoading, refetch: refetchLeads } = trpc.lead.listPaginated.useQuery({ page: leadsPage, pageSize: PAGE_SIZE });
-  const leads = leadsData?.items;
+  const { data: agents } = trpc.agent.list.useQuery();
+  const { data: leadsData } = trpc.lead.listPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const leadsTotal = leadsData?.total ?? 0;
-  const leadsTotalPages = leadsData?.totalPages ?? 1;
 
-  const { data: financialsData, isLoading: financialsLoading } = trpc.financial.listAllPaginated.useQuery({ page: financialsPage, pageSize: PAGE_SIZE });
+  const { data: financialsData } = trpc.financial.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const financials = financialsData?.items;
   const financialsTotal = financialsData?.total ?? 0;
-  const financialsTotalPages = financialsData?.totalPages ?? 1;
 
-  const { data: galleryData, isLoading: galleryLoading, refetch: refetchGallery } = trpc.gallery.listAllPaginated.useQuery({ page: galleryPage, pageSize: PAGE_SIZE });
-  const galleryPhotos = galleryData?.items;
+  const { data: galleryData } = trpc.gallery.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const galleryTotal = galleryData?.total ?? 0;
-  const galleryTotalPages = galleryData?.totalPages ?? 1;
 
-  const { data: reviewsData, isLoading: reviewsLoading, refetch: refetchReviews } = trpc.review.listAllPaginated.useQuery({ page: reviewsPage, pageSize: PAGE_SIZE });
-  const allReviews = reviewsData?.items;
+  const { data: reviewsData } = trpc.review.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const reviewsTotal = reviewsData?.total ?? 0;
-  const reviewsTotalPages = reviewsData?.totalPages ?? 1;
 
-  const { data: reviewStats } = trpc.review.stats.useQuery();
-  const { data: agentStats } = trpc.agent.stats.useQuery();
-  const { data: finStats } = trpc.financial.stats.useQuery();
-
-  const { data: toursData, isLoading: toursLoading, refetch: refetchTours } = trpc.tour.listAllPaginated.useQuery({ page: toursPage, pageSize: PAGE_SIZE });
-  const allTours = toursData?.items;
+  const { data: toursData } = trpc.tour.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const toursTotal = toursData?.total ?? 0;
-  const toursTotalPages = toursData?.totalPages ?? 1;
 
-  const { data: blogData, isLoading: blogLoading, refetch: refetchBlog } = trpc.blog.listAllPaginated.useQuery({ page: blogPage, pageSize: PAGE_SIZE });
-  const allBlogPosts = blogData?.items;
+  const { data: blogData } = trpc.blog.listAllPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
   const blogTotal = blogData?.total ?? 0;
-  const blogTotalPages = blogData?.totalPages ?? 1;
-
-  // Tours state
-  const [tourDialogOpen, setTourDialogOpen] = useState(false);
-  const [editingTour, setEditingTour] = useState<any>(null);
-  const [tourForm, setTourForm] = useState({
-    name: '', nameHe: '', description: '', descriptionHe: '',
-    duration: '', difficulty: 'moderate' as 'easy' | 'moderate' | 'challenging',
-    price: 0, groupMinSize: 1, groupMaxSize: 10,
-    imageUrl: '', highlights: '', highlightsHe: '',
-    isKosher: true, isPrivate: true, isShabbatOk: true, isActive: true, sortOrder: 0,
-  });
-  const resetTourForm = () => {
-    setTourForm({
-      name: '', nameHe: '', description: '', descriptionHe: '',
-      duration: '', difficulty: 'moderate', price: 0, groupMinSize: 1, groupMaxSize: 10,
-      imageUrl: '', highlights: '', highlightsHe: '',
-      isKosher: true, isPrivate: true, isShabbatOk: true, isActive: true, sortOrder: 0,
-    });
-    setEditingTour(null);
-  };
-
-  // Blog state
-  const [blogDialogOpen, setBlogDialogOpen] = useState(false);
-  const [editingBlog, setEditingBlog] = useState<any>(null);
-  const [blogForm, setBlogForm] = useState({
-    title: '', titleHe: '', slug: '', excerpt: '', excerptHe: '',
-    content: '', contentHe: '', coverImage: '', category: '', tags: '',
-    isPublished: false, author: 'WIRO 4x4',
-  });
-  const resetBlogForm = () => {
-    setBlogForm({
-      title: '', titleHe: '', slug: '', excerpt: '', excerptHe: '',
-      content: '', contentHe: '', coverImage: '', category: '', tags: '',
-      isPublished: false, author: 'WIRO 4x4',
-    });
-    setEditingBlog(null);
-  };
-  const generateSlug = (title: string) => {
-    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  };
-
-  // Gallery state
-  const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
-  const [editingPhoto, setEditingPhoto] = useState<any>(null);
-  const [photoForm, setPhotoForm] = useState<{ title: string; imageUrl: string; description: string; category: 'tours' | 'vehicles' | 'destinations' | 'activities' | 'food' | 'accommodation' | 'other'; sortOrder: number; isPublished: boolean }>({ title: '', imageUrl: '', description: '', category: 'other', sortOrder: 0, isPublished: true });
-  const resetPhotoForm = () => { setPhotoForm({ title: '', imageUrl: '', description: '', category: 'other' as const, sortOrder: 0, isPublished: true }); setEditingPhoto(null); };
-
-  // Reviews state
-  const [reviewFilter, setReviewFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
-  const [respondingReview, setRespondingReview] = useState<number | null>(null);
-  const [adminResponseText, setAdminResponseText] = useState('');
-
-  // Mutations
-  const updateBooking = trpc.booking.update.useMutation({
-    onSuccess: () => {
-      refetchBookings();
-      toast.success('Booking status updated successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to update booking:', error);
-      toast.error('Failed to update booking status. Please try again.');
-    },
-  });
-  const deleteBooking = trpc.booking.delete.useMutation({
-    onSuccess: () => {
-      refetchBookings();
-      toast.success('Booking deleted successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to delete booking:', error);
-      toast.error('Failed to delete booking. Please try again.');
-    },
-  });
-
-  // Gallery upload state
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Gallery mutations
-  const createPhoto = trpc.gallery.create.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
-  const updatePhotoMut = trpc.gallery.update.useMutation({ onSuccess: () => { refetchGallery(); setGalleryDialogOpen(false); resetPhotoForm(); } });
-  const deletePhotoMut = trpc.gallery.delete.useMutation({ onSuccess: () => refetchGallery() });
-  const uploadPhoto = trpc.gallery.upload.useMutation();
-
-  // Review mutations
-  const updateReviewMut = trpc.review.update.useMutation({ onSuccess: () => refetchReviews() });
-  const deleteReviewMut = trpc.review.delete.useMutation({ onSuccess: () => refetchReviews() });
-
-  // Tour mutations
-  const createTourMut = trpc.tour.create.useMutation({ onSuccess: () => { refetchTours(); setTourDialogOpen(false); resetTourForm(); } });
-  const updateTourMut = trpc.tour.update.useMutation({ onSuccess: () => { refetchTours(); setTourDialogOpen(false); resetTourForm(); } });
-  const deleteTourMut = trpc.tour.delete.useMutation({ onSuccess: () => refetchTours() });
-
-  // Blog mutations
-  const createBlogMut = trpc.blog.create.useMutation({
-    onSuccess: () => { refetchBlog(); setBlogDialogOpen(false); resetBlogForm(); toast.success('Blog post created!'); },
-    onError: (error) => { console.error('Failed to create blog post:', error); toast.error('Failed to create blog post.'); },
-  });
-  const updateBlogMut = trpc.blog.update.useMutation({
-    onSuccess: () => { refetchBlog(); setBlogDialogOpen(false); resetBlogForm(); toast.success('Blog post updated!'); },
-    onError: (error) => { console.error('Failed to update blog post:', error); toast.error('Failed to update blog post.'); },
-  });
-  const deleteBlogMut = trpc.blog.delete.useMutation({
-    onSuccess: () => { refetchBlog(); toast.success('Blog post deleted!'); },
-    onError: (error) => { console.error('Failed to delete blog post:', error); toast.error('Failed to delete blog post.'); },
-  });
-
-  // Lead mutations
-  const updateLeadMut = trpc.lead.update.useMutation({
-    onSuccess: () => {
-      refetchLeads();
-      toast.success('Lead updated successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to update lead:', error);
-      toast.error('Failed to update lead. Please try again.');
-    },
-  });
-  const deleteLeadMut = trpc.lead.delete.useMutation({
-    onSuccess: () => {
-      refetchLeads();
-      toast.success('Lead deleted successfully!');
-    },
-    onError: (error) => {
-      console.error('Failed to delete lead:', error);
-      toast.error('Failed to delete lead. Please try again.');
-    },
-  });
 
   // Auth check
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
@@ -228,11 +101,13 @@ export default function AdminDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="bg-card p-8 rounded-2xl shadow-lg text-center max-w-md">
           <h2 className="text-2xl font-bold mb-4">Admin Access Required</h2>
-          <p className="text-gray-600 mb-6">Please log in to access the admin dashboard.</p>
-          <a 
+          <p className="text-muted-foreground mb-6">
+            Please log in to access the admin dashboard.
+          </p>
+          <a
             href={getLoginUrl()}
             className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
           >
@@ -243,62 +118,94 @@ export default function AdminDashboard() {
     );
   }
 
-  // Filter bookings
-  const filteredBookings = bookings?.filter(booking => {
-    const matchesSearch = 
-      booking.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.contactPhone?.includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  }) || [];
-
   // Calculate stats
   const stats = {
     totalBookings: bookingsTotal,
-    pendingBookings: bookings?.filter(b => b.status === 'pending').length || 0,
-    confirmedBookings: bookings?.filter(b => b.status === 'confirmed').length || 0,
-    totalRevenue: financials?.filter(f => f.type === 'revenue').reduce((sum, f) => sum + Number(f.amount), 0) || 0,
+    pendingBookings: bookings?.filter(b => b.status === "pending").length || 0,
+    confirmedBookings:
+      bookings?.filter(b => b.status === "confirmed").length || 0,
+    totalRevenue:
+      financials
+        ?.filter(f => f.type === "revenue")
+        .reduce((sum, f) => sum + Number(f.amount), 0) || 0,
   };
 
-  const handleStatusChange = (bookingId: number, newStatus: BookingStatus) => {
-    updateBooking.mutate({ id: bookingId, data: { status: newStatus } });
-  };
+  const tabs: {
+    id: AdminTabId;
+    label: string;
+    icon: typeof Calendar;
+    count: number | undefined;
+  }[] = [
+    { id: "bookings", label: "Bookings", icon: Calendar, count: bookingsTotal },
+    { id: "calendar", label: "Calendar", icon: Calendar, count: undefined },
+    { id: "agents", label: "Agents", icon: Users, count: agents?.length },
+    { id: "leads", label: "Leads", icon: TrendingUp, count: leadsTotal },
+    {
+      id: "financial",
+      label: "Financial",
+      icon: DollarSign,
+      count: financialsTotal,
+    },
+    { id: "tours", label: "Tours", icon: Mountain, count: toursTotal },
+    { id: "gallery", label: "Gallery", icon: Camera, count: galleryTotal },
+    { id: "blog", label: "Blog", icon: FileText, count: blogTotal },
+    { id: "reviews", label: "Reviews", icon: Star, count: reviewsTotal },
+  ];
 
-  const handleDeleteBooking = (bookingId: number) => {
-    if (confirm('Are you sure you want to delete this booking?')) {
-      deleteBooking.mutate({ id: bookingId });
-    }
-  };
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const handleAgentAssign = (bookingId: number, agentId: number | null) => {
-    updateBooking.mutate({ id: bookingId, data: { assignedAgentId: agentId ?? undefined } });
-  };
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+      let newIndex: number | null = null;
 
-  const handleLeadStatusChange = (leadId: number, newStatus: string) => {
-    updateLeadMut.mutate({ id: leadId, data: { status: newStatus as 'new' | 'contacted' | 'quoted' | 'converted' | 'lost' } });
-  };
+      switch (e.key) {
+        case "ArrowRight":
+          newIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case "ArrowLeft":
+          newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case "Home":
+          newIndex = 0;
+          break;
+        case "End":
+          newIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
 
-  const handleConvertLead = (leadId: number) => {
-    updateLeadMut.mutate({ id: leadId, data: { status: 'converted' } });
-  };
+      e.preventDefault();
+      setActiveTab(tabs[newIndex].id);
+      tabRefs.current[newIndex]?.focus();
+    },
+    [activeTab, tabs]
+  );
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-muted">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+      <header className="bg-card shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-primary truncate">WIRO 4x4 Admin</h1>
-            <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">Welcome, {user.name || user.email}</span>
+            <h1 className="text-lg md:text-2xl font-bold text-primary truncate">
+              WIRO 4x4 Admin
+            </h1>
+            <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
+              Welcome, {user.name || user.email}
+            </span>
           </div>
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <a href="/" className="text-sm text-gray-600 hover:text-primary transition-colors hidden sm:inline">
+            <a
+              href="/"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors hidden sm:inline"
+            >
               View Site
             </a>
             <button
               onClick={() => logout()}
-              className="flex items-center gap-1 md:gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors min-h-[44px] min-w-[44px] justify-center"
+              className="flex items-center gap-1 md:gap-2 text-sm text-muted-foreground hover:text-red-600 transition-colors min-h-[44px] min-w-[44px] justify-center"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
@@ -310,44 +217,60 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
-          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-gray-500">Total Bookings</p>
-                <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Total Bookings
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">
+                  {stats.totalBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-gray-500">Pending</p>
-                <p className="text-2xl md:text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Pending
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-yellow-600">
+                  {stats.pendingBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
                 <Clock className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-gray-500">Confirmed</p>
-                <p className="text-2xl md:text-3xl font-bold text-green-600">{stats.confirmedBookings}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Confirmed
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-green-600">
+                  {stats.confirmedBookings}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                 <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm text-gray-500">Revenue</p>
-                <p className="text-2xl md:text-3xl font-bold text-primary">฿{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Revenue
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">
+                  &#3647;{stats.totalRevenue.toLocaleString()}
+                </p>
               </div>
               <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
                 <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-primary" />
@@ -357,1345 +280,138 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide">
-              {[
-                { id: 'bookings', label: 'Bookings', icon: Calendar, count: bookingsTotal },
-                { id: 'calendar', label: 'Calendar', icon: Calendar, count: undefined },
-                { id: 'agents', label: 'Agents', icon: Users, count: agents?.length },
-                { id: 'leads', label: 'Leads', icon: TrendingUp, count: leadsTotal },
-                { id: 'financial', label: 'Financial', icon: DollarSign, count: financialsTotal },
-                { id: 'tours', label: 'Tours', icon: Mountain, count: toursTotal },
-                { id: 'gallery', label: 'Gallery', icon: Camera, count: galleryTotal },
-                { id: 'blog', label: 'Blog', icon: FileText, count: blogTotal },
-                { id: 'reviews', label: 'Reviews', icon: Star, count: reviewsTotal },
-              ].map(tab => (
+        <div className="bg-card rounded-xl shadow-sm mb-6">
+          <div className="border-b border-border">
+            <nav
+              role="tablist"
+              aria-label="Admin sections"
+              className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide"
+            >
+              {tabs.map((tab, index) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  ref={el => {
+                    tabRefs.current[index] = el;
+                  }}
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`tabpanel-${tab.id}`}
+                  tabIndex={activeTab === tab.id ? 0 : -1}
+                  onClick={() => setActiveTab(tab.id)}
+                  onKeyDown={handleTabKeyDown}
                   className={`flex items-center gap-1.5 md:gap-2 py-3 md:py-4 px-2 md:px-1 border-b-2 transition-colors whitespace-nowrap text-sm md:text-base min-h-[44px] ${
                     activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <tab.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-                  {tab.count !== undefined && tab.count > 0 ? <span className="text-xs">({tab.count})</span> : ''}
+                  <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
+                  {tab.count !== undefined && tab.count > 0 ? (
+                    <span className="text-xs">({tab.count})</span>
+                  ) : (
+                    ""
+                  )}
                 </button>
               ))}
             </nav>
           </div>
 
-          {/* Bookings Tab */}
-          {activeTab === 'bookings' && (
-            <div className="p-6">
-              {/* Filters */}
-              <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by name, email, or phone..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as BookingStatus | 'all')}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => refetchBookings()}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Refresh
-                </button>
-              </div>
-
-              {/* Bookings List */}
-              {bookingsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              ) : filteredBookings.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  No bookings found
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredBookings.map(booking => (
-                    <div key={booking.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div
-                        className="p-3 md:p-4 bg-gray-50 flex items-center justify-between cursor-pointer gap-2 min-h-[56px]"
-                        onClick={() => setExpandedBooking(expandedBooking === booking.id ? null : booking.id)}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
-                            <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm md:text-base truncate">{booking.contactName}</p>
-                            <p className="text-xs md:text-sm text-gray-500">
-                              {booking.arrivalDate ? new Date(booking.arrivalDate).toLocaleDateString() : 'No date'} -
-                              {booking.departureDate ? new Date(booking.departureDate).toLocaleDateString() : 'No date'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 md:gap-4 shrink-0">
-                          {booking.assignedAgentId && agents?.find(a => a.id === booking.assignedAgentId) && (
-                            <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs hidden sm:inline">
-                              {agents.find(a => a.id === booking.assignedAgentId)?.name}
-                            </span>
-                          )}
-                          <span className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}>
-                            {STATUS_LABELS[booking.status as BookingStatus]}
-                          </span>
-                          <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">
-                            {booking.numberOfAdults} adults
-                          </span>
-                          {expandedBooking === booking.id ? (
-                            <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-
-                      {expandedBooking === booking.id && (
-                        <div className="p-3 md:p-4 border-t border-gray-200">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                            <div>
-                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Contact Info</h4>
-                              <div className="space-y-2 text-sm">
-                                <p className="flex items-center gap-2">
-                                  <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                                  <span className="truncate">{booking.contactEmail || 'No email'}</span>
-                                </p>
-                                <p className="flex items-center gap-2">
-                                  <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                                  {booking.contactPhone}
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Services</h4>
-                              <div className="flex flex-wrap gap-1.5">
-                                {booking.includesHotels && <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Hotels</span>}
-                                {booking.includesGuide && <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Guide</span>}
-                                {booking.includesTrip && <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">4x4 Trip</span>}
-                                {booking.includesFood && <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">Kosher Food</span>}
-                                {booking.needsShabbatHotel && <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">Shabbat Hotel</span>}
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold mb-2 text-gray-700 text-sm">Actions</h4>
-                              <div className="flex flex-wrap gap-2">
-                                <select
-                                  value={booking.status}
-                                  onChange={(e) => handleStatusChange(booking.id, e.target.value as BookingStatus)}
-                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
-                                >
-                                  {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                                    <option key={value} value={value}>{label}</option>
-                                  ))}
-                                </select>
-                                <select
-                                  value={booking.assignedAgentId ?? ''}
-                                  onChange={(e) => handleAgentAssign(booking.id, e.target.value ? Number(e.target.value) : null)}
-                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-h-[44px]"
-                                >
-                                  <option value="">Assign Agent</option>
-                                  {agents?.map(agent => (
-                                    <option key={agent.id} value={agent.id}>{agent.name}</option>
-                                  ))}
-                                </select>
-                                <button
-                                  onClick={() => handleDeleteBooking(booking.id)}
-                                  className="px-3 py-2 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          {booking.specialRequests && (
-                            <div className="mt-4 p-3 bg-gray-50 rounded">
-                              <h4 className="font-semibold text-sm text-gray-700 mb-1">Special Requests</h4>
-                              <p className="text-sm text-gray-600">{booking.specialRequests}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {bookingsTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((bookingsPage - 1) * PAGE_SIZE) + 1}-{Math.min(bookingsPage * PAGE_SIZE, bookingsTotal)} of {bookingsTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setBookingsPage(p => Math.max(1, p - 1))}
-                      disabled={bookingsPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {bookingsPage} of {bookingsTotalPages}</span>
-                    <button
-                      onClick={() => setBookingsPage(p => Math.min(bookingsTotalPages, p + 1))}
-                      disabled={bookingsPage === bookingsTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {activeTab === "bookings" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-bookings"
+              aria-labelledby="tab-bookings"
+            >
+              <ErrorBoundary level="section" key="bookings">
+                <BookingsTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Calendar Tab */}
-          {activeTab === 'calendar' && (
-            <div className="p-6">
-              {bookingsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              ) : (
-                <BookingCalendar 
-                  bookings={bookings?.map(b => ({
-                    id: b.id,
-                    contactName: b.contactName || '',
-                    contactEmail: b.contactEmail || '',
-                    contactPhone: b.contactPhone || '',
-                    arrivalDate: b.arrivalDate?.toString() || '',
-                    departureDate: b.departureDate?.toString() || '',
-                    numberOfAdults: b.numberOfAdults || 1,
-                    numberOfChildren: b.numberOfChildren || 0,
-                    status: b.status || 'pending',
-                    suggestedDestinations: b.suggestedDestinations || '',
-                    pickupPoint: b.pickupPoint || '',
-                    dropoffPoint: b.dropoffPoint || '',
-                  })) || []}
-                />
-              )}
+          {activeTab === "calendar" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-calendar"
+              aria-labelledby="tab-calendar"
+            >
+              <ErrorBoundary level="section" key="calendar">
+                <CalendarTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Agents Tab */}
-          {activeTab === 'agents' && (
-            <div className="p-6">
-              {agentsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              ) : agents?.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  No agents found. Add agents to manage your team.
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {agents?.map(agent => {
-                    const stats = agentStats?.find((s: { id: number }) => s.id === agent.id);
-                    const rating = stats?.rating ?? agent.rating ?? 5;
-                    return (
-                      <div key={agent.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            <User className="w-6 h-6 text-primary" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold truncate">{agent.name}</p>
-                            <p className="text-sm text-gray-500 truncate">{agent.email}</p>
-                          </div>
-                        </div>
-                        {/* Star Rating */}
-                        <div className="flex items-center gap-1 mb-3">
-                          {[1, 2, 3, 4, 5].map(s => (
-                            <span key={s} className={`text-lg ${s <= rating ? 'text-yellow-400' : 'text-gray-300'}`}>&#9733;</span>
-                          ))}
-                          <span className="text-xs text-gray-500 ml-1">({rating}/5)</span>
-                        </div>
-                        {/* Performance Metrics */}
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          <div className="bg-blue-50 rounded-lg p-2 text-center">
-                            <p className="text-lg font-bold text-blue-700">{stats?.totalBookings ?? 0}</p>
-                            <p className="text-xs text-blue-600">Total</p>
-                          </div>
-                          <div className="bg-green-50 rounded-lg p-2 text-center">
-                            <p className="text-lg font-bold text-green-700">{stats?.completedBookings ?? 0}</p>
-                            <p className="text-xs text-green-600">Completed</p>
-                          </div>
-                          <div className="bg-purple-50 rounded-lg p-2 text-center">
-                            <p className="text-lg font-bold text-purple-700">{stats?.activeBookings ?? 0}</p>
-                            <p className="text-xs text-purple-600">Active</p>
-                          </div>
-                        </div>
-                        <div className="space-y-1 text-sm">
-                          <p className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-gray-400" />
-                            {agent.phone}
-                          </p>
-                          {agent.languages && (
-                            <p className="text-gray-500">Languages: {agent.languages}</p>
-                          )}
-                        </div>
-                        <div className="mt-3">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            agent.status === 'active' ? 'bg-green-100 text-green-800' :
-                            agent.status === 'on_leave' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {agent.status}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Agent Availability Calendar */}
-              {agents && agents.length > 0 && (() => {
-                const today = new Date();
-                const dayOfWeek = today.getDay(); // 0=Sun
-                const weekStart = new Date(today);
-                weekStart.setDate(today.getDate() - dayOfWeek);
-                const days = Array.from({ length: 7 }, (_, i) => {
-                  const d = new Date(weekStart);
-                  d.setDate(weekStart.getDate() + i);
-                  return d;
-                });
-                const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                return (
-                  <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4 md:p-6">
-                    <h4 className="text-sm md:text-base font-semibold text-gray-700 mb-4">Weekly Availability</h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse min-w-[500px]">
-                        <thead>
-                          <tr>
-                            <th className="text-left py-2 px-3 text-xs md:text-sm font-semibold text-gray-600 border-b border-gray-200 w-32">Agent</th>
-                            {days.map((d, i) => {
-                              const isToday = d.toDateString() === today.toDateString();
-                              return (
-                                <th key={i} className={`py-2 px-2 text-xs md:text-sm text-center border-b border-gray-200 ${isToday ? 'bg-primary/5 font-bold text-primary' : 'font-semibold text-gray-600'}`}>
-                                  <div>{dayLabels[i]}</div>
-                                  <div className="text-xs font-normal">{d.getDate()}/{d.getMonth() + 1}</div>
-                                </th>
-                              );
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {agents.map(agent => {
-                            const stats = agentStats?.find((s: { id: number }) => s.id === agent.id);
-                            return (
-                              <tr key={agent.id} className="border-b border-gray-100">
-                                <td className="py-2 px-3 text-sm font-medium truncate max-w-[120px]">{agent.name}</td>
-                                {days.map((d, i) => {
-                                  const isToday = d.toDateString() === today.toDateString();
-                                  const isFriday = i === 5;
-                                  const isSaturday = i === 6;
-                                  let bgColor = 'bg-green-100';
-                                  let textColor = 'text-green-700';
-                                  let label = 'Active';
-                                  if (agent.status === 'inactive') {
-                                    bgColor = 'bg-gray-100'; textColor = 'text-gray-500'; label = 'Inactive';
-                                  } else if (agent.status === 'on_leave') {
-                                    bgColor = 'bg-yellow-100'; textColor = 'text-yellow-700'; label = 'Leave';
-                                  } else if (isFriday || isSaturday) {
-                                    bgColor = 'bg-purple-50'; textColor = 'text-purple-600'; label = 'Shabbat';
-                                  }
-                                  return (
-                                    <td key={i} className={`py-2 px-1 text-center ${isToday ? 'bg-primary/5' : ''}`}>
-                                      <div className={`${bgColor} ${textColor} rounded px-1 py-1 text-xs font-medium`}>
-                                        {label}
-                                        {agent.status === 'active' && stats && (
-                                          <div className="text-xs opacity-75 mt-0.5">{stats.activeBookings}b</div>
-                                        )}
-                                      </div>
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-100 rounded inline-block"></span> Active</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 bg-yellow-100 rounded inline-block"></span> On Leave</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 bg-gray-100 rounded inline-block"></span> Inactive</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 bg-purple-50 rounded inline-block border border-purple-200"></span> Shabbat</span>
-                    </div>
-                  </div>
-                );
-              })()}
+          {activeTab === "agents" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-agents"
+              aria-labelledby="tab-agents"
+            >
+              <ErrorBoundary level="section" key="agents">
+                <AgentsTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Leads Tab */}
-          {activeTab === 'leads' && (
-            <div className="p-6">
-              {leadsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              ) : leads?.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  No leads captured yet.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Name</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden sm:table-cell">Contact</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Source</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Status</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm hidden md:table-cell">Date</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs md:text-sm">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {leads?.map(lead => (
-                        <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm">{lead.name}</td>
-                          <td className="py-3 px-4 hidden sm:table-cell">
-                            <p className="text-sm">{lead.email}</p>
-                            {lead.phone && <p className="text-sm text-gray-500">{lead.phone}</p>}
-                          </td>
-                          <td className="py-3 px-4 text-sm hidden md:table-cell">{lead.source}</td>
-                          <td className="py-3 px-4">
-                            <select
-                              value={lead.status}
-                              onChange={(e) => handleLeadStatusChange(lead.id, e.target.value)}
-                              className="px-2 py-1 border border-gray-300 rounded text-xs md:text-sm min-h-[44px]"
-                            >
-                              <option value="new">New</option>
-                              <option value="contacted">Contacted</option>
-                              <option value="quoted">Quoted</option>
-                              <option value="converted">Converted</option>
-                              <option value="lost">Lost</option>
-                            </select>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-500 hidden md:table-cell">
-                            {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : '-'}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex flex-wrap gap-1">
-                              {lead.status !== 'converted' && (
-                                <button
-                                  onClick={() => handleConvertLead(lead.id)}
-                                  className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1"
-                                >
-                                  <ArrowRightLeft className="w-3 h-3" />
-                                  <span className="hidden sm:inline">Convert</span>
-                                </button>
-                              )}
-                              <button
-                                onClick={() => { if (confirm('Delete this lead?')) deleteLeadMut.mutate({ id: lead.id }); }}
-                                className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {leadsTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((leadsPage - 1) * PAGE_SIZE) + 1}-{Math.min(leadsPage * PAGE_SIZE, leadsTotal)} of {leadsTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setLeadsPage(p => Math.max(1, p - 1))}
-                      disabled={leadsPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {leadsPage} of {leadsTotalPages}</span>
-                    <button
-                      onClick={() => setLeadsPage(p => Math.min(leadsTotalPages, p + 1))}
-                      disabled={leadsPage === leadsTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {activeTab === "leads" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-leads"
+              aria-labelledby="tab-leads"
+            >
+              <ErrorBoundary level="section" key="leads">
+                <LeadsTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Financial Tab */}
-          {activeTab === 'financial' && (
-            <div className="p-6">
-              {/* Financial Summary Cards */}
-              {finStats && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                    <p className="text-xs md:text-sm text-green-600 font-medium">Total Revenue</p>
-                    <p className="text-xl md:text-2xl font-bold text-green-700 mt-1">&#3647;{finStats.totalRevenue.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p className="text-xs md:text-sm text-red-600 font-medium">Total Costs</p>
-                    <p className="text-xl md:text-2xl font-bold text-red-700 mt-1">&#3647;{finStats.totalCosts.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                    <p className="text-xs md:text-sm text-yellow-600 font-medium">Refunds</p>
-                    <p className="text-xl md:text-2xl font-bold text-yellow-700 mt-1">&#3647;{finStats.totalRefunds.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                    <p className="text-xs md:text-sm text-primary font-medium">Net Profit</p>
-                    <p className="text-xl md:text-2xl font-bold text-primary mt-1">&#3647;{finStats.netProfit.toLocaleString()}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Profit Chart */}
-              {finStats && (finStats.totalRevenue > 0 || finStats.totalCosts > 0) && (() => {
-                const maxVal = Math.max(finStats.totalRevenue, finStats.totalCosts, finStats.netProfit, 1);
-                const profitMargin = finStats.totalRevenue > 0
-                  ? Math.round((finStats.netProfit / finStats.totalRevenue) * 100)
-                  : 0;
-                return (
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 mb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-                      <h4 className="text-sm md:text-base font-semibold text-gray-700">Revenue vs Costs vs Profit</h4>
-                      <span className={`text-sm font-semibold px-3 py-1 rounded-full ${profitMargin >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        Profit Margin: {profitMargin}%
-                      </span>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Revenue</span>
-                          <span className="font-semibold text-green-700">&#3647;{finStats.totalRevenue.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
-                          <div
-                            className="bg-green-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                            style={{ width: `${Math.max((finStats.totalRevenue / maxVal) * 100, 2)}%` }}
-                          >
-                            <span className="text-xs text-white font-medium hidden sm:inline">{Math.round((finStats.totalRevenue / maxVal) * 100)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Costs</span>
-                          <span className="font-semibold text-red-700">&#3647;{finStats.totalCosts.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
-                          <div
-                            className="bg-red-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                            style={{ width: `${Math.max((finStats.totalCosts / maxVal) * 100, 2)}%` }}
-                          >
-                            <span className="text-xs text-white font-medium hidden sm:inline">{Math.round((finStats.totalCosts / maxVal) * 100)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Refunds</span>
-                          <span className="font-semibold text-yellow-700">&#3647;{finStats.totalRefunds.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
-                          <div
-                            className="bg-yellow-500 h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                            style={{ width: `${Math.max((finStats.totalRefunds / maxVal) * 100, 2)}%` }}
-                          >
-                            <span className="text-xs text-white font-medium hidden sm:inline">{Math.round((finStats.totalRefunds / maxVal) * 100)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Net Profit</span>
-                          <span className={`font-semibold ${finStats.netProfit >= 0 ? 'text-primary' : 'text-red-700'}`}>&#3647;{finStats.netProfit.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-6 md:h-8">
-                          <div
-                            className={`h-6 md:h-8 rounded-full transition-all duration-500 flex items-center justify-end pr-2 ${finStats.netProfit >= 0 ? 'bg-primary' : 'bg-red-400'}`}
-                            style={{ width: `${Math.max((Math.abs(finStats.netProfit) / maxVal) * 100, 2)}%` }}
-                          >
-                            <span className="text-xs text-white font-medium hidden sm:inline">{Math.round((Math.abs(finStats.netProfit) / maxVal) * 100)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {financialsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              ) : financials?.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  No financial records yet.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Amount</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {financials?.map(record => (
-                        <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm">
-                            {record.createdAt ? new Date(record.createdAt).toLocaleDateString() : '-'}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              record.type === 'revenue' ? 'bg-green-100 text-green-800' :
-                              record.type === 'cost' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {record.type}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">{record.category}</td>
-                          <td className="py-3 px-4 font-semibold">
-                            {record.currency} {Number(record.amount).toLocaleString()}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-500">{record.description || '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {financialsTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((financialsPage - 1) * PAGE_SIZE) + 1}-{Math.min(financialsPage * PAGE_SIZE, financialsTotal)} of {financialsTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setFinancialsPage(p => Math.max(1, p - 1))}
-                      disabled={financialsPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {financialsPage} of {financialsTotalPages}</span>
-                    <button
-                      onClick={() => setFinancialsPage(p => Math.min(financialsTotalPages, p + 1))}
-                      disabled={financialsPage === financialsTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {activeTab === "financial" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-financial"
+              aria-labelledby="tab-financial"
+            >
+              <ErrorBoundary level="section" key="financial">
+                <FinancialTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Tours Tab */}
-          {activeTab === 'tours' && (
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold">Tour Management</h3>
-                <button onClick={() => { resetTourForm(); setTourDialogOpen(true); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                  + Add Tour
-                </button>
-              </div>
-
-              {toursLoading ? (
-                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
-              ) : !allTours?.length ? (
-                <div className="text-center py-12 text-gray-500">No tours yet. Add your first tour.</div>
-              ) : (
-                <div className="space-y-4">
-                  {allTours.map(tour => (
-                    <div key={tour.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="p-3 md:p-4">
-                        <div className="flex items-start gap-3 md:gap-4">
-                          <div className="w-16 h-14 md:w-20 md:h-16 rounded overflow-hidden shrink-0">
-                            <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm md:text-base truncate">{tour.name}</h4>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500 mt-1">
-                              <span>{tour.duration}</span>
-                              <span className="capitalize">{tour.difficulty}</span>
-                              <span className="font-semibold text-primary">฿{tour.price.toLocaleString()}</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5 mt-1.5">
-                              {tour.isKosher === 1 && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Kosher</span>}
-                              {tour.isPrivate === 1 && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">Private</span>}
-                              {tour.isShabbatOk === 1 && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">Shabbat OK</span>}
-                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${tour.isActive === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                {tour.isActive === 1 ? 'Active' : 'Inactive'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
-                          <button onClick={() => updateTourMut.mutate({ id: tour.id, data: { isActive: tour.isActive !== 1 } })} className="px-3 py-1.5 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200 min-h-[36px]">
-                            {tour.isActive === 1 ? 'Deactivate' : 'Activate'}
-                          </button>
-                          <button onClick={() => {
-                            setEditingTour(tour);
-                            setTourForm({
-                              name: tour.name, nameHe: tour.nameHe,
-                              description: tour.description, descriptionHe: tour.descriptionHe,
-                              duration: tour.duration, difficulty: tour.difficulty,
-                              price: tour.price, groupMinSize: tour.groupMinSize ?? 1, groupMaxSize: tour.groupMaxSize ?? 10,
-                              imageUrl: tour.imageUrl, highlights: tour.highlights || '', highlightsHe: tour.highlightsHe || '',
-                              isKosher: tour.isKosher === 1, isPrivate: tour.isPrivate === 1,
-                              isShabbatOk: tour.isShabbatOk === 1, isActive: tour.isActive === 1,
-                              sortOrder: tour.sortOrder ?? 0,
-                            });
-                            setTourDialogOpen(true);
-                          }} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200 min-h-[36px]">Edit</button>
-                          <button onClick={() => { if (confirm('Delete this tour?')) deleteTourMut.mutate({ id: tour.id }); }} className="px-3 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 min-h-[36px]">Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {toursTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((toursPage - 1) * PAGE_SIZE) + 1}-{Math.min(toursPage * PAGE_SIZE, toursTotal)} of {toursTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setToursPage(p => Math.max(1, p - 1))}
-                      disabled={toursPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {toursPage} of {toursTotalPages}</span>
-                    <button
-                      onClick={() => setToursPage(p => Math.min(toursTotalPages, p + 1))}
-                      disabled={toursPage === toursTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Tour Dialog */}
-              {tourDialogOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                  <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-4">{editingTour ? 'Edit Tour' : 'Add Tour'}</h3>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Name (English) *</label>
-                          <input type="text" value={tourForm.name} onChange={e => setTourForm(p => ({ ...p, name: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Name (Hebrew) *</label>
-                          <input type="text" dir="rtl" value={tourForm.nameHe} onChange={e => setTourForm(p => ({ ...p, nameHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Description (English) *</label>
-                        <textarea value={tourForm.description} onChange={e => setTourForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Description (Hebrew) *</label>
-                        <textarea dir="rtl" value={tourForm.descriptionHe} onChange={e => setTourForm(p => ({ ...p, descriptionHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Duration *</label>
-                          <input type="text" placeholder="e.g. 6-8 hours" value={tourForm.duration} onChange={e => setTourForm(p => ({ ...p, duration: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Difficulty</label>
-                          <select value={tourForm.difficulty} onChange={e => setTourForm(p => ({ ...p, difficulty: e.target.value as any }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                            <option value="easy">Easy</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="challenging">Challenging</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Price (THB) *</label>
-                          <input type="number" value={tourForm.price} onChange={e => setTourForm(p => ({ ...p, price: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Min Group Size</label>
-                          <input type="number" value={tourForm.groupMinSize} onChange={e => setTourForm(p => ({ ...p, groupMinSize: parseInt(e.target.value) || 1 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Max Group Size</label>
-                          <input type="number" value={tourForm.groupMaxSize} onChange={e => setTourForm(p => ({ ...p, groupMaxSize: parseInt(e.target.value) || 10 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Image URL *</label>
-                        <input type="text" value={tourForm.imageUrl} onChange={e => setTourForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="/images/tour.jpg or https://..." />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Highlights (JSON array, English)</label>
-                        <textarea value={tourForm.highlights} onChange={e => setTourForm(p => ({ ...p, highlights: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder='["Private 4x4 vehicle", "Kosher lunch", ...]' />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Highlights (JSON array, Hebrew)</label>
-                        <textarea dir="rtl" value={tourForm.highlightsHe} onChange={e => setTourForm(p => ({ ...p, highlightsHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder='["רכב 4x4 פרטי", "ארוחת צהריים כשרה", ...]' />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Sort Order</label>
-                          <input type="number" value={tourForm.sortOrder} onChange={e => setTourForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-4">
-                        <label className="flex items-center gap-2 text-sm">
-                          <input type="checkbox" checked={tourForm.isKosher} onChange={e => setTourForm(p => ({ ...p, isKosher: e.target.checked }))} className="w-4 h-4" />
-                          Kosher
-                        </label>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input type="checkbox" checked={tourForm.isPrivate} onChange={e => setTourForm(p => ({ ...p, isPrivate: e.target.checked }))} className="w-4 h-4" />
-                          Private
-                        </label>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input type="checkbox" checked={tourForm.isShabbatOk} onChange={e => setTourForm(p => ({ ...p, isShabbatOk: e.target.checked }))} className="w-4 h-4" />
-                          Shabbat OK
-                        </label>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input type="checkbox" checked={tourForm.isActive} onChange={e => setTourForm(p => ({ ...p, isActive: e.target.checked }))} className="w-4 h-4" />
-                          Active
-                        </label>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 mt-6">
-                      <button onClick={() => { setTourDialogOpen(false); resetTourForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-                      <button onClick={() => {
-                        const data = { ...tourForm, highlights: tourForm.highlights || undefined, highlightsHe: tourForm.highlightsHe || undefined };
-                        if (editingTour) {
-                          updateTourMut.mutate({ id: editingTour.id, data });
-                        } else {
-                          createTourMut.mutate(data);
-                        }
-                      }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">{editingTour ? 'Save Changes' : 'Add Tour'}</button>
-                    </div>
-                  </div>
-                </div>
-              )}
+          {activeTab === "tours" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-tours"
+              aria-labelledby="tab-tours"
+            >
+              <ErrorBoundary level="section" key="tours">
+                <ToursTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Gallery Tab */}
-          {activeTab === 'gallery' && (
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold">Gallery Management</h3>
-                <button onClick={() => { resetPhotoForm(); setGalleryDialogOpen(true); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                  + Add Photo
-                </button>
-              </div>
-
-              {galleryLoading ? (
-                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
-              ) : !galleryPhotos?.length ? (
-                <div className="text-center py-12 text-gray-500">No gallery photos yet.</div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {galleryPhotos.map(photo => (
-                    <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="aspect-[4/3] overflow-hidden">
-                        <img src={photo.imageUrl} alt={photo.title} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm truncate">{photo.title}</h4>
-                          <span className={`px-2 py-0.5 rounded text-xs ${photo.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {photo.isPublished ? 'Published' : 'Draft'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-2">{photo.category} | Order: {photo.sortOrder}</p>
-                        <div className="flex gap-2">
-                          <button onClick={() => { setEditingPhoto(photo); setPhotoForm({ title: photo.title, imageUrl: photo.imageUrl, description: photo.description || '', category: photo.category || 'other', sortOrder: photo.sortOrder || 0, isPublished: !!photo.isPublished }); setGalleryDialogOpen(true); }} className="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">Edit</button>
-                          <button onClick={() => updatePhotoMut.mutate({ id: photo.id, data: { isPublished: !photo.isPublished } })} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200">{photo.isPublished ? 'Unpublish' : 'Publish'}</button>
-                          <button onClick={() => { if (confirm('Delete this photo?')) deletePhotoMut.mutate({ id: photo.id }); }} className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {galleryTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((galleryPage - 1) * PAGE_SIZE) + 1}-{Math.min(galleryPage * PAGE_SIZE, galleryTotal)} of {galleryTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setGalleryPage(p => Math.max(1, p - 1))}
-                      disabled={galleryPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {galleryPage} of {galleryTotalPages}</span>
-                    <button
-                      onClick={() => setGalleryPage(p => Math.min(galleryTotalPages, p + 1))}
-                      disabled={galleryPage === galleryTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Gallery Dialog */}
-              {galleryDialogOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                  <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-4">{editingPhoto ? 'Edit Photo' : 'Add Photo'}</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Title *</label>
-                        <input type="text" value={photoForm.title} onChange={e => setPhotoForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Upload Image</label>
-                        <div className="space-y-2">
-                          <div
-                            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            {isUploading ? (
-                              <div className="flex items-center justify-center gap-2">
-                                <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
-                                <span className="text-sm text-gray-500">Uploading...</span>
-                              </div>
-                            ) : photoForm.imageUrl ? (
-                              <div>
-                                <img src={photoForm.imageUrl} alt="Preview" className="max-h-32 mx-auto rounded mb-2" />
-                                <p className="text-xs text-gray-500">Click to change image</p>
-                              </div>
-                            ) : (
-                              <div>
-                                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-1" />
-                                <p className="text-sm text-gray-500">Click to upload an image</p>
-                                <p className="text-xs text-gray-400">JPG, PNG, WebP</p>
-                              </div>
-                            )}
-                          </div>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              setIsUploading(true);
-                              try {
-                                const reader = new FileReader();
-                                const base64 = await new Promise<string>((resolve, reject) => {
-                                  reader.onload = () => {
-                                    const result = reader.result as string;
-                                    resolve(result.split(',')[1]);
-                                  };
-                                  reader.onerror = reject;
-                                  reader.readAsDataURL(file);
-                                });
-                                const result = await uploadPhoto.mutateAsync({
-                                  filename: file.name,
-                                  contentType: file.type,
-                                  base64Data: base64,
-                                });
-                                setPhotoForm(p => ({ ...p, imageUrl: result.url }));
-                              } catch (err) {
-                                console.error('Upload failed:', err);
-                                toast.error('Failed to upload image. Please try again or paste a URL.');
-                              } finally {
-                                setIsUploading(false);
-                                if (fileInputRef.current) fileInputRef.current.value = '';
-                              }
-                            }}
-                          />
-                          <div className="text-center text-xs text-gray-400">or</div>
-                          <input type="text" placeholder="Paste image URL" value={photoForm.imageUrl} onChange={e => setPhotoForm(p => ({ ...p, imageUrl: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <textarea value={photoForm.description} onChange={e => setPhotoForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={3} />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Category</label>
-                        <select value={photoForm.category} onChange={e => setPhotoForm(p => ({ ...p, category: e.target.value as 'tours' | 'vehicles' | 'destinations' | 'activities' | 'food' | 'accommodation' | 'other' }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                          <option value="tours">Tours</option>
-                          <option value="vehicles">Vehicles</option>
-                          <option value="destinations">Destinations</option>
-                          <option value="activities">Activities</option>
-                          <option value="food">Food</option>
-                          <option value="accommodation">Accommodation</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Sort Order</label>
-                        <input type="number" value={photoForm.sortOrder} onChange={e => setPhotoForm(p => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input type="checkbox" id="isPublished" checked={photoForm.isPublished} onChange={e => setPhotoForm(p => ({ ...p, isPublished: e.target.checked }))} className="w-4 h-4" />
-                        <label htmlFor="isPublished" className="text-sm font-medium">Published</label>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 mt-6">
-                      <button onClick={() => { setGalleryDialogOpen(false); resetPhotoForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-                      <button disabled={isUploading} onClick={() => { if (editingPhoto) { updatePhotoMut.mutate({ id: editingPhoto.id, data: photoForm }); } else { createPhoto.mutate(photoForm); } }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">{editingPhoto ? 'Save Changes' : 'Add Photo'}</button>
-                    </div>
-                  </div>
-                </div>
-              )}
+          {activeTab === "gallery" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-gallery"
+              aria-labelledby="tab-gallery"
+            >
+              <ErrorBoundary level="section" key="gallery">
+                <GalleryTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Reviews Tab */}
-          {activeTab === 'reviews' && (
-            <div className="p-6">
-              {/* Stats */}
-              {reviewStats && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold text-blue-700">{reviewStats.totalReviews}</p>
-                    <p className="text-sm text-blue-600">Total</p>
-                  </div>
-                  <div className="bg-yellow-50 rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold text-yellow-700">{reviewStats.averageRating}</p>
-                    <p className="text-sm text-yellow-600">Avg Rating</p>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold text-green-700">{reviewStats.approvedCount}</p>
-                    <p className="text-sm text-green-600">Approved</p>
-                  </div>
-                  <div className="bg-orange-50 rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold text-orange-700">{reviewStats.totalReviews - reviewStats.approvedCount}</p>
-                    <p className="text-sm text-orange-600">Pending/Rejected</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Filter */}
-              <div className="flex gap-2 mb-6">
-                {(['all', 'pending', 'approved', 'rejected'] as const).map(f => (
-                  <button key={f} onClick={() => setReviewFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${reviewFilter === f ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              {reviewsLoading ? (
-                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
-              ) : (
-                <div className="space-y-4">
-                  {allReviews?.filter(r => reviewFilter === 'all' || r.status === reviewFilter).map(review => (
-                    <div key={review.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold">{review.name}</h4>
-                          <p className="text-sm text-gray-500">{review.email}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex">{[1,2,3,4,5].map(s => <span key={s} className={s <= review.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}</div>
-                            {review.tourType && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{review.tourType}</span>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${review.status === 'approved' ? 'bg-green-100 text-green-800' : review.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{review.status}</span>
-                          <span className="text-xs text-gray-400">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ''}</span>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-700 mb-3">{review.text}</p>
-
-                      {review.adminResponse && (
-                        <div className="mb-3 pl-3 border-l-4 border-primary bg-primary/5 rounded-r p-2">
-                          <p className="text-xs font-semibold text-primary">Admin Response:</p>
-                          <p className="text-sm text-gray-600">{review.adminResponse}</p>
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-2">
-                        {review.status !== 'approved' && <button onClick={() => updateReviewMut.mutate({ id: review.id, data: { status: 'approved' } })} className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200">Approve</button>}
-                        {review.status !== 'rejected' && <button onClick={() => updateReviewMut.mutate({ id: review.id, data: { status: 'rejected' } })} className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200">Reject</button>}
-                        <button onClick={() => { setRespondingReview(respondingReview === review.id ? null : review.id); setAdminResponseText(review.adminResponse || ''); }} className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200">{respondingReview === review.id ? 'Cancel' : 'Respond'}</button>
-                        <button onClick={() => { if (confirm('Delete this review?')) deleteReviewMut.mutate({ id: review.id }); }} className="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Delete</button>
-                      </div>
-
-                      {respondingReview === review.id && (
-                        <div className="mt-3 flex gap-2">
-                          <textarea value={adminResponseText} onChange={e => setAdminResponseText(e.target.value)} placeholder="Write admin response..." className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
-                          <button onClick={() => { updateReviewMut.mutate({ id: review.id, data: { adminResponse: adminResponseText } }); setRespondingReview(null); }} className="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">Save</button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {reviewsTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((reviewsPage - 1) * PAGE_SIZE) + 1}-{Math.min(reviewsPage * PAGE_SIZE, reviewsTotal)} of {reviewsTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setReviewsPage(p => Math.max(1, p - 1))}
-                      disabled={reviewsPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {reviewsPage} of {reviewsTotalPages}</span>
-                    <button
-                      onClick={() => setReviewsPage(p => Math.min(reviewsTotalPages, p + 1))}
-                      disabled={reviewsPage === reviewsTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {activeTab === "reviews" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-reviews"
+              aria-labelledby="tab-reviews"
+            >
+              <ErrorBoundary level="section" key="reviews">
+                <ReviewsTab />
+              </ErrorBoundary>
             </div>
           )}
-
-          {/* Blog Tab */}
-          {activeTab === 'blog' && (
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold">Blog Management</h3>
-                <button onClick={() => { resetBlogForm(); setBlogDialogOpen(true); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                  + New Post
-                </button>
-              </div>
-
-              {blogLoading ? (
-                <div className="text-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div></div>
-              ) : !allBlogPosts?.length ? (
-                <div className="text-center py-12 text-gray-500">No blog posts yet. Create your first post.</div>
-              ) : (
-                <div className="space-y-4">
-                  {allBlogPosts.map(post => (
-                    <div key={post.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="p-3 md:p-4">
-                        <div className="flex items-start gap-3 md:gap-4">
-                          {post.coverImage && (
-                            <div className="w-16 h-14 md:w-20 md:h-16 rounded overflow-hidden shrink-0">
-                              <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm md:text-base truncate">{post.title}</h4>
-                            {post.titleHe && <p className="text-xs text-gray-400 truncate" dir="rtl">{post.titleHe}</p>}
-                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500 mt-1">
-                              <span className="font-mono text-xs">/{post.slug}</span>
-                              {post.category && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{post.category}</span>}
-                              <span>{post.author || 'WIRO 4x4'}</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5 mt-1.5">
-                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${post.isPublished === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                {post.isPublished === 1 ? 'Published' : 'Draft'}
-                              </span>
-                              {post.publishedAt && (
-                                <span className="text-xs text-gray-400">{new Date(post.publishedAt).toLocaleDateString()}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        {post.excerpt && (
-                          <p className="text-xs text-gray-500 mt-2 line-clamp-2">{post.excerpt}</p>
-                        )}
-                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
-                          <button onClick={() => updateBlogMut.mutate({ id: post.id, data: { isPublished: post.isPublished !== 1 } })} className="px-3 py-1.5 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200 min-h-[36px]">
-                            {post.isPublished === 1 ? 'Unpublish' : 'Publish'}
-                          </button>
-                          <button onClick={() => {
-                            setEditingBlog(post);
-                            setBlogForm({
-                              title: post.title, titleHe: post.titleHe || '',
-                              slug: post.slug, excerpt: post.excerpt || '', excerptHe: post.excerptHe || '',
-                              content: post.content, contentHe: post.contentHe || '',
-                              coverImage: post.coverImage || '', category: post.category || '',
-                              tags: post.tags || '', isPublished: post.isPublished === 1,
-                              author: post.author || 'WIRO 4x4',
-                            });
-                            setBlogDialogOpen(true);
-                          }} className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200 min-h-[36px]">Edit</button>
-                          <button onClick={() => { if (confirm('Delete this blog post?')) deleteBlogMut.mutate({ id: post.id }); }} className="px-3 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 min-h-[36px]">Delete</button>
-                          <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200 min-h-[36px] flex items-center gap-1">
-                            <Eye className="w-3 h-3" /> View
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {blogTotalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-4">
-                  <p className="text-sm text-gray-500">
-                    Showing {((blogPage - 1) * PAGE_SIZE) + 1}-{Math.min(blogPage * PAGE_SIZE, blogTotal)} of {blogTotal}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setBlogPage(p => Math.max(1, p - 1))}
-                      disabled={blogPage === 1}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm">Page {blogPage} of {blogTotalPages}</span>
-                    <button
-                      onClick={() => setBlogPage(p => Math.min(blogTotalPages, p + 1))}
-                      disabled={blogPage === blogTotalPages}
-                      className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Blog Post Dialog */}
-              {blogDialogOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                  <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-4">{editingBlog ? 'Edit Blog Post' : 'New Blog Post'}</h3>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Title (English) *</label>
-                          <input type="text" value={blogForm.title} onChange={e => {
-                            const newTitle = e.target.value;
-                            setBlogForm(p => ({
-                              ...p,
-                              title: newTitle,
-                              slug: !editingBlog ? generateSlug(newTitle) : p.slug,
-                            }));
-                          }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Title (Hebrew)</label>
-                          <input type="text" dir="rtl" value={blogForm.titleHe} onChange={e => setBlogForm(p => ({ ...p, titleHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Slug *</label>
-                        <input type="text" value={blogForm.slug} onChange={e => setBlogForm(p => ({ ...p, slug: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" placeholder="my-blog-post" />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Excerpt (English)</label>
-                          <textarea value={blogForm.excerpt} onChange={e => setBlogForm(p => ({ ...p, excerpt: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Excerpt (Hebrew)</label>
-                          <textarea dir="rtl" value={blogForm.excerptHe} onChange={e => setBlogForm(p => ({ ...p, excerptHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Content (English) *</label>
-                        <textarea value={blogForm.content} onChange={e => setBlogForm(p => ({ ...p, content: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={6} placeholder="Use Markdown: # Heading, ## Subheading, - List item, **bold**" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Content (Hebrew)</label>
-                        <textarea dir="rtl" value={blogForm.contentHe} onChange={e => setBlogForm(p => ({ ...p, contentHe: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={4} />
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Cover Image URL</label>
-                          <input type="text" value={blogForm.coverImage} onChange={e => setBlogForm(p => ({ ...p, coverImage: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="/images/blog.jpg" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Category</label>
-                          <input type="text" value={blogForm.category} onChange={e => setBlogForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Travel Tips" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Author</label>
-                          <input type="text" value={blogForm.author} onChange={e => setBlogForm(p => ({ ...p, author: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Tags (JSON array)</label>
-                        <input type="text" value={blogForm.tags} onChange={e => setBlogForm(p => ({ ...p, tags: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder='["travel", "kosher", "thailand"]' />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input type="checkbox" id="blogIsPublished" checked={blogForm.isPublished} onChange={e => setBlogForm(p => ({ ...p, isPublished: e.target.checked }))} className="w-4 h-4" />
-                        <label htmlFor="blogIsPublished" className="text-sm font-medium">Publish immediately</label>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 mt-6">
-                      <button onClick={() => { setBlogDialogOpen(false); resetBlogForm(); }} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-                      <button onClick={() => {
-                        const data = {
-                          ...blogForm,
-                          titleHe: blogForm.titleHe || undefined,
-                          excerptHe: blogForm.excerptHe || undefined,
-                          contentHe: blogForm.contentHe || undefined,
-                          coverImage: blogForm.coverImage || undefined,
-                          category: blogForm.category || undefined,
-                          tags: blogForm.tags || undefined,
-                          author: blogForm.author || undefined,
-                        };
-                        if (editingBlog) {
-                          updateBlogMut.mutate({ id: editingBlog.id, data });
-                        } else {
-                          createBlogMut.mutate(data);
-                        }
-                      }} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">{editingBlog ? 'Save Changes' : 'Create Post'}</button>
-                    </div>
-                  </div>
-                </div>
-              )}
+          {activeTab === "blog" && (
+            <div role="tabpanel" id="tabpanel-blog" aria-labelledby="tab-blog">
+              <ErrorBoundary level="section" key="blog">
+                <BlogTab />
+              </ErrorBoundary>
             </div>
           )}
         </div>

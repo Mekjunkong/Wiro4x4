@@ -21,18 +21,45 @@ const TOUR_TYPES = [
 ];
 
 function StarRating({ rating, onRate, interactive = false }: { rating: number; onRate?: (r: number) => void; interactive?: boolean }) {
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  const { t } = useLanguage();
+
+  const displayRating = interactive && hoveredStar !== null ? hoveredStar : rating;
+
+  if (!interactive) {
+    return (
+      <div className="flex gap-1" role="img" aria-label={t(`${rating} out of 5 stars`, `${rating} מתוך 5 כוכבים`)}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            aria-hidden="true"
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1" role="radiogroup" aria-label={t('Star rating', 'דירוג כוכבים')}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <span
+        <button
           key={star}
-          className={`text-2xl ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''} ${
-            star <= rating ? 'text-yellow-400' : 'text-gray-300'
-          }`}
-          onClick={() => interactive && onRate?.(star)}
+          type="button"
+          className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+            star <= displayRating ? 'text-yellow-400' : 'text-gray-300'
+          } hover:scale-110`}
+          onClick={() => onRate?.(star)}
+          onMouseEnter={() => setHoveredStar(star)}
+          onMouseLeave={() => setHoveredStar(null)}
+          aria-label={t(`Rate ${star} out of 5 stars`, `דרג ${star} מתוך 5 כוכבים`)}
+          role="radio"
+          aria-checked={star === rating}
         >
-          ★
-        </span>
+          <span className="text-2xl leading-none select-none" style={{ fontSize: '24px' }} aria-hidden="true">★</span>
+        </button>
       ))}
     </div>
   );
@@ -45,6 +72,8 @@ export default function Reviews() {
   const [filterTourType, setFilterTourType] = useState('all');
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState('');
+  const REVIEWS_PER_PAGE = 6;
+  const [visibleCount, setVisibleCount] = useState(REVIEWS_PER_PAGE);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -96,9 +125,13 @@ export default function Reviews() {
     (review) => filterTourType === 'all' || review.tourType === filterTourType
   ) || [];
 
+  const visibleReviews = filteredReviews.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredReviews.length;
+
   return (
     <div className="min-h-screen">
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-white mt-20">
@@ -247,7 +280,7 @@ export default function Reviews() {
               <Button
                 variant={filterTourType === 'all' ? 'default' : 'outline'}
                 className="rounded-full"
-                onClick={() => setFilterTourType('all')}
+                onClick={() => { setFilterTourType('all'); setVisibleCount(REVIEWS_PER_PAGE); }}
                 size="sm"
               >
                 {t('All', 'הכל')}
@@ -257,7 +290,7 @@ export default function Reviews() {
                   key={type.id}
                   variant={filterTourType === type.id ? 'default' : 'outline'}
                   className="rounded-full"
-                  onClick={() => setFilterTourType(type.id)}
+                  onClick={() => { setFilterTourType(type.id); setVisibleCount(REVIEWS_PER_PAGE); }}
                   size="sm"
                 >
                   {isHebrew ? type.he : type.en}
@@ -285,7 +318,7 @@ export default function Reviews() {
 
             {!isLoading && filteredReviews.length > 0 && (
               <div className="space-y-4">
-                {filteredReviews.map((review) => (
+                {visibleReviews.map((review) => (
                   <Card key={review.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between mb-3">
@@ -317,12 +350,36 @@ export default function Reviews() {
                     </CardContent>
                   </Card>
                 ))}
+
+                {/* Show More / Show Less controls */}
+                <div className="flex justify-center gap-3 pt-4">
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setVisibleCount(prev => prev + REVIEWS_PER_PAGE)}
+                    >
+                      {t(
+                        `Show More (${filteredReviews.length - visibleCount} remaining)`,
+                        `הצג עוד (${filteredReviews.length - visibleCount} נותרו)`
+                      )}
+                    </Button>
+                  )}
+                  {visibleCount > REVIEWS_PER_PAGE && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setVisibleCount(REVIEWS_PER_PAGE)}
+                    >
+                      {t('Show Less', 'הצג פחות')}
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
 
+      </main>
       <Footer />
     </div>
   );

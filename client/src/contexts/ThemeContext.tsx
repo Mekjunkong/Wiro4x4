@@ -23,8 +23,13 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
-      const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      const stored = localStorage.getItem("wiro-theme");
+      if (stored === "dark" || stored === "light") return stored;
+      // Respect prefers-color-scheme as default
+      if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
+      }
+      return defaultTheme;
     }
     return defaultTheme;
   });
@@ -38,7 +43,7 @@ export function ThemeProvider({
     }
 
     if (switchable) {
-      localStorage.setItem("theme", theme);
+      localStorage.setItem("wiro-theme", theme);
     }
   }, [theme, switchable]);
 

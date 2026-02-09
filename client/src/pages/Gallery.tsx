@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -30,12 +30,24 @@ export default function Gallery() {
 
   const { data: photos, isLoading } = trpc.gallery.list.useQuery();
 
+  // Compute counts per category from all photos
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    if (photos) {
+      for (const photo of photos) {
+        const cat = photo.category || 'other';
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [photos]);
+
   const filteredPhotos = photos?.filter(
     (photo) => selectedCategory === 'all' || photo.category === selectedCategory
   ) || [];
 
   const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => setLightboxIndex(null);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
 
   const goToPrev = useCallback(() => {
     if (lightboxIndex === null) return;
@@ -56,11 +68,44 @@ export default function Gallery() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex, goToPrev, goToNext]);
+  }, [lightboxIndex, goToPrev, goToNext, closeLightbox]);
+
+  // N7: Touch swipe gesture support for lightbox
+  const swipeRef = useRef<{ startX: number; startY: number } | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    swipeRef.current = { startX: touch.clientX, startY: touch.clientY };
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!swipeRef.current) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - swipeRef.current.startX;
+    const deltaY = touch.clientY - swipeRef.current.startY;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+    const SWIPE_THRESHOLD = 50;
+
+    if (absDeltaY > absDeltaX && deltaY > SWIPE_THRESHOLD) {
+      // Swipe down: close lightbox
+      closeLightbox();
+    } else if (absDeltaX > absDeltaY && absDeltaX > SWIPE_THRESHOLD) {
+      if (deltaX < 0) {
+        // Swipe left: next photo
+        goToNext();
+      } else {
+        // Swipe right: previous photo
+        goToPrev();
+      }
+    }
+    swipeRef.current = null;
+  }, [closeLightbox, goToNext, goToPrev]);
 
   return (
     <div className="min-h-screen">
       <Header />
+      <main id="main-content">
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-white mt-20">
@@ -81,16 +126,34 @@ export default function Gallery() {
       <div className="container py-8 md:py-12">
         {/* Category Filters */}
         <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {CATEGORIES.map((cat) => (
-            <Button
-              key={cat.id}
-              variant={selectedCategory === cat.id ? 'default' : 'outline'}
-              className="rounded-full"
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              {isHebrew ? cat.he : cat.en}
-            </Button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const count = cat.id === 'all'
+              ? (photos?.length ?? 0)
+              : (categoryCounts[cat.id] ?? 0);
+            const isZero = count === 0 && cat.id !== 'all';
+
+            return (
+              <Button
+                key={cat.id}
+                variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                className={`rounded-full gap-1.5 ${isZero ? 'opacity-50' : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                {isHebrew ? cat.he : cat.en}
+                <span
+                  className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium ${
+                    selectedCategory === cat.id
+                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      : isZero
+                        ? 'bg-muted text-muted-foreground'
+                        : 'bg-primary/10 text-primary'
+                  }`}
+                >
+                  {count}
+                </span>
+              </Button>
+            );
+          })}
         </div>
 
         {/* Loading State */}
@@ -153,7 +216,11 @@ export default function Gallery() {
       <Dialog open={lightboxIndex !== null} onOpenChange={(open) => !open && closeLightbox()}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none">
           {lightboxIndex !== null && filteredPhotos[lightboxIndex] && (
-            <div className="relative flex flex-col items-center justify-center min-h-[60vh]">
+            <div
+              className="relative flex flex-col items-center justify-center min-h-[60vh]"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <button
                 onClick={closeLightbox}
                 className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
@@ -181,7 +248,8 @@ export default function Gallery() {
               <img
                 src={filteredPhotos[lightboxIndex].imageUrl}
                 alt={filteredPhotos[lightboxIndex].title}
-                className="max-w-full max-h-[80vh] object-contain"
+                className="max-w-full max-h-[80vh] object-contain select-none"
+                draggable={false}
               />
 
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
@@ -198,6 +266,7 @@ export default function Gallery() {
         </DialogContent>
       </Dialog>
 
+      </main>
       <Footer />
     </div>
   );

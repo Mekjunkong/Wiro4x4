@@ -1,7 +1,7 @@
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -56,8 +56,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -84,21 +84,46 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
 // Booking System Database Helpers
 
-import { bookings, agents, leads, financialRecords, galleryPhotos, reviews, payments, tours, blogPosts, InsertBooking, InsertAgent, InsertLead, InsertFinancialRecord, InsertGalleryPhoto, InsertReview, InsertPayment, InsertTour, InsertBlogPost } from "../drizzle/schema";
+import {
+  bookings,
+  agents,
+  leads,
+  financialRecords,
+  galleryPhotos,
+  reviews,
+  payments,
+  tours,
+  blogPosts,
+  auditLogs,
+  InsertBooking,
+  InsertAgent,
+  InsertLead,
+  InsertFinancialRecord,
+  InsertGalleryPhoto,
+  InsertReview,
+  InsertPayment,
+  InsertTour,
+  InsertBlogPost,
+  InsertAuditLog,
+} from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
 // Bookings
 export async function createBooking(booking: InsertBooking) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const result = await db.insert(bookings).values(booking);
   return result;
 }
@@ -106,29 +131,33 @@ export async function createBooking(booking: InsertBooking) {
 export async function getAllBookings() {
   const db = await getDb();
   if (!db) return [];
-  
+
   return await db.select().from(bookings).orderBy(desc(bookings.createdAt));
 }
 
 export async function getBookingById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  
-  const result = await db.select().from(bookings).where(eq(bookings.id, id)).limit(1);
+
+  const result = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function updateBooking(id: number, data: Partial<InsertBooking>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.update(bookings).set(data).where(eq(bookings.id, id));
 }
 
 export async function deleteBooking(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.delete(bookings).where(eq(bookings.id, id));
 }
 
@@ -136,22 +165,26 @@ export async function deleteBooking(id: number) {
 export async function createAgent(agent: InsertAgent) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.insert(agents).values(agent);
 }
 
 export async function getAllAgents() {
   const db = await getDb();
   if (!db) return [];
-  
+
   return await db.select().from(agents).orderBy(desc(agents.totalBookings));
 }
 
 export async function getAgentById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  
-  const result = await db.select().from(agents).where(eq(agents.id, id)).limit(1);
+
+  const result = await db
+    .select()
+    .from(agents)
+    .where(eq(agents.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -171,44 +204,52 @@ export async function deleteAgent(id: number) {
 export async function getBookingsByAgentId(agentId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(bookings).where(eq(bookings.assignedAgentId, agentId)).orderBy(desc(bookings.createdAt));
+  return await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.assignedAgentId, agentId))
+    .orderBy(desc(bookings.createdAt));
 }
 
 export async function getAgentPerformanceStats() {
   const db = await getDb();
   if (!db) return [];
-  const allAgents = await db.select().from(agents);
-  const allBookings = await db.select({
-    assignedAgentId: bookings.assignedAgentId,
-    status: bookings.status,
-  }).from(bookings);
 
-  return allAgents.map(agent => {
-    const agentBookings = allBookings.filter(b => b.assignedAgentId === agent.id);
-    return {
-      id: agent.id,
-      name: agent.name,
-      status: agent.status,
-      rating: agent.rating ?? 5,
-      totalBookings: agentBookings.length,
-      completedBookings: agentBookings.filter(b => b.status === 'completed').length,
-      activeBookings: agentBookings.filter(b => b.status === 'confirmed' || b.status === 'in_progress').length,
-    };
-  });
+  const result = await db
+    .select({
+      id: agents.id,
+      name: agents.name,
+      status: agents.status,
+      rating: agents.rating,
+      totalBookings: sql<number>`COUNT(${bookings.id})`,
+      completedBookings: sql<number>`SUM(CASE WHEN ${bookings.status} = 'completed' THEN 1 ELSE 0 END)`,
+      activeBookings: sql<number>`SUM(CASE WHEN ${bookings.status} IN ('confirmed', 'in_progress') THEN 1 ELSE 0 END)`,
+    })
+    .from(agents)
+    .leftJoin(bookings, eq(bookings.assignedAgentId, agents.id))
+    .groupBy(agents.id, agents.name, agents.status, agents.rating);
+
+  return result.map(r => ({
+    ...r,
+    rating: r.rating ?? 5,
+    totalBookings: Number(r.totalBookings),
+    completedBookings: Number(r.completedBookings ?? 0),
+    activeBookings: Number(r.activeBookings ?? 0),
+  }));
 }
 
 // Leads
 export async function createLead(lead: InsertLead) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.insert(leads).values(lead);
 }
 
 export async function getAllLeads() {
   const db = await getDb();
   if (!db) return [];
-  
+
   return await db.select().from(leads).orderBy(desc(leads.createdAt));
 }
 
@@ -229,28 +270,40 @@ export async function deleteLead(id: number) {
 export async function createFinancialRecord(record: InsertFinancialRecord) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   return await db.insert(financialRecords).values(record);
 }
 
 export async function getFinancialRecordsByBookingId(bookingId: number) {
   const db = await getDb();
   if (!db) return [];
-  
-  return await db.select().from(financialRecords).where(eq(financialRecords.bookingId, bookingId));
+
+  return await db
+    .select()
+    .from(financialRecords)
+    .where(eq(financialRecords.bookingId, bookingId));
 }
 
 export async function getAllFinancialRecords() {
   const db = await getDb();
   if (!db) return [];
 
-  return await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt));
+  return await db
+    .select()
+    .from(financialRecords)
+    .orderBy(desc(financialRecords.createdAt));
 }
 
-export async function updateFinancialRecord(id: number, data: Partial<InsertFinancialRecord>) {
+export async function updateFinancialRecord(
+  id: number,
+  data: Partial<InsertFinancialRecord>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(financialRecords).set(data).where(eq(financialRecords.id, id));
+  return await db
+    .update(financialRecords)
+    .set(data)
+    .where(eq(financialRecords.id, id));
 }
 
 export async function deleteFinancialRecord(id: number) {
@@ -261,12 +314,24 @@ export async function deleteFinancialRecord(id: number) {
 
 export async function getFinancialStats() {
   const db = await getDb();
-  if (!db) return { totalRevenue: 0, totalCosts: 0, totalRefunds: 0, netProfit: 0 };
+  if (!db)
+    return { totalRevenue: 0, totalCosts: 0, totalRefunds: 0, netProfit: 0 };
   const all = await db.select().from(financialRecords);
-  const revenue = all.filter(r => r.type === 'revenue').reduce((sum, r) => sum + r.amount, 0);
-  const costs = all.filter(r => r.type === 'cost').reduce((sum, r) => sum + r.amount, 0);
-  const refunds = all.filter(r => r.type === 'refund').reduce((sum, r) => sum + r.amount, 0);
-  return { totalRevenue: revenue, totalCosts: costs, totalRefunds: refunds, netProfit: revenue - costs - refunds };
+  const revenue = all
+    .filter(r => r.type === "revenue")
+    .reduce((sum, r) => sum + r.amount, 0);
+  const costs = all
+    .filter(r => r.type === "cost")
+    .reduce((sum, r) => sum + r.amount, 0);
+  const refunds = all
+    .filter(r => r.type === "refund")
+    .reduce((sum, r) => sum + r.amount, 0);
+  return {
+    totalRevenue: revenue,
+    totalCosts: costs,
+    totalRefunds: refunds,
+    netProfit: revenue - costs - refunds,
+  };
 }
 
 // ─── Gallery Photos ────────────────────────────────────────
@@ -280,7 +345,9 @@ export async function createGalleryPhoto(photo: InsertGalleryPhoto) {
 export async function getAllPublishedPhotos() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(galleryPhotos)
+  return await db
+    .select()
+    .from(galleryPhotos)
     .where(eq(galleryPhotos.isPublished, 1))
     .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt));
 }
@@ -288,14 +355,22 @@ export async function getAllPublishedPhotos() {
 export async function getAllGalleryPhotos() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(galleryPhotos)
+  return await db
+    .select()
+    .from(galleryPhotos)
     .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt));
 }
 
-export async function updateGalleryPhoto(id: number, data: Partial<InsertGalleryPhoto>) {
+export async function updateGalleryPhoto(
+  id: number,
+  data: Partial<InsertGalleryPhoto>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(galleryPhotos).set(data).where(eq(galleryPhotos.id, id));
+  return await db
+    .update(galleryPhotos)
+    .set(data)
+    .where(eq(galleryPhotos.id, id));
 }
 
 export async function deleteGalleryPhoto(id: number) {
@@ -315,7 +390,9 @@ export async function createReview(review: InsertReview) {
 export async function getApprovedReviews() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(reviews)
+  return await db
+    .select()
+    .from(reviews)
     .where(and(eq(reviews.isApproved, 1), eq(reviews.isPublished, 1)))
     .orderBy(desc(reviews.createdAt));
 }
@@ -329,7 +406,11 @@ export async function getAllReviews() {
 export async function getReviewById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(reviews).where(eq(reviews.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(reviews)
+    .where(eq(reviews.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -350,9 +431,8 @@ export async function getReviewStats() {
   if (!db) return { totalReviews: 0, averageRating: 0, approvedCount: 0 };
   const all = await db.select().from(reviews);
   const approved = all.filter(r => r.isApproved === 1);
-  const avgRating = all.length > 0
-    ? all.reduce((sum, r) => sum + r.rating, 0) / all.length
-    : 0;
+  const avgRating =
+    all.length > 0 ? all.reduce((sum, r) => sum + r.rating, 0) / all.length : 0;
   return {
     totalReviews: all.length,
     averageRating: Math.round(avgRating * 10) / 10,
@@ -371,7 +451,9 @@ export async function createPayment(payment: InsertPayment) {
 export async function getPaymentsByBookingId(bookingId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(payments)
+  return await db
+    .select()
+    .from(payments)
     .where(eq(payments.bookingId, bookingId))
     .orderBy(desc(payments.createdAt));
 }
@@ -394,6 +476,56 @@ export async function getPaymentStats() {
   };
 }
 
+export async function getPaymentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq(payments.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPaymentBySessionId(sessionId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq(payments.stripeSessionId, sessionId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllPendingPayments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(payments)
+    .where(eq(payments.status, "pending"))
+    .orderBy(payments.createdAt);
+}
+
+export async function updatePayment(id: number, data: Partial<InsertPayment>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(payments).set(data).where(eq(payments.id, id));
+}
+
+export async function getBookingTotalPaid(bookingId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`COALESCE(SUM(${payments.amount}), 0)` })
+    .from(payments)
+    .where(
+      and(eq(payments.bookingId, bookingId), eq(payments.status, "completed"))
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
 // ─── Tours ──────────────────────────────────────────────────
 
 export async function createTour(tour: InsertTour) {
@@ -405,7 +537,9 @@ export async function createTour(tour: InsertTour) {
 export async function getAllActiveTours() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tours)
+  return await db
+    .select()
+    .from(tours)
     .where(eq(tours.isActive, 1))
     .orderBy(tours.sortOrder, desc(tours.createdAt));
 }
@@ -413,7 +547,9 @@ export async function getAllActiveTours() {
 export async function getAllTours() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tours)
+  return await db
+    .select()
+    .from(tours)
     .orderBy(tours.sortOrder, desc(tours.createdAt));
 }
 
@@ -442,8 +578,15 @@ export async function getAllBookingsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(bookings).orderBy(desc(bookings.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(bookings);
+  const items = await db
+    .select()
+    .from(bookings)
+    .orderBy(desc(bookings.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(bookings);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -452,8 +595,15 @@ export async function getAllReviewsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(reviews).orderBy(desc(reviews.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(reviews);
+  const items = await db
+    .select()
+    .from(reviews)
+    .orderBy(desc(reviews.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(reviews);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -462,8 +612,15 @@ export async function getAllFinancialRecordsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(financialRecords).orderBy(desc(financialRecords.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(financialRecords);
+  const items = await db
+    .select()
+    .from(financialRecords)
+    .orderBy(desc(financialRecords.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(financialRecords);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -472,8 +629,15 @@ export async function getAllGalleryPhotosPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(galleryPhotos).orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(galleryPhotos);
+  const items = await db
+    .select()
+    .from(galleryPhotos)
+    .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(galleryPhotos);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -482,8 +646,15 @@ export async function getAllLeadsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(leads).orderBy(desc(leads.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(leads);
+  const items = await db
+    .select()
+    .from(leads)
+    .orderBy(desc(leads.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(leads);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -492,8 +663,15 @@ export async function getAllToursPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(tours).orderBy(tours.sortOrder, desc(tours.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(tours);
+  const items = await db
+    .select()
+    .from(tours)
+    .orderBy(tours.sortOrder, desc(tours.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(tours);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -509,7 +687,9 @@ export async function createBlogPost(post: InsertBlogPost) {
 export async function getAllPublishedBlogPosts() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(blogPosts)
+  return await db
+    .select()
+    .from(blogPosts)
     .where(eq(blogPosts.isPublished, 1))
     .orderBy(desc(blogPosts.publishedAt), desc(blogPosts.createdAt));
 }
@@ -523,11 +703,18 @@ export async function getAllBlogPosts() {
 export async function getBlogPostBySlug(slug: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.slug, slug))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function updateBlogPost(id: number, data: Partial<InsertBlogPost>) {
+export async function updateBlogPost(
+  id: number,
+  data: Partial<InsertBlogPost>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db.update(blogPosts).set(data).where(eq(blogPosts.id, id));
@@ -543,8 +730,314 @@ export async function getAllBlogPostsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(blogPosts);
+  const items = await db
+    .select()
+    .from(blogPosts)
+    .orderBy(desc(blogPosts.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(blogPosts);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
+}
+
+// ─── Bulk Operations ─────────────────────────────────────
+
+export async function bulkDeleteBookings(ids: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(bookings).where(inArray(bookings.id, ids));
+}
+
+export async function bulkDeleteLeads(ids: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(leads).where(inArray(leads.id, ids));
+}
+
+export async function bulkApproveReviews(ids: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(reviews)
+    .set({ isApproved: 1, isPublished: 1 })
+    .where(inArray(reviews.id, ids));
+}
+
+export async function bulkDeleteReviews(ids: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.delete(reviews).where(inArray(reviews.id, ids));
+}
+
+// ─── Subscribers ─────────────────────────────────────────
+
+import {
+  subscribers,
+  InsertSubscriber,
+  scheduledEmails,
+  InsertScheduledEmail,
+} from "../drizzle/schema";
+
+export async function createSubscriber(sub: InsertSubscriber) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(subscribers).values(sub);
+}
+
+export async function getSubscriberByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(subscribers)
+    .where(eq(subscribers.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ─── Audit Logging ────────────────────────────────────────
+
+export async function logAdminAction(log: InsertAuditLog) {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.insert(auditLogs).values(log);
+  } catch (err) {
+    console.error("[Audit] Failed to log action:", err);
+  }
+}
+
+// ─── Scheduled Emails ─────────────────────────────────────
+
+export async function createScheduledEmail(record: InsertScheduledEmail) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(scheduledEmails).values(record);
+}
+
+export async function hasScheduledEmailBeenSent(
+  type: "reminder" | "feedback" | "lead_alert" | "daily_summary",
+  targetId: number
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const result = await db
+    .select()
+    .from(scheduledEmails)
+    .where(
+      and(
+        eq(scheduledEmails.type, type),
+        eq(scheduledEmails.targetId, targetId),
+        eq(scheduledEmails.status, "sent")
+      )
+    )
+    .limit(1);
+  return result.length > 0;
+}
+
+// ─── Agent Availability ───────────────────────────────────
+
+export async function getAgentBookingsInDateRange(
+  agentId: number,
+  startDate: Date,
+  endDate: Date
+) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.assignedAgentId, agentId),
+        sql`${bookings.status} IN ('confirmed', 'in_progress')`,
+        sql`${bookings.arrivalDate} <= ${endDate}`,
+        sql`${bookings.departureDate} >= ${startDate}`
+      )
+    );
+}
+
+// ─── Financial Auto-Generation ────────────────────────────
+
+export async function generateDefaultFinancialRecords(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const booking = await getBookingById(bookingId);
+  if (!booking) throw new Error("Booking not found");
+
+  // Check if records already exist
+  const existing = await getFinancialRecordsByBookingId(bookingId);
+  if (existing.length > 0) return existing;
+
+  // Calculate average costs from historical data
+  const allRecords = await db.select().from(financialRecords);
+  const costRecords = allRecords.filter(r => r.type === "cost");
+
+  function avgCostByCategory(category: string): number {
+    const matching = costRecords.filter(r => r.category === category);
+    if (matching.length === 0) return 0;
+    return Math.round(
+      matching.reduce((sum, r) => sum + r.amount, 0) / matching.length
+    );
+  }
+
+  const records: InsertFinancialRecord[] = [];
+  const guests = booking.numberOfAdults + (booking.numberOfChildren ?? 0);
+
+  // Revenue record from booking price
+  if (booking.totalPrice) {
+    records.push({
+      bookingId,
+      type: "revenue",
+      category: "tour_package",
+      amount: booking.totalPrice,
+      currency: "THB",
+      description: `Tour package for ${guests} guests`,
+    });
+  }
+
+  // Cost records based on selected services
+  if (booking.includesGuide) {
+    const avg = avgCostByCategory("guide_salary");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "guide_salary",
+      amount: avg || 2000,
+      currency: "THB",
+      description: "Guide salary (estimated)",
+    });
+  }
+
+  if (booking.includesHotels) {
+    const avg = avgCostByCategory("hotel_cost");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "hotel_cost",
+      amount: avg || 3000,
+      currency: "THB",
+      description: `Hotel cost for ${guests} guests (estimated)`,
+    });
+  }
+
+  if (booking.includesFood) {
+    const avg = avgCostByCategory("food_cost");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "food_cost",
+      amount: avg || 1500,
+      currency: "THB",
+      description: `Kosher food for ${guests} guests (estimated)`,
+    });
+  }
+
+  if (booking.includesTrip) {
+    const avg = avgCostByCategory("vehicle_rental");
+    records.push({
+      bookingId,
+      type: "cost",
+      category: "vehicle_rental",
+      amount: avg || 2500,
+      currency: "THB",
+      description: "4x4 vehicle rental (estimated)",
+    });
+  }
+
+  // Insert all records
+  for (const record of records) {
+    await db.insert(financialRecords).values(record);
+  }
+
+  return records;
+}
+
+// ─── Lead Scoring ─────────────────────────────────────────
+
+export async function updateLeadScore(leadId: number, score: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(leads)
+    .set({ score: Math.max(0, Math.min(100, Math.round(score))) })
+    .where(eq(leads.id, leadId));
+}
+
+// ─── Reminder Scheduler Queries ──────────────────────────
+
+/**
+ * Get confirmed bookings with arrivalDate within 24-48 hours that haven't had a reminder sent.
+ */
+export async function getBookingsNeedingReminder() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.status, "confirmed"),
+        sql`${bookings.reminderSentAt} IS NULL`,
+        sql`${bookings.arrivalDate} >= ${in24h}`,
+        sql`${bookings.arrivalDate} <= ${in48h}`
+      )
+    );
+}
+
+/**
+ * Get completed bookings where departureDate was ~1 day ago and no feedback email has been sent.
+ */
+export async function getBookingsNeedingFeedback() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        sql`${bookings.feedbackSentAt} IS NULL`,
+        sql`${bookings.departureDate} <= ${oneDayAgo}`,
+        sql`${bookings.departureDate} >= ${twoDaysAgo}`,
+        sql`${bookings.status} IN ('completed', 'confirmed', 'in_progress')`
+      )
+    );
+}
+
+/**
+ * Mark a booking as having had its reminder email sent.
+ */
+export async function markReminderSent(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(bookings)
+    .set({ reminderSentAt: new Date() } as any)
+    .where(eq(bookings.id, bookingId));
+}
+
+/**
+ * Mark a booking as having had its feedback email sent.
+ */
+export async function markFeedbackSent(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(bookings)
+    .set({ feedbackSentAt: new Date() } as any)
+    .where(eq(bookings.id, bookingId));
 }

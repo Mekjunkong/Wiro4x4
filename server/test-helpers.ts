@@ -32,7 +32,10 @@ export function createAuthContext(): { ctx: TrpcContext } {
   const ctx: TrpcContext = {
     user,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => {} } as unknown as TrpcContext["res"],
+    res: {
+      clearCookie: () => {},
+      setHeader: () => {},
+    } as unknown as TrpcContext["res"],
   };
 
   return { ctx };
@@ -43,7 +46,10 @@ export function createPublicContext(): { ctx: TrpcContext } {
   const ctx: TrpcContext = {
     user: null,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: { clearCookie: () => {} } as unknown as TrpcContext["res"],
+    res: {
+      clearCookie: () => {},
+      setHeader: () => {},
+    } as unknown as TrpcContext["res"],
   };
   return { ctx };
 }

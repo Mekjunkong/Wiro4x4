@@ -69,9 +69,9 @@ export function Testimonials() {
   ];
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-16 md:py-20 bg-muted/30">
       <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             {t('What Our Travelers Say', 'מה המטיילים שלנו אומרים')}
           </h2>
