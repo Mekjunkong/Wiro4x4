@@ -1,5 +1,5 @@
-import { Resend } from 'resend';
-import { createEvents, EventAttributes } from 'ics';
+import { Resend } from "resend";
+import { createEvents, EventAttributes } from "ics";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -10,11 +10,11 @@ function getResend(): Resend | null {
   return _resend;
 }
 
-const SENDER_EMAIL = 'wiro.adventures@gmail.com';
-const COMPANY_NAME = 'WIRO 4x4 - Kosher Off-Road Adventures';
-const COMPANY_PHONE = '+66 81 961 1398';
-const COMPANY_WHATSAPP = '+66 81 961 1398';
-const COMPANY_WEBSITE = 'https://wiro4x4.manus.space';
+const SENDER_EMAIL = "wiro.adventures@gmail.com";
+const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
+const COMPANY_PHONE = "+66 81 961 1398";
+const COMPANY_WHATSAPP = "+66 81 961 1398";
+const COMPANY_WEBSITE = "https://wiro4x4.manus.space";
 
 interface BookingDetails {
   customerName: string;
@@ -34,45 +34,48 @@ interface BookingDetails {
 function generateCalendarEvent(booking: BookingDetails): string | null {
   try {
     const tourDate = new Date(booking.tourDate);
-    
+
     // Default pickup time is 8:00 AM if not specified
-    const pickupTime = booking.pickupTime || '08:00';
-    const [hours, minutes] = pickupTime.split(':').map(Number);
-    
+    const pickupTime = booking.pickupTime || "08:00";
+    const [hours, minutes] = pickupTime.split(":").map(Number);
+
     // Set start time
     const startDate = new Date(tourDate);
     startDate.setHours(hours, minutes, 0, 0);
-    
+
     // Set end time (8 hours later for full day tour)
     const endDate = new Date(startDate);
     endDate.setHours(startDate.getHours() + 8);
-    
+
     const event: EventAttributes = {
       start: [
         startDate.getFullYear(),
         startDate.getMonth() + 1,
         startDate.getDate(),
         startDate.getHours(),
-        startDate.getMinutes()
+        startDate.getMinutes(),
       ],
       end: [
         endDate.getFullYear(),
         endDate.getMonth() + 1,
         endDate.getDate(),
         endDate.getHours(),
-        endDate.getMinutes()
+        endDate.getMinutes(),
       ],
       title: `${booking.tourType} - WIRO 4x4`,
-      description: `Your ${booking.tourType} adventure with WIRO 4x4!\n\n` +
+      description:
+        `Your ${booking.tourType} adventure with WIRO 4x4!\n\n` +
         `Group Size: ${booking.groupSize} people\n` +
-        `Pickup Location: ${booking.pickupLocation || 'To be confirmed'}\n` +
+        `Pickup Location: ${booking.pickupLocation || "To be confirmed"}\n` +
         `Pickup Time: ${pickupTime}\n\n` +
         `Contact Information:\n` +
         `Phone: ${COMPANY_PHONE}\n` +
         `WhatsApp: ${COMPANY_WHATSAPP}\n` +
         `Website: ${COMPANY_WEBSITE}\n\n` +
         `Booking ID: ${booking.bookingId}\n\n` +
-        (booking.specialRequests ? `Special Requests: ${booking.specialRequests}\n\n` : '') +
+        (booking.specialRequests
+          ? `Special Requests: ${booking.specialRequests}\n\n`
+          : "") +
         `What to Bring:\n` +
         `- Comfortable clothing and closed-toe shoes\n` +
         `- Sunscreen and hat\n` +
@@ -80,26 +83,30 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
         `- Water bottle\n` +
         `- Sense of adventure!\n\n` +
         `We look forward to your adventure with us!`,
-      location: booking.pickupLocation || 'Chiang Mai, Thailand',
+      location: booking.pickupLocation || "Chiang Mai, Thailand",
       url: COMPANY_WEBSITE,
-      status: 'CONFIRMED',
-      busyStatus: 'BUSY',
+      status: "CONFIRMED",
+      busyStatus: "BUSY",
       organizer: { name: COMPANY_NAME, email: SENDER_EMAIL },
       attendees: [
-        { name: booking.customerName, email: booking.customerEmail, rsvp: true }
-      ]
+        {
+          name: booking.customerName,
+          email: booking.customerEmail,
+          rsvp: true,
+        },
+      ],
     };
-    
+
     const { error, value } = createEvents([event]);
-    
+
     if (error) {
-      console.error('[Calendar] Error generating ICS file:', error);
+      console.error("[Calendar] Error generating ICS file:", error);
       return null;
     }
-    
+
     return value || null;
   } catch (error) {
-    console.error('[Calendar] Error generating calendar event:', error);
+    console.error("[Calendar] Error generating calendar event:", error);
     return null;
   }
 }
@@ -107,11 +114,13 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
 /**
  * Send booking confirmation email to customer with calendar attachment
  */
-export async function sendCustomerConfirmation(booking: BookingDetails): Promise<boolean> {
+export async function sendCustomerConfirmation(
+  booking: BookingDetails
+): Promise<boolean> {
   try {
     // Generate calendar file
     const icsContent = generateCalendarEvent(booking);
-    
+
     const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -158,25 +167,31 @@ export async function sendCustomerConfirmation(booking: BookingDetails): Promise
           <span class="detail-label">Tour Type:</span> ${booking.tourType}
         </div>
         <div class="detail-row">
-          <span class="detail-label">Date:</span> ${new Date(booking.tourDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <span class="detail-label">Date:</span> ${new Date(booking.tourDate).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </div>
         <div class="detail-row">
           <span class="detail-label">Group Size:</span> ${booking.groupSize} people
         </div>
         <div class="detail-row">
-          <span class="detail-label">Pickup Location:</span> ${booking.pickupLocation || 'To be confirmed'}
+          <span class="detail-label">Pickup Location:</span> ${booking.pickupLocation || "To be confirmed"}
         </div>
         <div class="detail-row">
-          <span class="detail-label">Pickup Time:</span> ${booking.pickupTime || '08:00 AM'}
+          <span class="detail-label">Pickup Time:</span> ${booking.pickupTime || "08:00 AM"}
         </div>
-        ${booking.specialRequests ? `
+        ${
+          booking.specialRequests
+            ? `
         <div class="detail-row">
           <span class="detail-label">Special Requests:</span> ${booking.specialRequests}
         </div>
-        ` : ''}
+        `
+            : ""
+        }
       </div>
       
-      ${icsContent ? `
+      ${
+        icsContent
+          ? `
       <div style="text-align: center; margin: 30px 0;">
         <p style="font-size: 16px; margin-bottom: 15px;"><strong>📅 Add this tour to your calendar:</strong></p>
         <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Click the button below or use the attached calendar file</p>
@@ -185,7 +200,9 @@ export async function sendCustomerConfirmation(booking: BookingDetails): Promise
         </a>
         <p style="font-size: 12px; color: #999; margin-top: 10px;">Works with Google Calendar, Apple Calendar, Outlook, and more</p>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
       
       <div class="info-box">
         <h3 style="margin-top: 0; color: #2d5016;">🎒 What to Bring</h3>
@@ -201,7 +218,7 @@ export async function sendCustomerConfirmation(booking: BookingDetails): Promise
       <div class="contact-info">
         <h3 style="margin-top: 0; color: #f5a623;">📞 Contact Information</h3>
         <p><strong>Phone:</strong> <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a></p>
-        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, '')}">${COMPANY_WHATSAPP}</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
         <p><strong>Website:</strong> <a href="${COMPANY_WEBSITE}">${COMPANY_WEBSITE}</a></p>
         <p style="margin-top: 15px; font-size: 14px;">Have questions? Feel free to reach out anytime!</p>
       </div>
@@ -228,41 +245,211 @@ export async function sendCustomerConfirmation(booking: BookingDetails): Promise
 </body>
 </html>
     `;
-    
+
     const emailData: any = {
       from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [booking.customerEmail],
       subject: `✅ Booking Confirmed - ${booking.tourType} on ${new Date(booking.tourDate).toLocaleDateString()}`,
       html: emailHtml,
     };
-    
+
     // Attach ICS file if generated successfully
     if (icsContent) {
       emailData.attachments = [
         {
-          filename: 'wiro-4x4-tour.ics',
-          content: Buffer.from(icsContent).toString('base64'),
-        }
+          filename: "wiro-4x4-tour.ics",
+          content: Buffer.from(icsContent).toString("base64"),
+        },
       ];
     }
-    
+
     const resend = getResend();
     if (!resend) {
-      console.warn('[Customer Email] Resend API key not configured, skipping email');
+      console.warn(
+        "[Customer Email] Resend API key not configured, skipping email"
+      );
       return false;
     }
 
     const { data, error } = await resend.emails.send(emailData);
-    
+
     if (error) {
-      console.error('[Customer Email] Error sending confirmation:', error);
+      console.error("[Customer Email] Error sending confirmation:", error);
       return false;
     }
-    
-    console.log(`[Customer Email] Confirmation sent to ${booking.customerEmail}. ID: ${data?.id}`);
+
+    console.log(
+      `[Customer Email] Confirmation sent to ${booking.customerEmail}. ID: ${data?.id}`
+    );
     return true;
   } catch (error) {
-    console.error('[Customer Email] Error in sendCustomerConfirmation:', error);
+    console.error("[Customer Email] Error in sendCustomerConfirmation:", error);
+    return false;
+  }
+}
+
+/**
+ * Send booking reminder email (24h before tour)
+ */
+export async function sendBookingReminder(
+  booking: BookingDetails
+): Promise<boolean> {
+  try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn(
+        "[Customer Email] Resend API key not configured, skipping reminder"
+      );
+      return false;
+    }
+
+    const tourDate = new Date(booking.tourDate);
+    const formattedDate = tourDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #ffffff; padding: 30px 20px; border: 1px solid #e0e0e0; }
+    .info-box { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f5a623; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Your Tour is Tomorrow!</h1>
+      <p>Get ready for an amazing adventure</p>
+    </div>
+    <div class="content">
+      <p>Dear ${booking.customerName},</p>
+      <p>This is a friendly reminder that your <strong>${booking.tourType}</strong> with WIRO 4x4 is <strong>tomorrow, ${formattedDate}</strong>!</p>
+      <div class="info-box">
+        <h3 style="margin-top: 0;">Quick Details</h3>
+        <p><strong>Pickup Time:</strong> ${booking.pickupTime || "08:00 AM"}</p>
+        <p><strong>Pickup Location:</strong> ${booking.pickupLocation || "To be confirmed"}</p>
+        <p><strong>Group Size:</strong> ${booking.groupSize} people</p>
+        <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+      </div>
+      <h3>Don't Forget to Bring:</h3>
+      <ul>
+        <li>Comfortable clothing and closed-toe shoes</li>
+        <li>Sunscreen and hat</li>
+        <li>Camera</li>
+        <li>Water bottle</li>
+      </ul>
+      <p>Questions? Contact us:</p>
+      <p>Phone: <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a> | WhatsApp: <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
+      <p>See you tomorrow!</p>
+      <p><strong>The WIRO 4x4 Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { error } = await resend.emails.send({
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
+      to: [booking.customerEmail],
+      subject: `Reminder: Your ${booking.tourType} is tomorrow! - WIRO 4x4`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error("[Customer Email] Error sending reminder:", error);
+      return false;
+    }
+
+    console.log(`[Customer Email] Reminder sent to ${booking.customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error("[Customer Email] Error in sendBookingReminder:", error);
+    return false;
+  }
+}
+
+/**
+ * Send post-tour feedback request email (1 day after tour)
+ */
+export async function sendPostTourFeedback(
+  booking: BookingDetails
+): Promise<boolean> {
+  try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn(
+        "[Customer Email] Resend API key not configured, skipping feedback request"
+      );
+      return false;
+    }
+
+    const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #ffffff; padding: 30px 20px; border: 1px solid #e0e0e0; }
+    .cta-button { display: inline-block; background: #f5a623; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>How Was Your Adventure?</h1>
+      <p>We'd love to hear from you!</p>
+    </div>
+    <div class="content">
+      <p>Dear ${booking.customerName},</p>
+      <p>Thank you for choosing <strong>WIRO 4x4</strong> for your ${booking.tourType} adventure! We hope you had an amazing time exploring Northern Thailand.</p>
+      <p>Your feedback helps us improve and helps other travelers discover our tours. Would you take a moment to share your experience?</p>
+      <div style="text-align: center;">
+        <a href="${COMPANY_WEBSITE}/reviews" class="cta-button">Leave a Review</a>
+      </div>
+      <p>Thank you for being part of the WIRO 4x4 family. We hope to see you again!</p>
+      <p><strong>The WIRO 4x4 Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { error } = await resend.emails.send({
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
+      to: [booking.customerEmail],
+      subject: `How was your ${booking.tourType}? Share your experience! - WIRO 4x4`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error("[Customer Email] Error sending feedback request:", error);
+      return false;
+    }
+
+    console.log(
+      `[Customer Email] Feedback request sent to ${booking.customerEmail}`
+    );
+    return true;
+  } catch (error) {
+    console.error("[Customer Email] Error in sendPostTourFeedback:", error);
     return false;
   }
 }

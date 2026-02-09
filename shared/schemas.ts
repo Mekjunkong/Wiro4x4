@@ -4,34 +4,48 @@
  */
 import { z } from "zod";
 
+const noHtml = (val: string) => !/<[^>]*>/g.test(val);
+
 export const bookingInputSchema = z.object({
-  contactName: z.string().min(1, "Name is required"),
+  contactName: z
+    .string()
+    .min(1, "Name is required")
+    .max(200)
+    .refine(noHtml, "HTML tags are not allowed"),
   contactEmail: z.string().email("Invalid email"),
   contactPhone: z.string().min(1, "Phone is required"),
   contactWhatsApp: z.string().optional(),
-  arrivalDate: z.string().transform((s) => new Date(s)),
-  departureDate: z.string().transform((s) => new Date(s)),
+  arrivalDate: z.string().transform(s => new Date(s)),
+  departureDate: z.string().transform(s => new Date(s)),
   numberOfAdults: z.number().min(1).default(1),
   hasChildren: z.boolean().default(false),
   numberOfChildren: z.number().optional(),
   childrenAges: z.string().optional(),
   includesHotels: z.boolean().default(false),
-  hotelPreferences: z.string().optional(),
+  hotelPreferences: z.optional(
+    z.string().max(500).refine(noHtml, "HTML tags are not allowed")
+  ),
   includesGuide: z.boolean().default(false),
   includesTrip: z.boolean().default(false),
   includesAttractions: z.boolean().default(false),
   selectedAttractions: z.string().optional(),
   includesFood: z.boolean().default(false),
-  foodPreferences: z.string().optional(),
+  foodPreferences: z.optional(
+    z.string().max(500).refine(noHtml, "HTML tags are not allowed")
+  ),
   needsShabbatHotel: z.boolean().default(false),
   shabbatHotel: z.string().optional(),
   pickupPoint: z.string().min(1, "Pickup point is required"),
-  customPickupLocation: z.string().optional(),
+  customPickupLocation: z.string().max(500).optional(),
   dropoffPoint: z.string().min(1, "Dropoff point is required"),
-  customDropoffLocation: z.string().optional(),
-  suggestedDestinations: z.string().optional(),
-  specialRequests: z.string().optional(),
-  dietaryRestrictions: z.string().optional(),
+  customDropoffLocation: z.string().max(500).optional(),
+  suggestedDestinations: z.string().max(500).optional(),
+  specialRequests: z.optional(
+    z.string().max(1000).refine(noHtml, "HTML tags are not allowed")
+  ),
+  dietaryRestrictions: z.optional(
+    z.string().max(500).refine(noHtml, "HTML tags are not allowed")
+  ),
   budget: z.string().optional(),
   source: z.string().default("website"),
 });
@@ -44,7 +58,7 @@ export const agentInputSchema = z.object({
   specialties: z.string().optional(),
   languages: z.string().optional(),
   status: z.enum(["active", "inactive", "on_leave"]).default("active"),
-  notes: z.string().optional(),
+  notes: z.string().max(500).optional(),
 });
 
 export const leadInputSchema = z.object({
@@ -53,7 +67,9 @@ export const leadInputSchema = z.object({
   phone: z.string().optional(),
   source: z.string().default("website"),
   interestedTours: z.string().optional(),
-  message: z.string().optional(),
+  message: z.optional(
+    z.string().max(1000).refine(noHtml, "HTML tags are not allowed")
+  ),
 });
 
 export const financialRecordInputSchema = z.object({
@@ -64,7 +80,10 @@ export const financialRecordInputSchema = z.object({
   currency: z.string().default("THB"),
   description: z.string().optional(),
   paymentMethod: z.string().optional(),
-  paymentDate: z.string().optional().transform((s) => (s ? new Date(s) : undefined)),
+  paymentDate: z
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : undefined)),
   notes: z.string().optional(),
 });
 
@@ -92,7 +111,11 @@ export const reviewInputSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   rating: z.number().min(1).max(5),
-  text: z.string().min(1, "Review text is required"),
+  text: z
+    .string()
+    .min(1, "Review text is required")
+    .max(2000)
+    .refine(noHtml, "HTML tags are not allowed"),
   tourType: z.string().optional(),
 });
 

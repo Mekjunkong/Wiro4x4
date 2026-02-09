@@ -2,7 +2,9 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import {
   createBooking,
   getAllBookings,
@@ -60,12 +62,39 @@ import {
   updateBlogPost,
   deleteBlogPost,
   getAllBlogPostsPaginated,
+  getDb,
+  logAdminAction,
+  bulkDeleteBookings,
+  bulkDeleteLeads,
+  bulkApproveReviews,
+  bulkDeleteReviews,
+  createSubscriber,
+  getSubscriberByEmail,
 } from "./db";
+import { sql } from "drizzle-orm";
 import { storagePut } from "./storage";
-import { sendNewBookingNotification, sendBookingStatusNotification } from "./emailService";
+import {
+  sendNewBookingNotification,
+  sendBookingStatusNotification,
+} from "./emailService";
 import { sendNewBookingEmail } from "./resendEmailService";
-import { sendCustomerConfirmation } from "./customerEmailService";
+import {
+  sendCustomerConfirmation,
+  sendBookingReminder,
+  sendPostTourFeedback,
+} from "./customerEmailService";
 import { checkRateLimit } from "./rateLimit";
+
+function checkAdminRateLimit(ctx: any) {
+  const userId = ctx.user?.id ?? "unknown";
+  const { allowed } = checkRateLimit(`admin:${userId}`, 100, 5 * 60_000);
+  if (!allowed) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many admin operations. Please try again later.",
+    });
+  }
+}
 
 // Shared validation schemas (single source of truth for client + server)
 import {
@@ -80,7 +109,7 @@ import {
 
 export const appRouter = router({
   system: systemRouter,
-  
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -96,10 +125,16 @@ export const appRouter = router({
       .input(bookingInputSchema)
       .mutation(async ({ input, ctx }) => {
         // Rate limit: 10 booking submissions per minute per IP
-        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const ip =
+          (ctx.req.headers["x-forwarded-for"] as string) ||
+          (ctx.req.headers["x-real-ip"] as string) ||
+          "unknown";
         const { allowed } = checkRateLimit(`booking:${ip}`, 10, 60_000);
         if (!allowed) {
-          throw new Error("Too many booking requests. Please try again in a minute.");
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many booking requests. Please try again in a minute.",
+          });
         }
 
         const bookingData = {
@@ -113,7 +148,7 @@ export const appRouter = router({
           needsShabbatHotel: input.needsShabbatHotel ? 1 : 0,
         };
         await createBooking(bookingData);
-        
+
         // Send notification to owner about new booking (Manus notification)
         await sendNewBookingNotification({
           contactName: input.contactName,
@@ -132,8 +167,10 @@ export const appRouter = router({
           dropoffPoint: input.dropoffPoint,
           suggestedDestinations: input.suggestedDestinations,
           specialRequests: input.specialRequests,
-        }).catch(err => console.error('[Booking] Failed to send Manus notification:', err));
-        
+        }).catch(err =>
+          console.error("[Booking] Failed to send Manus notification:", err)
+        );
+
         // Send email notification via Resend to wiro.adventures@gmail.com and pasuthunjunkong@gmail.com
         await sendNewBookingEmail({
           contactName: input.contactName,
@@ -152,13 +189,19 @@ export const appRouter = router({
           dropoffPoint: input.dropoffPoint,
           suggestedDestinations: input.suggestedDestinations,
           specialRequests: input.specialRequests,
-        }).catch(err => console.error('[Booking] Failed to send Resend email:', err));
-        
+        }).catch(err =>
+          console.error("[Booking] Failed to send Resend email:", err)
+        );
+
         // Send confirmation email to customer with calendar attachment
-        const tourType = input.includesTrip ? 'Custom Tour' : 'Tour Package';
-        const pickupLocation = input.pickupPoint === 'custom' ? input.customPickupLocation : input.pickupPoint;
-        const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
-        
+        const tourType = input.includesTrip ? "Custom Tour" : "Tour Package";
+        const pickupLocation =
+          input.pickupPoint === "custom"
+            ? input.customPickupLocation
+            : input.pickupPoint;
+        const totalGuests =
+          input.numberOfAdults + (input.numberOfChildren || 0);
+
         // Send customer confirmation email asynchronously (non-blocking)
         sendCustomerConfirmation({
           customerName: input.contactName,
@@ -167,11 +210,13 @@ export const appRouter = router({
           tourType: tourType,
           groupSize: totalGuests,
           pickupLocation: pickupLocation,
-          pickupTime: '08:00',
+          pickupTime: "08:00",
           specialRequests: input.specialRequests,
           bookingId: `WIRO-${Date.now()}`,
-        }).catch(err => console.error('[Booking] Failed to send customer confirmation:', err));
-        
+        }).catch(err =>
+          console.error("[Booking] Failed to send customer confirmation:", err)
+        );
+
         return { success: true, message: "Booking created successfully" };
       }),
 
@@ -184,7 +229,13 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { page, pageSize } = input;
         const { items, total } = await getAllBookingsPaginated(page, pageSize);
-        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        return {
+          items,
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     getById: protectedProcedure
@@ -194,26 +245,90 @@ export const appRouter = router({
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          status: z.enum(["pending", "confirmed", "in_progress", "completed", "cancelled"]).optional(),
-          totalPrice: z.number().optional(),
-          depositPaid: z.number().optional(),
-          balancePaid: z.number().optional(),
-          assignedAgentId: z.number().optional(),
-          notes: z.string().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: z.object({
+            status: z
+              .enum([
+                "pending",
+                "confirmed",
+                "in_progress",
+                "completed",
+                "cancelled",
+              ])
+              .optional(),
+            totalPrice: z.number().optional(),
+            depositPaid: z.number().optional(),
+            balancePaid: z.number().optional(),
+            assignedAgentId: z.number().optional(),
+            notes: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await updateBooking(input.id, input.data);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "booking",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteBooking(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "booking",
+          resourceId: input.id,
+        });
+        return { success: true };
+      }),
+
+    bulkDelete: protectedProcedure
+      .input(z.object({ ids: z.array(z.number()).min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+        await bulkDeleteBookings(input.ids);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "booking",
+          newValue: JSON.stringify({ ids: input.ids }),
+        });
+        return { success: true, deleted: input.ids.length };
+      }),
+
+    sendReminder: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+        const booking = await getBookingById(input.id);
+        if (!booking)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Booking not found",
+          });
+
+        await sendBookingReminder({
+          customerName: booking.contactName,
+          customerEmail: booking.contactEmail,
+          tourDate: booking.arrivalDate?.toISOString() ?? "",
+          tourType: "Custom Tour",
+          groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
+          pickupLocation: booking.pickupPoint,
+          pickupTime: "08:00",
+          specialRequests: booking.specialRequests ?? undefined,
+          bookingId: `WIRO-${booking.id}`,
+        });
         return { success: true };
       }),
   }),
@@ -222,8 +337,15 @@ export const appRouter = router({
   agent: router({
     create: protectedProcedure
       .input(agentInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await createAgent(input);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "agent",
+          newValue: JSON.stringify(input),
+        });
         return { success: true, message: "Agent created successfully" };
       }),
 
@@ -238,19 +360,36 @@ export const appRouter = router({
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: agentInputSchema.partial(),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: agentInputSchema.partial(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await updateAgent(input.id, input.data);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "agent",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteAgent(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "agent",
+          resourceId: input.id,
+        });
         return { success: true };
       }),
 
@@ -270,10 +409,16 @@ export const appRouter = router({
     create: publicProcedure
       .input(leadInputSchema)
       .mutation(async ({ input, ctx }) => {
-        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const ip =
+          (ctx.req.headers["x-forwarded-for"] as string) ||
+          (ctx.req.headers["x-real-ip"] as string) ||
+          "unknown";
         const { allowed } = checkRateLimit(`lead:${ip}`, 10, 60_000);
         if (!allowed) {
-          throw new Error("Too many requests. Please try again in a minute.");
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many requests. Please try again in a minute.",
+          });
         }
         await createLead(input);
         return { success: true, message: "Lead captured successfully" };
@@ -288,28 +433,67 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { page, pageSize } = input;
         const { items, total } = await getAllLeadsPaginated(page, pageSize);
-        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        return {
+          items,
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          status: z.enum(["new", "contacted", "quoted", "converted", "lost"]).optional(),
-          convertedToBookingId: z.number().optional(),
-          notes: z.string().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: z.object({
+            status: z
+              .enum(["new", "contacted", "quoted", "converted", "lost"])
+              .optional(),
+            convertedToBookingId: z.number().optional(),
+            notes: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await updateLead(input.id, input.data);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "lead",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteLead(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "lead",
+          resourceId: input.id,
+        });
         return { success: true };
+      }),
+
+    bulkDelete: protectedProcedure
+      .input(z.object({ ids: z.array(z.number()).min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+        await bulkDeleteLeads(input.ids);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "lead",
+          newValue: JSON.stringify({ ids: input.ids }),
+        });
+        return { success: true, deleted: input.ids.length };
       }),
   }),
 
@@ -317,8 +501,15 @@ export const appRouter = router({
   financial: router({
     create: protectedProcedure
       .input(financialRecordInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await createFinancialRecord(input);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "financial",
+          newValue: JSON.stringify(input),
+        });
         return { success: true };
       }),
 
@@ -336,31 +527,57 @@ export const appRouter = router({
       .input(paginationInput)
       .query(async ({ input }) => {
         const { page, pageSize } = input;
-        const { items, total } = await getAllFinancialRecordsPaginated(page, pageSize);
-        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        const { items, total } = await getAllFinancialRecordsPaginated(
+          page,
+          pageSize
+        );
+        return {
+          items,
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          type: z.enum(["revenue", "cost", "refund"]).optional(),
-          category: z.string().optional(),
-          amount: z.number().optional(),
-          description: z.string().optional(),
-          paymentMethod: z.string().optional(),
-          notes: z.string().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: z.object({
+            type: z.enum(["revenue", "cost", "refund"]).optional(),
+            category: z.string().optional(),
+            amount: z.number().optional(),
+            description: z.string().optional(),
+            paymentMethod: z.string().optional(),
+            notes: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await updateFinancialRecord(input.id, input.data);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "financial",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteFinancialRecord(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "financial",
+          resourceId: input.id,
+        });
         return { success: true };
       }),
 
@@ -385,20 +602,42 @@ export const appRouter = router({
       .input(paginationInput)
       .query(async ({ input }) => {
         const { page, pageSize } = input;
-        const { items, total } = await getAllGalleryPhotosPaginated(page, pageSize);
-        return { items: items.map(p => ({ ...p, imageUrl: p.s3Url })), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        const { items, total } = await getAllGalleryPhotosPaginated(
+          page,
+          pageSize
+        );
+        return {
+          items: items.map(p => ({ ...p, imageUrl: p.s3Url })),
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     create: protectedProcedure
-      .input(z.object({
-        title: z.string().min(1),
-        imageUrl: z.string().min(1),
-        description: z.string().optional(),
-        category: z.enum(["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).default("other"),
-        sortOrder: z.number().default(0),
-        isPublished: z.boolean().default(true),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          title: z.string().min(1),
+          imageUrl: z.string().min(1),
+          description: z.string().optional(),
+          category: z
+            .enum([
+              "tours",
+              "vehicles",
+              "destinations",
+              "activities",
+              "food",
+              "accommodation",
+              "other",
+            ])
+            .default("other"),
+          sortOrder: z.number().default(0),
+          isPublished: z.boolean().default(true),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         const url = new URL(input.imageUrl, "https://placeholder.local");
         await createGalleryPhoto({
           title: input.title,
@@ -409,22 +648,44 @@ export const appRouter = router({
           sortOrder: input.sortOrder,
           isPublished: input.isPublished ? 1 : 0,
         });
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "gallery",
+          newValue: JSON.stringify({
+            title: input.title,
+            category: input.category,
+          }),
+        });
         return { success: true };
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          title: z.string().optional(),
-          imageUrl: z.string().optional(),
-          description: z.string().optional(),
-          category: z.enum(["tours", "vehicles", "destinations", "activities", "food", "accommodation", "other"]).optional(),
-          sortOrder: z.number().optional(),
-          isPublished: z.boolean().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: z.object({
+            title: z.string().optional(),
+            imageUrl: z.string().optional(),
+            description: z.string().optional(),
+            category: z
+              .enum([
+                "tours",
+                "vehicles",
+                "destinations",
+                "activities",
+                "food",
+                "accommodation",
+                "other",
+              ])
+              .optional(),
+            sortOrder: z.number().optional(),
+            isPublished: z.boolean().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         const updateData: Record<string, unknown> = {};
         if (input.data.title !== undefined) updateData.title = input.data.title;
         if (input.data.imageUrl !== undefined) {
@@ -432,31 +693,89 @@ export const appRouter = router({
           const url = new URL(input.data.imageUrl, "https://placeholder.local");
           updateData.s3Key = url.pathname;
         }
-        if (input.data.description !== undefined) updateData.description = input.data.description;
-        if (input.data.category !== undefined) updateData.category = input.data.category;
-        if (input.data.sortOrder !== undefined) updateData.sortOrder = input.data.sortOrder;
-        if (input.data.isPublished !== undefined) updateData.isPublished = input.data.isPublished ? 1 : 0;
+        if (input.data.description !== undefined)
+          updateData.description = input.data.description;
+        if (input.data.category !== undefined)
+          updateData.category = input.data.category;
+        if (input.data.sortOrder !== undefined)
+          updateData.sortOrder = input.data.sortOrder;
+        if (input.data.isPublished !== undefined)
+          updateData.isPublished = input.data.isPublished ? 1 : 0;
         await updateGalleryPhoto(input.id, updateData as any);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "gallery",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteGalleryPhoto(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "gallery",
+          resourceId: input.id,
+        });
         return { success: true };
       }),
 
     upload: protectedProcedure
-      .input(z.object({
-        filename: z.string(),
-        contentType: z.string(),
-        base64Data: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const buffer = Buffer.from(input.base64Data, 'base64');
-        const key = `gallery/${Date.now()}-${input.filename}`;
+      .input(
+        z.object({
+          filename: z.string(),
+          contentType: z.string(),
+          base64Data: z.string(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+
+        // Whitelist content types (Task 1.6)
+        const ALLOWED_TYPES = [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif",
+        ];
+        if (!ALLOWED_TYPES.includes(input.contentType)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF",
+          });
+        }
+
+        // Max file size: 10MB
+        const fileSize = Buffer.byteLength(input.base64Data, "base64");
+        if (fileSize > 10 * 1024 * 1024) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "File too large. Maximum size is 10MB.",
+          });
+        }
+
+        // Sanitize filename - use UUID instead of user-provided name
+        const ext =
+          input.contentType.split("/")[1] === "jpeg"
+            ? "jpg"
+            : input.contentType.split("/")[1];
+        const safeFilename = `${randomUUID()}.${ext}`;
+        const key = `gallery/${safeFilename}`;
+
+        const buffer = Buffer.from(input.base64Data, "base64");
         const result = await storagePut(key, buffer, input.contentType);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "gallery_upload",
+          newValue: JSON.stringify({ key: result.key }),
+        });
         return { url: result.url, key: result.key };
       }),
   }),
@@ -464,18 +783,27 @@ export const appRouter = router({
   // Review procedures
   review: router({
     create: publicProcedure
-      .input(z.object({
-        name: z.string().min(1, "Name is required"),
-        email: z.string().email("Invalid email"),
-        rating: z.number().min(1).max(5),
-        text: z.string().min(1, "Review text is required"),
-        tourType: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Invalid email"),
+          rating: z.number().min(1).max(5),
+          text: z.string().min(1, "Review text is required"),
+          tourType: z.string().optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
-        const ip = ctx.req.headers["x-forwarded-for"] as string || ctx.req.headers["x-real-ip"] as string || "unknown";
+        const ip =
+          (ctx.req.headers["x-forwarded-for"] as string) ||
+          (ctx.req.headers["x-real-ip"] as string) ||
+          "unknown";
         const { allowed } = checkRateLimit(`review:${ip}`, 5, 60_000);
         if (!allowed) {
-          throw new Error("Too many review submissions. Please try again in a minute.");
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message:
+              "Too many review submissions. Please try again in a minute.",
+          });
         }
         await createReview({
           ...input,
@@ -493,7 +821,12 @@ export const appRouter = router({
       const all = await getAllReviews();
       return all.map(r => ({
         ...r,
-        status: r.isApproved === 1 ? "approved" as const : r.isPublished === 0 && r.isApproved === 0 ? "pending" as const : "rejected" as const,
+        status:
+          r.isApproved === 1
+            ? ("approved" as const)
+            : r.isPublished === 0 && r.isApproved === 0
+              ? ("pending" as const)
+              : ("rejected" as const),
       }));
     }),
 
@@ -505,9 +838,17 @@ export const appRouter = router({
         return {
           items: items.map(r => ({
             ...r,
-            status: r.isApproved === 1 ? "approved" as const : r.isPublished === 0 && r.isApproved === 0 ? "pending" as const : "rejected" as const,
+            status:
+              r.isApproved === 1
+                ? ("approved" as const)
+                : r.isPublished === 0 && r.isApproved === 0
+                  ? ("pending" as const)
+                  : ("rejected" as const),
           })),
-          total, page, pageSize, totalPages: Math.ceil(total / pageSize),
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
         };
       }),
 
@@ -516,16 +857,20 @@ export const appRouter = router({
     }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: z.object({
-          status: z.enum(["pending", "approved", "rejected"]).optional(),
-          adminResponse: z.string().optional(),
-        }),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: z.object({
+            status: z.enum(["pending", "approved", "rejected"]).optional(),
+            adminResponse: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         const updateData: Record<string, unknown> = {};
-        if (input.data.adminResponse !== undefined) updateData.adminResponse = input.data.adminResponse;
+        if (input.data.adminResponse !== undefined)
+          updateData.adminResponse = input.data.adminResponse;
         if (input.data.status === "approved") {
           updateData.isApproved = 1;
           updateData.isPublished = 1;
@@ -537,14 +882,56 @@ export const appRouter = router({
           updateData.isPublished = 0;
         }
         await updateReview(input.id, updateData as any);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "review",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteReview(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "review",
+          resourceId: input.id,
+        });
         return { success: true };
+      }),
+
+    bulkApprove: protectedProcedure
+      .input(z.object({ ids: z.array(z.number()).min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+        await bulkApproveReviews(input.ids);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "review",
+          newValue: JSON.stringify({ ids: input.ids, action: "bulk_approve" }),
+        });
+        return { success: true, approved: input.ids.length };
+      }),
+
+    bulkDelete: protectedProcedure
+      .input(z.object({ ids: z.array(z.number()).min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
+        await bulkDeleteReviews(input.ids);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "review",
+          newValue: JSON.stringify({ ids: input.ids }),
+        });
+        return { success: true, deleted: input.ids.length };
       }),
   }),
 
@@ -580,12 +967,19 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { page, pageSize } = input;
         const { items, total } = await getAllToursPaginated(page, pageSize);
-        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        return {
+          items,
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     create: protectedProcedure
       .input(tourInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await createTour({
           ...input,
           isKosher: input.isKosher ? 1 : 0,
@@ -593,32 +987,74 @@ export const appRouter = router({
           isShabbatOk: input.isShabbatOk ? 1 : 0,
           isActive: input.isActive ? 1 : 0,
         });
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "tour",
+          newValue: JSON.stringify({ name: input.name }),
+        });
         return { success: true, message: "Tour created successfully" };
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: tourInputSchema.partial(),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: tourInputSchema.partial(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         const updateData: Record<string, unknown> = {};
-        const fields = ['name', 'nameHe', 'description', 'descriptionHe', 'duration', 'difficulty', 'price', 'groupMinSize', 'groupMaxSize', 'imageUrl', 'highlights', 'highlightsHe', 'sortOrder'] as const;
+        const fields = [
+          "name",
+          "nameHe",
+          "description",
+          "descriptionHe",
+          "duration",
+          "difficulty",
+          "price",
+          "groupMinSize",
+          "groupMaxSize",
+          "imageUrl",
+          "highlights",
+          "highlightsHe",
+          "sortOrder",
+        ] as const;
         for (const field of fields) {
-          if (input.data[field] !== undefined) updateData[field] = input.data[field];
+          if (input.data[field] !== undefined)
+            updateData[field] = input.data[field];
         }
-        if (input.data.isKosher !== undefined) updateData.isKosher = input.data.isKosher ? 1 : 0;
-        if (input.data.isPrivate !== undefined) updateData.isPrivate = input.data.isPrivate ? 1 : 0;
-        if (input.data.isShabbatOk !== undefined) updateData.isShabbatOk = input.data.isShabbatOk ? 1 : 0;
-        if (input.data.isActive !== undefined) updateData.isActive = input.data.isActive ? 1 : 0;
+        if (input.data.isKosher !== undefined)
+          updateData.isKosher = input.data.isKosher ? 1 : 0;
+        if (input.data.isPrivate !== undefined)
+          updateData.isPrivate = input.data.isPrivate ? 1 : 0;
+        if (input.data.isShabbatOk !== undefined)
+          updateData.isShabbatOk = input.data.isShabbatOk ? 1 : 0;
+        if (input.data.isActive !== undefined)
+          updateData.isActive = input.data.isActive ? 1 : 0;
         await updateTour(input.id, updateData as any);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "tour",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteTour(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "tour",
+          resourceId: input.id,
+        });
         return { success: true };
       }),
   }),
@@ -644,30 +1080,59 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { page, pageSize } = input;
         const { items, total } = await getAllBlogPostsPaginated(page, pageSize);
-        return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+        return {
+          items,
+          total,
+          page,
+          pageSize,
+          totalPages: Math.ceil(total / pageSize),
+        };
       }),
 
     create: protectedProcedure
       .input(blogPostInputSchema)
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await createBlogPost({
           ...input,
           isPublished: input.isPublished ? 1 : 0,
           publishedAt: input.isPublished ? new Date() : undefined,
         });
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "blog",
+          newValue: JSON.stringify({ title: input.title, slug: input.slug }),
+        });
         return { success: true, message: "Blog post created successfully" };
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        data: blogPostInputSchema.partial(),
-      }))
-      .mutation(async ({ input }) => {
+      .input(
+        z.object({
+          id: z.number(),
+          data: blogPostInputSchema.partial(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         const updateData: Record<string, unknown> = {};
-        const fields = ['title', 'titleHe', 'slug', 'excerpt', 'excerptHe', 'content', 'contentHe', 'coverImage', 'category', 'tags', 'author'] as const;
+        const fields = [
+          "title",
+          "titleHe",
+          "slug",
+          "excerpt",
+          "excerptHe",
+          "content",
+          "contentHe",
+          "coverImage",
+          "category",
+          "tags",
+          "author",
+        ] as const;
         for (const field of fields) {
-          if (input.data[field] !== undefined) updateData[field] = input.data[field];
+          if (input.data[field] !== undefined)
+            updateData[field] = input.data[field];
         }
         if (input.data.isPublished !== undefined) {
           updateData.isPublished = input.data.isPublished ? 1 : 0;
@@ -676,15 +1141,87 @@ export const appRouter = router({
           }
         }
         await updateBlogPost(input.id, updateData as any);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "update",
+          resourceType: "blog",
+          resourceId: input.id,
+          newValue: JSON.stringify(input.data),
+        });
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        checkAdminRateLimit(ctx);
         await deleteBlogPost(input.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "delete",
+          resourceType: "blog",
+          resourceId: input.id,
+        });
         return { success: true };
       }),
+  }),
+
+  // Newsletter procedures
+  newsletter: router({
+    subscribe: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          name: z.string().optional(),
+          language: z.string().default("en"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const ip =
+          (ctx.req.headers["x-forwarded-for"] as string) ||
+          (ctx.req.headers["x-real-ip"] as string) ||
+          "unknown";
+        const { allowed } = checkRateLimit(`newsletter:${ip}`, 5, 60_000);
+        if (!allowed) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many requests. Please try again later.",
+          });
+        }
+
+        const existing = await getSubscriberByEmail(input.email);
+        if (existing) {
+          return { success: true, message: "Already subscribed" };
+        }
+
+        await createSubscriber(input);
+        return { success: true, message: "Successfully subscribed!" };
+      }),
+  }),
+
+  // Health check endpoints (Task 1.7)
+  health: router({
+    readiness: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+      }
+      try {
+        await db.select({ val: sql`1` }).from(sql`dual`);
+        return { status: "ready", database: "connected" };
+      } catch {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database check failed",
+        });
+      }
+    }),
+    liveness: publicProcedure.query(() => {
+      return { status: "alive", timestamp: new Date().toISOString() };
+    }),
   }),
 });
 

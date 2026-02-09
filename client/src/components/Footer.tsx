@@ -1,5 +1,6 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Mountain, Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Mountain, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export function Footer() {
   const { t } = useLanguage();
@@ -7,7 +8,7 @@ export function Footer() {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -22,14 +23,14 @@ export function Footer() {
               <div>
                 <h3 className="text-xl font-bold">WIRO 4x4</h3>
                 <p className="text-sm text-background/80">
-                  {t('Kosher Off-Road Adventures', 'חוויות שטח כשרות')}
+                  {t("Kosher Off-Road Adventures", "חוויות שטח כשרות")}
                 </p>
               </div>
             </div>
             <p className="text-sm text-background/70">
               {t(
-                'Premium 4x4 tours in Northern Thailand with kosher meals and Hebrew-speaking guides.',
-                'סיורי 4x4 פרימיום בצפון תאילנד עם ארוחות כשרות ומדריכים דוברי עברית.'
+                "Premium 4x4 tours in Northern Thailand with kosher meals and Hebrew-speaking guides.",
+                "סיורי 4x4 פרימיום בצפון תאילנד עם ארוחות כשרות ומדריכים דוברי עברית."
               )}
             </p>
           </div>
@@ -37,39 +38,39 @@ export function Footer() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-secondary">
-              {t('Quick Links', 'קישורים מהירים')}
+              {t("Quick Links", "קישורים מהירים")}
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  onClick={() => scrollToSection('tours')}
+                  onClick={() => scrollToSection("tours")}
                   className="hover:text-secondary transition-colors"
                 >
-                  {t('Tours', 'סיורים')}
+                  {t("Tours", "סיורים")}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('why-wiro')}
+                  onClick={() => scrollToSection("why-wiro")}
                   className="hover:text-secondary transition-colors"
                 >
-                  {t('Why WIRO', 'למה WIRO')}
+                  {t("Why WIRO", "למה WIRO")}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('kosher')}
+                  onClick={() => scrollToSection("kosher")}
                   className="hover:text-secondary transition-colors"
                 >
-                  {t('Kosher Information', 'מידע כשרות')}
+                  {t("Kosher Information", "מידע כשרות")}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('contact')}
+                  onClick={() => scrollToSection("contact")}
                   className="hover:text-secondary transition-colors"
                 >
-                  {t('Contact', 'צור קשר')}
+                  {t("Contact", "צור קשר")}
                 </button>
               </li>
             </ul>
@@ -78,22 +79,28 @@ export function Footer() {
           {/* Contact */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-secondary">
-              {t('Contact Us', 'צור קשר')}
+              {t("Contact Us", "צור קשר")}
             </h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-secondary" />
-                <span>{t('Chiang Mai, Thailand', 'צ\'יאנג מאי, תאילנד')}</span>
+                <span>{t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-secondary" />
-                <a href="tel:+66929894495" className="hover:text-secondary transition-colors">
+                <a
+                  href="tel:+66929894495"
+                  className="hover:text-secondary transition-colors"
+                >
                   +66 92 989 4495
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-secondary" />
-                <a href="mailto:info@wiro4x4.com" className="hover:text-secondary transition-colors">
+                <a
+                  href="mailto:info@wiro4x4.com"
+                  className="hover:text-secondary transition-colors"
+                >
                   info@wiro4x4.com
                 </a>
               </li>
@@ -109,6 +116,7 @@ export function Footer() {
                 </a>
               </li>
             </ul>
+            <NewsletterSignup />
           </div>
         </div>
 
@@ -116,12 +124,13 @@ export function Footer() {
           <div className="text-center space-y-2">
             <p className="text-sm text-background/70">
               {t(
-                '* WIRO 4x4 maintains personal friendships with Chabad communities but is not officially affiliated with or endorsed by any Chabad organization.',
-                '* WIRO 4x4 מקיימת קשרים אישיים עם קהילות חב״ד אך אינה מסונפת רשמית או מאושרת על ידי ארגון חב״ד כלשהו.'
+                "* WIRO 4x4 maintains personal friendships with Chabad communities but is not officially affiliated with or endorsed by any Chabad organization.",
+                "* WIRO 4x4 מקיימת קשרים אישיים עם קהילות חב״ד אך אינה מסונפת רשמית או מאושרת על ידי ארגון חב״ד כלשהו."
               )}
             </p>
             <p className="text-sm text-background/60">
-              © {new Date().getFullYear()} WIRO 4x4. {t('All rights reserved.', 'כל הזכויות שמורות.')}
+              © {new Date().getFullYear()} WIRO 4x4.{" "}
+              {t("All rights reserved.", "כל הזכויות שמורות.")}
             </p>
           </div>
         </div>

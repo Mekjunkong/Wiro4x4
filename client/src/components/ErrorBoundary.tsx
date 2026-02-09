@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Component, ErrorInfo, ReactNode } from "react";
@@ -33,6 +34,11 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error("[ErrorBoundary] Caught error:", error);
     console.error("[ErrorBoundary] Component stack:", errorInfo.componentStack);
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(error, {
+        extra: { componentStack: errorInfo.componentStack },
+      });
+    }
   }
 
   private handleReset = (): void => {
@@ -56,9 +62,7 @@ class ErrorBoundary extends Component<Props, State> {
               className="text-destructive mb-4 flex-shrink-0"
             />
 
-            <h3 className="text-lg font-semibold mb-2">
-              Something went wrong
-            </h3>
+            <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
 
             <p className="text-sm text-muted-foreground mb-4 max-w-md">
               This section encountered an error. You can try again or reload the
