@@ -568,3 +568,20 @@
 - [x] Test logo loading performance (compressed logo loads 4% faster, displays correctly in header)
 - [x] Push all changes to GitHub (commit 6f13a2c pushed successfully)
 - [ ] Save checkpoint
+
+## GitHub Bug Fixes & UX Enhancements (Feb 10, 2026)
+
+- [x] Pull latest changes from GitHub (critical bug fixes and UX improvements)
+- [x] Run pnpm db:push to add agentName field to bookings table (migration 0006 applied)
+- [x] Review Hero fix (removed broken CDN carousel, now using single stable waterfall image)
+- [x] Review booking form fixes (email now optional, agentName field added, returns real booking ID)
+- [x] Review MarkdownRenderer rewrite (full support for headings, lists, code blocks, links, images, blockquotes)
+- [x] Review blog enhancements (readTime calculation, Hebrew translations, working share buttons)
+- [x] Review gallery improvements (image error fallbacks, improved alt text, WCAG 44px touch targets)
+- [x] Review reviews sorting (newest/oldest/highest/lowest rated options)
+- [x] Review booking form error summary (scroll-to-error, beforeunload warning for unsaved changes)
+- [x] Review FAQ structured data (JSON-LD FAQPage schema for Google rich results)
+- [x] Review nullable contactEmail fixes (fixed across 7 server files for optional email)
+- [x] Test all bug fixes (dev server running without errors, hero displaying correctly)
+- [x] Restart dev server (running successfully on port 3000)
+- [ ] Save checkpoint

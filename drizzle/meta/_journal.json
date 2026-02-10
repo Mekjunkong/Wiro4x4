@@ -43,6 +43,13 @@
       "when": 1770621531295,
       "tag": "0005_strong_darkhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1770690587067,
+      "tag": "0006_last_stature",
+      "breakpoints": true
     }
   ]
 }
