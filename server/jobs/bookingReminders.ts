@@ -34,7 +34,7 @@ export async function runBookingReminders() {
 
     const success = await sendBookingReminder({
       customerName: booking.contactName,
-      customerEmail: booking.contactEmail,
+      customerEmail: booking.contactEmail ?? "",
       tourDate: booking.arrivalDate?.toISOString() ?? "",
       tourType: "Custom Tour",
       groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
@@ -47,7 +47,7 @@ export async function runBookingReminders() {
     await createScheduledEmail({
       type: "reminder",
       targetId: booking.id,
-      targetEmail: booking.contactEmail,
+      targetEmail: booking.contactEmail ?? "",
       status: success ? "sent" : "failed",
     });
 

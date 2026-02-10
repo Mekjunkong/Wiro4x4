@@ -60,7 +60,7 @@ export const paymentRouter = router({
           input.bookingId,
           input.amount,
           input.type,
-          booking.contactEmail
+          booking.contactEmail ?? undefined
         );
         await logAdminAction({
           userId: ctx.user?.id,
@@ -121,7 +121,7 @@ export const paymentRouter = router({
           input.bookingId,
           input.amount,
           input.type,
-          booking.contactEmail
+          booking.contactEmail ?? undefined
         );
         await logAdminAction({
           userId: ctx.user?.id,

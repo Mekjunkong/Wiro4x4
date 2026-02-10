@@ -203,12 +203,25 @@ export default function Gallery() {
                   className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card"
                   onClick={() => openLightbox(index)}
                 >
-                  <div className="aspect-[4/3] overflow-hidden">
+                  <div className="aspect-[4/3] overflow-hidden bg-muted">
                     <img
                       src={photo.imageUrl}
-                      alt={photo.title}
+                      alt={`${photo.title}${photo.category ? ` - ${photo.category}` : ""} | WIRO 4x4 Gallery`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      onError={e => {
+                        const img = e.currentTarget;
+                        img.style.display = "none";
+                        const parent = img.parentElement;
+                        if (parent && !parent.querySelector(".img-fallback")) {
+                          const div = document.createElement("div");
+                          div.className =
+                            "img-fallback w-full h-full flex items-center justify-center text-muted-foreground";
+                          div.innerHTML =
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+                          parent.appendChild(div);
+                        }
+                      }}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -256,7 +269,15 @@ export default function Gallery() {
                         e.stopPropagation();
                         goToPrev();
                       }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      style={{
+                        minWidth: "48px",
+                        minHeight: "48px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      aria-label="Previous photo"
                     >
                       <ChevronLeft className="w-8 h-8" />
                     </button>
@@ -265,7 +286,15 @@ export default function Gallery() {
                         e.stopPropagation();
                         goToNext();
                       }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      style={{
+                        minWidth: "48px",
+                        minHeight: "48px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      aria-label="Next photo"
                     >
                       <ChevronRight className="w-8 h-8" />
                     </button>
