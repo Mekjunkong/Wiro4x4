@@ -36,7 +36,7 @@ async function processReminders(): Promise<void> {
       try {
         const success = await sendBookingReminder({
           customerName: booking.contactName,
-          customerEmail: booking.contactEmail,
+          customerEmail: booking.contactEmail ?? "",
           tourDate: booking.arrivalDate?.toISOString() ?? "",
           tourType: "Custom Tour",
           groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
@@ -67,7 +67,7 @@ async function processReminders(): Promise<void> {
       try {
         const success = await sendPostTourFeedback({
           customerName: booking.contactName,
-          customerEmail: booking.contactEmail,
+          customerEmail: booking.contactEmail ?? "",
           tourDate: booking.departureDate?.toISOString() ?? "",
           tourType: "Custom Tour",
           groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),

@@ -125,7 +125,7 @@ export async function verifyAndCompleteSession(sessionId: string): Promise<{
     if (booking) {
       await sendPaymentConfirmationEmail({
         customerName: booking.contactName,
-        customerEmail: booking.contactEmail,
+        customerEmail: booking.contactEmail ?? "",
         amount: existingPayment.amount,
         type: existingPayment.type,
         bookingId: existingPayment.bookingId,

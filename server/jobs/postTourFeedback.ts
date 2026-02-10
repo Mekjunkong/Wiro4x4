@@ -33,7 +33,7 @@ export async function runPostTourFeedback() {
 
     const success = await sendPostTourFeedback({
       customerName: booking.contactName,
-      customerEmail: booking.contactEmail,
+      customerEmail: booking.contactEmail ?? "",
       tourDate: booking.departureDate?.toISOString() ?? "",
       tourType: "Custom Tour",
       groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
@@ -44,7 +44,7 @@ export async function runPostTourFeedback() {
     await createScheduledEmail({
       type: "feedback",
       targetId: booking.id,
-      targetEmail: booking.contactEmail,
+      targetEmail: booking.contactEmail ?? "",
       status: success ? "sent" : "failed",
     });
 

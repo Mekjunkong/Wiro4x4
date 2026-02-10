@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -13,6 +13,7 @@ import {
   MessageCircle,
   Loader2,
   Save,
+  AlertTriangle,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import {
@@ -111,6 +112,14 @@ export default function BookingForm() {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [formData]);
+
+  // Unsaved changes warning — only when form has been modified
+  const hasUnsavedChanges = useMemo(() => {
+    return JSON.stringify(formData) !== JSON.stringify(defaultFormData);
+  }, [formData]);
+
+  // Ref for scrolling to error summary
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -216,6 +225,13 @@ export default function BookingForm() {
           "יש לתקן את השגיאות בטופס לפני השליחה"
         )
       );
+      // Scroll to error summary
+      setTimeout(() => {
+        errorSummaryRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
       return false;
     }
     return true;
@@ -224,10 +240,20 @@ export default function BookingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Unsaved changes warning — prevent accidental navigation
+  useEffect(() => {
+    if (!hasUnsavedChanges || submitSuccess) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges, submitSuccess]);
+
   const createBooking = trpc.booking.create.useMutation({
-    onSuccess: () => {
+    onSuccess: data => {
       setIsSubmitting(false);
-      setBookingRef(`WIRO-${Date.now()}`);
+      setBookingRef(`WIRO-${data.bookingId || Date.now()}`);
       setSubmitSuccess(true);
       // N5: Clear draft on successful submission
       try {
@@ -394,6 +420,30 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ""}`;
               })}
             </div>
           </div>
+
+          {/* Error Summary */}
+          {Object.keys(formErrors).length > 0 && (
+            <div
+              ref={errorSummaryRef}
+              className="rounded-xl border border-red-200 bg-red-50 p-4 mb-6"
+              role="alert"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+                <h3 className="font-semibold text-red-800">
+                  {t(
+                    `Please fix ${Object.keys(formErrors).length} error${Object.keys(formErrors).length > 1 ? "s" : ""} before submitting`,
+                    `יש לתקן ${Object.keys(formErrors).length} שגיא${Object.keys(formErrors).length > 1 ? "ות" : "ה"} לפני השליחה`
+                  )}
+                </h3>
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                {Object.values(formErrors).map((error, i) => (
+                  <li key={i}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <form
             onSubmit={handleSubmit}

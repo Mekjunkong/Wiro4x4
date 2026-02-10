@@ -60,12 +60,13 @@ export const bookingRouter = router({
         includesFood: input.includesFood ? 1 : 0,
         needsShabbatHotel: input.needsShabbatHotel ? 1 : 0,
       };
-      await createBooking(bookingData);
+      const result = await createBooking(bookingData);
+      const bookingId = result[0]?.insertId ?? 0;
 
       // Send notification to owner about new booking (Manus notification)
       await sendNewBookingNotification({
         contactName: input.contactName,
-        contactEmail: input.contactEmail,
+        contactEmail: input.contactEmail || "",
         contactPhone: input.contactPhone,
         arrivalDate: input.arrivalDate,
         departureDate: input.departureDate,
@@ -88,7 +89,7 @@ export const bookingRouter = router({
       // Send email notification via Resend to wiro.adventures@gmail.com and pasuthunjunkong@gmail.com
       await sendNewBookingEmail({
         contactName: input.contactName,
-        contactEmail: input.contactEmail,
+        contactEmail: input.contactEmail || "",
         contactPhone: input.contactPhone,
         arrivalDate: input.arrivalDate,
         departureDate: input.departureDate,
@@ -116,23 +117,28 @@ export const bookingRouter = router({
           : input.pickupPoint;
       const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
 
-      // Send customer confirmation email asynchronously (non-blocking)
-      sendCustomerConfirmation({
-        customerName: input.contactName,
-        customerEmail: input.contactEmail,
-        tourDate: input.arrivalDate.toISOString(),
-        tourType: tourType,
-        groupSize: totalGuests,
-        pickupLocation: pickupLocation,
-        pickupTime: "08:00",
-        specialRequests: input.specialRequests,
-        bookingId: `WIRO-${Date.now()}`,
-      }).catch(err => {
-        console.error("[Booking] Failed to send customer confirmation:", err);
-        captureException(err);
-      });
+      // Send customer confirmation email asynchronously (non-blocking, skip if no email)
+      if (input.contactEmail)
+        sendCustomerConfirmation({
+          customerName: input.contactName,
+          customerEmail: input.contactEmail,
+          tourDate: input.arrivalDate.toISOString(),
+          tourType: tourType,
+          groupSize: totalGuests,
+          pickupLocation: pickupLocation,
+          pickupTime: "08:00",
+          specialRequests: input.specialRequests,
+          bookingId: `WIRO-${bookingId}`,
+        }).catch(err => {
+          console.error("[Booking] Failed to send customer confirmation:", err);
+          captureException(err);
+        });
 
-      return { success: true, message: "Booking created successfully" };
+      return {
+        success: true,
+        message: "Booking created successfully",
+        bookingId,
+      };
     }),
 
   list: secureProtectedProcedure.query(async () => {
@@ -246,7 +252,7 @@ export const bookingRouter = router({
 
       await sendBookingReminder({
         customerName: booking.contactName,
-        customerEmail: booking.contactEmail,
+        customerEmail: booking.contactEmail ?? "",
         tourDate: booking.arrivalDate?.toISOString() ?? "",
         tourType: "Custom Tour",
         groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),

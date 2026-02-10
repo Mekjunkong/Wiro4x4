@@ -41,9 +41,10 @@ export const bookings = mysqlTable(
     id: int("id").autoincrement().primaryKey(),
     // Customer Information
     contactName: varchar("contactName", { length: 255 }).notNull(),
-    contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+    contactEmail: varchar("contactEmail", { length: 320 }),
     contactPhone: varchar("contactPhone", { length: 50 }).notNull(),
     contactWhatsApp: varchar("contactWhatsApp", { length: 50 }),
+    agentName: varchar("agentName", { length: 200 }),
 
     // Trip Details
     arrivalDate: timestamp("arrivalDate").notNull(),

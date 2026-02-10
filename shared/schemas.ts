@@ -12,9 +12,10 @@ export const bookingInputSchema = z.object({
     .min(1, "Name is required")
     .max(200)
     .refine(noHtml, "HTML tags are not allowed"),
-  contactEmail: z.string().email("Invalid email"),
+  contactEmail: z.string().email("Invalid email").optional().or(z.literal("")),
   contactPhone: z.string().min(1, "Phone is required"),
   contactWhatsApp: z.string().optional(),
+  agentName: z.string().max(200).optional(),
   arrivalDate: z.string().transform(s => new Date(s)),
   departureDate: z.string().transform(s => new Date(s)),
   numberOfAdults: z.number().min(1).default(1),

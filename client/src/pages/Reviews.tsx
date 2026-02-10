@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, MessageSquare, Send } from "lucide-react";
+import { Check, MessageSquare, Send, ArrowUpDown } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const TOUR_TYPES = [
@@ -99,6 +99,9 @@ export default function Reviews() {
     "Read what our guests say about their WIRO 4x4 kosher off-road adventures in Chiang Mai."
   );
   const [filterTourType, setFilterTourType] = useState("all");
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "highest" | "lowest"
+  >("newest");
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState("");
   const REVIEWS_PER_PAGE = 6;
@@ -153,10 +156,32 @@ export default function Reviews() {
     });
   };
 
-  const filteredReviews =
-    reviewsList?.filter(
-      review => filterTourType === "all" || review.tourType === filterTourType
-    ) || [];
+  const filteredReviews = useMemo(() => {
+    const filtered =
+      reviewsList?.filter(
+        review => filterTourType === "all" || review.tourType === filterTourType
+      ) || [];
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.createdAt || 0).getTime() -
+            new Date(b.createdAt || 0).getTime()
+          );
+        case "highest":
+          return b.rating - a.rating;
+        case "lowest":
+          return a.rating - b.rating;
+        default:
+          return 0;
+      }
+    });
+  }, [reviewsList, filterTourType, sortBy]);
 
   const visibleReviews = filteredReviews.slice(0, visibleCount);
   const hasMore = visibleCount < filteredReviews.length;
@@ -342,7 +367,7 @@ export default function Reviews() {
 
             {/* Reviews List */}
             <div className="lg:col-span-2">
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap items-center gap-2 mb-6">
                 <Button
                   variant={filterTourType === "all" ? "default" : "outline"}
                   className="rounded-full"
@@ -368,6 +393,31 @@ export default function Reviews() {
                     {isHebrew ? type.he : type.en}
                   </Button>
                 ))}
+
+                <div className="ml-auto flex items-center gap-1.5">
+                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                  <select
+                    value={sortBy}
+                    onChange={e => {
+                      setSortBy(e.target.value as typeof sortBy);
+                      setVisibleCount(REVIEWS_PER_PAGE);
+                    }}
+                    className="h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-xs"
+                  >
+                    <option value="newest">
+                      {isHebrew ? "חדש ביותר" : "Newest"}
+                    </option>
+                    <option value="oldest">
+                      {isHebrew ? "ישן ביותר" : "Oldest"}
+                    </option>
+                    <option value="highest">
+                      {isHebrew ? "דירוג גבוה" : "Highest Rated"}
+                    </option>
+                    <option value="lowest">
+                      {isHebrew ? "דירוג נמוך" : "Lowest Rated"}
+                    </option>
+                  </select>
+                </div>
               </div>
 
               {isLoading && (

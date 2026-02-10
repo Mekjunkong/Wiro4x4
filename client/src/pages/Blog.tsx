@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ArrowRight, FileText } from "lucide-react";
+import { Calendar, Clock, ArrowRight, FileText, Tag } from "lucide-react";
 import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
@@ -14,36 +14,42 @@ const FALLBACK_POSTS = [
   {
     slug: "kosher-dining-guide",
     title: "Kosher Dining Guide for Northern Thailand",
-    titleHe: "",
+    titleHe: "איך שומרים כשרות בצפון תאילנד -- המדריך המלא",
     excerpt:
       "Everything you need to know about finding and preparing kosher meals during your Chiang Mai adventure.",
-    excerptHe: "",
+    excerptHe:
+      "כל מה שצריך לדעת על אוכל כשר בצ'יאנג מאי -- בית חב\"ד, מסעדות, סופרים, וטיפים מהשטח.",
     coverImage: "/images/1000000149.jpg",
     category: "Food & Kosher",
+    tags: "kosher,food,chiang-mai,chabad",
     publishedAt: "2024-12-01",
     content: "",
   },
   {
     slug: "israeli-traveler-tips",
     title: "Israeli Traveler Tips for Southeast Asia",
-    titleHe: "",
+    titleHe: "המדריך השלם למטייל הישראלי בדרום מזרח אסיה",
     excerpt:
       "Essential advice from experienced Israeli travelers about navigating Thailand, Laos, and Vietnam.",
-    excerptHe: "",
+    excerptHe:
+      "טיפים, מידע ועצות מניסיון של שנים -- כסף, בריאות, תחבורה, שבת וקהילה ישראלית.",
     coverImage: "/images/vietnam_rice_terraces.jpg",
     category: "Travel Tips",
+    tags: "travel-tips,israel,southeast-asia,budget",
     publishedAt: "2024-12-01",
     content: "",
   },
   {
     slug: "cultural-etiquette",
     title: "Cultural Etiquette Guide for Indochina",
-    titleHe: "",
+    titleHe: "איך להתנהג באינדוסין -- המדריך התרבותי",
     excerpt:
       "Learn the dos and don'ts of interacting with local communities in Thailand, Laos, and Vietnam.",
-    excerptHe: "",
+    excerptHe:
+      "שמירת פנים, מקדשים, נזירים, מיקוח ועוד -- כל הכללים שישראלים צריכים להכיר.",
     coverImage: "/images/1000000135.jpg",
     category: "Culture",
+    tags: "culture,etiquette,temples,thailand",
     publishedAt: "2024-12-01",
     content: "",
   },
@@ -61,19 +67,30 @@ export default function Blog() {
 
   // Use DB posts if available, otherwise fallback
   const posts = (dbPosts && dbPosts.length > 0 ? dbPosts : FALLBACK_POSTS).map(
-    post => ({
-      slug: post.slug,
-      title: isHebrew && post.titleHe ? post.titleHe : post.title,
-      excerpt: isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
-      image: post.coverImage || "/images/1000000149.jpg",
-      category: post.category || "",
-      date: post.publishedAt
-        ? new Date(post.publishedAt).toLocaleDateString(
-            isHebrew ? "he-IL" : "en-US",
-            { year: "numeric", month: "long" }
-          )
-        : "",
-    })
+    post => {
+      const content = (post as { content?: string }).content || "";
+      const wordCount = content.split(/\s+/).filter(Boolean).length;
+      const minutes =
+        wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : 0;
+      return {
+        slug: post.slug,
+        title: isHebrew && post.titleHe ? post.titleHe : post.title,
+        excerpt:
+          isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
+        image: post.coverImage || "/images/1000000149.jpg",
+        category: post.category || "",
+        tags: ((post as { tags?: string }).tags || "")
+          .split(",")
+          .filter(Boolean),
+        readTime: minutes > 0 ? `${minutes} ${t("min", "דק'")}` : "",
+        date: post.publishedAt
+          ? new Date(post.publishedAt).toLocaleDateString(
+              isHebrew ? "he-IL" : "en-US",
+              { year: "numeric", month: "long" }
+            )
+          : "",
+      };
+    }
   );
 
   return (
@@ -139,12 +156,20 @@ export default function Blog() {
                     </div>
 
                     <div className="p-6 space-y-4">
-                      {post.date && (
+                      {(post.date || post.readTime) && (
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{post.date}</span>
-                          </div>
+                          {post.date && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>{post.date}</span>
+                            </div>
+                          )}
+                          {post.readTime && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{post.readTime}</span>
+                            </div>
+                          )}
                         </div>
                       )}
 

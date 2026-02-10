@@ -32,19 +32,24 @@ export default function BlogPost() {
 
   // Use DB post if available, otherwise fall back to hardcoded
   const post = dbPost
-    ? {
-        title: isHebrew && dbPost.titleHe ? dbPost.titleHe : dbPost.title,
-        date: dbPost.publishedAt
-          ? new Date(dbPost.publishedAt).toLocaleDateString(
-              isHebrew ? "he-IL" : "en-US",
-              { year: "numeric", month: "long", day: "numeric" }
-            )
-          : "",
-        readTime: "",
-        image: dbPost.coverImage || "/images/1000000149.jpg",
-        content:
-          isHebrew && dbPost.contentHe ? dbPost.contentHe : dbPost.content,
-      }
+    ? (() => {
+        const content =
+          isHebrew && dbPost.contentHe ? dbPost.contentHe : dbPost.content;
+        const wordCount = content.split(/\s+/).filter(Boolean).length;
+        const minutes = Math.max(1, Math.ceil(wordCount / 200));
+        return {
+          title: isHebrew && dbPost.titleHe ? dbPost.titleHe : dbPost.title,
+          date: dbPost.publishedAt
+            ? new Date(dbPost.publishedAt).toLocaleDateString(
+                isHebrew ? "he-IL" : "en-US",
+                { year: "numeric", month: "long", day: "numeric" }
+              )
+            : "",
+          readTime: `${minutes} ${t("min read", "דק' קריאה")}`,
+          image: dbPost.coverImage || "/images/1000000149.jpg",
+          content,
+        };
+      })()
     : postId
       ? hardcodedPosts[postId]
       : null;
