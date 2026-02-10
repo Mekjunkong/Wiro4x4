@@ -10,6 +10,7 @@ export function BlogPostHero({ image, title }: BlogPostHeroProps) {
         src={image}
         alt={title}
         className="w-full h-full object-cover"
+        loading="lazy"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
     </div>

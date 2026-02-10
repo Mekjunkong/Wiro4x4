@@ -3,9 +3,21 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
+const HERO_IMAGES = [
+  {
+    webp: "/images/optimized/hero-waterfall.webp",
+    jpg: "/images/optimized/hero-waterfall.jpg",
+    alt: "Chiang Mai Waterfall Adventure",
+  },
+  // Add more hero images here as they become available
+  // { webp: "/images/optimized/hero-mountain.webp", jpg: "/images/optimized/hero-mountain.jpg", alt: "Mountain Adventure" },
+  // { webp: "/images/optimized/hero-temple.webp", jpg: "/images/optimized/hero-temple.jpg", alt: "Temple Visit" },
+];
+
 export function Hero() {
   const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -13,6 +25,15 @@ export function Hero() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Rotate hero images every 8 seconds
+  useEffect(() => {
+    if (HERO_IMAGES.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % HERO_IMAGES.length);
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleBookNow = () => {
@@ -37,20 +58,20 @@ export function Hero() {
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/20" />
-        <picture>
+        <picture key={currentImageIndex}>
           <source
-            srcSet="/images/optimized/hero-waterfall.webp"
+            srcSet={HERO_IMAGES[currentImageIndex].webp}
             type="image/webp"
           />
           <img
-            src="/images/optimized/hero-waterfall.jpg"
-            alt="Chiang Mai Waterfall Adventure"
-            className="w-full h-full object-cover scale-105"
+            src={HERO_IMAGES[currentImageIndex].jpg}
+            alt={HERO_IMAGES[currentImageIndex].alt}
+            className="w-full h-full object-cover scale-105 transition-opacity duration-1000"
             loading="eager"
             fetchPriority="high"
             style={{
               transform: `translateY(${scrollY * 0.5}px)`,
-              transition: "transform 0.1s ease-out",
+              transition: "transform 0.1s ease-out, opacity 1s ease-in-out",
               willChange: "transform",
             }}
           />

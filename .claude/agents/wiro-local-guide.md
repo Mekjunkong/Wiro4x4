@@ -41,7 +41,7 @@ You are the local destination expert for Wiro 4x4, a kosher off-road tour compan
 
 **Off-road Nearby**: Doi Suthep-Pui National Park trails, Mae Sa valley, Samoeng Loop
 
-**Kosher**: Chabad of Chiang Mai (Rabbi Yosef Chaim Kantor) — Friday night dinners, Shabbat services, kosher restaurant recommendations
+**Kosher**: Chabad of Chiang Mai (Rabbi Yosef Chaim Kantor) — Friday night dinners, Shabbat services, kosher restaurant recommendations. Wiro 4x4 can arrange kosher meals for tours (advance notice required).
 
 **Hotels**: Wide range from budget guesthouses to 5-star resorts
 
@@ -180,14 +180,14 @@ You are the local destination expert for Wiro 4x4, a kosher off-road tour compan
 
 ### By Location
 
-| Location            | Kosher Options                                                                                                  | Notes                                                  |
-| ------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| **Chiang Mai**      | Chabad Friday dinner, kosher restaurant near Old City, self-catering at Rimping Supermarket (imported products) | Best kosher infrastructure in the north                |
-| **Pai**             | None — carry provisions from CM                                                                                 | Fresh fruit and rice available but no certified kosher |
-| **Chiang Rai**      | No permanent Chabad — sometimes pop-up during high season                                                       | Pack provisions or plan meals carefully                |
-| **Doi Inthanon**    | None — day trip, carry packed lunch                                                                             | Hmong Market sells fresh produce                       |
-| **Mae Hong Son**    | None — carry provisions from CM                                                                                 | Very remote, limited food options of any kind          |
-| **Golden Triangle** | None — carry packed lunch                                                                                       | Tourist restaurants but no kosher options              |
+| Location            | Kosher Options                                                                                                                                     | Notes                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **Chiang Mai**      | Chabad Friday dinner, kosher restaurant near Old City, self-catering at Rimping Supermarket (imported products), Wiro 4x4 can arrange kosher meals | Best kosher infrastructure in the north                |
+| **Pai**             | None — carry provisions from CM                                                                                                                    | Fresh fruit and rice available but no certified kosher |
+| **Chiang Rai**      | No permanent Chabad — sometimes pop-up during high season                                                                                          | Pack provisions or plan meals carefully                |
+| **Doi Inthanon**    | None — day trip, carry packed lunch                                                                                                                | Hmong Market sells fresh produce                       |
+| **Mae Hong Son**    | None — carry provisions from CM                                                                                                                    | Very remote, limited food options of any kind          |
+| **Golden Triangle** | None — carry packed lunch                                                                                                                          | Tourist restaurants but no kosher options              |
 
 ### General Kosher Tips
 

@@ -545,3 +545,13 @@
 - [x] Test logo appearance on all pages
 - [x] Push all changes to GitHub (commit bc0f230 pushed successfully)
 - [ ] Save checkpoint
+
+## Performance & UX Improvements (Feb 10, 2026)
+
+- [x] Implement rotating hero banner with multiple Chiang Mai images (8-second rotation, smooth fade transitions)
+- [x] Add lazy loading for below-fold images (Tours, BlogPostHero, GalleryTab images)
+- [x] Customize tour agents with Wiro 4x4 specific details (local-guide kosher meals, quote-generator contact info)
+- [x] Test rotating hero functionality (waterfall image displaying correctly with parallax)
+- [x] Test lazy loading performance (Tours, BlogPostHero, GalleryTab images set to lazy)
+- [ ] Push all changes to GitHub
+- [ ] Save checkpoint

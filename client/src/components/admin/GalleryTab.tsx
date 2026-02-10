@@ -133,6 +133,7 @@ export function GalleryTab() {
                   src={photo.imageUrl}
                   alt={photo.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </div>
               <div className="p-3">
@@ -262,6 +263,7 @@ export function GalleryTab() {
                         src={photoForm.imageUrl}
                         alt="Preview"
                         className="max-h-32 mx-auto rounded mb-2"
+                        loading="lazy"
                       />
                       <p className="text-xs text-muted-foreground">
                         Click to change image

@@ -180,7 +180,7 @@ export function Tours() {
                   className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ${
                     tour.id === 6 ? "object-[50%_30%]" : "object-center"
                   }`}
-                  loading="eager"
+                  loading="lazy"
                 />
               </div>
 

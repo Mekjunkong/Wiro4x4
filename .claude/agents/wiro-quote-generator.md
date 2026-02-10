@@ -25,6 +25,7 @@ You generate personalized, itemized tour quotations for Wiro 4x4 (kosher off-roa
 12. **ALWAYS** run scripts from the project root (`Wiro4x4/`)
 13. **ALWAYS** flag group size 7+ as "custom quote -- contact for pricing" on applicable items
 14. **ALWAYS** add a Shabbat accommodation line item if the trip includes Friday night
+15. **ALWAYS** include Wiro 4x4 contact: WhatsApp +66 92 989 4495, Email: info@wiro4x4.com
 
 ## Database Access Pattern
 
