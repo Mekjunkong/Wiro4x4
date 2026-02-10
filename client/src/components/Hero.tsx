@@ -9,9 +9,26 @@ const HERO_IMAGES = [
     jpg: "/images/optimized/hero-waterfall.jpg",
     alt: "Chiang Mai Waterfall Adventure",
   },
-  // Add more hero images here as they become available
-  // { webp: "/images/optimized/hero-mountain.webp", jpg: "/images/optimized/hero-mountain.jpg", alt: "Mountain Adventure" },
-  // { webp: "/images/optimized/hero-temple.webp", jpg: "/images/optimized/hero-temple.jpg", alt: "Temple Visit" },
+  {
+    webp: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-1_1770687377000_na1fn_aGVyby1tb3VudGFpbi1zdW5yaXNl.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTFfMTc3MDY4NzM3NzAwMF9uYTFmbl9hR1Z5YnkxdGIzVnVkR0ZwYmkxemRXNXlhWE5sLmpwZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=g2-LRA6lS1ek~6fYhMpOrNvWzR0Fc3FarxUZoMSGDXMrNAsaSWRZTmtIB55W1UYKBs5gQ1Zn-PnA~o8spVZymVMVavR8XusqOk6WnaLGXHsvOig1YOga2xCOHrpD6S1joD9fWSPOBl4SIa~Ssqy5qvQtQOrZY6W29VWjXvZJZAJaBV0mH1V35nC0jZlPPGYcTmqHzQJF3wE1SBaGvW25gAfWXURcNUfhhxNi-oEM4xFjtXS5nCe3F2eGE6FTB-xoAQ-86o9Uy~Yxc0Uhm2kBeg4Myh7jkecL~qyxgJMnh-HcCwkr-zfkDIGwd-54ksnEONRpDnSNWBRLNJrOmbOmug__",
+    jpg: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-1_1770687377000_na1fn_aGVyby1tb3VudGFpbi1zdW5yaXNl.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTFfMTc3MDY4NzM3NzAwMF9uYTFmbl9hR1Z5YnkxdGIzVnVkR0ZwYmkxemRXNXlhWE5sLmpwZz94LW9zcy1wcm9jZXNzPWltYWdlL3Jlc2l6ZSx3XzE5MjAsaF8xOTIwL2Zvcm1hdCx3ZWJwL3F1YWxpdHkscV84MCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=g2-LRA6lS1ek~6fYhMpOrNvWzR0Fc3FarxUZoMSGDXMrNAsaSWRZTmtIB55W1UYKBs5gQ1Zn-PnA~o8spVZymVMVavR8XusqOk6WnaLGXHsvOig1YOga2xCOHrpD6S1joD9fWSPOBl4SIa~Ssqy5qvQtQOrZY6W29VWjXvZJZAJaBV0mH1V35nC0jZlPPGYcTmqHzQJF3wE1SBaGvW25gAfWXURcNUfhhxNi-oEM4xFjtXS5nCe3F2eGE6FTB-xoAQ-86o9Uy~Yxc0Uhm2kBeg4Myh7jkecL~qyxgJMnh-HcCwkr-zfkDIGwd-54ksnEONRpDnSNWBRLNJrOmbOmug__",
+    alt: "Misty Mountains at Sunrise - Chiang Mai",
+  },
+  {
+    webp: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-2_1770687382000_na1fn_aGVyby10ZW1wbGUtZ29sZGVu.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTJfMTc3MDY4NzM4MjAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    jpg: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-2_1770687382000_na1fn_aGVyby10ZW1wbGUtZ29sZGVu.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTJfMTc3MDY4NzM4MjAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    alt: "Golden Temple - Chiang Mai",
+  },
+  {
+    webp: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-3_1770687382000_na1fn_aGVyby1yaWNlLXRlcnJhY2Vz.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTNfMTc3MDY4NzM4MjAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    jpg: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-3_1770687382000_na1fn_aGVyby1yaWNlLXRlcnJhY2Vz.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTNfMTc3MDY4NzM4MjAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    alt: "Emerald Rice Terraces - Chiang Mai",
+  },
+  {
+    webp: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-4_1770687378000_na1fn_aGVyby1oaWxsLXRyaWJlLXZpbGxhZ2U.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTRfMTc3MDY4NzM3ODAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    jpg: "https://private-us-east-1.manuscdn.com/sessionFile/b9dpqUxfRHG5EXVvyG3WZx/sandbox/0C9eVb7AlecJhVG4dKNH6q-img-4_1770687378000_na1fn_aGVyby1oaWxsLXRyaWJlLXZpbGxhZ2U.jpg?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvYjlkcHFVeGZSSEc1RVhWdnlHM1daeC9zYW5kYm94LzBDOWVWYjdBbGVjSmhWRzRkS05INnEtaW1nLTRfMTc3MDY4NzM3ODAwMF9uYTFmbl9hR1Z5Ynkx--snip--",
+    alt: "Traditional Hill Tribe Village - Chiang Mai",
+  },
 ];
 
 export function Hero() {

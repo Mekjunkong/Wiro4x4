@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import {
   Clock,
   Mountain,
@@ -113,6 +114,15 @@ const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
 
 export function Tours() {
   const { t } = useLanguage();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const { data: dbTours } = trpc.tour.list.useQuery();
 
   const tours =
@@ -153,7 +163,18 @@ export function Tours() {
   };
 
   return (
-    <section id="tours" className="py-16 md:py-20 bg-background">
+    <section
+      id="tours"
+      className="py-16 md:py-20 bg-background relative overflow-hidden"
+    >
+      {/* Parallax Background Element */}
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent pointer-events-none"
+        style={{
+          transform: `translateY(${scrollY * 0.2}px)`,
+          transition: "transform 0.1s ease-out",
+        }}
+      />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">

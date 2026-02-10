@@ -1,5 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import {
   Check,
   Shield,
@@ -13,6 +14,15 @@ import {
 
 export function WhyWiro() {
   const { t } = useLanguage();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const features = [
     {
@@ -85,7 +95,18 @@ export function WhyWiro() {
   ];
 
   return (
-    <section id="why-wiro" className="py-16 md:py-20 bg-muted/30">
+    <section
+      id="why-wiro"
+      className="py-16 md:py-20 bg-muted/30 relative overflow-hidden"
+    >
+      {/* Parallax Background Element */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"
+        style={{
+          transform: `translateY(${scrollY * 0.3}px)`,
+          transition: "transform 0.1s ease-out",
+        }}
+      />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">

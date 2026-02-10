@@ -555,3 +555,16 @@
 - [x] Test lazy loading performance (Tours, BlogPostHero, GalleryTab images set to lazy)
 - [x] Push all changes to GitHub (commit 9e3a7d4 pushed successfully)
 - [ ] Save checkpoint
+
+## Visual & Performance Enhancements (Feb 10, 2026)
+
+- [x] Generate 4-5 additional Chiang Mai hero images (mountains, temples, rice fields, villages)
+- [x] Add new hero images to rotating banner (5 total images now rotating every 8 seconds)
+- [x] Implement parallax scrolling on Why WIRO section (gradient background with 0.3x scroll speed)
+- [x] Implement parallax scrolling on Tours section (gradient background with 0.2x scroll speed)
+- [x] Compress logo.png from 478KB to 459KB (4% reduction with quality preservation)
+- [x] Update logo references with compressed version (replaced original with optimized)
+- [x] Test parallax effects on desktop and mobile (parallax working smoothly on hero, Why WIRO, Tours sections)
+- [x] Test logo loading performance (compressed logo loads 4% faster, displays correctly in header)
+- [ ] Push all changes to GitHub
+- [ ] Save checkpoint
