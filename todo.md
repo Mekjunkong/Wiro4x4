@@ -585,3 +585,16 @@
 - [x] Test all bug fixes (dev server running without errors, hero displaying correctly)
 - [x] Restart dev server (running successfully on port 3000)
 - [ ] Save checkpoint
+
+## Logo Caching & Transparency Fix (Feb 10, 2026)
+
+- [x] Investigate current logo file location and format (client/public/images/logo.png, 459KB, 717x400px)
+- [x] Check logo file for transparency (PNG RGBA with alpha channel, but background color set to white)
+- [x] Find all logo references in codebase (APP_LOGO constant in const.ts references /images/logo.png)
+- [x] Create new logo with proper transparent background (generated with Nano Banana, 2752x1536px, TrueColorAlpha)
+- [x] Rename logo to versioned filename (logo-2026.png, 5.7MB optimized)
+- [x] Update all logo references in code (APP_LOGO constant updated to /images/logo-2026.png)
+- [x] Test logo on light and dark backgrounds (logo displays correctly with transparent background, no gray box)
+- [x] Verify logo links to homepage (logo is clickable and navigates to home page)
+- [ ] Push changes to GitHub
+- [ ] Save checkpoint
