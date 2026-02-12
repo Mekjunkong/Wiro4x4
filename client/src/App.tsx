@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import { CookieConsent } from "./components/CookieConsent";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
+const TourDetail = React.lazy(() => import("./pages/TourDetail"));
 const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
 const BookingForm = React.lazy(() => import("./pages/BookingForm"));
@@ -49,6 +50,7 @@ function Router() {
           <Switch>
             <Route path={"/"} component={Home} />
             <Route path={"/pricing"} component={Pricing} />
+            <Route path={"/tours/:slug"} component={TourDetail} />
             <Route path={"/blog"} component={Blog} />
             <Route path={"/blog/:id"} component={BlogPost} />
             <Route path={"/gallery"} component={Gallery} />

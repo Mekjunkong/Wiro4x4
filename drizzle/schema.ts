@@ -263,6 +263,7 @@ export const tours = mysqlTable("tours", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   nameHe: varchar("nameHe", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description").notNull(),
   descriptionHe: text("descriptionHe").notNull(),
   duration: varchar("duration", { length: 100 }).notNull(), // e.g., "6-8 hours"
@@ -275,6 +276,8 @@ export const tours = mysqlTable("tours", {
   imageUrl: varchar("imageUrl", { length: 1024 }).notNull(),
   highlights: text("highlights"), // JSON array of strings
   highlightsHe: text("highlightsHe"), // JSON array of Hebrew strings
+  includedItems: text("includedItems"), // JSON array: [{en: "...", he: "..."}]
+  itinerary: text("itinerary"), // JSON array: [{title, titleHe, description, descriptionHe}]
   isKosher: int("isKosher").default(1).notNull(),
   isPrivate: int("isPrivate").default(1).notNull(),
   isShabbatOk: int("isShabbatOk").default(1).notNull(),

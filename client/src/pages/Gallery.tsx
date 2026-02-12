@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const CATEGORIES = [
@@ -326,6 +327,7 @@ export default function Gallery() {
           </DialogContent>
         </Dialog>
       </main>
+      <FloatingActionButtons />
       <Footer />
     </div>
   );

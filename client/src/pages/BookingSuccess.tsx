@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { WHATSAPP_URL } from "@/const";
 
 export default function BookingSuccess() {
   const { t } = useLanguage();
@@ -71,7 +72,7 @@ export default function BookingSuccess() {
                   )}
               </p>
               <a
-                href="https://wa.me/66819611398"
+                href={WHATSAPP_URL}
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
@@ -141,7 +142,7 @@ export default function BookingSuccess() {
                 )}
               </p>
               <a
-                href="https://wa.me/66819611398"
+                href={WHATSAPP_URL}
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}

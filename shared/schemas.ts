@@ -91,6 +91,7 @@ export const financialRecordInputSchema = z.object({
 export const tourInputSchema = z.object({
   name: z.string().min(1, "Name is required"),
   nameHe: z.string().min(1, "Hebrew name is required"),
+  slug: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   descriptionHe: z.string().min(1, "Hebrew description is required"),
   duration: z.string().min(1, "Duration is required"),
@@ -101,6 +102,8 @@ export const tourInputSchema = z.object({
   imageUrl: z.string().min(1, "Image URL is required"),
   highlights: z.string().optional(),
   highlightsHe: z.string().optional(),
+  includedItems: z.string().optional(),
+  itinerary: z.string().optional(),
   isKosher: z.boolean().default(true),
   isPrivate: z.boolean().default(true),
   isShabbatOk: z.boolean().default(true),

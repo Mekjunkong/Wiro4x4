@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 const HERO_IMAGE = {
   webp: "/images/optimized/hero-waterfall.webp",
@@ -11,15 +11,18 @@ const HERO_IMAGE = {
 
 export function Hero() {
   const { t } = useLanguage();
-  const [scrollY, setScrollY] = useState(0);
+  const parallaxRef = useRef<HTMLImageElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (parallaxRef.current) {
+      parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.5}px)`;
+    }
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [handleScroll]);
 
   const handleBookNow = () => {
     const element = document.getElementById("tours");
@@ -46,14 +49,13 @@ export function Hero() {
         <picture>
           <source srcSet={HERO_IMAGE.webp} type="image/webp" />
           <img
+            ref={parallaxRef}
             src={HERO_IMAGE.jpg}
             alt={HERO_IMAGE.alt}
             className="w-full h-full object-cover scale-105"
             loading="eager"
             fetchPriority="high"
             style={{
-              transform: `translateY(${scrollY * 0.5}px)`,
-              transition: "transform 0.1s ease-out",
               willChange: "transform",
             }}
           />

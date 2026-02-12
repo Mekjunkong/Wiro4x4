@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import {
   Check,
   Shield,
@@ -14,15 +14,18 @@ import {
 
 export function WhyWiro() {
   const { t } = useLanguage();
-  const [scrollY, setScrollY] = useState(0);
+  const parallaxRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (parallaxRef.current) {
+      parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.3}px)`;
+    }
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [handleScroll]);
 
   const features = [
     {
@@ -101,11 +104,9 @@ export function WhyWiro() {
     >
       {/* Parallax Background Element */}
       <div
+        ref={parallaxRef}
         className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"
-        style={{
-          transform: `translateY(${scrollY * 0.3}px)`,
-          transition: "transform 0.1s ease-out",
-        }}
+        style={{ willChange: "transform" }}
       />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">

@@ -519,7 +519,7 @@ ${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ""}`;
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full bg-primary hover:bg-primary/90 text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
               {isSubmitting ? (
                 <>

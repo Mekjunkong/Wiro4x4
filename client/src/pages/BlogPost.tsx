@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRoute } from "wouter";
@@ -100,7 +100,7 @@ export default function BlogPost() {
       </article>
 
       <Footer />
-      <WhatsAppButton />
+      <FloatingActionButtons />
     </div>
   );
 }

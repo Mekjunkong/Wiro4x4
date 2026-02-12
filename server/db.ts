@@ -560,6 +560,17 @@ export async function getTourById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getTourBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(tours)
+    .where(eq(tours.slug, slug))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function updateTour(id: number, data: Partial<InsertTour>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import {
   Clock,
   Mountain,
@@ -15,6 +15,7 @@ import {
 const HARDCODED_TOURS = [
   {
     id: 1,
+    slug: "waterfall-adventure-tour",
     image: "/images/1000000126_compressed.jpg",
     title: "Waterfall Adventure Tour",
     titleHe: "הרפתקת מפלים",
@@ -27,9 +28,11 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
+    price: 3500,
   },
   {
     id: 2,
+    slug: "mountain-valley-explorer",
     image: "/images/vietnam_rice_terraces.jpg",
     title: "Mountain & Valley Explorer",
     titleHe: "טיול הרים ועמקים",
@@ -43,9 +46,11 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
+    price: 4500,
   },
   {
     id: 3,
+    slug: "jungle-river-expedition",
     image: "/images/laos_jungle.jpg",
     title: "Jungle & River Expedition",
     titleHe: "טיול ג'ונגל ונהרות",
@@ -58,9 +63,11 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: false,
+    price: 5500,
   },
   {
     id: 4,
+    slug: "rice-fields-culture-tour",
     image: "/images/1000000149.jpg",
     title: "Rice Fields & Culture Tour",
     titleHe: "שדות אורז ותרבות מקומית",
@@ -73,9 +80,11 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
+    price: 2500,
   },
   {
     id: 5,
+    slug: "elephant-sanctuary-visit",
     image: "/images/1000000140.jpg",
     title: "Elephant Sanctuary Visit",
     titleHe: "ביקור במקלט פילים",
@@ -88,9 +97,11 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
+    price: 3000,
   },
   {
     id: 6,
+    slug: "hill-tribe-cultural-journey",
     image: "/images/1000000135.jpg",
     title: "Hill Tribe Cultural Journey",
     titleHe: "מסע תרבותי לשבטי ההרים",
@@ -103,6 +114,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
+    price: 3500,
   },
 ];
 
@@ -112,23 +124,34 @@ const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
   challenging: { en: "Challenging", he: "מאתגר" },
 };
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export function Tours() {
   const { t } = useLanguage();
-  const [scrollY, setScrollY] = useState(0);
+  const parallaxRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (parallaxRef.current) {
+      parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.2}px)`;
+    }
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [handleScroll]);
   const { data: dbTours } = trpc.tour.list.useQuery();
 
   const tours =
     dbTours && dbTours.length > 0
       ? dbTours.map(tour => ({
           id: tour.id,
+          slug: tour.slug || generateSlug(tour.name),
           image: tour.imageUrl,
           title: t(tour.name, tour.nameHe),
           description: t(tour.description, tour.descriptionHe),
@@ -137,9 +160,11 @@ export function Tours() {
           kosher: tour.isKosher === 1,
           private: tour.isPrivate === 1,
           shabbat: tour.isShabbatOk === 1,
+          price: tour.price ?? null,
         }))
       : HARDCODED_TOURS.map(tour => ({
           id: tour.id,
+          slug: tour.slug,
           image: tour.image,
           title: t(tour.title, tour.titleHe),
           description: t(tour.description, tour.descriptionHe),
@@ -148,19 +173,8 @@ export function Tours() {
           kosher: tour.kosher,
           private: tour.private,
           shabbat: tour.shabbat,
+          price: tour.price,
         }));
-
-  const handleBookTour = (tour: (typeof tours)[0]) => {
-    const diffLabel =
-      DIFFICULTY_LABELS[tour.difficulty] || DIFFICULTY_LABELS.moderate;
-    const tourDetails = t(
-      `Tour: ${tour.title}\nDuration: ${tour.duration}\nDifficulty: ${diffLabel.en}\n\nGroup Size: [Please specify 1-4 people]\nPreferred Date: [Please specify]\n\nI would like to know about pricing and availability.`,
-      `טיול: ${tour.title}\nמשך: ${tour.duration}\nרמת קושי: ${diffLabel.he}\n\nגודל קבוצה: [ציינו 1-4 אנשים]\nתאריך מועדף: [ציינו תאריך]\n\nאשמח לשמוע על מחירים וזמינות.`
-    );
-    const greeting = t("Hi WIRO 4x4!", "היי WIRO 4x4!");
-    const message = encodeURIComponent(`${greeting}\n\n${tourDetails}`);
-    window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
-  };
 
   return (
     <section
@@ -169,11 +183,9 @@ export function Tours() {
     >
       {/* Parallax Background Element */}
       <div
+        ref={parallaxRef}
         className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent pointer-events-none"
-        style={{
-          transform: `translateY(${scrollY * 0.2}px)`,
-          transition: "transform 0.1s ease-out",
-        }}
+        style={{ willChange: "transform" }}
       />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
@@ -190,76 +202,80 @@ export function Tours() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-4 md:px-0">
           {tours.map(tour => (
-            <Card
+            <a
               key={tour.id}
-              className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
+              href={`/tours/${tour.slug}`}
+              className="block group"
             >
-              <div className="relative h-72 overflow-hidden">
-                <img
-                  src={tour.image}
-                  alt={tour.title}
-                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ${
-                    tour.id === 6 ? "object-[50%_30%]" : "object-center"
-                  }`}
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="p-6 space-y-4">
-                <h3 className="text-xl font-bold">{tour.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {tour.description}
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span>{tour.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mountain className="h-4 w-4 text-primary" />
-                    <span>
-                      {t(
-                        DIFFICULTY_LABELS[tour.difficulty]?.en ||
-                          tour.difficulty,
-                        DIFFICULTY_LABELS[tour.difficulty]?.he ||
-                          tour.difficulty
-                      )}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {tour.kosher && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                      <Utensils className="h-3 w-3" />
-                      {t("Kosher", "כשר")}
-                    </span>
-                  )}
-                  {tour.private && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary/10 text-secondary-foreground text-xs rounded-full">
-                      <Users className="h-3 w-3" />
-                      {t("Private", "פרטי")}
-                    </span>
-                  )}
-                  {tour.shabbat && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent-foreground text-xs rounded-full">
-                      <Calendar className="h-3 w-3" />
-                      {t("Shabbat OK", "מתאים לשבת")}
-                    </span>
+              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 h-full">
+                <div className="relative h-72 overflow-hidden bg-muted">
+                  <img
+                    src={tour.image}
+                    alt={tour.title}
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ${
+                      tour.id === 6 ? "object-[50%_30%]" : "object-center"
+                    }`}
+                    loading="lazy"
+                  />
+                  {tour.price != null && (
+                    <div className="absolute top-4 right-4 bg-secondary text-foreground px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                      {t("From", "החל מ-")} &#3647;{tour.price.toLocaleString()}
+                    </div>
                   )}
                 </div>
 
-                <Button
-                  onClick={() => handleBookTour(tour)}
-                  className="w-full gap-2 mt-4"
-                  variant="default"
-                >
-                  {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xl font-bold">{tour.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {tour.description}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span>{tour.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mountain className="h-4 w-4 text-primary" />
+                      <span>
+                        {t(
+                          DIFFICULTY_LABELS[tour.difficulty]?.en ||
+                            tour.difficulty,
+                          DIFFICULTY_LABELS[tour.difficulty]?.he ||
+                            tour.difficulty
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {tour.kosher && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                        <Utensils className="h-3 w-3" />
+                        {t("Kosher", "כשר")}
+                      </span>
+                    )}
+                    {tour.private && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary/10 text-secondary-foreground text-xs rounded-full">
+                        <Users className="h-3 w-3" />
+                        {t("Private", "פרטי")}
+                      </span>
+                    )}
+                    {tour.shabbat && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent-foreground text-xs rounded-full">
+                        <Calendar className="h-3 w-3" />
+                        {t("Shabbat OK", "מתאים לשבת")}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-primary font-medium text-sm pt-2">
+                    {t("View Details", "לפרטים נוספים")}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Card>
+            </a>
           ))}
         </div>
       </div>

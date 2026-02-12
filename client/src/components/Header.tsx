@@ -16,9 +16,10 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isAdmin = isAuthenticated && user?.role === "admin";
-  const [currentPath] = useLocation();
+  const [currentPath, setLocation] = useLocation();
 
   const isActive = (path: string) => currentPath === path;
+  const isHomePage = currentPath === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,9 +45,19 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    if (currentPath !== "/") {
+      setLocation("/");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 
@@ -79,31 +90,31 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-6">
             <button
               onClick={() => scrollToSection("tours")}
-              className="text-sm font-medium hover:text-primary transition-colors"
+              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Tours", "טיולים")}
             </button>
             <button
               onClick={() => scrollToSection("why-wiro")}
-              className="text-sm font-medium hover:text-primary transition-colors"
+              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Why WIRO", "למה WIRO")}
             </button>
             <button
               onClick={() => scrollToSection("kosher")}
-              className="text-sm font-medium hover:text-primary transition-colors"
+              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Kosher Info", "כשרות")}
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className="text-sm font-medium hover:text-primary transition-colors"
+              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Contact", "צרו קשר")}
             </button>
             <Link href="/pricing">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/pricing") ? "text-primary border-b-2 border-primary pb-1" : ""}`}
+                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/pricing") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/pricing")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -113,7 +124,7 @@ export function Header() {
             </Link>
             <Link href="/blog">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/blog") ? "text-primary border-b-2 border-primary pb-1" : ""}`}
+                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/blog") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/blog")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -123,7 +134,7 @@ export function Header() {
             </Link>
             <Link href="/gallery">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/gallery") ? "text-primary border-b-2 border-primary pb-1" : ""}`}
+                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/gallery") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/gallery")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -133,7 +144,7 @@ export function Header() {
             </Link>
             <Link href="/reviews">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/reviews") ? "text-primary border-b-2 border-primary pb-1" : ""}`}
+                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/reviews") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/reviews")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -143,7 +154,9 @@ export function Header() {
             </Link>
             {isAdmin && (
               <Link href="/admin">
-                <span className="text-sm font-medium hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
+                <span
+                  className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer flex items-center gap-1 ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                >
                   <Shield className="h-4 w-4" />
                   {t("Admin", "ניהול")}
                 </span>
@@ -174,7 +187,9 @@ export function Header() {
             <LanguageSwitcher />
           </nav>
 
-          <div className="md:hidden flex items-center gap-3">
+          <div
+            className={`md:hidden flex items-center gap-3 ${!scrolled && isHomePage ? "text-white" : ""}`}
+          >
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}

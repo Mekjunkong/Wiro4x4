@@ -13,13 +13,27 @@ import {
   createTour,
   updateTour,
   deleteTour,
+  getTourBySlug,
 } from "../db";
 import { tourInputSchema, paginationInput } from "../../shared/schemas";
+
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 export const tourRouter = router({
   list: securePublicProcedure.query(async () => {
     return await getAllActiveTours();
   }),
+
+  getBySlug: securePublicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      return await getTourBySlug(input.slug);
+    }),
 
   listAll: secureProtectedProcedure.query(async () => {
     return await getAllTours();
@@ -43,8 +57,10 @@ export const tourRouter = router({
     .input(tourInputSchema)
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
+      const slug = input.slug || generateSlug(input.name);
       await createTour({
         ...input,
+        slug,
         isKosher: input.isKosher ? 1 : 0,
         isPrivate: input.isPrivate ? 1 : 0,
         isShabbatOk: input.isShabbatOk ? 1 : 0,
@@ -72,6 +88,7 @@ export const tourRouter = router({
       const fields = [
         "name",
         "nameHe",
+        "slug",
         "description",
         "descriptionHe",
         "duration",
@@ -82,6 +99,8 @@ export const tourRouter = router({
         "imageUrl",
         "highlights",
         "highlightsHe",
+        "includedItems",
+        "itinerary",
         "sortOrder",
       ] as const;
       for (const field of fields) {

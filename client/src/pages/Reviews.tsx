@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Check, MessageSquare, Send, ArrowUpDown } from "lucide-react";
+import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const TOUR_TYPES = [
@@ -517,6 +518,7 @@ export default function Reviews() {
           </div>
         </div>
       </main>
+      <FloatingActionButtons />
       <Footer />
     </div>
   );

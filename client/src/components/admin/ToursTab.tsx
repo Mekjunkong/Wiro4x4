@@ -15,6 +15,13 @@ import type { Tour } from "../../../../drizzle/schema";
 
 type TourDifficulty = "easy" | "moderate" | "challenging";
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export function ToursTab() {
   const [toursPage, setToursPage] = useState(1);
   const [tourDialogOpen, setTourDialogOpen] = useState(false);
@@ -22,6 +29,7 @@ export function ToursTab() {
   const [tourForm, setTourForm] = useState({
     name: "",
     nameHe: "",
+    slug: "",
     description: "",
     descriptionHe: "",
     duration: "",
@@ -32,6 +40,8 @@ export function ToursTab() {
     imageUrl: "",
     highlights: "",
     highlightsHe: "",
+    includedItems: "",
+    itinerary: "",
     isKosher: true,
     isPrivate: true,
     isShabbatOk: true,
@@ -43,6 +53,7 @@ export function ToursTab() {
     setTourForm({
       name: "",
       nameHe: "",
+      slug: "",
       description: "",
       descriptionHe: "",
       duration: "",
@@ -53,6 +64,8 @@ export function ToursTab() {
       imageUrl: "",
       highlights: "",
       highlightsHe: "",
+      includedItems: "",
+      itinerary: "",
       isKosher: true,
       isPrivate: true,
       isShabbatOk: true,
@@ -150,6 +163,9 @@ export function ToursTab() {
                     <h4 className="font-semibold text-sm md:text-base truncate">
                       {tour.name}
                     </h4>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      /tours/{tour.slug}
+                    </div>
                     <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground mt-1">
                       <span>{tour.duration}</span>
                       <span className="capitalize">{tour.difficulty}</span>
@@ -199,6 +215,7 @@ export function ToursTab() {
                       setTourForm({
                         name: tour.name,
                         nameHe: tour.nameHe,
+                        slug: tour.slug,
                         description: tour.description,
                         descriptionHe: tour.descriptionHe,
                         duration: tour.duration,
@@ -209,6 +226,8 @@ export function ToursTab() {
                         imageUrl: tour.imageUrl,
                         highlights: tour.highlights || "",
                         highlightsHe: tour.highlightsHe || "",
+                        includedItems: tour.includedItems || "",
+                        itinerary: tour.itinerary || "",
                         isKosher: tour.isKosher === 1,
                         isPrivate: tour.isPrivate === 1,
                         isShabbatOk: tour.isShabbatOk === 1,
@@ -270,9 +289,18 @@ export function ToursTab() {
                 <input
                   type="text"
                   value={tourForm.name}
-                  onChange={e =>
-                    setTourForm(p => ({ ...p, name: e.target.value }))
-                  }
+                  onChange={e => {
+                    const name = e.target.value;
+                    setTourForm(p => ({
+                      ...p,
+                      name,
+                      // Auto-generate slug from name if slug is empty or was auto-generated
+                      slug:
+                        !p.slug || p.slug === generateSlug(p.name)
+                          ? generateSlug(name)
+                          : p.slug,
+                    }));
+                  }}
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm"
                 />
               </div>
@@ -288,6 +316,21 @@ export function ToursTab() {
                     setTourForm(p => ({ ...p, nameHe: e.target.value }))
                   }
                   className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">URL Slug</label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">/tours/</span>
+                <input
+                  type="text"
+                  value={tourForm.slug}
+                  onChange={e =>
+                    setTourForm(p => ({ ...p, slug: e.target.value }))
+                  }
+                  placeholder="auto-generated-from-name"
+                  className="flex-1 px-3 py-2 border border-border rounded-lg text-sm"
                 />
               </div>
             </div>
@@ -443,8 +486,43 @@ export function ToursTab() {
                 }
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm"
                 rows={2}
-                placeholder='["&#1512;&#1499;&#1489; 4x4 &#1508;&#1512;&#1496;&#1497;", "&#1488;&#1512;&#1493;&#1495;&#1514; &#1510;&#1492;&#1512;&#1497;&#1497;&#1501; &#1499;&#1513;&#1512;&#1492;", ...]'
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Included Items (JSON)
+              </label>
+              <textarea
+                value={tourForm.includedItems}
+                onChange={e =>
+                  setTourForm(p => ({ ...p, includedItems: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                rows={3}
+                placeholder='[{"en": "Private 4x4 vehicle", "he": "רכב 4x4 פרטי"}, ...]'
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Array of objects with "en" and "he" keys. Shown on tour detail
+                page.
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Itinerary (JSON)
+              </label>
+              <textarea
+                value={tourForm.itinerary}
+                onChange={e =>
+                  setTourForm(p => ({ ...p, itinerary: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                rows={3}
+                placeholder='[{"title": "Hotel Pickup", "titleHe": "איסוף מהמלון", "description": "...", "descriptionHe": "..."}]'
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Day-by-day breakdown. Shown as numbered steps on tour detail
+                page.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -525,8 +603,11 @@ export function ToursTab() {
               onClick={() => {
                 const data = {
                   ...tourForm,
+                  slug: tourForm.slug || generateSlug(tourForm.name),
                   highlights: tourForm.highlights || undefined,
                   highlightsHe: tourForm.highlightsHe || undefined,
+                  includedItems: tourForm.includedItems || undefined,
+                  itinerary: tourForm.itinerary || undefined,
                 };
                 if (editingTour) {
                   updateTourMut.mutate({ id: editingTour.id, data });

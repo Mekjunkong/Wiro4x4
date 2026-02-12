@@ -2,14 +2,26 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { APP_LOGO } from "@/const";
+import { useLocation } from "wouter";
 
 export function Footer() {
   const { t } = useLanguage();
+  const [currentPath, setLocation] = useLocation();
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    if (currentPath !== "/") {
+      setLocation("/");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 

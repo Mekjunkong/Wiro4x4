@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -218,7 +218,7 @@ export default function Pricing() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <section className="relative py-20 mt-20 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -526,7 +526,7 @@ export default function Pricing() {
         </section>
       </main>
       <Footer />
-      <WhatsAppButton />
+      <FloatingActionButtons />
     </div>
   );
 }

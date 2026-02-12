@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 export function Testimonials() {
   const { t } = useLanguage();
@@ -75,12 +76,26 @@ export function Testimonials() {
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             {t("What Our Travelers Say", "מה המטיילים שלנו אומרים")}
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mb-4">
             {t(
               "Real experiences from Israeli travelers who explored Northern Thailand with WIRO 4x4.",
               "חוויות אמיתיות של מטיילים ישראלים שחקרו את צפון תאילנד עם WIRO 4x4."
             )}
           </p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className="h-5 w-5 fill-secondary text-secondary"
+                />
+              ))}
+            </div>
+            <span className="text-lg font-bold">5.0</span>
+            <span className="text-muted-foreground">
+              {t("from 120+ travelers", "מ-120+ מטיילים")}
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -117,6 +132,15 @@ export function Testimonials() {
               </div>
             </Card>
           ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link href="/reviews">
+            <span className="inline-flex items-center gap-2 text-primary font-semibold hover:underline cursor-pointer">
+              {t("See All Reviews", "לכל חוות הדעת")}
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
         </div>
       </div>
     </section>
