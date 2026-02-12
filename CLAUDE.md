@@ -103,6 +103,12 @@ pnpm format
 │   │                            #   payments, tours, blogPosts)
 │   ├── relations.ts             # Drizzle relations (FK relationships)
 │   └── migrations/              # Auto-generated migrations
+├── blogs/                       # Blog content files
+│   ├── 01-beyond-the-tourist-trail-{en,he}.md
+│   ├── 02-chiang-mai-to-pai-{en,he}.md
+│   ├── 03-hill-tribes-{en,he}.md
+│   ├── 04-israeli-travelers-guide-{en,he}.md
+│   └── interactive-map.html     # Leaflet.js interactive route map
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   └── schemas.ts               # Shared Zod validation schemas (single source of truth)
@@ -232,6 +238,14 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - 6 destination cards (Sticky Waterfalls, Doi Inthanon, Jungle, Rice Terraces, Elephants, Hill Tribes)
 - Each card links to the matching tour detail page via slug
 - Static data with existing images from `/images/` folder
+
+### 12. Blog Content & Interactive Map
+
+- **Blog posts:** Bilingual markdown files in `blogs/` directory (English + Hebrew pairs)
+- **Interactive map:** `blogs/interactive-map.html` — standalone Leaflet.js map showing Wiro 4x4 adventure routes in Chiang Mai
+  - Self-contained HTML (no build step required)
+  - Uses Leaflet 1.9.4 via CDN
+  - Dark theme with route visualization
 
 ### 7. Rate Limiting
 
@@ -503,7 +517,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-02-10
-**Version:** 2.1
+**Last Updated:** 2026-02-12
+**Version:** 2.2
 **Platform:** Manus
 **Test Coverage:** 76 tests (17 files) — 59 pass locally, 17 DB-dependent skipped
