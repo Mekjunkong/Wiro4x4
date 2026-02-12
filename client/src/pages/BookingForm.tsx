@@ -292,53 +292,120 @@ export default function BookingForm() {
       .filter(Boolean)
       .join(", ");
 
+    const services: string[] = [];
     if (isHebrew) {
-      return `🚙 בקשת הזמנה חדשה - WIRO 4x4
-
-👤 שם: ${formData.contactName}
-📞 טלפון: ${formData.contactPhone}
-📧 מייל: ${formData.contactEmail}
-
-📅 תאריכים: ${formData.arrivalDate} עד ${formData.departureDate}
-👥 מבוגרים: ${formData.numberOfAdults}
-${formData.hasChildren ? `👶 ילדים: ${formData.numberOfChildren}` : ""}
-
-🗺️ יעדים: ${destinations || "לא נבחרו"}
-
-🛎️ שירותים:
-${formData.includesHotels ? "✅ מלונות" : ""}
-${formData.includesGuide ? "✅ מדריך" : ""}
-${formData.includesTrip ? "✅ טיול 4x4" : ""}
-${formData.includesAttractions ? "✅ אטרקציות" : ""}
-${formData.includesFood ? "✅ אוכל כשר" : ""}
-${formData.needsShabbatHotel ? '✅ מלון שבת ליד חב"ד' : ""}
-
-${formData.specialRequests ? `📝 בקשות מיוחדות: ${formData.specialRequests}` : ""}
-${formData.agentName ? `🏢 סוכן: ${formData.agentName}` : ""}`;
+      if (formData.includesHotels) services.push("🏨 מלונות");
+      if (formData.includesGuide) services.push("🧭 מדריך");
+      if (formData.includesTrip) services.push("🚙 טיול 4x4");
+      if (formData.includesAttractions) services.push("🎯 אטרקציות");
+      if (formData.includesFood) services.push("🍽️ אוכל כשר");
+      if (formData.needsShabbatHotel) services.push('🕯️ מלון שבת ליד חב"ד');
     } else {
-      return `🚙 New Booking Request - WIRO 4x4
-
-👤 Name: ${formData.contactName}
-📞 Phone: ${formData.contactPhone}
-📧 Email: ${formData.contactEmail}
-
-📅 Dates: ${formData.arrivalDate} - ${formData.departureDate}
-👥 Adults: ${formData.numberOfAdults}
-${formData.hasChildren ? `👶 Children: ${formData.numberOfChildren}` : ""}
-
-🗺️ Destinations: ${destinations || "None selected"}
-
-Services:
-${formData.includesHotels ? "✅ Hotels" : ""}
-${formData.includesGuide ? "✅ Guide" : ""}
-${formData.includesTrip ? "✅ 4x4 Trip" : ""}
-${formData.includesAttractions ? "✅ Attractions" : ""}
-${formData.includesFood ? "✅ Kosher Food" : ""}
-${formData.needsShabbatHotel ? "✅ Shabbat Hotel near Chabad" : ""}
-
-${formData.specialRequests ? `📝 Special Requests: ${formData.specialRequests}` : ""}
-${formData.agentName ? `🏢 Agent: ${formData.agentName}` : ""}`;
+      if (formData.includesHotels) services.push("🏨 Hotels");
+      if (formData.includesGuide) services.push("🧭 Guide");
+      if (formData.includesTrip) services.push("🚙 4x4 Trip");
+      if (formData.includesAttractions) services.push("🎯 Attractions");
+      if (formData.includesFood) services.push("🍽️ Kosher Food");
+      if (formData.needsShabbatHotel)
+        services.push("🕯️ Shabbat Hotel near Chabad");
     }
+
+    const extras: string[] = [];
+    if (formData.hasChildren && formData.numberOfChildren) {
+      extras.push(
+        isHebrew
+          ? `👶 ילדים: ${formData.numberOfChildren}${formData.childrenAges ? ` (גילאים: ${formData.childrenAges})` : ""}`
+          : `👶 Children: ${formData.numberOfChildren}${formData.childrenAges ? ` (ages: ${formData.childrenAges})` : ""}`
+      );
+    }
+    if (formData.pickupPoint) {
+      const pickup =
+        formData.pickupPoint === "custom"
+          ? formData.customPickupLocation
+          : formData.pickupPoint;
+      extras.push(isHebrew ? `📍 איסוף: ${pickup}` : `📍 Pickup: ${pickup}`);
+    }
+    if (formData.dropoffPoint) {
+      const dropoff =
+        formData.dropoffPoint === "custom"
+          ? formData.customDropoffLocation
+          : formData.dropoffPoint;
+      extras.push(isHebrew ? `📍 הורדה: ${dropoff}` : `📍 Dropoff: ${dropoff}`);
+    }
+    if (formData.budget) {
+      extras.push(
+        isHebrew
+          ? `💰 תקציב: ${formData.budget}`
+          : `💰 Budget: ${formData.budget}`
+      );
+    }
+    if (formData.specialRequests) {
+      extras.push(
+        isHebrew
+          ? `📝 בקשות מיוחדות: ${formData.specialRequests}`
+          : `📝 Special Requests: ${formData.specialRequests}`
+      );
+    }
+    if (formData.agentName) {
+      extras.push(
+        isHebrew
+          ? `🏢 סוכן: ${formData.agentName}`
+          : `🏢 Agent: ${formData.agentName}`
+      );
+    }
+
+    const lines = [
+      isHebrew ? "━━━━━━━━━━━━━━━━━━━━" : "━━━━━━━━━━━━━━━━━━━━",
+      isHebrew
+        ? "🚙 *בקשת הזמנה חדשה - WIRO 4x4*"
+        : "🚙 *New Booking Request - WIRO 4x4*",
+      isHebrew ? "━━━━━━━━━━━━━━━━━━━━" : "━━━━━━━━━━━━━━━━━━━━",
+      "",
+      isHebrew
+        ? `👤 *שם:* ${formData.contactName}`
+        : `👤 *Name:* ${formData.contactName}`,
+      isHebrew
+        ? `📞 *טלפון:* ${formData.contactPhone}`
+        : `📞 *Phone:* ${formData.contactPhone}`,
+      formData.contactEmail
+        ? isHebrew
+          ? `📧 *מייל:* ${formData.contactEmail}`
+          : `📧 *Email:* ${formData.contactEmail}`
+        : "",
+      formData.contactWhatsApp
+        ? isHebrew
+          ? `💬 *וואטסאפ:* ${formData.contactWhatsApp}`
+          : `💬 *WhatsApp:* ${formData.contactWhatsApp}`
+        : "",
+      "",
+      isHebrew
+        ? `📅 *תאריכים:* ${formData.arrivalDate} ➜ ${formData.departureDate}`
+        : `📅 *Dates:* ${formData.arrivalDate} ➜ ${formData.departureDate}`,
+      isHebrew
+        ? `👥 *מבוגרים:* ${formData.numberOfAdults}`
+        : `👥 *Adults:* ${formData.numberOfAdults}`,
+      ...extras.slice(0, 1), // children line if exists
+      "",
+      destinations
+        ? isHebrew
+          ? `🗺️ *יעדים:* ${destinations}`
+          : `🗺️ *Destinations:* ${destinations}`
+        : "",
+      "",
+      isHebrew ? "🛎️ *שירותים:*" : "🛎️ *Services:*",
+      ...services,
+      "",
+      ...extras.slice(1), // pickup, dropoff, budget, special requests, agent
+      "",
+      isHebrew ? "━━━━━━━━━━━━━━━━━━━━" : "━━━━━━━━━━━━━━━━━━━━",
+      isHebrew ? "🌐 wiro4x4.com" : "🌐 wiro4x4.com",
+    ];
+
+    // Remove consecutive blank lines and trim
+    return lines
+      .filter((line, i, arr) => !(line === "" && arr[i - 1] === ""))
+      .join("\n")
+      .trim();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
