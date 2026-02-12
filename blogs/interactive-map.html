@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiro 4x4 Adventure Routes | Interactive Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .map-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 24px 32px;
+            text-align: center;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .map-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .map-header h1 span { color: #e94560; }
+
+        .map-header p {
+            font-size: 14px;
+            color: #8899aa;
+        }
+
+        /* Route Selector */
+        .route-selector {
+            display: flex;
+            gap: 0;
+            background: #16213e;
+            border-bottom: 1px solid #2a3a5e;
+        }
+
+        .route-btn {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            background: transparent;
+            color: #8899aa;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .route-btn:hover {
+            background: rgba(233, 69, 96, 0.1);
+            color: #fff;
+        }
+
+        .route-btn.active {
+            color: #fff;
+            background: rgba(233, 69, 96, 0.15);
+        }
+
+        .route-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .route-btn[data-route="pai"].active::after { background: #e94560; }
+        .route-btn[data-route="frontier"].active::after { background: #0ea5e9; }
+        .route-btn[data-route="all"].active::after { background: #a855f7; }
+
+        .route-btn .route-tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        .route-btn[data-route="pai"] .route-tag { background: rgba(233, 69, 96, 0.3); color: #e94560; }
+        .route-btn[data-route="frontier"] .route-tag { background: rgba(14, 165, 233, 0.3); color: #0ea5e9; }
+
+        /* Map */
+        #map {
+            width: 100%;
+            height: 550px;
+        }
+
+        /* Route Info Panel */
+        .route-info {
+            background: #16213e;
+            padding: 20px 24px;
+            border-top: 1px solid #2a3a5e;
+            display: none;
+        }
+
+        .route-info.active { display: block; }
+
+        .route-info h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .route-info-pai h3 { color: #e94560; }
+        .route-info-frontier h3 { color: #0ea5e9; }
+
+        .route-info .route-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .route-info .route-meta span {
+            font-size: 13px;
+            color: #8899aa;
+        }
+
+        .route-info .route-meta span strong {
+            color: #ccc;
+        }
+
+        .route-info .stops-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .route-info .stop-chip {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.08);
+            color: #bbb;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Custom popup styles */
+        .leaflet-popup-content-wrapper {
+            background: #1a1a2e;
+            color: #eee;
+            border-radius: 12px;
+            border: 1px solid #2a3a5e;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .leaflet-popup-tip { background: #1a1a2e; }
+
+        .leaflet-popup-content {
+            margin: 16px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-width: 200px;
+        }
+
+        .popup-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .popup-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .popup-type.waterfall { color: #38bdf8; }
+        .popup-type.village { color: #f59e0b; }
+        .popup-type.viewpoint { color: #a855f7; }
+        .popup-type.hotspring { color: #ef4444; }
+        .popup-type.cave { color: #6ee7b7; }
+        .popup-type.temple { color: #fbbf24; }
+        .popup-type.coffee { color: #a78bfa; }
+        .popup-type.camp { color: #34d399; }
+        .popup-type.city { color: #e94560; }
+        .popup-type.activity { color: #fb923c; }
+
+        .popup-desc {
+            font-size: 13px;
+            color: #9aa;
+            line-height: 1.5;
+        }
+
+        .popup-route-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .popup-route-badge.pai { background: rgba(233, 69, 96, 0.3); color: #e94560; }
+        .popup-route-badge.frontier { background: rgba(14, 165, 233, 0.3); color: #0ea5e9; }
+
+        /* Custom marker styles */
+        .custom-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .custom-marker .marker-icon {
+            transform: rotate(45deg);
+            font-size: 14px;
+        }
+
+        /* Legend */
+        .map-legend {
+            background: rgba(22, 33, 62, 0.95);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #2a3a5e;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .map-legend h4 {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #9aa;
+        }
+
+        .legend-line {
+            width: 24px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* CTA */
+        .map-cta {
+            background: linear-gradient(135deg, #e94560 0%, #c62a45 100%);
+            padding: 20px 32px;
+            text-align: center;
+        }
+
+        .map-cta a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .map-cta a:hover { text-decoration: underline; }
+
+        .map-cta p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .map-header h1 { font-size: 20px; }
+            .route-btn { padding: 12px 8px; font-size: 12px; }
+            .route-btn .route-tag { display: none; }
+            #map { height: 400px; }
+            .route-info .route-meta { gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="map-container">
+    <!-- Header -->
+    <div class="map-header">
+        <h1>WIRO <span>4×4</span> ADVENTURE ROUTES</h1>
+        <p>Select a route to explore our off-road trails through Northern Thailand</p>
+    </div>
+
+    <!-- Route Selector -->
+    <div class="route-selector">
+        <button class="route-btn active" data-route="all" onclick="showRoute('all')">
+            All Routes
+        </button>
+        <button class="route-btn" data-route="pai" onclick="showRoute('pai')">
+            Chiang Mai → Pai <span class="route-tag">2-4 Days</span>
+        </button>
+        <button class="route-btn" data-route="frontier" onclick="showRoute('frontier')">
+            Northern Frontier <span class="route-tag">4-6 Days</span>
+        </button>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Route Info Panels -->
+    <div class="route-info route-info-pai" id="info-pai">
+        <h3>Chiang Mai → Pai Mountain Route</h3>
+        <div class="route-meta">
+            <span><strong>Duration:</strong> 2-4 Days</span>
+            <span><strong>Difficulty:</strong> Moderate</span>
+            <span><strong>Distance:</strong> ~180 km (off-road)</span>
+            <span><strong>Best Season:</strong> Nov - Feb</span>
+        </div>
+        <div class="stops-list">
+            <span class="stop-chip">Mae Taeng</span>
+            <span class="stop-chip">Chiang Dao Cave</span>
+            <span class="stop-chip">Lahu Village</span>
+            <span class="stop-chip">Hidden Waterfall</span>
+            <span class="stop-chip">Mountain Coffee Farm</span>
+            <span class="stop-chip">Karen Village</span>
+            <span class="stop-chip">Jungle Camp</span>
+            <span class="stop-chip">Pai Hot Springs</span>
+            <span class="stop-chip">Pai Canyon</span>
+        </div>
+    </div>
+
+    <div class="route-info route-info-frontier" id="info-frontier">
+        <h3>Northern Frontier - Deep Jungle</h3>
+        <div class="route-meta">
+            <span><strong>Duration:</strong> 4-6 Days</span>
+            <span><strong>Difficulty:</strong> Challenging</span>
+            <span><strong>Distance:</strong> ~300 km (off-road)</span>
+            <span><strong>Best Season:</strong> Nov - Feb</span>
+        </div>
+        <div class="stops-list">
+            <span class="stop-chip">Chiang Dao</span>
+            <span class="stop-chip">Doi Chiang Dao Summit View</span>
+            <span class="stop-chip">Akha Hill Village</span>
+            <span class="stop-chip">Doi Ang Khang</span>
+            <span class="stop-chip">Hmong Highland Village</span>
+            <span class="stop-chip">Fang Hot Springs</span>
+            <span class="stop-chip">Tha Ton Temple</span>
+            <span class="stop-chip">Myanmar Border Viewpoint</span>
+            <span class="stop-chip">Lisu Village</span>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="map-cta">
+        <a href="https://www.wiro4x4indochina.com" target="_blank">Book Your Adventure Now →</a>
+        <p>Every trip is private & customized to your preferences</p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ========================================
+// MAP INITIALIZATION
+// ========================================
+const map = L.map('map', {
+    center: [19.4, 98.95],
+    zoom: 9,
+    zoomControl: true,
+    scrollWheelZoom: true
+});
+
+// Dark map tiles (fits the adventure theme)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 17
+}).addTo(map);
+
+// ========================================
+// MARKER ICON FACTORY
+// ========================================
+function createIcon(emoji, color) {
+    return L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="custom-marker" style="background:${color}"><span class="marker-icon">${emoji}</span></div>`,
+        iconSize: [32, 40],
+        iconAnchor: [16, 40],
+        popupAnchor: [0, -42]
+    });
+}
+
+// Icon types
+const icons = {
+    city:      (c) => createIcon('🏙', c || '#e94560'),
+    cave:      (c) => createIcon('🕳', c || '#6ee7b7'),
+    village:   (c) => createIcon('🏘', c || '#f59e0b'),
+    waterfall: (c) => createIcon('💧', c || '#38bdf8'),
+    viewpoint: (c) => createIcon('👁', c || '#a855f7'),
+    hotspring: (c) => createIcon('♨', c || '#ef4444'),
+    temple:    (c) => createIcon('⛩', c || '#fbbf24'),
+    coffee:    (c) => createIcon('☕', c || '#a78bfa'),
+    camp:      (c) => createIcon('⛺', c || '#34d399'),
+    activity:  (c) => createIcon('🎯', c || '#fb923c'),
+};
+
+// ========================================
+// POPUP FACTORY
+// ========================================
+function makePopup(name, type, desc, route) {
+    const badgeClass = route === 'pai' ? 'pai' : 'frontier';
+    const routeLabel = route === 'pai' ? 'Chiang Mai → Pai' : 'Northern Frontier';
+    return `
+        <div class="popup-title">${name}</div>
+        <div class="popup-type ${type}">${type.replace(/([A-Z])/g, ' $1').trim()}</div>
+        <div class="popup-desc">${desc}</div>
+        <span class="popup-route-badge ${badgeClass}">${routeLabel}</span>
+    `;
+}
+
+// ========================================
+// ROUTE DATA: CHIANG MAI → PAI
+// ========================================
+const paiRouteCoords = [
+    [18.788, 98.985],   // Chiang Mai
+    [18.860, 98.940],   // Head northwest
+    [18.940, 98.920],   // Mae Rim area
+    [19.050, 98.910],   // Mae Taeng
+    [19.120, 98.880],   // Into mountains
+    [19.200, 98.860],   // Climbing
+    [19.300, 98.870],   // Near Chiang Dao
+    [19.394, 98.927],   // Chiang Dao Cave
+    [19.420, 98.880],   // Mountain trail north
+    [19.450, 98.820],   // Deep jungle
+    [19.460, 98.760],   // Ridge line
+    [19.470, 98.700],   // Heading west
+    [19.460, 98.640],   // Mountain crossing
+    [19.440, 98.580],   // Valley
+    [19.420, 98.530],   // Approaching Pai
+    [19.390, 98.490],   // Near Pai
+    [19.362, 98.440],   // Pai
+];
+
+const paiStops = [
+    { pos: [18.788, 98.985], name: "Chiang Mai", type: "city",
+      desc: "Starting point. Pickup from your hotel or the airport. Gear check and route briefing.", route: "pai" },
+    { pos: [19.050, 98.910], name: "Mae Taeng Valley", type: "viewpoint",
+      desc: "First mountain views as we leave the lowlands. Photo stop at the valley overlook.", route: "pai" },
+    { pos: [19.394, 98.927], name: "Chiang Dao Cave", type: "cave",
+      desc: "Massive underground cave system with rivers and chambers. One of Thailand's most impressive natural wonders. 500m of lit passages.", route: "pai" },
+    { pos: [19.420, 98.880], name: "Lahu Hill Village", type: "village",
+      desc: "Authentic Lahu community deep in the mountains. Tea with the village elder, local lunch. No tourist buses reach here.", route: "pai" },
+    { pos: [19.460, 98.760], name: "Hidden Waterfall", type: "waterfall",
+      desc: "Unnamed cascade in the deep jungle. Natural swimming pool, no other visitors. The kind of place you can't find on Google Maps.", route: "pai" },
+    { pos: [19.470, 98.700], name: "Mountain Coffee Farm", type: "coffee",
+      desc: "Small-batch arabica grown at 1,200m altitude by a hill tribe family. Fresh roast, incredible views, and the best cup you'll have in Thailand.", route: "pai" },
+    { pos: [19.440, 98.580], name: "Karen Weaving Village", type: "village",
+      desc: "Traditional Karen community known for handloom textiles. Watch weavers at work, buy directly from the artisans. Overnight homestay available.", route: "pai" },
+    { pos: [19.420, 98.530], name: "Jungle Riverside Camp", type: "camp",
+      desc: "Overnight camp by the river. Tents, campfire, stargazing. Fresh-cooked dinner by our team. No light pollution - the Milky Way is spectacular.", route: "pai" },
+    { pos: [19.380, 98.460], name: "Tha Pai Hot Springs", type: "hotspring",
+      desc: "Natural hot springs in the jungle. Perfect morning soak before the final push to Pai. Mineral-rich water, lush forest setting.", route: "pai" },
+    { pos: [19.350, 98.455], name: "Pai Canyon (Kong Lan)", type: "viewpoint",
+      desc: "Dramatic sandstone canyon with 30-50m drops. Narrow ridgeline walk with panoramic valley views. Best at sunset.", route: "pai" },
+    { pos: [19.362, 98.440], name: "Pai", type: "city",
+      desc: "Arrival! You've earned it. Small mountain town with great food, live music, and night market. Arrive from the mountains, not the highway.", route: "pai" },
+];
+
+// ========================================
+// ROUTE DATA: NORTHERN FRONTIER
+// ========================================
+const frontierRouteCoords = [
+    [18.788, 98.985],   // Chiang Mai
+    [18.860, 98.940],   // Head north
+    [18.940, 98.920],   // Mae Rim
+    [19.050, 98.910],   // Mae Taeng
+    [19.200, 98.870],   // Climbing
+    [19.366, 98.964],   // Chiang Dao town
+    [19.400, 98.877],   // Doi Chiang Dao
+    [19.480, 98.900],   // Mountain trail
+    [19.550, 98.920],   // Deep jungle
+    [19.620, 98.950],   // Ridge
+    [19.700, 99.000],   // Highland
+    [19.800, 99.010],   // Approaching Ang Khang
+    [19.895, 99.046],   // Doi Ang Khang
+    [19.920, 99.100],   // Mountain pass
+    [19.916, 99.212],   // Fang
+    [19.960, 99.220],   // North of Fang
+    [20.010, 99.180],   // Toward Tha Ton
+    [20.050, 99.155],   // Near border
+    [20.082, 99.155],   // Tha Ton
+];
+
+const frontierStops = [
+    { pos: [18.788, 98.985], name: "Chiang Mai", type: "city",
+      desc: "Starting point. Gear up for the deep north expedition. Route briefing and supply check.", route: "frontier" },
+    { pos: [19.366, 98.964], name: "Chiang Dao", type: "city",
+      desc: "Gateway to the northern mountains. Last major town before we head into remote territory. Local market stop.", route: "frontier" },
+    { pos: [19.400, 98.877], name: "Doi Chiang Dao Summit View", type: "viewpoint",
+      desc: "Thailand's 3rd highest peak at 2,175m. Spectacular limestone massif rising from the jungle. Sunrise viewpoint at 1,400m.", route: "frontier" },
+    { pos: [19.550, 98.920], name: "Akha Hill Village", type: "village",
+      desc: "Remote Akha community with iconic entrance gates. Women in traditional silver headdresses. Village-grown coffee. Fewer than 50 visitors per year.", route: "frontier" },
+    { pos: [19.700, 99.000], name: "Hmong Highland Village", type: "village",
+      desc: "High-altitude Hmong settlement at 1,500m. Known for stunning embroidery and silverwork. If visiting Dec-Jan, witness New Year celebrations.", route: "frontier" },
+    { pos: [19.895, 99.046], name: "Doi Ang Khang", type: "viewpoint",
+      desc: "Royal Agricultural Station near the Myanmar border. Incredible mountain scenery, cool climate, flower gardens. Feels like a different country.", route: "frontier" },
+    { pos: [19.920, 99.100], name: "Myanmar Border Viewpoint", type: "viewpoint",
+      desc: "Standing at the edge of Thailand, looking into Myanmar. Remote mountain pass with 360° panoramic views. One of the most dramatic spots in the north.", route: "frontier" },
+    { pos: [19.916, 99.212], name: "Fang Hot Springs", type: "hotspring",
+      desc: "Natural geothermal springs in Doi Fang National Park. Boiling water erupts from the earth - you can cook eggs in the springs. Cooler pools for bathing.", route: "frontier" },
+    { pos: [19.960, 99.220], name: "Lisu Village", type: "village",
+      desc: "Colorful Lisu community in the Fang highlands. Known for vibrant traditional clothing and lively New Year celebrations (Jan-Feb).", route: "frontier" },
+    { pos: [20.082, 99.155], name: "Tha Ton Temple & River", type: "temple",
+      desc: "Ancient hilltop temple overlooking the Kok River and Myanmar border. Giant Buddha statue with panoramic views. Boat rides on the river.", route: "frontier" },
+];
+
+// ========================================
+// RENDER ROUTES & MARKERS
+// ========================================
+let paiLine, frontierLine;
+let paiMarkers = [], frontierMarkers = [];
+
+// Draw Pai route
+paiLine = L.polyline(paiRouteCoords, {
+    color: '#e94560',
+    weight: 4,
+    opacity: 0.9,
+    dashArray: null,
+    smoothFactor: 1.5
+}).addTo(map);
+
+// Draw Frontier route
+frontierLine = L.polyline(frontierRouteCoords, {
+    color: '#0ea5e9',
+    weight: 4,
+    opacity: 0.9,
+    dashArray: null,
+    smoothFactor: 1.5
+}).addTo(map);
+
+// Add Pai markers
+paiStops.forEach(stop => {
+    const iconFn = icons[stop.type] || icons.activity;
+    const marker = L.marker(stop.pos, { icon: iconFn('#e94560') })
+        .bindPopup(makePopup(stop.name, stop.type, stop.desc, stop.route), { maxWidth: 280 })
+        .addTo(map);
+    paiMarkers.push(marker);
+});
+
+// Add Frontier markers
+frontierStops.forEach(stop => {
+    const iconFn = icons[stop.type] || icons.activity;
+    const marker = L.marker(stop.pos, { icon: iconFn('#0ea5e9') })
+        .bindPopup(makePopup(stop.name, stop.type, stop.desc, stop.route), { maxWidth: 280 })
+        .addTo(map);
+    frontierMarkers.push(marker);
+});
+
+// Chiang Mai shared marker (shown on both routes)
+const cmSharedMarker = L.marker([18.788, 98.985], { icon: icons.city('#fff') })
+    .bindPopup(`
+        <div class="popup-title">Chiang Mai</div>
+        <div class="popup-type city">Starting Point</div>
+        <div class="popup-desc">Your adventure begins here. We pick you up from your hotel or the airport. Both routes depart from Chiang Mai.</div>
+        <span class="popup-route-badge pai" style="margin-right:4px">CM → Pai</span>
+        <span class="popup-route-badge frontier">Northern Frontier</span>
+    `, { maxWidth: 280 });
+
+// ========================================
+// LEGEND CONTROL
+// ========================================
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function() {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `
+        <h4>Routes</h4>
+        <div class="legend-item"><span class="legend-line" style="background:#e94560"></span> Chiang Mai → Pai</div>
+        <div class="legend-item"><span class="legend-line" style="background:#0ea5e9"></span> Northern Frontier</div>
+        <h4 style="margin-top:8px">Stops</h4>
+        <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Hill Tribe Village</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#38bdf8"></span> Waterfall</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span> Viewpoint</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Hot Springs</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span> Coffee Farm</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span> Jungle Camp</div>
+    `;
+    return div;
+};
+legend.addTo(map);
+
+// ========================================
+// ROUTE SWITCHING
+// ========================================
+function showRoute(route) {
+    // Update buttons
+    document.querySelectorAll('.route-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-route="${route}"]`).classList.add('active');
+
+    // Update info panels
+    document.querySelectorAll('.route-info').forEach(el => el.classList.remove('active'));
+
+    // Show/hide route elements
+    if (route === 'all') {
+        // Show everything
+        map.addLayer(paiLine);
+        map.addLayer(frontierLine);
+        paiMarkers.forEach(m => map.addLayer(m));
+        frontierMarkers.forEach(m => map.addLayer(m));
+        if (map.hasLayer(cmSharedMarker)) map.removeLayer(cmSharedMarker);
+
+        // Fit to show both routes
+        const allCoords = [...paiRouteCoords, ...frontierRouteCoords];
+        map.fitBounds(L.latLngBounds(allCoords), { padding: [30, 30] });
+    }
+    else if (route === 'pai') {
+        // Show only Pai route
+        map.addLayer(paiLine);
+        map.removeLayer(frontierLine);
+        paiMarkers.forEach(m => map.addLayer(m));
+        frontierMarkers.forEach(m => map.removeLayer(m));
+        if (map.hasLayer(cmSharedMarker)) map.removeLayer(cmSharedMarker);
+
+        document.getElementById('info-pai').classList.add('active');
+        map.fitBounds(L.latLngBounds(paiRouteCoords), { padding: [40, 40] });
+    }
+    else if (route === 'frontier') {
+        // Show only Frontier route
+        map.removeLayer(paiLine);
+        map.addLayer(frontierLine);
+        paiMarkers.forEach(m => map.removeLayer(m));
+        frontierMarkers.forEach(m => map.addLayer(m));
+        if (map.hasLayer(cmSharedMarker)) map.removeLayer(cmSharedMarker);
+
+        document.getElementById('info-frontier').classList.add('active');
+        map.fitBounds(L.latLngBounds(frontierRouteCoords), { padding: [40, 40] });
+    }
+}
+
+// Start with all routes visible
+showRoute('all');
+</script>
+
+</body>
+</html>
