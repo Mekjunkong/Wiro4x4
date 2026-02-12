@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Database:** MySQL/TiDB (provided by Manus platform)
 - **Auth:** Manus OAuth (built-in)
 - **Email:** Resend (lazy initialization — no crash without API key)
-- **Testing:** Vitest (76 tests across 17 files)
+- **Testing:** Vitest (107 tests across 18 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -25,7 +25,7 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests (76 tests: 59 pass locally, 17 DB-dependent skipped)
+# Run tests (107 tests: 90 pass locally, 17 DB-dependent skipped)
 pnpm test
 
 # Type check
@@ -58,6 +58,7 @@ pnpm format
 │   │   │   ├── CommunityConnection.tsx
 │   │   │   ├── KosherInfo.tsx   # Kosher information
 │   │   │   ├── FloatingActionButtons.tsx  # WhatsApp + Book Now buttons
+│   │   │   ├── CostCalculator.tsx   # Interactive trip cost estimator
 │   │   │   └── DashboardLayout.tsx  # Admin layout wrapper
 │   │   ├── contexts/
 │   │   │   └── LanguageContext.tsx  # Bilingual state (useLanguage hook)
@@ -68,6 +69,7 @@ pnpm format
 │   │   │   ├── BookingSuccess.tsx  # Success page
 │   │   │   ├── AdminDashboard.tsx  # Admin panel (6 tabs, paginated)
 │   │   │   ├── Pricing.tsx      # Pricing page (dynamic from DB)
+│   │   │   ├── Estimate.tsx     # Trip cost estimator page (/estimate)
 │   │   │   ├── Gallery.tsx      # Photo gallery with category filters
 │   │   │   ├── Reviews.tsx      # Customer reviews + submission form
 │   │   │   ├── Blog.tsx         # Blog listing
@@ -96,7 +98,7 @@ pnpm format
 │   ├── rateLimit.ts             # In-memory rate limiter
 │   ├── stripe.ts                # Stripe placeholder (TODO — deferred)
 │   ├── test-helpers.ts          # Shared test context + itWithDb helper
-│   ├── *.test.ts                # 13 test files (see Testing section)
+│   ├── *.test.ts                # 14 test files (see Testing section)
 ├── drizzle/                     # Database schema and migrations
 │   ├── schema.ts                # 10 tables (users, bookings, agents, leads,
 │   │                            #   financialRecords, galleryPhotos, reviews,
@@ -111,7 +113,8 @@ pnpm format
 │   └── interactive-map.html     # Leaflet.js interactive route map
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
-│   └── schemas.ts               # Shared Zod validation schemas (single source of truth)
+│   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
+│   └── pricing.ts               # Pure pricing calculation functions (used by client + server)
 ├── todo.md                      # Project task tracking
 ├── package.json                 # Dependencies and scripts
 └── vite.config.ts               # Vite configuration
@@ -225,21 +228,40 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - Hardcoded fallback tours if DB returns empty (6 tours with matching slug keys)
 - Admin can create/edit/delete tours, manage slug/itinerary/includedItems via Tours tab
 
-### 10. Homepage Inquiry Form
+### 10. Trip Cost Estimator
+
+- **URL:** `/estimate` — interactive calculator for customers to estimate trip costs
+- **Component:** `client/src/components/CostCalculator.tsx`
+- **Page:** `client/src/pages/Estimate.tsx`
+- **Pricing Engine:** `shared/pricing.ts` — pure functions, no DB dependency, shared between client and server
+- **Features:**
+  - Tour selection from DB (with hardcoded fallback)
+  - Group size controls (adults + children with individual age selectors)
+  - Children pricing: under 3 free, ages 3-10 at 50% surcharge, 11+ full price
+  - Date picker with automatic Shabbat (Friday night) detection
+  - Service add-ons: hotels, kosher meals, attractions, Shabbat hotel
+  - Group multiplier: 1-4 base, 5-6 +20%, 7+ flagged as custom quote
+  - Multi-day package auto-detection (2/3/5-day packages with savings)
+  - Live itemized price breakdown with deposit (30%) / balance split
+  - WhatsApp CTA with pre-filled message containing estimate details
+- **Linked from:** Pricing page (`/pricing`) has a CTA button to `/estimate`
+- **Tests:** `server/pricing.test.ts` — 31 unit tests covering all calculation logic
+
+### 11. Homepage Inquiry Form
 
 - `client/src/components/QuickInquiryForm.tsx` — "Get a Free Quote" section
 - Fields: Name, Email, Phone, Travel Dates, Group Size, Interest type
 - Submits to existing `trpc.lead.create` API (no backend changes needed)
 - Shows success state with WhatsApp link after submission
 
-### 11. Destination Showcase
+### 12. Destination Showcase
 
 - `client/src/components/DestinationShowcase.tsx` — "Explore Northern Thailand" section
 - 6 destination cards (Sticky Waterfalls, Doi Inthanon, Jungle, Rice Terraces, Elephants, Hill Tribes)
 - Each card links to the matching tour detail page via slug
 - Static data with existing images from `/images/` folder
 
-### 12. Blog Content & Interactive Map
+### 13. Blog Content & Interactive Map
 
 - **Blog posts:** Bilingual markdown files in `blogs/` directory (English + Hebrew pairs)
 - **Interactive map:** `blogs/interactive-map.html` — standalone Leaflet.js map showing Wiro 4x4 adventure routes in Chiang Mai
@@ -270,7 +292,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ## Testing
 
-**Framework:** Vitest | **76 total tests** | **17 test files**
+**Framework:** Vitest | **107 total tests** | **18 test files**
 
 ```bash
 pnpm test          # Run all tests
@@ -295,6 +317,7 @@ npx vitest run     # Same thing
 | `resendEmailService.test.ts` | 1     | Graceful fallback without API key                 |
 | `auth.logout.test.ts`        | 1     | Cookie clearing                                   |
 | `blog.test.ts`               | 4     | Blog list, getBySlug, create, listAll             |
+| `pricing.test.ts`            | 31    | Pricing calculations, group multipliers, packages |
 
 ### Test Patterns
 
@@ -326,6 +349,7 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `client/src/pages/Home.tsx` - Landing page content
 - `client/src/const.ts` - Constants (WhatsApp, logos)
 - `shared/schemas.ts` - Shared Zod validation schemas
+- `shared/pricing.ts` - Pure pricing calculation functions
 
 ### DO NOT EDIT:
 
@@ -514,10 +538,11 @@ pnpm db:push  # Sync database schema
 | Add tour          | Admin panel → Tours tab, or edit `Tours.tsx` fallback      |
 | Add gallery photo | Admin panel → Gallery tab                                  |
 | Manage reviews    | Admin panel → Reviews tab                                  |
+| Cost estimator    | `/estimate` page, logic in `shared/pricing.ts`             |
 
 ---
 
 **Last Updated:** 2026-02-12
-**Version:** 2.2
+**Version:** 2.3
 **Platform:** Manus
-**Test Coverage:** 76 tests (17 files) — 59 pass locally, 17 DB-dependent skipped
+**Test Coverage:** 107 tests (18 files) — 90 pass locally, 17 DB-dependent skipped
