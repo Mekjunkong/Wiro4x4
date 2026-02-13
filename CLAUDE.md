@@ -105,12 +105,10 @@ pnpm format
 │   │                            #   payments, tours, blogPosts)
 │   ├── relations.ts             # Drizzle relations (FK relationships)
 │   └── migrations/              # Auto-generated migrations
-├── blogs/                       # Blog content files
-│   ├── 01-beyond-the-tourist-trail-{en,he}.md
-│   ├── 02-chiang-mai-to-pai-{en,he}.md
-│   ├── 03-hill-tribes-{en,he}.md
-│   ├── 04-israeli-travelers-guide-{en,he}.md
-│   └── interactive-map.html     # Leaflet.js interactive route map
+├── .github/
+│   └── workflows/
+│       ├── ci.yml               # CI checks
+│       └── deploy-manus.yml     # Auto-deploy to Manus on push to main
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
@@ -261,13 +259,11 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - Each card links to the matching tour detail page via slug
 - Static data with existing images from `/images/` folder
 
-### 13. Blog Content & Interactive Map
+### 13. Blog System
 
-- **Blog posts:** Bilingual markdown files in `blogs/` directory (English + Hebrew pairs)
-- **Interactive map:** `blogs/interactive-map.html` — standalone Leaflet.js map showing Wiro 4x4 adventure routes in Chiang Mai
-  - Self-contained HTML (no build step required)
-  - Uses Leaflet 1.9.4 via CDN
-  - Dark theme with route visualization
+- **Blog posts:** Managed via Admin panel → Blog tab (stored in database)
+- **Pages:** `/blog` (listing) and `/blog/:slug` (individual posts)
+- **Bilingual:** Each post has English + Hebrew content fields
 
 ### 7. Rate Limiting
 
@@ -431,42 +427,33 @@ Edit CSS variables in `client/src/index.css`:
 
 ## Deployment
 
-### Option 1: Manus Platform (Recommended)
+### Auto-Deploy via GitHub Actions (Primary)
+
+Pushing to `main` automatically deploys to Manus via `.github/workflows/deploy-manus.yml`:
+
+```bash
+git push origin main  # Triggers auto-deploy to Manus
+```
+
+- **Trigger:** Push to `main` branch
+- **Ignores:** `.md` files, `.claude/`, `.agents/`, `.cursor/`, `blogs/` directories
+- **Secret:** `WIRO` (Manus API key, configured in GitHub repo settings)
+- **What happens:** GitHub Actions calls Manus API → Manus pulls latest code → runs `pnpm install && pnpm build` → deploys
+
+### Manual Manus Deployment (Alternative)
 
 1. Tell Manus agent: "Save checkpoint"
 2. Click "Publish" button in Manus UI
 3. Site live at `wiro4x4.manus.space`
 4. Add custom domain in Settings → Domains
 
-### Option 2: Manual Deployment
+### Standalone Deployment
 
 1. Build: `pnpm build`
 2. Deploy `dist/` folder
 3. Set environment variables manually
 4. Configure database connection
 5. Set up OAuth redirect URLs
-
-## Syncing with Manus
-
-After making changes in Claude Code:
-
-1. **Commit and push to GitHub:**
-
-```bash
-git add .
-git commit -m "Your changes"
-git push origin main
-```
-
-2. **Tell Manus agent:**
-   "Pull updates from GitHub"
-
-3. **Manus will:**
-
-- Pull your changes
-- Run tests
-- Save checkpoint
-- Make it ready to publish
 
 ## Troubleshooting
 
@@ -542,7 +529,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-13
 **Version:** 2.3
 **Platform:** Manus
 **Test Coverage:** 107 tests (18 files) — 90 pass locally, 17 DB-dependent skipped
