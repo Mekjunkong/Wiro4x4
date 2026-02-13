@@ -19,7 +19,7 @@ jobs:
           response=$(curl -s -w "\n%{http_code}" \
             --request POST \
             --url https://api.manus.ai/v1/tasks \
-            --header "API_KEY: ${{ secrets.MANUS_API_KEY }}" \
+            --header "API_KEY: ${{ secrets.WIRO }}" \
             --header "Content-Type: application/json" \
             --data '{
               "prompt": "Pull the latest code from the GitHub repository https://github.com/Mekjunkong/Wiro4x4 (main branch) and redeploy the Wiro 4x4 website. Run pnpm install, then pnpm build, and deploy the updated build.",
