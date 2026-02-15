@@ -17,7 +17,7 @@ import {
   updateGalleryPhoto,
   deleteGalleryPhoto,
 } from "../db";
-import { storagePut } from "../storage";
+import { supabaseUpload } from "../supabaseStorage";
 import { paginationInput } from "../../shared/schemas";
 
 export const galleryRouter = router({
@@ -204,7 +204,7 @@ export const galleryRouter = router({
       const buffer = Buffer.from(input.base64Data, "base64");
       let result: { key: string; url: string };
       try {
-        result = await storagePut(key, buffer, input.contentType);
+        result = await supabaseUpload(key, buffer, input.contentType);
       } catch (err) {
         captureException(err);
         throw new TRPCError({
