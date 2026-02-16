@@ -1,5 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
+import { GoldDivider } from "@/components/GoldDivider";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
   ShoppingBasket,
   Package,
@@ -11,6 +13,7 @@ import {
 
 export function KosherInfo() {
   const { t } = useLanguage();
+  const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   const kosherFeatures = [
     {
@@ -64,12 +67,13 @@ export function KosherInfo() {
   ];
 
   return (
-    <section id="kosher" className="py-16 md:py-20 bg-background">
+    <section ref={sectionRef} id="kosher" className="py-24 md:py-32 bg-card">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-medium mb-6">
             {t("Kosher Logistics & Transparency", "כשרות -- איך זה עובד")}
           </h2>
+          <GoldDivider />
           <p className="text-lg text-muted-foreground">
             {t(
               "We take kosher seriously. Here is exactly how we maintain kosher standards throughout your adventure.",
@@ -88,8 +92,8 @@ export function KosherInfo() {
               >
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Icon className="h-6 w-6 text-primary" />
+                    <div className="p-2 bg-[#D4AF37]/10 rounded-lg">
+                      <Icon className="h-6 w-6 text-[#D4AF37]" />
                     </div>
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
                   </div>
