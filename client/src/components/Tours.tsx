@@ -2,7 +2,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useCallback } from "react";
+import { GoldDivider } from "@/components/GoldDivider";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
   Clock,
   Mountain,
@@ -133,18 +134,8 @@ function generateSlug(name: string): string {
 
 export function Tours() {
   const { t } = useLanguage();
-  const parallaxRef = useRef<HTMLDivElement>(null);
+  const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.15 });
 
-  const handleScroll = useCallback(() => {
-    if (parallaxRef.current) {
-      parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.2}px)`;
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
   const { data: dbTours } = trpc.tour.list.useQuery();
 
   const tours =
@@ -179,17 +170,11 @@ export function Tours() {
   return (
     <section
       id="tours"
-      className="py-16 md:py-20 bg-background relative overflow-hidden"
+      className="py-24 md:py-32 bg-card relative overflow-hidden"
     >
-      {/* Parallax Background Element */}
-      <div
-        ref={parallaxRef}
-        className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent pointer-events-none"
-        style={{ willChange: "transform" }}
-      />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6">
             {t("Our Premium Tours", "הטיולים שלנו")}
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
@@ -198,45 +183,54 @@ export function Tours() {
               "בחרו מתוך מגוון טיולי השטח שלנו -- כולם עם אפשרות לאוכל כשר."
             )}
           </p>
+          <GoldDivider />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-4 md:px-0">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0"
+        >
           {tours.map(tour => (
             <a
               key={tour.id}
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 h-full">
+              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-card">
                 <div className="relative h-72 overflow-hidden bg-muted">
                   <img
                     src={tour.image}
                     alt={tour.title}
-                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ${
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
                       tour.id === 6 ? "object-[50%_30%]" : "object-center"
                     }`}
                     loading="lazy"
                   />
                   {tour.price != null && (
-                    <div className="absolute top-4 right-4 bg-secondary text-foreground px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                    <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                       {t("From", "החל מ-")} &#3647;{tour.price.toLocaleString()}
                     </div>
                   )}
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <h3 className="text-xl font-bold">{tour.title}</h3>
+                  <h3
+                    className="text-xl font-medium"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {tour.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {tour.description}
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-primary" />
+                      <Clock className="h-4 w-4 text-[#D4AF37]" />
                       <span>{tour.duration}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mountain className="h-4 w-4 text-primary" />
+                      <Mountain className="h-4 w-4 text-[#D4AF37]" />
                       <span>
                         {t(
                           DIFFICULTY_LABELS[tour.difficulty]?.en ||
@@ -250,26 +244,26 @@ export function Tours() {
 
                   <div className="flex flex-wrap gap-2 pt-2">
                     {tour.kosher && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
                         <Utensils className="h-3 w-3" />
                         {t("Kosher", "כשר")}
                       </span>
                     )}
                     {tour.private && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary/10 text-secondary-foreground text-xs rounded-full">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
                         <Users className="h-3 w-3" />
                         {t("Private", "פרטי")}
                       </span>
                     )}
                     {tour.shabbat && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent-foreground text-xs rounded-full">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
                         <Calendar className="h-3 w-3" />
                         {t("Shabbat OK", "מתאים לשבת")}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-primary font-medium text-sm pt-2">
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
                     {t("View Details", "לפרטים נוספים")}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
