@@ -8,6 +8,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import Home from "./pages/Home";
 import { CookieConsent } from "./components/CookieConsent";
+import { ScrollProgress } from "./components/ScrollProgress";
+import { CustomCursor } from "./components/CustomCursor";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
 const Estimate = React.lazy(() => import("./pages/Estimate"));
@@ -88,6 +90,8 @@ function AppContent() {
 
   return (
     <TooltipProvider>
+      <ScrollProgress />
+      <CustomCursor />
       {/* Skip to main content link (I2) — visible only on keyboard focus */}
       <a
         href="#main-content"
