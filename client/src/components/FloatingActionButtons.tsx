@@ -39,7 +39,7 @@ export function FloatingActionButtons() {
         {/* Book Now Button */}
         <Link href="/book">
           <button
-            className={`bg-secondary hover:bg-secondary/90 text-black rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group border-2 border-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${showPulse ? "animate-pulse-subtle" : ""}`}
+            className={`bg-secondary hover:bg-secondary/90 text-black rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group border-2 border-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${showPulse ? "animate-subtle-pulse" : ""}`}
             aria-label={t("Book Now", "הזמינו עכשיו")}
           >
             <Calendar className="h-6 w-6" />
@@ -52,7 +52,7 @@ export function FloatingActionButtons() {
         {/* WhatsApp Button */}
         <button
           onClick={handleWhatsAppClick}
-          className={`bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 ${showPulse ? "animate-pulse-subtle" : ""}`}
+          className={`bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 ${showPulse ? "animate-subtle-pulse" : ""}`}
           aria-label={t("Contact us on WhatsApp", "שלחו לנו וואטסאפ")}
         >
           <MessageCircle className="h-6 w-6" />
