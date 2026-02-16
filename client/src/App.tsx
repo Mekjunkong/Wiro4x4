@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -44,32 +45,47 @@ function LoadingSpinner() {
 
 function Router() {
   const [location] = useLocation();
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
     <>
       <ScrollToTop />
       <React.Suspense fallback={<LoadingSpinner />}>
-        <div key={location} className="animate-page-in">
-          <Switch>
-            <Route path={"/"} component={Home} />
-            <Route path={"/pricing"} component={Pricing} />
-            <Route path={"/estimate"} component={Estimate} />
-            <Route path={"/tours/:slug"} component={TourDetail} />
-            <Route path={"/blog"} component={Blog} />
-            <Route path={"/blog/:id"} component={BlogPost} />
-            <Route path={"/gallery"} component={Gallery} />
-            <Route path={"/reviews"} component={Reviews} />
-            <Route path={"/book"} component={BookingForm} />
-            <Route path={"/booking/success"} component={BookingSuccess} />
-            <Route path={"/booking/cancel"} component={BookingCancel} />
-            <Route path={"/terms"} component={TermsOfService} />
-            <Route path={"/privacy"} component={PrivacyPolicy} />
-            <Route path={"/admin"} component={AdminDashboard} />
-            <Route path={"/404"} component={NotFound} />
-            {/* Final fallback route */}
-            <Route component={NotFound} />
-          </Switch>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location}
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? {} : { opacity: 0, y: -10 }}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { duration: 0.3, ease: "easeInOut" }
+            }
+          >
+            <Switch>
+              <Route path={"/"} component={Home} />
+              <Route path={"/pricing"} component={Pricing} />
+              <Route path={"/estimate"} component={Estimate} />
+              <Route path={"/tours/:slug"} component={TourDetail} />
+              <Route path={"/blog"} component={Blog} />
+              <Route path={"/blog/:id"} component={BlogPost} />
+              <Route path={"/gallery"} component={Gallery} />
+              <Route path={"/reviews"} component={Reviews} />
+              <Route path={"/book"} component={BookingForm} />
+              <Route path={"/booking/success"} component={BookingSuccess} />
+              <Route path={"/booking/cancel"} component={BookingCancel} />
+              <Route path={"/terms"} component={TermsOfService} />
+              <Route path={"/privacy"} component={PrivacyPolicy} />
+              <Route path={"/admin"} component={AdminDashboard} />
+              <Route path={"/404"} component={NotFound} />
+              {/* Final fallback route */}
+              <Route component={NotFound} />
+            </Switch>
+          </motion.div>
+        </AnimatePresence>
       </React.Suspense>
     </>
   );
