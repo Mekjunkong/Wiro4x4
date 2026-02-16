@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { GoldDivider } from "@/components/GoldDivider";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import {
   Clock,
@@ -307,7 +308,7 @@ export default function TourDetail() {
       <div className="min-h-screen">
         <Header />
         <div className="flex items-center justify-center py-32">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+          <div className="animate-spin w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full" />
         </div>
         <Footer />
       </div>
@@ -397,12 +398,12 @@ export default function TourDetail() {
     <div className="min-h-screen">
       <Header />
       <main id="main-content">
-        {/* Hero */}
-        <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
+        {/* Full-bleed Hero Image (60vh) */}
+        <section className="relative min-h-[60vh] overflow-hidden">
           <img
             src={tour.imageUrl}
             alt={t(tour.name, tour.nameHe)}
-            className="w-full h-full object-cover"
+            className="w-full h-full absolute inset-0 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
@@ -414,7 +415,10 @@ export default function TourDetail() {
                 <ArrowLeft className="w-4 h-4" />
                 {t("All Tours", "כל הטיולים")}
               </button>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">
+              <h1
+                className="text-4xl md:text-5xl font-medium text-white mb-3"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t(tour.name, tour.nameHe)}
               </h1>
               <div className="flex flex-wrap items-center gap-3 text-white/90 text-sm">
@@ -436,175 +440,195 @@ export default function TourDetail() {
           </div>
         </section>
 
-        <div className="container py-10 md:py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
+        {/* Overlapping Content Card */}
+        <div className="container -mt-20 relative z-10 pb-10 md:pb-14">
+          <div className="bg-card rounded-sm shadow-premium p-6 md:p-10">
+            <GoldDivider className="mx-0 mt-0 mb-8" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Description */}
+                <div>
+                  <h2
+                    className="text-2xl font-bold mb-4"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {t("About This Tour", "אודות הטיול")}
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {t(tour.description, tour.descriptionHe)}
+                  </p>
+                </div>
+
+                {/* Badges */}
+                <div className="flex flex-wrap gap-3">
+                  {tour.isKosher === 1 && (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#D4AF37]/10 text-[#D4AF37] text-sm rounded-sm font-medium">
+                      <Utensils className="h-4 w-4" />
+                      {t("Kosher Meals Included", "ארוחות כשרות כלולות")}
+                    </span>
+                  )}
+                  {tour.isPrivate === 1 && (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-secondary/10 text-secondary-foreground text-sm rounded-sm font-medium">
+                      <Users className="h-4 w-4" />
+                      {t("Private Tour", "טיול פרטי")}
+                    </span>
+                  )}
+                  {tour.isShabbatOk === 1 && (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent-foreground text-sm rounded-sm font-medium">
+                      <Calendar className="h-4 w-4" />
+                      {t("Shabbat Friendly", "מתאים לשבת")}
+                    </span>
+                  )}
+                </div>
+
+                {/* What's Included */}
+                {includedItems.length > 0 && (
+                  <div>
+                    <h2
+                      className="text-2xl font-bold mb-4"
+                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    >
+                      {t("What's Included", "מה כלול")}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {includedItems.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 rounded-sm bg-[#D4AF37]/5"
+                        >
+                          <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                          <span className="text-sm">{t(item.en, item.he)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Itinerary */}
+                {itinerary.length > 0 && (
+                  <div>
+                    <h2
+                      className="text-2xl font-bold mb-4"
+                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    >
+                      {t("Day-by-Day Itinerary", "מסלול יום-יומי")}
+                    </h2>
+                    <div className="space-y-4">
+                      {itinerary.map((step, idx) => (
+                        <div
+                          key={idx}
+                          className="flex gap-4 p-4 border border-border rounded-sm"
+                        >
+                          <div
+                            className="w-10 h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center font-bold text-2xl shrink-0"
+                            style={{
+                              fontFamily: "'Cormorant Garamond', serif",
+                            }}
+                          >
+                            {idx + 1}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-1">
+                              {t(step.title, step.titleHe)}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {t(step.description, step.descriptionHe)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar - Booking Card */}
               <div>
-                <h2 className="text-2xl font-bold mb-4">
-                  {t("About This Tour", "אודות הטיול")}
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  {t(tour.description, tour.descriptionHe)}
-                </p>
+                <Card className="p-6 sticky top-24 space-y-5 rounded-sm">
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">
+                      {t("Starting from", "החל מ-")}
+                    </div>
+                    <div className="text-4xl font-bold text-[#D4AF37]">
+                      &#3647;{tour.price.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {t("per group (1-4 people)", "לקבוצה (1-4 אנשים)")}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        {t("Duration", "משך")}
+                      </span>
+                      <span className="font-medium">{tour.duration}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        {t("Difficulty", "רמת קושי")}
+                      </span>
+                      <span className="font-medium">
+                        {t(diffLabel.en, diffLabel.he)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        {t("Group Size", "גודל קבוצה")}
+                      </span>
+                      <span className="font-medium">
+                        {tour.groupMinSize}-{tour.groupMaxSize}{" "}
+                        {t("people", "אנשים")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <Button
+                      onClick={handleBookWhatsApp}
+                      className="w-full gap-2"
+                      variant="default"
+                      size="lg"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
+                    </Button>
+                    <a
+                      href="#inquiry"
+                      onClick={e => {
+                        e.preventDefault();
+                        navigate("/");
+                        // Small delay so the homepage loads then scrolls
+                        setTimeout(() => {
+                          document
+                            .getElementById("inquiry")
+                            ?.scrollIntoView({ behavior: "smooth" });
+                        }, 300);
+                      }}
+                      className="block text-center text-sm text-[#D4AF37] hover:underline"
+                    >
+                      {t("Or request a free quote", "או בקשו הצעת מחיר חינם")}
+                    </a>
+                  </div>
+
+                  <div className="pt-3 border-t text-xs text-muted-foreground space-y-1.5">
+                    <p>
+                      {t(
+                        "50% deposit to confirm. Balance on tour day.",
+                        "מקדמה 50% לאישור. יתרה ביום הטיול."
+                      )}
+                    </p>
+                    <p>
+                      {t(
+                        "Free cancellation 7+ days before.",
+                        "ביטול חינם 7+ ימים לפני."
+                      )}
+                    </p>
+                  </div>
+                </Card>
               </div>
-
-              {/* Badges */}
-              <div className="flex flex-wrap gap-3">
-                {tour.isKosher === 1 && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary text-sm rounded-full font-medium">
-                    <Utensils className="h-4 w-4" />
-                    {t("Kosher Meals Included", "ארוחות כשרות כלולות")}
-                  </span>
-                )}
-                {tour.isPrivate === 1 && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-secondary/10 text-secondary-foreground text-sm rounded-full font-medium">
-                    <Users className="h-4 w-4" />
-                    {t("Private Tour", "טיול פרטי")}
-                  </span>
-                )}
-                {tour.isShabbatOk === 1 && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent-foreground text-sm rounded-full font-medium">
-                    <Calendar className="h-4 w-4" />
-                    {t("Shabbat Friendly", "מתאים לשבת")}
-                  </span>
-                )}
-              </div>
-
-              {/* What's Included */}
-              {includedItems.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-4">
-                    {t("What's Included", "מה כלול")}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {includedItems.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-primary/5"
-                      >
-                        <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-sm">{t(item.en, item.he)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Itinerary */}
-              {itinerary.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-4">
-                    {t("Day-by-Day Itinerary", "מסלול יום-יומי")}
-                  </h2>
-                  <div className="space-y-4">
-                    {itinerary.map((step, idx) => (
-                      <div
-                        key={idx}
-                        className="flex gap-4 p-4 border border-border rounded-lg"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                          {idx + 1}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-1">
-                            {t(step.title, step.titleHe)}
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            {t(step.description, step.descriptionHe)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar - Booking Card */}
-            <div>
-              <Card className="p-6 sticky top-24 space-y-5">
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">
-                    {t("Starting from", "החל מ-")}
-                  </div>
-                  <div className="text-4xl font-bold text-primary">
-                    &#3647;{tour.price.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t("per group (1-4 people)", "לקבוצה (1-4 אנשים)")}
-                  </div>
-                </div>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t("Duration", "משך")}
-                    </span>
-                    <span className="font-medium">{tour.duration}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t("Difficulty", "רמת קושי")}
-                    </span>
-                    <span className="font-medium">
-                      {t(diffLabel.en, diffLabel.he)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t("Group Size", "גודל קבוצה")}
-                    </span>
-                    <span className="font-medium">
-                      {tour.groupMinSize}-{tour.groupMaxSize}{" "}
-                      {t("people", "אנשים")}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  <Button
-                    onClick={handleBookWhatsApp}
-                    className="w-full gap-2"
-                    size="lg"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
-                  </Button>
-                  <a
-                    href="#inquiry"
-                    onClick={e => {
-                      e.preventDefault();
-                      navigate("/");
-                      // Small delay so the homepage loads then scrolls
-                      setTimeout(() => {
-                        document
-                          .getElementById("inquiry")
-                          ?.scrollIntoView({ behavior: "smooth" });
-                      }, 300);
-                    }}
-                    className="block text-center text-sm text-primary hover:underline"
-                  >
-                    {t("Or request a free quote", "או בקשו הצעת מחיר חינם")}
-                  </a>
-                </div>
-
-                <div className="pt-3 border-t text-xs text-muted-foreground space-y-1.5">
-                  <p>
-                    {t(
-                      "50% deposit to confirm. Balance on tour day.",
-                      "מקדמה 50% לאישור. יתרה ביום הטיול."
-                    )}
-                  </p>
-                  <p>
-                    {t(
-                      "Free cancellation 7+ days before.",
-                      "ביטול חינם 7+ ימים לפני."
-                    )}
-                  </p>
-                </div>
-              </Card>
             </div>
           </div>
         </div>
