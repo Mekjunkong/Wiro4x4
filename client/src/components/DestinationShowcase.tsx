@@ -1,4 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GoldDivider } from "@/components/GoldDivider";
 import { MapPin, ArrowRight } from "lucide-react";
 
 const DESTINATIONS = [
@@ -62,12 +64,13 @@ const DESTINATIONS = [
 
 export function DestinationShowcase() {
   const { t } = useLanguage();
+  const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.15 });
 
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
+    <section className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4">
             {t("Explore Northern Thailand", "גלו את צפון תאילנד")}
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
@@ -76,14 +79,18 @@ export function DestinationShowcase() {
               "מפסגות הרים ערפיליות ועד עמקי ג'ונגל ירוקים — גלו את המיטב של צ'יאנג מאי והסביבה"
             )}
           </p>
+          <GoldDivider />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 px-4 md:px-0">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-2 lg:grid-cols-3 gap-4 px-4 md:px-0"
+        >
           {DESTINATIONS.map(dest => (
             <a
               key={dest.id}
               href={`/tours/${dest.tourSlug}`}
-              className="group relative rounded-xl overflow-hidden h-64 md:h-72 block"
+              className="group relative rounded-sm overflow-hidden h-64 md:h-72 block"
             >
               <img
                 src={dest.image}
@@ -91,19 +98,22 @@ export function DestinationShowcase() {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              {/* Permanent gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              {/* Gold tint overlay on hover */}
+              <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <div className="flex items-center gap-1.5 text-white/80 text-xs mb-1.5">
                   <MapPin className="w-3.5 h-3.5" />
                   {t("Chiang Mai Region", "אזור צ'יאנג מאי")}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">
+                <h3 className="text-white uppercase tracking-[0.2em] text-sm font-medium mb-1 group-hover:-translate-y-1 transition-transform duration-300">
                   {t(dest.en, dest.he)}
                 </h3>
                 <p className="text-sm text-white/80 line-clamp-2">
                   {t(dest.descEn, dest.descHe)}
                 </p>
-                <div className="flex items-center gap-1.5 mt-2 text-secondary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex items-center gap-1.5 mt-2 text-[#D4AF37] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {t("Explore Tour", "לפרטי הטיול")}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
