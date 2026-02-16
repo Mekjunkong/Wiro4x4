@@ -16,6 +16,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { Button } from "@/components/ui/button";
+import { GoldDivider } from "@/components/GoldDivider";
 import {
   TripDetailsStep,
   ServicesStep,
@@ -440,21 +442,25 @@ export default function BookingForm() {
     >
       <Header />
       <main id="main-content">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-secondary to-secondary/85 py-16 md:py-20 text-center text-white mt-20">
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4 px-4">
-            {t("Tour Booking Form", "טופס הזמנת טיול")}
-          </h1>
-          <p className="text-lg md:text-xl opacity-90 px-4">
-            {t(
-              "Quick intake form for phone calls and personal meetings",
-              "מלאו את הפרטים ונחזור אליכם בהקדם"
-            )}
-          </p>
+        {/* Hero Banner */}
+        <section
+          className="relative min-h-[40vh] flex items-center justify-center bg-cover bg-center mt-20"
+          style={{
+            backgroundImage: "url('/images/optimized/hero-waterfall.jpg')",
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 text-center px-4">
+            <h1 className="text-4xl md:text-5xl font-serif font-medium text-white mb-2">
+              {t("Book Your Adventure", "הזמינו את ההרפתקה")}
+            </h1>
+            <GoldDivider />
+          </div>
         </section>
 
-        <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl pb-24">
-          {/* I3: Progress indicator showing form sections */}
+        {/* Form Card */}
+        <div className="bg-card border border-[#D4AF37]/30 rounded-sm shadow-premium -mt-20 relative z-10 max-w-4xl mx-auto p-6 md:p-8 mb-24">
+          {/* Progress indicator showing form sections */}
           <div className="mb-8 overflow-x-auto scrollbar-hide">
             <div className="flex items-center justify-between min-w-[500px] px-2">
               {[
@@ -472,7 +478,7 @@ export default function BookingForm() {
                     className="flex items-center flex-1 last:flex-initial"
                   >
                     <div className="flex flex-col items-center gap-1">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold border-2 border-primary/30">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center text-sm font-bold border-2 border-[#D4AF37]/30">
                         <StepIcon className="w-4 h-4 md:w-5 md:h-5" />
                       </div>
                       <span className="text-[10px] md:text-xs text-muted-foreground font-medium text-center whitespace-nowrap">
@@ -480,7 +486,7 @@ export default function BookingForm() {
                       </span>
                     </div>
                     {idx < arr.length - 1 && (
-                      <div className="flex-1 h-0.5 bg-primary/20 mx-1 md:mx-2 mt-[-16px]" />
+                      <div className="flex-1 h-0.5 bg-[#D4AF37]/20 mx-1 md:mx-2 mt-[-16px]" />
                     )}
                   </div>
                 );
@@ -492,7 +498,7 @@ export default function BookingForm() {
           {Object.keys(formErrors).length > 0 && (
             <div
               ref={errorSummaryRef}
-              className="rounded-xl border border-red-200 bg-red-50 p-4 mb-6"
+              className="rounded-sm border border-red-200 bg-red-50 p-4 mb-6"
               role="alert"
             >
               <div className="flex items-center gap-2 mb-2">
@@ -541,7 +547,7 @@ export default function BookingForm() {
                 id="consentGiven"
                 checked={consentGiven}
                 onChange={e => setConsentGiven(e.target.checked)}
-                className={`w-5 h-5 mt-0.5 rounded border-border text-primary focus:ring-primary touch-manipulation shrink-0 ${formErrors.consent ? "border-red-500" : ""}`}
+                className={`w-5 h-5 mt-0.5 rounded-sm border-border text-[#D4AF37] focus:ring-[#D4AF37] touch-manipulation shrink-0 ${formErrors.consent ? "border-red-500" : ""}`}
                 aria-required="true"
                 aria-invalid={!!formErrors.consent}
                 aria-describedby={
@@ -557,7 +563,7 @@ export default function BookingForm() {
                   href="/terms"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline font-medium"
+                  className="text-[#D4AF37] hover:underline font-medium"
                 >
                   {t("Terms of Service", "תנאי השירות")}
                 </a>
@@ -566,7 +572,7 @@ export default function BookingForm() {
                   href="/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline font-medium"
+                  className="text-[#D4AF37] hover:underline font-medium"
                 >
                   {t("Privacy Policy", "מדיניות הפרטיות")}
                 </a>
@@ -583,10 +589,12 @@ export default function BookingForm() {
             )}
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
+              variant="default"
+              size="lg"
               disabled={isSubmitting}
-              className="w-full bg-primary hover:bg-primary/90 text-white py-4 px-8 rounded-xl font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full py-4 text-lg"
             >
               {isSubmitting ? (
                 <>
@@ -599,7 +607,7 @@ export default function BookingForm() {
                   {t("Submit & Send to WhatsApp", "שליחה דרך וואטסאפ")}
                 </>
               )}
-            </button>
+            </Button>
           </form>
         </div>
       </main>
