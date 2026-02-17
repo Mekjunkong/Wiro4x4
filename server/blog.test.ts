@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
+import {
+  createAuthContext,
+  createPublicContext,
+  itWithDb,
+} from "./test-helpers";
 
 describe("blog.list (public)", () => {
   it("returns published blog posts", async () => {
@@ -37,7 +41,24 @@ describe("blog.create", () => {
       isPublished: true,
     });
 
-    expect(result).toEqual({ success: true, message: "Blog post created successfully" });
+    expect(result).toEqual({
+      success: true,
+      message: "Blog post created successfully",
+    });
+  });
+});
+
+describe("blog.uploadImage", () => {
+  it("rejects non-admin users", async () => {
+    const { ctx } = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.blog.uploadImage({
+        fileName: "test.jpg",
+        fileData: "base64data",
+        contentType: "image/jpeg",
+      })
+    ).rejects.toThrow();
   });
 });
 

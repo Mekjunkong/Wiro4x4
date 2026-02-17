@@ -18,6 +18,7 @@ import {
 } from "../db";
 import { blogPostInputSchema, paginationInput } from "../../shared/schemas";
 import { generateBlogDraft } from "../aiContentGenerator";
+import { storagePut } from "../storage";
 
 export const blogRouter = router({
   list: securePublicProcedure.query(async () => {
@@ -122,6 +123,28 @@ export const blogRouter = router({
         resourceId: input.id,
       });
       return { success: true };
+    }),
+
+  uploadImage: secureProtectedProcedure
+    .input(
+      z.object({
+        fileName: z.string().min(1),
+        fileData: z.string().min(1), // base64
+        contentType: z.string().default("image/jpeg"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const buffer = Buffer.from(input.fileData, "base64");
+      const key = `blog/${Date.now()}-${input.fileName}`;
+      const { url } = await storagePut(key, buffer, input.contentType);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "upload_image",
+        resourceType: "blog",
+        newValue: JSON.stringify({ fileName: input.fileName, url }),
+      });
+      return { url };
     }),
 
   generateDraft: secureProtectedProcedure
