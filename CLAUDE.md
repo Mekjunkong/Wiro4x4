@@ -12,8 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Backend:** Express 4 + tRPC 11 + Drizzle ORM
 - **Database:** MySQL/TiDB (provided by Manus platform)
 - **Auth:** Manus OAuth (built-in)
+- **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy initialization — no crash without API key)
-- **Testing:** Vitest (107 tests across 18 files)
+- **Testing:** Vitest (117 tests across 21 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -25,7 +26,7 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests (107 tests: 90 pass locally, 17 DB-dependent skipped)
+# Run tests (117 tests: 96 pass locally, 21 DB-dependent skipped)
 pnpm test
 
 # Type check
@@ -59,7 +60,15 @@ pnpm format
 │   │   │   ├── KosherInfo.tsx   # Kosher information
 │   │   │   ├── FloatingActionButtons.tsx  # WhatsApp + Book Now buttons
 │   │   │   ├── CostCalculator.tsx   # Interactive trip cost estimator
-│   │   │   └── DashboardLayout.tsx  # Admin layout wrapper
+│   │   │   ├── DashboardLayout.tsx  # Admin layout wrapper
+│   │   │   ├── admin/
+│   │   │   │   ├── BlogTab.tsx      # Blog management (editor, AI generate, send newsletter)
+│   │   │   │   ├── MarkdownEditor.tsx    # Split-pane markdown editor with toolbar
+│   │   │   │   └── GenerateArticleDialog.tsx  # AI article generation dialog
+│   │   │   └── blog/
+│   │   │       ├── ShareButtons.tsx  # Social share (WhatsApp, Facebook, X, copy link)
+│   │   │       ├── MarkdownRenderer.tsx  # Markdown → HTML renderer
+│   │   │       └── index.ts         # Barrel exports
 │   │   ├── contexts/
 │   │   │   └── LanguageContext.tsx  # Bilingual state (useLanguage hook)
 │   │   ├── pages/               # Page components
@@ -72,8 +81,8 @@ pnpm format
 │   │   │   ├── Estimate.tsx     # Trip cost estimator page (/estimate)
 │   │   │   ├── Gallery.tsx      # Photo gallery with category filters
 │   │   │   ├── Reviews.tsx      # Customer reviews + submission form
-│   │   │   ├── Blog.tsx         # Blog listing
-│   │   │   └── BlogPost.tsx     # Individual blog post
+│   │   │   ├── Blog.tsx         # Blog listing (with search + category filters)
+│   │   │   └── BlogPost.tsx     # Individual blog post (with share buttons)
 │   │   ├── hooks/
 │   │   │   ├── useAuth.ts       # Authentication hook
 │   │   │   └── usePageMeta.ts   # Per-page title + meta description
@@ -86,7 +95,7 @@ pnpm format
 │   ├── public/
 │   │   ├── robots.txt           # SEO crawl rules
 │   │   └── sitemap.xml          # SEO sitemap
-│   └── index.html               # HTML template (OG tags, JSON-LD)
+│   └── index.html               # HTML template (OG tags, JSON-LD, RSS autodiscovery)
 ├── server/                      # Backend Node.js application
 │   ├── _core/                   # Manus framework core (DO NOT EDIT)
 │   ├── routers.ts               # tRPC API routes — imports shared schemas
@@ -96,13 +105,19 @@ pnpm format
 │   ├── resendEmailService.ts    # Resend email (lazy init)
 │   ├── customerEmailService.ts  # Customer confirmation + ICS calendar
 │   ├── rateLimit.ts             # In-memory rate limiter
+│   ├── aiContentGenerator.ts    # Claude API blog draft generation (lazy init)
+│   ├── newsletterEmailService.ts # Resend newsletter emails (bilingual, lazy init)
 │   ├── stripe.ts                # Stripe placeholder (TODO — deferred)
+│   ├── routes/
+│   │   ├── blog.ts              # Blog CRUD + generateDraft + uploadImage
+│   │   ├── newsletter.ts        # subscribe/unsubscribe/list/send procedures
+│   │   └── rss.ts               # RSS 2.0 feed at /api/rss
 │   ├── test-helpers.ts          # Shared test context + itWithDb helper
-│   ├── *.test.ts                # 14 test files (see Testing section)
+│   ├── *.test.ts                # 21 test files (see Testing section)
 ├── drizzle/                     # Database schema and migrations
-│   ├── schema.ts                # 10 tables (users, bookings, agents, leads,
+│   ├── schema.ts                # 11 tables (users, bookings, agents, leads,
 │   │                            #   financialRecords, galleryPhotos, reviews,
-│   │                            #   payments, tours, blogPosts)
+│   │                            #   payments, tours, blogPosts, subscribers)
 │   ├── relations.ts             # Drizzle relations (FK relationships)
 │   └── migrations/              # Auto-generated migrations
 ├── .github/
@@ -118,7 +133,7 @@ pnpm format
 └── vite.config.ts               # Vite configuration
 ```
 
-## Database Schema (10 tables)
+## Database Schema (11 tables)
 
 | Table              | Purpose          | Key Fields                                                                                      |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------------------------- |
@@ -132,6 +147,7 @@ pnpm format
 | `payments`         | Payment records  | bookingId, type (deposit/balance/full/refund), stripeSessionId                                  |
 | `tours`            | Tour offerings   | name/nameHe, slug (unique), price, difficulty, isKosher, includedItems (JSON), itinerary (JSON) |
 | `blogPosts`        | Blog articles    | title/titleHe, slug, content/contentHe, isPublished, publishedAt                                |
+| `subscribers`      | Newsletter subs  | email, language (en/he), isActive, subscribedAt                                                 |
 
 **Relations** (defined in `drizzle/relations.ts`):
 
@@ -146,16 +162,20 @@ All procedures are in `server/routers.ts`. Validation schemas are in `shared/sch
 
 ### Public Procedures (no auth required)
 
-| Procedure           | Type     | Purpose                                          |
-| ------------------- | -------- | ------------------------------------------------ |
-| `booking.create`    | mutation | Create booking (rate limited: 10/min)            |
-| `lead.create`       | mutation | Capture lead (rate limited: 10/min)              |
-| `review.create`     | mutation | Submit review for approval (rate limited: 5/min) |
-| `review.listPublic` | query    | Get approved reviews                             |
-| `gallery.list`      | query    | Get published photos                             |
-| `tour.list`         | query    | Get active tours                                 |
-| `tour.getBySlug`    | query    | Get single tour by URL slug                      |
-| `auth.me`           | query    | Get current user                                 |
+| Procedure                | Type     | Purpose                                          |
+| ------------------------ | -------- | ------------------------------------------------ |
+| `booking.create`         | mutation | Create booking (rate limited: 10/min)            |
+| `lead.create`            | mutation | Capture lead (rate limited: 10/min)              |
+| `review.create`          | mutation | Submit review for approval (rate limited: 5/min) |
+| `review.listPublic`      | query    | Get approved reviews                             |
+| `gallery.list`           | query    | Get published photos                             |
+| `tour.list`              | query    | Get active tours                                 |
+| `tour.getBySlug`         | query    | Get single tour by URL slug                      |
+| `blog.list`              | query    | Get published blog posts                         |
+| `blog.getBySlug`         | query    | Get single blog post by slug                     |
+| `newsletter.subscribe`   | mutation | Subscribe to newsletter (email + language)       |
+| `newsletter.unsubscribe` | mutation | Unsubscribe from newsletter                      |
+| `auth.me`                | query    | Get current user                                 |
 
 ### Protected Procedures (admin auth required)
 
@@ -169,8 +189,10 @@ All procedures are in `server/routers.ts`. Validation schemas are in `shared/sch
 | `gallery.create` / `listAll` / `update` / `delete` / `upload`         | CRUD     | Gallery photos              |
 | `review.listAll` / `listAllPaginated` / `update` / `delete` / `stats` | CRUD     | Manage reviews              |
 | `tour.create` / `listAll` / `update` / `delete`                       | CRUD     | Manage tours                |
-| `blog.list` / `getBySlug` (public)                                    | query    | Blog posts                  |
 | `blog.listAll` / `listAllPaginated` / `create` / `update` / `delete`  | CRUD     | Manage blog                 |
+| `blog.generateDraft`                                                  | mutation | AI blog draft (Claude API)  |
+| `blog.uploadImage`                                                    | mutation | Upload blog image to S3     |
+| `newsletter.list` / `send`                                            | CRUD     | Manage newsletter           |
 | `payment.listByBooking` / `listAll` / `stats`                         | query    | Payment records (read-only) |
 
 ### Pagination Pattern
@@ -259,11 +281,31 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - Each card links to the matching tour detail page via slug
 - Static data with existing images from `/images/` folder
 
-### 13. Blog System
+### 13. Blog Content Pipeline
 
-- **Blog posts:** Managed via Admin panel → Blog tab (stored in database)
-- **Pages:** `/blog` (listing) and `/blog/:slug` (individual posts)
-- **Bilingual:** Each post has English + Hebrew content fields
+- **Pages:** `/blog` (listing with search + category filters) and `/blog/:slug` (individual posts with share buttons)
+- **Bilingual:** Each post has English + Hebrew content fields (title, excerpt, content)
+- **AI Content Generation:** Admin can generate bilingual blog drafts via Claude API
+  - `server/aiContentGenerator.ts` — lazy Anthropic client, system prompt with tour data
+  - `GenerateArticleDialog.tsx` — 6 topic suggestions, tone/length controls
+  - Calls `trpc.blog.generateDraft` → returns full bilingual draft
+  - **Requires:** `ANTHROPIC_API_KEY` env var
+- **Rich Markdown Editor:** `MarkdownEditor.tsx` replaces plain textareas in Blog admin
+  - Split-pane (edit/split/preview modes) with live markdown rendering
+  - Toolbar: bold, italic, H2, H3, link, lists, blockquote, code
+  - Image upload via S3 (`storagePut`), auto-save to localStorage every 30s
+  - RTL support for Hebrew content
+- **Newsletter System:**
+  - `subscribers` table (email, language, isActive)
+  - Public: `newsletter.subscribe` / `newsletter.unsubscribe`
+  - Admin: `newsletter.list` / `newsletter.send` (sends to all active subscribers)
+  - `newsletterEmailService.ts` — Resend emails with bilingual template, cover image, unsubscribe link
+  - "Send to Subscribers" button per published post in Blog admin tab
+  - **Requires:** `RESEND_API_KEY` env var, verified domain in Resend
+- **RSS Feed:** `/api/rss` — RSS 2.0 XML with all published posts, XML escaping, autodiscovery `<link>` in `index.html`
+- **Blog Search & Filtering:** Search bar + category filter chips on `/blog` page
+- **Social Share Buttons:** WhatsApp, Facebook, X, Copy Link on each blog post page
+- **Blog Image Upload:** `trpc.blog.uploadImage` — base64 → S3 via `storagePut`
 
 ### 7. Rate Limiting
 
@@ -288,7 +330,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ## Testing
 
-**Framework:** Vitest | **107 total tests** | **18 test files**
+**Framework:** Vitest | **117 total tests** | **21 test files**
 
 ```bash
 pnpm test          # Run all tests
@@ -297,23 +339,26 @@ npx vitest run     # Same thing
 
 ### Test Files
 
-| File                         | Tests | Covers                                            |
-| ---------------------------- | ----- | ------------------------------------------------- |
-| `validation.test.ts`         | 12    | All 6 Zod schemas from `shared/schemas.ts`        |
-| `emailService.test.ts`       | 6     | Manus notification emails (mocked)                |
-| `booking.test.ts`            | 6     | Booking create + list + agent/lead/financial list |
-| `lead.test.ts`               | 6     | Lead create + list + status transitions           |
-| `review.test.ts`             | 6     | Review create + list + approve + stats            |
-| `agent.test.ts`              | 5     | Agent create + list + update + delete             |
-| `financial.test.ts`          | 4     | Financial create (revenue/cost/refund) + stats    |
-| `pagination.test.ts`         | 3     | Paginated query structure verification            |
-| `rateLimit.test.ts`          | 3     | Under/over limit + independent key tracking       |
-| `stripe.test.ts`             | 3     | Placeholder functions throw correctly             |
-| `gallery.test.ts`            | 3     | Gallery create + public list + admin list         |
-| `resendEmailService.test.ts` | 1     | Graceful fallback without API key                 |
-| `auth.logout.test.ts`        | 1     | Cookie clearing                                   |
-| `blog.test.ts`               | 4     | Blog list, getBySlug, create, listAll             |
-| `pricing.test.ts`            | 31    | Pricing calculations, group multipliers, packages |
+| File                         | Tests | Covers                                             |
+| ---------------------------- | ----- | -------------------------------------------------- |
+| `validation.test.ts`         | 12    | All 6 Zod schemas from `shared/schemas.ts`         |
+| `emailService.test.ts`       | 6     | Manus notification emails (mocked)                 |
+| `booking.test.ts`            | 6     | Booking create + list + agent/lead/financial list  |
+| `lead.test.ts`               | 6     | Lead create + list + status transitions            |
+| `review.test.ts`             | 6     | Review create + list + approve + stats             |
+| `agent.test.ts`              | 5     | Agent create + list + update + delete              |
+| `financial.test.ts`          | 4     | Financial create (revenue/cost/refund) + stats     |
+| `pagination.test.ts`         | 3     | Paginated query structure verification             |
+| `rateLimit.test.ts`          | 3     | Under/over limit + independent key tracking        |
+| `stripe.test.ts`             | 3     | Placeholder functions throw correctly              |
+| `gallery.test.ts`            | 3     | Gallery create + public list + admin list          |
+| `resendEmailService.test.ts` | 1     | Graceful fallback without API key                  |
+| `auth.logout.test.ts`        | 1     | Cookie clearing                                    |
+| `blog.test.ts`               | 5     | Blog list, getBySlug, create, listAll, uploadImage |
+| `newsletter.test.ts`         | 4     | Subscribe, duplicate handling, list, unsubscribe   |
+| `aiContentGenerator.test.ts` | 2     | Draft generation fields + graceful fallback        |
+| `rss.test.ts`                | 3     | Empty feed, posts in feed, XML escaping            |
+| `pricing.test.ts`            | 31    | Pricing calculations, group multipliers, packages  |
 
 ### Test Patterns
 
@@ -338,7 +383,7 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 
 - `server/routers.ts` - API endpoints (imports schemas from `shared/schemas.ts`)
 - `server/db.ts` - Database query helpers (50+ functions)
-- `drizzle/schema.ts` - Database tables (9 tables)
+- `drizzle/schema.ts` - Database tables (11 tables)
 - `client/src/pages/AdminDashboard.tsx` - Admin panel (6 tabs)
 - `client/src/pages/BookingForm.tsx` - Booking form
 - `client/src/components/Tours.tsx` - Tour offerings
@@ -376,7 +421,9 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `OAUTH_SERVER_URL` - OAuth backend
 - `VITE_OAUTH_PORTAL_URL` - Login portal
 - `BUILT_IN_FORGE_API_KEY` - Manus API key
-- `RESEND_API_KEY` - Email service (lazy — no crash if missing)
+- `RESEND_API_KEY` - Email service + newsletter (lazy — no crash if missing)
+- `ANTHROPIC_API_KEY` - AI blog generation via Claude (lazy — no crash if missing)
+- `SITE_URL` - Site URL for newsletter links (defaults to `https://wiro4x4.com`)
 - `STRIPE_SECRET_KEY` - Payment processing (not yet configured)
 - `VITE_APP_TITLE` - App name
 - `VITE_APP_LOGO` - App logo URL
@@ -507,6 +554,8 @@ pnpm db:push  # Sync database schema
 - **FOLLOW** the existing code patterns and conventions
 - **ASK** user before making major architectural changes
 - **Resend/email services** use lazy initialization — never eagerly construct `new Resend()` at module level
+- **Anthropic SDK** uses lazy initialization — never eagerly construct `new Anthropic()` at module level
+- **Newsletter emails** send from `updates@wiro4x4.com` — requires Resend domain verification
 
 ## Quick Reference
 
@@ -526,10 +575,13 @@ pnpm db:push  # Sync database schema
 | Add gallery photo | Admin panel → Gallery tab                                  |
 | Manage reviews    | Admin panel → Reviews tab                                  |
 | Cost estimator    | `/estimate` page, logic in `shared/pricing.ts`             |
+| Generate blog     | Admin → Blog tab → "Generate Article" button               |
+| Send newsletter   | Admin → Blog tab → "Send to Subscribers" on published post |
+| RSS feed          | `/api/rss` — auto-generated from published posts           |
 
 ---
 
-**Last Updated:** 2026-02-13
-**Version:** 2.3
+**Last Updated:** 2026-02-17
+**Version:** 2.4
 **Platform:** Manus
-**Test Coverage:** 107 tests (18 files) — 90 pass locally, 17 DB-dependent skipped
+**Test Coverage:** 117 tests (21 files) — 96 pass locally, 21 DB-dependent skipped
