@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import type { BlogPost } from "../../drizzle/schema";
+import { getAllPublishedBlogPosts } from "../db";
 
 function escapeXml(str: string): string {
   return str
@@ -46,7 +47,6 @@ ${items}
 export function registerRssRoute(app: Express) {
   app.get("/api/rss", async (_req, res) => {
     try {
-      const { getAllPublishedBlogPosts } = await import("../db");
       const posts = await getAllPublishedBlogPosts();
       const siteUrl = process.env.SITE_URL || "https://wiro4x4.com";
       const xml = generateRssFeed(posts, siteUrl);
