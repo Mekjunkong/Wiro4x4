@@ -598,3 +598,61 @@
 - [x] Verify logo links to homepage (logo is clickable and navigates to home page)
 - [x] Push changes to GitHub (commit fbdfd73 pushed successfully)
 - [ ] Save checkpoint
+
+## Self-Driving 4x4 Rental Option
+
+- [x] Add self-driving 4x4 rental checkbox to booking form ($100-150 USD)
+- [x] Update booking form UI to display self-driving option in optional services section
+- [x] Update database schema to store self-driving rental selection
+- [x] Update tour display pages to mention self-driving availability
+
+## Logo Update
+
+- [x] Upload new logo with red heart design to S3
+- [x] Update APP_LOGO constant in const.ts with new S3 URL
+- [x] Test logo display on all pages
+
+## Remove Logo Background
+
+- [x] Process logo image to remove white background
+- [x] Upload transparent logo to S3
+- [x] Update APP_LOGO constant with transparent version
+
+## Integrate Interactive Map
+
+- [x] Create React component for Leaflet.js interactive map
+- [x] Add map to Tours page showing route options
+- [x] Test map functionality and responsiveness
+
+## Interactive Map UX Improvements
+
+- [x] Fix map initial zoom and center to focus on Northern Thailand (Chiang Mai area)
+- [x] Improve marker clustering and visibility
+- [x] Add visible route info cards showing distance, duration, and highlights
+- [x] Optimize route selector buttons for mobile (larger, more prominent)
+- [x] Test map UX on mobile devices
+
+## SEO Improvements
+
+- [x] Shorten homepage title from 69 characters to 30-60 characters
+- [x] Add alt text to 36 images missing descriptions
+- [x] Test SEO improvements with browser tools
+
+- [x] Remove InteractiveRouteMap component from homepage (redundant with Tours page)
+- [x] Remove "Explore Northern Thailand" destination showcase section (redundant)
+- [x] Push changes to GitHub repository (manual push required - auth unavailable)
+
+## GitHub Main Branch Integration
+
+- [x] Copy new components (CustomCursor, GoldDivider, ScrollProgress)
+- [x] Update modified components from GitHub
+- [x] Test integrated changes
+- [x] Create deployment checkpoint
+
+## Trip Cost Estimator
+
+- [x] Create TripCostEstimator component with interactive calculator
+- [x] Add inputs for group size, trip duration, and optional services
+- [x] Calculate and display estimated costs based on tour packages
+- [x] Integrate into homepage landing page
+- [x] Style to match gold/yellow theme design

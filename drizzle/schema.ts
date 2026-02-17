@@ -65,6 +65,7 @@ export const bookings = mysqlTable(
     foodPreferences: text("foodPreferences"),
     needsShabbatHotel: int("needsShabbatHotel").notNull().default(0),
     shabbatHotel: varchar("shabbatHotel", { length: 255 }),
+    selfDriving4x4: int("selfDriving4x4").notNull().default(0),
 
     // Logistics
     pickupPoint: varchar("pickupPoint", { length: 255 }).notNull(),
