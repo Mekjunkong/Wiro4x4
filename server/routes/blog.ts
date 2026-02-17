@@ -14,8 +14,10 @@ import {
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
+  getAllActiveTours,
 } from "../db";
 import { blogPostInputSchema, paginationInput } from "../../shared/schemas";
+import { generateBlogDraft } from "../aiContentGenerator";
 
 export const blogRouter = router({
   list: securePublicProcedure.query(async () => {
@@ -120,5 +122,36 @@ export const blogRouter = router({
         resourceId: input.id,
       });
       return { success: true };
+    }),
+
+  generateDraft: secureProtectedProcedure
+    .input(
+      z.object({
+        topic: z.string().min(1),
+        tone: z
+          .enum(["informative", "adventurous", "practical"])
+          .default("informative"),
+        length: z.number().min(300).max(3000).default(1000),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const tours = await getAllActiveTours();
+      const tourData = tours.map(t => ({
+        name: t.name,
+        nameHe: t.nameHe,
+        slug: t.slug,
+        description: t.description,
+        price: t.price,
+        duration: t.duration,
+      }));
+      const draft = await generateBlogDraft({ ...input, tourData });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "generate_draft",
+        resourceType: "blog",
+        newValue: JSON.stringify({ topic: input.topic }),
+      });
+      return draft;
     }),
 });
