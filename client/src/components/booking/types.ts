@@ -29,6 +29,7 @@ export type FormData = {
   suggestedDestinations: string[];
   specialRequests: string;
   budget: string;
+  selfDriving4x4: boolean;
 };
 
 export type FormStepProps = {

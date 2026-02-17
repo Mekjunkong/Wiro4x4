@@ -57,6 +57,12 @@ export function ServicesStep({
             en: "Shabbat Hotel near Chabad?",
             he: 'שבת - צריך מלון ליד חב"ד?',
           },
+          {
+            key: "selfDriving4x4",
+            icon: Car,
+            en: "Self-Driving 4x4 Rental ($100-150/day)?",
+            he: "השכרת רכב 4x4 לנהיגה עצמית ($100-150 ליום)?",
+          },
         ].map(({ key, icon: Icon, en, he }) => (
           <label
             key={key}

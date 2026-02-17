@@ -68,6 +68,7 @@ const defaultFormData: FormData = {
   // Additional
   specialRequests: "",
   budget: "",
+  selfDriving4x4: false,
 };
 
 export default function BookingForm() {
