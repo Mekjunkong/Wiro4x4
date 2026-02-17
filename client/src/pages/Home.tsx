@@ -4,6 +4,7 @@ import { WhyWiro } from "@/components/WhyWiro";
 import { Tours } from "@/components/Tours";
 import { KosherInfo } from "@/components/KosherInfo";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
+import { TripCostEstimator } from "@/components/TripCostEstimator";
 
 import { Testimonials } from "@/components/Testimonials";
 import { CommunityConnection } from "@/components/CommunityConnection";
@@ -20,6 +21,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <Tours />
+        <TripCostEstimator />
         <KosherInfo />
         <Testimonials />
         <WhyWiro />
