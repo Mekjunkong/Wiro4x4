@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Eye } from "lucide-react";
+import { Eye, Sparkles, Send, Loader2 } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
+import { MarkdownEditor } from "./MarkdownEditor";
+import { GenerateArticleDialog } from "./GenerateArticleDialog";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +19,7 @@ import type { BlogPost } from "../../../../drizzle/schema";
 export function BlogTab() {
   const [blogPage, setBlogPage] = useState(1);
   const [blogDialogOpen, setBlogDialogOpen] = useState(false);
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
   const [blogForm, setBlogForm] = useState({
     title: "",
@@ -105,19 +108,61 @@ export function BlogTab() {
     },
   });
 
+  const sendNewsletterMut = trpc.newsletter.send.useMutation({
+    onSuccess: data => {
+      toast.success(`Newsletter sent to ${data.sent} subscribers!`);
+    },
+    onError: error => {
+      toast.error(`Failed to send newsletter: ${error.message}`);
+    },
+  });
+
+  const uploadImageMut = trpc.blog.uploadImage.useMutation();
+
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = async () => {
+        try {
+          const base64 = (reader.result as string).split(",")[1];
+          const result = await uploadImageMut.mutateAsync({
+            fileName: file.name,
+            fileData: base64,
+            contentType: file.type,
+          });
+          resolve(result.url);
+        } catch (err) {
+          toast.error("Image upload failed");
+          reject(err);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold">Blog Management</h3>
-        <button
-          onClick={() => {
-            resetBlogForm();
-            setBlogDialogOpen(true);
-          }}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          + New Post
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setGenerateDialogOpen(true)}
+            className="px-4 py-2 bg-[#D4AF37] text-white rounded-lg hover:bg-[#D4AF37]/90 transition-colors flex items-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate Article
+          </button>
+          <button
+            onClick={() => {
+              resetBlogForm();
+              setBlogDialogOpen(true);
+            }}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            + New Post
+          </button>
+        </div>
       </div>
 
       {blogLoading ? (
@@ -236,6 +281,27 @@ export function BlogTab() {
                   >
                     <Eye className="w-3 h-3" /> View
                   </a>
+                  {post.isPublished === 1 && (
+                    <button
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `Send "${post.title}" to all newsletter subscribers?`
+                          )
+                        )
+                          sendNewsletterMut.mutate({ blogPostId: post.id });
+                      }}
+                      disabled={sendNewsletterMut.isPending}
+                      className="px-3 py-1.5 bg-purple-100 text-purple-600 rounded text-xs hover:bg-purple-200 min-h-[36px] flex items-center gap-1"
+                    >
+                      {sendNewsletterMut.isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Send className="w-3 h-3" />
+                      )}
+                      Send to Subscribers
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -349,28 +415,32 @@ export function BlogTab() {
               <label className="block text-sm font-medium mb-1">
                 Content (English) *
               </label>
-              <textarea
+              <MarkdownEditor
                 value={blogForm.content}
-                onChange={e =>
-                  setBlogForm(p => ({ ...p, content: e.target.value }))
+                onChange={val => setBlogForm(p => ({ ...p, content: val }))}
+                placeholder="Write your article in Markdown..."
+                onImageUpload={handleImageUpload}
+                storageKey={
+                  editingBlog
+                    ? `blog-draft-${editingBlog.id}`
+                    : "blog-draft-new"
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm"
-                rows={6}
-                placeholder="Use Markdown: # Heading, ## Subheading, - List item, **bold**"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
                 Content (Hebrew)
               </label>
-              <textarea
-                dir="rtl"
+              <MarkdownEditor
                 value={blogForm.contentHe}
-                onChange={e =>
-                  setBlogForm(p => ({ ...p, contentHe: e.target.value }))
+                onChange={val => setBlogForm(p => ({ ...p, contentHe: val }))}
+                placeholder="..."
+                dir="rtl"
+                storageKey={
+                  editingBlog
+                    ? `blog-draft-he-${editingBlog.id}`
+                    : "blog-draft-new-he"
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm"
-                rows={4}
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -478,6 +548,26 @@ export function BlogTab() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <GenerateArticleDialog
+        open={generateDialogOpen}
+        onOpenChange={setGenerateDialogOpen}
+        onGenerated={draft => {
+          setBlogForm(p => ({
+            ...p,
+            title: draft.title,
+            titleHe: draft.titleHe,
+            slug: draft.slug,
+            excerpt: draft.excerpt,
+            excerptHe: draft.excerptHe,
+            content: draft.content,
+            contentHe: draft.contentHe,
+            category: draft.category,
+            tags: draft.tags,
+          }));
+          setBlogDialogOpen(true);
+        }}
+      />
     </div>
   );
 }

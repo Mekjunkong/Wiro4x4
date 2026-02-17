@@ -711,6 +711,17 @@ export async function getAllBlogPosts() {
   return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
 }
 
+export async function getBlogPostById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function getBlogPostBySlug(slug: string) {
   const db = await getDb();
   if (!db) return undefined;
@@ -807,6 +818,34 @@ export async function getSubscriberByEmail(email: string) {
     .where(eq(subscribers.email, email))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllActiveSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(subscribers)
+    .where(eq(subscribers.isActive, 1))
+    .orderBy(desc(subscribers.subscribedAt));
+}
+
+export async function getAllSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(subscribers)
+    .orderBy(desc(subscribers.subscribedAt));
+}
+
+export async function deactivateSubscriber(email: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(subscribers)
+    .set({ isActive: 0 })
+    .where(eq(subscribers.email, email));
 }
 
 // ─── Audit Logging ────────────────────────────────────────

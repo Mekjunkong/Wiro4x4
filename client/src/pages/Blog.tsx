@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -5,7 +6,14 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ArrowRight, FileText, Tag } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  ArrowRight,
+  FileText,
+  Tag,
+  Search,
+} from "lucide-react";
 import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -65,6 +73,9 @@ export default function Blog() {
     "Travel tips, kosher dining guides, and cultural insights for Israeli travelers exploring Northern Thailand."
   );
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
   const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
   const { data: dbPosts } = trpc.blog.list.useQuery();
 
@@ -96,6 +107,21 @@ export default function Blog() {
     }
   );
 
+  const categories = Array.from(
+    new Set(posts.map(p => p.category).filter(Boolean))
+  );
+
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch =
+      !searchQuery ||
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory =
+      !selectedCategory || post.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -118,11 +144,56 @@ export default function Blog() {
           </div>
         </section>
 
+        {/* Search & Filter */}
+        <section className="pt-8 pb-0">
+          <div className="container max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder={t("Search articles...", "חיפוש מאמרים...")}
+                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-background"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    !selectedCategory
+                      ? "bg-[#D4AF37] text-white"
+                      : "bg-muted hover:bg-muted/80"
+                  }`}
+                >
+                  {t("All", "הכל")}
+                </button>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() =>
+                      setSelectedCategory(cat === selectedCategory ? null : cat)
+                    }
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      selectedCategory === cat
+                        ? "bg-[#D4AF37] text-white"
+                        : "bg-muted hover:bg-muted/80"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Blog Posts Grid */}
         <section className="py-16">
           <div className="container">
             {/* N2: Empty state when no blog posts */}
-            {posts.length === 0 && (
+            {filteredPosts.length === 0 && (
               <div className="text-center py-16">
                 <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-semibold text-muted-foreground mb-2">
@@ -137,12 +208,12 @@ export default function Blog() {
               </div>
             )}
 
-            {posts.length > 0 && (
+            {filteredPosts.length > 0 && (
               <div
                 ref={gridRef}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
               >
-                {posts.map(post => (
+                {filteredPosts.map(post => (
                   <Card
                     key={post.slug}
                     className="overflow-hidden border-t-2 border-[#D4AF37] rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
