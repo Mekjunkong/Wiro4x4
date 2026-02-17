@@ -1,0 +1,209 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, MessageCircle } from "lucide-react";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+
+const HERO_IMAGE = {
+  webp: "/images/optimized/hero-waterfall.webp",
+  jpg: "/images/optimized/hero-waterfall.jpg",
+  alt: "Chiang Mai Waterfall Adventure",
+};
+
+export function Hero() {
+  const { t } = useLanguage();
+
+  const heroContentRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const dividerRef = useRef<HTMLDivElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const locationRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const trustRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      // Show everything immediately — no GSAP
+      [titleRef, dividerRef, taglineRef, locationRef, ctaRef, trustRef].forEach(
+        ref => {
+          if (ref.current) {
+            ref.current.style.opacity = "1";
+            ref.current.style.transform = "none";
+          }
+        }
+      );
+      if (dividerRef.current) {
+        dividerRef.current.style.transform = "scaleX(1)";
+      }
+      return;
+    }
+
+    // Set initial states
+    gsap.set(titleRef.current, { y: 30, opacity: 0 });
+    gsap.set(dividerRef.current, { scaleX: 0 });
+    gsap.set(taglineRef.current, { y: 20, opacity: 0 });
+    gsap.set(locationRef.current, { y: 20, opacity: 0 });
+    gsap.set(ctaRef.current, { opacity: 0 });
+    gsap.set(trustRef.current, { opacity: 0 });
+
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+    tl.to(titleRef.current, { y: 0, opacity: 1, duration: 0.8 })
+      .to(dividerRef.current, { scaleX: 1, duration: 0.6 }, "-=0.3")
+      .to(taglineRef.current, { y: 0, opacity: 1, duration: 0.6 }, "-=0.1")
+      .to(locationRef.current, { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
+      .to(ctaRef.current, { opacity: 1, duration: 0.5 }, "-=0.2")
+      .to(trustRef.current, { opacity: 1, duration: 0.5 }, "-=0.2");
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
+  const handleBookNow = () => {
+    const element = document.getElementById("tours");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const message = encodeURIComponent(
+      t(
+        "Hi WIRO 4x4 – I want to book a Kosher tour.",
+        "היי WIRO 4x4 -- אשמח לשמוע על הטיולים הכשרים שלכם."
+      )
+    );
+    window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
+  };
+
+  const trustItems = [
+    t("Hebrew Speaking", "דוברי עברית"),
+    t("Kosher Meals Available", "ארוחות כשרות"),
+    t("Shabbat Friendly", "מותאם לשומרי שבת"),
+    t("Private Tours", "טיולים פרטיים"),
+  ];
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image with Ken Burns Effect */}
+      <div className="absolute inset-0 z-0">
+        <picture>
+          <source srcSet={HERO_IMAGE.webp} type="image/webp" />
+          <img
+            src={HERO_IMAGE.jpg}
+            alt={HERO_IMAGE.alt}
+            className="w-full h-full object-cover animate-ken-burns"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
+        {/* Single bottom-to-top gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      </div>
+
+      {/* Content */}
+      <div
+        ref={heroContentRef}
+        className="container relative z-10 text-center text-white py-20"
+      >
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Title */}
+          <h1
+            ref={titleRef}
+            className="font-light text-5xl sm:text-6xl md:text-8xl tracking-tight text-white"
+            style={{ opacity: 0 }}
+          >
+            {t("WIRO 4\u00D74", "WIRO 4\u00D74")}
+          </h1>
+
+          {/* Gold Divider */}
+          <div
+            ref={dividerRef}
+            className="h-px w-16 bg-[#D4AF37] mx-auto"
+            style={{ transform: "scaleX(0)" }}
+          />
+
+          {/* Tagline */}
+          <p
+            ref={taglineRef}
+            className="text-sm sm:text-base uppercase tracking-[0.2em] font-medium text-white"
+            style={{ opacity: 0 }}
+          >
+            {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
+          </p>
+
+          {/* Location */}
+          <p
+            ref={locationRef}
+            className="text-lg sm:text-xl md:text-2xl text-white/90 font-light"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              opacity: 0,
+            }}
+          >
+            {t("in Chiang Mai", "בצ'יאנג מאי")}
+          </p>
+
+          {/* CTAs */}
+          <div
+            ref={ctaRef}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+            style={{ opacity: 0 }}
+          >
+            <Button
+              variant="hero-primary"
+              size="xl"
+              onClick={handleBookNow}
+              className="gap-3 w-full sm:w-auto"
+            >
+              {t("Book Your Adventure", "הזמינו עכשיו")}
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="hero-secondary"
+              size="xl"
+              onClick={handleWhatsApp}
+              className="gap-3 w-full sm:w-auto"
+            >
+              <MessageCircle className="h-5 w-5" />
+              {t("WhatsApp Concierge", "שלחו לנו וואטסאפ")}
+            </Button>
+          </div>
+
+          {/* Trust Indicators */}
+          <div
+            ref={trustRef}
+            className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 pt-8 text-xs uppercase tracking-[0.15em] text-[#D4AF37]"
+            style={{ opacity: 0 }}
+          >
+            {trustItems.map((item, index) => (
+              <span key={index} className="flex items-center gap-2">
+                {index > 0 && (
+                  <span className="text-white/40" aria-hidden="true">
+                    |
+                  </span>
+                )}
+                <span>{item}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 animate-subtle-pulse">
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-xs uppercase tracking-widest text-white/60">
+            {t("Discover", "גלו")}
+          </span>
+          <div className="w-px h-8 bg-[#D4AF37]/60 mx-auto" />
+        </div>
+      </div>
+    </section>
+  );
+}

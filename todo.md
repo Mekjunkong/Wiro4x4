@@ -656,3 +656,10 @@
 - [x] Calculate and display estimated costs based on tour packages
 - [x] Integrate into homepage landing page
 - [x] Style to match gold/yellow theme design
+
+## Email Address Update
+
+- [x] Update email to wiro.adventures@gmail.com in all components
+- [x] Update email in contact forms
+- [x] Update email in footer
+- [x] Update email in notification services
