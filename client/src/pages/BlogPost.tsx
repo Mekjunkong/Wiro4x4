@@ -12,6 +12,7 @@ import {
   BlogPostHero,
   BlogPostMeta,
   BlogPostCta,
+  ShareButtons,
   MarkdownRenderer,
   getHardcodedPosts,
 } from "@/components/blog";
@@ -106,6 +107,12 @@ export default function BlogPost() {
           </div>
 
           <BlogPostCta />
+
+          <ShareButtons
+            url={`/blog/${postId}`}
+            title={post.title}
+            excerpt={dbPost?.excerpt || ""}
+          />
         </div>
       </article>
 
