@@ -4,7 +4,6 @@ import { WhyWiro } from "@/components/WhyWiro";
 import { Tours } from "@/components/Tours";
 import { KosherInfo } from "@/components/KosherInfo";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
-import { DestinationShowcase } from "@/components/DestinationShowcase";
 
 import { Testimonials } from "@/components/Testimonials";
 import { CommunityConnection } from "@/components/CommunityConnection";
@@ -20,13 +19,12 @@ export default function Home() {
       <Header />
       <main id="main-content">
         <Hero />
-        <QuickInquiryForm />
         <Tours />
-        <DestinationShowcase />
         <KosherInfo />
         <Testimonials />
         <WhyWiro />
         <CommunityConnection />
+        <QuickInquiryForm />
         <FAQ />
       </main>
       <Footer />
