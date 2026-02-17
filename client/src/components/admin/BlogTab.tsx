@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Eye, Sparkles } from "lucide-react";
+import { Eye, Sparkles, Send, Loader2 } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
@@ -105,6 +105,15 @@ export function BlogTab() {
     onError: error => {
       console.error("Failed to delete blog post:", error);
       toast.error("Failed to delete blog post.");
+    },
+  });
+
+  const sendNewsletterMut = trpc.newsletter.send.useMutation({
+    onSuccess: data => {
+      toast.success(`Newsletter sent to ${data.sent} subscribers!`);
+    },
+    onError: error => {
+      toast.error(`Failed to send newsletter: ${error.message}`);
     },
   });
 
@@ -272,6 +281,27 @@ export function BlogTab() {
                   >
                     <Eye className="w-3 h-3" /> View
                   </a>
+                  {post.isPublished === 1 && (
+                    <button
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `Send "${post.title}" to all newsletter subscribers?`
+                          )
+                        )
+                          sendNewsletterMut.mutate({ blogPostId: post.id });
+                      }}
+                      disabled={sendNewsletterMut.isPending}
+                      className="px-3 py-1.5 bg-purple-100 text-purple-600 rounded text-xs hover:bg-purple-200 min-h-[36px] flex items-center gap-1"
+                    >
+                      {sendNewsletterMut.isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Send className="w-3 h-3" />
+                      )}
+                      Send to Subscribers
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
