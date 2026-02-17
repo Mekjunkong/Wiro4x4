@@ -22,23 +22,31 @@ export function CustomCursor() {
     const interactiveSelector =
       "a, button, [role='button'], input, select, textarea, [data-cursor-hover]";
 
+    const trackedElements = new Set<Element>();
+
+    const addListeners = (el: Element) => {
+      if (trackedElements.has(el)) return;
+      el.addEventListener("mouseenter", hoverIn);
+      el.addEventListener("mouseleave", hoverOut);
+      trackedElements.add(el);
+    };
+
     const observer = new MutationObserver(() => {
-      document.querySelectorAll(interactiveSelector).forEach(el => {
-        el.addEventListener("mouseenter", hoverIn);
-        el.addEventListener("mouseleave", hoverOut);
-      });
+      document.querySelectorAll(interactiveSelector).forEach(addListeners);
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
 
-    document.querySelectorAll(interactiveSelector).forEach(el => {
-      el.addEventListener("mouseenter", hoverIn);
-      el.addEventListener("mouseleave", hoverOut);
-    });
+    document.querySelectorAll(interactiveSelector).forEach(addListeners);
 
     return () => {
       window.removeEventListener("mousemove", move);
       observer.disconnect();
+      trackedElements.forEach(el => {
+        el.removeEventListener("mouseenter", hoverIn);
+        el.removeEventListener("mouseleave", hoverOut);
+      });
+      trackedElements.clear();
     };
   }, []);
 

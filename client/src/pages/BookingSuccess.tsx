@@ -35,7 +35,7 @@ export default function BookingSuccess() {
           {!sessionId ? (
             <div className="text-center py-12">
               <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-2xl font-medium mb-2">
                 {t("Invalid Session", "שגיאה בתהליך")}
               </h1>
               <p className="text-muted-foreground">
@@ -48,7 +48,7 @@ export default function BookingSuccess() {
           ) : isLoading ? (
             <div className="text-center py-12">
               <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-2xl font-medium mb-2">
                 {t("Verifying Payment...", "מאמתים תשלום...")}
               </h1>
               <p className="text-muted-foreground">
@@ -61,7 +61,7 @@ export default function BookingSuccess() {
           ) : isError ? (
             <div className="text-center py-12">
               <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-2xl font-medium mb-2">
                 {t("Verification Failed", "האימות נכשל")}
               </h1>
               <p className="text-muted-foreground mb-6">
@@ -81,7 +81,7 @@ export default function BookingSuccess() {
           ) : data?.success ? (
             <div className="text-center py-12">
               <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-6" />
-              <h1 className="text-3xl font-bold mb-2 text-green-700">
+              <h1 className="text-3xl font-medium mb-2 text-green-700">
                 {t("Payment Successful!", "התשלום בוצע בהצלחה!")}
               </h1>
               {data.amountPaid && (
@@ -132,7 +132,7 @@ export default function BookingSuccess() {
           ) : (
             <div className="text-center py-12">
               <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-2xl font-medium mb-2">
                 {t("Payment Pending", "תשלום בהמתנה")}
               </h1>
               <p className="text-muted-foreground mb-6">

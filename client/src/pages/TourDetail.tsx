@@ -320,7 +320,7 @@ export default function TourDetail() {
       <div className="min-h-screen">
         <Header />
         <div className="container py-20 text-center">
-          <h1 className="text-3xl font-bold mb-4">
+          <h1 className="text-3xl font-medium mb-4">
             {t("Tour Not Found", "הטיול לא נמצא")}
           </h1>
           <p className="text-muted-foreground mb-6">
@@ -451,7 +451,7 @@ export default function TourDetail() {
                 {/* Description */}
                 <div>
                   <h2
-                    className="text-2xl font-bold mb-4"
+                    className="text-2xl font-medium mb-4"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   >
                     {t("About This Tour", "אודות הטיול")}
@@ -487,7 +487,7 @@ export default function TourDetail() {
                 {includedItems.length > 0 && (
                   <div>
                     <h2
-                      className="text-2xl font-bold mb-4"
+                      className="text-2xl font-medium mb-4"
                       style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                       {t("What's Included", "מה כלול")}
@@ -510,7 +510,7 @@ export default function TourDetail() {
                 {itinerary.length > 0 && (
                   <div>
                     <h2
-                      className="text-2xl font-bold mb-4"
+                      className="text-2xl font-medium mb-4"
                       style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                       {t("Day-by-Day Itinerary", "מסלול יום-יומי")}

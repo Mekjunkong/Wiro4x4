@@ -283,7 +283,7 @@ export default function Pricing() {
 
                   <div className="p-6 flex flex-col flex-1">
                     <div>
-                      <h3 className="text-xl font-bold mb-2">{tour.name}</h3>
+                      <h3 className="text-xl font-medium mb-2">{tour.name}</h3>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
                         <span>{tour.duration}</span>
@@ -345,7 +345,7 @@ export default function Pricing() {
             {/* Group Size Pricing */}
             <div className="mt-12 max-w-4xl mx-auto">
               <Card className="p-8 bg-card border border-[#E8E2DA] rounded-sm">
-                <h3 className="text-xl md:text-2xl font-bold mb-6 text-center">
+                <h3 className="text-xl md:text-2xl font-medium mb-6 text-center">
                   {t("Group Size Pricing", "תמחור לפי גודל קבוצה")}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -428,7 +428,7 @@ export default function Pricing() {
                   <div
                     className={`text-center mb-6 ${idx === 1 ? "pt-4" : ""}`}
                   >
-                    <h3 className="text-xl md:text-2xl font-bold mb-2">
+                    <h3 className="text-xl md:text-2xl font-medium mb-2">
                       {pkg.name}
                     </h3>
                     <div className="text-sm text-muted-foreground mb-4">
@@ -472,7 +472,7 @@ export default function Pricing() {
         <section className="py-16">
           <div className="container max-w-4xl">
             <Card className="p-5 md:p-8 bg-card border border-[#E8E2DA] rounded-sm">
-              <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
+              <h3 className="text-xl md:text-2xl font-medium mb-4 md:mb-6">
                 {t("Booking Terms & Policies", "תנאי הזמנה ומדיניות")}
               </h3>
 

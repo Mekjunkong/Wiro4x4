@@ -27,7 +27,7 @@ export default function NotFound() {
               </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
+            <h1 className="text-4xl font-medium text-foreground mb-2">404</h1>
 
             <h2 className="text-xl font-semibold text-foreground/80 mb-4">
               {t("Page Not Found", "הדף לא נמצא")}
