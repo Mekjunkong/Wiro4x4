@@ -711,6 +711,17 @@ export async function getAllBlogPosts() {
   return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
 }
 
+export async function getBlogPostById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function getBlogPostBySlug(slug: string) {
   const db = await getDb();
   if (!db) return undefined;
