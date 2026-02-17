@@ -809,6 +809,34 @@ export async function getSubscriberByEmail(email: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getAllActiveSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(subscribers)
+    .where(eq(subscribers.isActive, 1))
+    .orderBy(desc(subscribers.subscribedAt));
+}
+
+export async function getAllSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(subscribers)
+    .orderBy(desc(subscribers.subscribedAt));
+}
+
+export async function deactivateSubscriber(email: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(subscribers)
+    .set({ isActive: 0 })
+    .where(eq(subscribers.email, email));
+}
+
 // ─── Audit Logging ────────────────────────────────────────
 
 export async function logAdminAction(log: InsertAuditLog) {
