@@ -1,4 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GoldDivider } from "@/components/GoldDivider";
 import {
   Accordion,
   AccordionContent,
@@ -90,14 +92,16 @@ const faqData = [
 
 export function FAQ() {
   const { t } = useLanguage();
+  const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   return (
-    <section id="faq" className="py-16 bg-muted/30">
+    <section ref={sectionRef} id="faq" className="py-24 md:py-32 bg-background">
       <div className="container max-w-3xl">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+          <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-3">
             {t("Frequently Asked Questions", "שאלות נפוצות")}
           </h2>
+          <GoldDivider />
           <p className="text-muted-foreground text-lg">
             {t(
               "Everything you need to know about our tours",
@@ -111,9 +115,12 @@ export function FAQ() {
             <AccordionItem
               key={index}
               value={`faq-${index}`}
-              className="border-b border-border"
+              className="border-b border-[#E8E2DA]"
             >
-              <AccordionTrigger className="text-base font-medium text-foreground hover:no-underline">
+              <AccordionTrigger
+                className="text-lg font-medium text-foreground hover:no-underline [&>svg]:text-[#D4AF37]"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t(item.q[0], item.q[1])}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">

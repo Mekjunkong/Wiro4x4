@@ -1,10 +1,12 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card } from "@/components/ui/card";
-import { Star, Quote, ArrowRight } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GoldDivider } from "@/components/GoldDivider";
 
 export function Testimonials() {
   const { t } = useLanguage();
+  const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   const testimonials = [
     {
@@ -70,12 +72,13 @@ export function Testimonials() {
   ];
 
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
+    <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-medium mb-6">
             {t("What Our Travelers Say", "מה המטיילים שלנו אומרים")}
           </h2>
+          <GoldDivider />
           <p className="text-lg text-muted-foreground mb-4">
             {t(
               "Real experiences from Israeli travelers who explored Northern Thailand with WIRO 4x4.",
@@ -87,7 +90,7 @@ export function Testimonials() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className="h-5 w-5 fill-secondary text-secondary"
+                  className="h-5 w-5 fill-[#D4AF37] text-[#D4AF37]"
                 />
               ))}
             </div>
@@ -100,43 +103,57 @@ export function Testimonials() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card
+            <div
               key={index}
-              className={`p-6 hover:shadow-premium transition-all duration-300 hover:-translate-y-1 bg-card ${
-                testimonial.lang === "he" ? "rtl" : ""
-              }`}
+              className={`py-6 ${
+                index < testimonials.length - 1
+                  ? "border-b border-[#E8E2DA]"
+                  : ""
+              } ${testimonial.lang === "he" ? "rtl" : ""}`}
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-4">
-                  <Quote className="h-8 w-8 text-primary/20" />
-                  <div className="flex gap-1">
-                    {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-secondary text-secondary"
-                      />
-                    ))}
-                  </div>
+                <div className="mb-4">
+                  <span
+                    className="text-6xl text-[#D4AF37] leading-none"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {"\u201C"}
+                  </span>
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-4 flex-grow leading-relaxed">
-                  "{testimonial.text}"
+                <div className="flex gap-1 mb-3">
+                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37]"
+                    />
+                  ))}
+                </div>
+
+                <p
+                  className="italic text-xl md:text-2xl leading-relaxed text-muted-foreground mb-4 flex-grow"
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
+                  {testimonial.text}
                 </p>
 
                 <div className={testimonial.lang === "he" ? "text-right" : ""}>
-                  <p className="font-semibold">{testimonial.name}</p>
+                  <p className="font-semibold">
+                    <span className="text-[#D4AF37]">{"\u2014 "}</span>
+                    {testimonial.name}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {testimonial.location}
                   </p>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
 
         <div className="text-center mt-8">
           <Link href="/reviews">
-            <span className="inline-flex items-center gap-2 text-primary font-semibold hover:underline cursor-pointer">
+            <span className="inline-flex items-center gap-2 text-[#D4AF37] font-semibold hover:underline cursor-pointer">
               {t("See All Reviews", "לכל חוות הדעת")}
               <ArrowRight className="h-4 w-4" />
             </span>

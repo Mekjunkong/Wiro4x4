@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { GoldDivider } from "@/components/GoldDivider";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,7 +48,7 @@ function StarRating({
         {[1, 2, 3, 4, 5].map(star => (
           <span
             key={star}
-            className={`text-2xl ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}
+            className={`text-2xl ${star <= rating ? "text-[#D4AF37]" : "text-[#E8E2DA]"}`}
             aria-hidden="true"
           >
             ★
@@ -66,8 +68,8 @@ function StarRating({
         <button
           key={star}
           type="button"
-          className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-            star <= displayRating ? "text-yellow-400" : "text-gray-300"
+          className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-sm transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 ${
+            star <= displayRating ? "text-[#D4AF37]" : "text-[#E8E2DA]"
           } hover:scale-110`}
           onClick={() => onRate?.(star)}
           onMouseEnter={() => setHoveredStar(star)}
@@ -99,6 +101,7 @@ export default function Reviews() {
     "Guest Reviews",
     "Read what our guests say about their WIRO 4x4 kosher off-road adventures in Chiang Mai."
   );
+  const sectionRef = useScrollReveal<HTMLDivElement>({ y: 40, duration: 0.6 });
   const [filterTourType, setFilterTourType] = useState("all");
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "highest" | "lowest"
@@ -192,12 +195,13 @@ export default function Reviews() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-white mt-20">
+        <section className="bg-gradient-to-b from-[#1C1C1C] to-[#1C1C1C]/90 py-16 md:py-20 text-center text-[#FAF7F2] mt-20">
           <div className="container">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">
+            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
               {t("Guest Reviews", "חוות דעת של אורחים")}
             </h1>
+            <GoldDivider className="my-4" />
             <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
               {t(
                 "Read what our guests say about their WIRO 4x4 adventures and share your own experience",
@@ -207,13 +211,13 @@ export default function Reviews() {
           </div>
         </section>
 
-        <div className="container py-8 md:py-12">
+        <div ref={sectionRef} className="container py-8 md:py-12">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Review Form */}
             <div className="lg:col-span-1">
               <div className="sticky top-24">
                 {showSuccess ? (
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-green-200 bg-green-50 rounded-sm">
                     <CardContent className="pt-6 text-center">
                       <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check className="w-8 h-8 text-white" />
@@ -237,9 +241,9 @@ export default function Reviews() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card>
+                  <Card className="border border-[#D4AF37]/30 rounded-sm">
                     <CardHeader>
-                      <CardTitle className="text-primary">
+                      <CardTitle className="text-[#D4AF37]">
                         {t("Share Your Experience", "שתפו את החוויה שלכם")}
                       </CardTitle>
                     </CardHeader>
@@ -252,7 +256,7 @@ export default function Reviews() {
                         )}
 
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
                             {t("Your Name *", "השם שלך *")}
                           </label>
                           <Input
@@ -268,7 +272,7 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
                             {t("Email *", "מייל *")}
                           </label>
                           <Input
@@ -285,7 +289,7 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
                             {t("Rating *", "דירוג *")}
                           </label>
                           <StarRating
@@ -298,7 +302,7 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
                             {t("Tour Type", "סוג הטיול")}
                           </label>
                           <select
@@ -309,7 +313,7 @@ export default function Reviews() {
                                 tourType: e.target.value,
                               }))
                             }
-                            className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                            className="w-full h-9 rounded-sm border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
                           >
                             <option value="">
                               {isHebrew
@@ -325,7 +329,7 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
                             {t("Your Review *", "חוות הדעת שלכם *")}
                           </label>
                           <Textarea
@@ -347,7 +351,8 @@ export default function Reviews() {
 
                         <Button
                           type="submit"
-                          className="w-full"
+                          variant="default"
+                          className="w-full bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-white"
                           disabled={createReview.isPending}
                         >
                           <Send className="w-4 h-4 mr-2" />
@@ -371,7 +376,7 @@ export default function Reviews() {
               <div className="flex flex-wrap items-center gap-2 mb-6">
                 <Button
                   variant={filterTourType === "all" ? "default" : "outline"}
-                  className="rounded-full"
+                  className={`rounded-full ${filterTourType === "all" ? "bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-white" : ""}`}
                   onClick={() => {
                     setFilterTourType("all");
                     setVisibleCount(REVIEWS_PER_PAGE);
@@ -384,7 +389,7 @@ export default function Reviews() {
                   <Button
                     key={type.id}
                     variant={filterTourType === type.id ? "default" : "outline"}
-                    className="rounded-full"
+                    className={`rounded-full ${filterTourType === type.id ? "bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-white" : ""}`}
                     onClick={() => {
                       setFilterTourType(type.id);
                       setVisibleCount(REVIEWS_PER_PAGE);
@@ -403,7 +408,7 @@ export default function Reviews() {
                       setSortBy(e.target.value as typeof sortBy);
                       setVisibleCount(REVIEWS_PER_PAGE);
                     }}
-                    className="h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-xs"
+                    className="h-8 rounded-sm border border-input bg-transparent px-2 text-sm shadow-xs"
                   >
                     <option value="newest">
                       {isHebrew ? "חדש ביותר" : "Newest"}
@@ -423,7 +428,7 @@ export default function Reviews() {
 
               {isLoading && (
                 <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+                  <div className="animate-spin w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full mx-auto"></div>
                 </div>
               )}
 
@@ -445,7 +450,7 @@ export default function Reviews() {
               {!isLoading && filteredReviews.length > 0 && (
                 <div className="space-y-4">
                   {visibleReviews.map(review => (
-                    <Card key={review.id}>
+                    <Card key={review.id} className="rounded-sm">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between mb-3">
                           <div>
@@ -470,13 +475,26 @@ export default function Reviews() {
                               : ""}
                           </span>
                         </div>
-                        <p className="text-foreground/80 leading-relaxed">
-                          {review.text}
-                        </p>
+                        <div className="flex gap-2">
+                          <span
+                            className="text-4xl text-[#D4AF37] leading-none select-none"
+                            aria-hidden="true"
+                          >
+                            {"\u201C"}
+                          </span>
+                          <p
+                            className="text-foreground/80 leading-relaxed italic"
+                            style={{
+                              fontFamily: "'Cormorant Garamond', serif",
+                            }}
+                          >
+                            {review.text}
+                          </p>
+                        </div>
 
                         {review.adminResponse && (
-                          <div className="mt-4 pl-4 border-l-4 border-primary bg-primary/5 rounded-r-lg p-3">
-                            <p className="text-sm font-semibold text-primary mb-1">
+                          <div className="mt-4 pl-4 border-l-4 border-[#D4AF37] bg-[#D4AF37]/5 rounded-r-sm p-3">
+                            <p className="text-sm font-semibold text-[#D4AF37] mb-1">
                               {t("Response from WIRO 4x4", "תגובה מ-WIRO 4x4")}
                             </p>
                             <p className="text-sm text-foreground/70">

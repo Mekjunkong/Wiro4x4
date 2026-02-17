@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { GoldDivider } from "@/components/GoldDivider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -219,12 +220,13 @@ export default function Pricing() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-20 mt-20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-4xl md:text-5xl font-medium mb-6">
                 {t("Transparent Pricing", "תמחור שקוף")}
               </h1>
+              <GoldDivider />
               <p className="text-lg text-muted-foreground mb-6">
                 {t(
                   "All prices include private vehicle, Hebrew-speaking guide, kosher meals, and insurance. No hidden fees.",
@@ -234,22 +236,23 @@ export default function Pricing() {
               <Button
                 onClick={() => (window.location.href = "/estimate")}
                 size="lg"
-                className="mb-4"
+                variant="default"
+                className="mb-4 bg-[#D4AF37] hover:bg-[#B8960F] text-white"
               >
                 <Calculator className="w-5 h-5 mr-2" />
                 {t("Try the Trip Cost Estimator", "נסו את מחשבון עלות הטיול")}
               </Button>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" />
+                  <Shield className="w-5 h-5 text-[#D4AF37]" />
                   <span>{t("Fully Insured", "ביטוח מלא")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
+                  <Calendar className="w-5 h-5 text-[#D4AF37]" />
                   <span>{t("Flexible Dates", "תאריכים גמישים")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-5 h-5 text-primary" />
+                  <Utensils className="w-5 h-5 text-[#D4AF37]" />
                   <span>{t("Kosher Meals", "ארוחות כשרות")}</span>
                 </div>
               </div>
@@ -260,7 +263,7 @@ export default function Pricing() {
         {/* Individual Tours Pricing */}
         <section className="py-16">
           <div className="container">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-3xl font-medium text-center mb-12">
               {t("Individual Tours", "טיולים בודדים")}
             </h2>
 
@@ -268,7 +271,7 @@ export default function Pricing() {
               {tours.map(tour => (
                 <Card
                   key={tour.id}
-                  className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col"
+                  className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-[#E8E2DA] rounded-sm"
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -280,7 +283,7 @@ export default function Pricing() {
 
                   <div className="p-6 flex flex-col flex-1">
                     <div>
-                      <h3 className="text-xl font-bold mb-2">{tour.name}</h3>
+                      <h3 className="text-xl font-medium mb-2">{tour.name}</h3>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
                         <span>{tour.duration}</span>
@@ -288,7 +291,10 @@ export default function Pricing() {
                     </div>
 
                     <div className="border-t border-b py-4 mt-4">
-                      <div className="text-3xl font-bold text-primary mb-1">
+                      <div
+                        className="text-3xl font-bold text-[#D4AF37] mb-1"
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                      >
                         &#3647;{tour.basePrice.toLocaleString()}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -306,7 +312,7 @@ export default function Pricing() {
                             key={idx}
                             className="flex items-start gap-2 text-sm"
                           >
-                            <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <Check className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
                             <span>{item}</span>
                           </li>
                         ))}
@@ -325,7 +331,8 @@ export default function Pricing() {
                       onClick={() =>
                         handleWhatsAppInquiry(tour.name, tour.basePrice)
                       }
-                      className="w-full mt-4"
+                      variant="default"
+                      className="w-full mt-4 bg-[#D4AF37] hover:bg-[#B8960F] text-white"
                     >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
@@ -337,13 +344,13 @@ export default function Pricing() {
 
             {/* Group Size Pricing */}
             <div className="mt-12 max-w-4xl mx-auto">
-              <Card className="p-8">
-                <h3 className="text-xl md:text-2xl font-bold mb-6 text-center">
+              <Card className="p-8 bg-card border border-[#E8E2DA] rounded-sm">
+                <h3 className="text-xl md:text-2xl font-medium mb-6 text-center">
                   {t("Group Size Pricing", "תמחור לפי גודל קבוצה")}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                  <div className="text-center p-3 rounded-lg bg-primary/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
                     <div className="font-bold text-sm md:text-base">
                       1-2 {t("people", "אנשים")}
                     </div>
@@ -351,8 +358,8 @@ export default function Pricing() {
                       {t("Base price", "מחיר בסיס")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-primary/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
                     <div className="font-bold text-sm md:text-base">
                       3-4 {t("people", "אנשים")}
                     </div>
@@ -360,8 +367,8 @@ export default function Pricing() {
                       {t("Same price", "אותו מחיר")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-primary/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
                     <div className="font-bold text-sm md:text-base">
                       5-6 {t("people", "אנשים")}
                     </div>
@@ -369,8 +376,8 @@ export default function Pricing() {
                       {t("+20%", "+20%")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-primary/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
                     <div className="font-bold text-sm md:text-base">
                       7+ {t("people", "אנשים")}
                     </div>
@@ -388,7 +395,7 @@ export default function Pricing() {
         <section className="py-16 bg-muted/30">
           <div className="container">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-3xl font-medium mb-4">
                 {t("Multi-Day Packages", "חבילות לכמה ימים")}
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -403,16 +410,16 @@ export default function Pricing() {
               {packages.map((pkg, idx) => (
                 <Card
                   key={idx}
-                  className={`p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden flex flex-col ${idx === 1 ? "ring-2 ring-primary shadow-premium-lg" : ""}`}
+                  className={`p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden flex flex-col bg-card rounded-sm ${idx === 1 ? "border-[#D4AF37] border-2 shadow-premium-lg" : "border border-[#E8E2DA]"}`}
                 >
                   {idx === 1 && (
-                    <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-center py-1.5 text-xs md:text-sm font-bold">
+                    <div className="absolute top-0 left-0 right-0 bg-[#D4AF37] text-white text-center py-1.5 text-xs md:text-sm font-bold">
                       {t("Most Popular", "הכי פופולרי")}
                     </div>
                   )}
                   {pkg.savings > 0 && (
                     <div
-                      className={`absolute ${idx === 1 ? "top-10" : "top-3"} right-3 md:right-4 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}
+                      className={`absolute ${idx === 1 ? "top-10" : "top-3"} right-3 md:right-4 bg-[#D4AF37] text-white px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}
                     >
                       {t("Save", "חסכו")} &#3647;{pkg.savings}
                     </div>
@@ -421,13 +428,16 @@ export default function Pricing() {
                   <div
                     className={`text-center mb-6 ${idx === 1 ? "pt-4" : ""}`}
                   >
-                    <h3 className="text-xl md:text-2xl font-bold mb-2">
+                    <h3 className="text-xl md:text-2xl font-medium mb-2">
                       {pkg.name}
                     </h3>
                     <div className="text-sm text-muted-foreground mb-4">
                       {pkg.days} {t("Days", "ימים")}
                     </div>
-                    <div className="text-3xl md:text-4xl font-bold text-primary">
+                    <div
+                      className="text-3xl md:text-4xl font-bold text-[#D4AF37]"
+                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    >
                       ฿{pkg.price.toLocaleString()}
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">
@@ -438,7 +448,7 @@ export default function Pricing() {
                   <ul className="space-y-3 mb-6 flex-1">
                     {pkg.tours.map((tour, tourIdx) => (
                       <li key={tourIdx} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
                         <span>{tour}</span>
                       </li>
                     ))}
@@ -446,7 +456,7 @@ export default function Pricing() {
 
                   <Button
                     onClick={() => handleWhatsAppInquiry(pkg.name, pkg.price)}
-                    className="w-full mt-auto"
+                    className={`w-full mt-auto ${idx === 1 ? "bg-[#D4AF37] hover:bg-[#B8960F] text-white" : "border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10"}`}
                     variant={idx === 1 ? "default" : "outline"}
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
@@ -461,8 +471,8 @@ export default function Pricing() {
         {/* Additional Information */}
         <section className="py-16">
           <div className="container max-w-4xl">
-            <Card className="p-5 md:p-8">
-              <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
+            <Card className="p-5 md:p-8 bg-card border border-[#E8E2DA] rounded-sm">
+              <h3 className="text-xl md:text-2xl font-medium mb-4 md:mb-6">
                 {t("Booking Terms & Policies", "תנאי הזמנה ומדיניות")}
               </h3>
 

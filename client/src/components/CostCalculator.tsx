@@ -175,9 +175,9 @@ export function CostCalculator() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Tour Selection */}
-      <Card className="p-5 md:p-6">
+      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Calculator className="w-5 h-5 text-primary" />
+          <Calculator className="w-5 h-5 text-[#D4AF37]" />
           {t("Select Tours", "בחרו טיולים")}
         </h3>
 
@@ -187,7 +187,7 @@ export function CostCalculator() {
             {selectedTours.map((tour, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between bg-primary/5 rounded-lg px-4 py-2.5"
+                className="flex items-center justify-between bg-[#D4AF37]/5 rounded-sm px-4 py-2.5"
               >
                 <div>
                   <span className="font-medium text-sm">
@@ -220,7 +220,7 @@ export function CostCalculator() {
               }
             }}
             defaultValue=""
-            className="w-full px-4 py-3 border border-border rounded-lg bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+            className="w-full px-4 py-3 border border-border rounded-sm bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
           >
             <option value="" disabled>
               {t("+ Add a tour...", "+ הוסיפו טיול...")}
@@ -248,9 +248,9 @@ export function CostCalculator() {
       </Card>
 
       {/* Group Size */}
-      <Card className="p-5 md:p-6">
+      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary" />
+          <Users className="w-5 h-5 text-[#D4AF37]" />
           {t("Group Size", "גודל הקבוצה")}
         </h3>
 
@@ -285,7 +285,7 @@ export function CostCalculator() {
             </span>
             <button
               onClick={addChild}
-              className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+              className="text-sm text-[#D4AF37] hover:text-[#D4AF37]/80 font-medium flex items-center gap-1"
             >
               <Plus className="w-4 h-4" />
               {t("Add child", "הוסיפו ילד")}
@@ -304,7 +304,7 @@ export function CostCalculator() {
                     onChange={e =>
                       updateChildAge(idx, parseInt(e.target.value))
                     }
-                    className="flex-1 px-3 py-2 border border-border rounded-lg text-sm"
+                    className="flex-1 px-3 py-2 border border-border rounded-sm text-sm"
                   >
                     {Array.from({ length: 18 }, (_, i) => (
                       <option key={i} value={i}>
@@ -354,15 +354,15 @@ export function CostCalculator() {
       </Card>
 
       {/* Dates */}
-      <Card className="p-5 md:p-6">
+      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-primary" />
+          <Calendar className="w-5 h-5 text-[#D4AF37]" />
           {t("Travel Dates", "תאריכי הטיול")}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">
+            <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
               {t("Arrival", "הגעה")}
             </label>
             <input
@@ -370,11 +370,11 @@ export function CostCalculator() {
               value={arrivalDate}
               onChange={e => setArrivalDate(e.target.value)}
               min={new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">
+            <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
               {t("Departure", "עזיבה")}
             </label>
             <input
@@ -382,14 +382,14 @@ export function CostCalculator() {
               value={departureDate}
               onChange={e => setDepartureDate(e.target.value)}
               min={arrivalDate || new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
             />
           </div>
         </div>
 
         {/* Shabbat detection */}
         {shabbatAutoDetected > 0 && (
-          <div className="mt-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+          <div className="mt-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-sm text-sm">
             <span className="text-amber-800">
               {t(
                 `Your trip includes ${shabbatAutoDetected} Friday night${shabbatAutoDetected > 1 ? "s" : ""} (Shabbat)`,
@@ -401,9 +401,9 @@ export function CostCalculator() {
       </Card>
 
       {/* Services */}
-      <Card className="p-5 md:p-6">
+      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Star className="w-5 h-5 text-primary" />
+          <Star className="w-5 h-5 text-[#D4AF37]" />
           {t("Additional Services", "שירותים נוספים")}
         </h3>
 
@@ -477,14 +477,14 @@ export function CostCalculator() {
 
       {/* Price Breakdown */}
       {breakdown && (
-        <Card className="p-5 md:p-6 border-2 border-primary/30">
+        <Card className="p-5 md:p-6 border-2 border-[#D4AF37]/30 rounded-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-primary" />
+            <Calculator className="w-5 h-5 text-[#D4AF37]" />
             {t("Price Estimate", "הערכת מחיר")}
           </h3>
 
           {breakdown.isCustomQuote && (
-            <div className="mb-4 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+            <div className="mb-4 px-3 py-2 bg-amber-50 border border-amber-200 rounded-sm text-sm text-amber-800">
               {t(
                 "Group of 7+ — prices below are estimates. Contact us for exact pricing.",
                 "קבוצה של 7+ — המחירים למטה הם הערכה. צרו קשר לקבלת מחיר מדויק."
@@ -526,7 +526,7 @@ export function CostCalculator() {
 
             {/* Package comparison */}
             {breakdown.packageOption && (
-              <div className="px-3 py-2.5 bg-green-50 border border-green-200 rounded-lg">
+              <div className="px-3 py-2.5 bg-green-50 border border-green-200 rounded-sm">
                 <div className="flex items-center gap-2 text-green-800 font-medium text-sm mb-1">
                   <BadgePercent className="w-4 h-4" />
                   {t("Package Discount Available!", "הנחת חבילה זמינה!")}
@@ -569,12 +569,15 @@ export function CostCalculator() {
             )}
 
             {/* Total */}
-            <div className="border-t-2 border-primary/20 pt-3 mt-4">
+            <div className="border-t-2 border-[#D4AF37]/20 pt-3 mt-4">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xl font-bold">
                   {t("Estimated Total", "סה״כ הערכה")}
                 </span>
-                <span className="text-2xl font-bold text-primary">
+                <span
+                  className="text-2xl font-bold text-[#D4AF37]"
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
                   {formatTHB(breakdown.total)}
                 </span>
               </div>
@@ -591,7 +594,11 @@ export function CostCalculator() {
 
           {/* CTA Buttons */}
           <div className="mt-6 space-y-3">
-            <Button onClick={handleWhatsApp} className="w-full py-3 text-base">
+            <Button
+              onClick={handleWhatsApp}
+              variant="default"
+              className="w-full py-3 text-base bg-[#D4AF37] hover:bg-[#B8960F] text-white"
+            >
               <MessageCircle className="w-5 h-5 mr-2" />
               {t(
                 "Get Exact Quote via WhatsApp",
@@ -600,7 +607,7 @@ export function CostCalculator() {
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10"
               onClick={() => {
                 window.location.href = "/book";
               }}
@@ -620,7 +627,7 @@ export function CostCalculator() {
 
       {/* Empty state */}
       {!canCalculate && (
-        <Card className="p-6 md:p-8 border-2 border-dashed border-muted-foreground/20 text-center">
+        <Card className="p-6 md:p-8 border-2 border-dashed border-muted-foreground/20 text-center rounded-sm">
           <Calculator className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
           <p className="text-muted-foreground">
             {t(
@@ -650,14 +657,14 @@ function ServiceToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+    <label className="flex items-center gap-3 p-3 rounded-sm hover:bg-muted/50 cursor-pointer transition-colors">
       <input
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
-        className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
+        className="w-5 h-5 rounded border-border text-[#D4AF37] focus:ring-[#D4AF37]"
       />
-      <Icon className="w-5 h-5 text-primary shrink-0" />
+      <Icon className="w-5 h-5 text-[#D4AF37] shrink-0" />
       <span className="font-medium flex-1">{label}</span>
       <span className="text-xs text-muted-foreground">{detail}</span>
     </label>

@@ -43,81 +43,82 @@
 }
 
 :root {
-  /* Deep forest green primary */
-  --primary: oklch(0.35 0.08 155);
-  --primary-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.4 0.08 155);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  /* Gold accent colors — adjusted for consistent palette */
-  --chart-1: oklch(0.65 0.14 85);
-  --chart-2: oklch(0.6 0.13 85);
-  --chart-3: oklch(0.55 0.14 85);
-  --chart-4: oklch(0.5 0.13 85);
-  --chart-5: oklch(0.45 0.12 85);
-  --radius: 0.75rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.15 0.01 155);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 155);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 155);
-  /* Gold secondary — darkened to 0.50 for WCAG AA contrast (>=4.5:1 on white) */
-  --secondary: oklch(0.5 0.14 85);
-  --secondary-foreground: oklch(0.15 0.01 155);
-  --muted: oklch(0.96 0.005 155);
-  --muted-foreground: oklch(0.5 0.02 155);
-  /* Gold accent — matches secondary for consistency */
-  --accent: oklch(0.5 0.14 85);
-  --accent-foreground: oklch(0.15 0.01 155);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.9 0.005 155);
-  --input: oklch(0.9 0.005 155);
-  --ring: oklch(0.35 0.08 155);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.15 0.01 155);
-  --sidebar-accent: oklch(0.96 0.005 155);
-  --sidebar-accent-foreground: oklch(0.15 0.01 155);
-  --sidebar-border: oklch(0.9 0.005 155);
-  --sidebar-ring: oklch(0.35 0.08 155);
+  --radius: 0.25rem;
+  /* Charcoal primary */
+  --primary: #1c1c1c;
+  --primary-foreground: #ffffff;
+  /* Warm ivory background */
+  --background: #faf7f2;
+  --foreground: #2c2c2c;
+  /* Soft cream cards */
+  --card: #fdfbf7;
+  --card-foreground: #2c2c2c;
+  --popover: #fdfbf7;
+  --popover-foreground: #2c2c2c;
+  /* Bright gold accent */
+  --secondary: #d4af37;
+  --secondary-foreground: #1c1c1c;
+  /* Warm stone muted */
+  --muted: #e8e2da;
+  --muted-foreground: #6b6560;
+  /* Gold accent */
+  --accent: #d4af37;
+  --accent-foreground: #1c1c1c;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: #e8e2da;
+  --input: #e8e2da;
+  --ring: #d4af37;
+  /* Charts — gold gradient */
+  --chart-1: #d4af37;
+  --chart-2: #bf9b30;
+  --chart-3: #a88829;
+  --chart-4: #917422;
+  --chart-5: #7a611b;
+  /* Sidebar */
+  --sidebar: #faf7f2;
+  --sidebar-foreground: #2c2c2c;
+  --sidebar-primary: #1c1c1c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e2da;
+  --sidebar-accent-foreground: #2c2c2c;
+  --sidebar-border: #e8e2da;
+  --sidebar-ring: #d4af37;
 }
 
 .dark {
-  /* Deep forest green primary for dark mode */
-  --primary: oklch(0.4 0.08 155);
-  --primary-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.45 0.08 155);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --background: oklch(0.15 0.01 155);
-  --foreground: oklch(0.95 0.005 155);
-  --card: oklch(0.2 0.015 155);
-  --card-foreground: oklch(0.95 0.005 155);
-  --popover: oklch(0.2 0.015 155);
-  --popover-foreground: oklch(0.95 0.005 155);
-  /* Gold secondary for dark mode */
-  --secondary: oklch(0.7 0.12 85);
-  --secondary-foreground: oklch(0.15 0.01 155);
-  --muted: oklch(0.25 0.015 155);
-  --muted-foreground: oklch(0.65 0.02 155);
-  /* Gold accent for dark mode */
-  --accent: oklch(0.7 0.12 85);
-  --accent-foreground: oklch(0.15 0.01 155);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.4 0.08 155);
-  --chart-1: oklch(0.75 0.12 85);
-  --chart-2: oklch(0.7 0.13 85);
-  --chart-3: oklch(0.65 0.14 85);
-  --chart-4: oklch(0.6 0.13 85);
-  --chart-5: oklch(0.55 0.12 85);
-  --sidebar: oklch(0.2 0.015 155);
-  --sidebar-foreground: oklch(0.95 0.005 155);
-  --sidebar-accent: oklch(0.25 0.015 155);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.4 0.08 155);
+  --primary: #f0ede8;
+  --primary-foreground: #1a1a1a;
+  --background: #1a1a1a;
+  --foreground: #f0ede8;
+  --card: #242420;
+  --card-foreground: #f0ede8;
+  --popover: #242420;
+  --popover-foreground: #f0ede8;
+  --secondary: #d4af37;
+  --secondary-foreground: #1c1c1c;
+  --muted: #2e2e2a;
+  --muted-foreground: #9b9590;
+  --accent: #d4af37;
+  --accent-foreground: #1c1c1c;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #3a3a35;
+  --input: #3a3a35;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #bf9b30;
+  --chart-3: #a88829;
+  --chart-4: #917422;
+  --chart-5: #7a611b;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #f0ede8;
+  --sidebar-primary: #f0ede8;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #2e2e2a;
+  --sidebar-accent-foreground: #f0ede8;
+  --sidebar-border: #3a3a35;
+  --sidebar-ring: #d4af37;
 }
 
 @layer base {
@@ -126,7 +127,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Poppins", "Heebo", sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -137,13 +138,13 @@
   h4,
   h5,
   h6 {
-    font-family: "Playfair Display", serif;
-    font-weight: 700;
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 500;
   }
-  /* Hebrew text support - using LTR layout like English */
+  /* Hebrew text support */
   [lang="he"],
   .rtl {
-    font-family: "Heebo", "Poppins", sans-serif;
+    font-family: "Heebo", "DM Sans", sans-serif;
   }
   [lang="he"] h1,
   [lang="he"] h2,
@@ -157,8 +158,8 @@
   .rtl h4,
   .rtl h5,
   .rtl h6 {
-    font-family: "Heebo", serif;
-    font-weight: 700;
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 500;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -219,11 +220,11 @@
 @layer utilities {
   /* Premium shadow utilities */
   .shadow-premium {
-    box-shadow: 0 10px 40px rgba(26, 77, 46, 0.1);
+    box-shadow: 0 10px 40px rgba(28, 28, 28, 0.08);
   }
 
   .shadow-premium-lg {
-    box-shadow: 0 20px 60px rgba(26, 77, 46, 0.15);
+    box-shadow: 0 20px 60px rgba(28, 28, 28, 0.12);
   }
 
   /* Smooth scroll behavior */
@@ -243,23 +244,20 @@
   /* RTL removed - Hebrew version uses same LTR layout as English */
 }
 
-/* Smooth animations */
-@keyframes pulse-subtle {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
+/* Ken Burns hero effect */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
   }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.02);
+  100% {
+    transform: scale(1.1) translate(-1%, -1%);
   }
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -276,20 +274,87 @@
   }
 }
 
+@keyframes drawLine {
+  from {
+    width: 0;
+  }
+  to {
+    width: 5rem;
+  }
+}
+
+@keyframes subtlePulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s ease-in-out infinite;
+.animate-ken-burns {
+  animation: kenBurns 20s ease-in-out infinite alternate;
+}
+
+.animate-draw-line {
+  animation: drawLine 0.6s ease-out forwards;
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 3s ease-in-out infinite;
 }
 
 .animate-page-in {
   animation: fadeIn 0.2s ease-in;
+}
+
+/* Gold accent utilities */
+.gold-divider {
+  height: 1px;
+  width: 4rem;
+  background: #d4af37;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.text-gold {
+  color: #d4af37;
+}
+.border-gold {
+  border-color: #d4af37;
+}
+.bg-gold {
+  background-color: #d4af37;
+}
+
+/* Navigation underline animation */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: #d4af37;
+  transition:
+    width 0.3s ease,
+    left 0.3s ease;
+}
+.nav-link:hover::after {
+  width: 100%;
+  left: 0;
 }
 
 /* Respect prefers-reduced-motion: disable all animations and transitions */
@@ -302,8 +367,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
-  .animate-pulse-subtle,
+  .animate-ken-burns,
+  .animate-subtle-pulse,
   .animate-fade-in-up,
   .animate-fade-in {
     animation: none !important;

@@ -4,12 +4,13 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GoldDivider } from "@/components/GoldDivider";
 
 const CATEGORIES = [
   { id: "all", en: "All", he: "הכל" },
@@ -31,6 +32,8 @@ export default function Gallery() {
   );
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
 
   const { data: photos, isLoading } = trpc.gallery.list.useQuery();
 
@@ -119,12 +122,13 @@ export default function Gallery() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-white mt-20">
+        <section className="bg-gradient-to-b from-[#1C1C1C] to-[#1C1C1C]/80 py-16 md:py-20 text-center text-white mt-20">
           <div className="container">
             <Camera className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">
+            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
               {t("Photo Gallery", "גלריית תמונות")}
             </h1>
+            <GoldDivider />
             <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
               {t(
                 "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
@@ -143,27 +147,31 @@ export default function Gallery() {
                   ? (photos?.length ?? 0)
                   : (categoryCounts[cat.id] ?? 0);
               const isZero = count === 0 && cat.id !== "all";
+              const isActive = selectedCategory === cat.id;
 
               return (
-                <Button
+                <button
                   key={cat.id}
-                  variant={selectedCategory === cat.id ? "default" : "outline"}
-                  className={`rounded-full gap-1.5 ${isZero ? "opacity-50" : ""}`}
+                  className={`${
+                    isActive
+                      ? "bg-[#D4AF37] text-[#1C1C1C] border-[#D4AF37]"
+                      : "border border-[#D4AF37]/50 text-[#D4AF37]"
+                  } rounded-sm px-4 py-1.5 text-xs tracking-[0.15em] uppercase ${isZero ? "opacity-50" : ""}`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
                   {isHebrew ? cat.he : cat.en}
                   <span
-                    className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium ${
-                      selectedCategory === cat.id
-                        ? "bg-primary-foreground/20 text-primary-foreground"
+                    className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
+                      isActive
+                        ? "bg-[#1C1C1C]/20 text-[#1C1C1C]"
                         : isZero
                           ? "bg-muted text-muted-foreground"
-                          : "bg-primary/10 text-primary"
+                          : "bg-[#D4AF37]/10 text-[#D4AF37]"
                     }`}
                   >
                     {count}
                   </span>
-                </Button>
+                </button>
               );
             })}
           </div>
@@ -172,7 +180,7 @@ export default function Gallery() {
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-xl overflow-hidden">
+                <div key={i} className="rounded-sm overflow-hidden">
                   <Skeleton className="aspect-[4/3] w-full" />
                 </div>
               ))}
@@ -197,11 +205,14 @@ export default function Gallery() {
 
           {/* Photo Grid */}
           {!isLoading && filteredPhotos.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              ref={gridRef}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
               {filteredPhotos.map((photo, index) => (
                 <div
                   key={photo.id}
-                  className="group relative rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card"
+                  className="group relative rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card"
                   onClick={() => openLightbox(index)}
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
@@ -224,6 +235,8 @@ export default function Gallery() {
                         }
                       }}
                     />
+                    {/* Gold hover overlay */}
+                    <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">

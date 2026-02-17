@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card } from "@/components/ui/card";
-import { useEffect, useRef, useCallback } from "react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GoldDivider } from "@/components/GoldDivider";
 import {
   Check,
   Shield,
@@ -14,18 +14,7 @@ import {
 
 export function WhyWiro() {
   const { t } = useLanguage();
-  const parallaxRef = useRef<HTMLDivElement>(null);
-
-  const handleScroll = useCallback(() => {
-    if (parallaxRef.current) {
-      parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.3}px)`;
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.15 });
 
   const features = [
     {
@@ -100,19 +89,14 @@ export function WhyWiro() {
   return (
     <section
       id="why-wiro"
-      className="py-16 md:py-20 bg-muted/30 relative overflow-hidden"
+      className="py-24 md:py-32 bg-card relative overflow-hidden"
     >
-      {/* Parallax Background Element */}
-      <div
-        ref={parallaxRef}
-        className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"
-        style={{ willChange: "transform" }}
-      />
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6">
             {t("Why Choose WIRO 4x4?", "למה לבחור ב-WIRO 4x4?")}
           </h2>
+          <GoldDivider />
           <p className="text-base md:text-lg text-muted-foreground">
             {t(
               "We combine authentic off-road adventures with the comfort and cultural understanding that Israeli travelers deserve.",
@@ -121,24 +105,29 @@ export function WhyWiro() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-4 md:px-0">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-4 md:px-0"
+        >
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card
-                key={index}
-                className="p-6 hover:shadow-premium transition-all duration-300 hover:-translate-y-1 bg-card"
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Icon className="h-8 w-8 text-primary" />
+              <div key={index} className="p-6 text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="p-3 bg-[#D4AF37]/10 rounded-full">
+                    <Icon className="h-8 w-8 text-[#D4AF37]" />
                   </div>
-                  <h3 className="text-lg font-semibold">{feature.title}</h3>
+                  <h3
+                    className="text-lg font-medium"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {feature.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>

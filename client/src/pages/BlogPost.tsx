@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { GoldDivider } from "@/components/GoldDivider";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRoute } from "wouter";
@@ -78,11 +79,11 @@ export default function BlogPost() {
       <BlogPostHero image={post.image} title={post.title} />
 
       {/* Article Content */}
-      <article className="container max-w-4xl -mt-32 relative z-10 pb-20">
-        <div className="bg-background rounded-lg shadow-premium-lg p-8 md:p-12">
+      <article className="container max-w-3xl mx-auto -mt-32 relative z-10 pb-20">
+        <div className="bg-background rounded-sm shadow-premium-lg p-8 md:p-12">
           {/* Back Button */}
           <Link href="/blog">
-            <Button variant="ghost" className="mb-6">
+            <Button variant="ghost" className="mb-6 text-[#D4AF37]">
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("Back to Blog", "חזרה לבלוג")}
             </Button>
@@ -91,9 +92,18 @@ export default function BlogPost() {
           <BlogPostMeta date={post.date} readTime={post.readTime} />
 
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-8">{post.title}</h1>
+          <h1
+            className="text-4xl md:text-5xl font-medium mb-8"
+            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            {post.title}
+          </h1>
 
-          <MarkdownRenderer content={post.content} />
+          <GoldDivider className="mx-0 mb-8" />
+
+          <div className="text-lg leading-relaxed">
+            <MarkdownRenderer content={post.content} />
+          </div>
 
           <BlogPostCta />
         </div>

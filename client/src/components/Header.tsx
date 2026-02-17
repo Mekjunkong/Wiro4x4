@@ -69,13 +69,13 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled
-          ? "bg-background/95 backdrop-blur-md shadow-md"
+          ? "bg-[#FAF7F2]/95 dark:bg-[#1A1A1A]/95 backdrop-blur-md border-b border-[#D4AF37]/20"
           : "bg-transparent"
       }`}
       style={{ zIndex: 10000 }}
     >
       <div className="container">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           <Link
             href="/"
             className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
@@ -83,38 +83,38 @@ export function Header() {
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
-              className={`h-16 md:h-20 w-auto object-contain ${!scrolled ? "drop-shadow-2xl" : "drop-shadow-lg"}`}
+              className={`h-16 md:h-20 w-auto object-contain ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
             <button
               onClick={() => scrollToSection("tours")}
-              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Tours", "טיולים")}
             </button>
             <button
               onClick={() => scrollToSection("why-wiro")}
-              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Why WIRO", "למה WIRO")}
             </button>
             <button
               onClick={() => scrollToSection("kosher")}
-              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Kosher Info", "כשרות")}
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className={`text-sm font-medium hover:text-primary transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
               {t("Contact", "צרו קשר")}
             </button>
             <Link href="/pricing">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/pricing") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/pricing")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -124,7 +124,7 @@ export function Header() {
             </Link>
             <Link href="/blog">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/blog") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/blog") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/blog")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -134,7 +134,7 @@ export function Header() {
             </Link>
             <Link href="/gallery">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/gallery") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/gallery")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -144,7 +144,7 @@ export function Header() {
             </Link>
             <Link href="/reviews">
               <span
-                className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer ${isActive("/reviews") ? "text-primary border-b-2 border-primary pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/reviews") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/reviews")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -155,7 +155,7 @@ export function Header() {
             {isAdmin && (
               <Link href="/admin">
                 <span
-                  className={`text-sm font-medium hover:text-primary transition-colors cursor-pointer flex items-center gap-1 ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                  className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer flex items-center gap-1 ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 >
                   <Shield className="h-4 w-4" />
                   {t("Admin", "ניהול")}
@@ -163,14 +163,14 @@ export function Header() {
               </Link>
             )}
             <Link href="/book">
-              <Button className="bg-primary hover:bg-primary/90 text-white">
+              <Button variant="default" size="sm">
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
             </Link>
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
                 aria-label={
                   theme === "dark"
                     ? t("Switch to light mode", "מעבר למצב בהיר")
@@ -193,7 +193,7 @@ export function Header() {
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
                 aria-label={
                   theme === "dark"
                     ? t("Switch to light mode", "מעבר למצב בהיר")
@@ -210,7 +210,7 @@ export function Header() {
             <LanguageSwitcher />
             <button
               onClick={toggleMobileMenu}
-              className="p-6 -m-3 hover:bg-primary/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
+              className="p-6 -m-3 hover:bg-[#D4AF37]/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
               type="button"
@@ -235,80 +235,113 @@ export function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden fixed top-20 left-0 right-0 bg-background/98 backdrop-blur-md border-t border-border shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
-          style={{ zIndex: 9998 }}
+          className="md:hidden fixed inset-0 bg-[#FAF7F2] dark:bg-[#1A1A1A] overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
+          style={{ zIndex: 9999 }}
         >
-          <nav className="container py-4 flex flex-col gap-3">
+          <nav className="container pt-28 flex flex-col items-center justify-center gap-2 min-h-[calc(100vh-8rem)]">
             <button
               onClick={() => {
                 scrollToSection("tours");
                 setMobileMenuOpen(false);
               }}
-              className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors touch-manipulation"
+              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Tours", "טיולים")}
             </button>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <button
               onClick={() => {
                 scrollToSection("why-wiro");
                 setMobileMenuOpen(false);
               }}
-              className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors touch-manipulation"
+              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Why WIRO", "למה WIRO")}
             </button>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <button
               onClick={() => {
                 scrollToSection("kosher");
                 setMobileMenuOpen(false);
               }}
-              className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors touch-manipulation"
+              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Kosher Info", "כשרות")}
             </button>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <button
               onClick={() => {
                 scrollToSection("contact");
                 setMobileMenuOpen(false);
               }}
-              className="text-left px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors touch-manipulation"
+              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Contact", "צרו קשר")}
             </button>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+              <span
+                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t("Pricing", "מחירים")}
               </span>
             </Link>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+              <span
+                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t("Blog", "בלוג")}
               </span>
             </Link>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+              <span
+                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t("Gallery", "גלריה")}
               </span>
             </Link>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/reviews" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer">
+              <span
+                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              >
                 {t("Reviews", "חוות דעת")}
               </span>
             </Link>
             {isAdmin && (
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                <span className="block px-4 py-3 text-sm font-medium hover:bg-primary/10 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  {t("Admin", "ניהול")}
-                </span>
-              </Link>
+              <>
+                <div className="h-px w-12 bg-[#D4AF37]/30" />
+                <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                  <span
+                    className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-2"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    <Shield className="h-4 w-4" />
+                    {t("Admin", "ניהול")}
+                  </span>
+                </Link>
+              </>
             )}
             <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white mt-2">
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full max-w-xs mt-6"
+              >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
             </Link>

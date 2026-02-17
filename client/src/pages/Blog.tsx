@@ -2,11 +2,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { GoldDivider } from "@/components/GoldDivider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowRight, FileText, Tag } from "lucide-react";
 import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { trpc } from "@/lib/trpc";
 
 // Hardcoded fallback posts (used when DB returns empty)
@@ -63,6 +65,7 @@ export default function Blog() {
     "Travel tips, kosher dining guides, and cultural insights for Israeli travelers exploring Northern Thailand."
   );
 
+  const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
   const { data: dbPosts } = trpc.blog.list.useQuery();
 
   // Use DB posts if available, otherwise fallback
@@ -98,12 +101,13 @@ export default function Blog() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-20 mt-20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-4xl md:text-5xl font-medium mb-6">
                 {t("Travel Resources & Guides", "מדריכים וטיפים לטיול")}
               </h1>
+              <GoldDivider />
               <p className="text-lg text-muted-foreground">
                 {t(
                   "Expert advice and insider tips for Israeli travelers exploring Indochina",
@@ -134,11 +138,14 @@ export default function Blog() {
             )}
 
             {posts.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              <div
+                ref={gridRef}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+              >
                 {posts.map(post => (
                   <Card
                     key={post.slug}
-                    className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
+                    className="overflow-hidden border-t-2 border-[#D4AF37] rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
                   >
                     <div className="relative h-56 overflow-hidden">
                       <img
@@ -148,7 +155,7 @@ export default function Blog() {
                       />
                       {post.category && (
                         <div className="absolute top-4 left-4">
-                          <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+                          <span className="inline-block px-3 py-1 bg-[#D4AF37] text-white text-xs font-semibold rounded-sm">
                             {post.category}
                           </span>
                         </div>
@@ -157,7 +164,7 @@ export default function Blog() {
 
                     <div className="p-6 space-y-4">
                       {(post.date || post.readTime) && (
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground uppercase tracking-wider">
                           {post.date && (
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
@@ -173,7 +180,10 @@ export default function Blog() {
                         </div>
                       )}
 
-                      <h3 className="text-xl font-bold line-clamp-2">
+                      <h3
+                        className="text-xl font-medium line-clamp-2"
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                      >
                         {post.title}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-3">
@@ -181,10 +191,10 @@ export default function Blog() {
                       </p>
 
                       <Link href={`/blog/${post.slug}`}>
-                        <Button variant="outline" className="w-full gap-2 mt-2">
+                        <span className="inline-flex items-center gap-2 mt-2 text-[#D4AF37] hover:underline text-sm font-medium">
                           {t("Read More", "קראו עוד")}
                           <ArrowRight className="h-4 w-4" />
-                        </Button>
+                        </span>
                       </Link>
                     </div>
                   </Card>
