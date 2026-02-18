@@ -336,8 +336,6 @@
 - [x] Test reviews page and approval system (page loads successfully, shows review submission form and empty state)
 - [ ] Verify all existing features still work after merge
 
-<<<<<<< HEAD
-
 ## Latest GitHub Updates Integration
 
 - [x] Pull latest changes from GitHub (form validation, dynamic tours, SEO, CRUD endpoints, pagination)
@@ -380,8 +378,6 @@
 - [x] Shared Zod schemas (shared/schemas.ts — reused by server/routers.ts)
 - [x] Drizzle relations (drizzle/relations.ts — bookings↔agents, leads↔bookings, payments↔bookings)
 - [x] Lazy Resend initialization (no crash without API key)
-
-<<<<<<< HEAD
 
 ## Latest GitHub Update Integration (Feb 8, 2026)
 
@@ -663,3 +659,28 @@
 - [x] Update email in contact forms
 - [x] Update email in footer
 - [x] Update email in notification services
+
+## CRM + Multi-Admin Roles (Feb 19, 2026)
+
+### Database Schema
+
+- [ ] Run `pnpm db:push` to create customers and customerActivities tables
+- [ ] Run `pnpm db:push` to update users.role enum
+
+### Multi-Admin Roles
+
+- [x] Add owner/manager/agent roles to users table
+- [x] Add role-based middleware (ownerProcedure, managerProcedure, agentProcedure)
+- [x] Add admin user management API (list, updateRole, remove)
+- [x] Add Users tab to admin panel (owner-only)
+
+### CRM System
+
+- [x] Add customers table (name, email, phone, stage, tags, totalSpent)
+- [x] Add customerActivities table (notes, calls, follow-ups with due dates)
+- [x] Add CRM tRPC procedures (CRUD, pipeline, timeline, activities)
+- [x] Add CRM Pipeline Board (Kanban with drag-and-drop)
+- [x] Add CRM Customer List (searchable, filterable table)
+- [x] Add CRM Customer Detail panel (timeline, activities, notes)
+- [x] Add CRM Tab to admin dashboard (pipeline + list views)
+- [x] Auto-create customer records from new bookings and leads
