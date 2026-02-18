@@ -370,3 +370,37 @@ export const scheduledEmails = mysqlTable(
 );
 export type ScheduledEmail = typeof scheduledEmails.$inferSelect;
 export type InsertScheduledEmail = typeof scheduledEmails.$inferInsert;
+
+// Chat Concierge Tables
+export const chatSessions = mysqlTable(
+  "chatSessions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    visitorId: varchar("visitorId", { length: 64 }).notNull(),
+    language: mysqlEnum("language", ["en", "he"]).default("en").notNull(),
+    mode: mysqlEnum("mode", ["ai", "human", "closed"]).default("ai").notNull(),
+    summary: text("summary"),
+    bookingContext: text("bookingContext"), // JSON string
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    closedAt: timestamp("closedAt"),
+  },
+  table => [index("idx_chatSessions_visitorId").on(table.visitorId)]
+);
+
+export const chatMessages = mysqlTable(
+  "chatMessages",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    sessionId: int("sessionId").notNull(),
+    role: mysqlEnum("role", ["visitor", "ai", "agent"]).notNull(),
+    content: text("content").notNull(),
+    metadata: text("metadata"), // JSON string
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("idx_chatMessages_sessionId").on(table.sessionId)]
+);
+
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = typeof chatSessions.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
