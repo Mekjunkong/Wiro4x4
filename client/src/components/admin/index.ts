@@ -7,6 +7,8 @@ export { ToursTab } from "./ToursTab";
 export { GalleryTab } from "./GalleryTab";
 export { ReviewsTab } from "./ReviewsTab";
 export { BlogTab } from "./BlogTab";
+export { CRMTab } from "./CRMTab";
+export { UsersTab } from "./UsersTab";
 export {
   TableSkeleton,
   CardGridSkeleton,
