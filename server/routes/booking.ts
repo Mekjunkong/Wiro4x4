@@ -23,6 +23,7 @@ import {
   generateDefaultFinancialRecords,
   findOrCreateCustomer,
   updateCustomer,
+  getCustomerById,
 } from "../db";
 import {
   sendNewBookingNotification,
@@ -72,11 +73,12 @@ export const bookingRouter = router({
         phone: input.contactPhone,
         source: "booking",
       })
-        .then(customerId => {
+        .then(async customerId => {
           if (customerId) {
-            updateCustomer(customerId, { stage: "active" }).catch(
-              console.error
-            );
+            const customer = await getCustomerById(customerId);
+            if (customer && customer.stage === "prospect") {
+              await updateCustomer(customerId, { stage: "active" });
+            }
           }
         })
         .catch(console.error);

@@ -1385,35 +1385,90 @@ export async function getCustomerTimeline(email?: string, phone?: string) {
     source: string;
   }> = [];
 
+  const seenIds = new Set<string>();
+
+  // Match leads by email or phone
   if (email) {
     const matchedLeads = await db
       .select()
       .from(leads)
       .where(eq(leads.email, email));
     for (const lead of matchedLeads) {
-      timeline.push({
-        date: lead.createdAt,
-        type: "lead",
-        title: `Lead created (${lead.source})`,
-        detail: lead.message ?? "",
-        source: "leads",
-      });
+      const key = `lead-${lead.id}`;
+      if (!seenIds.has(key)) {
+        seenIds.add(key);
+        timeline.push({
+          date: lead.createdAt,
+          type: "lead",
+          title: `Lead created (${lead.source})`,
+          detail: lead.message ?? "",
+          source: "leads",
+        });
+      }
     }
+  }
+  if (phone) {
+    const phoneLeads = await db
+      .select()
+      .from(leads)
+      .where(eq(leads.phone, phone));
+    for (const lead of phoneLeads) {
+      const key = `lead-${lead.id}`;
+      if (!seenIds.has(key)) {
+        seenIds.add(key);
+        timeline.push({
+          date: lead.createdAt,
+          type: "lead",
+          title: `Lead created (${lead.source})`,
+          detail: lead.message ?? "",
+          source: "leads",
+        });
+      }
+    }
+  }
 
+  // Match bookings by email or phone
+  if (email) {
     const matchedBookings = await db
       .select()
       .from(bookings)
       .where(eq(bookings.contactEmail, email));
     for (const booking of matchedBookings) {
-      timeline.push({
-        date: booking.createdAt,
-        type: "booking",
-        title: `Booking #${booking.id} — ${booking.status}`,
-        detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
-        source: "bookings",
-      });
+      const key = `booking-${booking.id}`;
+      if (!seenIds.has(key)) {
+        seenIds.add(key);
+        timeline.push({
+          date: booking.createdAt,
+          type: "booking",
+          title: `Booking #${booking.id} — ${booking.status}`,
+          detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
+          source: "bookings",
+        });
+      }
     }
+  }
+  if (phone) {
+    const phoneBookings = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.contactPhone, phone));
+    for (const booking of phoneBookings) {
+      const key = `booking-${booking.id}`;
+      if (!seenIds.has(key)) {
+        seenIds.add(key);
+        timeline.push({
+          date: booking.createdAt,
+          type: "booking",
+          title: `Booking #${booking.id} — ${booking.status}`,
+          detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
+          source: "bookings",
+        });
+      }
+    }
+  }
 
+  // Match reviews by email only (reviews don't have phone)
+  if (email) {
     const matchedReviews = await db
       .select()
       .from(reviews)
@@ -1444,26 +1499,41 @@ export async function findOrCreateCustomer(data: {
   const db = await getDb();
   if (!db) return null;
 
+  // Check by email first
   if (data.email) {
     const existing = await getCustomerByEmail(data.email);
     if (existing) return existing.id;
   }
 
+  // Check by phone
   if (data.phone) {
     const existing = await getCustomerByPhone(data.phone);
     if (existing) return existing.id;
   }
 
-  const result = await db.insert(customers).values({
-    name: data.name,
-    email: data.email ?? null,
-    phone: data.phone ?? null,
-    source: data.source ?? "website",
-    stage: "prospect",
-  });
-
-  const insertId = (result as any)[0]?.insertId;
-  return insertId ?? null;
+  // Insert new customer; re-check on failure to handle race conditions
+  try {
+    const result = await db.insert(customers).values({
+      name: data.name,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      source: data.source ?? "website",
+      stage: "prospect",
+    });
+    const insertId = (result as any)[0]?.insertId;
+    return insertId ?? null;
+  } catch {
+    // Race condition: another request created the same customer — re-lookup
+    if (data.email) {
+      const existing = await getCustomerByEmail(data.email);
+      if (existing) return existing.id;
+    }
+    if (data.phone) {
+      const existing = await getCustomerByPhone(data.phone);
+      if (existing) return existing.id;
+    }
+    return null;
+  }
 }
 
 // ─── Admin: User Management ───────────────────────────────

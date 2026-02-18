@@ -78,7 +78,7 @@ export function CRMPipelineBoard({ onSelectCustomer }: CRMPipelineBoardProps) {
     data: customersData,
     isLoading: customersLoading,
     refetch: refetchCustomers,
-  } = trpc.crm.listCustomers.useQuery({ page: 1, pageSize: 500 });
+  } = trpc.crm.listCustomers.useQuery({ page: 1, pageSize: 100 });
 
   const { data: pipelineStats } = trpc.crm.getPipelineStats.useQuery();
 
