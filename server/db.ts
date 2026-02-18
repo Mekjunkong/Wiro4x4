@@ -106,6 +106,8 @@ import {
   tours,
   blogPosts,
   auditLogs,
+  customers,
+  customerActivities,
   InsertBooking,
   InsertAgent,
   InsertLead,
@@ -116,6 +118,8 @@ import {
   InsertTour,
   InsertBlogPost,
   InsertAuditLog,
+  InsertCustomer,
+  InsertCustomerActivity,
 } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
@@ -801,6 +805,10 @@ import {
   InsertSubscriber,
   scheduledEmails,
   InsertScheduledEmail,
+  chatSessions,
+  chatMessages,
+  InsertChatSession,
+  InsertChatMessage,
 } from "../drizzle/schema";
 
 export async function createSubscriber(sub: InsertSubscriber) {
@@ -1090,4 +1098,400 @@ export async function markFeedbackSent(bookingId: number) {
     .update(bookings)
     .set({ feedbackSentAt: new Date() } as any)
     .where(eq(bookings.id, bookingId));
+}
+
+// ─── Chat Concierge ──────────────────────────────────────
+
+export async function createChatSession(data: {
+  visitorId: string;
+  language: "en" | "he";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [result] = await db
+    .insert(chatSessions)
+    .values({ visitorId: data.visitorId, language: data.language })
+    .$returningId();
+  return result.id;
+}
+
+export async function getChatSessionByVisitorId(visitorId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(chatSessions)
+    .where(
+      and(
+        eq(chatSessions.visitorId, visitorId),
+        sql`${chatSessions.mode} != 'closed'`
+      )
+    )
+    .orderBy(desc(chatSessions.createdAt))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getChatMessagesBySessionId(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(chatMessages)
+    .where(eq(chatMessages.sessionId, sessionId))
+    .orderBy(chatMessages.createdAt);
+}
+
+export async function addChatMessage(data: {
+  sessionId: number;
+  role: "visitor" | "ai" | "agent";
+  content: string;
+  metadata?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [result] = await db
+    .insert(chatMessages)
+    .values({
+      sessionId: data.sessionId,
+      role: data.role,
+      content: data.content,
+      metadata: data.metadata ?? null,
+    })
+    .$returningId();
+  return result.id;
+}
+
+export async function updateChatSessionMode(
+  id: number,
+  mode: "ai" | "human" | "closed"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(chatSessions)
+    .set({ mode })
+    .where(eq(chatSessions.id, id));
+}
+
+export async function updateChatSessionSummary(id: number, summary: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(chatSessions)
+    .set({ summary })
+    .where(eq(chatSessions.id, id));
+}
+
+export async function updateChatSessionBookingContext(
+  id: number,
+  bookingContext: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(chatSessions)
+    .set({ bookingContext })
+    .where(eq(chatSessions.id, id));
+}
+
+export async function closeChatSession(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(chatSessions)
+    .set({ mode: "closed", closedAt: new Date() })
+    .where(eq(chatSessions.id, id));
+}
+
+export async function getAllChatSessionsPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db
+    .select()
+    .from(chatSessions)
+    .orderBy(desc(chatSessions.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(chatSessions);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+// ─── CRM: Customers ──────────────────────────────────────
+
+export async function createCustomer(customer: InsertCustomer) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(customers).values(customer);
+  return result;
+}
+
+export async function getAllCustomers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(customers).orderBy(desc(customers.updatedAt));
+}
+
+export async function getAllCustomersPaginated(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db
+    .select()
+    .from(customers)
+    .orderBy(desc(customers.updatedAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(customers);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
+}
+
+export async function getCustomerById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq(customers.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getCustomerByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq(customers.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getCustomerByPhone(phone: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq(customers.phone, phone))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateCustomer(
+  id: number,
+  data: Partial<InsertCustomer>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.update(customers).set(data).where(eq(customers.id, id));
+}
+
+export async function deleteCustomer(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .delete(customerActivities)
+    .where(eq(customerActivities.customerId, id));
+  return await db.delete(customers).where(eq(customers.id, id));
+}
+
+export async function getCustomersByStage(stage: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(customers)
+    .where(eq(customers.stage, stage as any))
+    .orderBy(desc(customers.updatedAt));
+}
+
+// ─── CRM: Customer Activities ─────────────────────────────
+
+export async function createCustomerActivity(activity: InsertCustomerActivity) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.insert(customerActivities).values(activity);
+}
+
+export async function getActivitiesByCustomerId(customerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(eq(customerActivities.customerId, customerId))
+    .orderBy(desc(customerActivities.createdAt));
+}
+
+export async function completeActivity(activityId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(customerActivities)
+    .set({ isCompleted: 1 })
+    .where(eq(customerActivities.id, activityId));
+}
+
+export async function getPendingFollowUps() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(
+      and(
+        eq(customerActivities.type, "follow_up"),
+        eq(customerActivities.isCompleted, 0)
+      )
+    )
+    .orderBy(customerActivities.dueDate);
+}
+
+// ─── CRM: Pipeline Stats ─────────────────────────────────
+
+export async function getCustomerPipelineStats() {
+  const db = await getDb();
+  if (!db) return { prospect: 0, active: 0, completed: 0, vip: 0, inactive: 0 };
+  const all = await db.select().from(customers);
+  return {
+    prospect: all.filter(c => c.stage === "prospect").length,
+    active: all.filter(c => c.stage === "active").length,
+    completed: all.filter(c => c.stage === "completed").length,
+    vip: all.filter(c => c.stage === "vip").length,
+    inactive: all.filter(c => c.stage === "inactive").length,
+  };
+}
+
+// ─── CRM: Customer Timeline (merged view) ─────────────────
+
+export async function getCustomerTimeline(email?: string, phone?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const timeline: Array<{
+    date: Date;
+    type: string;
+    title: string;
+    detail: string;
+    source: string;
+  }> = [];
+
+  if (email) {
+    const matchedLeads = await db
+      .select()
+      .from(leads)
+      .where(eq(leads.email, email));
+    for (const lead of matchedLeads) {
+      timeline.push({
+        date: lead.createdAt,
+        type: "lead",
+        title: `Lead created (${lead.source})`,
+        detail: lead.message ?? "",
+        source: "leads",
+      });
+    }
+
+    const matchedBookings = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.contactEmail, email));
+    for (const booking of matchedBookings) {
+      timeline.push({
+        date: booking.createdAt,
+        type: "booking",
+        title: `Booking #${booking.id} — ${booking.status}`,
+        detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
+        source: "bookings",
+      });
+    }
+
+    const matchedReviews = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.email, email));
+    for (const review of matchedReviews) {
+      timeline.push({
+        date: review.createdAt,
+        type: "review",
+        title: `Review — ${review.rating}/5 stars`,
+        detail: review.text.substring(0, 100),
+        source: "reviews",
+      });
+    }
+  }
+
+  timeline.sort((a, b) => b.date.getTime() - a.date.getTime());
+  return timeline;
+}
+
+// ─── CRM: Find or Create Customer ────────────────────────
+
+export async function findOrCreateCustomer(data: {
+  name: string;
+  email?: string;
+  phone?: string;
+  source?: string;
+}): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  if (data.email) {
+    const existing = await getCustomerByEmail(data.email);
+    if (existing) return existing.id;
+  }
+
+  if (data.phone) {
+    const existing = await getCustomerByPhone(data.phone);
+    if (existing) return existing.id;
+  }
+
+  const result = await db.insert(customers).values({
+    name: data.name,
+    email: data.email ?? null,
+    phone: data.phone ?? null,
+    source: data.source ?? "website",
+    stage: "prospect",
+  });
+
+  const insertId = (result as any)[0]?.insertId;
+  return insertId ?? null;
+}
+
+// ─── Admin: User Management ───────────────────────────────
+
+export async function getAllAdminUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(users)
+    .where(inArray(users.role, ["admin", "owner", "manager", "agent"]))
+    .orderBy(desc(users.createdAt));
+}
+
+export async function updateUserRole(userId: number, role: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(users)
+    .set({ role: role as any })
+    .where(eq(users.id, userId));
+}
+
+export async function removeAdminAccess(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(users)
+    .set({ role: "user" })
+    .where(eq(users.id, userId));
 }
