@@ -16,6 +16,7 @@ import {
   getAllLeadsPaginated,
   bulkDeleteLeads,
   updateLeadScore,
+  findOrCreateCustomer,
 } from "../db";
 import { leadInputSchema, paginationInput } from "../../shared/schemas";
 import { sendAutoResponse } from "../autoResponse";
@@ -37,6 +38,14 @@ export const leadRouter = router({
         });
       }
       await createLead(input);
+
+      // Auto-create or link customer (non-blocking)
+      findOrCreateCustomer({
+        name: input.name,
+        email: input.email,
+        phone: input.phone || undefined,
+        source: input.source || "website",
+      }).catch(console.error);
 
       // Calculate and store lead score (async, non-blocking)
       const allLeads = await getAllLeads();
