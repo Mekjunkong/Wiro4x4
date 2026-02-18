@@ -159,6 +159,43 @@ export const paginationInput = z.object({
   pageSize: z.number().min(1).max(100).default(20),
 });
 
+export const customerInputSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  phone: z.string().max(50).optional(),
+  whatsapp: z.string().max(50).optional(),
+  language: z.enum(["en", "he"]).default("en"),
+  stage: z
+    .enum(["prospect", "active", "completed", "vip", "inactive"])
+    .default("prospect"),
+  source: z.string().max(100).default("website"),
+  tags: z.string().optional(), // JSON array string
+  notes: z.string().max(2000).optional(),
+});
+
+export const customerActivityInputSchema = z.object({
+  customerId: z.number(),
+  type: z.enum([
+    "note",
+    "call",
+    "whatsapp",
+    "email",
+    "follow_up",
+    "status_change",
+  ]),
+  content: z.string().min(1, "Content is required").max(2000),
+  dueDate: z
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : undefined)),
+  createdBy: z.string().optional(),
+});
+
+export const updateUserRoleSchema = z.object({
+  userId: z.number(),
+  role: z.enum(["user", "admin", "owner", "manager", "agent"]),
+});
+
 export type BookingInput = z.infer<typeof bookingInputSchema>;
 export type AgentInput = z.infer<typeof agentInputSchema>;
 export type LeadInput = z.infer<typeof leadInputSchema>;
@@ -170,3 +207,6 @@ export type PaginationInput = z.infer<typeof paginationInput>;
 export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;
 export type RefundInput = z.infer<typeof refundSchema>;
 export type VerifySessionInput = z.infer<typeof verifySessionSchema>;
+export type CustomerInput = z.infer<typeof customerInputSchema>;
+export type CustomerActivityInput = z.infer<typeof customerActivityInputSchema>;
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
