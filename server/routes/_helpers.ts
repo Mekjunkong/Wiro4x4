@@ -5,7 +5,14 @@
  * admin-rate-limit guard, and the admin-action logger.
  */
 
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import {
+  publicProcedure,
+  protectedProcedure,
+  ownerProcedure,
+  managerProcedure,
+  agentProcedure,
+  router,
+} from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { checkRateLimit } from "../rateLimit";
 import { setSecurityHeaders } from "../securityHeaders";
@@ -20,6 +27,24 @@ export const securePublicProcedure = publicProcedure.use(
   }
 );
 export const secureProtectedProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    setSecurityHeaders(ctx.res);
+    return next();
+  }
+);
+export const secureOwnerProcedure = ownerProcedure.use(
+  async ({ ctx, next }) => {
+    setSecurityHeaders(ctx.res);
+    return next();
+  }
+);
+export const secureManagerProcedure = managerProcedure.use(
+  async ({ ctx, next }) => {
+    setSecurityHeaders(ctx.res);
+    return next();
+  }
+);
+export const secureAgentProcedure = agentProcedure.use(
   async ({ ctx, next }) => {
     setSecurityHeaders(ctx.res);
     return next();
