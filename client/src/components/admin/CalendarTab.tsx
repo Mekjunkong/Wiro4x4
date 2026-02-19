@@ -1,12 +1,40 @@
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import { BookingCalendar } from "@/components/BookingCalendar";
-import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 
 export function CalendarTab() {
-  const { data: bookingsData, isLoading: bookingsLoading } =
-    trpc.booking.listPaginated.useQuery({ page: 1, pageSize: PAGE_SIZE });
-  const bookings = bookingsData?.items;
+  const utils = trpc.useUtils();
+
+  const { data: bookings, isLoading: bookingsLoading } =
+    trpc.booking.list.useQuery();
+
+  const updateDateMut = trpc.booking.updateDate.useMutation({
+    onSuccess: () => {
+      utils.booking.list.invalidate();
+      utils.booking.listPaginated.invalidate();
+      toast.success("Booking rescheduled successfully!");
+    },
+    onError: () => toast.error("Failed to reschedule booking"),
+  });
+
+  function handleReschedule(
+    bookingId: number,
+    newArrival: string,
+    newDeparture: string
+  ) {
+    if (
+      !confirm(
+        "Reschedule this booking to the new date? The trip duration will be preserved."
+      )
+    )
+      return;
+    updateDateMut.mutate({
+      id: bookingId,
+      arrivalDate: newArrival,
+      departureDate: newDeparture,
+    });
+  }
 
   return (
     <div className="p-6">
@@ -30,6 +58,7 @@ export function CalendarTab() {
               dropoffPoint: b.dropoffPoint || "",
             })) || []
           }
+          onReschedule={handleReschedule}
         />
       )}
     </div>
