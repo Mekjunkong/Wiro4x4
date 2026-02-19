@@ -22,6 +22,7 @@ import {
   PAGE_SIZE,
 } from "./types";
 import { InlineStatusDropdown } from "./InlineStatusDropdown";
+import { BulkEmailDialog } from "./BulkEmailDialog";
 import { Pagination } from "./Pagination";
 import { PaymentSection } from "./PaymentSection";
 import { downloadCSV } from "@/lib/csvExport";
@@ -48,6 +49,7 @@ export function BookingsTab() {
   const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
   const [bulkStatusMenuOpen, setBulkStatusMenuOpen] = useState(false);
   const [bulkAgentMenuOpen, setBulkAgentMenuOpen] = useState(false);
+  const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -337,6 +339,18 @@ export function BookingsTab() {
                     </div>
                   )}
                 </div>
+
+                {/* Send Email */}
+                <button
+                  onClick={() => {
+                    setBulkEmailOpen(true);
+                    setBulkMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <Mail className="w-3 h-3" />
+                  Send Email
+                </button>
               </div>
             )}
           </div>
@@ -666,6 +680,13 @@ export function BookingsTab() {
         totalPages={bookingsTotalPages}
         total={bookingsTotal}
         onPageChange={setBookingsPage}
+      />
+
+      <BulkEmailDialog
+        open={bulkEmailOpen}
+        onClose={() => setBulkEmailOpen(false)}
+        bookingIds={Array.from(selectedIds)}
+        recipientCount={selectedIds.size}
       />
     </div>
   );

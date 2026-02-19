@@ -30,6 +30,7 @@ import { sendNewBookingEmail } from "../resendEmailService";
 import {
   sendCustomerConfirmation,
   sendBookingReminder,
+  sendBulkEmailToCustomer,
 } from "../customerEmailService";
 import { bookingInputSchema, paginationInput } from "../../shared/schemas";
 
@@ -382,5 +383,47 @@ export const bookingRouter = router({
         }),
       });
       return { success: true };
+    }),
+
+  bulkEmail: secureProtectedProcedure
+    .input(
+      z.object({
+        bookingIds: z.array(z.number()).min(1),
+        subject: z.string().min(1).max(200),
+        message: z.string().min(1).max(5000),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      let sent = 0;
+      let failed = 0;
+      for (const id of input.bookingIds) {
+        const booking = await getBookingById(id);
+        if (booking?.contactEmail) {
+          try {
+            await sendBulkEmailToCustomer({
+              to: booking.contactEmail,
+              subject: input.subject,
+              message: input.message,
+              customerName: booking.contactName,
+            });
+            sent++;
+          } catch {
+            failed++;
+          }
+        }
+      }
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "bulk_email",
+        resourceType: "booking",
+        newValue: JSON.stringify({
+          bookingIds: input.bookingIds,
+          subject: input.subject,
+          sent,
+          failed,
+        }),
+      });
+      return { sent, failed };
     }),
 });
