@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Auth:** Manus OAuth (built-in)
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy initialization — no crash without API key)
-- **Testing:** Vitest (117 tests across 21 files)
+- **Testing:** Vitest (131 tests across 21 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -26,7 +26,7 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests (117 tests: 96 pass locally, 21 DB-dependent skipped)
+# Run tests (131 tests: 106 pass locally, 25 DB-dependent skipped)
 pnpm test
 
 # Type check
@@ -128,6 +128,8 @@ pnpm format
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
 │   └── pricing.ts               # Pure pricing calculation functions (used by client + server)
+├── docs/
+│   └── plans/                   # Design documents and implementation plans
 ├── todo.md                      # Project task tracking
 ├── package.json                 # Dependencies and scripts
 └── vite.config.ts               # Vite configuration
@@ -245,10 +247,12 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 - `client/src/components/Tours.tsx` fetches from `trpc.tour.list` — cards link to `/tours/:slug`
 - `client/src/pages/TourDetail.tsx` — individual tour pages with hero, description, included items, itinerary, booking CTA
-- Hardcoded fallback tours if DB returns empty (6 tours with matching slug keys)
+- Hardcoded fallback tours if DB returns empty (6 destination-based Chiang Mai day trips)
+- Extended fallback type includes `itineraryData`, `highlights`, `highlightsHe` fields serialized to JSON
 - Admin can create/edit/delete tours, manage slug/itinerary/includedItems via Tours tab
+- **Current 6 tour slugs:** `doi-inthanon-roof-of-thailand`, `mae-kampong-hidden-village`, `maerim-sticky-waterfalls`, `doi-suthep-pui-beyond-temple`, `mae-wang-jungle-wilderness`, `samoeng-loop-mountain-circuit`
 
-### 10. Trip Cost Estimator
+### 7. Trip Cost Estimator
 
 - **URL:** `/estimate` — interactive calculator for customers to estimate trip costs
 - **Component:** `client/src/components/CostCalculator.tsx`
@@ -267,21 +271,21 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **Linked from:** Pricing page (`/pricing`) has a CTA button to `/estimate`
 - **Tests:** `server/pricing.test.ts` — 31 unit tests covering all calculation logic
 
-### 11. Homepage Inquiry Form
+### 8. Homepage Inquiry Form
 
 - `client/src/components/QuickInquiryForm.tsx` — "Get a Free Quote" section
 - Fields: Name, Email, Phone, Travel Dates, Group Size, Interest type
 - Submits to existing `trpc.lead.create` API (no backend changes needed)
 - Shows success state with WhatsApp link after submission
 
-### 12. Destination Showcase
+### 9. Destination Showcase
 
 - `client/src/components/DestinationShowcase.tsx` — "Explore Northern Thailand" section
-- 6 destination cards (Sticky Waterfalls, Doi Inthanon, Jungle, Rice Terraces, Elephants, Hill Tribes)
-- Each card links to the matching tour detail page via slug
-- Static data with existing images from `/images/` folder
+- 6 destination cards matching tour slugs (Doi Inthanon, Mae Kampong, Sticky Waterfalls, Doi Suthep, Mae Wang, Samoeng Loop)
+- Each card links to the matching tour detail page via `tourSlug`
+- Static bilingual data with existing images from `/images/` folder
 
-### 13. Blog Content Pipeline
+### 10. Blog Content Pipeline
 
 - **Pages:** `/blog` (listing with search + category filters) and `/blog/:slug` (individual posts with share buttons)
 - **Bilingual:** Each post has English + Hebrew content fields (title, excerpt, content)
@@ -307,21 +311,21 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **Social Share Buttons:** WhatsApp, Facebook, X, Copy Link on each blog post page
 - **Blog Image Upload:** `trpc.blog.uploadImage` — base64 → S3 via `storagePut`
 
-### 7. Rate Limiting
+### 11. Rate Limiting
 
 - **File:** `server/rateLimit.ts` — in-memory sliding window
 - `booking.create`: 10 requests/minute per IP
 - `lead.create`: 10 requests/minute per IP
 - `review.create`: 5 requests/minute per IP
 
-### 8. SEO
+### 12. SEO
 
 - `robots.txt` + `sitemap.xml` in `client/public/`
 - JSON-LD structured data (TourOperator, LocalBusiness) in `index.html`
 - OG tags, Twitter cards, canonical/hreflang/geo meta tags
 - Per-page meta via `usePageMeta()` hook
 
-### 9. Stripe Payments (Deferred)
+### 13. Stripe Payments (Deferred)
 
 - Schema ready: `payments` table with Stripe fields
 - Placeholder: `server/stripe.ts` with typed functions + TODO comments
@@ -330,7 +334,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ## Testing
 
-**Framework:** Vitest | **117 total tests** | **21 test files**
+**Framework:** Vitest | **131 total tests** | **21 test files**
 
 ```bash
 pnpm test          # Run all tests
@@ -386,11 +390,18 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `drizzle/schema.ts` - Database tables (11 tables)
 - `client/src/pages/AdminDashboard.tsx` - Admin panel (6 tabs)
 - `client/src/pages/BookingForm.tsx` - Booking form
-- `client/src/components/Tours.tsx` - Tour offerings
+- `client/src/components/Tours.tsx` - Tour card data (fallback)
+- `client/src/pages/TourDetail.tsx` - Tour detail page + fallback itinerary data
+- `client/src/components/DestinationShowcase.tsx` - Homepage destination cards
 - `client/src/pages/Home.tsx` - Landing page content
 - `client/src/const.ts` - Constants (WhatsApp, logos)
 - `shared/schemas.ts` - Shared Zod validation schemas
 - `shared/pricing.ts` - Pure pricing calculation functions
+
+### Stale Root-Level Copies (keep in sync):
+
+- `components/Tours.tsx` and `components/DestinationShowcase.tsx` are root-level copies of `client/src/components/` files
+- When editing `client/src/components/Tours.tsx` or `DestinationShowcase.tsx`, also sync the root copies
 
 ### DO NOT EDIT:
 
@@ -581,7 +592,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-02-17
-**Version:** 2.4
+**Last Updated:** 2026-02-19
+**Version:** 2.5
 **Platform:** Manus
-**Test Coverage:** 117 tests (21 files) — 96 pass locally, 21 DB-dependent skipped
+**Test Coverage:** 131 tests (21 files) — 106 pass locally, 25 DB-dependent skipped
