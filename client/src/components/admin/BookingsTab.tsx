@@ -13,17 +13,29 @@ import {
   Download,
   Bell,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import {
-  BookingStatus,
+  type BookingStatus,
   STATUS_COLORS,
   STATUS_LABELS,
   PAGE_SIZE,
 } from "./types";
+import { InlineStatusDropdown } from "./InlineStatusDropdown";
 import { Pagination } from "./Pagination";
 import { PaymentSection } from "./PaymentSection";
 import { downloadCSV } from "@/lib/csvExport";
 import { TableSkeleton } from "./AdminSkeleton";
+
+function getWhatsAppUrl(booking: {
+  contactWhatsApp?: string | null;
+  contactPhone?: string | null;
+}) {
+  const phone = booking.contactWhatsApp || booking.contactPhone;
+  if (!phone) return null;
+  const cleanPhone = phone.replace(/[^0-9]/g, "");
+  return `https://wa.me/${cleanPhone}`;
+}
 
 export function BookingsTab() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +45,11 @@ export function BookingsTab() {
   const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
   const [bookingsPage, setBookingsPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
+  const [bulkStatusMenuOpen, setBulkStatusMenuOpen] = useState(false);
+  const [bulkAgentMenuOpen, setBulkAgentMenuOpen] = useState(false);
+
+  const utils = trpc.useUtils();
 
   const {
     data: bookingsData,
@@ -51,11 +68,12 @@ export function BookingsTab() {
   const updateBooking = trpc.booking.update.useMutation({
     onSuccess: () => {
       refetchBookings();
-      toast.success("Booking status updated successfully!");
+      utils.dashboard.badgeCounts.invalidate();
+      toast.success("Booking updated successfully!");
     },
     onError: error => {
       console.error("Failed to update booking:", error);
-      toast.error("Failed to update booking status. Please try again.");
+      toast.error("Failed to update booking. Please try again.");
     },
   });
   const deleteBookingMut = trpc.booking.delete.useMutation({
@@ -143,6 +161,40 @@ export function BookingsTab() {
     }
   };
 
+  const handleBulkStatusChange = async (status: BookingStatus) => {
+    const ids = Array.from(selectedIds);
+    try {
+      await Promise.all(
+        ids.map(id => updateBooking.mutateAsync({ id, data: { status } }))
+      );
+      setSelectedIds(new Set());
+      setBulkStatusMenuOpen(false);
+      setBulkMenuOpen(false);
+      toast.success(
+        `${ids.length} booking(s) updated to ${STATUS_LABELS[status]}`
+      );
+    } catch {
+      toast.error("Failed to update some bookings");
+    }
+  };
+
+  const handleBulkAgentAssign = async (agentId: number) => {
+    const ids = Array.from(selectedIds);
+    try {
+      await Promise.all(
+        ids.map(id =>
+          updateBooking.mutateAsync({ id, data: { assignedAgentId: agentId } })
+        )
+      );
+      setSelectedIds(new Set());
+      setBulkAgentMenuOpen(false);
+      setBulkMenuOpen(false);
+      toast.success(`${ids.length} booking(s) assigned`);
+    } catch {
+      toast.error("Failed to assign some bookings");
+    }
+  };
+
   const handleExportCSV = () => {
     if (!filteredBookings.length) return;
     const data = filteredBookings.map(b => ({
@@ -211,10 +263,84 @@ export function BookingsTab() {
 
       {/* Bulk action bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-4 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex flex-wrap items-center gap-3 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <span className="text-sm font-medium text-blue-700">
             {selectedIds.size} selected
           </span>
+
+          {/* Bulk Actions Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setBulkMenuOpen(!bulkMenuOpen)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors"
+            >
+              Bulk Actions
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            {bulkMenuOpen && (
+              <div className="absolute z-50 mt-1 w-48 bg-white border rounded-lg shadow-lg py-1">
+                {/* Change Status */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setBulkStatusMenuOpen(!bulkStatusMenuOpen);
+                      setBulkAgentMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    Change Status
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                  {bulkStatusMenuOpen && (
+                    <div className="absolute left-full top-0 ml-1 w-36 bg-white border rounded-lg shadow-lg py-1">
+                      {(Object.keys(STATUS_LABELS) as BookingStatus[]).map(
+                        status => (
+                          <button
+                            key={status}
+                            onClick={() => handleBulkStatusChange(status)}
+                            className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <span
+                              className={`inline-block w-2 h-2 rounded-full ${STATUS_COLORS[status].split(" ")[0]}`}
+                            />
+                            {STATUS_LABELS[status]}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Assign Agent */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setBulkAgentMenuOpen(!bulkAgentMenuOpen);
+                      setBulkStatusMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    Assign Agent
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                  {bulkAgentMenuOpen && (
+                    <div className="absolute left-full top-0 ml-1 w-36 bg-white border rounded-lg shadow-lg py-1 max-h-48 overflow-y-auto">
+                      {agents?.map(agent => (
+                        <button
+                          key={agent.id}
+                          onClick={() => handleBulkAgentAssign(agent.id)}
+                          className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+                        >
+                          {agent.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleBulkDelete}
             disabled={bulkDeleteMut.isPending}
@@ -224,7 +350,10 @@ export function BookingsTab() {
             Delete Selected
           </button>
           <button
-            onClick={() => setSelectedIds(new Set())}
+            onClick={() => {
+              setSelectedIds(new Set());
+              setBulkMenuOpen(false);
+            }}
             className="text-sm text-blue-600 hover:underline"
           >
             Clear Selection
@@ -258,9 +387,9 @@ export function BookingsTab() {
           {filteredBookings.map(booking => (
             <div
               key={booking.id}
-              className="border border-border rounded-lg overflow-hidden"
+              className="border border-border rounded-lg overflow-hidden group"
             >
-              <div className="p-3 md:p-4 bg-muted/50 flex items-center justify-between cursor-pointer gap-2 min-h-[56px]">
+              <div className="p-3 md:p-4 bg-muted/50 flex items-center justify-between gap-2 min-h-[56px]">
                 <div className="flex items-center gap-3 min-w-0">
                   <input
                     type="checkbox"
@@ -299,34 +428,45 @@ export function BookingsTab() {
                     </div>
                   </div>
                 </div>
-                <div
-                  className="flex items-center gap-2 md:gap-4 shrink-0 cursor-pointer"
-                  onClick={() =>
-                    setExpandedBooking(
-                      expandedBooking === booking.id ? null : booking.id
-                    )
-                  }
-                >
-                  {booking.assignedAgentId &&
-                    agents?.find(a => a.id === booking.assignedAgentId) && (
-                      <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs hidden sm:inline">
-                        {
-                          agents.find(a => a.id === booking.assignedAgentId)
-                            ?.name
-                        }
-                      </span>
-                    )}
+                <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                  {/* Inline agent dropdown */}
+                  <select
+                    value={booking.assignedAgentId ?? ""}
+                    onChange={e => {
+                      e.stopPropagation();
+                      handleAgentAssign(
+                        booking.id,
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                    }}
+                    onClick={e => e.stopPropagation()}
+                    className="text-xs border border-border rounded px-2 py-1 bg-white hidden sm:block max-w-[120px]"
+                  >
+                    <option value="">
+                      {booking.assignedAgentId ? "" : "Assign..."}
+                    </option>
+                    {agents?.map(agent => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </option>
+                    ))}
+                  </select>
                   {!booking.assignedAgentId && (
-                    <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs hidden sm:inline flex items-center gap-1">
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs hidden sm:inline-flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
                       Needs Agent
                     </span>
                   )}
-                  <span
-                    className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[booking.status as BookingStatus]}`}
-                  >
-                    {STATUS_LABELS[booking.status as BookingStatus]}
-                  </span>
+
+                  {/* Inline status dropdown */}
+                  <InlineStatusDropdown
+                    value={booking.status as BookingStatus}
+                    onChange={newStatus =>
+                      handleStatusChange(booking.id, newStatus)
+                    }
+                    disabled={updateBooking.isPending}
+                  />
+
                   {booking.depositPaid === 1 && booking.balancePaid === 1 ? (
                     <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hidden sm:inline">
                       Paid
@@ -336,14 +476,60 @@ export function BookingsTab() {
                       Deposit Paid
                     </span>
                   ) : null}
+
+                  {/* Quick action icons (visible on hover) */}
+                  <div className="hidden group-hover:flex items-center gap-1">
+                    {getWhatsAppUrl(booking) && (
+                      <a
+                        href={getWhatsAppUrl(booking)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                        title="WhatsApp"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                    {booking.contactEmail && (
+                      <a
+                        href={`mailto:${booking.contactEmail}`}
+                        onClick={e => e.stopPropagation()}
+                        className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                        title="Email"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteBooking(booking.id);
+                      }}
+                      className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
                   <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
                     {booking.numberOfAdults} adults
                   </span>
-                  {expandedBooking === booking.id ? (
-                    <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                  )}
+                  <div
+                    className="cursor-pointer"
+                    onClick={() =>
+                      setExpandedBooking(
+                        expandedBooking === booking.id ? null : booking.id
+                      )
+                    }
+                  >
+                    {expandedBooking === booking.id ? (
+                      <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -365,6 +551,17 @@ export function BookingsTab() {
                           <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
                           {booking.contactPhone}
                         </p>
+                        {getWhatsAppUrl(booking) && (
+                          <a
+                            href={getWhatsAppUrl(booking)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-green-600 hover:underline"
+                          >
+                            <MessageCircle className="w-4 h-4 shrink-0" />
+                            WhatsApp
+                          </a>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -372,31 +569,31 @@ export function BookingsTab() {
                         Services
                       </h4>
                       <div className="flex flex-wrap gap-1.5">
-                        {booking.includesHotels && (
+                        {booking.includesHotels ? (
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
                             Hotels
                           </span>
-                        )}
-                        {booking.includesGuide && (
+                        ) : null}
+                        {booking.includesGuide ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
                             Guide
                           </span>
-                        )}
-                        {booking.includesTrip && (
+                        ) : null}
+                        {booking.includesTrip ? (
                           <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
                             4x4 Trip
                           </span>
-                        )}
-                        {booking.includesFood && (
+                        ) : null}
+                        {booking.includesFood ? (
                           <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
                             Kosher Food
                           </span>
-                        )}
-                        {booking.needsShabbatHotel && (
+                        ) : null}
+                        {booking.needsShabbatHotel ? (
                           <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
                             Shabbat Hotel
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                     <div>
@@ -404,24 +601,6 @@ export function BookingsTab() {
                         Actions
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        <select
-                          value={booking.status}
-                          onChange={e =>
-                            handleStatusChange(
-                              booking.id,
-                              e.target.value as BookingStatus
-                            )
-                          }
-                          className="px-3 py-2 border border-border rounded text-sm min-h-[44px]"
-                        >
-                          {Object.entries(STATUS_LABELS).map(
-                            ([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            )
-                          )}
-                        </select>
                         <select
                           value={booking.assignedAgentId ?? ""}
                           onChange={e =>
