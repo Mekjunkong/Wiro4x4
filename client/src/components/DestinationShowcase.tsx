@@ -5,60 +5,67 @@ import { MapPin, ArrowRight } from "lucide-react";
 
 const DESTINATIONS = [
   {
-    id: "waterfalls",
-    en: "Sticky Waterfalls",
-    he: "מפלים דביקים",
-    descEn:
-      "Climb natural limestone waterfalls barefoot — a unique Chiang Mai experience",
-    descHe: "טפסו על מפלי אבן גיר יחפים — חוויה ייחודית בצ'יאנג מאי",
-    image: "/images/1000000126_compressed.jpg",
-    tourSlug: "waterfall-adventure-tour",
-  },
-  {
     id: "doi-inthanon",
     en: "Doi Inthanon",
     he: "דוי אינתנון",
-    descEn: "Thailand's highest peak with misty trails and royal pagodas",
-    descHe: "הפסגה הגבוהה בתאילנד עם שבילים ערפיליים ופגודות מלכותיות",
-    image: "/images/vietnam_rice_terraces.jpg",
-    tourSlug: "mountain-valley-explorer",
-  },
-  {
-    id: "jungle",
-    en: "Northern Jungle",
-    he: "הג'ונגל הצפוני",
     descEn:
-      "Dense tropical forests with river crossings and hidden swimming holes",
-    descHe: "יערות טרופיים צפופים עם חציית נהרות ובריכות שחייה נסתרות",
-    image: "/images/laos_jungle.jpg",
-    tourSlug: "jungle-river-expedition",
+      "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
+    descHe: "הפסגה הגבוהה בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
+    image: "/images/vietnam_rice_terraces.jpg",
+    tourSlug: "doi-inthanon-roof-of-thailand",
   },
   {
-    id: "rice-fields",
-    en: "Rice Terraces",
-    he: "טרסות האורז",
-    descEn: "Stunning layered rice paddies and traditional farming villages",
-    descHe: "טרסות אורז מרהיבות וכפרי חקלאות מסורתיים",
+    id: "mae-kampong",
+    en: "Mae Kampong Village",
+    he: "כפר מאה קמפונג",
+    descEn:
+      "A hidden 700-year-old eco-village with wild gibbons and ancient tea traditions",
+    descHe: "כפר אקולוגי נסתר בן 700 שנה עם גיבונים בר ומסורות תה עתיקות",
     image: "/images/1000000149.jpg",
-    tourSlug: "rice-fields-culture-tour",
+    tourSlug: "mae-kampong-hidden-village",
   },
   {
-    id: "elephants",
-    en: "Elephant Sanctuary",
-    he: "מקלט הפילים",
-    descEn: "Ethical elephant encounters in their natural forest habitat",
-    descHe: "מפגש אתי עם פילים בסביבתם הטבעית ביער",
-    image: "/images/1000000140.jpg",
-    tourSlug: "elephant-sanctuary-visit",
+    id: "sticky-waterfalls",
+    en: "Sticky Waterfalls",
+    he: "מפלים דביקים",
+    descEn:
+      "Climb UP a waterfall barefoot, canopy walkway 20m high, and upper falls no one reaches",
+    descHe:
+      "טפסו למעלה על מפל יחפים, גשר צמרות בגובה 20 מ' וקומות עליונות שאף אחד לא מגיע",
+    image: "/images/1000000126_compressed.jpg",
+    tourSlug: "maerim-sticky-waterfalls",
   },
   {
-    id: "hill-tribes",
-    en: "Hill Tribe Villages",
-    he: "כפרי שבטי ההרים",
-    descEn: "Visit authentic mountain communities and learn ancient traditions",
-    descHe: "בקרו בקהילות הרים אותנטיות והכירו מסורות עתיקות",
+    id: "doi-suthep",
+    en: "Doi Suthep — Beyond the Temple",
+    he: "דוי סוטפ — מעבר למקדש",
+    descEn:
+      "Hike the Monk's Trail, then continue where tourists turn back — hidden coffee village and secluded falls",
+    descHe:
+      "טיילו בשביל הנזירים, ואז המשיכו לאן שהתיירים חוזרים — כפר קפה נסתר ומפלים מבודדים",
+    image: "/images/1000000139_compressed.jpg",
+    tourSlug: "doi-suthep-pui-beyond-temple",
+  },
+  {
+    id: "mae-wang",
+    en: "Mae Wang Jungle",
+    he: "ג'ונגל מאה וואנג",
+    descEn:
+      "Real off-road through jungle — canyon, elephants, bamboo rafting, and hidden waterfalls",
+    descHe: "שטח אמיתי דרך ג'ונגל — קניון, פילים, שייט במבוק ומפלים נסתרים",
+    image: "/images/laos_jungle.jpg",
+    tourSlug: "mae-wang-jungle-wilderness",
+  },
+  {
+    id: "samoeng-loop",
+    en: "Samoeng Mountain Loop",
+    he: "לולאת הרי סמאנג",
+    descEn:
+      "100km mountain circuit — rare Lanna temple, hilltop farm, Hmong village, lakeside sunset",
+    descHe:
+      'מעגל הרים של 100 ק"מ — מקדש לאנה נדיר, חווה על פסגת הר, כפר המונג, שקיעה על האגם',
     image: "/images/1000000135.jpg",
-    tourSlug: "hill-tribe-cultural-journey",
+    tourSlug: "samoeng-loop-mountain-circuit",
   },
 ];
 
