@@ -222,7 +222,7 @@ export function BookingCalendar({
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
             Booking Calendar
@@ -234,7 +234,7 @@ export function BookingCalendar({
             <Button variant="outline" size="icon" onClick={goToPrevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="min-w-[140px] text-center font-semibold">
+            <span className="min-w-[120px] sm:min-w-[140px] text-center font-semibold text-sm sm:text-base">
               {MONTHS[month]} {year}
             </span>
             <Button variant="outline" size="icon" onClick={goToNextMonth}>
@@ -285,7 +285,7 @@ export function BookingCalendar({
                 <div
                   key={index}
                   className={`
-                    min-h-[100px] p-1 border rounded-lg transition-colors
+                    min-h-[60px] sm:min-h-[100px] p-1 border rounded-lg transition-colors
                     ${isCurrentMonth ? "bg-background" : "bg-muted/30"}
                     ${isToday(date) ? "border-primary border-2" : "border-border"}
                     ${isDragTarget ? "ring-2 ring-primary/50 bg-primary/5" : ""}

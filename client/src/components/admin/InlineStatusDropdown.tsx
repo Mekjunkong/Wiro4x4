@@ -48,7 +48,7 @@ export function InlineStatusDropdown({
         <ChevronDown className="h-3 w-3" />
       </button>
       {open && (
-        <div className="absolute z-50 mt-1 w-36 bg-white border rounded-lg shadow-lg py-1">
+        <div className="absolute z-50 mt-1 w-36 right-0 bg-white border rounded-lg shadow-lg py-1">
           {statuses.map(s => (
             <button
               key={s}
