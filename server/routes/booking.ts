@@ -350,4 +350,37 @@ export const bookingRouter = router({
       suggestions.sort((a, b) => b.score - a.score);
       return suggestions;
     }),
+
+  updateDate: secureProtectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        arrivalDate: z
+          .string()
+          .or(z.date())
+          .transform(v => new Date(v)),
+        departureDate: z
+          .string()
+          .or(z.date())
+          .transform(v => new Date(v)),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      await updateBooking(input.id, {
+        arrivalDate: input.arrivalDate,
+        departureDate: input.departureDate,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "reschedule",
+        resourceType: "booking",
+        resourceId: input.id,
+        newValue: JSON.stringify({
+          arrivalDate: input.arrivalDate,
+          departureDate: input.departureDate,
+        }),
+      });
+      return { success: true };
+    }),
 });

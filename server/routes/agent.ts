@@ -84,4 +84,24 @@ export const agentRouter = router({
   stats: secureProtectedProcedure.query(async () => {
     return await getAgentPerformanceStats();
   }),
+
+  updateAvailability: secureProtectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        status: z.enum(["active", "inactive", "on_leave"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      await updateAgent(input.id, { status: input.status });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update_availability",
+        resourceType: "agent",
+        resourceId: input.id,
+        newValue: JSON.stringify({ status: input.status }),
+      });
+      return { success: true };
+    }),
 });
