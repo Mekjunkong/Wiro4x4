@@ -16,6 +16,7 @@ import {
   FileText,
   UserCircle,
   Shield,
+  Settings,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -30,8 +31,32 @@ import {
   BlogTab,
   CRMTab,
   UsersTab,
+  DashboardCharts,
   PAGE_SIZE,
 } from "@/components/admin";
+import { SettingsTab } from "@/components/admin/SettingsTab";
+
+function TabBadge({
+  count,
+  color,
+}: {
+  count: number;
+  color: "red" | "orange" | "gray";
+}) {
+  if (count === 0) return null;
+  const colors = {
+    red: "bg-red-500 text-white",
+    orange: "bg-orange-500 text-white",
+    gray: "bg-gray-200 text-gray-700",
+  };
+  return (
+    <span
+      className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${colors[color]}`}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 type AdminTabId =
   | "crm"
@@ -44,7 +69,8 @@ type AdminTabId =
   | "reviews"
   | "tours"
   | "blog"
-  | "users";
+  | "users"
+  | "settings";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -96,6 +122,10 @@ export default function AdminDashboard() {
   });
   const blogTotal = blogData?.total ?? 0;
 
+  // Dashboard stats and badge counts
+  const { data: dashboardStats } = trpc.dashboard.stats.useQuery();
+  const { data: badges } = trpc.dashboard.badgeCounts.useQuery();
+
   // Auth check
   if (authLoading) {
     return (
@@ -136,6 +166,26 @@ export default function AdminDashboard() {
         .reduce((sum, f) => sum + Number(f.amount), 0) || 0,
   };
 
+  // Navigate to filtered views
+  const handleFilterBookings = (filter: string) => {
+    if (filter === "leads") {
+      setActiveTab("leads");
+    } else {
+      setActiveTab("bookings");
+    }
+  };
+
+  const tabBadgeMap: Partial<
+    Record<AdminTabId, { count: number; color: "red" | "orange" | "gray" }>
+  > = {
+    crm: { count: badges?.crm ?? 0, color: "gray" },
+    bookings: { count: badges?.bookings ?? 0, color: "red" },
+    calendar: { count: badges?.calendar ?? 0, color: "gray" },
+    leads: { count: badges?.leads ?? 0, color: "orange" },
+    reviews: { count: badges?.reviews ?? 0, color: "orange" },
+    blog: { count: badges?.blog ?? 0, color: "gray" },
+  };
+
   const tabs: {
     id: AdminTabId;
     label: string;
@@ -167,6 +217,7 @@ export default function AdminDashboard() {
           },
         ]
       : []),
+    { id: "settings", label: "Settings", icon: Settings, count: undefined },
   ];
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -234,7 +285,10 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
-          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className="bg-card rounded-xl p-4 md:p-6 shadow-sm text-left hover:ring-2 hover:ring-primary/20 transition-all"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">
@@ -248,8 +302,11 @@ export default function AdminDashboard() {
                 <Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
               </div>
             </div>
-          </div>
-          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
+          </button>
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className="bg-card rounded-xl p-4 md:p-6 shadow-sm text-left hover:ring-2 hover:ring-primary/20 transition-all"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">
@@ -263,8 +320,11 @@ export default function AdminDashboard() {
                 <Clock className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
               </div>
             </div>
-          </div>
-          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
+          </button>
+          <button
+            onClick={() => setActiveTab("bookings")}
+            className="bg-card rounded-xl p-4 md:p-6 shadow-sm text-left hover:ring-2 hover:ring-primary/20 transition-all"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">
@@ -278,8 +338,11 @@ export default function AdminDashboard() {
                 <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
               </div>
             </div>
-          </div>
-          <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm">
+          </button>
+          <button
+            onClick={() => setActiveTab("financial")}
+            className="bg-card rounded-xl p-4 md:p-6 shadow-sm text-left hover:ring-2 hover:ring-primary/20 transition-all"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">
@@ -293,8 +356,18 @@ export default function AdminDashboard() {
                 <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
             </div>
-          </div>
+          </button>
         </div>
+
+        {/* Dashboard Charts */}
+        {dashboardStats && (
+          <div className="mb-6">
+            <DashboardCharts
+              stats={dashboardStats}
+              onFilterBookings={handleFilterBookings}
+            />
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="bg-card rounded-xl shadow-sm mb-6">
@@ -304,35 +377,41 @@ export default function AdminDashboard() {
               aria-label="Admin sections"
               className="flex gap-1 md:gap-6 px-3 md:px-6 overflow-x-auto scrollbar-hide"
             >
-              {tabs.map((tab, index) => (
-                <button
-                  key={tab.id}
-                  ref={el => {
-                    tabRefs.current[index] = el;
-                  }}
-                  role="tab"
-                  id={`tab-${tab.id}`}
-                  aria-selected={activeTab === tab.id}
-                  aria-controls={`tabpanel-${tab.id}`}
-                  tabIndex={activeTab === tab.id ? 0 : -1}
-                  onClick={() => setActiveTab(tab.id)}
-                  onKeyDown={handleTabKeyDown}
-                  className={`flex items-center gap-1.5 md:gap-2 py-3 md:py-4 px-2 md:px-1 border-b-2 transition-colors whitespace-nowrap text-sm md:text-base min-h-[44px] ${
-                    activeTab === tab.id
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
-                  {tab.count !== undefined && tab.count > 0 ? (
-                    <span className="text-xs">({tab.count})</span>
-                  ) : (
-                    ""
-                  )}
-                </button>
-              ))}
+              {tabs.map((tab, index) => {
+                const badge = tabBadgeMap[tab.id];
+                return (
+                  <button
+                    key={tab.id}
+                    ref={el => {
+                      tabRefs.current[index] = el;
+                    }}
+                    role="tab"
+                    id={`tab-${tab.id}`}
+                    aria-selected={activeTab === tab.id}
+                    aria-controls={`tabpanel-${tab.id}`}
+                    tabIndex={activeTab === tab.id ? 0 : -1}
+                    onClick={() => setActiveTab(tab.id)}
+                    onKeyDown={handleTabKeyDown}
+                    className={`flex items-center gap-1.5 md:gap-2 py-3 md:py-4 px-2 md:px-1 border-b-2 transition-colors whitespace-nowrap text-sm md:text-base min-h-[44px] ${
+                      activeTab === tab.id
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
+                    {badge && (
+                      <TabBadge count={badge.count} color={badge.color} />
+                    )}
+                    {!badge && tab.count !== undefined && tab.count > 0 ? (
+                      <span className="text-xs">({tab.count})</span>
+                    ) : (
+                      ""
+                    )}
+                  </button>
+                );
+              })}
             </nav>
           </div>
 
@@ -446,6 +525,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="users">
                 <UsersTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "settings" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-settings"
+              aria-labelledby="tab-settings"
+            >
+              <ErrorBoundary level="section" key="settings">
+                <SettingsTab />
               </ErrorBoundary>
             </div>
           )}
