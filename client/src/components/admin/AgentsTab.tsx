@@ -1,10 +1,40 @@
 import { trpc } from "@/lib/trpc";
-import { Phone, User } from "lucide-react";
+import { Phone, User, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { CardGridSkeleton } from "./AdminSkeleton";
 
+type AgentStatus = "active" | "inactive" | "on_leave";
+
+function cycleStatus(current: string): AgentStatus {
+  if (current === "active") return "on_leave";
+  if (current === "on_leave") return "inactive";
+  return "active";
+}
+
+const STATUS_LABEL: Record<AgentStatus, string> = {
+  active: "Active",
+  on_leave: "On Leave",
+  inactive: "Inactive",
+};
+
 export function AgentsTab() {
+  const utils = trpc.useUtils();
   const { data: agents, isLoading: agentsLoading } = trpc.agent.list.useQuery();
   const { data: agentStats } = trpc.agent.stats.useQuery();
+
+  const updateAvailability = trpc.agent.updateAvailability.useMutation({
+    onSuccess: () => {
+      utils.agent.list.invalidate();
+      utils.agent.stats.invalidate();
+      toast.success("Agent availability updated");
+    },
+    onError: () => toast.error("Failed to update availability"),
+  });
+
+  function handleCycleStatus(agentId: number, currentStatus: string) {
+    const next = cycleStatus(currentStatus);
+    updateAvailability.mutate({ id: agentId, status: next });
+  }
 
   return (
     <div className="p-6">
@@ -21,6 +51,9 @@ export function AgentsTab() {
               (s: { id: number }) => s.id === agent.id
             );
             const rating = stats?.rating ?? agent.rating ?? 5;
+            const isMutating =
+              updateAvailability.isPending &&
+              updateAvailability.variables?.id === agent.id;
             return (
               <div
                 key={agent.id}
@@ -83,17 +116,29 @@ export function AgentsTab() {
                     </p>
                   )}
                 </div>
-                <div className="mt-3">
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${
+                {/* Clickable status toggle */}
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    onClick={() =>
+                      handleCycleStatus(agent.id, agent.status ?? "active")
+                    }
+                    disabled={isMutating}
+                    className={`px-2 py-1 rounded text-xs cursor-pointer transition-all hover:ring-2 hover:ring-offset-1 hover:ring-primary/30 ${
                       agent.status === "active"
                         ? "bg-green-100 text-green-800"
                         : agent.status === "on_leave"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-gray-100 text-foreground"
                     }`}
+                    title="Click to cycle status"
                   >
-                    {agent.status}
+                    {isMutating ? (
+                      <Loader2 className="w-3 h-3 animate-spin inline mr-1" />
+                    ) : null}
+                    {STATUS_LABEL[(agent.status as AgentStatus) ?? "active"]}
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    (click to change)
                   </span>
                 </div>
               </div>
@@ -120,6 +165,9 @@ export function AgentsTab() {
             <div className="mt-6 bg-card border border-border rounded-xl p-4 md:p-6">
               <h4 className="text-sm md:text-base font-semibold text-foreground mb-4">
                 Weekly Availability
+                <span className="text-xs font-normal text-muted-foreground ml-2">
+                  (click a cell to cycle status)
+                </span>
               </h4>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse min-w-[500px]">
@@ -150,6 +198,9 @@ export function AgentsTab() {
                       const stats = agentStats?.find(
                         (s: { id: number }) => s.id === agent.id
                       );
+                      const isMutating =
+                        updateAvailability.isPending &&
+                        updateAvailability.variables?.id === agent.id;
                       return (
                         <tr
                           key={agent.id}
@@ -184,16 +235,30 @@ export function AgentsTab() {
                                 key={i}
                                 className={`py-2 px-1 text-center ${isToday ? "bg-primary/5" : ""}`}
                               >
-                                <div
-                                  className={`${bgColor} ${textColor} rounded px-1 py-1 text-xs font-medium`}
+                                <button
+                                  onClick={() =>
+                                    handleCycleStatus(
+                                      agent.id,
+                                      agent.status ?? "active"
+                                    )
+                                  }
+                                  disabled={isMutating}
+                                  className={`${bgColor} ${textColor} rounded px-1 py-1 text-xs font-medium w-full cursor-pointer transition-all hover:ring-2 hover:ring-offset-1 hover:ring-primary/30`}
+                                  title="Click to cycle status"
                                 >
-                                  {label}
-                                  {agent.status === "active" && stats && (
-                                    <div className="text-xs opacity-75 mt-0.5">
-                                      {stats.activeBookings}b
-                                    </div>
+                                  {isMutating ? (
+                                    <Loader2 className="w-3 h-3 animate-spin inline" />
+                                  ) : (
+                                    <>
+                                      {label}
+                                      {agent.status === "active" && stats && (
+                                        <div className="text-xs opacity-75 mt-0.5">
+                                          {stats.activeBookings}b
+                                        </div>
+                                      )}
+                                    </>
                                   )}
-                                </div>
+                                </button>
                               </td>
                             );
                           })}
