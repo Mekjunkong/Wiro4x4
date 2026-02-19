@@ -24,6 +24,7 @@ import { newsletterRouter } from "./routes/newsletter";
 import { healthRouter } from "./routes/health";
 import { crmRouter } from "./routes/crm";
 import { adminRouter } from "./routes/admin";
+import { settingsRouter } from "./routes/settings";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -48,6 +49,7 @@ export const appRouter = router({
   health: healthRouter,
   crm: crmRouter,
   admin: adminRouter,
+  settings: settingsRouter,
 });
 
 export type AppRouter = typeof appRouter;

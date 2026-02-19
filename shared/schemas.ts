@@ -210,3 +210,10 @@ export type VerifySessionInput = z.infer<typeof verifySessionSchema>;
 export type CustomerInput = z.infer<typeof customerInputSchema>;
 export type CustomerActivityInput = z.infer<typeof customerActivityInputSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+
+export const settingsUpdateSchema = z.object({
+  key: z.string().min(1).max(100),
+  value: z.unknown(),
+});
+
+export type SettingsUpdateInput = z.infer<typeof settingsUpdateSchema>;
