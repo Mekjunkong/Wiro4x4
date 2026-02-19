@@ -1,14 +1,41 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download } from "lucide-react";
+import { Download, Plus, Pencil, Trash2, X, Loader2 } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { downloadCSV } from "@/lib/csvExport";
 
+interface RecordFormData {
+  bookingId: number;
+  type: "revenue" | "cost" | "refund";
+  category: string;
+  amount: number;
+  currency: string;
+  description: string;
+  paymentMethod: string;
+  notes: string;
+}
+
+const emptyForm: RecordFormData = {
+  bookingId: 0,
+  type: "revenue",
+  category: "",
+  amount: 0,
+  currency: "THB",
+  description: "",
+  paymentMethod: "",
+  notes: "",
+};
+
 export function FinancialTab() {
   const [financialsPage, setFinancialsPage] = useState(1);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState<RecordFormData>(emptyForm);
+
+  const utils = trpc.useUtils();
 
   const { data: financialsData, isLoading: financialsLoading } =
     trpc.financial.listAllPaginated.useQuery({
@@ -20,6 +47,109 @@ export function FinancialTab() {
   const financialsTotalPages = financialsData?.totalPages ?? 1;
 
   const { data: finStats } = trpc.financial.stats.useQuery();
+
+  const createMut = trpc.financial.create.useMutation({
+    onSuccess: () => {
+      utils.financial.listAllPaginated.invalidate();
+      utils.financial.stats.invalidate();
+      toast.success("Record created successfully!");
+      closeForm();
+    },
+    onError: () => toast.error("Failed to create record"),
+  });
+
+  const updateMut = trpc.financial.update.useMutation({
+    onSuccess: () => {
+      utils.financial.listAllPaginated.invalidate();
+      utils.financial.stats.invalidate();
+      toast.success("Record updated successfully!");
+      closeForm();
+    },
+    onError: () => toast.error("Failed to update record"),
+  });
+
+  const deleteMut = trpc.financial.delete.useMutation({
+    onSuccess: () => {
+      utils.financial.listAllPaginated.invalidate();
+      utils.financial.stats.invalidate();
+      toast.success("Record deleted successfully!");
+    },
+    onError: () => toast.error("Failed to delete record"),
+  });
+
+  function openCreateForm() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  }
+
+  function openEditForm(record: {
+    id: number;
+    bookingId: number | null;
+    type: string;
+    category: string;
+    amount: string | number;
+    currency: string;
+    description: string | null;
+    paymentMethod: string | null;
+    notes: string | null;
+  }) {
+    setEditingId(record.id);
+    setForm({
+      bookingId: record.bookingId ?? 0,
+      type: record.type as "revenue" | "cost" | "refund",
+      category: record.category,
+      amount: Number(record.amount),
+      currency: record.currency,
+      description: record.description ?? "",
+      paymentMethod: record.paymentMethod ?? "",
+      notes: record.notes ?? "",
+    });
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
+  function handleSubmit() {
+    if (!form.category || form.amount <= 0) {
+      toast.error("Please fill in required fields (category and amount)");
+      return;
+    }
+    if (editingId !== null) {
+      updateMut.mutate({
+        id: editingId,
+        data: {
+          type: form.type,
+          category: form.category,
+          amount: form.amount,
+          description: form.description || undefined,
+          paymentMethod: form.paymentMethod || undefined,
+          notes: form.notes || undefined,
+        },
+      });
+    } else {
+      createMut.mutate({
+        bookingId: form.bookingId || 0,
+        type: form.type,
+        category: form.category,
+        amount: form.amount,
+        currency: form.currency,
+        description: form.description || undefined,
+        paymentMethod: form.paymentMethod || undefined,
+        notes: form.notes || undefined,
+      });
+    }
+  }
+
+  function handleDelete(id: number) {
+    if (confirm("Are you sure you want to delete this record?")) {
+      deleteMut.mutate({ id });
+    }
+  }
 
   const handleExportCSV = () => {
     if (!financials?.length) return;
@@ -35,10 +165,19 @@ export function FinancialTab() {
     toast.success("CSV exported successfully!");
   };
 
+  const isSaving = createMut.isPending || updateMut.isPending;
+
   return (
     <div className="p-6">
       {/* Actions */}
       <div className="flex flex-wrap gap-2 mb-4">
+        <button
+          onClick={openCreateForm}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add Record
+        </button>
         <button
           onClick={handleExportCSV}
           className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm"
@@ -47,6 +186,148 @@ export function FinancialTab() {
           Export CSV
         </button>
       </div>
+
+      {/* Create/Edit Dialog */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="font-semibold">
+                {editingId !== null ? "Edit Record" : "Add Financial Record"}
+              </h3>
+              <button
+                onClick={closeForm}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Type
+                  </label>
+                  <select
+                    value={form.type}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        type: e.target.value as "revenue" | "cost" | "refund",
+                      })
+                    }
+                    className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="revenue">Revenue</option>
+                    <option value="cost">Cost</option>
+                    <option value="refund">Refund</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Amount
+                  </label>
+                  <input
+                    type="number"
+                    value={form.amount || ""}
+                    onChange={e =>
+                      setForm({ ...form, amount: Number(e.target.value) })
+                    }
+                    className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Category
+                </label>
+                <input
+                  type="text"
+                  value={form.category}
+                  onChange={e => setForm({ ...form, category: e.target.value })}
+                  className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                  placeholder="e.g., Tour Revenue, Fuel, Accommodation"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Booking ID
+                  </label>
+                  <input
+                    type="number"
+                    value={form.bookingId || ""}
+                    onChange={e =>
+                      setForm({ ...form, bookingId: Number(e.target.value) })
+                    }
+                    className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                    placeholder="Optional"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Payment Method
+                  </label>
+                  <input
+                    type="text"
+                    value={form.paymentMethod}
+                    onChange={e =>
+                      setForm({ ...form, paymentMethod: e.target.value })
+                    }
+                    className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                    placeholder="e.g., Cash, Bank Transfer"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={e =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  rows={2}
+                  className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                  placeholder="Optional description"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Notes
+                </label>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                  placeholder="Internal notes"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 p-4 border-t">
+              <button
+                onClick={closeForm}
+                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {editingId !== null ? "Save Changes" : "Create Record"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Financial Summary Cards */}
       {finStats && (
@@ -229,13 +510,16 @@ export function FinancialTab() {
                 <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">
                   Description
                 </th>
+                <th className="text-right py-3 px-4 font-semibold text-foreground text-xs md:text-sm w-20">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {financials?.map(record => (
                 <tr
                   key={record.id}
-                  className="border-b border-border/50 hover:bg-muted/50"
+                  className="border-b border-border/50 hover:bg-muted/50 group"
                 >
                   <td className="py-3 px-4 text-xs md:text-sm">
                     {record.createdAt
@@ -263,6 +547,25 @@ export function FinancialTab() {
                   </td>
                   <td className="py-3 px-4 text-sm text-muted-foreground hidden md:table-cell">
                     {record.description || "-"}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => openEditForm(record)}
+                        className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(record.id)}
+                        disabled={deleteMut.isPending}
+                        className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
