@@ -1,6 +1,7 @@
 import {
   index,
   int,
+  json,
   mysqlEnum,
   mysqlTable,
   text,
@@ -483,3 +484,14 @@ export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertChatSession = typeof chatSessions.$inferInsert;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+// Settings Table (key-value store for admin configuration)
+export const settings = mysqlTable("settings", {
+  id: int("id").primaryKey().autoincrement(),
+  key: varchar("key", { length: 100 }).notNull().unique(),
+  value: json("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;

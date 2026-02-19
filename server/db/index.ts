@@ -177,5 +177,13 @@ export {
   hasScheduledEmailBeenSent,
 } from "./audit";
 
+// Settings
+export {
+  getSetting,
+  getAllSettings,
+  upsertSetting,
+  deleteSetting,
+} from "./settings";
+
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";
