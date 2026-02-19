@@ -614,3 +614,85 @@ export async function sendPostTourFeedback(
     return false;
   }
 }
+
+/**
+ * Send a bulk/custom email to a customer
+ */
+export async function sendBulkEmailToCustomer({
+  to,
+  subject,
+  message,
+  customerName,
+}: {
+  to: string;
+  subject: string;
+  message: string;
+  customerName: string;
+}): Promise<boolean> {
+  try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn(
+        "[Customer Email] Resend API key not configured, skipping bulk email"
+      );
+      return false;
+    }
+
+    const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #ffffff; padding: 30px 20px; border: 1px solid #e0e0e0; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>WIRO 4x4</h1>
+      <p>Kosher Off-Road Adventures</p>
+    </div>
+    <div class="content">
+      <p>Dear ${customerName},</p>
+      ${message
+        .split("\n")
+        .map(line => `<p>${line}</p>`)
+        .join("")}
+      <p style="margin-top: 30px;">
+        <strong>The WIRO 4x4 Team</strong><br>
+        <em>Kosher Off-Road Adventures in Chiang Mai</em>
+      </p>
+    </div>
+    <div class="footer">
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { error } = await resend.emails.send({
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
+      to: [to],
+      subject,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error("[Customer Email] Error sending bulk email:", error);
+      captureException(error);
+      return false;
+    }
+
+    console.log(`[Customer Email] Bulk email sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error("[Customer Email] Error in sendBulkEmailToCustomer:", error);
+    captureException(error);
+    return false;
+  }
+}
