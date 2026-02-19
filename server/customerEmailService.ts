@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 import { createEvents, EventAttributes } from "ics";
 import { captureException } from "./sentry";
+import {
+  COMPANY_EMAIL,
+  COMPANY_NAME,
+  COMPANY_PHONE,
+  COMPANY_WHATSAPP,
+  COMPANY_WEBSITE,
+} from "@shared/const";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -11,11 +18,7 @@ function getResend(): Resend | null {
   return _resend;
 }
 
-const SENDER_EMAIL = "wiro.adventures@gmail.com";
-const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const COMPANY_PHONE = "+66 81 961 1398";
-const COMPANY_WHATSAPP = "+66 81 961 1398";
-const COMPANY_WEBSITE = "https://wiro4x4.manus.space";
+const SENDER_EMAIL = COMPANY_EMAIL;
 
 interface BookingDetails {
   customerName: string;
@@ -219,7 +222,7 @@ export async function sendCustomerConfirmation(
       <div class="contact-info">
         <h3 style="margin-top: 0; color: #f5a623;">📞 Contact Information</h3>
         <p><strong>Phone:</strong> <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a></p>
-        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP}">${COMPANY_WHATSAPP}</a></p>
         <p><strong>Website:</strong> <a href="${COMPANY_WEBSITE}">${COMPANY_WEBSITE}</a></p>
         <p style="margin-top: 15px; font-size: 14px;">Have questions? Feel free to reach out anytime!</p>
       </div>
@@ -352,7 +355,7 @@ export async function sendBookingReminder(
         <li>Water bottle</li>
       </ul>
       <p>Questions? Contact us:</p>
-      <p>Phone: <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a> | WhatsApp: <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
+      <p>Phone: <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a> | WhatsApp: <a href="https://wa.me/${COMPANY_WHATSAPP}">${COMPANY_WHATSAPP}</a></p>
       <p>See you tomorrow!</p>
       <p><strong>The WIRO 4x4 Team</strong></p>
     </div>
@@ -473,7 +476,7 @@ export async function sendPaymentConfirmationEmail({
       <div class="contact-info">
         <h3 style="margin-top: 0; color: #f5a623;">Need Help?</h3>
         <p><strong>Phone:</strong> <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a></p>
-        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP.replace(/[^0-9]/g, "")}">${COMPANY_WHATSAPP}</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP}">${COMPANY_WHATSAPP}</a></p>
         <p><strong>Website:</strong> <a href="${COMPANY_WEBSITE}">${COMPANY_WEBSITE}</a></p>
       </div>
 

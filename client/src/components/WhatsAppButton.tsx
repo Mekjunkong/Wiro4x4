@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_NUMBER } from "@/const";
 import { MessageCircle } from "lucide-react";
 
 export function WhatsAppButton() {
@@ -11,7 +12,7 @@ export function WhatsAppButton() {
         "היי WIRO 4x4 -- אני רוצה להזמין טיול כשר."
       )
     );
-    window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (

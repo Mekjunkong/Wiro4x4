@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -166,7 +167,7 @@ export function CostCalculator() {
       ? `היי WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatTHB(breakdown.total)}\n\nאפשר לקבל הצעת מחיר מדויקת?`
       : `Hi WIRO 4x4! I used the cost estimator on your site:\n\nTours: ${tourNames}\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nDates: ${arrivalDate} → ${departureDate}\nEstimated price: ${formatTHB(breakdown.total)}\n\nCan I get an exact quote?`;
     window.open(
-      `https://wa.me/66929894495?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank"
     );
   };

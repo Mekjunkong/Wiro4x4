@@ -1,7 +1,13 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
-import { APP_LOGO } from "@/const";
+import {
+  APP_LOGO,
+  WHATSAPP_NUMBER,
+  WHATSAPP_URL,
+  COMPANY_PHONE,
+  COMPANY_EMAIL,
+} from "@/const";
 import { useLocation } from "wouter";
 
 export function Footer() {
@@ -119,25 +125,25 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-[#D4AF37]" />
                 <a
-                  href="tel:+66929894495"
+                  href={`tel:+${WHATSAPP_NUMBER}`}
                   className="hover:text-[#D4AF37] transition-colors"
                 >
-                  +66 92 989 4495
+                  {COMPANY_PHONE}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-[#D4AF37]" />
                 <a
-                  href="mailto:wiro.adventures@gmail.com"
+                  href={`mailto:${COMPANY_EMAIL}`}
                   className="hover:text-[#D4AF37] transition-colors"
                 >
-                  wiro.adventures@gmail.com
+                  {COMPANY_EMAIL}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-[#D4AF37]" />
                 <a
-                  href="https://wa.me/66929894495"
+                  href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#D4AF37] transition-colors"

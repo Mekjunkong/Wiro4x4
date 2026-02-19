@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -211,7 +212,7 @@ export default function Pricing() {
         `היי WIRO 4x4! מתעניינים ב${tourName} (${price} ฿). אפשר לשמוע פרטים?`
       )
     );
-    window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (

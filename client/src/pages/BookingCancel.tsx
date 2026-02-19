@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_URL } from "@/const";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -35,7 +36,7 @@ export default function BookingCancel() {
                 {t("Try Again", "נסו שוב")}
               </a>
               <a
-                href="https://wa.me/66819611398"
+                href={WHATSAPP_URL}
                 className="inline-block border border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary/5 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}

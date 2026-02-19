@@ -7,11 +7,15 @@
 import { invokeLLM } from "./_core/llm";
 import { getAllActiveTours } from "./db";
 import { Resend } from "resend";
+import {
+  COMPANY_EMAIL,
+  COMPANY_NAME,
+  COMPANY_PHONE,
+  COMPANY_WHATSAPP,
+  COMPANY_WEBSITE,
+} from "@shared/const";
 
-const SENDER_EMAIL = "wiro.adventures@gmail.com";
-const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const COMPANY_PHONE = "+66 81 961 1398";
-const COMPANY_WEBSITE = "https://wiro4x4.manus.space";
+const SENDER_EMAIL = COMPANY_EMAIL;
 
 // Lazy Resend instance
 let _resend: Resend | null = null;
@@ -126,7 +130,7 @@ Requirements:
         .map(line => (line.trim() ? `<p>${line}</p>` : ""))
         .join("")}
       <div style="text-align:center;margin:20px 0;">
-        <a href="https://wa.me/${COMPANY_PHONE.replace(/[^0-9]/g, "")}" class="whatsapp-btn">Chat on WhatsApp</a>
+        <a href="https://wa.me/${COMPANY_WHATSAPP}" class="whatsapp-btn">Chat on WhatsApp</a>
       </div>
     </div>
     <div class="footer">

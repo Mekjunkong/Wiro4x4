@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_NUMBER } from "@/const";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
@@ -270,7 +271,7 @@ export default function BookingForm() {
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
       window.open(
-        `https://wa.me/66929894495?text=${encodeURIComponent(message)}`,
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
         "_blank"
       );
     },

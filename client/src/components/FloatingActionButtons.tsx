@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_NUMBER } from "@/const";
 import { MessageCircle, Calendar, Plus, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -23,7 +24,7 @@ export function FloatingActionButtons() {
         "היי WIRO 4x4 -- אשמח לשמוע על הטיולים הכשרים שלכם."
       )
     );
-    window.open(`https://wa.me/66929894495?text=${message}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
   return (

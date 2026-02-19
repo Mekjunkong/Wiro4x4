@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_URL } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -99,7 +100,7 @@ export function QuickInquiryForm() {
               )}
             </p>
             <a
-              href="https://wa.me/66929894495"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-[#D4AF37] hover:underline"

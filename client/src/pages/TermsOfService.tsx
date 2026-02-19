@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WHATSAPP_URL, COMPANY_WHATSAPP_DISPLAY } from "@/const";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -253,10 +254,10 @@ export default function TermsOfService() {
                 <li>
                   {t("WhatsApp:", "וואטסאפ:")}{" "}
                   <a
-                    href="https://wa.me/66929894495"
+                    href={WHATSAPP_URL}
                     className="text-primary hover:underline"
                   >
-                    +66 92 989 4495
+                    {COMPANY_WHATSAPP_DISPLAY}
                   </a>
                 </li>
               </ul>
