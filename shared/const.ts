@@ -12,4 +12,4 @@ export const COMPANY_WHATSAPP_DISPLAY = "+66 92-989-4495";
 export const COMPANY_PHONE = "+66 92-989-4495";
 export const COMPANY_EMAIL = "wiro.adventures@gmail.com";
 export const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-export const COMPANY_WEBSITE = "https://wiro4x4.com";
+export const COMPANY_WEBSITE = "https://www.wiro4x4indochina.com";

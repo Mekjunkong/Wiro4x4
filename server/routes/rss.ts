@@ -53,7 +53,8 @@ export function registerRssRoute(app: Express) {
   app.get("/api/rss", async (_req, res) => {
     try {
       const posts = await getAllPublishedBlogPosts();
-      const siteUrl = process.env.SITE_URL || "https://wiro4x4.com";
+      const siteUrl =
+        process.env.SITE_URL || "https://www.wiro4x4indochina.com";
       const xml = generateRssFeed(posts, siteUrl);
       res.set("Content-Type", "application/rss+xml; charset=utf-8");
       res.send(xml);

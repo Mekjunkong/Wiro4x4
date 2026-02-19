@@ -402,7 +402,7 @@ export default function BookingForm() {
       ...extras.slice(1), // pickup, dropoff, budget, special requests, agent
       "",
       isHebrew ? "━━━━━━━━━━━━━━━━━━━━" : "━━━━━━━━━━━━━━━━━━━━",
-      isHebrew ? "🌐 wiro4x4.com" : "🌐 wiro4x4.com",
+      isHebrew ? "🌐 wiro4x4indochina.com" : "🌐 wiro4x4indochina.com",
     ];
 
     // Remove consecutive blank lines and trim

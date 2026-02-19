@@ -20,7 +20,7 @@ const NOTIFICATION_RECIPIENTS = [
 ];
 
 // Sender email - using Resend's default for unverified domains
-// After verifying a domain (e.g., wiro4x4.com), change to: 'WIRO 4x4 Bookings <bookings@wiro4x4.com>'
+// After verifying a domain (e.g., wiro4x4indochina.com), change to: 'WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>'
 const SENDER_EMAIL = "WIRO 4x4 Bookings <onboarding@resend.dev>";
 
 export interface BookingEmailData {

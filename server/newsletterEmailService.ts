@@ -33,7 +33,7 @@ export async function sendNewsletterEmail(
     return 0;
   }
 
-  const siteUrl = process.env.SITE_URL || "https://wiro4x4.com";
+  const siteUrl = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
   const postUrl = `${siteUrl}/blog/${post.slug}`;
   const emailSubject = subject || `New from WIRO 4x4: ${post.title}`;
 
@@ -47,7 +47,7 @@ export async function sendNewsletterEmail(
       const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(sub.email)}`;
 
       await resend.emails.send({
-        from: "WIRO 4x4 <updates@wiro4x4.com>",
+        from: "WIRO 4x4 <updates@wiro4x4indochina.com>",
         to: sub.email,
         subject: emailSubject,
         html: `
