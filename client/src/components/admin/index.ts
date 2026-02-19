@@ -16,5 +16,6 @@ export {
   GalleryGridSkeleton,
 } from "./AdminSkeleton";
 export { DashboardCharts } from "./DashboardCharts";
+export { InlineStatusDropdown } from "./InlineStatusDropdown";
 export { PAGE_SIZE } from "./types";
 export type { BookingStatus } from "./types";
