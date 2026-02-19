@@ -12,7 +12,6 @@ import {
   Users,
   Clock,
   Utensils,
-  Car,
   Shield,
   Calendar,
   MessageCircle,

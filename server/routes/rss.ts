@@ -1,3 +1,4 @@
+import compression from "compression";
 import type { Express } from "express";
 import type { BlogPost } from "../../drizzle/schema";
 import { getAllPublishedBlogPosts } from "../db";
@@ -45,6 +46,10 @@ ${items}
 }
 
 export function registerRssRoute(app: Express) {
+  // Add gzip/brotli compression for all responses (API JSON, static assets, RSS).
+  // Registered here because this is the earliest user-code hook with app access.
+  app.use(compression());
+
   app.get("/api/rss", async (_req, res) => {
     try {
       const posts = await getAllPublishedBlogPosts();

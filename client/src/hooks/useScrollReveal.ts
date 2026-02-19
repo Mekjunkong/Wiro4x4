@@ -26,12 +26,12 @@ export function useScrollReveal<T extends HTMLElement>(
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el) return undefined;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion) return undefined;
 
     const children = stagger > 0 ? el.children : [el];
 

@@ -10,6 +10,20 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: wiro_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,8 +44,18 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
+      - name: Lint
+        run: pnpm lint
+
+      - name: Push database schema
+        run: pnpm db:push
+        env:
+          DATABASE_URL: mysql://root:test@localhost:3306/wiro_test
+
       - name: Run tests
         run: pnpm test
+        env:
+          DATABASE_URL: mysql://root:test@localhost:3306/wiro_test
 
       - name: Build
         run: pnpm build

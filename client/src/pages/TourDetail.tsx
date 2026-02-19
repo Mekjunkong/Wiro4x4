@@ -8,7 +8,6 @@ import { GoldDivider } from "@/components/GoldDivider";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import {
   Clock,
-  Mountain,
   Users,
   Utensils,
   Calendar,

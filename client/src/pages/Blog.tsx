@@ -5,15 +5,7 @@ import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  Clock,
-  ArrowRight,
-  FileText,
-  Tag,
-  Search,
-} from "lucide-react";
+import { Calendar, Clock, ArrowRight, FileText, Search } from "lucide-react";
 import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";

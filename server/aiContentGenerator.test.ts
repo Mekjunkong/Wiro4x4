@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Set env var before module import so getClient() doesn't throw
 vi.stubEnv("ANTHROPIC_API_KEY", "test-key-for-mocking");

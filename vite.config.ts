@@ -4,10 +4,27 @@ import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
+const isAnalyze = process.env.ANALYZE === "true";
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime()];
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  ...(isAnalyze
+    ? [
+        visualizer({
+          open: true,
+          filename: "dist/bundle-report.html",
+          gzipSize: true,
+          brotliSize: true,
+        }),
+      ]
+    : []),
+];
 
 export default defineConfig({
   plugins,
@@ -25,7 +42,7 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     // Performance optimizations
-    minify: 'esbuild', // Use esbuild for faster builds
+    minify: "esbuild", // Use esbuild for faster builds
     cssMinify: true,
     // Code splitting configuration
     rollupOptions: {
@@ -33,26 +50,26 @@ export default defineConfig({
         // Manual chunks for better caching
         manualChunks: {
           // React and core libraries
-          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          "react-vendor": ["react", "react-dom", "react/jsx-runtime"],
           // Routing
-          'router': ['wouter'],
+          router: ["wouter"],
           // UI components
-          'ui-vendor': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-select',
-            '@radix-ui/react-label',
-            '@radix-ui/react-checkbox',
+          "ui-vendor": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-select",
+            "@radix-ui/react-label",
+            "@radix-ui/react-checkbox",
           ],
           // Icons
-          'icons': ['lucide-react'],
+          icons: ["lucide-react"],
           // Utilities
-          'utils': ['clsx', 'tailwind-merge', 'date-fns'],
+          utils: ["clsx", "tailwind-merge", "date-fns"],
         },
         // Optimize chunk file names
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+        chunkFileNames: "assets/js/[name]-[hash].js",
+        entryFileNames: "assets/js/[name]-[hash].js",
+        assetFileNames: "assets/[ext]/[name]-[hash].[ext]",
       },
     },
     // Chunk size warnings

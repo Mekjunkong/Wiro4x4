@@ -5,7 +5,7 @@
 
 import { getDb, hasScheduledEmailBeenSent, createScheduledEmail } from "../db";
 import { bookings } from "../../drizzle/schema";
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { sendBookingReminder } from "../customerEmailService";
 
 export async function runBookingReminders() {

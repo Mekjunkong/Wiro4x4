@@ -159,6 +159,7 @@ export const leads = mysqlTable(
   },
   table => [
     index("idx_leads_convertedToBookingId").on(table.convertedToBookingId),
+    index("idx_leads_status_createdAt").on(table.status, table.createdAt),
   ]
 );
 
@@ -293,24 +294,33 @@ export type Tour = typeof tours.$inferSelect;
 export type InsertTour = typeof tours.$inferInsert;
 
 // Blog Posts Table
-export const blogPosts = mysqlTable("blogPosts", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 500 }).notNull(),
-  titleHe: varchar("titleHe", { length: 500 }).default(""),
-  slug: varchar("slug", { length: 500 }).notNull().unique(),
-  excerpt: text("excerpt"),
-  excerptHe: text("excerptHe"),
-  content: text("content").notNull(),
-  contentHe: text("contentHe"),
-  coverImage: varchar("coverImage", { length: 1000 }),
-  category: varchar("category", { length: 100 }),
-  tags: text("tags"), // JSON array
-  isPublished: int("isPublished").default(0).notNull(),
-  publishedAt: timestamp("publishedAt"),
-  author: varchar("author", { length: 255 }).default("WIRO 4x4"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const blogPosts = mysqlTable(
+  "blogPosts",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    title: varchar("title", { length: 500 }).notNull(),
+    titleHe: varchar("titleHe", { length: 500 }).default(""),
+    slug: varchar("slug", { length: 500 }).notNull().unique(),
+    excerpt: text("excerpt"),
+    excerptHe: text("excerptHe"),
+    content: text("content").notNull(),
+    contentHe: text("contentHe"),
+    coverImage: varchar("coverImage", { length: 1000 }),
+    category: varchar("category", { length: 100 }),
+    tags: text("tags"), // JSON array
+    isPublished: int("isPublished").default(0).notNull(),
+    publishedAt: timestamp("publishedAt"),
+    author: varchar("author", { length: 255 }).default("WIRO 4x4"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_blogPosts_isPublished_publishedAt").on(
+      table.isPublished,
+      table.publishedAt
+    ),
+  ]
+);
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
 

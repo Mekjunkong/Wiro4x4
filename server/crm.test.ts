@@ -3,7 +3,6 @@ import { appRouter } from "./routers";
 import {
   createAuthContext,
   createManagerContext,
-  createAgentContext,
   createPublicContext,
   itWithDb,
 } from "./test-helpers";

@@ -9,8 +9,7 @@ import {
   createScheduledEmail,
   getAllBookings,
 } from "../db";
-import { bookings } from "../../drizzle/schema";
-import { and, eq, gte, lte } from "drizzle-orm";
+
 import { sendDailySummaryNotification } from "../emailService";
 
 // Track the last date we sent a summary to avoid duplicates

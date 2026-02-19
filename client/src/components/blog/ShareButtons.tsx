@@ -15,7 +15,11 @@ interface ShareButtonsProps {
   excerpt: string;
 }
 
-export function ShareButtons({ url, title, excerpt }: ShareButtonsProps) {
+export function ShareButtons({
+  url,
+  title,
+  excerpt: _excerpt,
+}: ShareButtonsProps) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const fullUrl =

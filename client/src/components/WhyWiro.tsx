@@ -2,7 +2,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
 import {
-  Check,
   Shield,
   Users,
   Calendar,

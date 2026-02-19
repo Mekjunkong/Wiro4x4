@@ -25,10 +25,7 @@ import {
   updateCustomer,
   getCustomerById,
 } from "../db";
-import {
-  sendNewBookingNotification,
-  sendBookingStatusNotification,
-} from "../emailService";
+import { sendNewBookingNotification } from "../emailService";
 import { sendNewBookingEmail } from "../resendEmailService";
 import {
   sendCustomerConfirmation,
