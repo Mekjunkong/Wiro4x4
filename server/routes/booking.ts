@@ -21,6 +21,9 @@ import {
   getAgentPerformanceStats,
   getAgentBookingsInDateRange,
   generateDefaultFinancialRecords,
+  findOrCreateCustomer,
+  updateCustomer,
+  getCustomerById,
 } from "../db";
 import {
   sendNewBookingNotification,
@@ -62,6 +65,23 @@ export const bookingRouter = router({
       };
       const result = await createBooking(bookingData);
       const bookingId = result[0]?.insertId ?? 0;
+
+      // Auto-create or link customer (non-blocking)
+      findOrCreateCustomer({
+        name: input.contactName,
+        email: input.contactEmail || undefined,
+        phone: input.contactPhone,
+        source: "booking",
+      })
+        .then(async customerId => {
+          if (customerId) {
+            const customer = await getCustomerById(customerId);
+            if (customer && customer.stage === "prospect") {
+              await updateCustomer(customerId, { stage: "active" });
+            }
+          }
+        })
+        .catch(console.error);
 
       // Send notification to owner about new booking (Manus notification)
       await sendNewBookingNotification({

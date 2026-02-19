@@ -24,7 +24,9 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "manager", "agent"])
+    .default("user")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -370,3 +372,104 @@ export const scheduledEmails = mysqlTable(
 );
 export type ScheduledEmail = typeof scheduledEmails.$inferSelect;
 export type InsertScheduledEmail = typeof scheduledEmails.$inferInsert;
+
+// CRM Customers Table
+export const customers = mysqlTable(
+  "customers",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 320 }),
+    phone: varchar("phone", { length: 50 }),
+    whatsapp: varchar("whatsapp", { length: 50 }),
+    language: mysqlEnum("language", ["en", "he"]).default("en"),
+    stage: mysqlEnum("stage", [
+      "prospect",
+      "active",
+      "completed",
+      "vip",
+      "inactive",
+    ])
+      .default("prospect")
+      .notNull(),
+    source: varchar("source", { length: 100 }).default("website"),
+    tags: text("tags"), // JSON array: ["VIP", "repeat", "kosher-strict"]
+    totalSpent: int("totalSpent").default(0),
+    totalBookings: int("totalBookings").default(0),
+    lastContactAt: timestamp("lastContactAt"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_customers_email").on(table.email),
+    index("idx_customers_phone").on(table.phone),
+    index("idx_customers_stage").on(table.stage),
+  ]
+);
+
+export type Customer = typeof customers.$inferSelect;
+export type InsertCustomer = typeof customers.$inferInsert;
+
+// CRM Customer Activities Table
+export const customerActivities = mysqlTable(
+  "customerActivities",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    customerId: int("customerId").notNull(),
+    type: mysqlEnum("type", [
+      "note",
+      "call",
+      "whatsapp",
+      "email",
+      "follow_up",
+      "status_change",
+    ]).notNull(),
+    content: text("content").notNull(),
+    dueDate: timestamp("dueDate"),
+    isCompleted: int("isCompleted").default(0).notNull(),
+    createdBy: varchar("createdBy", { length: 255 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("idx_customerActivities_customerId").on(table.customerId),
+    index("idx_customerActivities_dueDate").on(table.dueDate),
+  ]
+);
+
+export type CustomerActivity = typeof customerActivities.$inferSelect;
+export type InsertCustomerActivity = typeof customerActivities.$inferInsert;
+
+// Chat Concierge Tables
+export const chatSessions = mysqlTable(
+  "chatSessions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    visitorId: varchar("visitorId", { length: 64 }).notNull(),
+    language: mysqlEnum("language", ["en", "he"]).default("en").notNull(),
+    mode: mysqlEnum("mode", ["ai", "human", "closed"]).default("ai").notNull(),
+    summary: text("summary"),
+    bookingContext: text("bookingContext"), // JSON string
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    closedAt: timestamp("closedAt"),
+  },
+  table => [index("idx_chatSessions_visitorId").on(table.visitorId)]
+);
+
+export const chatMessages = mysqlTable(
+  "chatMessages",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    sessionId: int("sessionId").notNull(),
+    role: mysqlEnum("role", ["visitor", "ai", "agent"]).notNull(),
+    content: text("content").notNull(),
+    metadata: text("metadata"), // JSON string
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("idx_chatMessages_sessionId").on(table.sessionId)]
+);
+
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = typeof chatSessions.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;

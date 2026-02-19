@@ -53,3 +53,75 @@ export function createPublicContext(): { ctx: TrpcContext } {
   };
   return { ctx };
 }
+
+/** Create a mock owner context for tRPC callers. */
+export function createOwnerContext(): { ctx: TrpcContext } {
+  const user: AuthenticatedUser = {
+    id: 1,
+    openId: "test-owner",
+    email: "owner@example.com",
+    name: "Test Owner",
+    loginMethod: "manus",
+    role: "admin", // admin = owner equivalent
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastSignedIn: new Date(),
+  };
+  const ctx: TrpcContext = {
+    user,
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: {
+      clearCookie: () => {},
+      setHeader: () => {},
+    } as unknown as TrpcContext["res"],
+  };
+  return { ctx };
+}
+
+/** Create a mock manager context for tRPC callers. */
+export function createManagerContext(): { ctx: TrpcContext } {
+  const user: AuthenticatedUser = {
+    id: 2,
+    openId: "test-manager",
+    email: "manager@example.com",
+    name: "Test Manager",
+    loginMethod: "manus",
+    role: "manager",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastSignedIn: new Date(),
+  };
+  const ctx: TrpcContext = {
+    user,
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: {
+      clearCookie: () => {},
+      setHeader: () => {},
+    } as unknown as TrpcContext["res"],
+  };
+  return { ctx };
+}
+
+/** Create a mock agent context for tRPC callers. */
+export function createAgentContext(): { ctx: TrpcContext } {
+  const user: AuthenticatedUser = {
+    id: 3,
+    openId: "test-agent",
+    email: "agent@example.com",
+    name: "Test Agent",
+    loginMethod: "manus",
+    role: "agent",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastSignedIn: new Date(),
+  };
+  const ctx: TrpcContext = {
+    user,
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: {
+      clearCookie: () => {},
+      setHeader: () => {},
+    } as unknown as TrpcContext["res"],
+  };
+  return { ctx };
+}

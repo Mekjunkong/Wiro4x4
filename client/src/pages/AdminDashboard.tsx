@@ -14,6 +14,8 @@ import {
   Star,
   Mountain,
   FileText,
+  UserCircle,
+  Shield,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -26,10 +28,13 @@ import {
   GalleryTab,
   ReviewsTab,
   BlogTab,
+  CRMTab,
+  UsersTab,
   PAGE_SIZE,
 } from "@/components/admin";
 
 type AdminTabId =
+  | "crm"
   | "bookings"
   | "calendar"
   | "agents"
@@ -38,11 +43,12 @@ type AdminTabId =
   | "gallery"
   | "reviews"
   | "tours"
-  | "blog";
+  | "blog"
+  | "users";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTabId>("bookings");
+  const [activeTab, setActiveTab] = useState<AdminTabId>("crm");
 
   // Fetch summary data for stats cards and tab counts
   const { data: bookingsData } = trpc.booking.listPaginated.useQuery({
@@ -136,6 +142,7 @@ export default function AdminDashboard() {
     icon: typeof Calendar;
     count: number | undefined;
   }[] = [
+    { id: "crm", label: "CRM", icon: UserCircle, count: undefined },
     { id: "bookings", label: "Bookings", icon: Calendar, count: bookingsTotal },
     { id: "calendar", label: "Calendar", icon: Calendar, count: undefined },
     { id: "agents", label: "Agents", icon: Users, count: agents?.length },
@@ -150,6 +157,16 @@ export default function AdminDashboard() {
     { id: "gallery", label: "Gallery", icon: Camera, count: galleryTotal },
     { id: "blog", label: "Blog", icon: FileText, count: blogTotal },
     { id: "reviews", label: "Reviews", icon: Star, count: reviewsTotal },
+    ...(["admin", "owner"].includes(user.role ?? "")
+      ? [
+          {
+            id: "users" as const,
+            label: "Users",
+            icon: Shield,
+            count: undefined,
+          },
+        ]
+      : []),
   ];
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -319,6 +336,13 @@ export default function AdminDashboard() {
             </nav>
           </div>
 
+          {activeTab === "crm" && (
+            <div role="tabpanel" id="tabpanel-crm" aria-labelledby="tab-crm">
+              <ErrorBoundary level="section" key="crm">
+                <CRMTab />
+              </ErrorBoundary>
+            </div>
+          )}
           {activeTab === "bookings" && (
             <div
               role="tabpanel"
@@ -411,6 +435,17 @@ export default function AdminDashboard() {
             <div role="tabpanel" id="tabpanel-blog" aria-labelledby="tab-blog">
               <ErrorBoundary level="section" key="blog">
                 <BlogTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "users" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-users"
+              aria-labelledby="tab-users"
+            >
+              <ErrorBoundary level="section" key="users">
+                <UsersTab />
               </ErrorBoundary>
             </div>
           )}
