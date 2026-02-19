@@ -434,7 +434,7 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `BUILT_IN_FORGE_API_KEY` - Manus API key
 - `RESEND_API_KEY` - Email service + newsletter (lazy — no crash if missing)
 - `ANTHROPIC_API_KEY` - AI blog generation via Claude (lazy — no crash if missing)
-- `SITE_URL` - Site URL for newsletter links (defaults to `https://wiro4x4.com`)
+- `SITE_URL` - Site URL for newsletter links (defaults to `https://www.wiro4x4indochina.com`)
 - `STRIPE_SECRET_KEY` - Payment processing (not yet configured)
 - `VITE_APP_TITLE` - App name
 - `VITE_APP_LOGO` - App logo URL
@@ -566,7 +566,7 @@ pnpm db:push  # Sync database schema
 - **ASK** user before making major architectural changes
 - **Resend/email services** use lazy initialization — never eagerly construct `new Resend()` at module level
 - **Anthropic SDK** uses lazy initialization — never eagerly construct `new Anthropic()` at module level
-- **Newsletter emails** send from `updates@wiro4x4.com` — requires Resend domain verification
+- **Newsletter emails** send from `updates@wiro4x4indochina.com` — requires Resend domain verification
 
 ## Quick Reference
 
