@@ -175,14 +175,14 @@ export function Tours() {
   return (
     <section
       id="tours"
-      className="py-24 md:py-32 bg-card relative overflow-hidden"
+      className="py-24 md:py-32 bg-[#0F0F0F] relative overflow-hidden"
     >
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6 text-white">
             {t("Our Premium Tours", "הטיולים שלנו")}
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-[#9B9590]">
             {t(
               "Choose from our carefully curated selection of kosher-friendly off-road adventures.",
               "בחרו מתוך מגוון טיולי השטח שלנו -- כולם עם אפשרות לאוכל כשר."
@@ -201,7 +201,7 @@ export function Tours() {
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-card">
+              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
                 <div className="relative h-72 overflow-hidden bg-muted">
                   <img
                     src={tour.image}
@@ -220,23 +220,21 @@ export function Tours() {
 
                 <div className="p-6 space-y-4">
                   <h3
-                    className="text-xl font-medium"
+                    className="text-xl font-medium text-white"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   >
                     {tour.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {tour.description}
-                  </p>
+                  <p className="text-sm text-[#9B9590]">{tour.description}</p>
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-[#D4AF37]" />
-                      <span>{tour.duration}</span>
+                      <span className="text-white">{tour.duration}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mountain className="h-4 w-4 text-[#D4AF37]" />
-                      <span>
+                      <span className="text-white">
                         {t(
                           DIFFICULTY_LABELS[tour.difficulty]?.en ||
                             tour.difficulty,
@@ -276,6 +274,16 @@ export function Tours() {
               </Card>
             </a>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <a
+            href="/estimate"
+            className="inline-flex items-center gap-2 text-[#D4AF37] hover:text-[#E8C84A] font-medium text-lg transition-colors"
+          >
+            {t("Estimate Your Trip Cost", "חשבו את עלות הטיול")}
+            <ArrowRight className="h-5 w-5" />
+          </a>
         </div>
       </div>
     </section>
