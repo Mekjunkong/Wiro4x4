@@ -1,13 +1,9 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { WhyWiro } from "@/components/WhyWiro";
 import { Tours } from "@/components/Tours";
-import { KosherInfo } from "@/components/KosherInfo";
+import { TrustAndKosher } from "@/components/TrustAndKosher";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
-import { TripCostEstimator } from "@/components/TripCostEstimator";
-
 import { Testimonials } from "@/components/Testimonials";
-import { CommunityConnection } from "@/components/CommunityConnection";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -21,11 +17,8 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <Tours />
-        <TripCostEstimator />
-        <KosherInfo />
+        <TrustAndKosher />
         <Testimonials />
-        <WhyWiro />
-        <CommunityConnection />
         <QuickInquiryForm />
         <FAQ />
       </main>
