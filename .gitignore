@@ -107,3 +107,6 @@ temp/
 *.sqlite3
 .vercel
 .env*.local
+
+# Git worktrees
+.worktrees/
