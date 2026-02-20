@@ -98,13 +98,13 @@ export function Hero() {
           <img
             src={HERO_IMAGE.jpg}
             alt={HERO_IMAGE.alt}
-            className="w-full h-full object-cover animate-ken-burns"
+            className="w-full h-full object-cover scale-105"
             loading="eager"
             fetchPriority="high"
           />
         </picture>
         {/* Single bottom-to-top gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
       </div>
 
       {/* Content */}
@@ -179,17 +179,15 @@ export function Hero() {
           {/* Trust Indicators */}
           <div
             ref={trustRef}
-            className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 pt-8 text-xs uppercase tracking-[0.15em] text-[#D4AF37]"
+            className="flex flex-wrap justify-center items-center gap-3 pt-8"
             style={{ opacity: 0 }}
           >
             {trustItems.map((item, index) => (
-              <span key={index} className="flex items-center gap-2">
-                {index > 0 && (
-                  <span className="text-white/40" aria-hidden="true">
-                    |
-                  </span>
-                )}
-                <span>{item}</span>
+              <span
+                key={index}
+                className="px-4 py-1.5 border border-[#D4AF37]/40 rounded-full text-xs uppercase tracking-[0.15em] text-[#D4AF37]"
+              >
+                {item}
               </span>
             ))}
           </div>
