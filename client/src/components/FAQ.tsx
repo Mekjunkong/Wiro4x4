@@ -95,14 +95,14 @@ export function FAQ() {
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   return (
-    <section ref={sectionRef} id="faq" className="py-24 md:py-32 bg-background">
+    <section ref={sectionRef} id="faq" className="py-24 md:py-32 bg-[#141414]">
       <div className="container max-w-3xl">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-3">
+          <h2 className="text-3xl md:text-4xl font-medium text-white mb-3">
             {t("Frequently Asked Questions", "שאלות נפוצות")}
           </h2>
           <GoldDivider />
-          <p className="text-muted-foreground text-lg">
+          <p className="text-[#9B9590] text-lg">
             {t(
               "Everything you need to know about our tours",
               "כל מה שצריך לדעת על הטיולים שלנו"
@@ -115,15 +115,15 @@ export function FAQ() {
             <AccordionItem
               key={index}
               value={`faq-${index}`}
-              className="border-b border-[#E8E2DA]"
+              className="border-b border-[#2A2A25]"
             >
               <AccordionTrigger
-                className="text-lg font-medium text-foreground hover:no-underline [&>svg]:text-[#D4AF37]"
+                className="text-lg font-medium text-white hover:no-underline [&>svg]:text-[#D4AF37]"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 {t(item.q[0], item.q[1])}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
+              <AccordionContent className="text-[#9B9590] leading-relaxed">
                 {t(item.a[0], item.a[1])}
               </AccordionContent>
             </AccordionItem>
