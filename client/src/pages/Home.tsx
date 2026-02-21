@@ -12,6 +12,7 @@ import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { FaqJsonLd } from "@/components/FaqJsonLd";
 
 export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
@@ -28,6 +29,7 @@ export default function Home() {
         <CommunityConnection />
         <QuickInquiryForm />
         <FAQ />
+        <FaqJsonLd />
       </main>
       <Footer />
       <FloatingActionButtons />

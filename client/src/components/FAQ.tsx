@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqData = [
+export const faqData = [
   {
     q: ["Is the food on tours kosher?", "האם האוכל בטיולים כשר?"],
     a: [
