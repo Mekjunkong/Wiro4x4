@@ -23,7 +23,7 @@ const HARDCODED_TOURS = [
     description:
       "Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm",
     descriptionHe:
-      "הפסגה הגבוהה בתאילנד, שבילי יער ענן וחוות קפה נסתרת בכפר קארן",
+      "הפסגה הגבוהה ביותר בתאילנד, שבילי יער ענן וחוות קפה נסתרת בכפר קארן",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "moderate" as const,
@@ -59,7 +59,7 @@ const HARDCODED_TOURS = [
     description:
       "Climb UP a waterfall barefoot, walk a sky-high canopy walkway, and explore upper waterfall tiers no one reaches",
     descriptionHe:
-      "טפסו למעלה על מפל יחפים, הלכו על גשר צמרות בגובה 20 מטר וגלו קומות מפל שאף אחד לא מגיע אליהן",
+      "טפסו למעלה על מפל יחפים, לכו על גשר צמרות בגובה 20 מטר וגלו קומות מפל שאף אחד לא מגיע אליהן",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "easy" as const,
@@ -77,7 +77,7 @@ const HARDCODED_TOURS = [
     description:
       "Hike the ancient Monk's Trail, then keep going where tourists turn back — Hmong village, hidden coffee farm, secluded waterfall",
     descriptionHe:
-      "טיילו בשביל הנזירים העתיק, ואז המשיכו לאן שהתיירים חוזרים — כפר המונג, חוות קפה נסתרת ומפל מבודד",
+      "טיילו בשביל הנזירים העתיק, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר המונג, חוות קפה נסתרת ומפל מבודד",
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy" as const,

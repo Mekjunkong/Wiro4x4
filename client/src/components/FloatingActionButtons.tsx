@@ -21,7 +21,7 @@ export function FloatingActionButtons() {
     const message = encodeURIComponent(
       t(
         "Hi WIRO 4x4 – I want to book a Kosher tour.",
-        "היי WIRO 4x4 -- אשמח לשמוע על הטיולים הכשרים שלכם."
+        "היי WIRO 4x4 — אשמח לשמוע על הטיולים הכשרים שלכם."
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
@@ -54,7 +54,7 @@ export function FloatingActionButtons() {
         <button
           onClick={handleWhatsAppClick}
           className={`bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 ${showPulse ? "animate-subtle-pulse" : ""}`}
-          aria-label={t("Contact us on WhatsApp", "שלחו לנו וואטסאפ")}
+          aria-label={t("Contact us on WhatsApp", "צרו קשר בוואטסאפ")}
         >
           <MessageCircle className="h-6 w-6" />
           <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-[#1C1C1C] text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -79,7 +79,7 @@ export function FloatingActionButtons() {
             <button
               onClick={handleWhatsAppClick}
               className="bg-[#25D366] hover:bg-[#20BA5A] text-white rounded-full p-4 shadow-premium-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
-              aria-label={t("Contact us on WhatsApp", "שלחו לנו וואטסאפ")}
+              aria-label={t("Contact us on WhatsApp", "צרו קשר בוואטסאפ")}
             >
               <MessageCircle className="h-6 w-6" />
             </button>

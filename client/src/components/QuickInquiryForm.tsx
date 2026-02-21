@@ -36,7 +36,7 @@ export function QuickInquiryForm() {
       toast.success(
         t(
           "Thank you! We'll contact you within 24 hours.",
-          "!תודה! ניצור קשר תוך 24 שעות"
+          "תודה! ניצור קשר תוך 24 שעות."
         )
       );
     },
@@ -91,7 +91,7 @@ export function QuickInquiryForm() {
           <Card className="p-8 text-center border border-[#D4AF37]/30 rounded-sm">
             <CheckCircle className="w-12 h-12 text-[#D4AF37] mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">
-              {t("Thank You!", "!תודה רבה")}
+              {t("Thank You!", "תודה רבה!")}
             </h3>
             <p className="text-muted-foreground mb-6">
               {t(
@@ -238,7 +238,7 @@ export function QuickInquiryForm() {
 
             <div>
               <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
-                {t("What interests you?", "?מה מעניין אתכם")}
+                {t("What interests you?", "מה מעניין אתכם?")}
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {INTEREST_OPTIONS.map(option => (
@@ -273,7 +273,7 @@ export function QuickInquiryForm() {
                 <Send className="w-4 h-4" />
               )}
               {createLead.isPending
-                ? t("Sending...", "...שולח")
+                ? t("Sending...", "שולח...")
                 : t("Get My Free Quote", "קבלו הצעת מחיר")}
             </Button>
           </form>

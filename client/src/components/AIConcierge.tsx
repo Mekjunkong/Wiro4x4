@@ -39,7 +39,7 @@ export function AIConcierge() {
     },
     {
       icon: Calendar,
-      title: t("Shabbat-Friendly", "ידידותי לשבת"),
+      title: t("Shabbat-Friendly", "מותאם לשבת"),
       description: t("Respects Shabbat timing", "מכבד זמני שבת"),
     },
     {

@@ -295,7 +295,7 @@ export default function Gallery() {
                         alignItems: "center",
                         justifyContent: "center",
                       }}
-                      aria-label="Previous photo"
+                      aria-label={t("Previous photo", "תמונה קודמת")}
                     >
                       <ChevronLeft className="w-8 h-8" />
                     </button>
@@ -312,7 +312,7 @@ export default function Gallery() {
                         alignItems: "center",
                         justifyContent: "center",
                       }}
-                      aria-label="Next photo"
+                      aria-label={t("Next photo", "תמונה הבאה")}
                     >
                       <ChevronRight className="w-8 h-8" />
                     </button>

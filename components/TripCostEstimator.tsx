@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,7 @@ import { GoldDivider } from "@/components/GoldDivider";
 import { Calculator, Users, Calendar, DollarSign } from "lucide-react";
 
 export function TripCostEstimator() {
+  const { t } = useLanguage();
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [days, setDays] = useState(3);
@@ -64,11 +66,14 @@ export function TripCostEstimator() {
           <div className="inline-flex items-center gap-2 mb-4">
             <Calculator className="w-8 h-8 text-primary" />
             <h2 className="text-4xl md:text-5xl font-bold">
-              Trip Cost Estimator
+              {t("Trip Cost Estimator", "מחשבון עלות טיול")}
             </h2>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Get an instant estimate for your kosher adventure in Chiang Mai
+            {t(
+              "Get an instant estimate for your kosher adventure in Chiang Mai",
+              "קבלו הערכת מחיר מיידית להרפתקה הכשרה שלכם בצ׳יאנג מאי"
+            )}
           </p>
           <GoldDivider />
         </div>
@@ -80,7 +85,7 @@ export function TripCostEstimator() {
               <div>
                 <Label className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-primary" />
-                  Number of Adults
+                  {t("Number of Adults", "מספר מבוגרים")}
                 </Label>
                 <Input
                   type="number"
@@ -97,7 +102,7 @@ export function TripCostEstimator() {
               <div>
                 <Label className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-primary" />
-                  Number of Children (0-12 years)
+                  {t("Number of Children (0-12 years)", "מספר ילדים (0-12)")}
                 </Label>
                 <Input
                   type="number"
@@ -114,7 +119,7 @@ export function TripCostEstimator() {
               <div>
                 <Label className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-primary" />
-                  Trip Duration (Days)
+                  {t("Trip Duration (Days)", "משך הטיול (ימים)")}
                 </Label>
                 <Input
                   type="number"
@@ -130,7 +135,7 @@ export function TripCostEstimator() {
 
               <div className="space-y-3 pt-4 border-t">
                 <Label className="text-base font-semibold">
-                  Optional Services
+                  {t("Optional Services", "שירותים נוספים")}
                 </Label>
 
                 <div className="flex items-center space-x-2">
@@ -142,7 +147,10 @@ export function TripCostEstimator() {
                     }
                   />
                   <label htmlFor="hotel" className="text-sm cursor-pointer">
-                    Hotel Accommodation (~$80/person/night)
+                    {t(
+                      "Hotel Accommodation (~$80/person/night)",
+                      "לינה במלון (~$80 לאדם ללילה)"
+                    )}
                   </label>
                 </div>
 
@@ -155,7 +163,10 @@ export function TripCostEstimator() {
                     }
                   />
                   <label htmlFor="kosher" className="text-sm cursor-pointer">
-                    Kosher Meals (~$40/person/day)
+                    {t(
+                      "Kosher Meals (~$40/person/day)",
+                      "ארוחות כשרות (~$40 לאדם ליום)"
+                    )}
                   </label>
                 </div>
 
@@ -168,7 +179,10 @@ export function TripCostEstimator() {
                     }
                   />
                   <label htmlFor="guide" className="text-sm cursor-pointer">
-                    Hebrew-Speaking Guide ($100/day)
+                    {t(
+                      "Hebrew-Speaking Guide ($100/day)",
+                      "מדריך דובר עברית ($100 ליום)"
+                    )}
                   </label>
                 </div>
 
@@ -181,7 +195,10 @@ export function TripCostEstimator() {
                     }
                   />
                   <label htmlFor="selfdrive" className="text-sm cursor-pointer">
-                    Self-Driving 4x4 Rental ($125/day)
+                    {t(
+                      "Self-Driving 4x4 Rental ($125/day)",
+                      "השכרת 4x4 לנהיגה עצמית ($125 ליום)"
+                    )}
                   </label>
                 </div>
               </div>
@@ -192,7 +209,7 @@ export function TripCostEstimator() {
               <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6 border-2 border-primary/30">
                 <div className="text-center mb-6">
                   <p className="text-sm text-muted-foreground mb-2">
-                    Estimated Total Cost
+                    {t("Estimated Total Cost", "עלות משוערת")}
                   </p>
                   <div className="flex items-center justify-center gap-2">
                     <DollarSign className="w-8 h-8 text-primary" />
@@ -205,19 +222,32 @@ export function TripCostEstimator() {
 
                 <div className="space-y-2 text-sm border-t pt-4">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Group Size:</span>
+                    <span className="text-muted-foreground">
+                      {t("Group Size:", "גודל קבוצה:")}
+                    </span>
                     <span className="font-semibold">
-                      {adults} adults, {children} children
+                      {t(
+                        `${adults} adults, ${children} children`,
+                        `${adults} מבוגרים, ${children} ילדים`
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="font-semibold">{days} days</span>
+                    <span className="text-muted-foreground">
+                      {t("Duration:", "משך:")}
+                    </span>
+                    <span className="font-semibold">
+                      {t(`${days} days`, `${days} ימים`)}
+                    </span>
                   </div>
                   {includeHotel && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Nights:</span>
-                      <span className="font-semibold">{days - 1} nights</span>
+                      <span className="text-muted-foreground">
+                        {t("Nights:", "לילות:")}
+                      </span>
+                      <span className="font-semibold">
+                        {t(`${days - 1} nights`, `${days - 1} לילות`)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -225,15 +255,17 @@ export function TripCostEstimator() {
 
               <div className="mt-6 space-y-3">
                 <p className="text-xs text-muted-foreground text-center">
-                  * This is an estimate. Final price may vary based on specific
-                  tour selection, season, and custom requirements.
+                  {t(
+                    "* This is an estimate. Final price may vary based on specific tour selection, season, and custom requirements.",
+                    "* המחירים הם הערכה בלבד ועשויים להשתנות בהתאם לזמינות ולעונה. צרו קשר לקבלת הצעת מחיר מדויקת."
+                  )}
                 </p>
                 <Button
                   size="lg"
                   className="w-full text-lg"
                   onClick={() => (window.location.href = "/book")}
                 >
-                  Get Accurate Quote
+                  {t("Get Accurate Quote", "קבלו הצעת מחיר מדויקת")}
                 </Button>
               </div>
             </div>

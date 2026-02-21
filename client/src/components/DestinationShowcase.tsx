@@ -10,7 +10,8 @@ const DESTINATIONS = [
     he: "דוי אינתנון",
     descEn:
       "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
-    descHe: "הפסגה הגבוהה בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
+    descHe:
+      "הפסגה הגבוהה ביותר בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
     image: "/images/vietnam_rice_terraces.jpg",
     tourSlug: "doi-inthanon-roof-of-thailand",
   },
@@ -31,7 +32,7 @@ const DESTINATIONS = [
     descEn:
       "Climb UP a waterfall barefoot, canopy walkway 20m high, and upper falls no one reaches",
     descHe:
-      "טפסו למעלה על מפל יחפים, גשר צמרות בגובה 20 מ' וקומות עליונות שאף אחד לא מגיע",
+      "טפסו למעלה על מפל יחפים, עברו על גשר צמרות בגובה 20 מ' וגלו קומות עליונות שאף אחד לא מגיע אליהן",
     image: "/images/1000000126_compressed.jpg",
     tourSlug: "maerim-sticky-waterfalls",
   },
@@ -42,7 +43,7 @@ const DESTINATIONS = [
     descEn:
       "Hike the Monk's Trail, then continue where tourists turn back — hidden coffee village and secluded falls",
     descHe:
-      "טיילו בשביל הנזירים, ואז המשיכו לאן שהתיירים חוזרים — כפר קפה נסתר ומפלים מבודדים",
+      "טיילו בשביל הנזירים, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר קפה נסתר ומפלים מבודדים",
     image: "/images/1000000139_compressed.jpg",
     tourSlug: "doi-suthep-pui-beyond-temple",
   },

@@ -211,7 +211,7 @@ export function Header() {
             <button
               onClick={toggleMobileMenu}
               className="p-6 -m-3 hover:bg-[#D4AF37]/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
-              aria-label="Toggle menu"
+              aria-label={t("Toggle menu", "תפריט")}
               aria-expanded={mobileMenuOpen}
               type="button"
               style={{

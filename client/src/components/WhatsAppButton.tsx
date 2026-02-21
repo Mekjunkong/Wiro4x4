@@ -9,7 +9,7 @@ export function WhatsAppButton() {
     const message = encodeURIComponent(
       t(
         "Hi WIRO 4x4 – I want to book a Kosher tour.",
-        "היי WIRO 4x4 -- אני רוצה להזמין טיול כשר."
+        "היי WIRO 4x4 — אשמח לשמוע על הטיולים הכשרים שלכם."
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");

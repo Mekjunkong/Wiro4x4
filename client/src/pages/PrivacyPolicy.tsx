@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground leading-relaxed">
                 {t(
                   "WIRO 4x4 is committed to protecting your privacy. This policy describes how we collect, use, and safeguard your personal information when you use our website and services.",
-                  "ב-WIRO 4x4 אנחנו מחויבים לשמירה על פרטיותכם. מדיניות זו מפרטת כיצד אנו אוספים, משתמשים ומגנים על המידע האישי שלכם בעת גלישה באתר או שימוש בשירותינו."
+                  "ב-WIRO 4x4 אנו מחויבים לשמירה על פרטיותכם. מדיניות זו מפרטת כיצד אנו אוספים, משתמשים ומגנים על המידע האישי שלכם בעת גלישה באתר או שימוש בשירותינו."
                 )}
               </p>
             </section>
@@ -65,7 +65,7 @@ export default function PrivacyPolicy() {
                 <li>
                   {t(
                     "Payment information: processed securely by Stripe (we do not store credit card details)",
-                    "פרטי תשלום: מעובדים בצורה מאובטחת דרך Stripe (אנחנו לא שומרים פרטי כרטיס אשראי)"
+                    "פרטי תשלום: מעובדים בצורה מאובטחת דרך Stripe (אנו לא שומרים פרטי כרטיס אשראי)"
                   )}
                 </li>
                 <li>
@@ -88,7 +88,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-xl font-serif font-bold text-foreground mb-3">
                 {t(
                   "2. How We Use Your Information",
-                  "2. למה אנחנו משתמשים במידע"
+                  "2. למה אנו משתמשים במידע"
                 )}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">

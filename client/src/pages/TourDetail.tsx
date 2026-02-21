@@ -56,7 +56,7 @@ const FALLBACK_TOURS: Record<
     description:
       "Stand on the highest point in Thailand, then descend into a world most tourists never see — cloud forests where orchids grow on mossy trees, a hidden nature trail that ends at a Karen village coffee farm, and waterfalls you'll have entirely to yourself. The Pha Dok Siew trail is the secret alternative to the crowded Kew Mae Pan, winding through rice terraces to Mae Klang Luang village where coffee is brewed from beans grown on the slopes you just walked past.",
     descriptionHe:
-      "עמדו על הנקודה הגבוהה ביותר בתאילנד, ואז צללו לעולם שרוב התיירים לא רואים — יערות ענן שבהם סחלבים גדלים על עצים מכוסי אזוב, שביל טבע נסתר שמסתיים בחוות קפה של כפר קארן, ומפלים שיהיו רק שלכם. שביל פה דוק סיו הוא החלופה הסודית לשביל קיו מאה פאן הצפוף, מתפתל דרך טרסות אורז עד לכפר מאה קלאנג לואנג שבו מכינים קפה מפולים שגדלים על המדרונות שזה עתה עברתם.",
+      "עמדו על הנקודה הגבוהה ביותר בתאילנד, ואז צללו לעולם שרוב התיירים לא רואים — יערות ענן שבהם סחלבים גדלים על עצים מכוסי טחב, שביל טבע נסתר שמסתיים בחוות קפה של כפר קארן, ומפלים שיהיו רק שלכם. שביל פה דוק סיו הוא החלופה הסודית לשביל קיו מאה פאן הצפוף, מתפתל דרך טרסות אורז עד לכפר מאה קלאנג לואנג שבו מכינים קפה מפולים שגדלים על המדרונות שזה עתה עברתם.",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "moderate",
@@ -93,10 +93,10 @@ const FALLBACK_TOURS: Record<
       "300+ bird species in the park",
     ],
     highlightsHe: [
-      "עמדו על הפסגה הגבוהה בתאילנד (2,565 מ')",
+      "עמדו על הפסגה הגבוהה ביותר בתאילנד (2,565 מ')",
       "שביל פה דוק סיו — טיול יער הענן הסודי שרוב התיירים לא מוצאים",
       "טעימת קפה בחוות כפר קארן",
-      "הליכה על גשר עץ ביער ענן מכוסה אזוב",
+      "הליכה על גשר עץ ביער ענן מכוסה טחב",
       "300+ מיני ציפורים בפארק",
     ],
     itineraryData: [
@@ -146,7 +146,7 @@ const FALLBACK_TOURS: Record<
         description:
           "360m boardwalk through a moss-draped cloud forest — one of Thailand's last remaining sphagnum bogs. Bird watchers' paradise with 300+ species.",
         descriptionHe:
-          "גשר עץ באורך 360 מ' דרך יער ענן עטוף אזוב — אחת מביצות הספגנום האחרונות בתאילנד. גן עדן לצפרים עם 300+ מינים.",
+          "גשר עץ באורך 360 מ' דרך יער ענן עטוף טחב — אחת מביצות הספגנום האחרונות בתאילנד. גן עדן לצפרים עם 300+ מינים.",
       },
       {
         title: "14:30 — Hmong Market & Return",
@@ -154,7 +154,7 @@ const FALLBACK_TOURS: Record<
         description:
           "Roadside market run by local Hmong families. Fresh strawberries (Nov-Feb), passion fruit, handwoven textiles. Scenic descent back to Chiang Mai by 16:30.",
         descriptionHe:
-          "שוק צדי דרך שמנהלות משפחות המונג מקומיות. תותים טריים (נוב'-פבר'), פסיפלורה, אריגים ארוגים ביד. ירידה נופית חזרה לצ'יאנג מאי עד 16:30.",
+          "שוק בצד הדרך שמנהלות משפחות המונג מקומיות. תותים טריים (נוב'-פבר'), פסיפלורה, אריגים ארוגים ביד. ירידה נופית חזרה לצ'יאנג מאי עד 16:30.",
       },
     ],
   },
@@ -164,7 +164,7 @@ const FALLBACK_TOURS: Record<
     description:
       "A 700-year-old village clinging to a misty mountainside, where time moves at the pace of dripping coffee and flowing streams. Search for wild gibbons in the forest, learn the ancient art of Miang fermented tea from the villagers who invented it, and hike a trail only locals know to a hidden panoramic viewpoint. This award-winning eco-tourism village pioneered community-based sustainable tourism in Thailand.",
     descriptionHe:
-      "כפר בן 700 שנה שנאחז בצלע הר מעורפל, שם הזמן זורם בקצב של קפה מטפטף ונחלים זורמים. חפשו גיבונים בר ביער, למדו את אומנות תה המיאנג המותסס מהכפריים שהמציאו אותו, וטיילו בשביל שרק מקומיים מכירים עד לתצפית פנורמית נסתרת. כפר אקו-תיירות חלוצי שזכה בפרסים על תיירות קהילתית בת-קיימא בתאילנד.",
+      "כפר בן 700 שנה שנאחז בצלע הר מעורפל, שם הזמן זורם בקצב של קפה מטפטף ונחלים זורמים. חפשו גיבוני בר ביער, למדו את אומנות תה המיאנג המותסס מהכפריים שהמציאו אותו, וטיילו בשביל שרק מקומיים מכירים עד לתצפית פנורמית נסתרת. כפר אקו-תיירות חלוצי שזכה בפרסים על תיירות קהילתית בת-קיימא בתאילנד.",
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy",
@@ -199,7 +199,7 @@ const FALLBACK_TOURS: Record<
       "Authentic homestay lunch, not a restaurant",
     ],
     highlightsHe: [
-      "חפשו גיבונים בר ביער",
+      "חפשו גיבוני בר ביער",
       "למדו את אומנות תה המיאנג המותסס — מהמשפחות שהמציאו אותו",
       "קלו פולי קפה משלכם בחוות פרויקט מלכותי",
       "טיילו לתצפית קיו פין הפנורמית (רוב המבקרים מפספסים)",
@@ -279,7 +279,7 @@ const FALLBACK_TOURS: Record<
     description:
       "Climb UP a waterfall — no ropes, no harness, just limestone so sticky your bare feet grip like glue. Then walk 20 meters above the forest floor on a sky-high canopy walkway, hike to waterfall tiers that 95% of visitors never reach, and explore a hill tribe village down an unmarked dirt road. The Queen Sirikit Botanic Garden's 400m canopy walkway is one of Thailand's best-kept secrets, and the upper tiers of Mae Sa Waterfall reward those who go beyond the crowded lower levels.",
     descriptionHe:
-      "טפסו למעלה על מפל מים — בלי חבלים, בלי רתמה, רק אבן גיר דביקה כל כך שכפות הרגליים שלכם נאחזות כמו דבק. אחר כך הלכו 20 מטר מעל רצפת היער על גשר צמרות עצים, טיילו לקומות מפל ש-95% מהמבקרים לא מגיעים אליהן, וגלו כפר שבטי הרים בסוף דרך עפר לא מסומנת. גשר הצמרות באורך 400 מ' בגן הבוטני של המלכה סיריקיט הוא אחד הסודות הכי שמורים של תאילנד.",
+      "טפסו למעלה על מפל מים — בלי חבלים, בלי רתמה, רק אבן גיר דביקה כל כך שכפות הרגליים שלכם נאחזות כמו דבק. אחר כך לכו 20 מטר מעל רצפת היער על גשר צמרות עצים, טיילו לקומות מפל ש-95% מהמבקרים לא מגיעים אליהן, וגלו כפר שבטי הרים בסוף דרך עפר לא מסומנת. גשר הצמרות באורך 400 מ' בגן הבוטני של המלכה סיריקיט הוא אחד הסודות הכי שמורים של תאילנד.",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "easy",
@@ -373,7 +373,7 @@ const FALLBACK_TOURS: Record<
         description:
           "The highlight. A mineral-rich limestone waterfall you can climb barefoot — the surface is rough and grippy like sandpaper. Walk straight up the flowing water, 100m to the top. Completely unique natural phenomenon. Bring a swimsuit!",
         descriptionHe:
-          "השיא של היום. מפל אבן גיר עשיר במינרלים שאפשר לטפס עליו יחף — המשטח מחוספס ואוחז כמו נייר זכוכית. הלכו ישר למעלה דרך המים הזורמים, 100 מ' עד הפסגה. תופעת טבע ייחודית לחלוטין. קחו בגד ים!",
+          "השיא של היום. מפל אבן גיר עשיר במינרלים שאפשר לטפס עליו יחף — המשטח מחוספס ואוחז כמו נייר זכוכית. לכו ישר למעלה דרך המים הזורמים, 100 מ' עד הפסגה. תופעת טבע ייחודית לחלוטין. קחו בגד ים!",
       },
       {
         title: "15:30 — Return to Chiang Mai",
@@ -390,7 +390,7 @@ const FALLBACK_TOURS: Record<
     description:
       "Everyone drives up to the famous temple. You'll hike the original Monk's Trail through jungle to get there — then keep going where the tourists turn back. Deep into the national park, past a Hmong village most outsiders never see, to a hidden coffee village at the end of a dirt track and a waterfall in total solitude. The Monk's Trail is the ancient pilgrimage path monks have walked for centuries, through bamboo forest and across streams.",
     descriptionHe:
-      "כולם נוסעים למעלה למקדש המפורסם. אתם תעלו בשביל הנזירים המקורי דרך הג'ונגל — ואז תמשיכו לאן שהתיירים חוזרים. עמוק בפארק הלאומי, דרך כפר המונג שרוב הזרים לא רואים, עד לכפר קפה נסתר בסוף דרך עפר ומפל מים בבדידות מוחלטת. שביל הנזירים הוא שביל העלייה לרגל העתיק שנזירים הלכו בו במשך מאות שנים, דרך יער במבוק וחציית נחלים.",
+      "כולם נוסעים למעלה למקדש המפורסם. אתם תעלו בשביל הנזירים המקורי דרך הג'ונגל — ואז תמשיכו הלאה, לשם שהתיירים כבר לא מגיעים. עמוק בפארק הלאומי, דרך כפר המונג שרוב הזרים לא רואים, עד לכפר קפה נסתר בסוף דרך עפר ומפל מים בבדידות מוחלטת. שביל הנזירים הוא שביל העלייה לרגל העתיק שנזירים הלכו בו במשך מאות שנים, דרך יער במבוק וחציית נחלים.",
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy",
@@ -448,7 +448,7 @@ const FALLBACK_TOURS: Record<
         description:
           "Start at the hidden trailhead near Chiang Mai Zoo. 1.5km jungle hike on the original pilgrimage path monks have walked for centuries. Pass through bamboo forest, cross streams, spot forest birds. Arrive at the temple from behind — the way it was meant to be approached.",
         descriptionHe:
-          "התחלה בנקודת השביל הנסתרת ליד גן החיות של צ'יאנג מאי. טיול ג'ונגל של 1.5 ק\"מ בשביל העלייה לרגל המקורי. עוברים דרך יער במבוק, חוצים נחלים, צופים בציפורי יער. מגיעים למקדש מאחור — כמו שהוא היה אמור להיות מושג.",
+          "התחלה בנקודת השביל הנסתרת ליד גן החיות של צ'יאנג מאי. טיול ג'ונגל של 1.5 ק\"מ בשביל העלייה לרגל המקורי. עוברים דרך יער במבוק, חוצים נחלים, צופים בציפורי יער. מגיעים למקדש מאחור — כמו שתמיד היה צריך להגיע אליו.",
       },
       {
         title: "09:30 — Wat Phra That Doi Suthep",
@@ -464,7 +464,7 @@ const FALLBACK_TOURS: Record<
         description:
           "This is where 99% of tourists turn back. You continue deeper into Doi Suthep-Pui National Park on a winding mountain road past pine forests.",
         descriptionHe:
-          "כאן 99% מהתיירים חוזרים. אתם ממשיכים עמוק יותר לפארק הלאומי דוי סוטפ-פוי בכביש הרים מתפתל ליד יערות אורנים.",
+          "כאן 99% מהתיירים חוזרים. אתם ממשיכים עמוק יותר לפארק הלאומי דוי סוטפ-פוי בכביש הרים מתפתל בין יערות אורנים.",
       },
       {
         title: "10:45 — Doi Pui Hmong Village",
@@ -583,7 +583,7 @@ const FALLBACK_TOURS: Record<
         description:
           "Change into Karen clothing. Feed and walk with rescued elephants in their forest habitat — no riding, no chains. Learn about each elephant's rescue story from the Karen mahouts who care for them.",
         descriptionHe:
-          "החליפו לבגדי קארן. האכילו והלכו עם פילים שניצלו בבית הגידול הטבעי שלהם — בלי רכיבה, בלי שרשראות. שמעו את סיפור ההצלה של כל פיל ממטפלי הקארן.",
+          "החליפו לבגדי קארן. האכילו ולכו עם פילים שניצלו בבית הגידול הטבעי שלהם — בלי רכיבה, בלי שרשראות. שמעו את סיפור ההצלה של כל פיל מפי מטפלי הקארן.",
       },
       {
         title: "12:30 — Bamboo Rafting",
@@ -625,7 +625,7 @@ const FALLBACK_TOURS: Record<
     description:
       "A 100km mountain circuit through Chiang Mai's green lung — past one of Thailand's last wooden Lanna temples, up to a terraced hilltop farm where you'll pick strawberries above the clouds, through forest roads to a Hmong village, and ending at a lakeside bamboo hut as the sun sets over the mountains. The Nong Hoi Royal Project at Mon Jam replaced opium farming with organic agriculture over 40 years ago, and Wat Ton Kwen is a 1858 wooden masterpiece most Chiang Mai residents don't even know exists.",
     descriptionHe:
-      "מעגל הרים של 100 ק\"מ דרך הריאה הירוקה של צ'יאנג מאי — ליד אחד ממקדשי העץ האחרונים בסגנון לאנה, למעלה לחווה מדורגת על פסגת הר שם תקטפו תותים מעל העננים, דרך כבישי יער לכפר המונג, ולסיום בבקתת במבוק על שפת אגם בשקיעה מעל ההרים. הפרויקט המלכותי נונג הוי במון ג'אם החליף גידול אופיום בחקלאות אורגנית לפני 40 שנה, וואט טון קוון הוא יצירת מופת מעץ מ-1858 שרוב תושבי צ'יאנג מאי לא יודעים שקיים.",
+      "מעגל הרים של 100 ק\"מ דרך הריאה הירוקה של צ'יאנג מאי — ליד אחד ממקדשי העץ האחרונים בסגנון לאנה, למעלה לחווה מדורגת על פסגת הר שם תקטפו תותים מעל העננים, דרך כבישי יער לכפר המונג, ולסיום בבקתת במבוק על שפת אגם בשקיעה מעל ההרים. הפרויקט המלכותי נונג הוי במון ג'אם החליף גידול אופיום בחקלאות אורגנית לפני יותר מ-40 שנה, וואט טון קוון הוא יצירת מופת מעץ מ-1858 שרוב תושבי צ'יאנג מאי לא יודעים שקיים.",
     duration: "8-10 hours",
     durationHe: "8-10 שעות",
     difficulty: "moderate",
@@ -735,7 +735,7 @@ const FALLBACK_TOURS: Record<
         description:
           "Small district capital that barely sees tourists. Walk the local market — dried jungle herbs, handmade brooms, fermented pork sausage. This is how northern Thailand actually shops.",
         descriptionHe:
-          "בירת מחוז קטנה שבקושי רואה תיירים. הלכו בשוק המקומי — עשבי ג'ונגל מיובשים, מטאטאים עשויים ביד, נקניק חזיר מותסס. ככה צפון תאילנד באמת קונה.",
+          "בירת מחוז קטנה שבקושי רואה תיירים. לכו בשוק המקומי — עשבי ג'ונגל מיובשים, מטאטאים עשויים ביד, נקניק חזיר מותסס. ככה צפון תאילנד באמת קונה.",
       },
       {
         title: "14:00 — Forest Road & Viewpoints",
@@ -751,7 +751,7 @@ const FALLBACK_TOURS: Record<
         description:
           "A hidden lake just north of the city. Rent a bamboo hut built over the water. Swim, relax, watch locals fishing. Thai-style afternoon snacks at the lakeside stalls. Stay for sunset over the mountains.",
         descriptionHe:
-          "אגם נסתר צפונית לעיר. שכרו בקתת במבוק בנויה מעל המים. שחו, הירגעו, צפו במקומיים דגים. חטיפי אחר-צהריים בסגנון תאילנדי בדוכני שפת האגם. הישארו לשקיעה מעל ההרים.",
+          "אגם נסתר צפונית לעיר. שכרו בקתת במבוק בנויה מעל המים. שחו, הירגעו, צפו במקומיים שדגים. חטיפי אחר-צהריים בסגנון תאילנדי בדוכני שפת האגם. הישארו לשקיעה מעל ההרים.",
       },
       {
         title: "17:00 — Back in Chiang Mai",
@@ -1080,7 +1080,7 @@ export default function TourDetail() {
                       className="text-2xl font-medium mb-4"
                       style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
-                      {t("Day-by-Day Itinerary", "מסלול יום-יומי")}
+                      {t("Day-by-Day Itinerary", "מסלול מפורט")}
                     </h2>
                     <div className="space-y-4">
                       {itinerary.map((step, idx) => (

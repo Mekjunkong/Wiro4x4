@@ -262,7 +262,7 @@ export function CostCalculator() {
             <button
               onClick={() => setAdults(a => Math.max(1, a - 1))}
               className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-              aria-label={t("Decrease adults", "הפחת מבוגרים")}
+              aria-label={t("Decrease adults", "הפחיתו מבוגרים")}
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -270,7 +270,7 @@ export function CostCalculator() {
             <button
               onClick={() => setAdults(a => a + 1)}
               className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-              aria-label={t("Increase adults", "הוסף מבוגרים")}
+              aria-label={t("Increase adults", "הוסיפו מבוגרים")}
             >
               <Plus className="w-4 h-4" />
             </button>

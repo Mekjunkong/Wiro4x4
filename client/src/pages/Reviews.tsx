@@ -263,7 +263,7 @@ export default function Reviews() {
 
                         <div>
                           <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
-                            {t("Your Name *", "השם שלך *")}
+                            {t("Your Name *", "השם שלכם *")}
                           </label>
                           <Input
                             value={formData.name}

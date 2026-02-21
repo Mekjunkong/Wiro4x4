@@ -57,7 +57,8 @@ const FALLBACK_TOURS: Tour[] = [
 ];
 
 export function PackageBuilder() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isHebrew = language === "he";
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
 
   const { data: dbTours } = trpc.tour.list.useQuery();
@@ -105,11 +106,17 @@ export function PackageBuilder() {
     individualTotal > 0 ? Math.round((savings / individualTotal) * 100) : 0;
 
   const whatsappMessage = encodeURIComponent(
-    `Hi WIRO 4x4! I'd like to build a ${totalDays}-day package:\n\n${selectedTours
-      .map(t => `- ${t.name} (${formatTHB(t.price)})`)
-      .join("\n")}\n\nTotal estimate: ${formatTHB(packageTotal)}${
-      savings > 0 ? ` (saving ${formatTHB(savings)})` : ""
-    }\n\nPlease send me a quote!`
+    isHebrew
+      ? `היי WIRO 4x4! אשמח לבנות חבילה של ${totalDays} ימים:\n\n${selectedTours
+          .map(tour => `- ${tour.nameHe} (${formatTHB(tour.price)})`)
+          .join("\n")}\n\nסה"כ משוער: ${formatTHB(packageTotal)}${
+          savings > 0 ? ` (חיסכון ${formatTHB(savings)})` : ""
+        }\n\nאשמח לקבל הצעת מחיר!`
+      : `Hi WIRO 4x4! I'd like to build a ${totalDays}-day package:\n\n${selectedTours
+          .map(tour => `- ${tour.name} (${formatTHB(tour.price)})`)
+          .join("\n")}\n\nTotal estimate: ${formatTHB(packageTotal)}${
+          savings > 0 ? ` (saving ${formatTHB(savings)})` : ""
+        }\n\nPlease send me a quote!`
   );
 
   return (

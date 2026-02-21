@@ -1,5 +1,5 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
@@ -8,11 +8,11 @@ export function LanguageSwitcher() {
     <Button
       variant="ghost"
       size="sm"
-      onClick={() => setLanguage(language === 'en' ? 'he' : 'en')}
+      onClick={() => setLanguage(language === "en" ? "he" : "en")}
       className="text-2xl px-2"
-      title={language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}
+      title={language === "en" ? "Switch to Hebrew" : "עברו לאנגלית"}
     >
-      {language === 'en' ? '🇮🇱' : '🇬🇧'}
+      {language === "en" ? "🇮🇱" : "🇬🇧"}
     </Button>
   );
 }

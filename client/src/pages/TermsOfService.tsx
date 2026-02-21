@@ -78,6 +78,8 @@ export default function TermsOfService() {
             </section>
 
             {/* Cancellation Policy */}
+            {/* TODO: Cancellation timeframes here (48 hours) differ from Pricing.tsx (7 days).
+                Review with the team to align both pages on the same policy. */}
             <section>
               <h2 className="text-xl font-serif font-bold text-foreground mb-3">
                 {t(
@@ -161,7 +163,7 @@ export default function TermsOfService() {
                 <li>
                   {t(
                     "Participants join tours at their own risk. Off-road activities involve inherent risks.",
-                    "ההשתתפות בטיולים היא על אחריות המשתתפים בלבד. פעילויות שטח כרוכות בסיכונים טבעיים הכרוכים באופי הפעילות."
+                    "ההשתתפות בטיולים היא על אחריות המשתתפים בלבד. פעילויות שטח כרוכות בסיכונים הכרוכים באופי הפעילות."
                   )}
                 </li>
                 <li>
