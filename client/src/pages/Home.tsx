@@ -14,6 +14,7 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { FaqJsonLd } from "@/components/FaqJsonLd";
 import { SocialProofBar } from "@/components/SocialProofBar";
+import { RecentlyBookedPopup } from "@/components/RecentlyBookedPopup";
 
 export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
@@ -34,6 +35,7 @@ export default function Home() {
         <FaqJsonLd />
       </main>
       <Footer />
+      <RecentlyBookedPopup />
       <FloatingActionButtons />
     </div>
   );
