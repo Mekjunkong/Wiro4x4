@@ -185,5 +185,8 @@ export {
   deleteSetting,
 } from "./settings";
 
+// Stats (public)
+export { getPublicStats, getRecentBookings } from "./stats";
+
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";
