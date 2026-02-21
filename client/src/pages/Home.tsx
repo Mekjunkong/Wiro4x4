@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { FaqJsonLd } from "@/components/FaqJsonLd";
+import { SocialProofBar } from "@/components/SocialProofBar";
 
 export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
@@ -22,6 +23,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <Tours />
+        <SocialProofBar />
         <TripCostEstimator />
         <KosherInfo />
         <Testimonials />
