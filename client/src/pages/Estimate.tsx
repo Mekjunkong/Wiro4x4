@@ -7,6 +7,7 @@ import { CostCalculator } from "@/components/CostCalculator";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Calculator, Shield, Clock, Utensils } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PackageBuilder } from "@/components/PackageBuilder";
 
 export default function Estimate() {
   const { t } = useLanguage();
@@ -71,6 +72,11 @@ export default function Estimate() {
             <CostCalculator />
           </div>
         </section>
+
+        {/* Package Builder */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <PackageBuilder />
+        </div>
       </main>
       <Footer />
       <FloatingActionButtons />
