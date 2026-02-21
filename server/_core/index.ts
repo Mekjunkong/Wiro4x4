@@ -5,6 +5,7 @@ import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerRssRoute } from "../routes/rss";
+import { registerSitemapRoute } from "../routes/sitemap";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -38,6 +39,7 @@ async function startServer() {
   registerOAuthRoutes(app);
   // RSS feed
   registerRssRoute(app);
+  registerSitemapRoute(app);
   // tRPC API
   app.use(
     "/api/trpc",
