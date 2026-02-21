@@ -702,3 +702,17 @@
 - [x] Add CRM Customer Detail panel (timeline, activities, notes)
 - [x] Add CRM Tab to admin dashboard (pipeline + list views)
 - [x] Auto-create customer records from new bookings and leads
+
+## Quick Wins Enhancements (Feb 21, 2026)
+
+### SEO Quick Wins
+
+- [x] Dynamic sitemap.xml generated from DB tours and blog posts (server/routes/sitemap.ts)
+- [x] Reusable Breadcrumb component with JSON-LD BreadcrumbList schema (7 pages)
+- [x] FAQ JSON-LD synced from FAQ.tsx single source of truth (removed hardcoded from index.html)
+
+### Conversion Quick Wins
+
+- [x] SocialProofBar with animated counters on homepage (tours, reviews, routes, kosher)
+- [x] RecentlyBookedPopup showing real recent bookings (privacy-safe, dismissible)
+- [x] PackageBuilder for multi-day tour combinations with package discounts on /estimate
