@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Check, MessageSquare, Send, ArrowUpDown } from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const TOUR_TYPES = [
   { id: "waterfall", en: "Waterfall Adventure", he: "טיול מפלים" },
@@ -193,6 +194,11 @@ export default function Reviews() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[
+          { label: t("Reviews", "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA") },
+        ]}
+      />
       <main id="main-content">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-[#1C1C1C] to-[#1C1C1C]/90 py-16 md:py-20 text-center text-[#FAF7F2] mt-20">

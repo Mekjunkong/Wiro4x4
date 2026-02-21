@@ -11,6 +11,7 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const CATEGORIES = [
   { id: "all", en: "All", he: "הכל" },
@@ -120,6 +121,9 @@ export default function Gallery() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[{ label: t("Gallery", "\u05D2\u05DC\u05E8\u05D9\u05D4") }]}
+      />
       <main id="main-content">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-[#1C1C1C] to-[#1C1C1C]/80 py-16 md:py-20 text-center text-white mt-20">

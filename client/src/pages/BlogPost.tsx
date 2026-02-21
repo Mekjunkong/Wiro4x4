@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   BlogPostHero,
   BlogPostMeta,
@@ -76,6 +77,12 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[
+          { label: t("Blog", "\u05D1\u05DC\u05D5\u05D2"), href: "/blog" },
+          { label: post.title },
+        ]}
+      />
 
       <BlogPostHero image={post.image} title={post.title} />
 

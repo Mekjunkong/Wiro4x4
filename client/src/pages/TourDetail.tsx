@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useParams, useLocation } from "wouter";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -954,6 +955,15 @@ export default function TourDetail() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[
+          {
+            label: t("Tours", "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD"),
+            href: "/#tours",
+          },
+          { label: t(tour.name, tour.nameHe) },
+        ]}
+      />
       <main id="main-content">
         {/* Full-bleed Hero Image (60vh) */}
         <section className="relative min-h-[60vh] overflow-hidden">

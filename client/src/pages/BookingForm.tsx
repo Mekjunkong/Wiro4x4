@@ -19,6 +19,7 @@ import {
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Button } from "@/components/ui/button";
 import { GoldDivider } from "@/components/GoldDivider";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   TripDetailsStep,
   ServicesStep,
@@ -443,6 +444,16 @@ export default function BookingForm() {
       dir={isHebrew ? "rtl" : "ltr"}
     >
       <Header />
+      <Breadcrumb
+        items={[
+          {
+            label: t(
+              "Book a Tour",
+              "\u05D4\u05D6\u05DE\u05E0\u05EA \u05D8\u05D9\u05D5\u05DC"
+            ),
+          },
+        ]}
+      />
       <main id="main-content">
         {/* Hero Banner */}
         <section

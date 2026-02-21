@@ -18,6 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 const HARDCODED_TOURS = [
   {
@@ -218,6 +219,11 @@ export default function Pricing() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[
+          { label: t("Pricing", "\u05DE\u05D7\u05D9\u05E8\u05D9\u05DD") },
+        ]}
+      />
       <main id="main-content">
         {/* Hero Section */}
         <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">

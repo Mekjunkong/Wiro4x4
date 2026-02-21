@@ -6,6 +6,7 @@ import { GoldDivider } from "@/components/GoldDivider";
 import { CostCalculator } from "@/components/CostCalculator";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Calculator, Shield, Clock, Utensils } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Estimate() {
   const { t } = useLanguage();
@@ -17,6 +18,16 @@ export default function Estimate() {
   return (
     <div className="min-h-screen">
       <Header />
+      <Breadcrumb
+        items={[
+          {
+            label: t(
+              "Cost Estimator",
+              "\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05E2\u05DC\u05D5\u05D9\u05D5\u05EA"
+            ),
+          },
+        ]}
+      />
       <main id="main-content">
         {/* Hero Section */}
         <section className="relative py-16 md:py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
