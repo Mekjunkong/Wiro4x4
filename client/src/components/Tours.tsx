@@ -195,7 +195,7 @@ export function Tours() {
           ref={gridRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0"
         >
-          {tours.map(tour => (
+          {tours.map((tour, index) => (
             <a
               key={tour.id}
               href={`/tours/${tour.slug}`}
@@ -211,6 +211,22 @@ export function Tours() {
                     }`}
                     loading="lazy"
                   />
+                  {index === 0 && (
+                    <div className="absolute top-4 left-4 bg-[#D4AF37] text-[#1C1C1C] text-xs font-bold px-2.5 py-1 rounded-full z-10">
+                      {t(
+                        "Most Popular",
+                        "\u05D4\u05DB\u05D9 \u05E4\u05D5\u05E4\u05D5\u05DC\u05E8\u05D9"
+                      )}
+                    </div>
+                  )}
+                  {(index === 2 || index === 4) && (
+                    <div className="absolute top-4 left-4 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-full z-10">
+                      {t(
+                        "Limited Availability",
+                        "\u05D6\u05DE\u05D9\u05E0\u05D5\u05EA \u05DE\u05D5\u05D2\u05D1\u05DC\u05EA"
+                      )}
+                    </div>
+                  )}
                   {tour.price != null && (
                     <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                       {t("From", "החל מ-")} &#3647;{tour.price.toLocaleString()}
