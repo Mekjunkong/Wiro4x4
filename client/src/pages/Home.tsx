@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { TrustBar } from "@/components/TrustBar";
+import { StickyBookBar } from "@/components/StickyBookBar";
 import { WhyWiro } from "@/components/WhyWiro";
 import { Tours } from "@/components/Tours";
 import { KosherInfo } from "@/components/KosherInfo";
@@ -21,6 +22,7 @@ export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
   return (
     <div className="min-h-screen smooth-scroll">
+      <StickyBookBar />
       <Header />
       <main id="main-content">
         <Hero />
