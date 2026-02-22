@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { TrustBar } from "@/components/TrustBar";
 import { WhyWiro } from "@/components/WhyWiro";
 import { Tours } from "@/components/Tours";
 import { KosherInfo } from "@/components/KosherInfo";
@@ -23,6 +24,7 @@ export default function Home() {
       <Header />
       <main id="main-content">
         <Hero />
+        <TrustBar />
         <Tours />
         <SocialProofBar />
         <TripCostEstimator />
