@@ -112,37 +112,40 @@ export function Hero() {
             fetchPriority="high"
           />
         </picture>
-        {/* Single bottom-to-top gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        {/* Dual gradient overlay — left-to-right + bottom-to-top */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
 
       {/* Content */}
       <div
         ref={heroContentRef}
-        className="container relative z-10 text-center text-white py-20"
+        className="container relative z-10 text-left text-white py-20"
       >
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-3xl space-y-6">
           {/* Title */}
           <h1
             ref={titleRef}
-            className="font-light text-5xl sm:text-6xl md:text-8xl tracking-tight text-white"
+            className="font-bold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-wide text-white leading-[0.9]"
             style={{ opacity: 0 }}
           >
-            {t("WIRO 4\u00D74", "WIRO 4\u00D74")}
+            {t("WIRO", "WIRO")}
+            <br />
+            {t("4\u00D74", "4\u00D74")}
           </h1>
 
           {/* Gold Divider */}
           <div
             ref={dividerRef}
-            className="h-px w-16 bg-[#D4AF37] mx-auto"
+            className="h-0.5 w-16 bg-[#D4AF37]"
             style={{ transform: "scaleX(0)" }}
           />
 
           {/* Tagline */}
           <p
             ref={taglineRef}
-            className="text-sm sm:text-base uppercase tracking-[0.2em] font-medium text-white"
-            style={{ opacity: 0 }}
+            className="text-sm sm:text-base uppercase tracking-[0.25em] font-medium text-white/90"
+            style={{ fontFamily: "'Oswald', sans-serif", opacity: 0 }}
           >
             {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
           </p>
@@ -150,11 +153,8 @@ export function Hero() {
           {/* Value Proposition */}
           <p
             ref={valuePropRef}
-            className="text-base sm:text-lg text-[#D4AF37] font-medium tracking-wide"
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              opacity: 0,
-            }}
+            className="text-base sm:text-lg text-[#D4AF37] font-normal tracking-wide"
+            style={{ opacity: 0 }}
           >
             {t(
               "The only kosher 4×4 experience in Southeast Asia",
@@ -166,10 +166,7 @@ export function Hero() {
           <p
             ref={locationRef}
             className="text-lg sm:text-xl md:text-2xl text-white/90 font-light"
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              opacity: 0,
-            }}
+            style={{ opacity: 0 }}
           >
             {t("in Chiang Mai", "בצ'יאנג מאי")}
           </p>
@@ -177,7 +174,7 @@ export function Hero() {
           {/* CTAs */}
           <div
             ref={ctaRef}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row gap-4 items-start pt-4"
             style={{ opacity: 0 }}
           >
             <Button
@@ -212,7 +209,7 @@ export function Hero() {
           {/* Trust Indicators */}
           <div
             ref={trustRef}
-            className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 pt-8 text-xs uppercase tracking-[0.15em] text-[#D4AF37]"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-8 text-xs uppercase tracking-[0.15em] text-[#D4AF37]"
             style={{ opacity: 0 }}
           >
             {trustItems.map((item, index) => (
@@ -230,7 +227,7 @@ export function Hero() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 animate-subtle-pulse">
+      <div className="absolute bottom-12 left-8 sm:left-12 md:left-16 z-10 animate-subtle-pulse">
         <div className="flex flex-col items-center gap-3">
           <span className="text-xs uppercase tracking-widest text-white/60">
             {t("Discover", "גלו")}
