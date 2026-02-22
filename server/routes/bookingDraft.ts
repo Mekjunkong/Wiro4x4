@@ -15,6 +15,7 @@ import {
   updateBookingDraftStatus,
 } from "../db";
 import { bookingDraftInputSchema } from "../../shared/schemas";
+import { sendBookingRecoveryEmail } from "../abandonedBookingEmail";
 
 export const bookingDraftRouter = router({
   save: securePublicProcedure
@@ -70,5 +71,25 @@ export const bookingDraftRouter = router({
         input.convertedToBookingId
       );
       return { success: true };
+    }),
+
+  sendRecoveryEmail: secureProtectedProcedure
+    .input(z.object({ draftId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const drafts = await listActiveBookingDrafts();
+      const draft = drafts.find(d => d.id === input.draftId);
+      if (!draft?.contactEmail) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No email for this draft",
+        });
+      }
+      const sent = await sendBookingRecoveryEmail(
+        draft.contactEmail,
+        draft.contactName || "",
+        draft.resumeToken
+      );
+      return { sent };
     }),
 });

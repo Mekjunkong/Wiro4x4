@@ -94,6 +94,12 @@ export default function BookingForm() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
 
+  // Restore draft from server-side token (email recovery link)
+  const [tokenParam] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("token");
+  });
+
   // N5: Load draft from localStorage on mount
   const [formData, setFormData] = useState<FormData>(() => {
     try {
@@ -107,6 +113,29 @@ export default function BookingForm() {
     }
     return defaultFormData;
   });
+
+  // Server-side token query (runs after localStorage restore; server data takes priority)
+  const { data: serverDraft } = trpc.bookingDraft.getByToken.useQuery(
+    { token: tokenParam! },
+    { enabled: !!tokenParam }
+  );
+
+  useEffect(() => {
+    if (serverDraft?.formData) {
+      try {
+        const restored = JSON.parse(serverDraft.formData);
+        setFormData(prev => ({ ...prev, ...restored }));
+        toast.info(
+          t(
+            "Welcome back! Your booking draft was restored.",
+            "\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05E9\u05D1\u05D9\u05DD! \u05D8\u05D9\u05D5\u05D8\u05EA \u05D4\u05D4\u05D6\u05DE\u05E0\u05D4 \u05E9\u05DC\u05DB\u05DD \u05E9\u05D5\u05D7\u05D6\u05E8\u05D4."
+          )
+        );
+      } catch {
+        /* ignore parse errors */
+      }
+    }
+  }, [serverDraft]);
 
   // N5: Auto-save draft to localStorage (debounced)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);

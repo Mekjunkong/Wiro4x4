@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
-import { MessageCircle, Clock, XCircle } from "lucide-react";
+import { MessageCircle, Clock, XCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -28,6 +28,33 @@ export function AbandonedBookingsTab() {
         )
       );
       refetch();
+    },
+  });
+  const sendEmail = trpc.bookingDraft.sendRecoveryEmail.useMutation({
+    onSuccess: ({ sent }) => {
+      if (sent) {
+        toast.success(
+          t(
+            "Recovery email sent",
+            "\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05E9\u05D9\u05D7\u05D6\u05D5\u05E8 \u05E0\u05E9\u05DC\u05D7"
+          )
+        );
+      } else {
+        toast.error(
+          t(
+            "Failed to send email (API key may not be configured)",
+            "\u05E9\u05DC\u05D9\u05D7\u05EA \u05D4\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05E0\u05DB\u05E9\u05DC\u05D4"
+          )
+        );
+      }
+    },
+    onError: () => {
+      toast.error(
+        t(
+          "Failed to send recovery email",
+          "\u05E9\u05DC\u05D9\u05D7\u05EA \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05E9\u05D9\u05D7\u05D6\u05D5\u05E8 \u05E0\u05DB\u05E9\u05DC\u05D4"
+        )
+      );
     },
   });
 
@@ -130,6 +157,20 @@ export function AbandonedBookingsTab() {
                             )}
                           </Button>
                         </a>
+                      )}
+                      {draft.contactEmail && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={() =>
+                            sendEmail.mutate({ draftId: draft.id })
+                          }
+                          disabled={sendEmail.isPending}
+                        >
+                          <Mail className="h-3 w-3" />
+                          {t("Email", "\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC")}
+                        </Button>
                       )}
                       <Button
                         size="sm"
