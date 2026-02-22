@@ -137,14 +137,18 @@ export function Testimonials() {
                   {testimonial.text}
                 </p>
 
-                <div className={testimonial.lang === "he" ? "text-right" : ""}>
-                  <p className="font-semibold">
-                    <span className="text-[#D4AF37]">{"\u2014 "}</span>
-                    {testimonial.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {testimonial.location}
-                  </p>
+                <div
+                  className={`flex items-center gap-3 ${testimonial.lang === "he" ? "flex-row-reverse text-right" : ""}`}
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#D4AF37] text-[#1C1C1C] flex items-center justify-center font-bold text-sm shrink-0">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {testimonial.location}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

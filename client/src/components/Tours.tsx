@@ -17,7 +17,7 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/vietnam_rice_terraces.jpg",
+    image: "/images/1000000143.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
@@ -284,7 +284,7 @@ export function Tours() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
+                  <div className="inline-flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#1C1C1C] px-4 py-2 rounded-sm font-medium text-sm transition-all duration-300 mt-2">
                     {t("View Details", "לפרטים נוספים")}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>

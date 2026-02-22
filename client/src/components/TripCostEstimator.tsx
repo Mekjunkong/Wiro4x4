@@ -60,12 +60,12 @@ export function TripCostEstimator() {
   const estimatedCost = calculateTotal();
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-24 md:py-32 bg-gradient-to-b from-background to-muted/20">
       <div className="container">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 mb-4">
             <Calculator className="w-8 h-8 text-primary" />
-            <h2 className="text-4xl md:text-5xl font-bold">
+            <h2 className="text-4xl md:text-5xl font-medium">
               {t("Trip Cost Estimator", "מחשבון עלות טיול")}
             </h2>
           </div>
@@ -206,14 +206,14 @@ export function TripCostEstimator() {
 
             {/* Right Column - Results */}
             <div className="flex flex-col justify-between">
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6 border-2 border-primary/30">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6 border-2 border-[#D4AF37]">
                 <div className="text-center mb-6">
                   <p className="text-sm text-muted-foreground mb-2">
                     {t("Estimated Total Cost", "עלות משוערת")}
                   </p>
-                  <div className="flex items-center justify-center gap-2">
-                    <DollarSign className="w-8 h-8 text-primary" />
-                    <p className="text-5xl font-bold text-primary">
+                  <div className="flex items-center justify-center gap-1">
+                    <DollarSign className="w-10 h-10 text-primary" />
+                    <p className="text-6xl md:text-7xl font-bold text-primary">
                       {estimatedCost.toLocaleString()}
                     </p>
                   </div>

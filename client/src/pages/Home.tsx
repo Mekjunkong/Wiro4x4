@@ -8,6 +8,7 @@ import { KosherInfo } from "@/components/KosherInfo";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
 import { TripCostEstimator } from "@/components/TripCostEstimator";
 
+import { SectionBanner } from "@/components/SectionBanner";
 import { Testimonials } from "@/components/Testimonials";
 import { CommunityConnection } from "@/components/CommunityConnection";
 import { FAQ } from "@/components/FAQ";
@@ -17,6 +18,7 @@ import { WhatsAppPrompt } from "@/components/WhatsAppPrompt";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { FaqJsonLd } from "@/components/FaqJsonLd";
 import { SocialProofBar } from "@/components/SocialProofBar";
+import { InstagramCTA } from "@/components/InstagramCTA";
 import { RecentlyBookedPopup } from "@/components/RecentlyBookedPopup";
 
 export default function Home() {
@@ -32,10 +34,12 @@ export default function Home() {
         <SocialProofBar />
         <TripCostEstimator />
         <KosherInfo />
+        <SectionBanner />
         <Testimonials />
         <WhyWiro />
         <CommunityConnection />
         <QuickInquiryForm />
+        <InstagramCTA />
         <FAQ />
         <FaqJsonLd />
       </main>

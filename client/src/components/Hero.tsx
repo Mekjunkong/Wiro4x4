@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Calculator } from "lucide-react";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
@@ -18,6 +18,7 @@ export function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
+  const valuePropRef = useRef<HTMLParagraphElement>(null);
   const locationRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const trustRef = useRef<HTMLDivElement>(null);
@@ -29,14 +30,20 @@ export function Hero() {
 
     if (prefersReducedMotion) {
       // Show everything immediately — no GSAP
-      [titleRef, dividerRef, taglineRef, locationRef, ctaRef, trustRef].forEach(
-        ref => {
-          if (ref.current) {
-            ref.current.style.opacity = "1";
-            ref.current.style.transform = "none";
-          }
+      [
+        titleRef,
+        dividerRef,
+        taglineRef,
+        valuePropRef,
+        locationRef,
+        ctaRef,
+        trustRef,
+      ].forEach(ref => {
+        if (ref.current) {
+          ref.current.style.opacity = "1";
+          ref.current.style.transform = "none";
         }
-      );
+      });
       if (dividerRef.current) {
         dividerRef.current.style.transform = "scaleX(1)";
       }
@@ -47,6 +54,7 @@ export function Hero() {
     gsap.set(titleRef.current, { y: 30, opacity: 0 });
     gsap.set(dividerRef.current, { scaleX: 0 });
     gsap.set(taglineRef.current, { y: 20, opacity: 0 });
+    gsap.set(valuePropRef.current, { y: 20, opacity: 0 });
     gsap.set(locationRef.current, { y: 20, opacity: 0 });
     gsap.set(ctaRef.current, { opacity: 0 });
     gsap.set(trustRef.current, { opacity: 0 });
@@ -56,6 +64,7 @@ export function Hero() {
     tl.to(titleRef.current, { y: 0, opacity: 1, duration: 0.8 })
       .to(dividerRef.current, { scaleX: 1, duration: 0.6 }, "-=0.3")
       .to(taglineRef.current, { y: 0, opacity: 1, duration: 0.6 }, "-=0.1")
+      .to(valuePropRef.current, { y: 0, opacity: 1, duration: 0.5 }, "-=0.2")
       .to(locationRef.current, { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
       .to(ctaRef.current, { opacity: 1, duration: 0.5 }, "-=0.2")
       .to(trustRef.current, { opacity: 1, duration: 0.5 }, "-=0.2");
@@ -138,6 +147,21 @@ export function Hero() {
             {t("Kosher Off-Road Adventures", "טיולי שטח כשרים")}
           </p>
 
+          {/* Value Proposition */}
+          <p
+            ref={valuePropRef}
+            className="text-base sm:text-lg text-[#D4AF37] font-medium tracking-wide"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              opacity: 0,
+            }}
+          >
+            {t(
+              "The only kosher 4×4 experience in Southeast Asia",
+              "חוויית השטח הכשרה היחידה בדרום-מזרח אסיה"
+            )}
+          </p>
+
           {/* Location */}
           <p
             ref={locationRef}
@@ -173,6 +197,15 @@ export function Hero() {
             >
               <MessageCircle className="h-5 w-5" />
               {t("WhatsApp Concierge", "שלחו לנו וואטסאפ")}
+            </Button>
+            <Button
+              variant="hero-secondary"
+              size="xl"
+              onClick={() => (window.location.href = "/estimate")}
+              className="gap-3 w-full sm:w-auto border-[#D4AF37]/40"
+            >
+              <Calculator className="h-5 w-5" />
+              {t("Estimate Your Trip", "חשבו את העלות")}
             </Button>
           </div>
 

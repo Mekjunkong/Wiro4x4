@@ -132,26 +132,6 @@ export function Header() {
                 {t("Blog", "בלוג")}
               </span>
             </Link>
-            <Link href="/gallery">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/gallery")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Gallery", "גלריה")}
-              </span>
-            </Link>
-            <Link href="/reviews">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/reviews") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/reviews")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Reviews", "חוות דעת")}
-              </span>
-            </Link>
             {isAdmin && (
               <Link href="/admin">
                 <span
@@ -302,24 +282,6 @@ export function Header() {
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 {t("Blog", "בלוג")}
-              </span>
-            </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
-              <span
-                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                {t("Gallery", "גלריה")}
-              </span>
-            </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <Link href="/reviews" onClick={() => setMobileMenuOpen(false)}>
-              <span
-                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                {t("Reviews", "חוות דעת")}
               </span>
             </Link>
             {isAdmin && (
