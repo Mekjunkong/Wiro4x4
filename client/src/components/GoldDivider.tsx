@@ -6,7 +6,7 @@ export function GoldDivider({ className = "" }: { className?: string }) {
   return (
     <div
       ref={ref}
-      className={`h-px w-16 bg-[#D4AF37] mx-auto my-6 ${className}`}
+      className={`h-0.5 w-16 bg-[#D4AF37] mx-auto my-6 ${className}`}
     />
   );
 }
