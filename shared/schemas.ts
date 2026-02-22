@@ -217,3 +217,13 @@ export const settingsUpdateSchema = z.object({
 });
 
 export type SettingsUpdateInput = z.infer<typeof settingsUpdateSchema>;
+
+export const bookingDraftInputSchema = z.object({
+  contactName: z.string().optional(),
+  contactEmail: z.string().email().optional().or(z.literal("")),
+  contactPhone: z.string().optional(),
+  formData: z.string(), // JSON string
+  tourSlug: z.string().optional(),
+});
+
+export type BookingDraftInput = z.infer<typeof bookingDraftInputSchema>;

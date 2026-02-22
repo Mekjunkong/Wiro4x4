@@ -115,6 +115,25 @@ export const bookings = mysqlTable(
   ]
 );
 
+export const bookingDrafts = mysqlTable("bookingDrafts", {
+  id: int("id").autoincrement().primaryKey(),
+  contactName: varchar("contactName", { length: 255 }),
+  contactEmail: varchar("contactEmail", { length: 320 }),
+  contactPhone: varchar("contactPhone", { length: 50 }),
+  formData: text("formData"), // Full JSON of form state
+  tourSlug: varchar("tourSlug", { length: 255 }),
+  resumeToken: varchar("resumeToken", { length: 64 }).notNull().unique(),
+  status: mysqlEnum("status", ["active", "converted", "expired"])
+    .default("active")
+    .notNull(),
+  convertedToBookingId: int("convertedToBookingId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BookingDraft = typeof bookingDrafts.$inferSelect;
+export type InsertBookingDraft = typeof bookingDrafts.$inferInsert;
+
 export const agents = mysqlTable("agents", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),

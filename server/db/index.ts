@@ -188,5 +188,13 @@ export {
 // Stats (public)
 export { getPublicStats, getRecentBookings } from "./stats";
 
+// Booking Drafts
+export {
+  createBookingDraft,
+  getBookingDraftByToken,
+  listActiveBookingDrafts,
+  updateBookingDraftStatus,
+} from "./bookingDrafts";
+
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";
