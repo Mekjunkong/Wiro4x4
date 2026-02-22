@@ -117,10 +117,7 @@ export function FAQ() {
               value={`faq-${index}`}
               className="border-b border-[#2A2A25]"
             >
-              <AccordionTrigger
-                className="text-lg font-medium text-white hover:no-underline [&>svg]:text-[#D4AF37]"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
+              <AccordionTrigger className="text-lg font-medium text-white hover:no-underline [&>svg]:text-[#D4AF37]">
                 {t(item.q[0], item.q[1])}
               </AccordionTrigger>
               <AccordionContent className="text-[#9B9590] leading-relaxed">

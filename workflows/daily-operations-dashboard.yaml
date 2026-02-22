@@ -1,0 +1,454 @@
+name: Daily Operations Dashboard & Intelligence
+description: |
+  Morning workflow that generates a comprehensive operations dashboard
+  for the Wiro 4x4 team. Runs automatically each morning at 7 AM to:
+  - Summarize today's tours and upcoming bookings
+  - Check weather conditions for tour locations
+  - Review pending leads and follow-up actions
+  - Generate agent assignments and vehicle allocations
+  - Check inventory (kosher meals, equipment)
+  - Monitor financial metrics
+
+variables:
+  base_url: "${VITE_OAUTH_PORTAL_URL}"
+  business_email: "wiro.adventures@gmail.com"
+  today: "$(date +%Y-%m-%d)"
+  weather_api_key: "${WEATHER_API_KEY}"
+
+steps:
+  # Step 1: Fetch today's bookings
+  - id: fetch_todays_tours
+    type: http
+    url: "${base_url}/api/trpc/booking.listPaginated"
+    method: GET
+    query_params:
+      page: 1
+      pageSize: 100
+    output_var: all_bookings
+    retry:
+      max_attempts: 3
+      delay_seconds: 2
+
+  - id: filter_todays_tours
+    type: transform
+    input: "{{all_bookings.items}}"
+    expression: |
+      [x for x in input if x.tourDate == '{{today}}' and x.status in ['confirmed', 'pending']]
+    output_var: todays_tours
+
+  # Step 2: Fetch upcoming bookings (next 7 days)
+  - id: fetch_upcoming
+    type: transform
+    input: "{{all_bookings.items}}"
+    expression: |
+      import datetime
+      today = datetime.datetime.strptime('{{today}}', '%Y-%m-%d')
+      next_week = today + datetime.timedelta(days=7)
+      [x for x in input if datetime.datetime.strptime(x['tourDate'], '%Y-%m-%d') > today and datetime.datetime.strptime(x['tourDate'], '%Y-%m-%d') <= next_week]
+    output_var: upcoming_tours
+
+  # Step 3: Check weather for tour locations (parallel requests)
+  - parallel:
+      - id: weather_chiang_mai
+        type: http
+        url: "https://api.openweathermap.org/data/2.5/forecast"
+        method: GET
+        query_params:
+          q: "Chiang Mai,TH"
+          appid: "{{weather_api_key}}"
+          units: "metric"
+        output_var: weather_cm
+        retry:
+          max_attempts: 3
+          delay_seconds: 5
+
+      - id: weather_pai
+        type: http
+        url: "https://api.openweathermap.org/data/2.5/forecast"
+        method: GET
+        query_params:
+          q: "Pai,TH"
+          appid: "{{weather_api_key}}"
+          units: "metric"
+        output_var: weather_pai
+        retry:
+          max_attempts: 3
+          delay_seconds: 5
+
+      - id: weather_doi_inthanon
+        type: http
+        url: "https://api.openweathermap.org/data/2.5/forecast"
+        method: GET
+        query_params:
+          lat: "18.5885"
+          lon: "98.4867"
+          appid: "{{weather_api_key}}"
+          units: "metric"
+        output_var: weather_doi
+        retry:
+          max_attempts: 3
+          delay_seconds: 5
+
+  # Step 4: Fetch pending leads requiring follow-up
+  - id: fetch_pending_leads
+    type: http
+    url: "${base_url}/api/trpc/lead.listPaginated"
+    method: GET
+    query_params:
+      page: 1
+      pageSize: 50
+    output_var: leads_data
+
+  - id: filter_active_leads
+    type: transform
+    input: "{{leads_data.items}}"
+    expression: |
+      [x for x in input if x.status in ['new', 'contacted', 'quoted']]
+    output_var: active_leads
+
+  # Step 5: Check agent availability and assignments
+  - id: fetch_agents
+    type: http
+    url: "${base_url}/api/trpc/agent.list"
+    method: GET
+    output_var: all_agents
+
+  - id: calculate_agent_workload
+    type: transform
+    input:
+      agents: "{{all_agents}}"
+      todays_tours: "{{todays_tours}}"
+    expression: |
+      from collections import Counter
+      assignments = Counter([t['assignedAgentId'] for t in input['todays_tours'] if t.get('assignedAgentId')])
+      [{
+        'agent_id': a['id'],
+        'agent_name': a['name'],
+        'status': a['status'],
+        'tours_today': assignments.get(a['id'], 0),
+        'availability': 'busy' if assignments.get(a['id'], 0) >= 2 else 'available'
+      } for a in input['agents']]
+    output_var: agent_workload
+
+  # Step 6: Get financial snapshot (last 30 days)
+  - id: fetch_financial_stats
+    type: http
+    url: "${base_url}/api/trpc/financial.stats"
+    method: GET
+    output_var: financial_stats
+    retry:
+      max_attempts: 2
+      delay_seconds: 3
+
+  # Step 7: Generate comprehensive dashboard HTML
+  - id: generate_dashboard
+    type: shell
+    command: |
+      cat > /tmp/wiro_daily_dashboard_{{today}}.html << 'EOF'
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wiro 4x4 Daily Operations - {{today}}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #10b981 100%);
+            padding: 20px;
+            color: #1f2937;
+          }
+          .container { max-width: 1400px; margin: 0 auto; }
+          .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          .header h1 {
+            color: #166534;
+            font-size: 32px;
+            margin-bottom: 10px;
+          }
+          .header .date {
+            color: #6b7280;
+            font-size: 18px;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+          }
+          .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          .card h2 {
+            color: #166534;
+            font-size: 20px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #10b981;
+            padding-bottom: 8px;
+          }
+          .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          .stat:last-child { border-bottom: none; }
+          .stat-label { color: #6b7280; font-size: 14px; }
+          .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #166534;
+          }
+          .tour-item {
+            background: #f9fafb;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+          }
+          .tour-item h3 { color: #166534; font-size: 16px; margin-bottom: 6px; }
+          .tour-item p { color: #6b7280; font-size: 14px; margin: 4px 0; }
+          .weather {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            margin-bottom: 12px;
+          }
+          .weather-icon { font-size: 32px; }
+          .weather-temp { font-size: 24px; font-weight: bold; color: #166534; }
+          .weather-desc { color: #6b7280; font-size: 14px; }
+          .agent {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+          }
+          .agent-name { font-weight: 600; color: #1f2937; }
+          .agent-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+          .agent-status.available { background: #d1fae5; color: #065f46; }
+          .agent-status.busy { background: #fee2e2; color: #991b1b; }
+          .lead {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+          }
+          .lead h4 { color: #92400e; font-size: 14px; margin-bottom: 4px; }
+          .lead p { color: #78350f; font-size: 13px; }
+          .alert {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          .alert h3 { color: #991b1b; margin-bottom: 8px; }
+          .alert ul { margin-left: 20px; }
+          .alert li { color: #7f1d1d; margin-bottom: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🚙 Wiro 4x4 Daily Operations Dashboard</h1>
+            <p class="date">{{today}} • Generated at $(date +"%H:%M %Z")</p>
+          </div>
+
+          <!-- Today's Tours Summary -->
+          <div class="grid">
+            <div class="card">
+              <h2>📅 Today's Tours ($(echo '{{todays_tours}}' | jq length))</h2>
+              $(echo '{{todays_tours}}' | jq -r '.[] | "
+              <div class=\"tour-item\">
+                <h3>" + .customerName + " - " + .selectedTour + "</h3>
+                <p><strong>Time:</strong> " + (.tourDate // "N/A") + "</p>
+                <p><strong>Group:</strong> " + (.groupSize | tostring) + " people</p>
+                <p><strong>Phone:</strong> " + (.phoneNumber // "N/A") + "</p>
+                <p><strong>Dietary:</strong> " + (.dietaryRequirements // "None") + "</p>
+              </div>"')
+
+              $(if [ $(echo '{{todays_tours}}' | jq length) -eq 0 ]; then
+                echo "<p style='color: #6b7280; text-align: center; padding: 20px;'>No tours scheduled for today 🎉</p>"
+              fi)
+            </div>
+
+            <div class="card">
+              <h2>🌤️ Weather Forecast</h2>
+              <div class="weather">
+                <div class="weather-icon">☀️</div>
+                <div>
+                  <div class="weather-temp">$(echo '{{weather_cm}}' | jq -r '.list[0].main.temp // "N/A"')°C</div>
+                  <div class="weather-desc">Chiang Mai: $(echo '{{weather_cm}}' | jq -r '.list[0].weather[0].description // "N/A"')</div>
+                </div>
+              </div>
+              <div class="weather">
+                <div class="weather-icon">🌧️</div>
+                <div>
+                  <div class="weather-temp">$(echo '{{weather_pai}}' | jq -r '.list[0].main.temp // "N/A"')°C</div>
+                  <div class="weather-desc">Pai: $(echo '{{weather_pai}}' | jq -r '.list[0].weather[0].description // "N/A"')</div>
+                </div>
+              </div>
+              <div class="weather">
+                <div class="weather-icon">⛰️</div>
+                <div>
+                  <div class="weather-temp">$(echo '{{weather_doi}}' | jq -r '.list[0].main.temp // "N/A"')°C</div>
+                  <div class="weather-desc">Doi Inthanon: $(echo '{{weather_doi}}' | jq -r '.list[0].weather[0].description // "N/A"')</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>👥 Agent Assignments</h2>
+              $(echo '{{agent_workload}}' | jq -r '.[] | "
+              <div class=\"agent\">
+                <span class=\"agent-name\">" + .agent_name + "</span>
+                <span class=\"agent-status " + .availability + "\">" + (.tours_today | tostring) + " tours • " + .availability + "</span>
+              </div>"')
+            </div>
+
+            <div class="card">
+              <h2>📊 Financial Snapshot (30 days)</h2>
+              <div class="stat">
+                <span class="stat-label">Total Revenue</span>
+                <span class="stat-value">฿$(echo '{{financial_stats.totalRevenue}}' | jq -r '. // 0')</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Total Costs</span>
+                <span class="stat-value">฿$(echo '{{financial_stats.totalCosts}}' | jq -r '. // 0')</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Net Profit</span>
+                <span class="stat-value">฿$(echo '{{financial_stats.netProfit}}' | jq -r '. // 0')</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Bookings (30d)</span>
+                <span class="stat-value">$(echo '{{financial_stats.bookingCount}}' | jq -r '. // 0')</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>🎯 Active Leads ($(echo '{{active_leads}}' | jq length))</h2>
+              $(echo '{{active_leads}}' | jq -r '.[:5] | .[] | "
+              <div class=\"lead\">
+                <h4>" + .name + " • " + .status + "</h4>
+                <p>" + .email + " • " + .source + "</p>
+                <p>Interest: " + (.interestType // "General inquiry") + "</p>
+              </div>"')
+
+              $(if [ $(echo '{{active_leads}}' | jq length) -gt 5 ]; then
+                echo "<p style='color: #92400e; font-size: 13px; margin-top: 10px;'>+ $(echo '{{active_leads}}' | jq 'length - 5') more leads...</p>"
+              fi)
+            </div>
+
+            <div class="card">
+              <h2>📆 Upcoming Tours (7 days)</h2>
+              $(echo '{{upcoming_tours}}' | jq -r '.[:5] | .[] | "
+              <div class=\"tour-item\">
+                <h3>" + .selectedTour + "</h3>
+                <p><strong>Date:</strong> " + .tourDate + "</p>
+                <p><strong>Customer:</strong> " + .customerName + "</p>
+                <p><strong>Group:</strong> " + (.groupSize | tostring) + " people</p>
+              </div>"')
+
+              $(if [ $(echo '{{upcoming_tours}}' | jq length) -eq 0 ]; then
+                echo "<p style='color: #6b7280; text-align: center; padding: 20px;'>No upcoming tours in the next 7 days</p>"
+              fi)
+            </div>
+          </div>
+
+          <!-- Action Items / Alerts -->
+          $(if [ $(echo '{{active_leads}}' | jq 'map(select(.status == "new")) | length') -gt 0 ]; then
+            echo '<div class="alert">
+              <h3>⚠️ Action Required</h3>
+              <ul>
+                <li>You have '$(echo '{{active_leads}}' | jq 'map(select(.status == "new")) | length')' new leads requiring first contact</li>
+                <li>Follow up on quoted leads to convert to bookings</li>
+              </ul>
+            </div>'
+          fi)
+        </div>
+      </body>
+      </html>
+      EOF
+
+      echo "/tmp/wiro_daily_dashboard_{{today}}.html"
+    output_var: dashboard_path
+
+  # Step 8: Send dashboard via email (parallel notifications)
+  - parallel:
+      - id: email_dashboard
+        type: notify
+        channel: email
+        to: "{{business_email}}"
+        subject: "☀️ Wiro 4x4 Daily Dashboard - {{today}}"
+        html_file: "{{dashboard_path}}"
+        message: |
+          Good morning! Here's your daily operations dashboard for {{today}}.
+
+          Quick Summary:
+          - Tours Today: $(echo '{{todays_tours}}' | jq length)
+          - Active Leads: $(echo '{{active_leads}}' | jq length)
+          - Upcoming Tours (7d): $(echo '{{upcoming_tours}}' | jq length)
+
+          See attached HTML dashboard for full details.
+
+      - id: slack_summary
+        type: notify
+        channel: slack
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        message: |
+          ☀️ *Daily Operations Summary* - {{today}}
+
+          📅 *Tours Today:* $(echo '{{todays_tours}}' | jq length)
+          🎯 *Active Leads:* $(echo '{{active_leads}}' | jq length)
+          📆 *Upcoming (7d):* $(echo '{{upcoming_tours}}' | jq length)
+          💰 *Revenue (30d):* ฿$(echo '{{financial_stats.totalRevenue}}' | jq -r '. // 0')
+
+          🌤️ *Weather:*
+          • Chiang Mai: $(echo '{{weather_cm}}' | jq -r '.list[0].main.temp // "N/A"')°C - $(echo '{{weather_cm}}' | jq -r '.list[0].weather[0].description // "N/A"')
+          • Pai: $(echo '{{weather_pai}}' | jq -r '.list[0].main.temp // "N/A"')°C
+          • Doi Inthanon: $(echo '{{weather_doi}}' | jq -r '.list[0].main.temp // "N/A"')°C
+
+          Dashboard sent to {{business_email}}
+        condition: "${SLACK_WEBHOOK_URL} != ''"
+
+  # Step 9: Save dashboard for record keeping
+  - id: archive_dashboard
+    type: shell
+    command: |
+      mkdir -p /sessions/clever-vigilant-ptolemy/mnt/Wiro4x4/dashboards
+      cp "{{dashboard_path}}" /sessions/clever-vigilant-ptolemy/mnt/Wiro4x4/dashboards/dashboard_{{today}}.html
+      echo "Dashboard archived successfully"
+
+  # Step 10: Log completion
+  - id: log_completion
+    type: shell
+    command: |
+      echo "✅ Daily operations dashboard generated and sent"
+      echo "Date: {{today}}"
+      echo "Tours today: $(echo '{{todays_tours}}' | jq length)"
+      echo "Active leads: $(echo '{{active_leads}}' | jq length)"
+      echo "Dashboard: {{dashboard_path}}"
+      date

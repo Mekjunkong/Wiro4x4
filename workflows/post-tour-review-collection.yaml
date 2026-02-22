@@ -1,0 +1,272 @@
+name: Post-Tour Review Collection & Analysis
+description: |
+  Automated workflow triggered 24 hours after a tour is completed.
+  Sends personalized thank-you messages, requests reviews,
+  tracks customer satisfaction, and flags issues for follow-up.
+
+variables:
+  base_url: "${VITE_OAUTH_PORTAL_URL}"
+  whatsapp_number: "+66929894495"
+  booking_id: "${BOOKING_ID}"
+  business_email: "wiro.adventures@gmail.com"
+
+steps:
+  # Step 1: Fetch completed booking details
+  - id: fetch_booking
+    type: http
+    url: "${base_url}/api/trpc/booking.list"
+    method: GET
+    query_params:
+      id: "{{booking_id}}"
+    output_var: booking
+    retry:
+      max_attempts: 3
+      delay_seconds: 2
+
+  # Step 2: Verify tour was completed (status should be 'completed')
+  - id: check_completion
+    type: transform
+    input: "{{booking}}"
+    expression: |
+      booking[0] if booking and booking[0].get('status') == 'completed' else None
+    output_var: completed_booking
+    condition: "{{completed_booking}} != None"
+
+  # Step 3: Send personalized thank-you email with review request
+  - id: send_thankyou_email
+    type: http
+    url: "${base_url}/api/send-email"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body:
+      to: "{{completed_booking.email}}"
+      subject: "Thank you for choosing Wiro 4x4! 🌟"
+      html: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #166534 0%, #10b981 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+            .cta-button { display: inline-block; background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+            .footer { text-align: center; color: #6b7280; padding: 20px; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🙏 Toda Raba, {{completed_booking.customerName}}!</h1>
+              <p>Thank you for adventuring with Wiro 4x4</p>
+            </div>
+            <div class="content">
+              <p>Dear {{completed_booking.customerName}},</p>
+
+              <p>We hope you had an amazing time on your <strong>{{completed_booking.selectedTour}}</strong> adventure! It was our pleasure to show you the beautiful landscapes of Northern Thailand.</p>
+
+              <p>Your experience matters to us, and we'd love to hear about your journey:</p>
+
+              <ul>
+                <li>🌟 How was your tour guide?</li>
+                <li>🚙 Did our 4x4 vehicles meet your expectations?</li>
+                <li>🍽️ How were the kosher meals?</li>
+                <li>🏞️ Which part of the tour was your favorite?</li>
+              </ul>
+
+              <p style="text-align: center;">
+                <a href="{{base_url}}/reviews?booking={{booking_id}}" class="cta-button">
+                  ⭐ Leave a Review
+                </a>
+              </p>
+
+              <p>Your feedback helps us improve and helps other travelers choose their perfect adventure!</p>
+
+              <p><strong>Planning your next trip?</strong> Get 10% off your next booking by mentioning this email.</p>
+
+              <p>Lehitra'ot! 👋</p>
+
+              <p>Warm regards,<br>
+              The Wiro 4x4 Team<br>
+              <a href="tel:{{whatsapp_number}}">{{whatsapp_number}}</a></p>
+            </div>
+            <div class="footer">
+              <p>Wiro 4x4 Adventures | Chiang Mai, Thailand</p>
+              <p>Kosher Off-Road Tours in Northern Thailand</p>
+            </div>
+          </div>
+        </body>
+        </html>
+    retry:
+      max_attempts: 3
+      delay_seconds: 5
+      backoff: 2
+
+  # Step 4: Send WhatsApp follow-up (24 hours later via scheduled task)
+  - id: schedule_whatsapp_followup
+    type: shell
+    command: |
+      # Create a scheduled reminder to send WhatsApp if no review received after 48h
+      echo '{
+        "booking_id": "{{booking_id}}",
+        "customer_name": "{{completed_booking.customerName}}",
+        "customer_phone": "{{completed_booking.phoneNumber}}",
+        "tour_name": "{{completed_booking.selectedTour}}",
+        "action": "whatsapp_review_reminder",
+        "execute_at": "$(date -d '+48 hours' --iso-8601=seconds)"
+      }' > /tmp/whatsapp_reminder_{{booking_id}}.json
+
+      echo "WhatsApp reminder scheduled for 48 hours from now"
+    output_var: whatsapp_scheduled
+
+  # Step 5: Wait 5 minutes, then check if review was submitted
+  - id: wait_for_initial_response
+    type: wait
+    seconds: 300
+
+  - id: check_review_submitted
+    type: http
+    url: "${base_url}/api/trpc/review.listAll"
+    method: GET
+    output_var: all_reviews
+
+  - id: find_booking_review
+    type: transform
+    input:
+      reviews: "{{all_reviews}}"
+      booking_id: "{{booking_id}}"
+    expression: |
+      [r for r in input['reviews'] if r.get('bookingId') == input['booking_id']]
+    output_var: booking_review
+
+  # Step 6: If review submitted, analyze sentiment and flag for approval
+  - id: analyze_review_sentiment
+    type: transform
+    input: "{{booking_review}}"
+    expression: |
+      if not input:
+        {'status': 'no_review', 'sentiment': None}
+      else:
+        review = input[0]
+        rating = review.get('rating', 0)
+        text = review.get('reviewText', '').lower()
+
+        # Simple sentiment analysis
+        positive_words = ['amazing', 'excellent', 'great', 'wonderful', 'fantastic', 'best', 'loved', 'perfect']
+        negative_words = ['bad', 'terrible', 'disappointing', 'poor', 'worst', 'awful', 'horrible']
+
+        positive_count = sum(word in text for word in positive_words)
+        negative_count = sum(word in text for word in negative_words)
+
+        if rating >= 4 and positive_count > negative_count:
+          sentiment = 'positive'
+        elif rating <= 2 or negative_count > positive_count:
+          sentiment = 'negative'
+        else:
+          sentiment = 'neutral'
+
+        {
+          'status': 'review_received',
+          'sentiment': sentiment,
+          'rating': rating,
+          'needs_attention': rating <= 2 or negative_count > 0
+        }
+    output_var: sentiment_analysis
+
+  # Step 7: If negative review, create urgent alert
+  - id: alert_negative_review
+    type: notify
+    channel: email
+    to: "{{business_email}}"
+    subject: "🚨 URGENT: Negative Review Alert - {{completed_booking.customerName}}"
+    message: |
+      ⚠️ A potentially negative review was just submitted!
+
+      Customer: {{completed_booking.customerName}}
+      Tour: {{completed_booking.selectedTour}}
+      Rating: {{sentiment_analysis.rating}}/5
+      Sentiment: {{sentiment_analysis.sentiment}}
+
+      ACTION REQUIRED:
+      1. Review the customer feedback immediately
+      2. Contact customer to address concerns
+      3. Offer resolution or compensation if appropriate
+      4. Admin panel: {{base_url}}/admin (Reviews tab)
+
+      This is an opportunity to turn a negative experience into a positive one!
+    condition: "{{sentiment_analysis.needs_attention}} == true"
+
+  # Step 8: Create follow-up task for sales team
+  - id: create_followup_lead
+    type: http
+    url: "${base_url}/api/trpc/lead.create"
+    method: POST
+    body:
+      name: "{{completed_booking.customerName}} - Repeat Customer"
+      email: "{{completed_booking.email}}"
+      phoneNumber: "{{completed_booking.phoneNumber}}"
+      source: "post_tour_followup"
+      status: "contacted"
+      interestType: "Repeat booking - 10% discount offered"
+      notes: "Completed {{completed_booking.selectedTour}} on {{completed_booking.tourDate}}. Eligible for repeat customer discount."
+    condition: "{{sentiment_analysis.sentiment}} == 'positive'"
+
+  # Step 9: Update booking status and add completion notes
+  - id: update_booking_record
+    type: http
+    url: "${base_url}/api/trpc/booking.update"
+    method: POST
+    body:
+      id: "{{booking_id}}"
+      status: "completed"
+      notes: |
+        Tour completed successfully.
+        Review collection initiated: {{sentiment_analysis.status}}
+        Customer sentiment: {{sentiment_analysis.sentiment}}
+        Rating: {{sentiment_analysis.rating}}/5
+
+  # Step 10: Generate customer satisfaction metrics
+  - id: calculate_satisfaction_metrics
+    type: shell
+    command: |
+      # Fetch all reviews for trend analysis
+      curl -s "${base_url}/api/trpc/review.stats" | \
+      jq '{
+        total_reviews: .totalReviews,
+        average_rating: .averageRating,
+        five_star_percentage: ((.ratingDistribution["5"] // 0) / (.totalReviews // 1) * 100),
+        nps_score: (((.ratingDistribution["5"] // 0) + (.ratingDistribution["4"] // 0)) / (.totalReviews // 1) * 100 - ((.ratingDistribution["1"] // 0) + (.ratingDistribution["2"] // 0)) / (.totalReviews // 1) * 100)
+      }'
+    output_var: satisfaction_metrics
+    retry:
+      max_attempts: 2
+      delay_seconds: 3
+
+  # Step 11: Send weekly satisfaction report (if Friday)
+  - id: send_weekly_report
+    type: notify
+    channel: email
+    to: "{{business_email}}"
+    subject: "📊 Weekly Customer Satisfaction Report"
+    message: |
+      📈 Customer Satisfaction Metrics
+
+      Total Reviews: {{satisfaction_metrics.total_reviews}}
+      Average Rating: {{satisfaction_metrics.average_rating}}/5
+      5-Star Reviews: {{satisfaction_metrics.five_star_percentage}}%
+      Net Promoter Score: {{satisfaction_metrics.nps_score}}
+
+      Keep up the great work! 🌟
+    condition: "$(date +%u) == 5"  # Only on Fridays
+
+  # Step 12: Log completion
+  - id: log_completion
+    type: shell
+    command: |
+      echo "✅ Post-tour review collection workflow completed"
+      echo "Booking ID: {{booking_id}}"
+      echo "Customer: {{completed_booking.customerName}}"
+      echo "Review status: {{sentiment_analysis.status}}"
+      echo "Sentiment: {{sentiment_analysis.sentiment}}"
+      date

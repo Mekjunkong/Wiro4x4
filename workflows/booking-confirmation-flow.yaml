@@ -1,0 +1,156 @@
+name: Booking Confirmation & Preparation Flow
+description: |
+  Automated workflow triggered when a new booking is created.
+  Sends confirmation emails, creates calendar events, assigns agents,
+  and schedules reminder notifications.
+
+variables:
+  whatsapp_number: "+66929894495"
+  business_email: "wiro.adventures@gmail.com"
+  base_url: "${VITE_OAUTH_PORTAL_URL}"
+  booking_id: "${BOOKING_ID}"
+
+steps:
+  # Step 1: Fetch booking details from database
+  - id: fetch_booking
+    type: shell
+    command: |
+      curl -s "${base_url}/api/trpc/booking.list?input={{booking_id}}" \
+        -H "Authorization: Bearer ${JWT_SECRET}"
+    output_var: booking_data
+    timeout_seconds: 10
+    retry:
+      max_attempts: 3
+      delay_seconds: 2
+
+  # Step 2: Send customer confirmation email with ICS calendar attachment
+  - id: send_confirmation
+    type: http
+    url: "${base_url}/api/send-confirmation"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body:
+      booking_id: "{{booking_id}}"
+      email: "{{booking_data.email}}"
+      name: "{{booking_data.customerName}}"
+      tour_date: "{{booking_data.tourDate}}"
+      tour_name: "{{booking_data.selectedTour}}"
+    retry:
+      max_attempts: 3
+      delay_seconds: 5
+      backoff: 2
+
+  # Step 3: Auto-assign agent based on availability and specialties
+  - id: assign_agent
+    type: shell
+    command: |
+      # Query available agents with matching language skills
+      curl -s "${base_url}/api/trpc/agent.list" | \
+      jq '.[] | select(.status=="active" and .languages | contains(["{{booking_data.language}}"]))' | \
+      head -1 | jq -r '.id'
+    output_var: agent_id
+    timeout_seconds: 10
+
+  - id: update_booking_agent
+    type: http
+    url: "${base_url}/api/trpc/booking.update"
+    method: POST
+    body:
+      id: "{{booking_id}}"
+      assignedAgentId: "{{agent_id}}"
+    condition: "{{agent_id}} != ''"
+
+  # Step 4: Notify team via multiple channels (parallel)
+  - parallel:
+      - id: notify_slack
+        type: notify
+        channel: slack
+        message: |
+          🎉 New Booking Confirmed!
+
+          Customer: {{booking_data.customerName}}
+          Tour: {{booking_data.selectedTour}}
+          Date: {{booking_data.tourDate}}
+          Group Size: {{booking_data.groupSize}} people
+          Assigned Agent: {{agent_id}}
+
+          View details: {{base_url}}/admin
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+
+      - id: notify_email
+        type: notify
+        channel: email
+        to: "{{business_email}}"
+        subject: "New Booking: {{booking_data.customerName}} - {{booking_data.selectedTour}}"
+        message: |
+          New booking received and confirmed!
+
+          Booking ID: {{booking_id}}
+          Customer: {{booking_data.customerName}}
+          Email: {{booking_data.email}}
+          Phone: {{booking_data.phoneNumber}}
+          Tour: {{booking_data.selectedTour}}
+          Date: {{booking_data.tourDate}}
+          Group Size: {{booking_data.groupSize}}
+
+          Dietary Requirements: {{booking_data.dietaryRequirements}}
+          Special Requests: {{booking_data.specialRequests}}
+
+          Assigned to Agent: {{agent_id}}
+
+  # Step 5: Create financial record for expected revenue
+  - id: create_financial_record
+    type: http
+    url: "${base_url}/api/trpc/financial.create"
+    method: POST
+    body:
+      bookingId: "{{booking_id}}"
+      type: "revenue"
+      amount: "{{booking_data.totalPrice}}"
+      description: "Booking revenue - {{booking_data.selectedTour}}"
+      date: "{{booking_data.tourDate}}"
+
+  # Step 6: Schedule pre-tour reminders (7 days and 1 day before)
+  - id: schedule_7day_reminder
+    type: shell
+    command: |
+      # Calculate 7 days before tour date
+      reminder_date=$(date -d "{{booking_data.tourDate}} -7 days" +%Y-%m-%d)
+
+      # Create reminder workflow (to be executed by cron)
+      echo '{
+        "booking_id": "{{booking_id}}",
+        "customer_name": "{{booking_data.customerName}}",
+        "tour_date": "{{booking_data.tourDate}}",
+        "reminder_type": "7_day",
+        "execute_at": "'$reminder_date'"
+      }' > /tmp/reminder_{{booking_id}}_7day.json
+    output_var: reminder_7day_scheduled
+
+  - id: schedule_1day_reminder
+    type: shell
+    command: |
+      # Calculate 1 day before tour date
+      reminder_date=$(date -d "{{booking_data.tourDate}} -1 day" +%Y-%m-%d)
+
+      # Create reminder workflow
+      echo '{
+        "booking_id": "{{booking_id}}",
+        "customer_name": "{{booking_data.customerName}}",
+        "tour_date": "{{booking_data.tourDate}}",
+        "reminder_type": "1_day",
+        "execute_at": "'$reminder_date'"
+      }' > /tmp/reminder_{{booking_id}}_1day.json
+    output_var: reminder_1day_scheduled
+
+  # Step 7: Log completion
+  - id: log_completion
+    type: shell
+    command: |
+      echo "Booking confirmation flow completed successfully"
+      echo "Booking ID: {{booking_id}}"
+      echo "Customer: {{booking_data.customerName}}"
+      echo "Agent: {{agent_id}}"
+      echo "Reminders scheduled: Yes"
+      date

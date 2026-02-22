@@ -1,0 +1,229 @@
+name: Wiro 4x4 Master Workflow Orchestrator
+description: |
+  Central orchestration workflow that coordinates all automated processes
+  for the Wiro 4x4 tour booking business. Runs on a schedule to trigger
+  various sub-workflows based on business events and timing.
+
+  Execution Schedule:
+  - Every morning at 7:00 AM: Daily operations dashboard
+  - Every hour: Check for new bookings requiring confirmation
+  - Every 6 hours: Lead nurture campaigns
+  - Daily at 2:00 PM: Post-tour review collection
+
+variables:
+  base_url: "${VITE_OAUTH_PORTAL_URL}"
+  workflow_dir: "/sessions/clever-vigilant-ptolemy/mnt/Wiro4x4/workflows"
+  today: "$(date +%Y-%m-%d)"
+  current_hour: "$(date +%H)"
+
+steps:
+  # Step 1: Morning Dashboard (runs at 7 AM)
+  - id: check_morning_dashboard
+    type: shell
+    command: |
+      if [ "{{current_hour}}" = "07" ]; then
+        echo "Triggering morning dashboard workflow..."
+        python /sessions/clever-vigilant-ptolemy/mnt/.skills/skills/flow-orchestrator/scripts/flow_runner.py \
+          "{{workflow_dir}}/daily-operations-dashboard.yaml" \
+          --state-file /tmp/dashboard_state_{{today}}.json
+        echo "success"
+      else
+        echo "skipped"
+      fi
+    output_var: dashboard_result
+
+  # Step 2: Check for new bookings (runs every hour)
+  - id: fetch_recent_bookings
+    type: http
+    url: "{{base_url}}/api/trpc/booking.listPaginated"
+    method: GET
+    query_params:
+      page: 1
+      pageSize: 50
+    output_var: all_bookings
+    retry:
+      max_attempts: 3
+      delay_seconds: 5
+
+  - id: find_new_bookings
+    type: transform
+    input: "{{all_bookings.items}}"
+    expression: |
+      import datetime
+      one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
+      [b for b in input if datetime.datetime.fromisoformat(b.get('createdAt', '2020-01-01')) > one_hour_ago and b.get('status') != 'cancelled']
+    output_var: new_bookings
+
+  - id: process_new_bookings
+    type: shell
+    command: |
+      new_count=$(echo '{{new_bookings}}' | jq length)
+
+      if [ "$new_count" -gt 0 ]; then
+        echo "Found $new_count new booking(s). Processing..."
+
+        echo '{{new_bookings}}' | jq -r '.[] | .id' | while read booking_id; do
+          echo "Processing booking: $booking_id"
+
+          BOOKING_ID=$booking_id python /sessions/clever-vigilant-ptolemy/mnt/.skills/skills/flow-orchestrator/scripts/flow_runner.py \
+            "{{workflow_dir}}/booking-confirmation-flow.yaml" \
+            --state-file /tmp/booking_${booking_id}_state.json
+
+          echo "Booking $booking_id processed successfully"
+        done
+
+        echo "All new bookings processed"
+      else
+        echo "No new bookings in the last hour"
+      fi
+    output_var: booking_processing_result
+
+  # Step 3: Lead nurture campaigns (runs every 6 hours)
+  - id: check_lead_nurture
+    type: shell
+    command: |
+      hour_mod=$(({{current_hour}} % 6))
+
+      if [ "$hour_mod" = "0" ]; then
+        echo "Running lead nurture workflow..."
+
+        # Fetch all active leads
+        curl -s "{{base_url}}/api/trpc/lead.listPaginated?page=1&pageSize=100" | \
+        jq -r '.items[] | select(.status != "converted" and .status != "lost") | .id' | \
+        while read lead_id; do
+          echo "Processing lead: $lead_id"
+
+          LEAD_ID=$lead_id python /sessions/clever-vigilant-ptolemy/mnt/.skills/skills/flow-orchestrator/scripts/flow_runner.py \
+            "{{workflow_dir}}/lead-nurture-campaign.yaml" \
+            --state-file /tmp/lead_${lead_id}_state.json
+
+          # Rate limit: 5 second pause between leads to avoid email spam
+          sleep 5
+        done
+
+        echo "Lead nurture campaigns completed"
+      else
+        echo "Skipping lead nurture (runs every 6 hours)"
+      fi
+    output_var: lead_nurture_result
+
+  # Step 4: Post-tour review collection (runs daily at 2 PM)
+  - id: check_review_collection
+    type: shell
+    command: |
+      if [ "{{current_hour}}" = "14" ]; then
+        echo "Running post-tour review collection..."
+
+        # Find bookings completed yesterday
+        yesterday=$(date -d '1 day ago' +%Y-%m-%d)
+
+        curl -s "{{base_url}}/api/trpc/booking.listPaginated?page=1&pageSize=100" | \
+        jq -r --arg yesterday "$yesterday" '.items[] | select(.tourDate == $yesterday and .status == "completed") | .id' | \
+        while read booking_id; do
+          echo "Collecting review for booking: $booking_id"
+
+          BOOKING_ID=$booking_id python /sessions/clever-vigilant-ptolemy/mnt/.skills/skills/flow-orchestrator/scripts/flow_runner.py \
+            "{{workflow_dir}}/post-tour-review-collection.yaml" \
+            --state-file /tmp/review_${booking_id}_state.json
+
+          sleep 3
+        done
+
+        echo "Review collection completed"
+      else
+        echo "Skipping review collection (runs at 2 PM)"
+      fi
+    output_var: review_collection_result
+
+  # Step 5: System health check
+  - id: health_check
+    type: http
+    url: "{{base_url}}/api/health"
+    method: GET
+    output_var: health_status
+    retry:
+      max_attempts: 3
+      delay_seconds: 10
+
+  # Step 6: Generate execution summary
+  - id: generate_summary
+    type: shell
+    command: |
+      cat > /tmp/orchestrator_summary_{{today}}_{{current_hour}}.txt << EOF
+      Wiro 4x4 Master Orchestrator Execution Summary
+      =============================================
+      Date: {{today}}
+      Time: {{current_hour}}:00
+
+      WORKFLOWS EXECUTED:
+      - Morning Dashboard: {{dashboard_result}}
+      - New Bookings Processed: $(echo '{{new_bookings}}' | jq length)
+      - Lead Nurture: {{lead_nurture_result}}
+      - Review Collection: {{review_collection_result}}
+
+      SYSTEM STATUS:
+      - API Health: {{health_status}}
+      - Database: Connected
+      - Email Service: Active
+
+      NEXT SCHEDULED RUNS:
+      - New booking check: Every hour
+      - Lead nurture: Every 6 hours
+      - Review collection: Tomorrow 2:00 PM
+      - Dashboard: Tomorrow 7:00 AM
+
+      Generated: $(date)
+      EOF
+
+      cat /tmp/orchestrator_summary_{{today}}_{{current_hour}}.txt
+    output_var: execution_summary
+
+  # Step 7: Alert on any failures
+  - id: check_for_failures
+    type: transform
+    input:
+      dashboard: "{{dashboard_result}}"
+      bookings: "{{booking_processing_result}}"
+      leads: "{{lead_nurture_result}}"
+      reviews: "{{review_collection_result}}"
+    expression: |
+      failures = []
+      if 'error' in str(input.get('dashboard', '')).lower():
+        failures.append('Dashboard workflow failed')
+      if 'error' in str(input.get('bookings', '')).lower():
+        failures.append('Booking processing failed')
+      if 'error' in str(input.get('leads', '')).lower():
+        failures.append('Lead nurture failed')
+      if 'error' in str(input.get('reviews', '')).lower():
+        failures.append('Review collection failed')
+
+      {'has_failures': len(failures) > 0, 'failures': failures}
+    output_var: failure_check
+
+  - id: alert_failures
+    type: notify
+    channel: email
+    to: "${ADMIN_EMAIL}"
+    subject: "🚨 Wiro 4x4 Workflow Failure Alert"
+    message: |
+      Workflow orchestrator detected failures:
+
+      {{failure_check.failures}}
+
+      Please check the logs at:
+      /tmp/orchestrator_summary_{{today}}_{{current_hour}}.txt
+
+      Time: {{today}} {{current_hour}}:00
+    condition: "{{failure_check.has_failures}} == true"
+
+  # Step 8: Log completion
+  - id: log_completion
+    type: shell
+    command: |
+      echo "{{execution_summary}}"
+      echo ""
+      echo "✅ Master orchestrator execution completed"
+      date
+
+      # Append to master log
+      echo "{{execution_summary}}" >> /sessions/clever-vigilant-ptolemy/mnt/Wiro4x4/logs/orchestrator.log

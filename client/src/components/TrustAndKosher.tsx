@@ -111,10 +111,7 @@ export function TrustAndKosher() {
             <div className="border-t border-[#2A2A25] pt-6">
               <div className="flex items-center gap-3 mb-3">
                 <Shield className="h-5 w-5 text-[#D4AF37]" />
-                <h3
-                  className="text-xl font-medium text-white"
-                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                >
+                <h3 className="text-xl font-medium text-white">
                   {t("Kosher Standards", "סטנדרטים כשרים")}
                 </h3>
               </div>

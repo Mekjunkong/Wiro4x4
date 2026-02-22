@@ -136,10 +136,7 @@ export function Testimonials() {
                 >
                   <div className="h-full p-6 bg-[#1C1C1C] border-l-2 border-[#D4AF37] rounded-sm">
                     <div className="flex flex-col h-full">
-                      <span
-                        className="text-5xl text-[#D4AF37] leading-none mb-4"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
+                      <span className="text-5xl text-[#D4AF37] leading-none mb-4">
                         {"\u201C"}
                       </span>
                       <div className="flex gap-0.5 mb-3">
@@ -152,10 +149,7 @@ export function Testimonials() {
                           )
                         )}
                       </div>
-                      <p
-                        className="italic text-lg leading-relaxed text-[#9B9590] mb-4 flex-grow"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
+                      <p className="italic text-lg leading-relaxed text-[#9B9590] mb-4 flex-grow">
                         {testimonial.text}
                       </p>
                       <div>

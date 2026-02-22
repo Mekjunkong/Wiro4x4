@@ -1,0 +1,397 @@
+name: Lead Nurture & Conversion Campaign
+description: |
+  Intelligent lead nurturing workflow that automatically follows up with
+  potential customers based on their engagement stage and behavior.
+  Uses multi-channel touchpoints (email, WhatsApp) to convert leads into bookings.
+
+variables:
+  base_url: "${VITE_OAUTH_PORTAL_URL}"
+  whatsapp_number: "+66929894495"
+  business_email: "wiro.adventures@gmail.com"
+  lead_id: "${LEAD_ID}"
+
+steps:
+  # Step 1: Fetch lead details
+  - id: fetch_lead
+    type: http
+    url: "${base_url}/api/trpc/lead.listPaginated"
+    method: GET
+    query_params:
+      page: 1
+      pageSize: 100
+    output_var: all_leads
+    retry:
+      max_attempts: 3
+      delay_seconds: 2
+
+  - id: find_target_lead
+    type: transform
+    input:
+      leads: "{{all_leads.items}}"
+      lead_id: "{{lead_id}}"
+    expression: |
+      [l for l in input['leads'] if l['id'] == input['lead_id']][0] if [l for l in input['leads'] if l['id'] == input['lead_id']] else None
+    output_var: lead
+    condition: "{{lead}} != None"
+
+  # Step 2: Determine lead stage and appropriate action
+  - id: analyze_lead_stage
+    type: transform
+    input: "{{lead}}"
+    expression: |
+      import datetime
+
+      lead_status = input.get('status', 'new')
+      created_date = datetime.datetime.fromisoformat(input.get('createdAt', datetime.datetime.now().isoformat()))
+      days_since_created = (datetime.datetime.now() - created_date).days
+
+      # Determine next action based on status and age
+      if lead_status == 'new':
+        action = 'initial_contact'
+        priority = 'high'
+      elif lead_status == 'contacted' and days_since_created > 3:
+        action = 'follow_up_quote'
+        priority = 'medium'
+      elif lead_status == 'quoted' and days_since_created > 7:
+        action = 'conversion_push'
+        priority = 'high'
+      elif lead_status == 'quoted' and days_since_created > 14:
+        action = 'last_chance_offer'
+        priority = 'urgent'
+      else:
+        action = 'monitor'
+        priority = 'low'
+
+      {
+        'current_status': lead_status,
+        'days_old': days_since_created,
+        'recommended_action': action,
+        'priority': priority,
+        'interest_type': input.get('interestType', 'general')
+      }
+    output_var: lead_analysis
+
+  # Step 3: NEW LEAD - Send immediate welcome email
+  - id: send_welcome_email
+    type: http
+    url: "${base_url}/api/send-email"
+    method: POST
+    body:
+      to: "{{lead.email}}"
+      subject: "Welcome to Wiro 4x4 Adventures! 🚙🌄"
+      html: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #166534 0%, #10b981 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9fafb; padding: 30px; }
+            .tour-card { background: white; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0; border-radius: 6px; }
+            .cta-button { display: inline-block; background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🌟 Shalom, {{lead.name}}!</h1>
+              <p>Your Northern Thailand Adventure Awaits</p>
+            </div>
+            <div class="content">
+              <p>Thank you for your interest in Wiro 4x4 Adventures! We're excited to help you explore the stunning landscapes of Northern Thailand.</p>
+
+              <h3>🎯 Popular Tours for {{lead_analysis.interest_type}}:</h3>
+
+              <div class="tour-card">
+                <h4>🏞️ Sticky Waterfalls & Jungle Trek</h4>
+                <p>Climb limestone waterfalls, explore hidden caves, and enjoy kosher picnic lunch in nature.</p>
+                <p><strong>Price:</strong> From ฿3,500/person | <strong>Duration:</strong> Full Day</p>
+              </div>
+
+              <div class="tour-card">
+                <h4>⛰️ Doi Inthanon Summit Adventure</h4>
+                <p>Thailand's highest peak, Royal pagodas, hill tribe villages, and stunning mountain views.</p>
+                <p><strong>Price:</strong> From ฿4,200/person | <strong>Duration:</strong> Full Day</p>
+              </div>
+
+              <div class="tour-card">
+                <h4>🌄 Chiang Mai to Pai Valley Explorer</h4>
+                <p>Multi-day adventure through mountain passes, hot springs, and traditional villages.</p>
+                <p><strong>Price:</strong> From ฿12,000/person | <strong>Duration:</strong> 3 Days</p>
+              </div>
+
+              <h3>✨ Why Choose Wiro 4x4?</h3>
+              <ul>
+                <li>🍽️ <strong>100% Kosher Meals</strong> - All tours include certified kosher food</li>
+                <li>🗣️ <strong>Hebrew-Speaking Guides</strong> - Communicate comfortably throughout your journey</li>
+                <li>🚙 <strong>Premium 4x4 Vehicles</strong> - Safe, comfortable, air-conditioned</li>
+                <li>👥 <strong>Small Groups</strong> - Personalized attention (max 8 people)</li>
+                <li>🏨 <strong>Shabbat-Friendly</strong> - We respect your observance</li>
+              </ul>
+
+              <p style="text-align: center;">
+                <a href="{{base_url}}/estimate" class="cta-button">
+                  💰 Get a Custom Quote
+                </a>
+              </p>
+
+              <p><strong>Have questions?</strong> Reply to this email or WhatsApp us at {{whatsapp_number}} - we typically respond within 2 hours!</p>
+
+              <p>Looking forward to creating unforgettable memories together!</p>
+
+              <p>Best regards,<br>
+              Wiro & Team<br>
+              Wiro 4x4 Adventures</p>
+            </div>
+          </div>
+        </body>
+        </html>
+    condition: "{{lead_analysis.recommended_action}} == 'initial_contact'"
+    retry:
+      max_attempts: 3
+      delay_seconds: 5
+
+  # Step 4: CONTACTED LEAD - Send detailed quote with personalization
+  - id: send_detailed_quote
+    type: http
+    url: "${base_url}/api/send-email"
+    method: POST
+    body:
+      to: "{{lead.email}}"
+      subject: "Your Personalized Wiro 4x4 Quote - {{lead_analysis.interest_type}}"
+      html: |
+        <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2>Hi {{lead.name}},</h2>
+
+          <p>Based on your interest in <strong>{{lead_analysis.interest_type}}</strong>, I've prepared a personalized quote for you:</p>
+
+          <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0;">
+            <h3>🎯 Recommended Package</h3>
+            <p><strong>Tour:</strong> Best of Northern Thailand (3 Days)</p>
+            <ul>
+              <li>Day 1: Sticky Waterfalls + Elephant Sanctuary</li>
+              <li>Day 2: Doi Inthanon Summit + Royal Pagodas</li>
+              <li>Day 3: Hill Tribe Villages + Hot Springs</li>
+            </ul>
+            <p><strong>Includes:</strong></p>
+            <ul>
+              <li>✅ All kosher meals (breakfast, lunch, dinner)</li>
+              <li>✅ Premium 4x4 transportation</li>
+              <li>✅ Hebrew-speaking guide</li>
+              <li>✅ Entrance fees to all attractions</li>
+              <li>✅ 2 nights accommodation (Shabbat-friendly options available)</li>
+            </ul>
+            <h2 style="color: #166534;">฿11,500 per person</h2>
+            <p style="font-size: 14px; color: #6b7280;">Groups of 4+: 15% discount | Book this week: Additional 5% off</p>
+          </div>
+
+          <p><strong>🎁 Special Offer:</strong> Book within 48 hours and receive:</p>
+          <ul>
+            <li>Free airport pickup/drop-off</li>
+            <li>Complimentary Thai cooking class</li>
+            <li>Professional photo package (100+ edited photos)</li>
+          </ul>
+
+          <p style="text-align: center;">
+            <a href="{{base_url}}/booking?lead={{lead_id}}" style="display: inline-block; background: #10b981; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">
+              📅 Book Now
+            </a>
+          </p>
+
+          <p>Questions? Call/WhatsApp: {{whatsapp_number}}</p>
+
+          <p>Warm regards,<br>Wiro</p>
+        </body>
+        </html>
+    condition: "{{lead_analysis.recommended_action}} == 'follow_up_quote'"
+    retry:
+      max_attempts: 3
+      delay_seconds: 5
+
+  # Step 5: CONVERSION PUSH - Social proof + urgency
+  - id: send_conversion_email
+    type: http
+    url: "${base_url}/api/send-email"
+    method: POST
+    body:
+      to: "{{lead.email}}"
+      subject: "{{lead.name}}, don't miss out on Northern Thailand! 🌟"
+      html: |
+        <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2>Hi {{lead.name}},</h2>
+
+          <p>I wanted to follow up on the quote I sent you last week for your Northern Thailand adventure.</p>
+
+          <p><strong>Great news!</strong> We still have availability for your preferred dates, but spots are filling up fast. Here's what recent travelers are saying:</p>
+
+          <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0;">
+            <p>"⭐⭐⭐⭐⭐ The best tour experience we've ever had! Wiro's knowledge of the area is incredible, and having kosher meals in the middle of the jungle was amazing!"</p>
+            <p><em>- Sarah & David, Tel Aviv (November 2025)</em></p>
+          </div>
+
+          <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0;">
+            <p>"⭐⭐⭐⭐⭐ We felt completely taken care of. The Hebrew-speaking guide made everything so easy, and the waterfalls were breathtaking!"</p>
+            <p><em>- Rachel, Jerusalem (October 2025)</em></p>
+          </div>
+
+          <p><strong>🎯 Your quote is still valid, but only for the next 3 days!</strong></p>
+
+          <p>To secure your booking, you only need to:</p>
+          <ol>
+            <li>Reply to this email or WhatsApp {{whatsapp_number}}</li>
+            <li>Pay a small deposit (30% of total)</li>
+            <li>Get ready for an unforgettable adventure!</li>
+          </ol>
+
+          <p style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 15px 0;">
+            ⏰ <strong>Hurry!</strong> Only 2 spots left for your preferred dates. Quote expires in 72 hours.
+          </p>
+
+          <p style="text-align: center;">
+            <a href="{{base_url}}/booking?lead={{lead_id}}" style="display: inline-block; background: #dc2626; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">
+              🔥 Reserve My Spot Now
+            </a>
+          </p>
+
+          <p>Have any questions? I'm here to help!</p>
+
+          <p>Best,<br>Wiro<br>{{whatsapp_number}}</p>
+        </body>
+        </html>
+    condition: "{{lead_analysis.recommended_action}} == 'conversion_push'"
+
+  # Step 6: LAST CHANCE - Final offer before lead goes cold
+  - id: send_last_chance
+    type: http
+    url: "${base_url}/api/send-email"
+    method: POST
+    body:
+      to: "{{lead.email}}"
+      subject: "Last chance: Exclusive 20% discount for {{lead.name}} 🎁"
+      html: |
+        <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2>{{lead.name}}, I have something special for you...</h2>
+
+          <p>I noticed you haven't booked your Northern Thailand adventure yet, and I don't want you to miss out!</p>
+
+          <div style="background: linear-gradient(135deg, #166534 0%, #10b981 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin: 20px 0;">
+            <h1 style="margin: 0; font-size: 36px;">20% OFF</h1>
+            <p style="margin: 10px 0 0 0; font-size: 18px;">Exclusive Discount - This Week Only</p>
+          </div>
+
+          <p>As a <strong>one-time offer</strong>, I'm extending a <strong>20% discount</strong> on any tour package if you book before this Friday.</p>
+
+          <p><strong>Your new pricing:</strong></p>
+          <ul>
+            <li>Full Day Tour: <s>฿4,200</s> → <strong>฿3,360</strong></li>
+            <li>3-Day Package: <s>฿11,500</s> → <strong>฿9,200</strong></li>
+          </ul>
+
+          <p><strong>Why book with Wiro 4x4?</strong></p>
+          <ul>
+            <li>🏆 Rated #1 kosher tour operator in Chiang Mai</li>
+            <li>🌟 4.9/5 stars from 127 reviews</li>
+            <li>🎖️ 8+ years experience with Israeli travelers</li>
+            <li>💯 100% satisfaction guarantee</li>
+          </ul>
+
+          <p style="background: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0;">
+            💡 <strong>No pressure!</strong> If the timing isn't right, I completely understand. But I wanted to make sure you had this opportunity before the discount expires.
+          </p>
+
+          <p style="text-align: center;">
+            <a href="https://wa.me/{{whatsapp_number}}?text=Hi%20Wiro,%20I%27m%20interested%20in%20the%2020%25%20discount%20offer!" style="display: inline-block; background: #25D366; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">
+              💬 Claim My 20% Discount
+            </a>
+          </p>
+
+          <p>This is my final email about this opportunity. If you're not interested, that's totally fine - no hard feelings!</p>
+
+          <p>But if Northern Thailand is still on your bucket list, let's make it happen at an amazing price.</p>
+
+          <p>Toda raba,<br>Wiro<br>{{whatsapp_number}}</p>
+
+          <p style="font-size: 12px; color: #6b7280; margin-top: 30px;">
+            P.S. Prefer to unsubscribe? <a href="{{base_url}}/unsubscribe?lead={{lead_id}}">Click here</a> and I won't send any more emails.
+          </p>
+        </body>
+        </html>
+    condition: "{{lead_analysis.recommended_action}} == 'last_chance_offer'"
+
+  # Step 7: Update lead status after action
+  - id: update_lead_status
+    type: http
+    url: "${base_url}/api/trpc/lead.update"
+    method: POST
+    body:
+      id: "{{lead_id}}"
+      status: |
+        {{lead_analysis.recommended_action == 'initial_contact' ? 'contacted' :
+          lead_analysis.recommended_action == 'follow_up_quote' ? 'quoted' :
+          lead.status}}
+      notes: |
+        Nurture campaign executed: {{lead_analysis.recommended_action}}
+        Priority: {{lead_analysis.priority}}
+        Days since creation: {{lead_analysis.days_old}}
+
+  # Step 8: Schedule next follow-up action
+  - id: schedule_next_action
+    type: shell
+    command: |
+      next_action_days=3
+      if [ "{{lead_analysis.recommended_action}}" = "initial_contact" ]; then
+        next_action_days=3
+      elif [ "{{lead_analysis.recommended_action}}" = "follow_up_quote" ]; then
+        next_action_days=7
+      elif [ "{{lead_analysis.recommended_action}}" = "conversion_push" ]; then
+        next_action_days=7
+      elif [ "{{lead_analysis.recommended_action}}" = "last_chance_offer" ]; then
+        next_action_days=14
+      fi
+
+      next_date=$(date -d "+${next_action_days} days" --iso-8601)
+
+      echo '{
+        "lead_id": "{{lead_id}}",
+        "current_action": "{{lead_analysis.recommended_action}}",
+        "next_action_date": "'$next_date'",
+        "priority": "{{lead_analysis.priority}}"
+      }' > /tmp/lead_schedule_{{lead_id}}.json
+
+      echo "Next follow-up scheduled for: $next_date"
+    output_var: next_action_scheduled
+
+  # Step 9: Notify team about high-priority leads
+  - id: notify_team_urgent
+    type: notify
+    channel: slack
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    message: |
+      🔥 *HIGH PRIORITY LEAD ALERT*
+
+      Lead: {{lead.name}} ({{lead.email}})
+      Status: {{lead_analysis.current_status}}
+      Days Old: {{lead_analysis.days_old}}
+      Action Taken: {{lead_analysis.recommended_action}}
+
+      💰 Potential Value: High
+      📞 Recommended: Personal phone call
+
+      WhatsApp: {{lead.phoneNumber}}
+    condition: "{{lead_analysis.priority}} == 'urgent' or {{lead_analysis.priority}} == 'high'"
+
+  # Step 10: Log campaign execution
+  - id: log_completion
+    type: shell
+    command: |
+      echo "✅ Lead nurture campaign executed successfully"
+      echo "Lead ID: {{lead_id}}"
+      echo "Lead Name: {{lead.name}}"
+      echo "Action: {{lead_analysis.recommended_action}}"
+      echo "Priority: {{lead_analysis.priority}}"
+      echo "Next follow-up: {{next_action_scheduled}}"
+      date

@@ -201,7 +201,7 @@ export function Tours() {
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
+              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
                 <div className="relative h-72 overflow-hidden bg-muted">
                   <img
                     src={tour.image}
@@ -219,10 +219,7 @@ export function Tours() {
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <h3
-                    className="text-xl font-medium text-white"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                  >
+                  <h3 className="text-xl font-medium text-white">
                     {tour.title}
                   </h3>
                   <p className="text-sm text-[#9B9590]">{tour.description}</p>
