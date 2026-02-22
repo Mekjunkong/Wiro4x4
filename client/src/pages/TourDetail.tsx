@@ -20,6 +20,7 @@ import {
 import { useParams, useLocation } from "wouter";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { TourSocialProof } from "@/components/TourSocialProof";
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -1027,6 +1028,9 @@ export default function TourDetail() {
                     {t(tour.description, tour.descriptionHe)}
                   </p>
                 </div>
+
+                {/* Social Proof */}
+                <TourSocialProof />
 
                 {/* Badges */}
                 <div className="flex flex-wrap gap-3">
