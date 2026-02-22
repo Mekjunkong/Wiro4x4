@@ -13,6 +13,7 @@ import { CommunityConnection } from "@/components/CommunityConnection";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { WhatsAppPrompt } from "@/components/WhatsAppPrompt";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { FaqJsonLd } from "@/components/FaqJsonLd";
 import { SocialProofBar } from "@/components/SocialProofBar";
@@ -41,6 +42,7 @@ export default function Home() {
       <Footer />
       <RecentlyBookedPopup />
       <FloatingActionButtons />
+      <WhatsAppPrompt />
     </div>
   );
 }
