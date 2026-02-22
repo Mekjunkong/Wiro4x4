@@ -13,10 +13,7 @@ export function SectionBanner() {
       />
       <div className="absolute inset-0 bg-black/60" />
       <div className="absolute inset-0 flex items-center justify-center">
-        <h2
-          className="text-3xl md:text-5xl lg:text-6xl font-light text-white text-center tracking-wide px-4"
-          style={{ fontFamily: "'Cormorant Garamond', serif" }}
-        >
+        <h2 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-white text-center uppercase tracking-wider px-4">
           {t("Experience the Road Less Traveled", "חוו את הדרך הפחות סלולה")}
         </h2>
       </div>
