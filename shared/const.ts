@@ -13,3 +13,8 @@ export const COMPANY_PHONE = "+66 92-989-4495";
 export const COMPANY_EMAIL = "wiro.adventures@gmail.com";
 export const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
 export const COMPANY_WEBSITE = "https://www.wiro4x4indochina.com";
+
+// ── Social Media ────────────────────────────────────────────────────
+// Update these URLs when you create your Facebook/Instagram pages.
+export const COMPANY_FACEBOOK_URL = "https://www.facebook.com/"; // TODO: Replace with your Facebook page URL
+export const COMPANY_INSTAGRAM_URL = "https://www.instagram.com/"; // TODO: Replace with your Instagram URL

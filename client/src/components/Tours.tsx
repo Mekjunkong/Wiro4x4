@@ -17,13 +17,13 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/1000000143.jpg",
+    image: "/images/vietnam_rice_terraces.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
       "Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm",
     descriptionHe:
-      "הפסגה הגבוהה ביותר בתאילנד, שבילי יער ענן וחוות קפה נסתרת בכפר קארן",
+      "הפסגה הגבוהה בתאילנד, שבילי יער ענן וחוות קפה נסתרת בכפר קארן",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "moderate" as const,
@@ -59,7 +59,7 @@ const HARDCODED_TOURS = [
     description:
       "Climb UP a waterfall barefoot, walk a sky-high canopy walkway, and explore upper waterfall tiers no one reaches",
     descriptionHe:
-      "טפסו למעלה על מפל יחפים, לכו על גשר צמרות בגובה 20 מטר וגלו קומות מפל שאף אחד לא מגיע אליהן",
+      "טפסו למעלה על מפל יחפים, הלכו על גשר צמרות בגובה 20 מטר וגלו קומות מפל שאף אחד לא מגיע אליהן",
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "easy" as const,
@@ -77,7 +77,7 @@ const HARDCODED_TOURS = [
     description:
       "Hike the ancient Monk's Trail, then keep going where tourists turn back — Hmong village, hidden coffee farm, secluded waterfall",
     descriptionHe:
-      "טיילו בשביל הנזירים העתיק, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר המונג, חוות קפה נסתרת ומפל מבודד",
+      "טיילו בשביל הנזירים העתיק, ואז המשיכו לאן שהתיירים חוזרים — כפר המונג, חוות קפה נסתרת ומפל מבודד",
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy" as const,
@@ -175,14 +175,14 @@ export function Tours() {
   return (
     <section
       id="tours"
-      className="py-24 md:py-32 bg-card relative overflow-hidden"
+      className="py-24 md:py-32 bg-[#0F0F0F] relative overflow-hidden"
     >
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6 text-white">
             {t("Our Premium Tours", "הטיולים שלנו")}
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-[#9B9590]">
             {t(
               "Choose from our carefully curated selection of kosher-friendly off-road adventures.",
               "בחרו מתוך מגוון טיולי השטח שלנו -- כולם עם אפשרות לאוכל כשר."
@@ -195,13 +195,13 @@ export function Tours() {
           ref={gridRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0"
         >
-          {tours.map((tour, index) => (
+          {tours.map(tour => (
             <a
               key={tour.id}
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
+              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
                 <div className="relative h-72 overflow-hidden bg-muted">
                   <img
                     src={tour.image}
@@ -211,22 +211,6 @@ export function Tours() {
                     }`}
                     loading="lazy"
                   />
-                  {index === 0 && (
-                    <div className="absolute top-4 left-4 bg-[#D4AF37] text-[#1C1C1C] text-xs font-bold px-2.5 py-1 rounded-full z-10">
-                      {t(
-                        "Most Popular",
-                        "\u05D4\u05DB\u05D9 \u05E4\u05D5\u05E4\u05D5\u05DC\u05E8\u05D9"
-                      )}
-                    </div>
-                  )}
-                  {(index === 2 || index === 4) && (
-                    <div className="absolute top-4 left-4 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-full z-10">
-                      {t(
-                        "Limited Availability",
-                        "\u05D6\u05DE\u05D9\u05E0\u05D5\u05EA \u05DE\u05D5\u05D2\u05D1\u05DC\u05EA"
-                      )}
-                    </div>
-                  )}
                   {tour.price != null && (
                     <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                       {t("From", "החל מ-")} &#3647;{tour.price.toLocaleString()}
@@ -235,19 +219,22 @@ export function Tours() {
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <h3 className="text-xl font-medium">{tour.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {tour.description}
-                  </p>
+                  <h3
+                    className="text-xl font-medium text-white"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {tour.title}
+                  </h3>
+                  <p className="text-sm text-[#9B9590]">{tour.description}</p>
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-[#D4AF37]" />
-                      <span>{tour.duration}</span>
+                      <span className="text-white">{tour.duration}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mountain className="h-4 w-4 text-[#D4AF37]" />
-                      <span>
+                      <span className="text-white">
                         {t(
                           DIFFICULTY_LABELS[tour.difficulty]?.en ||
                             tour.difficulty,
@@ -279,7 +266,7 @@ export function Tours() {
                     )}
                   </div>
 
-                  <div className="inline-flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#1C1C1C] px-4 py-2 rounded-sm font-medium text-sm transition-all duration-300 mt-2">
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
                     {t("View Details", "לפרטים נוספים")}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -287,6 +274,16 @@ export function Tours() {
               </Card>
             </a>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <a
+            href="/estimate"
+            className="inline-flex items-center gap-2 text-[#D4AF37] hover:text-[#E8C84A] font-medium text-lg transition-colors"
+          >
+            {t("Estimate Your Trip Cost", "חשבו את עלות הטיול")}
+            <ArrowRight className="h-5 w-5" />
+          </a>
         </div>
       </div>
     </section>

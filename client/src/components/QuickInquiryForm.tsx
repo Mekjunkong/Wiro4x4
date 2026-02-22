@@ -36,7 +36,7 @@ export function QuickInquiryForm() {
       toast.success(
         t(
           "Thank you! We'll contact you within 24 hours.",
-          "תודה! ניצור קשר תוך 24 שעות."
+          "!תודה! ניצור קשר תוך 24 שעות"
         )
       );
     },
@@ -86,14 +86,14 @@ export function QuickInquiryForm() {
 
   if (submitted) {
     return (
-      <section ref={sectionRef} className="py-24 md:py-32 bg-background">
+      <section ref={sectionRef} className="py-24 md:py-32 bg-[#0F0F0F]">
         <div className="container max-w-2xl">
-          <Card className="p-8 text-center border border-[#D4AF37]/30 rounded-sm">
+          <Card className="p-8 text-center border border-[#D4AF37]/30 rounded-sm bg-[#1C1C1C]">
             <CheckCircle className="w-12 h-12 text-[#D4AF37] mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">
-              {t("Thank You!", "תודה רבה!")}
+            <h3 className="text-2xl font-bold mb-2 text-white">
+              {t("Thank You!", "!תודה רבה")}
             </h3>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-[#9B9590] mb-6">
               {t(
                 "We've received your inquiry and will contact you within 24 hours.",
                 "קיבלנו את הפנייה שלכם וניצור קשר תוך 24 שעות."
@@ -121,14 +121,14 @@ export function QuickInquiryForm() {
     <section
       id="inquiry"
       ref={sectionRef}
-      className="py-24 md:py-32 bg-background"
+      className="py-24 md:py-32 bg-[#0F0F0F]"
     >
       <div className="container max-w-4xl">
         <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-medium mb-3">
+          <h2 className="text-4xl md:text-5xl font-medium mb-3 text-white">
             {t("Get a Free Quote", "קבלו הצעת מחיר חינם")}
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-[#9B9590]">
             {t(
               "Tell us about your dream adventure and we'll get back to you within 24 hours",
               "ספרו לנו על ההרפתקה שאתם חולמים עליה ונחזור אליכם תוך 24 שעות"
@@ -137,11 +137,11 @@ export function QuickInquiryForm() {
           <GoldDivider />
         </div>
 
-        <Card className="p-6 md:p-8 border border-[#D4AF37]/30 rounded-sm">
+        <Card className="p-6 md:p-8 border border-[#D4AF37]/30 rounded-sm bg-[#1C1C1C]">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
                   {t("Full Name", "שם מלא")}{" "}
                   <span className="text-red-500">*</span>
                 </label>
@@ -159,14 +159,14 @@ export function QuickInquiryForm() {
                     });
                   }}
                   placeholder={t("Your name", "השם שלכם")}
-                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] ${errors.name ? "border-red-500" : "border-border"}`}
+                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] bg-[#141414] text-white placeholder:text-[#6B6560] ${errors.name ? "border-red-500" : "border-[#2A2A25]"}`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-xs mt-1">{errors.name}</p>
                 )}
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
                   {t("Email", "אימייל")} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -183,7 +183,7 @@ export function QuickInquiryForm() {
                     });
                   }}
                   placeholder={t("your@email.com", "your@email.com")}
-                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] ${errors.email ? "border-red-500" : "border-border"}`}
+                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] bg-[#141414] text-white placeholder:text-[#6B6560] ${errors.email ? "border-red-500" : "border-[#2A2A25]"}`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -193,7 +193,7 @@ export function QuickInquiryForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
                   {t("Phone / WhatsApp", "טלפון / וואטסאפ")}
                 </label>
                 <input
@@ -203,11 +203,11 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, phone: e.target.value }))
                   }
                   placeholder={t("+972...", "+972...")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-[#2A2A25] bg-[#141414] text-white placeholder:text-[#6B6560] rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
                   {t("Travel Dates", "תאריכי טיול")}
                 </label>
                 <input
@@ -217,11 +217,11 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, travelDates: e.target.value }))
                   }
                   placeholder={t("e.g. March 15-20", "לדוגמה: 15-20 מרץ")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-[#2A2A25] bg-[#141414] text-white placeholder:text-[#6B6560] rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
                   {t("Group Size", "גודל קבוצה")}
                 </label>
                 <input
@@ -231,14 +231,14 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, groupSize: e.target.value }))
                   }
                   placeholder={t("e.g. 2 adults, 1 child", "2 מבוגרים, ילד 1")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-[#2A2A25] bg-[#141414] text-white placeholder:text-[#6B6560] rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
-                {t("What interests you?", "מה מעניין אתכם?")}
+              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-[#9B9590] mb-1.5">
+                {t("What interests you?", "?מה מעניין אתכם")}
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {INTEREST_OPTIONS.map(option => (
@@ -251,7 +251,7 @@ export function QuickInquiryForm() {
                     className={`px-3 py-2.5 rounded-sm text-sm border transition-colors ${
                       form.interest === option.value
                         ? "bg-[#D4AF37] text-[#1C1C1C] border-[#D4AF37]"
-                        : "border-border hover:border-[#D4AF37]/50"
+                        : "border-[#2A2A25] text-[#9B9590] hover:border-[#D4AF37]/50"
                     }`}
                   >
                     {t(option.en, option.he)}
@@ -273,7 +273,7 @@ export function QuickInquiryForm() {
                 <Send className="w-4 h-4" />
               )}
               {createLead.isPending
-                ? t("Sending...", "שולח...")
+                ? t("Sending...", "...שולח")
                 : t("Get My Free Quote", "קבלו הצעת מחיר")}
             </Button>
           </form>

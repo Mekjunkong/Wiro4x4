@@ -7,6 +7,8 @@ import {
   WHATSAPP_URL,
   COMPANY_PHONE,
   COMPANY_EMAIL,
+  COMPANY_FACEBOOK_URL,
+  COMPANY_INSTAGRAM_URL,
 } from "@/const";
 import { useLocation } from "wouter";
 
@@ -159,7 +161,7 @@ export function Footer() {
         {/* Social Media */}
         <div className="flex justify-center items-center gap-6 mt-8 mb-6">
           <a
-            href="#"
+            href={COMPANY_FACEBOOK_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#D4AF37] hover:brightness-125 transition-all"
@@ -170,7 +172,7 @@ export function Footer() {
             </svg>
           </a>
           <a
-            href="#"
+            href={COMPANY_INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#D4AF37] hover:brightness-125 transition-all"
