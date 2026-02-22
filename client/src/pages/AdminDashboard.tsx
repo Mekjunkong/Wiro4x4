@@ -35,6 +35,7 @@ import {
   PAGE_SIZE,
 } from "@/components/admin";
 import { SettingsTab } from "@/components/admin/SettingsTab";
+import { AbandonedBookingsTab } from "@/components/admin/AbandonedBookingsTab";
 
 function TabBadge({
   count,
@@ -70,6 +71,7 @@ type AdminTabId =
   | "tours"
   | "blog"
   | "users"
+  | "abandoned"
   | "settings";
 
 export default function AdminDashboard() {
@@ -217,6 +219,7 @@ export default function AdminDashboard() {
           },
         ]
       : []),
+    { id: "abandoned", label: "Abandoned", icon: Clock, count: undefined },
     { id: "settings", label: "Settings", icon: Settings, count: undefined },
   ];
 
@@ -525,6 +528,19 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="users">
                 <UsersTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "abandoned" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-abandoned"
+              aria-labelledby="tab-abandoned"
+            >
+              <ErrorBoundary level="section" key="abandoned">
+                <div className="bg-card rounded-sm border p-4 md:p-6">
+                  <AbandonedBookingsTab />
+                </div>
               </ErrorBoundary>
             </div>
           )}
