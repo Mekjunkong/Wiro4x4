@@ -17,7 +17,7 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/vietnam_rice_terraces.jpg",
+    image: "/images/1000000143.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
@@ -195,13 +195,13 @@ export function Tours() {
           ref={gridRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0"
         >
-          {tours.map(tour => (
+          {tours.map((tour, index) => (
             <a
               key={tour.id}
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-t-2 border-[#D4AF37] rounded-sm bg-card">
+              <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
                 <div className="relative h-72 overflow-hidden bg-muted">
                   <img
                     src={tour.image}
@@ -211,6 +211,22 @@ export function Tours() {
                     }`}
                     loading="lazy"
                   />
+                  {index === 0 && (
+                    <div className="absolute top-4 left-4 bg-[#D4AF37] text-[#1C1C1C] text-xs font-bold px-2.5 py-1 rounded-full z-10">
+                      {t(
+                        "Most Popular",
+                        "\u05D4\u05DB\u05D9 \u05E4\u05D5\u05E4\u05D5\u05DC\u05E8\u05D9"
+                      )}
+                    </div>
+                  )}
+                  {(index === 2 || index === 4) && (
+                    <div className="absolute top-4 left-4 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-full z-10">
+                      {t(
+                        "Limited Availability",
+                        "\u05D6\u05DE\u05D9\u05E0\u05D5\u05EA \u05DE\u05D5\u05D2\u05D1\u05DC\u05EA"
+                      )}
+                    </div>
+                  )}
                   {tour.price != null && (
                     <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                       {t("From", "החל מ-")} &#3647;{tour.price.toLocaleString()}
@@ -219,12 +235,7 @@ export function Tours() {
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <h3
-                    className="text-xl font-medium"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                  >
-                    {tour.title}
-                  </h3>
+                  <h3 className="text-xl font-medium">{tour.title}</h3>
                   <p className="text-sm text-muted-foreground">
                     {tour.description}
                   </p>
@@ -268,7 +279,7 @@ export function Tours() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
+                  <div className="inline-flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#1C1C1C] px-4 py-2 rounded-sm font-medium text-sm transition-all duration-300 mt-2">
                     {t("View Details", "לפרטים נוספים")}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
