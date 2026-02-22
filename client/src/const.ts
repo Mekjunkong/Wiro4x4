@@ -8,6 +8,8 @@ export {
   COMPANY_EMAIL,
   COMPANY_NAME,
   COMPANY_WEBSITE,
+  COMPANY_FACEBOOK_URL,
+  COMPANY_INSTAGRAM_URL,
 } from "@shared/const";
 
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || "App";
@@ -19,6 +21,11 @@ export const APP_LOGO =
 export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
+
+  if (!oauthPortalUrl || !appId) {
+    return "#";
+  }
+
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
   const state = btoa(redirectUri);
 
