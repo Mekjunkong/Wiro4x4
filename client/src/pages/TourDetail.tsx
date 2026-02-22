@@ -1126,7 +1126,10 @@ export default function TourDetail() {
                       &#3647;{tour.price.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {t("per group (1-4 people)", "לקבוצה (1-4 אנשים)")}
+                      {t(
+                        `per group (${tour.groupMinSize}-${tour.groupMaxSize} people)`,
+                        `לקבוצה (${tour.groupMinSize}-${tour.groupMaxSize} אנשים)`
+                      )}
                     </div>
                   </div>
 
@@ -1155,6 +1158,24 @@ export default function TourDetail() {
                       </span>
                     </div>
                   </div>
+
+                  {/* What's Included (pricing clarity) */}
+                  {includedItems.length > 0 && (
+                    <div className="border-t pt-4 space-y-2">
+                      <p className="text-sm font-semibold text-foreground">
+                        {t("Includes:", "כולל:")}
+                      </p>
+                      {includedItems.slice(0, 5).map((item, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2 text-sm text-muted-foreground"
+                        >
+                          <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                          <span>{t(item.en, item.he)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="space-y-3 pt-2">
                     <Button
