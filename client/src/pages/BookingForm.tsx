@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { trackEvent, FUNNEL } from "@/lib/analytics";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { Header } from "@/components/Header";
@@ -88,6 +89,10 @@ export default function BookingForm() {
     "Book Your Tour",
     "Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling."
   );
+
+  useEffect(() => {
+    trackEvent(FUNNEL.BOOKING_STARTED);
+  }, []);
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [bookingRef, setBookingRef] = useState("");
@@ -341,6 +346,7 @@ export default function BookingForm() {
 
   const createBooking = trpc.booking.create.useMutation({
     onSuccess: data => {
+      trackEvent(FUNNEL.BOOKING_COMPLETED);
       setIsSubmitting(false);
       setBookingRef(`WIRO-${data.bookingId || Date.now()}`);
       setSubmitSuccess(true);

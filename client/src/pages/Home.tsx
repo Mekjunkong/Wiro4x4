@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { trackEvent, FUNNEL } from "@/lib/analytics";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { TrustBar } from "@/components/TrustBar";
@@ -23,6 +25,9 @@ import { RecentlyBookedPopup } from "@/components/RecentlyBookedPopup";
 
 export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
+  useEffect(() => {
+    trackEvent(FUNNEL.HOMEPAGE_VIEW);
+  }, []);
   return (
     <div className="min-h-screen smooth-scroll">
       <StickyBookBar />

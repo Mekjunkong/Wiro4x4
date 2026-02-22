@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { trackEvent, FUNNEL } from "@/lib/analytics";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -862,6 +864,10 @@ export default function TourDetail() {
   }
 
   usePageMeta(tour ? tour.name : "Tour Details");
+
+  useEffect(() => {
+    trackEvent(FUNNEL.TOUR_PAGE_VIEW, { tour: slug });
+  }, [slug]);
 
   if (isLoading) {
     return (
