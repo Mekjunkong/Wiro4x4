@@ -990,10 +990,7 @@ export default function TourDetail() {
                 <ArrowLeft className="w-4 h-4" />
                 {t("All Tours", "כל הטיולים")}
               </button>
-              <h1
-                className="text-4xl md:text-5xl font-medium text-white mb-3"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
+              <h1 className="text-4xl md:text-5xl font-medium text-white mb-3">
                 {t(tour.name, tour.nameHe)}
               </h1>
               <div className="flex flex-wrap items-center gap-3 text-white/90 text-sm">
@@ -1025,10 +1022,7 @@ export default function TourDetail() {
               <div className="lg:col-span-2 space-y-8">
                 {/* Description */}
                 <div>
-                  <h2
-                    className="text-2xl font-medium mb-4"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                  >
+                  <h2 className="text-2xl font-medium mb-4">
                     {t("About This Tour", "אודות הטיול")}
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
@@ -1064,10 +1058,7 @@ export default function TourDetail() {
                 {/* What's Included */}
                 {includedItems.length > 0 && (
                   <div>
-                    <h2
-                      className="text-2xl font-medium mb-4"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                    >
+                    <h2 className="text-2xl font-medium mb-4">
                       {t("What's Included", "מה כלול")}
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1087,10 +1078,7 @@ export default function TourDetail() {
                 {/* Itinerary */}
                 {itinerary.length > 0 && (
                   <div>
-                    <h2
-                      className="text-2xl font-medium mb-4"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                    >
+                    <h2 className="text-2xl font-medium mb-4">
                       {t("Day-by-Day Itinerary", "מסלול מפורט")}
                     </h2>
                     <div className="space-y-4">
@@ -1099,12 +1087,7 @@ export default function TourDetail() {
                           key={idx}
                           className="flex gap-4 p-4 border border-border rounded-sm"
                         >
-                          <div
-                            className="w-10 h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center font-bold text-2xl shrink-0"
-                            style={{
-                              fontFamily: "'Cormorant Garamond', serif",
-                            }}
-                          >
+                          <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center font-bold text-2xl shrink-0">
                             {idx + 1}
                           </div>
                           <div>

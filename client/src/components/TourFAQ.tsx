@@ -35,10 +35,7 @@ export function TourFAQ() {
 
   return (
     <section className="py-10">
-      <h3
-        className="text-xl font-semibold mb-4"
-        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-      >
+      <h3 className="text-xl font-semibold mb-4">
         {t("Common Questions", "שאלות נפוצות")}
       </h3>
       <div className="space-y-2">

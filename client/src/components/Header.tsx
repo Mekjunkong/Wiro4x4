@@ -226,7 +226,6 @@ export function Header() {
               }}
               className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Tours", "טיולים")}
             </button>
@@ -238,7 +237,6 @@ export function Header() {
               }}
               className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Why WIRO", "למה WIRO")}
             </button>
@@ -250,7 +248,6 @@ export function Header() {
               }}
               className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Kosher Info", "כשרות")}
             </button>
@@ -262,25 +259,18 @@ export function Header() {
               }}
               className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
               type="button"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {t("Contact", "צרו קשר")}
             </button>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-              <span
-                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
+              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Pricing", "מחירים")}
               </span>
             </Link>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>
-              <span
-                className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
+              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Blog", "בלוג")}
               </span>
             </Link>
@@ -288,10 +278,7 @@ export function Header() {
               <>
                 <div className="h-px w-12 bg-[#D4AF37]/30" />
                 <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                  <span
-                    className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-2"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                  >
+                  <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-2">
                     <Shield className="h-4 w-4" />
                     {t("Admin", "ניהול")}
                   </span>

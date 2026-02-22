@@ -297,10 +297,7 @@ export default function Pricing() {
                     </div>
 
                     <div className="border-t border-b py-4 mt-4">
-                      <div
-                        className="text-3xl font-bold text-[#D4AF37] mb-1"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
+                      <div className="text-3xl font-bold text-[#D4AF37] mb-1">
                         &#3647;{tour.basePrice.toLocaleString()}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -440,10 +437,7 @@ export default function Pricing() {
                     <div className="text-sm text-muted-foreground mb-4">
                       {pkg.days} {t("Days", "ימים")}
                     </div>
-                    <div
-                      className="text-3xl md:text-4xl font-bold text-[#D4AF37]"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                    >
+                    <div className="text-3xl md:text-4xl font-bold text-[#D4AF37]">
                       ฿{pkg.price.toLocaleString()}
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">

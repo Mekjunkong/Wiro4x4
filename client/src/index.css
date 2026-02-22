@@ -144,7 +144,7 @@
   /* Hebrew text support */
   [lang="he"],
   .rtl {
-    font-family: "Heebo", "DM Sans", sans-serif;
+    font-family: "Heebo", "Source Sans 3", sans-serif;
   }
   [lang="he"] h1,
   [lang="he"] h2,

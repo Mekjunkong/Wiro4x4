@@ -575,10 +575,7 @@ export function CostCalculator() {
                 <span className="text-xl font-bold">
                   {t("Estimated Total", "סה״כ הערכה")}
                 </span>
-                <span
-                  className="text-2xl font-bold text-[#D4AF37]"
-                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                >
+                <span className="text-2xl font-bold text-[#D4AF37]">
                   {formatTHB(breakdown.total)}
                 </span>
               </div>

@@ -243,10 +243,7 @@ export default function Blog() {
                         </div>
                       )}
 
-                      <h3
-                        className="text-xl font-medium line-clamp-2"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
+                      <h3 className="text-xl font-medium line-clamp-2">
                         {post.title}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-3">

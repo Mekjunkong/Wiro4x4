@@ -488,12 +488,7 @@ export default function Reviews() {
                           >
                             {"\u201C"}
                           </span>
-                          <p
-                            className="text-foreground/80 leading-relaxed italic"
-                            style={{
-                              fontFamily: "'Cormorant Garamond', serif",
-                            }}
-                          >
+                          <p className="text-foreground/80 leading-relaxed italic">
                             {review.text}
                           </p>
                         </div>

@@ -100,10 +100,7 @@ export default function BlogPost() {
           <BlogPostMeta date={post.date} readTime={post.readTime} />
 
           {/* Title */}
-          <h1
-            className="text-4xl md:text-5xl font-medium mb-8"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          >
+          <h1 className="text-4xl md:text-5xl font-medium mb-8">
             {post.title}
           </h1>
 
