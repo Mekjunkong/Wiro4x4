@@ -113,15 +113,10 @@ export function WhyWiro() {
             return (
               <div key={index} className="p-6 text-center">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="p-3 bg-[#D4AF37]/10 rounded-full">
+                  <div className="p-3 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full">
                     <Icon className="h-8 w-8 text-[#D4AF37]" />
                   </div>
-                  <h3
-                    className="text-lg font-medium"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                  >
-                    {feature.title}
-                  </h3>
+                  <h3 className="text-lg font-medium">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
