@@ -127,7 +127,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "DM Sans", sans-serif;
+    font-family: "Source Sans 3", sans-serif;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -138,8 +138,8 @@
   h4,
   h5,
   h6 {
-    font-family: "Cormorant Garamond", serif;
-    font-weight: 500;
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
   }
   /* Hebrew text support */
   [lang="he"],
@@ -158,8 +158,8 @@
   .rtl h4,
   .rtl h5,
   .rtl h6 {
-    font-family: "Frank Ruhl Libre", serif;
-    font-weight: 500;
+    font-family: "Rubik", sans-serif;
+    font-weight: 600;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
