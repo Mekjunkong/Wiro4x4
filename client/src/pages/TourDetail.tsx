@@ -17,10 +17,11 @@ import {
   MessageCircle,
   MapPin,
 } from "lucide-react";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourSocialProof } from "@/components/TourSocialProof";
+import { TourFAQ } from "@/components/TourFAQ";
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -1113,6 +1114,9 @@ export default function TourDetail() {
                     </div>
                   </div>
                 )}
+
+                {/* Tour FAQ */}
+                <TourFAQ />
               </div>
 
               {/* Sidebar - Booking Card */}
@@ -1224,6 +1228,26 @@ export default function TourDetail() {
             </div>
           </div>
         </div>
+
+        {/* Compare with other tours */}
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h3 className="text-xl font-semibold mb-2">
+              {t("Not sure yet?", "עדיין לא בטוחים?")}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {t(
+                "Compare all our tours to find your perfect adventure",
+                "השוו את כל הטיולים שלנו כדי למצוא את ההרפתקה המושלמת"
+              )}
+            </p>
+            <Link href="/pricing">
+              <button className="border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] font-semibold px-6 py-2 rounded-full transition-all">
+                {t("Compare All Tours", "השוו את כל הטיולים")}
+              </button>
+            </Link>
+          </div>
+        </section>
       </main>
       <FloatingActionButtons />
       <Footer />
