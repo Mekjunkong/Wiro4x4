@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { Tours } from "@/components/Tours";
 import { TrustAndKosher } from "@/components/TrustAndKosher";
+import { PhotoGallery } from "@/components/PhotoGallery";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
 import { Testimonials } from "@/components/Testimonials";
 import { FAQ } from "@/components/FAQ";
@@ -17,6 +18,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <Tours />
+        <PhotoGallery />
         <TrustAndKosher />
         <Testimonials />
         <QuickInquiryForm />
