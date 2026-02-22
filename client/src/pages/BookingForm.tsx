@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { trackEvent, FUNNEL } from "@/lib/analytics";
+import { getStoredUtm } from "@/lib/utm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { Header } from "@/components/Header";
@@ -509,11 +510,15 @@ export default function BookingForm() {
     setIsSubmitting(true);
 
     try {
+      const utm = getStoredUtm();
       await createBooking.mutateAsync({
         ...formData,
         selectedAttractions: JSON.stringify(formData.selectedAttractions),
         suggestedDestinations: JSON.stringify(formData.suggestedDestinations),
         childrenAges: formData.childrenAges,
+        utmSource: utm?.utm_source,
+        utmMedium: utm?.utm_medium,
+        utmCampaign: utm?.utm_campaign,
       });
     } finally {
       setIsSubmitting(false);

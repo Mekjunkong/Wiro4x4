@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import { CookieConsent } from "./components/CookieConsent";
 import { ScrollProgress } from "./components/ScrollProgress";
 import { CustomCursor } from "./components/CustomCursor";
+import { captureUtmParams } from "@/lib/utm";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
 const Estimate = React.lazy(() => import("./pages/Estimate"));
@@ -48,6 +49,10 @@ function Router() {
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  React.useEffect(() => {
+    captureUtmParams();
+  }, []);
 
   return (
     <>

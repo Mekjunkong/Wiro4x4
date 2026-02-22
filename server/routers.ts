@@ -28,6 +28,7 @@ import { settingsRouter } from "./routes/settings";
 import { dashboardRouter } from "./routes/dashboard";
 import { statsRouter } from "./routes/stats";
 import { bookingDraftRouter } from "./routes/bookingDraft";
+import { analyticsRouter } from "./routes/analytics";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -56,6 +57,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   stats: statsRouter,
   bookingDraft: bookingDraftRouter,
+  analytics: analyticsRouter,
 });
 
 export type AppRouter = typeof appRouter;

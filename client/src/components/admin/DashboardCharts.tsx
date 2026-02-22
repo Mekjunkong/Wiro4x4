@@ -18,6 +18,7 @@ import {
   AlertCircle,
   ArrowRight,
 } from "lucide-react";
+import { FunnelChart } from "./FunnelChart";
 
 interface DashboardChartsProps {
   stats: {
@@ -145,6 +146,9 @@ export function DashboardCharts({
             </div>
           </div>
         </div>
+
+        {/* Booking Funnel */}
+        <FunnelChart />
       </div>
 
       {/* Today's Priorities */}

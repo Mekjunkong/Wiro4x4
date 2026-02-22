@@ -49,6 +49,9 @@ export const bookingInputSchema = z.object({
   ),
   budget: z.string().optional(),
   source: z.string().default("website"),
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
 });
 
 export const agentInputSchema = z.object({

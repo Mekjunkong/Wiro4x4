@@ -103,6 +103,11 @@ export const bookings = mysqlTable(
     reminderSentAt: timestamp("reminderSentAt"),
     feedbackSentAt: timestamp("feedbackSentAt"),
 
+    // UTM Tracking
+    utmSource: varchar("utmSource", { length: 255 }),
+    utmMedium: varchar("utmMedium", { length: 255 }),
+    utmCampaign: varchar("utmCampaign", { length: 255 }),
+
     // Metadata
     source: varchar("source", { length: 100 }).default("website"),
     notes: text("notes"),
