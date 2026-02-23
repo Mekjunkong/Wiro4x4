@@ -6,9 +6,9 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
 const HERO_IMAGE = {
-  webp: "/images/optimized/hero-waterfall.webp",
-  jpg: "/images/optimized/hero-waterfall.jpg",
-  alt: "Chiang Mai Waterfall Adventure",
+  webp: "/images/optimized/hero-wiro.webp",
+  jpg: "/images/optimized/hero-wiro.jpg",
+  alt: "WIRO 4x4 Indochina Adventure — Off-road in Chiang Mai",
 };
 
 export function Hero() {
