@@ -7,7 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import gsap from "gsap";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -48,7 +48,6 @@ const AUTOPLAY_DELAY = 6000;
 export function Hero() {
   const { t } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
 
   /* ─── Embla Carousel ─── */
   const autoplayPlugin = useRef(
@@ -135,20 +134,24 @@ export function Hero() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
-  const trustItems = [
-    t("Hebrew Speaking", "דוברי עברית"),
-    t("Kosher Meals Available", "ארוחות כשרות"),
-    t("Shabbat Friendly", "מותאם לשומרי שבת"),
-    t("Private Tours", "טיולים פרטיים"),
-  ];
+  const trustItems = useMemo(
+    () => [
+      t("Hebrew Speaking", "דוברי עברית"),
+      t("Kosher Meals Available", "ארוחות כשרות"),
+      t("Shabbat Friendly", "מותאם לשומרי שבת"),
+      t("Private Tours", "טיולים פרטיים"),
+    ],
+    [t]
+  );
 
   const currentSlide = SLIDES[selectedIndex];
 
   return (
     <section
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="hero-section group relative min-h-screen flex items-center justify-center overflow-hidden"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Hero slideshow"
     >
       {/* ─── Background Carousel ─── */}
       <div className="absolute inset-0 z-0" ref={emblaRef}>
@@ -156,6 +159,9 @@ export function Hero() {
           {SLIDES.map((slide, i) => (
             <div
               key={i}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Slide ${i + 1} of ${SLIDES.length}`}
               className={`embla__slide h-full ${i === selectedIndex ? "embla__slide--active" : ""}`}
             >
               <picture>
@@ -176,17 +182,17 @@ export function Hero() {
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* ─── Navigation Arrows (desktop hover) ─── */}
+      {/* ─── Navigation Arrows (desktop hover + keyboard focus) ─── */}
       <button
         onClick={scrollPrev}
-        className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-white/30 text-white/70 hover:text-white hover:border-white/60 transition-all duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-white/30 text-white/70 hover:text-white hover:border-white/60 transition-all duration-300 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
       <button
         onClick={scrollNext}
-        className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-white/30 text-white/70 hover:text-white hover:border-white/60 transition-all duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-white/30 text-white/70 hover:text-white hover:border-white/60 transition-all duration-300 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         aria-label="Next slide"
       >
         <ChevronRight className="h-6 w-6" />
@@ -277,10 +283,16 @@ export function Hero() {
           </div>
 
           {/* Dot Navigation */}
-          <div className="flex items-center justify-center gap-2 pt-4">
+          <div
+            className="flex items-center justify-center gap-2 pt-4"
+            role="tablist"
+            aria-label="Slide navigation"
+          >
             {SLIDES.map((_, i) => (
               <button
                 key={i}
+                role="tab"
+                aria-selected={i === selectedIndex}
                 onClick={() => emblaApi?.scrollTo(i)}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   i === selectedIndex
@@ -298,7 +310,8 @@ export function Hero() {
       <div className="absolute bottom-0 left-0 right-0 z-20 h-0.5 bg-white/10">
         <div
           key={selectedIndex}
-          className={`h-full bg-[#D4AF37] hero-progress-bar ${isHovered ? "hero-progress-bar--paused" : ""}`}
+          className="h-full bg-[#D4AF37] hero-progress-bar"
+          style={{ animationDuration: `${AUTOPLAY_DELAY}ms` }}
         />
       </div>
 

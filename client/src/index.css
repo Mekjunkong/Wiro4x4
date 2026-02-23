@@ -427,6 +427,6 @@ textarea {
   transform-origin: left;
 }
 
-.hero-progress-bar--paused {
+.hero-section:hover .hero-progress-bar {
   animation-play-state: paused;
 }
