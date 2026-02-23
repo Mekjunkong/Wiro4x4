@@ -128,6 +128,34 @@ const HARDCODED_TOURS = [
   },
 ];
 
+// Local image overrides — always used instead of DB imageUrl
+const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
+  "doi-inthanon-roof-of-thailand": {
+    webp: "/images/optimized/vietnam_rice_terraces.webp",
+    jpg: "/images/optimized/vietnam_rice_terraces.jpg",
+  },
+  "mae-kampong-hidden-village": {
+    webp: "/images/optimized/1000000149.webp",
+    jpg: "/images/optimized/1000000149.jpg",
+  },
+  "maerim-sticky-waterfalls": {
+    webp: "/images/optimized/1000000126_compressed.webp",
+    jpg: "/images/optimized/1000000126_compressed.jpg",
+  },
+  "doi-suthep-pui-beyond-temple": {
+    webp: "/images/optimized/1000000139_compressed.webp",
+    jpg: "/images/optimized/1000000139_compressed.jpg",
+  },
+  "mae-wang-jungle-wilderness": {
+    webp: "/images/optimized/laos_jungle.webp",
+    jpg: "/images/optimized/laos_jungle.jpg",
+  },
+  "samoeng-loop-mountain-circuit": {
+    webp: "/images/optimized/1000000135.webp",
+    jpg: "/images/optimized/1000000135.jpg",
+  },
+};
+
 const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
   easy: { en: "Easy", he: "קל" },
   moderate: { en: "Moderate", he: "בינוני" },
@@ -176,32 +204,41 @@ export function Tours() {
 
   const tours =
     dbTours && dbTours.length > 0
-      ? dbTours.map(tour => ({
-          id: tour.id,
-          slug: tour.slug || generateSlug(tour.name),
-          image: tour.imageUrl,
-          title: t(tour.name, tour.nameHe),
-          description: t(tour.description, tour.descriptionHe),
-          duration: tour.duration,
-          difficulty: tour.difficulty,
-          kosher: tour.isKosher === 1,
-          private: tour.isPrivate === 1,
-          shabbat: tour.isShabbatOk === 1,
-          price: tour.price ?? null,
-        }))
-      : HARDCODED_TOURS.map(tour => ({
-          id: tour.id,
-          slug: tour.slug,
-          image: tour.image,
-          title: t(tour.title, tour.titleHe),
-          description: t(tour.description, tour.descriptionHe),
-          duration: t(tour.duration, tour.durationHe),
-          difficulty: tour.difficulty,
-          kosher: tour.kosher,
-          private: tour.private,
-          shabbat: tour.shabbat,
-          price: tour.price,
-        }));
+      ? dbTours.map(tour => {
+          const slug = tour.slug || generateSlug(tour.name);
+          const localImg = TOUR_IMAGE_MAP[slug];
+          return {
+            id: tour.id,
+            slug,
+            image: localImg?.jpg || tour.imageUrl,
+            imageWebp: localImg?.webp || null,
+            title: t(tour.name, tour.nameHe),
+            description: t(tour.description, tour.descriptionHe),
+            duration: tour.duration,
+            difficulty: tour.difficulty,
+            kosher: tour.isKosher === 1,
+            private: tour.isPrivate === 1,
+            shabbat: tour.isShabbatOk === 1,
+            price: tour.price ?? null,
+          };
+        })
+      : HARDCODED_TOURS.map(tour => {
+          const localImg = TOUR_IMAGE_MAP[tour.slug];
+          return {
+            id: tour.id,
+            slug: tour.slug,
+            image: localImg?.jpg || tour.image,
+            imageWebp: localImg?.webp || null,
+            title: t(tour.title, tour.titleHe),
+            description: t(tour.description, tour.descriptionHe),
+            duration: t(tour.duration, tour.durationHe),
+            difficulty: tour.difficulty,
+            kosher: tour.kosher,
+            private: tour.private,
+            shabbat: tour.shabbat,
+            price: tour.price,
+          };
+        });
 
   return (
     <section
@@ -235,14 +272,21 @@ export function Tours() {
                   <a href={`/tours/${tour.slug}`} className="block group">
                     <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
                       <div className="relative h-72 overflow-hidden bg-muted">
-                        <img
-                          src={tour.image}
-                          alt={tour.title}
-                          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                            tour.id === 6 ? "object-[50%_30%]" : "object-center"
-                          }`}
-                          loading="lazy"
-                        />
+                        <picture>
+                          {tour.imageWebp && (
+                            <source srcSet={tour.imageWebp} type="image/webp" />
+                          )}
+                          <img
+                            src={tour.image}
+                            alt={tour.title}
+                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                              tour.id === 6
+                                ? "object-[50%_30%]"
+                                : "object-center"
+                            }`}
+                            loading="lazy"
+                          />
+                        </picture>
                         {tour.price != null && (
                           <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                             {t("From", "החל מ-")} &#3647;

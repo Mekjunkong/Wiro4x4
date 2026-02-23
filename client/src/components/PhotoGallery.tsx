@@ -66,6 +66,16 @@ export function PhotoGallery() {
         }))
       : FALLBACK_PHOTOS;
 
+  // Track which images failed to load
+  const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
+  const handleImageError = useCallback((index: number) => {
+    setBrokenImages(prev => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
@@ -116,16 +126,24 @@ export function PhotoGallery() {
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex">
               {photos.map((photo, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0">
+                <div
+                  key={index}
+                  className="flex-[0_0_100%] min-w-0"
+                  style={
+                    brokenImages.has(index) ? { display: "none" } : undefined
+                  }
+                >
                   <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden">
                     <picture>
                       <source srcSet={photo.src} type="image/webp" />
                       <img
                         src={photo.fallback}
                         alt={photo.caption}
-                        loading="lazy"
-                        decoding="async"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        decoding={index === 0 ? "sync" : "async"}
+                        fetchPriority={index === 0 ? "high" : undefined}
                         className="w-full h-full object-cover"
+                        onError={() => handleImageError(index)}
                       />
                     </picture>
 

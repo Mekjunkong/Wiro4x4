@@ -12,8 +12,7 @@ const HERO_IMAGE = {
 };
 
 export function Hero() {
-  const { t, language } = useLanguage();
-  const isHebrew = language === "he";
+  const { t } = useLanguage();
 
   const heroContentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -104,19 +103,17 @@ export function Hero() {
             fetchPriority="high"
           />
         </picture>
-        {/* Dual gradient for side-aligned readability */}
-        <div
-          className={`absolute inset-0 ${isHebrew ? "bg-gradient-to-l" : "bg-gradient-to-r"} from-black/80 via-black/50 to-transparent`}
-        />
+        {/* Dual gradient for side-aligned readability — always darken right side */}
+        <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
 
       {/* Content */}
       <div
         ref={heroContentRef}
-        className={`container relative z-10 text-white py-20 ${isHebrew ? "text-right" : "text-left"}`}
+        className="container relative z-10 text-white py-20 text-right"
       >
-        <div className={`max-w-3xl space-y-6 ${isHebrew ? "ml-auto" : ""}`}>
+        <div className="max-w-3xl space-y-6 ml-auto">
           {/* Title */}
           <h1
             ref={titleRef}
@@ -131,7 +128,7 @@ export function Hero() {
           {/* Gold Divider */}
           <div
             ref={dividerRef}
-            className={`h-0.5 w-16 bg-[#D4AF37] ${isHebrew ? "ml-auto" : ""}`}
+            className="h-0.5 w-16 bg-[#D4AF37] ml-auto"
             style={{ transform: "scaleX(0)" }}
           />
 
@@ -156,7 +153,7 @@ export function Hero() {
           {/* CTAs */}
           <div
             ref={ctaRef}
-            className={`flex flex-col sm:flex-row gap-4 pt-4 ${isHebrew ? "justify-end items-end" : "items-start"}`}
+            className="flex flex-col sm:flex-row gap-4 pt-4 justify-end items-end"
             style={{ opacity: 0 }}
           >
             <Button
@@ -182,7 +179,7 @@ export function Hero() {
           {/* Trust Indicators */}
           <div
             ref={trustRef}
-            className={`flex flex-wrap items-center gap-3 pt-8 ${isHebrew ? "justify-end" : ""}`}
+            className="flex flex-wrap items-center gap-3 pt-8 justify-end"
             style={{ opacity: 0 }}
           >
             {trustItems.map((item, index) => (
@@ -198,9 +195,7 @@ export function Hero() {
       </div>
 
       {/* Scroll Indicator */}
-      <div
-        className={`absolute bottom-12 z-10 animate-subtle-pulse ${isHebrew ? "right-8 sm:right-12 md:right-16" : "left-8 sm:left-12 md:left-16"}`}
-      >
+      <div className="absolute bottom-12 z-10 animate-subtle-pulse right-8 sm:right-12 md:right-16">
         <div className="flex flex-col items-center gap-3">
           <span className="text-xs uppercase tracking-widest text-white/60">
             {t("Discover", "גלו")}

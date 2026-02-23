@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Auth:** Manus OAuth (built-in)
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy initialization — no crash without API key)
-- **Testing:** Vitest (131 tests across 21 files)
+- **Testing:** Vitest (155 tests across 30 files)
 - **Hosting:** Manus platform (with custom domain support)
 
 ## Development Commands
@@ -26,7 +26,7 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests (131 tests: 106 pass locally, 25 DB-dependent skipped)
+# Run tests (155 tests: 125 pass locally, 30 DB-dependent skipped)
 pnpm test
 
 # Type check
@@ -213,6 +213,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - `t('English text', 'Hebrew text')` pattern in all components
 - Language switcher in header (flag icons)
 - RTL removed (caused layout issues — English layout used for both)
+- **Hero layout:** "WIRO 4×4" text is always right-aligned for both languages (gradient darkens right side)
 
 ### 2. Booking System
 
@@ -233,6 +234,9 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 ### 4. Photo Gallery
 
 - **Public:** `/gallery` — masonry grid with category filters
+- **Homepage:** `PhotoGallery.tsx` — "Adventure Highlights" carousel with DB photos + local fallback
+- **Broken image handling:** `onError` hides failed S3 images so users never see broken icons
+- **First image eager-loaded:** `loading="eager"` + `fetchPriority="high"` for fast first paint
 - **Admin:** Upload + manage photos via Gallery tab
 - **Storage:** S3 via `storagePut()` in `server/storage.ts`
 - **Categories:** tours, vehicles, destinations, activities, food, accommodation, other
@@ -248,6 +252,8 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - `client/src/components/Tours.tsx` fetches from `trpc.tour.list` — cards link to `/tours/:slug`
 - `client/src/pages/TourDetail.tsx` — individual tour pages with hero, description, included items, itinerary, booking CTA
 - Hardcoded fallback tours if DB returns empty (6 destination-based Chiang Mai day trips)
+- **Tour image override:** `TOUR_IMAGE_MAP` in `Tours.tsx` maps tour slugs to local optimized images — these ALWAYS override DB `imageUrl` to prevent images reverting to incorrect DB values
+- **WebP + JPG:** Tour cards use `<picture>` with optimized WebP source + JPG fallback for fast loading
 - Extended fallback type includes `itineraryData`, `highlights`, `highlightsHe` fields serialized to JSON
 - Admin can create/edit/delete tours, manage slug/itinerary/includedItems via Tours tab
 - **Current 6 tour slugs:** `doi-inthanon-roof-of-thailand`, `mae-kampong-hidden-village`, `maerim-sticky-waterfalls`, `doi-suthep-pui-beyond-temple`, `mae-wang-jungle-wilderness`, `samoeng-loop-mountain-circuit`
@@ -592,7 +598,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-02-19
-**Version:** 2.5
+**Last Updated:** 2026-02-23
+**Version:** 2.6
 **Platform:** Manus
-**Test Coverage:** 131 tests (21 files) — 106 pass locally, 25 DB-dependent skipped
+**Test Coverage:** 155 tests (30 files) — 125 pass locally, 30 DB-dependent skipped
