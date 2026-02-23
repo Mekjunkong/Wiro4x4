@@ -26,32 +26,48 @@ export function PhotoGallery() {
       ),
     },
     {
-      src: "/images/optimized/VmAKaqoyTR8S.webp",
-      fallback: "/images/optimized/VmAKaqoyTR8S.jpg",
-      caption: t("Doi Inthanon — Roof of Thailand", "דוי אינתנון — גג תאילנד"),
+      src: "/images/optimized/tourists_with_4x4.webp",
+      fallback: "/images/optimized/tourists_with_4x4.jpg",
+      caption: t("Your off-road adventure awaits", "הרפתקת השטח שלכם מחכה"),
     },
     {
-      src: "/images/optimized/1000000126_compressed.webp",
-      fallback: "/images/optimized/1000000126_compressed.jpg",
-      caption: t("Climbing the Sticky Waterfalls", "טיפוס על המפלים הדביקים"),
+      src: "/images/optimized/wiro_waterfall.webp",
+      fallback: "/images/optimized/wiro_waterfall.jpg",
+      caption: t(
+        "Chasing waterfalls in the highlands",
+        "מרדף אחרי מפלים ברמות"
+      ),
     },
     {
-      src: "/images/optimized/1000000140.webp",
-      fallback: "/images/optimized/1000000140.jpg",
+      src: "/images/optimized/elephant_encounter.webp",
+      fallback: "/images/optimized/elephant_encounter.jpg",
       caption: t("Elephant encounters in Mae Wang", "מפגש עם פילים במאה וואנג"),
     },
     {
-      src: "/images/optimized/B72dBoiryl1u.webp",
-      fallback: "/images/optimized/B72dBoiryl1u.jpg",
-      caption: t("Off-road through the mountains", "שטח דרך ההרים"),
+      src: "/images/optimized/bamboo_rafting.webp",
+      fallback: "/images/optimized/bamboo_rafting.jpg",
+      caption: t(
+        "Bamboo rafting through the jungle",
+        "שייט על רפסודות במבוק בג'ונגל"
+      ),
     },
     {
-      src: "/images/optimized/1000000143.webp",
-      fallback: "/images/optimized/1000000143.jpg",
+      src: "/images/optimized/mountain_sunset.webp",
+      fallback: "/images/optimized/mountain_sunset.jpg",
       caption: t(
-        "Golden rice terraces in the highlands",
-        "מדרגות אורז זהובות ברמות"
+        "Sunset over the Chiang Mai mountains",
+        "שקיעה מעל הרי צ'יאנג מאי"
       ),
+    },
+    {
+      src: "/images/optimized/kosher_meal.webp",
+      fallback: "/images/optimized/kosher_meal.jpg",
+      caption: t("Kosher meals prepared fresh", "ארוחות כשרות טריות"),
+    },
+    {
+      src: "/images/optimized/cave_boat.webp",
+      fallback: "/images/optimized/cave_boat.jpg",
+      caption: t("Explore hidden caves by boat", "גלו מערות נסתרות בסירה"),
     },
   ];
 
