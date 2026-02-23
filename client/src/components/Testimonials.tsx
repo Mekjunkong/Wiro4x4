@@ -102,10 +102,10 @@ export function Testimonials() {
   ];
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-[#141414]">
+    <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-4xl md:text-5xl font-medium mb-6 text-white">
+          <h2 className="text-4xl md:text-5xl font-medium mb-6 text-foreground">
             {t("What Our Travelers Say", "מה המטיילים שלנו אומרים")}
           </h2>
           <GoldDivider />
@@ -118,8 +118,8 @@ export function Testimonials() {
                 />
               ))}
             </div>
-            <span className="text-lg font-bold text-white">5.0</span>
-            <span className="text-[#9B9590]">
+            <span className="text-lg font-bold text-foreground">5.0</span>
+            <span className="text-muted-foreground">
               {t("from 120+ travelers", "מ-120+ מטיילים")}
             </span>
           </div>
@@ -134,7 +134,7 @@ export function Testimonials() {
                   key={index}
                   className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="h-full p-6 bg-[#1C1C1C] border-l-2 border-[#D4AF37] rounded-sm">
+                  <div className="h-full p-6 bg-card border-l-2 border-[#D4AF37] rounded-sm">
                     <div className="flex flex-col h-full">
                       <span className="text-5xl text-[#D4AF37] leading-none mb-4">
                         {"\u201C"}
@@ -149,15 +149,15 @@ export function Testimonials() {
                           )
                         )}
                       </div>
-                      <p className="italic text-lg leading-relaxed text-[#9B9590] mb-4 flex-grow">
+                      <p className="italic text-lg leading-relaxed text-muted-foreground mb-4 flex-grow">
                         {testimonial.text}
                       </p>
                       <div>
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold text-foreground">
                           <span className="text-[#D4AF37]">{"\u2014 "}</span>
                           {testimonial.name}
                         </p>
-                        <p className="text-xs text-[#9B9590]">
+                        <p className="text-xs text-muted-foreground">
                           {testimonial.location}
                         </p>
                       </div>
@@ -171,14 +171,14 @@ export function Testimonials() {
           {/* Arrows */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Previous", "הקודם")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Next", "הבא")}
           >
             <ChevronRight className="h-5 w-5" />
@@ -192,7 +192,7 @@ export function Testimonials() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-[#2A2A25]"
+                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

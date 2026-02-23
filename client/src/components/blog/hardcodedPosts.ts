@@ -189,7 +189,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("10 min read", "10 דקות קריאה"),
-      image: "/images/vietnam_rice_terraces.jpg",
+      image: "/images/optimized/UJvZx4ZA7cn3.jpg",
       content: t(
         `# Essential Tips for Israeli Travelers in Southeast Asia
 

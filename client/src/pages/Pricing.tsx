@@ -45,7 +45,7 @@ const HARDCODED_TOURS = [
     duration: "Full Day (8-10 hours)",
     durationHe: "יום שלם (8-10 שעות)",
     basePrice: 4200,
-    image: "/images/vietnam_rice_terraces.jpg",
+    image: "/images/optimized/VmAKaqoyTR8S.jpg",
     included: [
       { en: "Private 4x4 vehicle with driver", he: "רכב 4x4 פרטי עם נהג" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },
@@ -68,7 +68,7 @@ const HARDCODED_TOURS = [
     duration: "8-10 hours",
     durationHe: "8-10 שעות",
     basePrice: 4800,
-    image: "/images/laos_jungle.jpg",
+    image: "/images/optimized/1000000140.jpg",
     included: [
       {
         en: "Private 4x4 vehicle with experienced driver",
@@ -123,7 +123,7 @@ const HARDCODED_TOURS = [
     duration: "6-8 hours",
     durationHe: "6-8 שעות",
     basePrice: 3800,
-    image: "/images/1000000135.jpg",
+    image: "/images/optimized/1000000143.jpg",
     included: [
       { en: "Private 4x4 vehicle", he: "רכב 4x4 פרטי" },
       { en: "Hebrew-speaking cultural guide", he: "מדריך תרבות דובר עברית" },

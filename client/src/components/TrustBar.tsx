@@ -60,13 +60,13 @@ export function TrustBar() {
   ];
 
   return (
-    <div className="bg-[#1C1C1C] border-y border-[#D4AF37]/20 py-3">
+    <div className="bg-card border-y border-[#D4AF37]/20 py-3">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
           {signals.map((signal, i) => (
             <div key={i} className="flex items-center gap-2">
               <signal.icon className="w-4 h-4 text-[#D4AF37] shrink-0" />
-              <span className="text-white/90 text-sm">{signal.label}</span>
+              <span className="text-foreground/90 text-sm">{signal.label}</span>
             </div>
           ))}
         </div>

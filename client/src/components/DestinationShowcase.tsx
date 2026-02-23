@@ -12,7 +12,8 @@ const DESTINATIONS = [
       "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
     descHe:
       "הפסגה הגבוהה ביותר בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
-    image: "/images/vietnam_rice_terraces.jpg",
+    image: "/images/optimized/VmAKaqoyTR8S.jpg",
+    imageWebp: "/images/optimized/VmAKaqoyTR8S.webp",
     tourSlug: "doi-inthanon-roof-of-thailand",
   },
   {
@@ -22,7 +23,8 @@ const DESTINATIONS = [
     descEn:
       "A hidden 700-year-old eco-village with wild gibbons and ancient tea traditions",
     descHe: "כפר אקולוגי נסתר בן 700 שנה עם גיבונים בר ומסורות תה עתיקות",
-    image: "/images/1000000149.jpg",
+    image: "/images/optimized/1000000149.jpg",
+    imageWebp: "/images/optimized/1000000149.webp",
     tourSlug: "mae-kampong-hidden-village",
   },
   {
@@ -33,7 +35,8 @@ const DESTINATIONS = [
       "Climb UP a waterfall barefoot, canopy walkway 20m high, and upper falls no one reaches",
     descHe:
       "טפסו למעלה על מפל יחפים, עברו על גשר צמרות בגובה 20 מ' וגלו קומות עליונות שאף אחד לא מגיע אליהן",
-    image: "/images/1000000126_compressed.jpg",
+    image: "/images/optimized/1000000126_compressed.jpg",
+    imageWebp: "/images/optimized/1000000126_compressed.webp",
     tourSlug: "maerim-sticky-waterfalls",
   },
   {
@@ -44,7 +47,8 @@ const DESTINATIONS = [
       "Hike the Monk's Trail, then continue where tourists turn back — hidden coffee village and secluded falls",
     descHe:
       "טיילו בשביל הנזירים, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר קפה נסתר ומפלים מבודדים",
-    image: "/images/1000000139_compressed.jpg",
+    image: "/images/optimized/UJvZx4ZA7cn3.jpg",
+    imageWebp: "/images/optimized/UJvZx4ZA7cn3.webp",
     tourSlug: "doi-suthep-pui-beyond-temple",
   },
   {
@@ -54,7 +58,8 @@ const DESTINATIONS = [
     descEn:
       "Real off-road through jungle — canyon, elephants, bamboo rafting, and hidden waterfalls",
     descHe: "שטח אמיתי דרך ג'ונגל — קניון, פילים, שייט במבוק ומפלים נסתרים",
-    image: "/images/laos_jungle.jpg",
+    image: "/images/optimized/1000000140.jpg",
+    imageWebp: "/images/optimized/1000000140.webp",
     tourSlug: "mae-wang-jungle-wilderness",
   },
   {
@@ -65,7 +70,8 @@ const DESTINATIONS = [
       "100km mountain circuit — rare Lanna temple, hilltop farm, Hmong village, lakeside sunset",
     descHe:
       'מעגל הרים של 100 ק"מ — מקדש לאנה נדיר, חווה על פסגת הר, כפר המונג, שקיעה על האגם',
-    image: "/images/1000000135.jpg",
+    image: "/images/optimized/1000000143.jpg",
+    imageWebp: "/images/optimized/1000000143.webp",
     tourSlug: "samoeng-loop-mountain-circuit",
   },
 ];
@@ -100,12 +106,15 @@ export function DestinationShowcase() {
               href={`/tours/${dest.tourSlug}`}
               className="group relative rounded-sm overflow-hidden h-64 md:h-72 block"
             >
-              <img
-                src={dest.image}
-                alt={t(dest.en, dest.he)}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                loading="lazy"
-              />
+              <picture>
+                <source srcSet={dest.imageWebp} type="image/webp" />
+                <img
+                  src={dest.image}
+                  alt={t(dest.en, dest.he)}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  loading="lazy"
+                />
+              </picture>
               {/* Permanent gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               {/* Gold tint overlay on hover */}

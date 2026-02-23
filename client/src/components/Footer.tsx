@@ -34,7 +34,7 @@ export function Footer() {
   };
 
   return (
-    <footer id="contact" className="bg-[#1C1C1C] text-white py-12">
+    <footer id="contact" className="bg-card text-foreground py-12">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
@@ -49,7 +49,7 @@ export function Footer() {
                 className="h-16 w-auto object-contain drop-shadow-lg"
               />
             </a>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-muted-foreground">
               {t(
                 "Premium 4x4 tours in Northern Thailand with kosher meals and Hebrew-speaking guides.",
                 "טיולי 4x4 בצפון תאילנד עם אוכל כשר ומדריכים דוברי עברית."
@@ -197,13 +197,13 @@ export function Footer() {
 
         <div className="border-t border-[#D4AF37]/20 pt-8 mt-2">
           <div className="text-center space-y-2">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-muted-foreground">
               {t(
                 "* WIRO 4x4 maintains personal friendships with Chabad communities but is not officially affiliated with or endorsed by any Chabad organization.",
                 "* WIRO 4x4 שומרת על קשרים אישיים עם קהילות חב״ד, אך אינה קשורה רשמית לארגון חב״ד כלשהו ואינה פועלת מטעמו."
               )}
             </p>
-            <p className="text-sm text-white/50">
+            <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} WIRO 4x4.{" "}
               {t("All rights reserved.", "כל הזכויות שמורות.")}
             </p>

@@ -21,7 +21,7 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/vietnam_rice_terraces.jpg",
+    image: "/images/optimized/VmAKaqoyTR8S.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
@@ -39,7 +39,7 @@ const HARDCODED_TOURS = [
   {
     id: 2,
     slug: "mae-kampong-hidden-village",
-    image: "/images/1000000149.jpg",
+    image: "/images/optimized/1000000149.jpg",
     title: "Mae Kampong — Hidden Mountain Village",
     titleHe: "מאה קמפונג — הכפר הנסתר בהרים",
     description:
@@ -57,7 +57,7 @@ const HARDCODED_TOURS = [
   {
     id: 3,
     slug: "maerim-sticky-waterfalls",
-    image: "/images/1000000126_compressed.jpg",
+    image: "/images/optimized/1000000126_compressed.jpg",
     title: "Maerim & Sticky Waterfalls",
     titleHe: "מאה רים ומפלים דביקים",
     description:
@@ -75,7 +75,7 @@ const HARDCODED_TOURS = [
   {
     id: 4,
     slug: "doi-suthep-pui-beyond-temple",
-    image: "/images/1000000139_compressed.jpg",
+    image: "/images/optimized/UJvZx4ZA7cn3.jpg",
     title: "Doi Suthep-Pui — Beyond the Temple",
     titleHe: "דוי סוטפ-פוי — מעבר למקדש",
     description:
@@ -93,7 +93,7 @@ const HARDCODED_TOURS = [
   {
     id: 5,
     slug: "mae-wang-jungle-wilderness",
-    image: "/images/laos_jungle.jpg",
+    image: "/images/optimized/1000000140.jpg",
     title: "Mae Wang — Jungle & River Wilderness",
     titleHe: "מאה וואנג — ג'ונגל ונהרות פראיים",
     description:
@@ -111,7 +111,7 @@ const HARDCODED_TOURS = [
   {
     id: 6,
     slug: "samoeng-loop-mountain-circuit",
-    image: "/images/1000000135.jpg",
+    image: "/images/optimized/1000000143.jpg",
     title: "Samoeng Loop — The Mountain Circuit",
     titleHe: "לולאת סמאנג — המעגל ההררי",
     description:
@@ -131,8 +131,8 @@ const HARDCODED_TOURS = [
 // Local image overrides — always used instead of DB imageUrl
 const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/vietnam_rice_terraces.webp",
-    jpg: "/images/optimized/vietnam_rice_terraces.jpg",
+    webp: "/images/optimized/VmAKaqoyTR8S.webp",
+    jpg: "/images/optimized/VmAKaqoyTR8S.jpg",
   },
   "mae-kampong-hidden-village": {
     webp: "/images/optimized/1000000149.webp",
@@ -143,16 +143,16 @@ const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
     jpg: "/images/optimized/1000000126_compressed.jpg",
   },
   "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/1000000139_compressed.webp",
-    jpg: "/images/optimized/1000000139_compressed.jpg",
+    webp: "/images/optimized/UJvZx4ZA7cn3.webp",
+    jpg: "/images/optimized/UJvZx4ZA7cn3.jpg",
   },
   "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/laos_jungle.webp",
-    jpg: "/images/optimized/laos_jungle.jpg",
+    webp: "/images/optimized/1000000140.webp",
+    jpg: "/images/optimized/1000000140.jpg",
   },
   "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/1000000135.webp",
-    jpg: "/images/optimized/1000000135.jpg",
+    webp: "/images/optimized/1000000143.webp",
+    jpg: "/images/optimized/1000000143.jpg",
   },
 };
 
@@ -244,14 +244,14 @@ export function Tours() {
     <section
       ref={sectionRef}
       id="tours"
-      className="py-24 md:py-32 bg-[#0F0F0F] relative overflow-hidden"
+      className="py-24 md:py-32 bg-background relative overflow-hidden"
     >
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6 text-white">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4 md:mb-6 text-foreground">
             {t("Our Premium Tours", "הטיולים שלנו")}
           </h2>
-          <p className="text-base md:text-lg text-[#9B9590]">
+          <p className="text-base md:text-lg text-muted-foreground">
             {t(
               "Choose from our carefully curated selection of kosher-friendly off-road adventures.",
               "בחרו מתוך מגוון טיולי השטח שלנו -- כולם עם אפשרות לאוכל כשר."
@@ -270,7 +270,7 @@ export function Tours() {
                   className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
                   <a href={`/tours/${tour.slug}`} className="block group">
-                    <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-[#1C1C1C]">
+                    <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
                       <div className="relative h-72 overflow-hidden bg-muted">
                         <picture>
                           {tour.imageWebp && (
@@ -288,7 +288,7 @@ export function Tours() {
                           />
                         </picture>
                         {tour.price != null && (
-                          <div className="absolute top-4 right-4 bg-[#1C1C1C]/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
+                          <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
                             {t("From", "החל מ-")} &#3647;
                             {tour.price.toLocaleString()}
                           </div>
@@ -296,21 +296,23 @@ export function Tours() {
                       </div>
 
                       <div className="p-6 space-y-4">
-                        <h3 className="text-xl font-medium text-white">
+                        <h3 className="text-xl font-medium text-foreground">
                           {tour.title}
                         </h3>
-                        <p className="text-sm text-[#9B9590]">
+                        <p className="text-sm text-muted-foreground">
                           {tour.description}
                         </p>
 
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-[#D4AF37]" />
-                            <span className="text-white">{tour.duration}</span>
+                            <span className="text-foreground">
+                              {tour.duration}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Mountain className="h-4 w-4 text-[#D4AF37]" />
-                            <span className="text-white">
+                            <span className="text-foreground">
                               {t(
                                 DIFFICULTY_LABELS[tour.difficulty]?.en ||
                                   tour.difficulty,
@@ -357,14 +359,14 @@ export function Tours() {
           {/* Arrows */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Previous", "הקודם")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Next", "הבא")}
           >
             <ChevronRight className="h-5 w-5" />
@@ -378,7 +380,7 @@ export function Tours() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-[#2A2A25]"
+                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

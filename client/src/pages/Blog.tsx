@@ -35,7 +35,7 @@ const FALLBACK_POSTS = [
       "Essential advice from experienced Israeli travelers about navigating Thailand, Laos, and Vietnam.",
     excerptHe:
       "טיפים, מידע ועצות מניסיון של שנים -- כסף, בריאות, תחבורה, שבת וקהילה ישראלית.",
-    coverImage: "/images/vietnam_rice_terraces.jpg",
+    coverImage: "/images/optimized/UJvZx4ZA7cn3.jpg",
     category: "Travel Tips",
     tags: "travel-tips,israel,southeast-asia,budget",
     publishedAt: "2024-12-01",

@@ -167,7 +167,7 @@ export default function Gallery() {
                   <span
                     className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
                       isActive
-                        ? "bg-[#1C1C1C]/20 text-[#1C1C1C]"
+                        ? "bg-foreground/20 text-foreground"
                         : isZero
                           ? "bg-muted text-muted-foreground"
                           : "bg-[#D4AF37]/10 text-[#D4AF37]"

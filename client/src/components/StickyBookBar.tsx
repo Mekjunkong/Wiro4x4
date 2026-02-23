@@ -17,14 +17,14 @@ export function StickyBookBar() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 bg-[#1C1C1C]/95 backdrop-blur-sm border-b border-[#D4AF37]/30 py-2 px-4 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-[#D4AF37]/30 py-2 px-4 transition-all duration-300 ${
         visible
           ? "translate-y-0 opacity-100"
           : "-translate-y-full opacity-0 pointer-events-none"
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <p className="hidden sm:block text-white/90 text-sm font-medium">
+        <p className="hidden sm:block text-foreground/90 text-sm font-medium">
           {t(
             "Ready for your Chiang Mai adventure?",
             "מוכנים להרפתקה בצ'יאנג מאי?"

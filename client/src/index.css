@@ -215,16 +215,6 @@
       max-width: 1280px; /* Standard content width */
     }
   }
-
-  /* Dark cinematic section for landing page */
-  .section-dark {
-    --section-bg: #0f0f0f;
-    --section-bg-alt: #141414;
-    --section-card-bg: #1c1c1c;
-    --section-text: #f0ede8;
-    --section-text-muted: #9b9590;
-    --section-border: #2a2a25;
-  }
 }
 /* Additional utilities for smooth animations and RTL support */
 @layer utilities {

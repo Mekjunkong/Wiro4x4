@@ -88,9 +88,9 @@ export function QuickInquiryForm() {
     return (
       <section ref={sectionRef} className="py-24 md:py-32 bg-background">
         <div className="container max-w-2xl">
-          <Card className="p-8 text-center border border-[#D4AF37]/30 rounded-sm">
+          <Card className="p-8 text-center border border-[#D4AF37]/30 rounded-sm bg-card">
             <CheckCircle className="w-12 h-12 text-[#D4AF37] mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">
+            <h3 className="text-2xl font-bold mb-2 text-foreground">
               {t("Thank You!", "!תודה רבה")}
             </h3>
             <p className="text-muted-foreground mb-6">
@@ -125,7 +125,7 @@ export function QuickInquiryForm() {
     >
       <div className="container max-w-4xl">
         <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-medium mb-3">
+          <h2 className="text-4xl md:text-5xl font-medium mb-3 text-foreground">
             {t("Get a Free Quote", "קבלו הצעת מחיר חינם")}
           </h2>
           <p className="text-muted-foreground">
@@ -137,7 +137,7 @@ export function QuickInquiryForm() {
           <GoldDivider />
         </div>
 
-        <Card className="p-6 md:p-8 border border-[#D4AF37]/30 rounded-sm">
+        <Card className="p-6 md:p-8 border border-[#D4AF37]/30 rounded-sm bg-card">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -159,7 +159,7 @@ export function QuickInquiryForm() {
                     });
                   }}
                   placeholder={t("Your name", "השם שלכם")}
-                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] ${errors.name ? "border-red-500" : "border-border"}`}
+                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] bg-input text-foreground placeholder:text-muted-foreground ${errors.name ? "border-red-500" : "border-border"}`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -183,7 +183,7 @@ export function QuickInquiryForm() {
                     });
                   }}
                   placeholder={t("your@email.com", "your@email.com")}
-                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] ${errors.email ? "border-red-500" : "border-border"}`}
+                  className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37] bg-input text-foreground placeholder:text-muted-foreground ${errors.email ? "border-red-500" : "border-border"}`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -203,7 +203,7 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, phone: e.target.value }))
                   }
                   placeholder={t("+972...", "+972...")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-border bg-input text-foreground placeholder:text-muted-foreground rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
               <div>
@@ -217,7 +217,7 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, travelDates: e.target.value }))
                   }
                   placeholder={t("e.g. March 15-20", "לדוגמה: 15-20 מרץ")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-border bg-input text-foreground placeholder:text-muted-foreground rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
               <div>
@@ -231,7 +231,7 @@ export function QuickInquiryForm() {
                     setForm(p => ({ ...p, groupSize: e.target.value }))
                   }
                   placeholder={t("e.g. 2 adults, 1 child", "2 מבוגרים, ילד 1")}
-                  className="w-full px-4 py-2.5 border border-border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
+                  className="w-full px-4 py-2.5 border border-border bg-input text-foreground placeholder:text-muted-foreground rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:border-[#D4AF37]"
                 />
               </div>
             </div>
@@ -251,7 +251,7 @@ export function QuickInquiryForm() {
                     className={`px-3 py-2.5 rounded-sm text-sm border transition-colors ${
                       form.interest === option.value
                         ? "bg-[#D4AF37] text-[#1C1C1C] border-[#D4AF37]"
-                        : "border-border hover:border-[#D4AF37]/50"
+                        : "border-border text-muted-foreground hover:border-[#D4AF37]/50"
                     }`}
                   >
                     {t(option.en, option.he)}

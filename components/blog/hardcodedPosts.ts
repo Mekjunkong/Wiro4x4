@@ -172,7 +172,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
 ## אנשי קשר חשובים
 
 - **חב"ד צ'יאנג מאי**: [שלחו הודעה בוואטסאפ]
-- **אחראי כשרות WIRO 4x4**: 66819611398+
+- **אחראי כשרות WIRO 4x4**: ‎+66-819-611-398
 - **מסעדות כשרות בבנגקוק**: למי שמגיע דרך בנגקוק או מתכנן עצירה
 
 ## לסיכום
@@ -189,7 +189,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("10 min read", "10 דקות קריאה"),
-      image: "/images/vietnam_rice_terraces.jpg",
+      image: "/images/optimized/UJvZx4ZA7cn3.jpg",
       content: t(
         `# Essential Tips for Israeli Travelers in Southeast Asia
 
@@ -951,7 +951,7 @@ Cultural sensitivity isn't about being perfect - it's about showing respect and 
 - מדברים בטון נמוך ורגוע. צעקות = כישלון
 - עימות ישיר הוא פשוט לא אופציה. תמצאו דרך עוקפת
 - ביקורת? רק בעקיפין, בצורה עדינה
-- כש"אולי" אומרים לכם "אולי" -- תבינו שזה "לא"
+- כשאומרים לכם "אולי" -- תבינו שזה "לא"
 - שתיקה היא חלק מהשיחה. אל תמהרו למלא אותה
 
 ### שפת גוף

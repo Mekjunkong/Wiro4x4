@@ -18,37 +18,40 @@ export function PhotoGallery() {
 
   const FALLBACK_PHOTOS: Photo[] = [
     {
-      src: "/images/optimized/hero-waterfall.webp",
-      fallback: "/images/hero-waterfall.jpg",
+      src: "/images/optimized/laos_offroad.webp",
+      fallback: "/images/optimized/laos_offroad.jpg",
       caption: t(
-        "Chasing waterfalls in Chiang Mai",
-        "רודפים אחרי מפלים בצ'יאנג מאי"
+        "The Wiro 4×4 — your ride to adventure",
+        "הווירו 4×4 — הרכב שלכם להרפתקה"
       ),
     },
     {
-      src: "/images/optimized/1000000135.webp",
-      fallback: "/images/1000000135.jpg",
-      caption: t("Off-road through the jungle", "שטח דרך הג'ונגל"),
-    },
-    {
-      src: "/images/optimized/1000000149.webp",
-      fallback: "/images/1000000149.jpg",
-      caption: t("Hidden mountain villages", "כפרים נסתרים בהרים"),
+      src: "/images/optimized/VmAKaqoyTR8S.webp",
+      fallback: "/images/optimized/VmAKaqoyTR8S.jpg",
+      caption: t("Doi Inthanon — Roof of Thailand", "דוי אינתנון — גג תאילנד"),
     },
     {
       src: "/images/optimized/1000000126_compressed.webp",
-      fallback: "/images/1000000126_compressed.jpg",
-      caption: t("Sticky Waterfalls adventure", "הרפתקה במפלים הדביקים"),
+      fallback: "/images/optimized/1000000126_compressed.jpg",
+      caption: t("Climbing the Sticky Waterfalls", "טיפוס על המפלים הדביקים"),
     },
     {
       src: "/images/optimized/1000000140.webp",
-      fallback: "/images/1000000140.jpg",
-      caption: t("Scenic mountain roads", "כבישים ציוריים בהרים"),
+      fallback: "/images/optimized/1000000140.jpg",
+      caption: t("Elephant encounters in Mae Wang", "מפגש עם פילים במאה וואנג"),
     },
     {
-      src: "/images/optimized/vietnam_rice_terraces.webp",
-      fallback: "/images/vietnam_rice_terraces.jpg",
-      caption: t("Rice terrace viewpoints", "תצפיות על מדרגות אורז"),
+      src: "/images/optimized/B72dBoiryl1u.webp",
+      fallback: "/images/optimized/B72dBoiryl1u.jpg",
+      caption: t("Off-road through the mountains", "שטח דרך ההרים"),
+    },
+    {
+      src: "/images/optimized/1000000143.webp",
+      fallback: "/images/optimized/1000000143.jpg",
+      caption: t(
+        "Golden rice terraces in the highlands",
+        "מדרגות אורז זהובות ברמות"
+      ),
     },
   ];
 
@@ -111,11 +114,11 @@ export function PhotoGallery() {
   }, [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-[#0F0F0F]">
+    <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
         {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
-          <h2 className="text-4xl md:text-5xl font-medium mb-6 text-white">
+          <h2 className="text-4xl md:text-5xl font-medium mb-6 text-foreground">
             {t("Adventure Highlights", "רגעי שיא מההרפתקה")}
           </h2>
           <GoldDivider />
@@ -164,14 +167,14 @@ export function PhotoGallery() {
           {/* Arrows — hidden on mobile, visible on md+ */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Previous", "הקודם")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-[#1C1C1C] border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
             aria-label={t("Next", "הבא")}
           >
             <ChevronRight className="h-5 w-5" />
@@ -185,7 +188,7 @@ export function PhotoGallery() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-[#2A2A25]"
+                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

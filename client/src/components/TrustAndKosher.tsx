@@ -57,7 +57,7 @@ export function TrustAndKosher() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 md:py-32 bg-[#0F0F0F] overflow-hidden"
+      className="py-24 md:py-32 bg-background overflow-hidden"
     >
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -80,11 +80,11 @@ export function TrustAndKosher() {
           {/* Right: Content */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-white mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground mb-4">
                 {t("Why WIRO 4×4?", "?למה WIRO 4×4")}
               </h2>
               <GoldDivider />
-              <p className="text-lg text-[#9B9590]">
+              <p className="text-lg text-muted-foreground">
                 {t(
                   "Authentic off-road adventures with the comfort and cultural understanding Israeli travelers deserve.",
                   "הרפתקאות שטח אמיתיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים."
@@ -101,21 +101,21 @@ export function TrustAndKosher() {
                     <div className="flex-shrink-0 p-2 bg-[#D4AF37]/10 rounded-full">
                       <Icon className="h-5 w-5 text-[#D4AF37]" />
                     </div>
-                    <span className="text-white">{point.text}</span>
+                    <span className="text-foreground">{point.text}</span>
                   </div>
                 );
               })}
             </div>
 
             {/* Kosher Summary */}
-            <div className="border-t border-[#2A2A25] pt-6">
+            <div className="border-t border-border pt-6">
               <div className="flex items-center gap-3 mb-3">
                 <Shield className="h-5 w-5 text-[#D4AF37]" />
-                <h3 className="text-xl font-medium text-white">
+                <h3 className="text-xl font-medium text-foreground">
                   {t("Kosher Standards", "סטנדרטים כשרים")}
                 </h3>
               </div>
-              <p className="text-[#9B9590] leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 {t(
                   "Certified ingredient sourcing, dedicated kosher kitchen, sealed packaging, and strict separation. We accommodate all levels — from basic kosher to mehadrin standards. Non-kosher guests welcome too.",
                   "חומרי גלם מוסמכים, מטבח כשר ייעודי, אריזות אטומות והפרדה מלאה. מתאימים לכל רמות הכשרות — מכשרות רגילה ועד מהדרין. גם מי שלא שומר כשרות מוזמן."
