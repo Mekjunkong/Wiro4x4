@@ -20,6 +20,34 @@ import {
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
+// Same image map as Tours.tsx — override DB imageUrls with local optimized images
+const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
+  "doi-inthanon-roof-of-thailand": {
+    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
+    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+  },
+  "mae-kampong-hidden-village": {
+    webp: "/images/optimized/mountain_village_view.webp",
+    jpg: "/images/optimized/mountain_village_view.jpg",
+  },
+  "maerim-sticky-waterfalls": {
+    webp: "/images/optimized/sticky_waterfalls.webp",
+    jpg: "/images/optimized/sticky_waterfalls.jpg",
+  },
+  "doi-suthep-pui-beyond-temple": {
+    webp: "/images/optimized/accessible_doi_suthep_temple.webp",
+    jpg: "/images/optimized/accessible_doi_suthep_temple.jpg",
+  },
+  "mae-wang-jungle-wilderness": {
+    webp: "/images/optimized/elephant_encounter.webp",
+    jpg: "/images/optimized/elephant_encounter.jpg",
+  },
+  "samoeng-loop-mountain-circuit": {
+    webp: "/images/optimized/chiang_mai_valley.webp",
+    jpg: "/images/optimized/chiang_mai_valley.jpg",
+  },
+};
+
 const HARDCODED_TOURS = [
   {
     id: 1,
@@ -28,7 +56,7 @@ const HARDCODED_TOURS = [
     duration: "6-8 hours",
     durationHe: "6-8 שעות",
     basePrice: 3500,
-    image: "/images/optimized/1000000126_compressed.jpg",
+    image: "/images/optimized/sticky_waterfalls.jpg",
     included: [
       { en: "Private 4x4 vehicle with driver", he: "רכב 4x4 פרטי עם נהג" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },
@@ -45,7 +73,7 @@ const HARDCODED_TOURS = [
     duration: "Full Day (8-10 hours)",
     durationHe: "יום שלם (8-10 שעות)",
     basePrice: 4200,
-    image: "/images/optimized/VmAKaqoyTR8S.jpg",
+    image: "/images/optimized/chiang_mai_valley.jpg",
     included: [
       { en: "Private 4x4 vehicle with driver", he: "רכב 4x4 פרטי עם נהג" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },
@@ -68,7 +96,7 @@ const HARDCODED_TOURS = [
     duration: "8-10 hours",
     durationHe: "8-10 שעות",
     basePrice: 4800,
-    image: "/images/optimized/1000000140.jpg",
+    image: "/images/optimized/bamboo_rafting.jpg",
     included: [
       {
         en: "Private 4x4 vehicle with experienced driver",
@@ -88,7 +116,7 @@ const HARDCODED_TOURS = [
     duration: "4-6 hours",
     durationHe: "4-6 שעות",
     basePrice: 2800,
-    image: "/images/optimized/1000000149.jpg",
+    image: "/images/optimized/rice_terraces_green.jpg",
     included: [
       { en: "Private vehicle with driver", he: "רכב פרטי עם נהג" },
       { en: "Hebrew-speaking cultural guide", he: "מדריך תרבות דובר עברית" },
@@ -107,7 +135,7 @@ const HARDCODED_TOURS = [
     duration: "Half Day (4-5 hours)",
     durationHe: "חצי יום (4-5 שעות)",
     basePrice: 3200,
-    image: "/images/optimized/1000000140.jpg",
+    image: "/images/optimized/elephant_encounter.jpg",
     included: [
       { en: "Private transportation", he: "הסעה פרטית" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },
@@ -123,7 +151,7 @@ const HARDCODED_TOURS = [
     duration: "6-8 hours",
     durationHe: "6-8 שעות",
     basePrice: 3800,
-    image: "/images/optimized/1000000143.jpg",
+    image: "/images/optimized/hilltribe_visit.jpg",
     included: [
       { en: "Private 4x4 vehicle", he: "רכב 4x4 פרטי" },
       { en: "Hebrew-speaking cultural guide", he: "מדריך תרבות דובר עברית" },
@@ -152,12 +180,15 @@ export default function Pricing() {
             ? JSON.parse(tour.highlightsHe)
             : [];
           const included = highlights.map((h, i) => t(h, highlightsHe[i] || h));
+          const slug = tour.slug || "";
+          const localImg = TOUR_IMAGE_MAP[slug];
           return {
             id: tour.id,
             name: t(tour.name, tour.nameHe),
             duration: tour.duration,
             basePrice: tour.price,
-            image: tour.imageUrl,
+            image: localImg?.jpg || tour.imageUrl,
+            imageWebp: localImg?.webp || null,
             included,
           };
         })
@@ -167,6 +198,7 @@ export default function Pricing() {
           duration: t(tour.duration, tour.durationHe),
           basePrice: tour.basePrice,
           image: tour.image,
+          imageWebp: tour.image.replace(".jpg", ".webp"),
           included: tour.included.map(item => t(item.en, item.he)),
         }));
 
@@ -280,11 +312,17 @@ export default function Pricing() {
                   className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-[#E8E2DA] rounded-sm"
                 >
                   <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={tour.image}
-                      alt={tour.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <picture>
+                      {tour.imageWebp && (
+                        <source srcSet={tour.imageWebp} type="image/webp" />
+                      )}
+                      <img
+                        src={tour.image}
+                        alt={tour.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </picture>
                   </div>
 
                   <div className="p-6 flex flex-col flex-1">

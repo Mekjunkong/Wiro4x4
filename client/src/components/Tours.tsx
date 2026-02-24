@@ -21,7 +21,7 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/optimized/VmAKaqoyTR8S.jpg",
+    image: "/images/optimized/accessible_doi_inthanon_summit.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
@@ -39,7 +39,7 @@ const HARDCODED_TOURS = [
   {
     id: 2,
     slug: "mae-kampong-hidden-village",
-    image: "/images/optimized/1000000149.jpg",
+    image: "/images/optimized/mountain_village_view.jpg",
     title: "Mae Kampong — Hidden Mountain Village",
     titleHe: "מאה קמפונג — הכפר הנסתר בהרים",
     description:
@@ -57,7 +57,7 @@ const HARDCODED_TOURS = [
   {
     id: 3,
     slug: "maerim-sticky-waterfalls",
-    image: "/images/optimized/1000000126_compressed.jpg",
+    image: "/images/optimized/sticky_waterfalls.jpg",
     title: "Maerim & Sticky Waterfalls",
     titleHe: "מאה רים ומפלים דביקים",
     description:
@@ -75,7 +75,7 @@ const HARDCODED_TOURS = [
   {
     id: 4,
     slug: "doi-suthep-pui-beyond-temple",
-    image: "/images/optimized/1000000139_compressed.jpg",
+    image: "/images/optimized/accessible_doi_suthep_temple.jpg",
     title: "Doi Suthep-Pui — Beyond the Temple",
     titleHe: "דוי סוטפ-פוי — מעבר למקדש",
     description:
@@ -93,7 +93,7 @@ const HARDCODED_TOURS = [
   {
     id: 5,
     slug: "mae-wang-jungle-wilderness",
-    image: "/images/optimized/1000000140.jpg",
+    image: "/images/optimized/elephant_encounter.jpg",
     title: "Mae Wang — Jungle & River Wilderness",
     titleHe: "מאה וואנג — ג'ונגל ונהרות פראיים",
     description:
@@ -111,7 +111,7 @@ const HARDCODED_TOURS = [
   {
     id: 6,
     slug: "samoeng-loop-mountain-circuit",
-    image: "/images/optimized/1000000143.jpg",
+    image: "/images/optimized/chiang_mai_valley.jpg",
     title: "Samoeng Loop — The Mountain Circuit",
     titleHe: "לולאת סמאנג — המעגל ההררי",
     description:
@@ -131,28 +131,28 @@ const HARDCODED_TOURS = [
 // Local image overrides — always used instead of DB imageUrl
 const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/VmAKaqoyTR8S.webp",
-    jpg: "/images/optimized/VmAKaqoyTR8S.jpg",
+    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
+    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
   },
   "mae-kampong-hidden-village": {
-    webp: "/images/optimized/1000000149.webp",
-    jpg: "/images/optimized/1000000149.jpg",
+    webp: "/images/optimized/mountain_village_view.webp",
+    jpg: "/images/optimized/mountain_village_view.jpg",
   },
   "maerim-sticky-waterfalls": {
-    webp: "/images/optimized/1000000126_compressed.webp",
-    jpg: "/images/optimized/1000000126_compressed.jpg",
+    webp: "/images/optimized/sticky_waterfalls.webp",
+    jpg: "/images/optimized/sticky_waterfalls.jpg",
   },
   "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/1000000139_compressed.webp",
-    jpg: "/images/optimized/1000000139_compressed.jpg",
+    webp: "/images/optimized/accessible_doi_suthep_temple.webp",
+    jpg: "/images/optimized/accessible_doi_suthep_temple.jpg",
   },
   "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/1000000140.webp",
-    jpg: "/images/optimized/1000000140.jpg",
+    webp: "/images/optimized/elephant_encounter.webp",
+    jpg: "/images/optimized/elephant_encounter.jpg",
   },
   "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/1000000143.webp",
-    jpg: "/images/optimized/1000000143.jpg",
+    webp: "/images/optimized/chiang_mai_valley.webp",
+    jpg: "/images/optimized/chiang_mai_valley.jpg",
   },
 };
 

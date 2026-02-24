@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  type RefCallback,
+} from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -23,6 +30,59 @@ const CATEGORIES = [
   { id: "accommodation", en: "Accommodation", he: "לינה" },
   { id: "other", en: "Other", he: "אחר" },
 ];
+
+function LazyImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  const ref: RefCallback<HTMLDivElement> = useCallback(node => {
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="w-full h-full relative bg-muted">
+      {isInView && !hasError && (
+        <img
+          src={src}
+          alt={alt}
+          className={`${className} transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+        />
+      )}
+      {(!isInView || (!isLoaded && !hasError)) && (
+        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground animate-pulse">
+          <Camera className="w-8 h-8 opacity-30" />
+        </div>
+      )}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+          <Camera className="w-8 h-8 opacity-30" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Gallery() {
   const { t, language } = useLanguage();
@@ -220,24 +280,10 @@ export default function Gallery() {
                   onClick={() => openLightbox(index)}
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    <img
+                    <LazyImage
                       src={photo.imageUrl}
                       alt={`${photo.title}${photo.category ? ` - ${photo.category}` : ""} | WIRO 4x4 Gallery`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                      onError={e => {
-                        const img = e.currentTarget;
-                        img.style.display = "none";
-                        const parent = img.parentElement;
-                        if (parent && !parent.querySelector(".img-fallback")) {
-                          const div = document.createElement("div");
-                          div.className =
-                            "img-fallback w-full h-full flex items-center justify-center text-muted-foreground";
-                          div.innerHTML =
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
-                          parent.appendChild(div);
-                        }
-                      }}
                     />
                     {/* Gold hover overlay */}
                     <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
