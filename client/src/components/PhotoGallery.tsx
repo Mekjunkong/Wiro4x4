@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useEmblaCarousel from "embla-carousel-react";
-import { trpc } from "@/lib/trpc";
 
 interface Photo {
   src: string;
@@ -16,68 +15,61 @@ export function PhotoGallery() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
-  const FALLBACK_PHOTOS: Photo[] = [
+  // Curated highlights — always used (DB gallery is for /gallery page)
+  const photos: Photo[] = [
     {
-      src: "/images/optimized/laos_offroad.webp",
-      fallback: "/images/optimized/laos_offroad.jpg",
+      src: "/images/optimized/guide_wiro.webp",
+      fallback: "/images/optimized/guide_wiro.jpg",
       caption: t(
-        "The Wiro 4×4 — your ride to adventure",
-        "הווירו 4×4 — הרכב שלכם להרפתקה"
+        "Meet Guide Wiro — your adventure starts here",
+        "הכירו את המדריך וירו — ההרפתקה מתחילה כאן"
       ),
     },
     {
-      src: "/images/optimized/VmAKaqoyTR8S.webp",
-      fallback: "/images/optimized/VmAKaqoyTR8S.jpg",
-      caption: t("Doi Inthanon — Roof of Thailand", "דוי אינתנון — גג תאילנד"),
+      src: "/images/optimized/tourists_with_4x4.webp",
+      fallback: "/images/optimized/tourists_with_4x4.jpg",
+      caption: t("Your off-road adventure awaits", "הרפתקת השטח שלכם מחכה"),
     },
     {
-      src: "/images/optimized/1000000126_compressed.webp",
-      fallback: "/images/optimized/1000000126_compressed.jpg",
-      caption: t("Climbing the Sticky Waterfalls", "טיפוס על המפלים הדביקים"),
+      src: "/images/optimized/wiro_waterfall.webp",
+      fallback: "/images/optimized/wiro_waterfall.jpg",
+      caption: t(
+        "Chasing waterfalls in the highlands",
+        "מרדף אחרי מפלים ברמות"
+      ),
     },
     {
-      src: "/images/optimized/1000000140.webp",
-      fallback: "/images/optimized/1000000140.jpg",
+      src: "/images/optimized/elephant_encounter.webp",
+      fallback: "/images/optimized/elephant_encounter.jpg",
       caption: t("Elephant encounters in Mae Wang", "מפגש עם פילים במאה וואנג"),
     },
     {
-      src: "/images/optimized/B72dBoiryl1u.webp",
-      fallback: "/images/optimized/B72dBoiryl1u.jpg",
-      caption: t("Off-road through the mountains", "שטח דרך ההרים"),
-    },
-    {
-      src: "/images/optimized/1000000143.webp",
-      fallback: "/images/optimized/1000000143.jpg",
+      src: "/images/optimized/bamboo_rafting.webp",
+      fallback: "/images/optimized/bamboo_rafting.jpg",
       caption: t(
-        "Golden rice terraces in the highlands",
-        "מדרגות אורז זהובות ברמות"
+        "Bamboo rafting through the jungle",
+        "שייט על רפסודות במבוק בג'ונגל"
       ),
     },
+    {
+      src: "/images/optimized/mountain_sunset.webp",
+      fallback: "/images/optimized/mountain_sunset.jpg",
+      caption: t(
+        "Sunset over the Chiang Mai mountains",
+        "שקיעה מעל הרי צ'יאנג מאי"
+      ),
+    },
+    {
+      src: "/images/optimized/kosher_meal.webp",
+      fallback: "/images/optimized/kosher_meal.jpg",
+      caption: t("Kosher meals prepared fresh", "ארוחות כשרות טריות"),
+    },
+    {
+      src: "/images/optimized/cave_boat.webp",
+      fallback: "/images/optimized/cave_boat.jpg",
+      caption: t("Explore hidden caves by boat", "גלו מערות נסתרות בסירה"),
+    },
   ];
-
-  const { data: dbPhotos } = trpc.gallery.list.useQuery();
-
-  const photos: Photo[] =
-    dbPhotos && dbPhotos.length > 0
-      ? dbPhotos.map(p => ({
-          src: p.s3Url,
-          fallback: p.s3Url,
-          caption: t(
-            p.title || "",
-            ((p as Record<string, unknown>).titleHe as string) || p.title || ""
-          ),
-        }))
-      : FALLBACK_PHOTOS;
-
-  // Track which images failed to load
-  const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
-  const handleImageError = useCallback((index: number) => {
-    setBrokenImages(prev => {
-      const next = new Set(prev);
-      next.add(index);
-      return next;
-    });
-  }, []);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -87,12 +79,31 @@ export function PhotoGallery() {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  // Reset auto-advance timer (called after any manual interaction)
+  const resetAutoplay = useCallback(() => {
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+    if (!emblaApi) return;
+    autoplayRef.current = setInterval(() => emblaApi.scrollNext(), 5000);
+  }, [emblaApi]);
+
+  const scrollPrev = useCallback(() => {
+    emblaApi?.scrollPrev();
+    resetAutoplay();
+  }, [emblaApi, resetAutoplay]);
+
+  const scrollNext = useCallback(() => {
+    emblaApi?.scrollNext();
+    resetAutoplay();
+  }, [emblaApi, resetAutoplay]);
+
   const scrollTo = useCallback(
-    (index: number) => emblaApi?.scrollTo(index),
-    [emblaApi]
+    (index: number) => {
+      emblaApi?.scrollTo(index);
+      resetAutoplay();
+    },
+    [emblaApi, resetAutoplay]
   );
 
   useEffect(() => {
@@ -106,11 +117,13 @@ export function PhotoGallery() {
     };
   }, [emblaApi]);
 
-  // Auto-advance every 5 seconds
+  // Auto-advance every 5 seconds (resets on manual interaction)
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
-    return () => clearInterval(interval);
+    autoplayRef.current = setInterval(() => emblaApi.scrollNext(), 5000);
+    return () => {
+      if (autoplayRef.current) clearInterval(autoplayRef.current);
+    };
   }, [emblaApi]);
 
   return (
@@ -129,13 +142,7 @@ export function PhotoGallery() {
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex">
               {photos.map((photo, index) => (
-                <div
-                  key={index}
-                  className="flex-[0_0_100%] min-w-0"
-                  style={
-                    brokenImages.has(index) ? { display: "none" } : undefined
-                  }
-                >
+                <div key={index} className="flex-[0_0_100%] min-w-0">
                   <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden">
                     <picture>
                       <source srcSet={photo.src} type="image/webp" />
@@ -146,7 +153,6 @@ export function PhotoGallery() {
                         decoding={index === 0 ? "sync" : "async"}
                         fetchPriority={index === 0 ? "high" : undefined}
                         className="w-full h-full object-cover"
-                        onError={() => handleImageError(index)}
                       />
                     </picture>
 
