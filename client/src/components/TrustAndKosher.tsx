@@ -66,12 +66,12 @@ export function TrustAndKosher() {
           <div className="relative aspect-[4/5] lg:aspect-auto lg:h-full min-h-[400px] rounded-sm overflow-hidden">
             <picture>
               <source
-                srcSet="/images/optimized/1000000135.webp"
+                srcSet="/images/optimized/wiro_with_vehicle.webp"
                 type="image/webp"
               />
               <img
-                src="/images/1000000135.jpg"
-                alt={t("WIRO 4x4 off-road adventure", "הרפתקת שטח עם WIRO 4x4")}
+                src="/images/optimized/wiro_with_vehicle.jpg"
+                alt={t("WIRO guide with 4x4 vehicle", "מדריך WIRO עם רכב שטח")}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
