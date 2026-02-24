@@ -73,7 +73,7 @@ export function PhotoGallery() {
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
-    align: "start",
+    align: "center",
     slidesToScroll: 1,
   });
 
@@ -142,8 +142,8 @@ export function PhotoGallery() {
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex">
               {photos.map((photo, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0">
-                  <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden">
+                <div key={index} className="flex-[0_0_100%] min-w-0 px-4">
+                  <div className="relative aspect-[16/9] max-h-[500px] mx-auto overflow-hidden rounded-lg">
                     <picture>
                       <source srcSet={photo.src} type="image/webp" />
                       <img
@@ -152,7 +152,7 @@ export function PhotoGallery() {
                         loading={index === 0 ? "eager" : "lazy"}
                         decoding={index === 0 ? "sync" : "async"}
                         fetchPriority={index === 0 ? "high" : undefined}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-center"
                       />
                     </picture>
 

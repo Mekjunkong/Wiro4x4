@@ -9,8 +9,6 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import gsap from "gsap";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 
 /* ─── Slide Data ─── */
 const SLIDES = [
@@ -48,32 +46,48 @@ const AUTOPLAY_DELAY = 6000;
 export function Hero() {
   const { t } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
-  /* ─── Embla Carousel ─── */
-  const autoplayPlugin = useRef(
-    Autoplay({
-      delay: AUTOPLAY_DELAY,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-    })
-  );
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    autoplayPlugin.current,
-  ]);
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  /* ─── Auto-advance timer ─── */
+  const startTimer = useCallback(() => {
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setSelectedIndex(prev => (prev + 1) % SLIDES.length);
+    }, AUTOPLAY_DELAY);
+  }, []);
 
   useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    emblaApi.on("select", onSelect);
-    onSelect();
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi]);
+    startTimer();
+    return () => clearInterval(timerRef.current);
+  }, [startTimer]);
+
+  /* ─── Navigation ─── */
+  const scrollPrev = useCallback(() => {
+    setSelectedIndex(prev => (prev - 1 + SLIDES.length) % SLIDES.length);
+    startTimer();
+  }, [startTimer]);
+
+  const scrollNext = useCallback(() => {
+    setSelectedIndex(prev => (prev + 1) % SLIDES.length);
+    startTimer();
+  }, [startTimer]);
+
+  const scrollTo = useCallback(
+    (index: number) => {
+      setSelectedIndex(index);
+      startTimer();
+    },
+    [startTimer]
+  );
+
+  /* ─── Pause on hover ─── */
+  const handleMouseEnter = useCallback(() => {
+    clearInterval(timerRef.current);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    startTimer();
+  }, [startTimer]);
 
   /* ─── GSAP Entrance Animation ─── */
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -152,34 +166,36 @@ export function Hero() {
       role="region"
       aria-roledescription="carousel"
       aria-label="Hero slideshow"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* ─── Background Carousel ─── */}
-      <div className="absolute inset-0 z-0" ref={emblaRef}>
-        <div className="hero-carousel-fade embla__container h-full">
-          {SLIDES.map((slide, i) => (
-            <div
-              key={i}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`Slide ${i + 1} of ${SLIDES.length}`}
-              className={`embla__slide h-full ${i === selectedIndex ? "embla__slide--active" : ""}`}
-            >
-              <picture>
-                <source srcSet={slide.webp} type="image/webp" />
-                <img
-                  src={slide.jpg}
-                  alt={slide.alt}
-                  className="w-full h-full object-cover scale-105"
-                  loading={i === 0 ? "eager" : "lazy"}
-                  fetchPriority={i === 0 ? "high" : undefined}
-                />
-              </picture>
-            </div>
-          ))}
-        </div>
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
-        <div className="absolute inset-0 bg-black/20" />
+      {/* ─── Background Images (absolute stacked, opacity fade) ─── */}
+      <div className="absolute inset-0 z-0">
+        {SLIDES.map((slide, i) => (
+          <div
+            key={i}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Slide ${i + 1} of ${SLIDES.length}`}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              i === selectedIndex ? "opacity-100 z-[1]" : "opacity-0 z-0"
+            }`}
+          >
+            <picture>
+              <source srcSet={slide.webp} type="image/webp" />
+              <img
+                src={slide.jpg}
+                alt={slide.alt}
+                className="w-full h-full object-cover scale-105"
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : undefined}
+              />
+            </picture>
+          </div>
+        ))}
+        {/* Gradient overlays — darken left side for text readability */}
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
 
       {/* ─── Navigation Arrows (desktop hover + keyboard focus) ─── */}
@@ -199,8 +215,8 @@ export function Hero() {
       </button>
 
       {/* ─── Content Overlay ─── */}
-      <div className="container relative z-10 text-white py-20 text-center">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="container relative z-10 text-white py-20 text-left">
+        <div className="max-w-3xl space-y-6">
           {/* Title */}
           <h1
             ref={titleRef}
@@ -218,7 +234,7 @@ export function Hero() {
           {/* Gold Divider */}
           <div
             ref={dividerRef}
-            className="h-1 w-24 bg-[#D4AF37] mx-auto"
+            className="h-1 w-24 bg-[#D4AF37]"
             style={{ transform: "scaleX(0)" }}
           />
 
@@ -243,7 +259,7 @@ export function Hero() {
           {/* CTAs */}
           <div
             ref={ctaRef}
-            className="flex flex-col sm:flex-row gap-4 pt-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 pt-4 justify-start items-start"
             style={{ opacity: 0 }}
           >
             <Button
@@ -269,7 +285,7 @@ export function Hero() {
           {/* Trust Indicators */}
           <div
             ref={trustRef}
-            className="flex flex-wrap items-center gap-3 pt-8 justify-center"
+            className="flex flex-wrap items-center gap-3 pt-8 justify-start"
             style={{ opacity: 0 }}
           >
             {trustItems.map((item, index) => (
@@ -284,7 +300,7 @@ export function Hero() {
 
           {/* Dot Navigation */}
           <div
-            className="flex items-center justify-center gap-2 pt-4"
+            className="flex items-center justify-start gap-2 pt-4"
             role="tablist"
             aria-label="Slide navigation"
           >
@@ -293,7 +309,7 @@ export function Hero() {
                 key={i}
                 role="tab"
                 aria-selected={i === selectedIndex}
-                onClick={() => emblaApi?.scrollTo(i)}
+                onClick={() => scrollTo(i)}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   i === selectedIndex
                     ? "bg-[#D4AF37] scale-125"
