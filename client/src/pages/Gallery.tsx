@@ -106,25 +106,33 @@ export default function Gallery() {
   // Track broken S3 images to hide them from the grid
   const [brokenIds, setBrokenIds] = useState<Set<number>>(new Set());
 
-  // Compute counts per category from non-broken photos
+  // Deduplicate photos by imageUrl (keep first occurrence)
+  const uniquePhotos = useMemo(() => {
+    if (!photos) return [];
+    const seen = new Set<string>();
+    return photos.filter(photo => {
+      if (seen.has(photo.imageUrl)) return false;
+      seen.add(photo.imageUrl);
+      return true;
+    });
+  }, [photos]);
+
+  // Compute counts per category from non-broken, unique photos
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    if (photos) {
-      for (const photo of photos) {
-        if (brokenIds.has(photo.id)) continue;
-        const cat = photo.category || "other";
-        counts[cat] = (counts[cat] || 0) + 1;
-      }
+    for (const photo of uniquePhotos) {
+      if (brokenIds.has(photo.id)) continue;
+      const cat = photo.category || "other";
+      counts[cat] = (counts[cat] || 0) + 1;
     }
     return counts;
-  }, [photos, brokenIds]);
+  }, [uniquePhotos, brokenIds]);
 
-  const filteredPhotos =
-    photos?.filter(
-      photo =>
-        !brokenIds.has(photo.id) &&
-        (selectedCategory === "all" || photo.category === selectedCategory)
-    ) || [];
+  const filteredPhotos = uniquePhotos.filter(
+    photo =>
+      !brokenIds.has(photo.id) &&
+      (selectedCategory === "all" || photo.category === selectedCategory)
+  );
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -219,7 +227,7 @@ export default function Gallery() {
             {CATEGORIES.map(cat => {
               const count =
                 cat.id === "all"
-                  ? (photos?.length ?? 0)
+                  ? uniquePhotos.filter(p => !brokenIds.has(p.id)).length
                   : (categoryCounts[cat.id] ?? 0);
               const isZero = count === 0 && cat.id !== "all";
               const isActive = selectedCategory === cat.id;
