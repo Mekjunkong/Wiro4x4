@@ -88,14 +88,69 @@ const faqData = [
       "בטח! אנחנו מתמחים בטיולים בהתאמה אישית. רוצים לבקר ביעדים מסוימים? צריכים התאמות תזונתיות? יש לכם מסלול חלום? נבנה אתכם את הטיול המושלם. דברו איתנו ונתאים הכל.",
     ],
   },
+  {
+    q: [
+      "Are tours wheelchair accessible?",
+      "האם הטיולים נגישים לכיסאות גלגלים?",
+    ],
+    a: [
+      "We offer adapted tours for travelers with mobility challenges. Our 4x4 vehicles can be configured for easier access, and we customize itineraries to include accessible viewpoints, boardwalk trails, and vehicle-accessible attractions. Contact us to discuss your specific needs and we'll create a personalized accessible itinerary.",
+      "אנחנו מציעים טיולים מותאמים למטיילים עם אתגרי ניידות. רכבי ה-4x4 שלנו ניתנים להתאמה לגישה קלה יותר, ואנו מתאימים מסלולים שכוללים תצפיות נגישות, שבילי גשר ואטרקציות נגישות ברכב. צרו קשר לדון בצרכים הספציפיים שלכם ונייצר מסלול נגיש מותאם אישית.",
+    ],
+  },
+  {
+    q: [
+      "What's the best season for Chiang Mai tours?",
+      "מה העונה הטובה ביותר לטיולים בצ'יאנג מאי?",
+    ],
+    a: [
+      "The best season is November to February — cool temperatures (15-25C), clear skies, and no rain. March-May is hot season with occasional haze. June-October is green season with afternoon showers but lush landscapes. Each season has its charm, but for first-time visitors we recommend the cool season.",
+      "העונה הטובה ביותר היא נובמבר עד פברואר — טמפרטורות נוחות (15-25 מעלות), שמים צלולים ובלי גשם. מרץ-מאי זו עונה חמה עם ערפיח מדי פעם. יוני-אוקטובר זו עונה ירוקה עם מקלחות אחר-צהריים אבל נופים ירוקים. לכל עונה יש את הקסם שלה, אבל למבקרים בפעם הראשונה אנחנו ממליצים על העונה הקרירה.",
+    ],
+  },
+  {
+    q: [
+      "How do I get from Bangkok to Chiang Mai?",
+      "איך מגיעים מבנגקוק לצ'יאנג מאי?",
+    ],
+    a: [
+      "The easiest option is a 1-hour flight (AirAsia, Nok Air, Thai Smile from ~800 THB one way). Overnight trains are a popular budget option (11-13 hours, book sleeper class). VIP buses take 9-10 hours. We can help arrange airport pickup in Chiang Mai when you arrive.",
+      "האפשרות הקלה ביותר היא טיסה של שעה (AirAsia, Nok Air, Thai Smile מ-~800 בהט). רכבת לילה היא אפשרות תקציבית פופולרית (11-13 שעות, הזמינו מחלקת שינה). אוטובוסי VIP לוקחים 9-10 שעות. אנחנו יכולים לעזור לסדר איסוף מנמל התעופה בצ'יאנג מאי כשתגיעו.",
+    ],
+  },
+  {
+    q: ["Can I pay in shekels or USD?", "אפשר לשלם בשקלים או דולרים?"],
+    a: [
+      "Our prices are listed in Thai Baht (THB), but we accept payment in USD, EUR, and can discuss shekel arrangements. Bank transfer, credit card, and cash payments are all accepted. A 50% deposit confirms your booking, with the balance due on tour day.",
+      "המחירים שלנו בבהט תאילנדי (THB), אבל אנחנו מקבלים תשלום בדולרים, יורו ויכולים לדון בהסדרי שקלים. העברה בנקאית, כרטיס אשראי ותשלום במזומן — הכל מתקבל. מקדמה של 50% מאשרת את ההזמנה, והיתרה ביום הטיול.",
+    ],
+  },
 ];
 
 export function FAQ() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
+  // FAQPage JSON-LD schema
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqData.map(item => ({
+      "@type": "Question",
+      name: item.q[0],
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a[0],
+      },
+    })),
+  };
+
   return (
     <section ref={sectionRef} id="faq" className="py-24 md:py-32 bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="container max-w-3xl">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-3">

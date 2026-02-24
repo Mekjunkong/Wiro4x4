@@ -26,6 +26,9 @@ const BookingSuccess = React.lazy(() => import("./pages/BookingSuccess"));
 const BookingCancel = React.lazy(() => import("./pages/BookingCancel"));
 const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
+const KosherTours = React.lazy(() => import("./pages/KosherTours"));
+const HebrewGuide = React.lazy(() => import("./pages/HebrewGuide"));
+const AccessibleTours = React.lazy(() => import("./pages/AccessibleTours"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -82,6 +85,9 @@ function Router() {
               <Route path={"/book"} component={BookingForm} />
               <Route path={"/booking/success"} component={BookingSuccess} />
               <Route path={"/booking/cancel"} component={BookingCancel} />
+              <Route path={"/kosher-tours"} component={KosherTours} />
+              <Route path={"/hebrew-guide"} component={HebrewGuide} />
+              <Route path={"/accessible-tours"} component={AccessibleTours} />
               <Route path={"/terms"} component={TermsOfService} />
               <Route path={"/privacy"} component={PrivacyPolicy} />
               <Route path={"/admin"} component={AdminDashboard} />

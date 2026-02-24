@@ -33,8 +33,26 @@ export function TourFAQ() {
   const { language, t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  // FAQPage JSON-LD schema for tour FAQs
+  const tourFaqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: TOUR_FAQS.map(faq => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <section className="py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tourFaqJsonLd) }}
+      />
       <h3 className="text-xl font-semibold mb-4">
         {t("Common Questions", "שאלות נפוצות")}
       </h3>

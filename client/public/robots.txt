@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://wiro-4x4.manus.space/sitemap.xml
+Sitemap: https://www.wiro4x4indochina.com/sitemap.xml

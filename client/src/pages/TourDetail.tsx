@@ -18,6 +18,11 @@ import {
   ArrowLeft,
   MessageCircle,
   MapPin,
+  Backpack,
+  Sun,
+  Lightbulb,
+  ArrowRight,
+  BookOpen,
 } from "lucide-react";
 import { useParams, useLocation, Link } from "wouter";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -779,6 +784,240 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   challenging: "bg-red-100 text-red-700",
 };
 
+/** Per-tour content enrichment data for SEO */
+const TOUR_ENRICHMENT: Record<
+  string,
+  {
+    whatToBring: { en: string; he: string }[];
+    bestTimeToVisit: { en: string; he: string };
+    localTips: { en: string; he: string }[];
+    relatedTourSlugs: string[];
+  }
+> = {
+  "doi-inthanon-roof-of-thailand": {
+    whatToBring: [
+      {
+        en: "Warm layer (10-15C at summit)",
+        he: "שכבה חמה (10-15 מעלות בפסגה)",
+      },
+      { en: "Comfortable hiking shoes", he: "נעלי הליכה נוחות" },
+      {
+        en: "Rain jacket (especially Jun-Oct)",
+        he: "מעיל גשם (במיוחד יוני-אוקטובר)",
+      },
+      {
+        en: "Camera with good zoom for birds",
+        he: "מצלמה עם זום טוב לציפורים",
+      },
+      { en: "Sunscreen and hat", he: "קרם הגנה וכובע" },
+    ],
+    bestTimeToVisit: {
+      en: "November to February offers the clearest skies and coolest temperatures at the summit. The rhododendrons bloom in December-January. Avoid weekends and Thai holidays for fewer crowds.",
+      he: "נובמבר עד פברואר מציעים את השמים הצלולים ביותר והטמפרטורות הנוחות בפסגה. הרודודנדרונים פורחים בדצמבר-ינואר. הימנעו מסופי שבוע וחגים תאילנדיים לפחות קהל.",
+    },
+    localTips: [
+      {
+        en: "The Pha Dok Siew trail is far less crowded than Kew Mae Pan and equally beautiful",
+        he: "שביל פה דוק סיו פחות צפוף בהרבה מקיו מאה פאן ויפה באותה מידה",
+      },
+      {
+        en: "Buy fresh strawberries and passion fruit at the Hmong market on the way down",
+        he: "קנו תותים ופסיפלורה טריים בשוק ההמונג בדרך למטה",
+      },
+      {
+        en: "Visit the summit viewpoint right after the Hmong market stop — morning mist clears by noon",
+        he: "בקרו בתצפית הפסגה מיד אחרי עצירת שוק ההמונג — ערפל הבוקר מתפזר בצהריים",
+      },
+    ],
+    relatedTourSlugs: [
+      "samoeng-loop-mountain-circuit",
+      "mae-wang-jungle-wilderness",
+    ],
+  },
+  "mae-kampong-hidden-village": {
+    whatToBring: [
+      { en: "Comfortable walking shoes", he: "נעלי הליכה נוחות" },
+      { en: "Light jacket (cool in the village)", he: "ז'קט קל (קריר בכפר)" },
+      { en: "Camera", he: "מצלמה" },
+      { en: "Cash for local products", he: "מזומן למוצרים מקומיים" },
+      { en: "Insect repellent", he: "דוחה חרקים" },
+    ],
+    bestTimeToVisit: {
+      en: "Year-round destination. November to February for cool weather. The village is magical in the early morning mist. Weekdays are quieter.",
+      he: "יעד לכל השנה. נובמבר עד פברואר למזג אוויר קריר. הכפר קסום בערפל הבוקר המוקדם. ימי חול שקטים יותר.",
+    },
+    localTips: [
+      {
+        en: "Buy Miang (fermented tea) directly from the families — it's a unique souvenir",
+        he: "קנו מיאנג (תה מותסס) ישירות מהמשפחות — זה מזכרת ייחודית",
+      },
+      {
+        en: "The Kew Fin viewpoint hike is worth the effort — most visitors skip it",
+        he: "הטיול לתצפית קיו פין שווה את המאמץ — רוב המבקרים מדלגים",
+      },
+      {
+        en: "Try the village coffee — it's roasted and ground fresh daily",
+        he: "טעמו את קפה הכפר — נקלה ונטחן טרי כל יום",
+      },
+    ],
+    relatedTourSlugs: [
+      "doi-suthep-pui-beyond-temple",
+      "samoeng-loop-mountain-circuit",
+    ],
+  },
+  "maerim-sticky-waterfalls": {
+    whatToBring: [
+      { en: "Swimsuit and quick-dry towel", he: "בגד ים ומגבת מתייבשת מהר" },
+      {
+        en: "Water shoes or old sneakers (for climbing the waterfall)",
+        he: "נעלי מים או נעלי ספורט ישנות (לטיפוס על המפל)",
+      },
+      { en: "Change of clothes", he: "בגדים להחלפה" },
+      { en: "Waterproof phone case", he: "נרתיק עמיד למים לטלפון" },
+      { en: "Sunscreen", he: "קרם הגנה" },
+    ],
+    bestTimeToVisit: {
+      en: "Best from November to April (dry season) for the best waterfall climbing conditions. The botanical garden is beautiful year-round. Mornings are best to avoid afternoon heat.",
+      he: "הכי טוב מנובמבר עד אפריל (עונה יבשה) לתנאי טיפוס מפל מיטביים. הגן הבוטני יפה כל השנה. בקרים הם הזמן הטוב ביותר להימנע מחום אחר-הצהריים.",
+    },
+    localTips: [
+      {
+        en: "At the Sticky Waterfall, bare feet grip better than shoes on the limestone",
+        he: "במפל הדביק, כפות רגליים יחפות אוחזות טוב יותר מנעליים על אבן הגיר",
+      },
+      {
+        en: "The canopy walkway at the botanical garden is best visited early morning for bird sightings",
+        he: "גשר הצמרות בגן הבוטני הכי טוב לבקר בבוקר מוקדם לצפייה בציפורים",
+      },
+      {
+        en: "Ask your guide to take you to the upper tiers of Mae Sa — tier 7-10 have zero crowds",
+        he: "בקשו מהמדריך לקחת אתכם לקומות העליונות של מאה סה — קומות 7-10 ללא קהל",
+      },
+    ],
+    relatedTourSlugs: [
+      "doi-suthep-pui-beyond-temple",
+      "mae-wang-jungle-wilderness",
+    ],
+  },
+  "doi-suthep-pui-beyond-temple": {
+    whatToBring: [
+      { en: "Comfortable hiking shoes", he: "נעלי הליכה נוחות" },
+      {
+        en: "Long pants (for temple visit)",
+        he: "מכנסיים ארוכים (לביקור במקדש)",
+      },
+      {
+        en: "Shoulder-covering top (temple dress code)",
+        he: "חולצה שמכסה כתפיים (קוד לבוש במקדש)",
+      },
+      { en: "Water bottle", he: "בקבוק מים" },
+      {
+        en: "Cash for donations and market purchases",
+        he: "מזומן לתרומות ולקניות בשוק",
+      },
+    ],
+    bestTimeToVisit: {
+      en: "November to February for cool mornings. Go early (before 9 AM) to beat the bus tour crowds at the temple. Cherry blossoms at Ban Kun Chang Kian bloom in January-February.",
+      he: "נובמבר עד פברואר לבקרים קרירים. צאו מוקדם (לפני 9 בבוקר) להקדים את קהל אוטובוסי התיירים במקדש. פריחת הדובדבן בבאן קון צ'אנג קיאן בינואר-פברואר.",
+    },
+    localTips: [
+      {
+        en: "The Monk's Trail hidden trailhead is near Chiang Mai Zoo — it's the authentic way to reach the temple",
+        he: "נקודת ההתחלה הנסתרת של שביל הנזירים ליד גן החיות — זו הדרך האותנטית להגיע למקדש",
+      },
+      {
+        en: "Skip the tourist market at Doi Pui village entrance — the real village is behind it",
+        he: "דלגו על השוק התיירותי בכניסה לכפר דוי פוי — הכפר האמיתי מאחוריו",
+      },
+      {
+        en: "The coffee at Ban Kun Chang Kian is single-origin arabica grown at 1,400m — genuinely excellent",
+        he: "הקפה בבאן קון צ'אנג קיאן הוא ערביקה מזן יחיד שגדל בגובה 1,400 מ' — באמת מצוין",
+      },
+    ],
+    relatedTourSlugs: [
+      "maerim-sticky-waterfalls",
+      "mae-kampong-hidden-village",
+    ],
+  },
+  "mae-wang-jungle-wilderness": {
+    whatToBring: [
+      {
+        en: "Sturdy closed-toe shoes (river crossings)",
+        he: "נעליים סגורות יציבות (חציית נהרות)",
+      },
+      {
+        en: "Change of clothes (you may get wet)",
+        he: "בגדים להחלפה (אפשר להירטב)",
+      },
+      { en: "Swimsuit for the waterfall pool", he: "בגד ים לבריכת המפל" },
+      {
+        en: "Insect repellent (jungle trails)",
+        he: "דוחה חרקים (שבילי ג'ונגל)",
+      },
+      { en: "Sunscreen and hat", he: "קרם הגנה וכובע" },
+      { en: "Camera with waterproof case", he: "מצלמה עם נרתיק עמיד למים" },
+    ],
+    bestTimeToVisit: {
+      en: "November to March for the best off-road conditions. River crossings are more dramatic in the green season (Jun-Oct) but require more skill. The waterfall pool is warmest in March-April.",
+      he: "נובמבר עד מרץ לתנאי שטח מיטביים. חציית נהרות דרמטית יותר בעונה הירוקה (יוני-אוקטובר) אבל דורשת יותר מיומנות. בריכת המפל חמה ביותר במרץ-אפריל.",
+    },
+    localTips: [
+      {
+        en: "Pha Chor is best photographed in the golden hour — the rust-colored sandstone glows",
+        he: "פה-צ'ור הכי טוב לצלם בשעת הזהב — אבן החול בצבע החלודה זוהרת",
+      },
+      {
+        en: "The elephant experience is ethical — no riding, just walking with them in their habitat",
+        he: "חוויית הפילים אתית — בלי רכיבה, רק הליכה איתם בבית הגידול שלהם",
+      },
+      {
+        en: "Note: This is the only tour not scheduled on Shabbat due to its remote location",
+        he: "שימו לב: זה הטיול היחיד שלא מתוזמן בשבת בגלל מיקומו המרוחק",
+      },
+    ],
+    relatedTourSlugs: [
+      "doi-inthanon-roof-of-thailand",
+      "samoeng-loop-mountain-circuit",
+    ],
+  },
+  "samoeng-loop-mountain-circuit": {
+    whatToBring: [
+      { en: "Light jacket for mountain elevations", he: "ז'קט קל לגבהי ההרים" },
+      { en: "Swimsuit for the reservoir", he: "בגד ים למאגר" },
+      { en: "Camera", he: "מצלמה" },
+      { en: "Cash for local market purchases", he: "מזומן לקניות בשוק המקומי" },
+      { en: "Sunscreen and sunglasses", he: "קרם הגנה ומשקפי שמש" },
+    ],
+    bestTimeToVisit: {
+      en: "November to February for strawberry season at Mon Jam and cool mountain air. The reservoir is pleasant year-round. Sunset at the reservoir is magical in December-January.",
+      he: "נובמבר עד פברואר לעונת התותים במון ג'אם ואוויר הרים קריר. המאגר נעים כל השנה. השקיעה במאגר קסומה בדצמבר-ינואר.",
+    },
+    localTips: [
+      {
+        en: "Wat Ton Kwen is one of Thailand's most beautiful wooden temples — don't skip it",
+        he: "ואט טון קוון הוא אחד ממקדשי העץ היפים בתאילנד — אל תדלגו",
+      },
+      {
+        en: "Buy organic vegetables at Mon Jam — they're grown in pristine mountain soil",
+        he: "קנו ירקות אורגניים במון ג'אם — הם גדלים באדמת הרים טהורה",
+      },
+      {
+        en: "Book the bamboo hut at the reservoir in advance for weekends",
+        he: "הזמינו את בקתת הבמבוק במאגר מראש לסופי שבוע",
+      },
+    ],
+    relatedTourSlugs: [
+      "doi-inthanon-roof-of-thailand",
+      "mae-kampong-hidden-village",
+    ],
+  },
+};
+
+/** Get enrichment data for a given tour slug */
+function getTourEnrichment(slug: string) {
+  return TOUR_ENRICHMENT[slug] ?? null;
+}
+
 interface NormalizedTour {
   name: string;
   nameHe: string;
@@ -863,7 +1102,43 @@ export default function TourDetail() {
     };
   }
 
-  usePageMeta(tour ? tour.name : "Tour Details");
+  // SEO: Per-tour meta + JSON-LD structured data
+  usePageMeta(
+    tour
+      ? {
+          title: `${tour.name} | Chiang Mai Off-Road Tour`,
+          description: tour.description.slice(0, 160),
+          ogTitle: `${tour.name} | Kosher Off-Road Tour | WIRO 4x4`,
+          ogDescription: tour.description.slice(0, 200),
+          ogImage: tour.imageUrl.startsWith("http")
+            ? tour.imageUrl
+            : `https://www.wiro4x4indochina.com${tour.imageUrl}`,
+          canonicalPath: `/tours/${slug}`,
+          jsonLd: {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name: tour.name,
+            description: tour.description,
+            touristType: [
+              "Jewish travelers",
+              "Kosher travelers",
+              "Adventure seekers",
+            ],
+            offers: {
+              "@type": "Offer",
+              price: tour.price,
+              priceCurrency: "THB",
+              availability: "https://schema.org/InStock",
+            },
+            provider: {
+              "@type": "Organization",
+              name: "WIRO 4x4",
+              url: "https://www.wiro4x4indochina.com",
+            },
+          },
+        }
+      : { title: "Tour Details" }
+  );
 
   useEffect(() => {
     trackEvent(FUNNEL.TOUR_PAGE_VIEW, { tour: slug });
@@ -1103,6 +1378,156 @@ export default function TourDetail() {
                     </div>
                   </div>
                 )}
+
+                {/* What to Bring */}
+                {(() => {
+                  const enrichment = getTourEnrichment(slug);
+                  if (!enrichment) return null;
+                  return (
+                    <div>
+                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                        <Backpack className="w-6 h-6 text-[#D4AF37]" />
+                        {t("What to Bring", "מה להביא")}
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {enrichment.whatToBring.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-3 p-3 rounded-sm bg-muted/50"
+                          >
+                            <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                            <span className="text-sm">
+                              {t(item.en, item.he)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Best Time to Visit */}
+                {(() => {
+                  const enrichment = getTourEnrichment(slug);
+                  if (!enrichment) return null;
+                  return (
+                    <div>
+                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                        <Sun className="w-6 h-6 text-[#D4AF37]" />
+                        {t("Best Time to Visit", "הזמן הטוב ביותר לביקור")}
+                      </h2>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {t(
+                          enrichment.bestTimeToVisit.en,
+                          enrichment.bestTimeToVisit.he
+                        )}
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Local Tips */}
+                {(() => {
+                  const enrichment = getTourEnrichment(slug);
+                  if (!enrichment) return null;
+                  return (
+                    <div>
+                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                        <Lightbulb className="w-6 h-6 text-[#D4AF37]" />
+                        {t("Local Tips", "טיפים מקומיים")}
+                      </h2>
+                      <div className="space-y-3">
+                        {enrichment.localTips.map((tip, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-3 p-3 rounded-sm border border-[#D4AF37]/20 bg-[#D4AF37]/5"
+                          >
+                            <span className="text-[#D4AF37] font-bold shrink-0">
+                              #{idx + 1}
+                            </span>
+                            <span className="text-sm">{t(tip.en, tip.he)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Related Tours */}
+                {(() => {
+                  const enrichment = getTourEnrichment(slug);
+                  if (!enrichment) return null;
+                  const relatedTours = enrichment.relatedTourSlugs
+                    .map(s => {
+                      const fb = FALLBACK_TOURS[s];
+                      return fb ? { slug: s, ...fb } : null;
+                    })
+                    .filter(Boolean) as ((typeof FALLBACK_TOURS)[string] & {
+                    slug: string;
+                  })[];
+                  if (relatedTours.length === 0) return null;
+                  return (
+                    <div>
+                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                        <ArrowRight className="w-6 h-6 text-[#D4AF37]" />
+                        {t("Related Tours", "טיולים קשורים")}
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {relatedTours.map(rt => (
+                          <Link key={rt.slug} href={`/tours/${rt.slug}`}>
+                            <Card className="overflow-hidden rounded-sm hover:shadow-premium transition-shadow cursor-pointer group">
+                              <div className="relative h-32 overflow-hidden">
+                                <img
+                                  src={rt.imageUrl}
+                                  alt={t(
+                                    `${rt.name} - Related off-road tour`,
+                                    `${rt.nameHe} - טיול שטח קשור`
+                                  )}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                              </div>
+                              <div className="p-4">
+                                <h3 className="font-semibold text-sm mb-1">
+                                  {t(rt.name, rt.nameHe)}
+                                </h3>
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {rt.duration}
+                                  </span>
+                                  <span className="text-[#D4AF37] font-bold">
+                                    &#3647;{rt.price.toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </Card>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Related Blog Posts Placeholder */}
+                <div>
+                  <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
+                    <BookOpen className="w-6 h-6 text-[#D4AF37]" />
+                    {t("Read More", "קראו עוד")}
+                  </h2>
+                  <div className="p-4 rounded-sm border border-border bg-muted/30 text-center">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {t(
+                        "Explore our blog for travel tips, guides, and stories from Chiang Mai.",
+                        "גלו את הבלוג שלנו לטיפים, מדריכים וסיפורים מצ'יאנג מאי."
+                      )}
+                    </p>
+                    <Link href="/blog">
+                      <span className="text-[#D4AF37] text-sm font-medium hover:underline cursor-pointer">
+                        {t("Visit our Blog", "בקרו בבלוג שלנו")} &rarr;
+                      </span>
+                    </Link>
+                  </div>
+                </div>
 
                 {/* Tour FAQ */}
                 <TourFAQ />
