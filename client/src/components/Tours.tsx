@@ -75,7 +75,7 @@ const HARDCODED_TOURS = [
   {
     id: 4,
     slug: "doi-suthep-pui-beyond-temple",
-    image: "/images/optimized/UJvZx4ZA7cn3.jpg",
+    image: "/images/optimized/1000000139_compressed.jpg",
     title: "Doi Suthep-Pui — Beyond the Temple",
     titleHe: "דוי סוטפ-פוי — מעבר למקדש",
     description:
@@ -143,8 +143,8 @@ const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
     jpg: "/images/optimized/1000000126_compressed.jpg",
   },
   "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/UJvZx4ZA7cn3.webp",
-    jpg: "/images/optimized/UJvZx4ZA7cn3.jpg",
+    webp: "/images/optimized/1000000139_compressed.webp",
+    jpg: "/images/optimized/1000000139_compressed.jpg",
   },
   "mae-wang-jungle-wilderness": {
     webp: "/images/optimized/1000000140.webp",

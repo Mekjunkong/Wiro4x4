@@ -24,7 +24,7 @@ export function getHardcodedPosts(
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("8 min read", "8 דקות קריאה"),
-      image: "/images/1000000149.jpg",
+      image: "/images/optimized/1000000149.jpg",
       content: t(
         `# Finding Kosher Food in Chiang Mai
 
@@ -189,7 +189,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("10 min read", "10 דקות קריאה"),
-      image: "/images/optimized/UJvZx4ZA7cn3.jpg",
+      image: "/images/optimized/1000000139_compressed.jpg",
       content: t(
         `# Essential Tips for Israeli Travelers in Southeast Asia
 

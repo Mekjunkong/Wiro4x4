@@ -57,6 +57,7 @@ export function TrustAndKosher() {
   return (
     <section
       ref={sectionRef}
+      id="why-wiro"
       className="py-24 md:py-32 bg-background overflow-hidden"
     >
       <div className="container">
@@ -108,7 +109,7 @@ export function TrustAndKosher() {
             </div>
 
             {/* Kosher Summary */}
-            <div className="border-t border-border pt-6">
+            <div id="kosher" className="border-t border-border pt-6">
               <div className="flex items-center gap-3 mb-3">
                 <Shield className="h-5 w-5 text-[#D4AF37]" />
                 <h3 className="text-xl font-medium text-foreground">

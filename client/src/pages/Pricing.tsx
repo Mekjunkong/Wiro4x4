@@ -28,7 +28,7 @@ const HARDCODED_TOURS = [
     duration: "6-8 hours",
     durationHe: "6-8 שעות",
     basePrice: 3500,
-    image: "/images/1000000126_compressed.jpg",
+    image: "/images/optimized/1000000126_compressed.jpg",
     included: [
       { en: "Private 4x4 vehicle with driver", he: "רכב 4x4 פרטי עם נהג" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },
@@ -88,7 +88,7 @@ const HARDCODED_TOURS = [
     duration: "4-6 hours",
     durationHe: "4-6 שעות",
     basePrice: 2800,
-    image: "/images/1000000149.jpg",
+    image: "/images/optimized/1000000149.jpg",
     included: [
       { en: "Private vehicle with driver", he: "רכב פרטי עם נהג" },
       { en: "Hebrew-speaking cultural guide", he: "מדריך תרבות דובר עברית" },
@@ -107,7 +107,7 @@ const HARDCODED_TOURS = [
     duration: "Half Day (4-5 hours)",
     durationHe: "חצי יום (4-5 שעות)",
     basePrice: 3200,
-    image: "/images/1000000140.jpg",
+    image: "/images/optimized/1000000140.jpg",
     included: [
       { en: "Private transportation", he: "הסעה פרטית" },
       { en: "Hebrew-speaking guide", he: "מדריך דובר עברית" },

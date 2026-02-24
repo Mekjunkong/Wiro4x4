@@ -8,7 +8,7 @@ const PREVIEW_IMAGES = [
     alt: "Sticky waterfalls adventure",
   },
   { src: "/images/1000000135.jpg", alt: "Mountain circuit scenery" },
-  { src: "/images/1000000149.jpg", alt: "Hidden mountain village" },
+  { src: "/images/optimized/1000000149.jpg", alt: "Hidden mountain village" },
   {
     src: "/images/1000000117_compressed.jpg",
     alt: "Northern Thailand landscape",

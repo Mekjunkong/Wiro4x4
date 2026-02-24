@@ -49,7 +49,7 @@ export default function BlogPost() {
               )
             : "",
           readTime: `${minutes} ${t("min read", "דק' קריאה")}`,
-          image: dbPost.coverImage || "/images/1000000149.jpg",
+          image: dbPost.coverImage || "/images/optimized/1000000149.jpg",
           content,
         };
       })()

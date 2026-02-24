@@ -122,6 +122,16 @@ export function Header() {
                 {t("Pricing", "מחירים")}
               </span>
             </Link>
+            <Link href="/gallery">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/gallery")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("Gallery", "גלריה")}
+              </span>
+            </Link>
             <Link href="/blog">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/blog") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -266,6 +276,12 @@ export function Header() {
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Pricing", "מחירים")}
+              </span>
+            </Link>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+                {t("Gallery", "גלריה")}
               </span>
             </Link>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
