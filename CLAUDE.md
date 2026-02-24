@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. The site features bilingual support (English/Hebrew), booking system, admin panel with 9 tabs, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, homepage inquiry form, destination showcase, and parallax effects.
+**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. This is the **MVP release** — a fully functional bilingual (English/Hebrew) tour booking site with SEO-optimized landing pages, blog content pipeline, admin panel, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, trip cost estimator, and destination showcase.
+
+**Live Site:** https://www.wiro4x4indochina.com
 
 **Tech Stack:**
 
@@ -54,7 +56,7 @@ pnpm format
 │   │   │   ├── QuickInquiryForm.tsx  # Homepage "Get a Quote" lead form
 │   │   │   ├── DestinationShowcase.tsx # Northern Thailand destination cards
 │   │   │   ├── Footer.tsx       # Footer with contact info
-│   │   │   ├── WhyWiro.tsx      # Why choose us section
+│   │   │   ├── TrustAndKosher.tsx # "Why WIRO 4x4?" section (Wiro guide photo + trust points + kosher)
 │   │   │   ├── Testimonials.tsx # Customer testimonials
 │   │   │   ├── CommunityConnection.tsx
 │   │   │   ├── KosherInfo.tsx   # Kosher information
@@ -73,19 +75,22 @@ pnpm format
 │   │   │   └── LanguageContext.tsx  # Bilingual state (useLanguage hook)
 │   │   ├── pages/               # Page components
 │   │   │   ├── Home.tsx         # Landing page (hero + inquiry + tours + destinations)
-│   │   │   ├── TourDetail.tsx   # Individual tour page (/tours/:slug)
+│   │   │   ├── TourDetail.tsx   # Individual tour page (/tours/:slug) + enrichment data
 │   │   │   ├── BookingForm.tsx  # Tour booking form (7-rule validation)
 │   │   │   ├── BookingSuccess.tsx  # Success page
-│   │   │   ├── AdminDashboard.tsx  # Admin panel (6 tabs, paginated)
+│   │   │   ├── AdminDashboard.tsx  # Admin panel (9 tabs, paginated)
 │   │   │   ├── Pricing.tsx      # Pricing page (dynamic from DB)
 │   │   │   ├── Estimate.tsx     # Trip cost estimator page (/estimate)
-│   │   │   ├── Gallery.tsx      # Photo gallery with category filters
+│   │   │   ├── Gallery.tsx      # Photo gallery with category filters + broken image hiding
 │   │   │   ├── Reviews.tsx      # Customer reviews + submission form
 │   │   │   ├── Blog.tsx         # Blog listing (with search + category filters)
-│   │   │   └── BlogPost.tsx     # Individual blog post (with share buttons)
+│   │   │   ├── BlogPost.tsx     # Individual blog post (with share buttons)
+│   │   │   ├── KosherTours.tsx  # SEO landing page (/kosher-tours)
+│   │   │   ├── HebrewGuide.tsx  # SEO landing page (/hebrew-guide)
+│   │   │   └── AccessibleTours.tsx # SEO landing page (/accessible-tours)
 │   │   ├── hooks/
 │   │   │   ├── useAuth.ts       # Authentication hook
-│   │   │   └── usePageMeta.ts   # Per-page title + meta description
+│   │   │   └── usePageMeta.ts   # Per-page SEO (title, OG tags, canonical, JSON-LD)
 │   │   ├── lib/
 │   │   │   └── trpc.ts          # tRPC client setup
 │   │   ├── const.ts             # Constants (WhatsApp, logos, etc.)
@@ -111,7 +116,9 @@ pnpm format
 │   ├── routes/
 │   │   ├── blog.ts              # Blog CRUD + generateDraft + uploadImage
 │   │   ├── newsletter.ts        # subscribe/unsubscribe/list/send procedures
-│   │   └── rss.ts               # RSS 2.0 feed at /api/rss
+│   │   ├── rss.ts               # RSS 2.0 feed at /api/rss
+│   │   └── sitemap.ts           # Dynamic sitemap with all pages + tours + blog posts
+│   ├── seed-blog-articles.ts    # Seed 10 bilingual blog articles (run with npx tsx)
 │   ├── test-helpers.ts          # Shared test context + itWithDb helper
 │   ├── *.test.ts                # 21 test files (see Testing section)
 ├── drizzle/                     # Database schema and migrations
@@ -129,7 +136,9 @@ pnpm format
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
 │   └── pricing.ts               # Pure pricing calculation functions (used by client + server)
 ├── docs/
-│   └── plans/                   # Design documents and implementation plans
+│   ├── plans/                   # Design documents and implementation plans
+│   ├── seo-content-calendar.md  # Blog content calendar with keyword targets
+│   └── google-search-console-setup.md  # GSC setup guide
 ├── todo.md                      # Project task tracking
 ├── package.json                 # Dependencies and scripts
 └── vite.config.ts               # Vite configuration
@@ -235,7 +244,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 - **Public:** `/gallery` — masonry grid with category filters
 - **Homepage:** `PhotoGallery.tsx` — "Adventure Highlights" carousel with DB photos + local fallback
-- **Broken image handling:** `onError` hides failed S3 images so users never see broken icons
+- **Broken image handling:** `LazyImage` component tracks broken S3 URLs via `brokenIds` state; broken images are hidden from the grid and excluded from category counts
 - **First image eager-loaded:** `loading="eager"` + `fetchPriority="high"` for fast first paint
 - **Admin:** Upload + manage photos via Gallery tab
 - **Storage:** S3 via `storagePut()` in `server/storage.ts`
@@ -254,6 +263,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - Hardcoded fallback tours if DB returns empty (6 destination-based Chiang Mai day trips)
 - **Tour image override:** `TOUR_IMAGE_MAP` in `Tours.tsx` maps tour slugs to local optimized images — these ALWAYS override DB `imageUrl` to prevent images reverting to incorrect DB values
 - **WebP + JPG:** Tour cards use `<picture>` with optimized WebP source + JPG fallback for fast loading
+- **Section images:** "Why WIRO 4x4?" uses `wiro_with_vehicle.jpg/webp` (Wiro guide standing next to 4x4). All section images use local `/images/optimized/` photos, NOT S3 URLs
 - Extended fallback type includes `itineraryData`, `highlights`, `highlightsHe` fields serialized to JSON
 - Admin can create/edit/delete tours, manage slug/itinerary/includedItems via Tours tab
 - **Current 6 tour slugs:** `doi-inthanon-roof-of-thailand`, `mae-kampong-hidden-village`, `maerim-sticky-waterfalls`, `doi-suthep-pui-beyond-temple`, `mae-wang-jungle-wilderness`, `samoeng-loop-mountain-circuit`
@@ -324,12 +334,25 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - `lead.create`: 10 requests/minute per IP
 - `review.create`: 5 requests/minute per IP
 
-### 12. SEO
+### 12. SEO & Content Strategy
 
-- `robots.txt` + `sitemap.xml` in `client/public/`
-- JSON-LD structured data (TourOperator, LocalBusiness) in `index.html`
-- OG tags, Twitter cards, canonical/hreflang/geo meta tags
-- Per-page meta via `usePageMeta()` hook
+- **Domain:** `https://www.wiro4x4indochina.com` (all meta tags, canonical URLs, sitemaps point here)
+- **`usePageMeta()` hook** — upgraded to full SEO engine supporting:
+  - Per-page title, description, OG title/description/image, Twitter cards
+  - Canonical URLs, JSON-LD structured data injection per page
+  - Backward compatible: `usePageMeta("title")` or `usePageMeta({ title, description, canonicalPath, jsonLd })`
+- **JSON-LD schemas:** LocalBusiness + TourOperator (global), TouristTrip (per tour), FAQPage (FAQ + tour FAQ), BlogPosting (per blog post)
+- **3 SEO landing pages:**
+  - `/kosher-tours` — targets "kosher tours Thailand", "kosher travel Chiang Mai"
+  - `/hebrew-guide` — targets Hebrew-speaking Israeli travelers
+  - `/accessible-tours` — targets accessibility + family-friendly searches
+- **10 seeded blog articles** — bilingual (EN/HE), 800-1200 words each, with cover images. Seed script: `server/seed-blog-articles.ts`
+- **Tour detail enrichment** — "What to Bring", "Best Time to Visit", "Local Tips", "Related Tours" sections per tour via `TOUR_ENRICHMENT` data map in `TourDetail.tsx`
+- **Expanded FAQ** — 14 Q&A items (up from 10) with FAQPage JSON-LD
+- `robots.txt` + dynamic sitemap (includes landing pages, tours, blog posts)
+- OG tags, Twitter cards, canonical/hreflang/geo meta tags in `index.html`
+- **Content calendar:** `docs/seo-content-calendar.md` — 10 initial + 10 future article ideas with keyword targets
+- **GSC guide:** `docs/google-search-console-setup.md`
 
 ### 13. Stripe Payments (Deferred)
 
@@ -397,7 +420,8 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `client/src/pages/AdminDashboard.tsx` - Admin panel (6 tabs)
 - `client/src/pages/BookingForm.tsx` - Booking form
 - `client/src/components/Tours.tsx` - Tour card data (fallback)
-- `client/src/pages/TourDetail.tsx` - Tour detail page + fallback itinerary data
+- `client/src/pages/TourDetail.tsx` - Tour detail page + enrichment data + TouristTrip JSON-LD
+- `client/src/components/TrustAndKosher.tsx` - "Why WIRO 4x4?" section
 - `client/src/components/DestinationShowcase.tsx` - Homepage destination cards
 - `client/src/pages/Home.tsx` - Landing page content
 - `client/src/const.ts` - Constants (WhatsApp, logos)
@@ -477,6 +501,16 @@ export const WHATSAPP_NUMBER = "+66929894495";
 ```
 
 3. Add to `client/public/sitemap.xml`
+
+### Seed Blog Articles:
+
+Run on Manus (requires DATABASE_URL):
+
+```bash
+npx tsx server/seed-blog-articles.ts
+```
+
+Seeds 10 bilingual articles with cover images. Skips duplicates (safe to re-run).
 
 ### Change Colors:
 
@@ -595,10 +629,12 @@ pnpm db:push  # Sync database schema
 | Generate blog     | Admin → Blog tab → "Generate Article" button               |
 | Send newsletter   | Admin → Blog tab → "Send to Subscribers" on published post |
 | RSS feed          | `/api/rss` — auto-generated from published posts           |
+| Seed blog content | `npx tsx server/seed-blog-articles.ts` (on Manus)          |
+| SEO landing pages | `/kosher-tours`, `/hebrew-guide`, `/accessible-tours`      |
 
 ---
 
-**Last Updated:** 2026-02-23
-**Version:** 2.6
+**Last Updated:** 2026-02-24
+**Version:** 3.0 (MVP)
 **Platform:** Manus
 **Test Coverage:** 155 tests (30 files) — 125 pass locally, 30 DB-dependent skipped
