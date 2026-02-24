@@ -22,6 +22,7 @@ const articles = [
     title: "Chiang Mai for Israeli Travelers — The Complete Guide",
     titleHe: "צ'יאנג מאי למטיילים ישראלים — המדריך המלא",
     slug: "chiang-mai-israeli-travelers-guide",
+    coverImage: "/images/optimized/chiang_mai_valley.jpg",
     excerpt:
       "Everything Israeli travelers need to know about Chiang Mai: visa, money, SIM cards, kosher food, Hebrew services, and the best day trips.",
     excerptHe:
@@ -174,6 +175,7 @@ Chiang Mai is generally very safe for tourists. Standard precautions apply:
     title: "Shabbat in Chiang Mai — Where to Stay, Eat & Pray",
     titleHe: "שבת בצ'יאנג מאי — איפה לגור, לאכול ולהתפלל",
     slug: "shabbat-in-chiang-mai-guide",
+    coverImage: "/images/optimized/mountain_sunset_golden.jpg",
     excerpt:
       "A complete guide to keeping Shabbat in Chiang Mai: Chabad services, kosher restaurants, Shabbat-friendly hotels, and how to plan your tour week around it.",
     excerptHe:
@@ -300,6 +302,7 @@ Here's how we recommend structuring a week in Chiang Mai:
     title: "Kosher Food in Chiang Mai — Every Option Mapped",
     titleHe: "אוכל כשר בצ'יאנג מאי — כל האפשרויות במפה",
     slug: "kosher-food-chiang-mai-guide",
+    coverImage: "/images/optimized/kosher_meal.jpg",
     excerpt:
       "A comprehensive guide to finding kosher food in Chiang Mai: restaurants, supermarkets, Chabad meals, and tips for kosher travelers.",
     excerptHe:
@@ -411,6 +414,7 @@ Some accommodations offer kitchen facilities:
     title: "Top 5 Kosher-Friendly Day Trips from Chiang Mai",
     titleHe: "5 הטיולים היומיים הכשרים הטובים ביותר מצ'יאנג מאי",
     slug: "top-5-kosher-day-trips-chiang-mai",
+    coverImage: "/images/optimized/tourists_with_4x4.jpg",
     excerpt:
       "The best day trips from Chiang Mai for kosher travelers — each with kosher meals, Hebrew guides, and unforgettable off-road adventures.",
     excerptHe:
@@ -548,6 +552,7 @@ A 100km mountain circuit through Chiang Mai's green lung — hidden wooden templ
     title: "Planning a Kosher Trip to Thailand — What You Need to Know",
     titleHe: "תכנון טיול כשר לתאילנד — מה שצריך לדעת",
     slug: "planning-kosher-trip-thailand",
+    coverImage: "/images/optimized/golden_triangle.jpg",
     excerpt:
       "A practical guide for observant Jewish travelers planning a kosher trip to Thailand: food, Shabbat, holiday logistics, and cultural tips.",
     excerptHe:
@@ -674,6 +679,7 @@ For Jewish travelers, we recommend:
     title: "Jewish Holidays in Thailand — Celebrating Abroad",
     titleHe: 'חגים יהודיים בתאילנד — חגיגות בחו"ל',
     slug: "jewish-holidays-thailand-celebrating-abroad",
+    coverImage: "/images/optimized/village_market_street.jpg",
     excerpt:
       "How to celebrate Pesach, Sukkot, Rosh Hashana, and other Jewish holidays in Thailand — Chabad services, kosher meals, and travel tips.",
     excerptHe:
@@ -784,6 +790,7 @@ When booking tours with [WIRO 4x4](/kosher-tours):
     title: "Mae Kampong Village — The Hidden Gem Most Tourists Miss",
     titleHe: "כפר מאה קמפונג — הפנינה הנסתרת שרוב התיירים מפספסים",
     slug: "mae-kampong-village-hidden-gem-guide",
+    coverImage: "/images/optimized/mountain_village_view.jpg",
     excerpt:
       "A deep guide to Mae Kampong village: 700-year-old traditions, wild gibbon spotting, ancient fermented tea, and why this is Chiang Mai's best-kept secret.",
     excerptHe:
@@ -867,6 +874,7 @@ Mae Kampong is technically visitable independently, but a guide transforms the e
     title: "Best Off-Road Adventures in Northern Thailand",
     titleHe: "הרפתקאות השטח הטובות ביותר בצפון תאילנד",
     slug: "best-off-road-adventures-northern-thailand",
+    coverImage: "/images/optimized/4x4_water_splash.jpg",
     excerpt:
       "Expert guide to Northern Thailand's best off-road experiences: jungle trails, river crossings, mountain circuits, and hidden destinations only 4x4s can reach.",
     excerptHe:
@@ -947,6 +955,7 @@ Many Karen, Hmong, and Lahu villages are only accessible by 4x4 dirt tracks. The
     title: "Doi Inthanon — Beyond the Summit: A Local's Guide",
     titleHe: "דוי אינתנון — מעבר לפסגה: מדריך מקומי",
     slug: "doi-inthanon-locals-guide",
+    coverImage: "/images/optimized/accessible_doi_inthanon_summit.jpg",
     excerpt:
       "Go beyond the summit photo at Thailand's highest peak. Discover hidden trails, cloud forests, Karen coffee villages, and the best times to visit Doi Inthanon.",
     excerptHe:
@@ -1021,6 +1030,7 @@ The 360-meter boardwalk near the summit passes through one of Thailand's last re
     title: "Sticky Waterfalls Chiang Mai — How to Actually Climb Them",
     titleHe: "מפלים דביקים צ'יאנג מאי — איך באמת מטפסים עליהם",
     slug: "sticky-waterfalls-chiang-mai-how-to-climb",
+    coverImage: "/images/optimized/sticky_waterfalls.jpg",
     excerpt:
       "Everything you need to know about Chiang Mai's famous Sticky Waterfalls: how they work, what to wear, the best route up, and insider tips from local guides.",
     excerptHe:
@@ -1147,6 +1157,7 @@ async function seed() {
         excerpt: article.excerpt,
         excerptHe: article.excerptHe,
         category: article.category,
+        coverImage: article.coverImage,
         isPublished: 1,
         publishedAt: new Date(),
       });

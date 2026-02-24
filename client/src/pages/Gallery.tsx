@@ -35,10 +35,12 @@ function LazyImage({
   src,
   alt,
   className,
+  onError: onErrorCb,
 }: {
   src: string;
   alt: string;
   className: string;
+  onError?: () => void;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -67,7 +69,10 @@ function LazyImage({
           alt={alt}
           className={`${className} transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={() => setIsLoaded(true)}
-          onError={() => setHasError(true)}
+          onError={() => {
+            setHasError(true);
+            onErrorCb?.();
+          }}
         />
       )}
       {(!isInView || (!isLoaded && !hasError)) && (
@@ -98,21 +103,27 @@ export default function Gallery() {
 
   const { data: photos, isLoading } = trpc.gallery.list.useQuery();
 
-  // Compute counts per category from all photos
+  // Track broken S3 images to hide them from the grid
+  const [brokenIds, setBrokenIds] = useState<Set<number>>(new Set());
+
+  // Compute counts per category from non-broken photos
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     if (photos) {
       for (const photo of photos) {
+        if (brokenIds.has(photo.id)) continue;
         const cat = photo.category || "other";
         counts[cat] = (counts[cat] || 0) + 1;
       }
     }
     return counts;
-  }, [photos]);
+  }, [photos, brokenIds]);
 
   const filteredPhotos =
     photos?.filter(
-      photo => selectedCategory === "all" || photo.category === selectedCategory
+      photo =>
+        !brokenIds.has(photo.id) &&
+        (selectedCategory === "all" || photo.category === selectedCategory)
     ) || [];
 
   const openLightbox = (index: number) => setLightboxIndex(index);
@@ -284,6 +295,13 @@ export default function Gallery() {
                       src={photo.imageUrl}
                       alt={`${photo.title}${photo.category ? ` - ${photo.category}` : ""} | WIRO 4x4 Gallery`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={() =>
+                        setBrokenIds(prev => {
+                          const next = new Set(Array.from(prev));
+                          next.add(photo.id);
+                          return next;
+                        })
+                      }
                     />
                     {/* Gold hover overlay */}
                     <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
