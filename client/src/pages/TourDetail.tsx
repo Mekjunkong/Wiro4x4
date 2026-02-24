@@ -23,6 +23,7 @@ import {
   Lightbulb,
   ArrowRight,
   BookOpen,
+  XCircle,
 } from "lucide-react";
 import { useParams, useLocation, Link } from "wouter";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -314,13 +315,17 @@ const FALLBACK_TOURS: Record<
         he: "דמי כניסה לגן הבוטני",
       },
       {
-        en: "Lunch at riverside restaurant",
-        he: "ארוחת צהריים במסעדה ליד הנהר",
+        en: "Riverside lunch",
+        he: "ארוחת צהריים על גדת הנהר",
       },
-      { en: "Drinking water & snacks", he: "מי שתייה וחטיפים" },
+      {
+        en: "Village coffee tasting",
+        he: "טעימות קפה בכפר",
+      },
+      { en: "Drinking water", he: "מי שתייה" },
       {
         en: "Kosher meal arrangements (advance notice)",
-        he: "הסדרי ארוחות כשרות (בהודעה מראש)",
+        he: "הסדרי ארוחות כשרות (בהזמנה מראש)",
       },
     ],
     highlights: [
@@ -771,6 +776,30 @@ const FALLBACK_TOURS: Record<
     ],
   },
 };
+
+/** Items NOT included in any tour (from official pricing card) */
+const NOT_INCLUDED: { en: string; he: string }[] = [
+  {
+    en: "Travel insurance (mandatory: every traveler must have health insurance)",
+    he: "ביטוחים (חובה: על כל נוסע לרכוש ביטוח בריאות)",
+  },
+  {
+    en: "Meals beyond those listed in the itinerary",
+    he: "ארוחות מעבר לאלו המצוינות בתוכנית הטיול",
+  },
+  {
+    en: "Personal expenses",
+    he: "הוצאות אישיות",
+  },
+  {
+    en: "Activities, entrance fees, or attractions not listed in the itinerary",
+    he: "כל פעילויות, כניסה לאתר או אטרקציה שאינה מופיעה בתוכנית",
+  },
+  {
+    en: "Tips for driver/guide",
+    he: "טיפים לנהג/מדריך",
+  },
+];
 
 const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
   easy: { en: "Easy", he: "קל" },
@@ -1349,6 +1378,26 @@ export default function TourDetail() {
                     </div>
                   </div>
                 )}
+
+                {/* Not Included */}
+                <div>
+                  <h2 className="text-2xl font-medium mb-4">
+                    {t("Not Included", "הסיול לא כולל")}
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {NOT_INCLUDED.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 p-3 rounded-sm bg-muted/50"
+                      >
+                        <XCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                        <span className="text-sm text-muted-foreground">
+                          {t(item.en, item.he)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Itinerary */}
                 {itinerary.length > 0 && (
