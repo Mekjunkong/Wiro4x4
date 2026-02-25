@@ -10,6 +10,7 @@ import {
   roundToNearest100,
   calculateTripTotal,
   formatTHB,
+  calculatePackageDiscount,
 } from "../shared/pricing";
 
 describe("Pricing Module", () => {
@@ -309,6 +310,43 @@ describe("Pricing Module", () => {
       expect(result.shabbatNights).toBe(1);
       expect(result.shabbatCost).toBe(2000);
       expect(result.total).toBe(5500); // 3500 + 2000
+    });
+  });
+
+  describe("calculatePackageDiscount", () => {
+    it("returns 10% discount for 2 tours", () => {
+      const result = calculatePackageDiscount(2, 8000);
+      expect(result.discountPercent).toBe(10);
+      expect(result.discountedPrice).toBe(7200);
+      expect(result.savings).toBe(800);
+    });
+
+    it("returns 15% discount for 3 tours", () => {
+      const result = calculatePackageDiscount(3, 12000);
+      expect(result.discountPercent).toBe(15);
+      expect(result.discountedPrice).toBe(10200);
+      expect(result.savings).toBe(1800);
+    });
+
+    it("returns 25% discount for 5 tours", () => {
+      const result = calculatePackageDiscount(5, 20000);
+      expect(result.discountPercent).toBe(25);
+      expect(result.discountedPrice).toBe(15000);
+      expect(result.savings).toBe(5000);
+    });
+
+    it("uses override percent when provided", () => {
+      const result = calculatePackageDiscount(2, 8000, 30);
+      expect(result.discountPercent).toBe(30);
+      expect(result.discountedPrice).toBe(5600);
+      expect(result.savings).toBe(2400);
+    });
+
+    it("returns no discount for 1 tour", () => {
+      const result = calculatePackageDiscount(1, 4000);
+      expect(result.discountPercent).toBe(0);
+      expect(result.discountedPrice).toBe(4000);
+      expect(result.savings).toBe(0);
     });
   });
 });

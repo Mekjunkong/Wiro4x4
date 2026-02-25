@@ -97,6 +97,32 @@ export const MULTI_DAY_PACKAGES = [
   },
 ] as const;
 
+export const PACKAGE_DISCOUNTS: Record<number, number> = {
+  2: 0.1,
+  3: 0.15,
+  4: 0.2,
+  5: 0.25,
+};
+
+/**
+ * Calculate the discounted price for a package of N tours.
+ * Uses tiered percentage discounts (or an admin override).
+ */
+export function calculatePackageDiscount(
+  tourCount: number,
+  tourTotal: number,
+  overridePercent?: number
+): { discountedPrice: number; savings: number; discountPercent: number } {
+  const decimalDiscount =
+    overridePercent != null
+      ? overridePercent / 100
+      : (PACKAGE_DISCOUNTS[tourCount] ?? 0);
+  const discountPercent = Math.round(decimalDiscount * 100);
+  const savings = Math.round(tourTotal * decimalDiscount);
+  const discountedPrice = tourTotal - savings;
+  return { discountedPrice, savings, discountPercent };
+}
+
 export const DEPOSIT_RATE = 0.3;
 
 // ── Calculation Functions ────────────────────────────────────
