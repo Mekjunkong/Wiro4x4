@@ -116,6 +116,16 @@ export {
   getAllToursPaginated,
 } from "./tours";
 
+// Tour Packages
+export {
+  createTourPackage,
+  getPublishedTourPackages,
+  getAllTourPackages,
+  getTourPackageBySlug,
+  updateTourPackage,
+  deleteTourPackage,
+} from "./packages";
+
 // Blog Posts
 export {
   createBlogPost,
