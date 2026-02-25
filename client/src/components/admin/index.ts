@@ -4,6 +4,7 @@ export { AgentsTab } from "./AgentsTab";
 export { LeadsTab } from "./LeadsTab";
 export { FinancialTab } from "./FinancialTab";
 export { ToursTab } from "./ToursTab";
+export { PackagesTab } from "./PackagesTab";
 export { GalleryTab } from "./GalleryTab";
 export { ReviewsTab } from "./ReviewsTab";
 export { BlogTab } from "./BlogTab";

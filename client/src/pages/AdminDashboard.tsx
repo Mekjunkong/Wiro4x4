@@ -17,6 +17,7 @@ import {
   UserCircle,
   Shield,
   Settings,
+  Package,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -26,6 +27,7 @@ import {
   LeadsTab,
   FinancialTab,
   ToursTab,
+  PackagesTab,
   GalleryTab,
   ReviewsTab,
   BlogTab,
@@ -69,6 +71,7 @@ type AdminTabId =
   | "gallery"
   | "reviews"
   | "tours"
+  | "packages"
   | "blog"
   | "users"
   | "abandoned"
@@ -206,6 +209,7 @@ export default function AdminDashboard() {
       count: financialsTotal,
     },
     { id: "tours", label: "Tours", icon: Mountain, count: toursTotal },
+    { id: "packages", label: "Packages", icon: Package, count: undefined },
     { id: "gallery", label: "Gallery", icon: Camera, count: galleryTotal },
     { id: "blog", label: "Blog", icon: FileText, count: blogTotal },
     { id: "reviews", label: "Reviews", icon: Star, count: reviewsTotal },
@@ -488,6 +492,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="tours">
                 <ToursTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "packages" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-packages"
+              aria-labelledby="tab-packages"
+            >
+              <ErrorBoundary level="section" key="packages">
+                <PackagesTab />
               </ErrorBoundary>
             </div>
           )}
