@@ -100,10 +100,14 @@ export default function BookingForm() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
 
-  // Restore draft from server-side token (email recovery link)
+  // Read URL params once on mount
   const [tokenParam] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("token");
+  });
+  const [toursParam] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tours");
   });
 
   // N5: Load draft from localStorage on mount
@@ -142,6 +146,54 @@ export default function BookingForm() {
       }
     }
   }, [serverDraft]);
+
+  // Pre-fill from ?tours= query param (package booking flow)
+  const preSelectedSlugs = useMemo(
+    () =>
+      toursParam
+        ? toursParam
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean)
+        : [],
+    [toursParam]
+  );
+  const { data: allTours } = trpc.tour.list.useQuery(undefined, {
+    enabled: preSelectedSlugs.length > 0,
+  });
+  const [toursApplied, setToursApplied] = useState(false);
+  useEffect(() => {
+    if (toursApplied || preSelectedSlugs.length === 0 || !allTours) return;
+    const matched = allTours.filter(t => preSelectedSlugs.includes(t.slug));
+    if (matched.length === 0) return;
+
+    // Map tour slugs to destination region IDs where possible
+    const SLUG_TO_DEST: Record<string, string> = {
+      "doi-inthanon-roof-of-thailand": "doi-inthanon",
+    };
+    const destIds = Array.from(
+      new Set(
+        matched
+          .map(t => SLUG_TO_DEST[t.slug])
+          .filter((id): id is string => !!id)
+      )
+    );
+    // Always include chiang-mai since all tours are Chiang Mai area
+    if (!destIds.includes("chiang-mai")) destIds.push("chiang-mai");
+
+    const tourNames = matched.map(t => t.name).join(", ");
+    setFormData(prev => ({
+      ...prev,
+      suggestedDestinations: Array.from(
+        new Set([...prev.suggestedDestinations, ...destIds])
+      ),
+      specialRequests: prev.specialRequests
+        ? prev.specialRequests
+        : `Package tours: ${tourNames}`,
+      includesTrip: true,
+    }));
+    setToursApplied(true);
+  }, [allTours, preSelectedSlugs, toursApplied]);
 
   // N5: Auto-save draft to localStorage (debounced)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
