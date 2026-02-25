@@ -81,55 +81,63 @@ export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTabId>("crm");
 
+  const isAdmin = !!user && user.role === "admin";
+
   // Fetch summary data for stats cards and tab counts
-  const { data: bookingsData } = trpc.booking.listPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: bookingsData } = trpc.booking.listPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const bookings = bookingsData?.items;
   const bookingsTotal = bookingsData?.total ?? 0;
 
-  const { data: agents } = trpc.agent.list.useQuery();
-  const { data: leadsData } = trpc.lead.listPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
+  const { data: agents } = trpc.agent.list.useQuery(undefined, {
+    enabled: isAdmin,
   });
+  const { data: leadsData } = trpc.lead.listPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const leadsTotal = leadsData?.total ?? 0;
 
-  const { data: financialsData } = trpc.financial.listAllPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: financialsData } = trpc.financial.listAllPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const financials = financialsData?.items;
   const financialsTotal = financialsData?.total ?? 0;
 
-  const { data: galleryData } = trpc.gallery.listAllPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: galleryData } = trpc.gallery.listAllPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const galleryTotal = galleryData?.total ?? 0;
 
-  const { data: reviewsData } = trpc.review.listAllPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: reviewsData } = trpc.review.listAllPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const reviewsTotal = reviewsData?.total ?? 0;
 
-  const { data: toursData } = trpc.tour.listAllPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: toursData } = trpc.tour.listAllPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const toursTotal = toursData?.total ?? 0;
 
-  const { data: blogData } = trpc.blog.listAllPaginated.useQuery({
-    page: 1,
-    pageSize: PAGE_SIZE,
-  });
+  const { data: blogData } = trpc.blog.listAllPaginated.useQuery(
+    { page: 1, pageSize: PAGE_SIZE },
+    { enabled: isAdmin }
+  );
   const blogTotal = blogData?.total ?? 0;
 
   // Dashboard stats and badge counts
-  const { data: dashboardStats } = trpc.dashboard.stats.useQuery();
-  const { data: badges } = trpc.dashboard.badgeCounts.useQuery();
+  const { data: dashboardStats } = trpc.dashboard.stats.useQuery(undefined, {
+    enabled: isAdmin,
+  });
+  const { data: badges } = trpc.dashboard.badgeCounts.useQuery(undefined, {
+    enabled: isAdmin,
+  });
 
   // Auth check
   if (authLoading) {
