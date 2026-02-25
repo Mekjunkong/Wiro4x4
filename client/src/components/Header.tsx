@@ -112,6 +112,16 @@ export function Header() {
             >
               {t("Contact", "צרו קשר")}
             </button>
+            <Link href="/packages">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/packages") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/packages")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("Packages", "חבילות")}
+              </span>
+            </Link>
             <Link href="/pricing">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -272,6 +282,12 @@ export function Header() {
             >
               {t("Contact", "צרו קשר")}
             </button>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <Link href="/packages" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+                {t("Packages", "חבילות")}
+              </span>
+            </Link>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">

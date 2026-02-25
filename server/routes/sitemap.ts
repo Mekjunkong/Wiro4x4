@@ -1,5 +1,9 @@
 import type { Express } from "express";
-import { getAllActiveTours, getAllPublishedBlogPosts } from "../db";
+import {
+  getAllActiveTours,
+  getAllPublishedBlogPosts,
+  getPublishedTourPackages,
+} from "../db";
 
 function escapeXml(str: string): string {
   return str
@@ -16,6 +20,7 @@ interface SlugItem {
 
 const STATIC_PAGES = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
+  { path: "/packages", priority: "0.9", changefreq: "weekly" },
   { path: "/pricing", priority: "0.9", changefreq: "monthly" },
   { path: "/estimate", priority: "0.9", changefreq: "monthly" },
   { path: "/book", priority: "0.9", changefreq: "monthly" },
@@ -32,6 +37,7 @@ const STATIC_PAGES = [
 export function generateSitemap(
   tours: SlugItem[],
   blogs: SlugItem[],
+  packages: SlugItem[],
   siteUrl: string
 ): string {
   const today = new Date().toISOString().split("T")[0];
@@ -56,6 +62,17 @@ export function generateSitemap(
     )
     .join("\n");
 
+  const packageUrls = packages
+    .map(
+      p => `  <url>
+    <loc>${escapeXml(siteUrl)}/packages/${escapeXml(p.slug)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+    )
+    .join("\n");
+
   const blogUrls = blogs
     .map(
       b => `  <url>
@@ -71,6 +88,7 @@ export function generateSitemap(
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticUrls}
 ${tourUrls}
+${packageUrls}
 ${blogUrls}
 </urlset>`;
 }
@@ -78,13 +96,17 @@ ${blogUrls}
 export function registerSitemapRoute(app: Express) {
   app.get("/sitemap.xml", async (_req, res) => {
     try {
-      const tours = await getAllActiveTours();
-      const blogs = await getAllPublishedBlogPosts();
+      const [tours, blogs, packages] = await Promise.all([
+        getAllActiveTours(),
+        getAllPublishedBlogPosts(),
+        getPublishedTourPackages(),
+      ]);
       const siteUrl =
         process.env.SITE_URL || "https://www.wiro4x4indochina.com";
       const xml = generateSitemap(
         tours.map(t => ({ slug: t.slug })),
         blogs.map(b => ({ slug: b.slug })),
+        packages.map(p => ({ slug: p.slug })),
         siteUrl
       );
       res.set("Content-Type", "application/xml; charset=utf-8");
