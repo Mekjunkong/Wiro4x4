@@ -318,6 +318,24 @@ export const tours = mysqlTable("tours", {
 export type Tour = typeof tours.$inferSelect;
 export type InsertTour = typeof tours.$inferInsert;
 
+// Tour Packages Table
+export const tourPackages = mysqlTable("tourPackages", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  nameHe: varchar("nameHe", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  descriptionHe: text("descriptionHe"),
+  tourSlugs: text("tourSlugs").notNull(), // JSON array of tour slugs
+  discountPercent: int("discountPercent"), // Override (null = use default tier)
+  coverImage: text("coverImage"),
+  isPublished: int("isPublished").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type TourPackage = typeof tourPackages.$inferSelect;
+export type InsertTourPackage = typeof tourPackages.$inferInsert;
+
 // Blog Posts Table
 export const blogPosts = mysqlTable(
   "blogPosts",
