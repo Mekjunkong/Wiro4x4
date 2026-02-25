@@ -141,6 +141,21 @@ export const blogPostInputSchema = z.object({
   author: z.string().optional(),
 });
 
+export const tourPackageInputSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  nameHe: z.string().min(1, "Hebrew name is required").max(255),
+  slug: z.string().optional(),
+  description: z.string().optional(),
+  descriptionHe: z.string().optional(),
+  tourSlugs: z
+    .array(z.string().min(1))
+    .min(2, "At least 2 tours required")
+    .max(5, "Maximum 5 tours"),
+  discountPercent: z.number().min(0).max(50).nullable().optional(),
+  coverImage: z.string().optional(),
+  isPublished: z.boolean().optional(),
+});
+
 export const createCheckoutSchema = z.object({
   bookingId: z.number(),
   amount: z.number().positive(),
@@ -213,6 +228,7 @@ export type VerifySessionInput = z.infer<typeof verifySessionSchema>;
 export type CustomerInput = z.infer<typeof customerInputSchema>;
 export type CustomerActivityInput = z.infer<typeof customerActivityInputSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+export type TourPackageInput = z.infer<typeof tourPackageInputSchema>;
 
 export const settingsUpdateSchema = z.object({
   key: z.string().min(1).max(100),
