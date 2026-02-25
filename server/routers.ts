@@ -29,6 +29,7 @@ import { dashboardRouter } from "./routes/dashboard";
 import { statsRouter } from "./routes/stats";
 import { bookingDraftRouter } from "./routes/bookingDraft";
 import { analyticsRouter } from "./routes/analytics";
+import { packageRouter } from "./routes/package";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -58,6 +59,7 @@ export const appRouter = router({
   stats: statsRouter,
   bookingDraft: bookingDraftRouter,
   analytics: analyticsRouter,
+  package: packageRouter,
 });
 
 export type AppRouter = typeof appRouter;
