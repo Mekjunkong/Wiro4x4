@@ -29,6 +29,8 @@ const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 const KosherTours = React.lazy(() => import("./pages/KosherTours"));
 const HebrewGuide = React.lazy(() => import("./pages/HebrewGuide"));
 const AccessibleTours = React.lazy(() => import("./pages/AccessibleTours"));
+const Packages = React.lazy(() => import("./pages/Packages"));
+const PackageDetail = React.lazy(() => import("./pages/PackageDetail"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -77,6 +79,8 @@ function Router() {
               <Route path={"/"} component={Home} />
               <Route path={"/pricing"} component={Pricing} />
               <Route path={"/estimate"} component={Estimate} />
+              <Route path={"/packages"} component={Packages} />
+              <Route path={"/packages/:slug"} component={PackageDetail} />
               <Route path={"/tours/:slug"} component={TourDetail} />
               <Route path={"/blog"} component={Blog} />
               <Route path={"/blog/:id"} component={BlogPost} />
