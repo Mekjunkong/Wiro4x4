@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Hero } from "@/components/Hero";
 import { StatsCounter } from "@/components/StatsCounter";
-import { Tours } from "@/components/Tours";
+import { ProductTiers } from "@/components/ProductTiers";
 import { GalleryShowcase } from "@/components/GalleryShowcase";
 import { CostCalculator } from "@/components/CostCalculator";
 import { TrustAndKosher } from "@/components/TrustAndKosher";
@@ -24,7 +24,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <StatsCounter />
-        <Tours />
+        <ProductTiers />
         <GalleryShowcase />
         <div className="py-16 md:py-20">
           <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-5xl">

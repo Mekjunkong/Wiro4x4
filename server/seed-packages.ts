@@ -3,7 +3,10 @@
  *
  * Run with: npx tsx server/seed-packages.ts
  *
- * Inserts 3 curated multi-day tour packages into the tourPackages table.
+ * Inserts 2 curated multi-day tour packages into the tourPackages table:
+ *   1. northern-thailand-3d2n — 3 Days / 2 Nights Northern Thailand
+ *   2. grand-tour-laos-14d — 14-Day Grand Tour: Thailand to Laos
+ *
  * Skips duplicates (safe to re-run).
  *
  * Requires DATABASE_URL environment variable.
@@ -19,44 +22,30 @@ dotenv.config();
 
 const packages = [
   {
-    name: "Weekend Adventure",
-    nameHe: "הרפתקת סוף שבוע",
-    slug: "weekend-adventure",
+    name: "3 Days / 2 Nights — Northern Thailand Mountain Loop",
+    nameHe: "3 ימים / 2 לילות — לולאת ההרים של צפון תאילנד",
+    slug: "northern-thailand-3d2n",
     description:
-      "Perfect weekend getaway combining Chiang Mai's most iconic destinations. Two days of mountain peaks, hidden villages, and authentic Northern Thai culture — all with full kosher support.",
+      "An unforgettable 3-day off-road adventure through the mountains of Northern Thailand. Explore hidden caves in Chiang Dao, taste tea at Mae Salong's hilltop plantations, and wind through the legendary Mae Hong Son loop.",
     descriptionHe:
-      "חופשת סוף שבוע מושלמת המשלבת את היעדים האיקוניים ביותר של צ'יאנג מאי. יומיים של פסגות הרים, כפרים נסתרים ותרבות צפון תאילנדית אותנטית — הכל עם תמיכה כשרה מלאה.",
+      "הרפתקת שטח בת 3 ימים בלתי נשכחת דרך ההרים של צפון תאילנד. חקרו מערות נסתרות בצ'יאנג דאו, טעמו תה במטעי מאה סאלונג, וסעו דרך לולאת מאה הונג סון האגדית.",
     tourSlugs: JSON.stringify([
       "doi-inthanon-roof-of-thailand",
       "mae-kampong-hidden-village",
-    ]),
-    coverImage: null,
-    isPublished: 1,
-  },
-  {
-    name: "Northern Explorer",
-    nameHe: "חוקר הצפון",
-    slug: "northern-explorer",
-    description:
-      "Three days exploring the best of Northern Thailand's mountains and waterfalls. From Thailand's highest peak to natural sticky waterfalls and a scenic mountain loop — the ultimate adventure trio.",
-    descriptionHe:
-      "שלושה ימים של חקירת ההרים והמפלים הטובים ביותר של צפון תאילנד. מהפסגה הגבוהה ביותר בתאילנד דרך מפלים דביקים טבעיים ועד לולאת הרים ציורית — שלישיית ההרפתקאות האולטימטיבית.",
-    tourSlugs: JSON.stringify([
-      "doi-inthanon-roof-of-thailand",
-      "maerim-sticky-waterfalls",
       "samoeng-loop-mountain-circuit",
     ]),
-    coverImage: null,
+    discountPercent: 15,
+    coverImage: "/images/optimized/mountain_peak_sunrise_golden.jpg",
     isPublished: 1,
   },
   {
-    name: "Ultimate Chiang Mai",
-    nameHe: "צ'יאנג מאי האולטימטיבי",
-    slug: "ultimate-chiang-mai",
+    name: "14-Day Grand Tour: Thailand to Laos by 4x4",
+    nameHe: "מסע גדול 14 ימים: מתאילנד ללאוס ברכב 4x4",
+    slug: "grand-tour-laos-14d",
     description:
-      "The complete Chiang Mai experience — five days covering all six of our signature tours. Mountains, waterfalls, temples, jungles, villages, and scenic loops. Our best value package with the biggest discount.",
+      "The ultimate overland expedition from Chiang Mai through the mountains of Northern Thailand, across the Mekong River into Laos, and back. Two weeks of epic off-road driving and cross-border adventure.",
     descriptionHe:
-      "חוויית צ'יאנג מאי המלאה — חמישה ימים הכוללים את כל ששת הטיולים המיוחדים שלנו. הרים, מפלים, מקדשים, ג'ונגלים, כפרים ולולאות נוף. החבילה המשתלמת ביותר שלנו עם ההנחה הגדולה ביותר.",
+      "המסע היבשתי האולטימטיבי מצ'יאנג מאי דרך ההרים של צפון תאילנד, חציית נהר המקונג ללאוס וחזרה. שבועיים של נהיגת שטח אפית והרפתקת חציית גבולות.",
     tourSlugs: JSON.stringify([
       "doi-inthanon-roof-of-thailand",
       "mae-kampong-hidden-village",
@@ -65,7 +54,8 @@ const packages = [
       "mae-wang-jungle-wilderness",
       "samoeng-loop-mountain-circuit",
     ]),
-    coverImage: null,
+    discountPercent: 25,
+    coverImage: "/images/optimized/pickup_truck_dirt_road_mountains.jpg",
     isPublished: 1,
   },
 ];
@@ -91,12 +81,20 @@ async function seed() {
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       if (e.code === "ER_DUP_ENTRY") {
-        // Update existing record to fix coverImage and tourSlugs
         await db
           .update(tourPackages)
-          .set({ coverImage: pkg.coverImage, tourSlugs: pkg.tourSlugs })
+          .set({
+            name: pkg.name,
+            nameHe: pkg.nameHe,
+            description: pkg.description,
+            descriptionHe: pkg.descriptionHe,
+            tourSlugs: pkg.tourSlugs,
+            discountPercent: pkg.discountPercent,
+            coverImage: pkg.coverImage,
+            isPublished: pkg.isPublished,
+          })
           .where(eq(tourPackages.slug, pkg.slug));
-        console.log(`  ~ ${pkg.slug} (already exists, updated coverImage)`);
+        console.log(`  ~ ${pkg.slug} (already exists, updated)`);
       } else {
         console.error(`  ! ${pkg.slug}: ${e.message}`);
       }

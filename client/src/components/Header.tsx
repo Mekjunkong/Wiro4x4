@@ -88,12 +88,16 @@ export function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <button
-              onClick={() => scrollToSection("tours")}
-              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-            >
-              {t("Tours", "טיולים")}
-            </button>
+            <Link href="/tours">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/tours") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/tours")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("Tours", "טיולים")}
+              </span>
+            </Link>
             <button
               onClick={() => scrollToSection("why-wiro")}
               className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -227,16 +231,11 @@ export function Header() {
           style={{ zIndex: 9999 }}
         >
           <nav className="container pt-28 flex flex-col items-center justify-center gap-2 min-h-[calc(100vh-8rem)]">
-            <button
-              onClick={() => {
-                scrollToSection("tours");
-                setMobileMenuOpen(false);
-              }}
-              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
-              type="button"
-            >
-              {t("Tours", "טיולים")}
-            </button>
+            <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+                {t("Tours", "טיולים")}
+              </span>
+            </Link>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
             <button
               onClick={() => {

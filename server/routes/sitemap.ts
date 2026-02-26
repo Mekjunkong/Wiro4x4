@@ -20,7 +20,18 @@ interface SlugItem {
 
 const STATIC_PAGES = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
+  { path: "/tours", priority: "0.9", changefreq: "weekly" },
   { path: "/packages", priority: "0.9", changefreq: "weekly" },
+  {
+    path: "/packages/northern-thailand-3d2n",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
+    path: "/packages/grand-tour-laos-14d",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   { path: "/pricing", priority: "0.9", changefreq: "monthly" },
   { path: "/estimate", priority: "0.9", changefreq: "monthly" },
   { path: "/book", priority: "0.9", changefreq: "monthly" },

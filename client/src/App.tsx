@@ -29,6 +29,7 @@ const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 const KosherTours = React.lazy(() => import("./pages/KosherTours"));
 const HebrewGuide = React.lazy(() => import("./pages/HebrewGuide"));
 const AccessibleTours = React.lazy(() => import("./pages/AccessibleTours"));
+const ToursListing = React.lazy(() => import("./pages/ToursListing"));
 const Packages = React.lazy(() => import("./pages/Packages"));
 const PackageDetail = React.lazy(() => import("./pages/PackageDetail"));
 
@@ -79,9 +80,10 @@ function Router() {
               <Route path={"/"} component={Home} />
               <Route path={"/pricing"} component={Pricing} />
               <Route path={"/estimate"} component={Estimate} />
+              <Route path={"/tours"} component={ToursListing} />
+              <Route path={"/tours/:slug"} component={TourDetail} />
               <Route path={"/packages"} component={Packages} />
               <Route path={"/packages/:slug"} component={PackageDetail} />
-              <Route path={"/tours/:slug"} component={TourDetail} />
               <Route path={"/blog"} component={Blog} />
               <Route path={"/blog/:id"} component={BlogPost} />
               <Route path={"/gallery"} component={Gallery} />
