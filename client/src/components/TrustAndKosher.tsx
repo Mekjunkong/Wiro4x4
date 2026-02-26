@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -7,50 +8,58 @@ import {
   Calendar,
   Users,
   MapPin,
-  Shield,
   Heart,
+  ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 
 export function TrustAndKosher() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
+  const [kosherOpen, setKosherOpen] = useState(false);
 
   const trustPoints = [
     {
       icon: Award,
-      text: t(
-        "First kosher-focused off-road company in Chiang Mai",
-        "חברת טיולי השטח הכשרה הראשונה בצ'יאנג מאי"
-      ),
+      en: "First Kosher 4x4 Company",
+      he: "חברת 4x4 כשרה ראשונה",
+      descEn: "Pioneer of kosher off-road in Chiang Mai",
+      descHe: "חלוצי טיולי השטח הכשרים בצ'יאנג מאי",
     },
     {
       icon: MessageSquare,
-      text: t(
-        "Hebrew-speaking guides and support",
-        "מדריכים דוברי עברית ותמיכה בעברית"
-      ),
+      en: "Hebrew Speaking Guides",
+      he: "מדריכים דוברי עברית",
+      descEn: "Full Hebrew support throughout your trip",
+      descHe: "תמיכה מלאה בעברית לאורך כל הטיול",
     },
     {
       icon: Calendar,
-      text: t("Shabbat-friendly scheduling", "לוח זמנים מותאם לשומרי שבת"),
+      en: "Shabbat Friendly",
+      he: "מותאם לשבת",
+      descEn: "Scheduling that respects Shabbat",
+      descHe: "לוח זמנים המכבד את השבת",
     },
     {
       icon: Users,
-      text: t("Private premium 4x4 tours", "טיולי 4x4 פרטיים ומפנקים"),
+      en: "Private Tours",
+      he: "טיולים פרטיים",
+      descEn: "Premium 4x4 experience, just your group",
+      descHe: "חוויית 4x4 מפנקת, רק הקבוצה שלכם",
     },
     {
       icon: MapPin,
-      text: t(
-        "Authentic trails, not tourist traps",
-        "שבילים אותנטיים, לא מלכודות תיירים"
-      ),
+      en: "Real Off-Road",
+      he: "שטח אמיתי",
+      descEn: "Authentic trails, not tourist traps",
+      descHe: "שבילים אותנטיים, לא מלכודות תיירים",
     },
     {
       icon: Heart,
-      text: t(
-        "Trusted by 120+ Israeli travelers",
-        "מומלצים בקרב 120+ מטיילים ישראלים"
-      ),
+      en: "WhatsApp Support",
+      he: "תמיכה בוואטסאפ",
+      descEn: "Quick responses, always available",
+      descHe: "מענה מהיר, תמיד זמינים",
     },
   ];
 
@@ -58,7 +67,7 @@ export function TrustAndKosher() {
     <section
       ref={sectionRef}
       id="why-wiro"
-      className="py-24 md:py-32 bg-background overflow-hidden"
+      className="py-16 md:py-20 bg-[#fdfbf7] dark:bg-[#1A1A1A] overflow-hidden"
     >
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -93,35 +102,50 @@ export function TrustAndKosher() {
               </p>
             </div>
 
-            {/* Trust Points */}
-            <div className="space-y-4">
-              {trustPoints.map((point, index) => {
-                const Icon = point.icon;
-                return (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="flex-shrink-0 p-2 bg-[#D4AF37]/10 rounded-full">
-                      <Icon className="h-5 w-5 text-[#D4AF37]" />
-                    </div>
-                    <span className="text-foreground">{point.text}</span>
+            {/* Trust Points — 2x3 Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {trustPoints.map(point => (
+                <div
+                  key={point.en}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-white/50 dark:bg-white/5"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0">
+                    <point.icon className="w-5 h-5 text-[#d4af37]" />
                   </div>
-                );
-              })}
+                  <div>
+                    <h4 className="font-semibold text-sm">
+                      {t(point.en, point.he)}
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      {t(point.descEn, point.descHe)}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Kosher Summary */}
-            <div id="kosher" className="border-t border-border pt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Shield className="h-5 w-5 text-[#D4AF37]" />
-                <h3 className="text-xl font-medium text-foreground">
-                  {t("Kosher Standards", "סטנדרטים כשרים")}
-                </h3>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {t(
-                  "Certified ingredient sourcing, dedicated kosher kitchen, sealed packaging, and strict separation. We accommodate all levels — from basic kosher to mehadrin standards. Non-kosher guests welcome too.",
-                  "חומרי גלם מוסמכים, מטבח כשר ייעודי, אריזות אטומות והפרדה מלאה. מתאימים לכל רמות הכשרות — מכשרות רגילה ועד מהדרין. גם מי שלא שומר כשרות מוזמן."
-                )}
-              </p>
+            {/* Kosher Accordion */}
+            <div id="kosher" className="mt-8 border-t border-[#d4af37]/30 pt-6">
+              <button
+                onClick={() => setKosherOpen(!kosherOpen)}
+                className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold"
+              >
+                <ShieldCheck className="w-6 h-6 text-[#d4af37]" />
+                {t("Kosher Standards & Logistics", "תקני כשרות ולוגיסטיקה")}
+                <ChevronDown
+                  className={`w-5 h-5 ml-auto transition-transform ${kosherOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {kosherOpen && (
+                <div className="mt-4 text-muted-foreground leading-relaxed animate-fade-in">
+                  <p>
+                    {t(
+                      "Certified ingredient sourcing, dedicated kosher kitchen, sealed packaging, and strict separation. We accommodate all levels — from basic kosher to mehadrin standards. Non-kosher guests welcome too.",
+                      "חומרי גלם מוסמכים, מטבח כשר ייעודי, אריזות אטומות והפרדה מלאה. מתאימים לכל רמות הכשרות — מכשרות רגילה ועד מהדרין. גם מי שלא שומר כשרות מוזמן."
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
