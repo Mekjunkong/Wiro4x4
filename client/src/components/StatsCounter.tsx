@@ -40,7 +40,7 @@ function useCountUp(target: number, isVisible: boolean, duration = 2000) {
     if (!isVisible) return;
 
     let startTime: number | null = null;
-    let rafId: number;
+    let rafId: number | null = null;
 
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
@@ -53,7 +53,9 @@ function useCountUp(target: number, isVisible: boolean, duration = 2000) {
     };
 
     rafId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafId);
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, [target, isVisible, duration]);
 
   return count;
@@ -75,7 +77,11 @@ function StatItem({
   const count = useCountUp(target, isVisible);
   return (
     <div className="flex flex-col items-center text-center p-4">
-      <Icon className="w-8 h-8 text-[#d4af37] mb-2" strokeWidth={1.5} />
+      <Icon
+        className="w-8 h-8 text-[#d4af37] mb-2"
+        strokeWidth={1.5}
+        aria-hidden="true"
+      />
       <span className="text-3xl md:text-4xl font-heading font-bold text-[#d4af37]">
         {count}
         {suffix}
