@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
+import { Link } from "wouter";
 
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -153,12 +154,6 @@ const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   },
 };
 
-const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
-  easy: { en: "Easy", he: "קל" },
-  moderate: { en: "Moderate", he: "בינוני" },
-  challenging: { en: "Challenging", he: "מאתגר" },
-};
-
 const DIFFICULTY_FILTERS = [
   { value: "all", en: "All", he: "הכל" },
   { value: "easy", en: "Easy", he: "קל" },
@@ -176,6 +171,10 @@ function parseDurationHours(duration: string): number {
   const match = duration.match(/(\d+)/);
   return match ? parseInt(match[1], 10) : 8;
 }
+
+const IMAGE_FOCAL_POINTS: Record<string, string> = {
+  "samoeng-loop-mountain-circuit": "object-[50%_30%]",
+};
 
 function generateSlug(name: string): string {
   return name
@@ -268,6 +267,7 @@ export function Tours() {
             <button
               key={f.value}
               onClick={() => setDifficultyFilter(f.value)}
+              aria-pressed={difficultyFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 difficultyFilter === f.value
                   ? "bg-[#d4af37] text-white"
@@ -277,11 +277,15 @@ export function Tours() {
               {t(f.en, f.he)}
             </button>
           ))}
-          <span className="w-px h-8 bg-[#e8e2da] dark:bg-[#444] self-center mx-1" />
+          <span
+            className="w-px h-8 bg-[#e8e2da] dark:bg-[#444] self-center mx-1"
+            aria-hidden="true"
+          />
           {DURATION_FILTERS.map(f => (
             <button
               key={f.value}
               onClick={() => setDurationFilter(f.value)}
+              aria-pressed={durationFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 durationFilter === f.value
                   ? "bg-[#d4af37] text-white"
@@ -295,13 +299,32 @@ export function Tours() {
 
         {/* Tour grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTours.length === 0 && (
+            <div className="col-span-full text-center py-16 text-muted-foreground">
+              <p>
+                {t(
+                  "No tours match the selected filters.",
+                  "לא נמצאו טיולים התואמים לסינון שנבחר."
+                )}
+              </p>
+              <button
+                onClick={() => {
+                  setDifficultyFilter("all");
+                  setDurationFilter("all");
+                }}
+                className="mt-4 text-[#d4af37] underline text-sm"
+              >
+                {t("Clear filters", "נקה סינונים")}
+              </button>
+            </div>
+          )}
           {filteredTours.map(tour => (
-            <a
+            <Link
               key={tour.id}
               href={`/tours/${tour.slug}`}
               className="block group"
             >
-              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
+              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#d4af37] rounded-sm bg-card">
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                   <picture>
                     {tour.imageWebp && (
@@ -311,7 +334,7 @@ export function Tours() {
                       src={tour.image}
                       alt={tour.title}
                       className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                        tour.id === 6 ? "object-[50%_30%]" : "object-center"
+                        IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
                       }`}
                       loading="lazy"
                     />
@@ -333,17 +356,19 @@ export function Tours() {
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-[#D4AF37]" />
+                      <Clock className="h-4 w-4 text-[#d4af37]" />
                       <span className="text-foreground">{tour.duration}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mountain className="h-4 w-4 text-[#D4AF37]" />
+                      <Mountain className="h-4 w-4 text-[#d4af37]" />
                       <span className="text-foreground">
                         {t(
-                          DIFFICULTY_LABELS[tour.difficulty]?.en ||
-                            tour.difficulty,
-                          DIFFICULTY_LABELS[tour.difficulty]?.he ||
-                            tour.difficulty
+                          DIFFICULTY_FILTERS.find(
+                            f => f.value === tour.difficulty
+                          )?.en || tour.difficulty,
+                          DIFFICULTY_FILTERS.find(
+                            f => f.value === tour.difficulty
+                          )?.he || tour.difficulty
                         )}
                       </span>
                     </div>
@@ -351,43 +376,43 @@ export function Tours() {
 
                   <div className="flex flex-wrap gap-2 pt-2">
                     {tour.kosher && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
                         <Utensils className="h-3 w-3" />
                         {t("Kosher", "כשר")}
                       </span>
                     )}
                     {tour.private && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
                         <Users className="h-3 w-3" />
                         {t("Private", "פרטי")}
                       </span>
                     )}
                     {tour.shabbat && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
                         <Calendar className="h-3 w-3" />
                         {t("Shabbat OK", "מתאים לשבת")}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
+                  <div className="flex items-center gap-2 text-[#d4af37] font-medium text-sm pt-2">
                     {t("View Details", "לפרטים נוספים")}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Card>
-            </a>
+            </Link>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <a
+          <Link
             href="/estimate"
-            className="inline-flex items-center gap-2 text-[#D4AF37] hover:text-[#E8C84A] font-medium text-lg transition-colors"
+            className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#E8C84A] font-medium text-lg transition-colors"
           >
             {t("Estimate Your Trip Cost", "חשבו את עלות הטיול")}
             <ArrowRight className="h-5 w-5" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
