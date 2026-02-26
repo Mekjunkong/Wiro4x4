@@ -94,10 +94,7 @@ export default function Packages() {
         <section className="bg-gradient-to-b from-primary/10 to-background py-16">
           <div className="container mx-auto px-4">
             <Breadcrumb
-              items={[
-                { label: t("Home", "דף הבית"), href: "/" },
-                { label: t("Tour Packages", "חבילות סיור") },
-              ]}
+              items={[{ label: t("Tour Packages", "חבילות סיור") }]}
             />
             <h1 className="text-4xl md:text-5xl font-bold text-primary mt-4 mb-4">
               {t("Tour Packages", "חבילות סיור")}

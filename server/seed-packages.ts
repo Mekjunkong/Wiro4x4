@@ -10,6 +10,7 @@
  */
 
 import { drizzle } from "drizzle-orm/mysql2";
+import { eq } from "drizzle-orm";
 import mysql from "mysql2/promise";
 import { tourPackages } from "../drizzle/schema";
 import dotenv from "dotenv";
@@ -29,7 +30,7 @@ const packages = [
       "doi-inthanon-roof-of-thailand",
       "mae-kampong-hidden-village",
     ]),
-    coverImage: "/images/optimized/doi_inthanon_summit.webp",
+    coverImage: null,
     isPublished: 1,
   },
   {
@@ -45,7 +46,7 @@ const packages = [
       "maerim-sticky-waterfalls",
       "samoeng-loop-mountain-circuit",
     ]),
-    coverImage: "/images/optimized/sticky_waterfall_climb.webp",
+    coverImage: null,
     isPublished: 1,
   },
   {
@@ -64,7 +65,7 @@ const packages = [
       "mae-wang-jungle-wilderness",
       "samoeng-loop-mountain-circuit",
     ]),
-    coverImage: "/images/optimized/wiro_4x4_mountain.webp",
+    coverImage: null,
     isPublished: 1,
   },
 ];
@@ -90,7 +91,12 @@ async function seed() {
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
       if (e.code === "ER_DUP_ENTRY") {
-        console.log(`  ~ ${pkg.slug} (already exists, skipping)`);
+        // Update existing record to fix coverImage and tourSlugs
+        await db
+          .update(tourPackages)
+          .set({ coverImage: pkg.coverImage, tourSlugs: pkg.tourSlugs })
+          .where(eq(tourPackages.slug, pkg.slug));
+        console.log(`  ~ ${pkg.slug} (already exists, updated coverImage)`);
       } else {
         console.error(`  ! ${pkg.slug}: ${e.message}`);
       }

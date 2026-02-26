@@ -163,7 +163,6 @@ export default function PackageDetail() {
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-6">
             <Breadcrumb
               items={[
-                { label: t("Home", "דף הבית"), href: "/" },
                 { label: t("Tour Packages", "חבילות סיור"), href: "/packages" },
                 { label: packageName },
               ]}
