@@ -101,12 +101,6 @@ export function Header() {
               {t("Why WIRO", "למה WIRO")}
             </button>
             <button
-              onClick={() => scrollToSection("kosher")}
-              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-            >
-              {t("Kosher Info", "כשרות")}
-            </button>
-            <button
               onClick={() => scrollToSection("contact")}
               className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
             >
@@ -253,17 +247,6 @@ export function Header() {
               type="button"
             >
               {t("Why WIRO", "למה WIRO")}
-            </button>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <button
-              onClick={() => {
-                scrollToSection("kosher");
-                setMobileMenuOpen(false);
-              }}
-              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
-              type="button"
-            >
-              {t("Kosher Info", "כשרות")}
             </button>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
             <button
