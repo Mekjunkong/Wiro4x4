@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
@@ -139,6 +139,132 @@ export default function AdminDashboard() {
     enabled: isAdmin,
   });
 
+  const userRole = user?.role ?? "";
+  const tabs = useMemo(
+    () => [
+      { id: "crm" as const, label: "CRM", icon: UserCircle, count: undefined },
+      {
+        id: "bookings" as const,
+        label: "Bookings",
+        icon: Calendar,
+        count: bookingsTotal,
+      },
+      {
+        id: "calendar" as const,
+        label: "Calendar",
+        icon: Calendar,
+        count: undefined,
+      },
+      {
+        id: "agents" as const,
+        label: "Agents",
+        icon: Users,
+        count: agents?.length,
+      },
+      {
+        id: "leads" as const,
+        label: "Leads",
+        icon: TrendingUp,
+        count: leadsTotal,
+      },
+      {
+        id: "financial" as const,
+        label: "Financial",
+        icon: DollarSign,
+        count: financialsTotal,
+      },
+      {
+        id: "tours" as const,
+        label: "Tours",
+        icon: Mountain,
+        count: toursTotal,
+      },
+      {
+        id: "packages" as const,
+        label: "Packages",
+        icon: Package,
+        count: undefined,
+      },
+      {
+        id: "gallery" as const,
+        label: "Gallery",
+        icon: Camera,
+        count: galleryTotal,
+      },
+      { id: "blog" as const, label: "Blog", icon: FileText, count: blogTotal },
+      {
+        id: "reviews" as const,
+        label: "Reviews",
+        icon: Star,
+        count: reviewsTotal,
+      },
+      ...(["admin", "owner"].includes(userRole)
+        ? [
+            {
+              id: "users" as const,
+              label: "Users",
+              icon: Shield,
+              count: undefined,
+            },
+          ]
+        : []),
+      {
+        id: "abandoned" as const,
+        label: "Abandoned",
+        icon: Clock,
+        count: undefined,
+      },
+      {
+        id: "settings" as const,
+        label: "Settings",
+        icon: Settings,
+        count: undefined,
+      },
+    ],
+    [
+      userRole,
+      bookingsTotal,
+      agents?.length,
+      leadsTotal,
+      financialsTotal,
+      toursTotal,
+      galleryTotal,
+      blogTotal,
+      reviewsTotal,
+    ]
+  );
+
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+      let newIndex: number | null = null;
+
+      switch (e.key) {
+        case "ArrowRight":
+          newIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case "ArrowLeft":
+          newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case "Home":
+          newIndex = 0;
+          break;
+        case "End":
+          newIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      e.preventDefault();
+      setActiveTab(tabs[newIndex].id);
+      tabRefs.current[newIndex]?.focus();
+    },
+    [activeTab, tabs]
+  );
+
   // Auth check
   if (authLoading) {
     return (
@@ -198,73 +324,6 @@ export default function AdminDashboard() {
     reviews: { count: badges?.reviews ?? 0, color: "orange" },
     blog: { count: badges?.blog ?? 0, color: "gray" },
   };
-
-  const tabs: {
-    id: AdminTabId;
-    label: string;
-    icon: typeof Calendar;
-    count: number | undefined;
-  }[] = [
-    { id: "crm", label: "CRM", icon: UserCircle, count: undefined },
-    { id: "bookings", label: "Bookings", icon: Calendar, count: bookingsTotal },
-    { id: "calendar", label: "Calendar", icon: Calendar, count: undefined },
-    { id: "agents", label: "Agents", icon: Users, count: agents?.length },
-    { id: "leads", label: "Leads", icon: TrendingUp, count: leadsTotal },
-    {
-      id: "financial",
-      label: "Financial",
-      icon: DollarSign,
-      count: financialsTotal,
-    },
-    { id: "tours", label: "Tours", icon: Mountain, count: toursTotal },
-    { id: "packages", label: "Packages", icon: Package, count: undefined },
-    { id: "gallery", label: "Gallery", icon: Camera, count: galleryTotal },
-    { id: "blog", label: "Blog", icon: FileText, count: blogTotal },
-    { id: "reviews", label: "Reviews", icon: Star, count: reviewsTotal },
-    ...(["admin", "owner"].includes(user.role ?? "")
-      ? [
-          {
-            id: "users" as const,
-            label: "Users",
-            icon: Shield,
-            count: undefined,
-          },
-        ]
-      : []),
-    { id: "abandoned", label: "Abandoned", icon: Clock, count: undefined },
-    { id: "settings", label: "Settings", icon: Settings, count: undefined },
-  ];
-
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  const handleTabKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-      let newIndex: number | null = null;
-
-      switch (e.key) {
-        case "ArrowRight":
-          newIndex = (currentIndex + 1) % tabs.length;
-          break;
-        case "ArrowLeft":
-          newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-          break;
-        case "Home":
-          newIndex = 0;
-          break;
-        case "End":
-          newIndex = tabs.length - 1;
-          break;
-        default:
-          return;
-      }
-
-      e.preventDefault();
-      setActiveTab(tabs[newIndex].id);
-      tabRefs.current[newIndex]?.focus();
-    },
-    [activeTab, tabs]
-  );
 
   return (
     <div className="min-h-screen bg-muted">
