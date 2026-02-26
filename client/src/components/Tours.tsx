@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import useEmblaCarousel from "embla-carousel-react";
 import {
   Clock,
   Mountain,
@@ -13,8 +12,6 @@ import {
   Users,
   Calendar,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 const HARDCODED_TOURS = [
@@ -162,6 +159,24 @@ const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
   challenging: { en: "Challenging", he: "מאתגר" },
 };
 
+const DIFFICULTY_FILTERS = [
+  { value: "all", en: "All", he: "הכל" },
+  { value: "easy", en: "Easy", he: "קל" },
+  { value: "moderate", en: "Moderate", he: "בינוני" },
+  { value: "challenging", en: "Challenging", he: "מאתגר" },
+];
+
+const DURATION_FILTERS = [
+  { value: "all", en: "All Durations", he: "כל הזמנים" },
+  { value: "half", en: "Half Day (5-7h)", he: "חצי יום (5-7 שעות)" },
+  { value: "full", en: "Full Day (7-10h)", he: "יום שלם (7-10 שעות)" },
+];
+
+function parseDurationHours(duration: string): number {
+  const match = duration.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : 8;
+}
+
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
@@ -173,32 +188,8 @@ export function Tours() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-    align: "start",
-    slidesToScroll: 1,
-  });
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-  const scrollTo = useCallback(
-    (index: number) => emblaApi?.scrollTo(index),
-    [emblaApi]
-  );
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    setScrollSnaps(emblaApi.scrollSnapList());
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    emblaApi.on("select", onSelect);
-    onSelect();
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi]);
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const [durationFilter, setDurationFilter] = useState<string>("all");
 
   const { data: dbTours } = trpc.tour.list.useQuery();
 
@@ -240,6 +231,17 @@ export function Tours() {
           };
         });
 
+  const filteredTours = tours.filter(tour => {
+    if (difficultyFilter !== "all" && tour.difficulty !== difficultyFilter)
+      return false;
+    if (durationFilter !== "all") {
+      const hours = parseDurationHours(tour.duration);
+      if (durationFilter === "half" && hours > 7) return false;
+      if (durationFilter === "full" && hours <= 7) return false;
+    }
+    return true;
+  });
+
   return (
     <section
       ref={sectionRef}
@@ -260,130 +262,121 @@ export function Tours() {
           <GoldDivider />
         </div>
 
-        {/* Carousel */}
-        <div className="relative">
-          <div ref={emblaRef} className="overflow-hidden">
-            <div className="flex gap-6">
-              {tours.map(tour => (
-                <div
-                  key={tour.id}
-                  className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
-                >
-                  <a href={`/tours/${tour.slug}`} className="block group">
-                    <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
-                      <div className="relative h-72 overflow-hidden bg-muted">
-                        <picture>
-                          {tour.imageWebp && (
-                            <source srcSet={tour.imageWebp} type="image/webp" />
-                          )}
-                          <img
-                            src={tour.image}
-                            alt={tour.title}
-                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                              tour.id === 6
-                                ? "object-[50%_30%]"
-                                : "object-center"
-                            }`}
-                            loading="lazy"
-                          />
-                        </picture>
-                        {tour.price != null && (
-                          <div className="absolute top-4 right-4 bg-card/80 backdrop-blur-sm text-[#D4AF37] px-3 py-1.5 rounded-sm text-sm font-medium shadow-lg">
-                            {t("From", "החל מ-")} &#3647;
-                            {tour.price.toLocaleString()}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-6 space-y-4">
-                        <h3 className="text-xl font-medium text-foreground">
-                          {tour.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {tour.description}
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-[#D4AF37]" />
-                            <span className="text-foreground">
-                              {tour.duration}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Mountain className="h-4 w-4 text-[#D4AF37]" />
-                            <span className="text-foreground">
-                              {t(
-                                DIFFICULTY_LABELS[tour.difficulty]?.en ||
-                                  tour.difficulty,
-                                DIFFICULTY_LABELS[tour.difficulty]?.he ||
-                                  tour.difficulty
-                              )}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {tour.kosher && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
-                              <Utensils className="h-3 w-3" />
-                              {t("Kosher", "כשר")}
-                            </span>
-                          )}
-                          {tour.private && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
-                              <Users className="h-3 w-3" />
-                              {t("Private", "פרטי")}
-                            </span>
-                          )}
-                          {tour.shabbat && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
-                              <Calendar className="h-3 w-3" />
-                              {t("Shabbat OK", "מתאים לשבת")}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
-                          {t("View Details", "לפרטים נוספים")}
-                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </div>
-                    </Card>
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Arrows */}
-          <button
-            onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
-            aria-label={t("Previous", "הקודם")}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
-            aria-label={t("Next", "הבא")}
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
+        {/* Filter chips */}
+        <div className="flex flex-wrap gap-2 mb-8 justify-center">
+          {DIFFICULTY_FILTERS.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setDifficultyFilter(f.value)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                difficultyFilter === f.value
+                  ? "bg-[#d4af37] text-white"
+                  : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
+              }`}
+            >
+              {t(f.en, f.he)}
+            </button>
+          ))}
+          <span className="w-px h-8 bg-[#e8e2da] dark:bg-[#444] self-center mx-1" />
+          {DURATION_FILTERS.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setDurationFilter(f.value)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                durationFilter === f.value
+                  ? "bg-[#d4af37] text-white"
+                  : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
+              }`}
+            >
+              {t(f.en, f.he)}
+            </button>
+          ))}
         </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-2 mt-8">
-          {scrollSnaps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => scrollTo(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
+        {/* Tour grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTours.map(tour => (
+            <a
+              key={tour.id}
+              href={`/tours/${tour.slug}`}
+              className="block group"
+            >
+              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#D4AF37] rounded-sm bg-card">
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                  <picture>
+                    {tour.imageWebp && (
+                      <source srcSet={tour.imageWebp} type="image/webp" />
+                    )}
+                    <img
+                      src={tour.image}
+                      alt={tour.title}
+                      className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                        tour.id === 6 ? "object-[50%_30%]" : "object-center"
+                      }`}
+                      loading="lazy"
+                    />
+                  </picture>
+                  {tour.price != null && (
+                    <div className="absolute top-3 right-3 bg-[#d4af37] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
+                      &#3647;{tour.price.toLocaleString()}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xl font-medium text-foreground">
+                    {tour.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {tour.description}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-[#D4AF37]" />
+                      <span className="text-foreground">{tour.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mountain className="h-4 w-4 text-[#D4AF37]" />
+                      <span className="text-foreground">
+                        {t(
+                          DIFFICULTY_LABELS[tour.difficulty]?.en ||
+                            tour.difficulty,
+                          DIFFICULTY_LABELS[tour.difficulty]?.he ||
+                            tour.difficulty
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {tour.kosher && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                        <Utensils className="h-3 w-3" />
+                        {t("Kosher", "כשר")}
+                      </span>
+                    )}
+                    {tour.private && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                        <Users className="h-3 w-3" />
+                        {t("Private", "פרטי")}
+                      </span>
+                    )}
+                    {tour.shabbat && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-sm">
+                        <Calendar className="h-3 w-3" />
+                        {t("Shabbat OK", "מתאים לשבת")}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[#D4AF37] font-medium text-sm pt-2">
+                    {t("View Details", "לפרטים נוספים")}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Card>
+            </a>
           ))}
         </div>
 
