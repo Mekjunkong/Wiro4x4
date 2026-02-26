@@ -5,6 +5,69 @@ import { Link } from "wouter";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import useEmblaCarousel from "embla-carousel-react";
+import { trpc } from "@/lib/trpc";
+
+const FALLBACK_TESTIMONIALS = [
+  {
+    name: "David & Sarah Cohen",
+    location: "Tel Aviv, Israel",
+    locationHe:
+      "\u05ea\u05dc \u05d0\u05d1\u05d9\u05d1, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "WIRO 4x4 exceeded all expectations! The kosher meals were fresh and delicious, our guide spoke perfect Hebrew, and the waterfalls were absolutely stunning. Highly recommend!",
+    textHe:
+      "WIRO 4x4 \u05e2\u05dc\u05d5 \u05e2\u05dc \u05db\u05dc \u05d4\u05e6\u05d9\u05e4\u05d9\u05d5\u05ea! \u05d4\u05d0\u05d5\u05db\u05dc \u05d4\u05db\u05e9\u05e8 \u05d4\u05d9\u05d4 \u05d8\u05e8\u05d9 \u05d5\u05d8\u05e2\u05d9\u05dd, \u05d4\u05de\u05d3\u05e8\u05d9\u05da \u05d3\u05d9\u05d1\u05e8 \u05e2\u05d1\u05e8\u05d9\u05ea \u05de\u05d5\u05e9\u05dc\u05de\u05ea, \u05d5\u05d4\u05de\u05e4\u05dc\u05d9\u05dd \u05d4\u05d9\u05d5 \u05e4\u05e9\u05d5\u05d8 \u05de\u05d3\u05d4\u05d9\u05de\u05d9\u05dd. \u05de\u05de\u05dc\u05d9\u05e6\u05d9\u05dd \u05d1\u05d7\u05d5\u05dd!",
+  },
+  {
+    name: "\u05de\u05e9\u05e4\u05d7\u05ea \u05dc\u05d5\u05d9",
+    location: "Jerusalem, Israel",
+    locationHe:
+      "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "Perfect for families! They scheduled our tour to finish before Shabbat, provided mehadrin kosher food, and the kids loved the elephant sanctuary.",
+    textHe:
+      "\u05de\u05d5\u05e9\u05dc\u05dd \u05dc\u05de\u05e9\u05e4\u05d7\u05d5\u05ea! \u05ea\u05d9\u05d0\u05de\u05d5 \u05dc\u05e0\u05d5 \u05d0\u05ea \u05d4\u05d8\u05d9\u05d5\u05dc \u05db\u05da \u05e9\u05e0\u05e1\u05d9\u05d9\u05dd \u05dc\u05e4\u05e0\u05d9 \u05e9\u05d1\u05ea, \u05e1\u05d9\u05e4\u05e7\u05d5 \u05d0\u05d5\u05db\u05dc \u05db\u05e9\u05e8 \u05de\u05d4\u05d3\u05e8\u05d9\u05df, \u05d5\u05d4\u05d9\u05dc\u05d3\u05d9\u05dd \u05d4\u05ea\u05dc\u05d4\u05d1\u05d5 \u05de\u05d4\u05e4\u05d9\u05dc\u05d9\u05dd.",
+  },
+  {
+    name: "Yossi Mizrahi",
+    location: "Haifa, Israel",
+    locationHe: "\u05d7\u05d9\u05e4\u05d4, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "Best off-road experience in Thailand! Real trails, not tourist traps. The guide knew every hidden spot and the 4x4 vehicles were top quality.",
+    textHe:
+      "\u05d7\u05d5\u05d5\u05d9\u05d9\u05ea \u05d4\u05e9\u05d8\u05d7 \u05d4\u05db\u05d9 \u05d8\u05d5\u05d1\u05d4 \u05d1\u05ea\u05d0\u05d9\u05dc\u05e0\u05d3! \u05e9\u05d1\u05d9\u05dc\u05d9\u05dd \u05d0\u05de\u05d9\u05ea\u05d9\u05d9\u05dd, \u05dc\u05d0 \u05de\u05dc\u05db\u05d5\u05d3\u05d5\u05ea \u05ea\u05d9\u05d9\u05e8\u05d9\u05dd. \u05d4\u05de\u05d3\u05e8\u05d9\u05da \u05d4\u05db\u05d9\u05e8 \u05db\u05dc \u05e4\u05d9\u05e0\u05d4 \u05d7\u05d1\u05d5\u05d9\u05d4 \u05d5\u05d4\u05d2'\u05d9\u05e4\u05d9\u05dd \u05d4\u05d9\u05d5 \u05d1\u05e8\u05de\u05d4 \u05d2\u05d1\u05d5\u05d4\u05d4.",
+  },
+  {
+    name: "Rachel & Avi Goldstein",
+    location: "Netanya, Israel",
+    locationHe:
+      "\u05e0\u05ea\u05e0\u05d9\u05d4, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "The attention to kosher details was impressive. Sealed packaging, dedicated utensils, and they even helped us find a minyan in Chiang Mai.",
+    textHe:
+      "\u05ea\u05e9\u05d5\u05de\u05ea \u05d4\u05dc\u05d1 \u05dc\u05e4\u05e8\u05d8\u05d9 \u05d4\u05db\u05e9\u05e8\u05d5\u05ea \u05d4\u05d9\u05d9\u05ea\u05d4 \u05de\u05e8\u05e9\u05d9\u05de\u05d4. \u05d0\u05e8\u05d9\u05d6\u05d4 \u05d0\u05d8\u05d5\u05de\u05d4, \u05db\u05dc\u05d9\u05dd \u05d9\u05d9\u05e2\u05d5\u05d3\u05d9\u05d9\u05dd, \u05d5\u05d4\u05dd \u05d0\u05e4\u05d9\u05dc\u05d5 \u05e2\u05d6\u05e8\u05d5 \u05dc\u05e0\u05d5 \u05dc\u05de\u05e6\u05d5\u05d0 \u05de\u05e0\u05d9\u05d9\u05df \u05d1\u05e6'\u05d9\u05d0\u05e0\u05d2 \u05de\u05d0\u05d9.",
+  },
+  {
+    name: "Michael Ben-David",
+    location: "Ramat Gan, Israel",
+    locationHe:
+      "\u05e8\u05de\u05ea \u05d2\u05df, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "Incredible rice field landscapes and authentic hill tribe villages. The WhatsApp support was instant and helpful. WIRO 4x4 made our Thailand trip unforgettable!",
+    textHe:
+      "\u05e9\u05d3\u05d5\u05ea \u05d0\u05d5\u05e8\u05d6 \u05de\u05d3\u05d4\u05d9\u05de\u05d9\u05dd \u05d5\u05db\u05e4\u05e8\u05d9 \u05e9\u05d1\u05d8\u05d9\u05dd \u05d0\u05d5\u05ea\u05e0\u05d8\u05d9\u05d9\u05dd. \u05d4\u05ea\u05de\u05d9\u05db\u05d4 \u05d1\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05d4\u05d9\u05d9\u05ea\u05d4 \u05de\u05d9\u05d9\u05d3\u05d9\u05ea. WIRO 4x4 \u05d4\u05e4\u05db\u05d5 \u05dc\u05e0\u05d5 \u05d0\u05ea \u05d4\u05d8\u05d9\u05d5\u05dc \u05dc\u05ea\u05d0\u05d9\u05dc\u05e0\u05d3 \u05dc\u05d1\u05dc\u05ea\u05d9 \u05e0\u05e9\u05db\u05d7!",
+  },
+  {
+    name: "\u05e9\u05e8\u05d4 \u05d5\u05d9\u05e2\u05e7\u05d1 \u05db\u05d4\u05df",
+    location: "Ashdod, Israel",
+    locationHe:
+      "\u05d0\u05e9\u05d3\u05d5\u05d3, \u05d9\u05e9\u05e8\u05d0\u05dc",
+    rating: 5,
+    text: "From booking to the end of the tour, everything was perfect. They understand Israeli travelers and go above and beyond.",
+    textHe:
+      "\u05de\u05d4\u05d4\u05d6\u05de\u05e0\u05d4 \u05d5\u05e2\u05d3 \u05e1\u05d5\u05e3 \u05d4\u05d8\u05d9\u05d5\u05dc, \u05d4\u05db\u05dc \u05d4\u05d9\u05d4 \u05de\u05d5\u05e9\u05dc\u05dd. \u05d4\u05dd \u05de\u05d1\u05d9\u05e0\u05d9\u05dd \u05de\u05d8\u05d9\u05d9\u05dc\u05d9\u05dd \u05d9\u05e9\u05e8\u05d0\u05dc\u05d9\u05dd \u05d5\u05e0\u05d5\u05ea\u05e0\u05d9\u05dd \u05e9\u05d9\u05e8\u05d5\u05ea \u05de\u05e2\u05dc \u05d5\u05de\u05e2\u05d1\u05e8.",
+  },
+];
 
 export function Testimonials() {
   const { t } = useLanguage();
@@ -44,69 +107,32 @@ export function Testimonials() {
     return () => clearInterval(interval);
   }, [emblaApi]);
 
-  const testimonials = [
-    {
-      name: "David & Sarah Cohen",
-      location: t("Tel Aviv, Israel", "תל אביב, ישראל"),
-      rating: 5,
-      text: t(
-        "WIRO 4x4 exceeded all expectations! The kosher meals were fresh and delicious, our guide spoke perfect Hebrew, and the waterfalls were absolutely stunning. Highly recommend!",
-        "WIRO 4x4 עלו על כל הציפיות! האוכל הכשר היה טרי וטעים, המדריך דיבר עברית מושלמת, והמפלים היו פשוט מדהימים. ממליצים בחום!"
-      ),
-    },
-    {
-      name: "משפחת לוי",
-      location: t("Jerusalem, Israel", "ירושלים, ישראל"),
-      rating: 5,
-      text: t(
-        "Perfect for families! They scheduled our tour to finish before Shabbat, provided mehadrin kosher food, and the kids loved the elephant sanctuary.",
-        "מושלם למשפחות! תיאמו לנו את הטיול כך שנסיים לפני שבת, סיפקו אוכל כשר מהדרין, והילדים התלהבו מהפילים."
-      ),
-    },
-    {
-      name: "Yossi Mizrahi",
-      location: t("Haifa, Israel", "חיפה, ישראל"),
-      rating: 5,
-      text: t(
-        "Best off-road experience in Thailand! Real trails, not tourist traps. The guide knew every hidden spot and the 4x4 vehicles were top quality.",
-        "חוויית השטח הכי טובה בתאילנד! שבילים אמיתיים, לא מלכודות תיירים. המדריך הכיר כל פינה חבויה והג'יפים היו ברמה גבוהה."
-      ),
-    },
-    {
-      name: "Rachel & Avi Goldstein",
-      location: t("Netanya, Israel", "נתניה, ישראל"),
-      rating: 5,
-      text: t(
-        "The attention to kosher details was impressive. Sealed packaging, dedicated utensils, and they even helped us find a minyan in Chiang Mai.",
-        "תשומת הלב לפרטי הכשרות הייתה מרשימה. אריזה אטומה, כלים ייעודיים, והם אפילו עזרו לנו למצוא מניין בצ'יאנג מאי."
-      ),
-    },
-    {
-      name: "Michael Ben-David",
-      location: t("Ramat Gan, Israel", "רמת גן, ישראל"),
-      rating: 5,
-      text: t(
-        "Incredible rice field landscapes and authentic hill tribe villages. The WhatsApp support was instant and helpful. WIRO 4x4 made our Thailand trip unforgettable!",
-        "שדות אורז מדהימים וכפרי שבטים אותנטיים. התמיכה בוואטסאפ הייתה מיידית. WIRO 4x4 הפכו לנו את הטיול לתאילנד לבלתי נשכח!"
-      ),
-    },
-    {
-      name: "שרה ויעקב כהן",
-      location: t("Ashdod, Israel", "אשדוד, ישראל"),
-      rating: 5,
-      text: t(
-        "From booking to the end of the tour, everything was perfect. They understand Israeli travelers and go above and beyond.",
-        "מההזמנה ועד סוף הטיול, הכל היה מושלם. הם מבינים מטיילים ישראלים ונותנים שירות מעל ומעבר."
-      ),
-    },
-  ];
+  const { data: dbReviews } = trpc.review.listPublic.useQuery();
+
+  const reviews =
+    dbReviews && dbReviews.length > 0
+      ? dbReviews.slice(0, 9).map(r => ({
+          name: r.name,
+          location: "",
+          rating: r.rating,
+          text: r.text,
+        }))
+      : FALLBACK_TESTIMONIALS.map(fb => ({
+          name: fb.name,
+          location: t(fb.location, fb.locationHe),
+          rating: fb.rating,
+          text: t(fb.text, fb.textHe),
+        }));
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4">
           <h2 className="text-4xl md:text-5xl font-medium mb-6 text-foreground">
-            {t("What Our Travelers Say", "מה המטיילים שלנו אומרים")}
+            {t(
+              "What Our Travelers Say",
+              "\u05de\u05d4 \u05d4\u05de\u05d8\u05d9\u05d9\u05dc\u05d9\u05dd \u05e9\u05dc\u05e0\u05d5 \u05d0\u05d5\u05de\u05e8\u05d9\u05dd"
+            )}
           </h2>
           <GoldDivider />
           <div className="flex items-center justify-center gap-2 mt-4">
@@ -114,13 +140,16 @@ export function Testimonials() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className="h-5 w-5 fill-[#D4AF37] text-[#D4AF37]"
+                  className="h-5 w-5 fill-[#d4af37] text-[#d4af37]"
                 />
               ))}
             </div>
             <span className="text-lg font-bold text-foreground">5.0</span>
             <span className="text-muted-foreground">
-              {t("from 120+ travelers", "מ-120+ מטיילים")}
+              {t(
+                "from 120+ travelers",
+                "\u05de-120+ \u05de\u05d8\u05d9\u05d9\u05dc\u05d9\u05dd"
+              )}
             </span>
           </div>
         </div>
@@ -129,14 +158,14 @@ export function Testimonials() {
         <div className="relative">
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex gap-6">
-              {testimonials.map((testimonial, index) => (
+              {reviews.map((testimonial, index) => (
                 <div
                   key={index}
                   className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="h-full p-6 bg-card border-l-2 border-[#D4AF37] rounded-sm">
+                  <div className="h-full p-6 bg-card border-l-4 border-[#d4af37] rounded-sm shadow-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
                     <div className="flex flex-col h-full">
-                      <span className="text-5xl text-[#D4AF37] leading-none mb-4">
+                      <span className="text-5xl text-[#d4af37] leading-none mb-4">
                         {"\u201C"}
                       </span>
                       <div className="flex gap-0.5 mb-3">
@@ -144,7 +173,7 @@ export function Testimonials() {
                           (_, i) => (
                             <Star
                               key={i}
-                              className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37]"
+                              className="h-4 w-4 fill-[#d4af37] text-[#d4af37]"
                             />
                           )
                         )}
@@ -154,7 +183,7 @@ export function Testimonials() {
                       </p>
                       <div>
                         <p className="font-semibold text-foreground">
-                          <span className="text-[#D4AF37]">{"\u2014 "}</span>
+                          <span className="text-[#d4af37]">{"\u2014 "}</span>
                           {testimonial.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -171,15 +200,15 @@ export function Testimonials() {
           {/* Arrows */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
-            aria-label={t("Previous", "הקודם")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#d4af37]/30 rounded-full text-[#d4af37] hover:bg-[#d4af37] hover:text-card transition-colors"
+            aria-label={t("Previous", "\u05d4\u05e7\u05d5\u05d3\u05dd")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
-            aria-label={t("Next", "הבא")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#d4af37]/30 rounded-full text-[#d4af37] hover:bg-[#d4af37] hover:text-card transition-colors"
+            aria-label={t("Next", "\u05d4\u05d1\u05d0")}
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -192,7 +221,7 @@ export function Testimonials() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
+                index === selectedIndex ? "bg-[#d4af37]" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -201,8 +230,11 @@ export function Testimonials() {
 
         <div className="text-center mt-8">
           <Link href="/reviews">
-            <span className="inline-flex items-center gap-2 text-[#D4AF37] font-semibold hover:underline cursor-pointer">
-              {t("See All Reviews", "לכל חוות הדעת")}
+            <span className="inline-flex items-center gap-2 text-[#d4af37] font-semibold hover:underline cursor-pointer">
+              {t(
+                "See All Reviews",
+                "\u05dc\u05db\u05dc \u05d7\u05d5\u05d5\u05ea \u05d4\u05d3\u05e2\u05ea"
+              )}
               <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
