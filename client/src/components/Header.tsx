@@ -75,7 +75,7 @@ export function Header() {
       style={{ zIndex: 10000 }}
     >
       <div className="container">
-        <div className="flex items-center justify-between h-24">
+        <div className="flex items-center justify-between h-24 md:h-32 lg:h-36">
           <Link
             href="/"
             className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
