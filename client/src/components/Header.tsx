@@ -83,7 +83,7 @@ export function Header() {
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
-              className={`h-16 md:h-20 w-auto object-contain ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
+              className={`h-24 md:h-32 lg:h-36 w-auto object-contain ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
 
@@ -112,16 +112,6 @@ export function Header() {
             >
               {t("Contact", "צרו קשר")}
             </button>
-            <Link href="/packages">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/packages") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/packages")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Packages", "חבילות")}
-              </span>
-            </Link>
             <Link href="/pricing">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -163,7 +153,11 @@ export function Header() {
               </Link>
             )}
             <Link href="/book">
-              <Button variant="default" size="sm">
+              <Button
+                variant="default"
+                size="sm"
+                className="bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold border-[#d4af37] hover:border-[#c5a033]"
+              >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
             </Link>
@@ -283,12 +277,6 @@ export function Header() {
               {t("Contact", "צרו קשר")}
             </button>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <Link href="/packages" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
-                {t("Packages", "חבילות")}
-              </span>
-            </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Pricing", "מחירים")}
@@ -321,7 +309,7 @@ export function Header() {
               <Button
                 variant="default"
                 size="lg"
-                className="w-full max-w-xs mt-6"
+                className="w-full max-w-xs mt-6 bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold border-[#d4af37] hover:border-[#c5a033]"
               >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
