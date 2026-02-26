@@ -130,7 +130,7 @@ pnpm format
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml               # CI checks
-│       └── deploy-manus.yml     # Auto-deploy to Manus on push to main
+│       └── deploy-manus.yml     # Deploy workflow (NOT auto — manual Manus pull required)
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
@@ -525,25 +525,29 @@ Edit CSS variables in `client/src/index.css`:
 
 ## Deployment
 
-### Auto-Deploy via GitHub Actions (Primary)
+### Push to GitHub (Manual Deploy)
 
-Pushing to `main` automatically deploys to Manus via `.github/workflows/deploy-manus.yml`:
+Deployment is **NOT automatic**. After pushing to GitHub, the user must manually tell Manus to pull and deploy.
 
 ```bash
-git push origin main  # Triggers auto-deploy to Manus
+git push origin main
 ```
 
-- **Trigger:** Push to `main` branch
-- **Ignores:** `.md` files, `.claude/`, `.agents/`, `.cursor/`, `blogs/` directories
-- **Secret:** `WIRO` (Manus API key, configured in GitHub repo settings)
-- **What happens:** GitHub Actions calls Manus API → Manus pulls latest code → runs `pnpm install && pnpm build` → deploys
+**IMPORTANT — After every `git push`:** Claude Code must output the following Manus deployment prompt for the user to copy-paste into Manus:
 
-### Manual Manus Deployment (Alternative)
+---
 
-1. Tell Manus agent: "Save checkpoint"
-2. Click "Publish" button in Manus UI
-3. Site live at `wiro4x4.manus.space`
-4. Add custom domain in Settings → Domains
+**Copy this to Manus:**
+
+> Pull the latest code from GitHub (`main` branch) and deploy:
+>
+> ```bash
+> cd /home/user/app && git pull origin main && pnpm install && pnpm build
+> ```
+>
+> After the build succeeds, restart the server and publish the site. Verify the site is live at https://www.wiro4x4indochina.com
+
+---
 
 ### Standalone Deployment
 
