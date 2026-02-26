@@ -46,7 +46,7 @@ export function GalleryShowcase() {
     <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14 px-4">
-          <Camera className="w-8 h-8 text-[#D4AF37] mx-auto mb-3" />
+          <Camera className="w-8 h-8 text-[#d4af37] mx-auto mb-3" />
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-3">
             {t("Adventure Gallery", "גלריית הרפתקאות")}
           </h2>
@@ -54,9 +54,9 @@ export function GalleryShowcase() {
         </div>
 
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 px-4 md:px-0">
-          {images.map((img, i) => (
+          {images.map(img => (
             <div
-              key={i}
+              key={img.src}
               className="relative overflow-hidden rounded-lg group break-inside-avoid"
             >
               <img
@@ -77,7 +77,7 @@ export function GalleryShowcase() {
         <div className="text-center mt-10">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2 text-[#D4AF37] hover:text-[#c5a033] font-semibold text-lg transition-colors"
+            className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#c5a033] font-semibold text-lg transition-colors"
           >
             {t("See Full Gallery", "לגלריה המלאה")}
             <ArrowRight className="w-5 h-5" />
