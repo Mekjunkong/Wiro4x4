@@ -11,6 +11,7 @@ import { CommunityConnection } from "@/components/CommunityConnection";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
 import { FAQ } from "@/components/FAQ";
 import { NewsletterCTA } from "@/components/NewsletterCTA";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -40,6 +41,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingActionButtons />
+      <NewsletterPopup />
     </div>
   );
 }
