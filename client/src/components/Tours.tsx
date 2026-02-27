@@ -19,7 +19,7 @@ const HARDCODED_TOURS = [
   {
     id: 1,
     slug: "doi-inthanon-roof-of-thailand",
-    image: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    image: "/images/optimized/mountain_sunset.jpg",
     title: "Doi Inthanon — Roof of Thailand",
     titleHe: "דוי אינתנון — גג תאילנד",
     description:
@@ -129,8 +129,8 @@ const HARDCODED_TOURS = [
 // Local image overrides — always used instead of DB imageUrl
 const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
-    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    webp: "/images/optimized/mountain_sunset.webp",
+    jpg: "/images/optimized/mountain_sunset.jpg",
   },
   "mae-kampong-hidden-village": {
     webp: "/images/optimized/mountain_village_view.webp",

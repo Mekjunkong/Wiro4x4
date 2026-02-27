@@ -71,7 +71,7 @@ const FALLBACK_TOURS: Record<
     durationHe: "7-8 שעות",
     difficulty: "moderate",
     price: 5000,
-    imageUrl: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    imageUrl: "/images/optimized/mountain_sunset.jpg",
     isKosher: 1,
     isPrivate: 1,
     isShabbatOk: 1,

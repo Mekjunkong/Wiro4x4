@@ -22,8 +22,8 @@ const SLIDES = [
     infoHe: "צ'יאנג מאי, תאילנד",
   },
   {
-    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
-    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    webp: "/images/optimized/mountain_sunset.webp",
+    jpg: "/images/optimized/mountain_sunset.jpg",
     alt: "Doi Inthanon Summit — Highest peak in Thailand",
     taglineEn: "Conquer the Roof of Thailand",
     taglineHe: "כבשו את גג תאילנד",

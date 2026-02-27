@@ -28,7 +28,7 @@ const tourData = [
     duration: "7-8 hours",
     difficulty: "moderate" as const,
     price: 5000,
-    imageUrl: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    imageUrl: "/images/optimized/mountain_sunset.jpg",
     isKosher: 1,
     isPrivate: 1,
     isShabbatOk: 1,

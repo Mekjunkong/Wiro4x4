@@ -12,8 +12,8 @@ const DESTINATIONS = [
       "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
     descHe:
       "הפסגה הגבוהה ביותר בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
-    image: "/images/optimized/accessible_doi_inthanon_summit.jpg",
-    imageWebp: "/images/optimized/accessible_doi_inthanon_summit.webp",
+    image: "/images/optimized/mountain_sunset.jpg",
+    imageWebp: "/images/optimized/mountain_sunset.webp",
     tourSlug: "doi-inthanon-roof-of-thailand",
   },
   {

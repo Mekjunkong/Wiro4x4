@@ -23,8 +23,8 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 // Same image map as Tours.tsx — override DB imageUrls with local optimized images
 const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
-    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    webp: "/images/optimized/mountain_sunset.webp",
+    jpg: "/images/optimized/mountain_sunset.jpg",
   },
   "mae-kampong-hidden-village": {
     webp: "/images/optimized/mountain_village_view.webp",

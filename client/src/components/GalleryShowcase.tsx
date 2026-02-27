@@ -8,7 +8,7 @@ import { GoldDivider } from "@/components/GoldDivider";
 const FALLBACK_IMAGES = [
   { src: "/images/optimized/hero-wiro.jpg", caption: "Chiang Mai Adventure" },
   {
-    src: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    src: "/images/optimized/mountain_sunset.jpg",
     caption: "Doi Inthanon Summit",
   },
   {

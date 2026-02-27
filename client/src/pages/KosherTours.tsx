@@ -25,7 +25,7 @@ const TOUR_CARDS = [
     slug: "doi-inthanon-roof-of-thailand",
     name: "Doi Inthanon — Roof of Thailand",
     nameHe: "דוי אינתנון — גג תאילנד",
-    image: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    image: "/images/optimized/mountain_sunset.jpg",
     duration: "7-8 hours",
     price: 5000,
     kosher: true,
@@ -167,7 +167,7 @@ export default function KosherTours() {
         {/* Hero Section */}
         <section className="relative min-h-[50vh] overflow-hidden">
           <img
-            src="/images/optimized/accessible_doi_inthanon_summit.jpg"
+            src="/images/optimized/mountain_sunset.jpg"
             alt={t(
               "Kosher off-road tour in Chiang Mai mountains with WIRO 4x4",
               "טיול שטח כשר בהרי צ'יאנג מאי עם WIRO 4x4"

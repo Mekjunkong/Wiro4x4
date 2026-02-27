@@ -64,7 +64,7 @@ const ACCESSIBLE_TOURS = [
       "Summit viewpoint accessible by vehicle. Boardwalk at Ang Ka nature trail (360m, flat). Royal Pagodas have paved paths.",
       "תצפית הפסגה נגישה ברכב. גשר עץ בשביל טבע אנג קא (360 מ', שטוח). לפגודות המלכותיות יש שבילים סלולים.",
     ],
-    image: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    image: "/images/optimized/mountain_sunset.jpg",
   },
   {
     slug: "doi-suthep-pui-beyond-temple",
