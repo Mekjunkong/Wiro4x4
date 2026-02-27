@@ -24,7 +24,7 @@ export function getHardcodedPosts(
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("8 min read", "8 דקות קריאה"),
-      image: "/images/1000000149.jpg",
+      image: "/images/village_hamlet_rice_fields.jpg",
       content: t(
         `# Finding Kosher Food in Chiang Mai
 
@@ -532,7 +532,7 @@ Southeast Asia offers incredible experiences for Israeli travelers. With proper 
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("7 min read", "7 דקות קריאה"),
-      image: "/images/1000000135.jpg",
+      image: "/images/hilltribe_girl_craft_market.jpg",
       content: t(
         `# Cultural Etiquette Guide for Thailand, Laos & Vietnam
 

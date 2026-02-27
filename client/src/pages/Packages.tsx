@@ -22,8 +22,8 @@ import {
 
 const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
   "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/accessible_doi_inthanon_summit.webp",
-    jpg: "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    webp: "/images/optimized/doi_inthanon_peak.webp",
+    jpg: "/images/optimized/doi_inthanon_peak.jpg",
   },
   "mae-kampong-hidden-village": {
     webp: "/images/optimized/mountain_village_view.webp",
@@ -34,16 +34,16 @@ const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
     jpg: "/images/optimized/sticky_waterfalls.jpg",
   },
   "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/accessible_doi_suthep_temple.webp",
-    jpg: "/images/optimized/accessible_doi_suthep_temple.jpg",
+    webp: "/images/optimized/doi_suthep_temple.webp",
+    jpg: "/images/optimized/doi_suthep_temple.jpg",
   },
   "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/elephant_encounter.webp",
-    jpg: "/images/optimized/elephant_encounter.jpg",
+    webp: "/images/optimized/mae_wang_elephants.webp",
+    jpg: "/images/optimized/mae_wang_elephants.jpg",
   },
   "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/chiang_mai_valley.webp",
-    jpg: "/images/optimized/chiang_mai_valley.jpg",
+    webp: "/images/optimized/samoeng_valley.webp",
+    jpg: "/images/optimized/samoeng_valley.jpg",
   },
 };
 
@@ -153,7 +153,7 @@ export default function Packages() {
                     const imgSrc =
                       pkg.coverImage ||
                       imgMap?.jpg ||
-                      "/images/optimized/chiang_mai_valley.jpg";
+                      "/images/optimized/samoeng_valley.jpg";
 
                     return (
                       <Card
@@ -259,7 +259,7 @@ export default function Packages() {
                     const imgSrc =
                       imgMap?.jpg ||
                       tour.imageUrl ||
-                      "/images/optimized/chiang_mai_valley.jpg";
+                      "/images/optimized/samoeng_valley.jpg";
 
                     return (
                       <Card

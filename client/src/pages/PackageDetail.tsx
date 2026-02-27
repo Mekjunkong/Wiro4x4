@@ -122,7 +122,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Morning drive through misty mountain roads to Mae Salong — a Chinese-Yunnan hilltop village famous for its oolong tea. Visit tea plantations, sample fresh brews, and enjoy panoramic valley views. Continue to Mae Ai near the Myanmar border for local market exploration and border culture. Overnight at a scenic guesthouse.",
         descriptionHe:
           "נסיעת בוקר דרך כבישי הרים ערפיליים למאה סאלונג — כפר סיני-יוננאני על פסגת הר המפורסם בתה אולונג שלו. ביקור במטעי תה, טעימת תה טרי ונוף פנורמי של העמק. המשך למאה אי ליד גבול מיאנמר לחקירת שוק מקומי ותרבות הגבול. לינה בבית הארחה ציורי.",
-        image: "/images/optimized/nature_scenic_beauty.jpg",
+        image: "/images/optimized/mae_salong_tea_plantation.jpg",
         highlights: [
           "Mae Salong tea tasting",
           "Panoramic mountain views",
@@ -209,7 +209,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Begin the grand tour ascending Thailand's highest peak. Explore royal pagodas, Karen hill tribe villages, and pristine waterfalls at Doi Inthanon National Park.",
         descriptionHe:
           "תחילת המסע הגדול בטיפוס לפסגה הגבוהה ביותר בתאילנד. חקירת פגודות מלכותיות, כפרי שבט קארן ומפלים בפארק הלאומי דוי אינטנון.",
-        image: "/images/optimized/doi_inthanon_peak.jpg",
+        image: "/images/optimized/doi_inthanon_royal_pagoda.jpg",
         highlights: [
           "Thailand's highest peak",
           "Royal pagodas",
@@ -241,7 +241,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Drive through misty mountains to Mae Salong — a Chinese-Yunnan village perched on a mountaintop. Tea plantation tours, traditional markets, and panoramic views.",
         descriptionHe:
           "נסיעה דרך הרים ערפיליים למאה סאלונג — כפר סיני-יוננאני על פסגת הר. סיורי מטעי תה, שווקים מסורתיים ונוף פנורמי.",
-        image: "/images/optimized/nature_scenic_beauty.jpg",
+        image: "/images/optimized/mae_salong_tea_plantation.jpg",
         highlights: [
           "Tea plantations",
           "Chinese-Thai culture",
@@ -257,7 +257,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Visit the legendary Golden Triangle where Thailand, Myanmar, and Laos meet at the Mekong River. Explore Chiang Rai's famous White Temple (Wat Rong Khun) and Blue Temple.",
         descriptionHe:
           "ביקור במשולש הזהב האגדי שבו תאילנד, מיאנמר ולאוס נפגשות בנהר המקונג. חקירת המקדש הלבן המפורסם של צ'יאנג ראי ואט רונג קון והמקדש הכחול.",
-        image: "/images/optimized/river_sunrise.jpg",
+        image: "/images/optimized/golden_triangle_mekong.jpg",
         highlights: [
           "Golden Triangle viewpoint",
           "White Temple",
@@ -273,7 +273,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Cross the Mekong River from Chiang Khong to Huay Xai in Laos by ferry with the 4x4. Begin the Laos adventure exploring the riverside town and local markets.",
         descriptionHe:
           "חציית נהר המקונג מצ'יאנג קונג להואי שאי בלאוס במעבורת עם הרכב 4x4. תחילת הרפתקת לאוס עם חקירת העיירה לחוף הנהר ושווקים מקומיים.",
-        image: "/images/optimized/bamboo_rafting.jpg",
+        image: "/images/optimized/mekong_river_chiang_saen.jpg",
         highlights: [
           "Mekong ferry crossing",
           "Laos border entry",
@@ -309,7 +309,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Journey to Nong Khiaw, a stunning riverside town nestled between dramatic limestone cliffs along the Nam Ou river. Hike to viewpoints and explore caves.",
         descriptionHe:
           "מסע לנונג קיאו, עיירת חוף נהר מרהיבה בין צוקי גיר דרמטיים לאורך נהר נאם או. טיפוס לתצפיות וחקירת מערות.",
-        image: "/images/optimized/valley_panorama.jpg",
+        image: "/images/optimized/nong_khiaw_river.jpg",
         highlights: [
           "Limestone cliff views",
           "River village life",
@@ -325,7 +325,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Scenic drive along the Nam Ou river to the UNESCO World Heritage city of Luang Prabang. Arrive in time for the famous night market and sunset on the Mekong.",
         descriptionHe:
           'נסיעה ציורית לאורך נהר נאם או לעיר מורשת עולמית של יונסק"ו לואנג פרבאנג. הגעה בזמן לשוק הלילה המפורסם ולשקיעה על המקונג.',
-        image: "/images/optimized/mountain_sunset.jpg",
+        image: "/images/optimized/luang_prabang_temple.jpg",
         highlights: [
           "Scenic river drive",
           "UNESCO World Heritage",
@@ -341,7 +341,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Full day exploring Luang Prabang. Early morning alms giving ceremony, Royal Palace Museum, Wat Xieng Thong, and the spectacular Kuang Si Waterfalls with turquoise pools.",
         descriptionHe:
           "יום שלם בחקירת לואנג פרבאנג. טקס נתינת הצדקה בבוקר מוקדם, מוזיאון הארמון המלכותי, ואט שיאנג טונג ומפלי קואנג סי המרהיבים עם בריכות טורקיז.",
-        image: "/images/optimized/waterfall_wide_angle_view.jpg",
+        image: "/images/optimized/kuang_si_waterfall_laos.jpg",
         highlights: [
           "Alms giving ceremony",
           "Ancient temples",
@@ -357,7 +357,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Drive south through mountainous terrain to Vang Vieng. Dramatic karst landscapes, blue lagoons, and cave systems. Off-road trails along the Nam Song river valley.",
         descriptionHe:
           "נסיעה דרומה דרך שטח הררי לוואנג ויאנג. נופי קרסט דרמטיים, לגונות כחולות ומערכות מערות. שבילי שטח לאורך עמק נהר נאם סונג.",
-        image: "/images/optimized/chiang_mai_valley.jpg",
+        image: "/images/optimized/vang_vieng_mountains.jpg",
         highlights: ["Karst landscapes", "Blue lagoons", "Cave systems"],
         highlightsHe: ["נופי קרסט", "לגונות כחולות", "מערכות מערות"],
       },
@@ -369,7 +369,7 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
           "Continue to the Lao capital Vientiane. Visit Patuxai (Victory Gate), Pha That Luang golden stupa, and explore the charming riverside promenade along the Mekong.",
         descriptionHe:
           "המשך לבירת לאוס ויינטיאן. ביקור בפטוקסאי (שער הניצחון), סטופת פה טאט לואנג המוזהבת וחקירת הטיילת הקסומה לחוף המקונג.",
-        image: "/images/optimized/accessible_doi_suthep_golden.jpg",
+        image: "/images/optimized/vientiane_pha_that_luang.jpg",
         highlights: ["Lao capital city", "Golden stupa", "Mekong promenade"],
         highlightsHe: ["בירת לאוס", "סטופה מוזהבת", "טיילת המקונג"],
       },

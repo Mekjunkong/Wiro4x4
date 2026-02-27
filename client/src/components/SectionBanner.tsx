@@ -6,7 +6,7 @@ export function SectionBanner() {
   return (
     <section className="relative h-64 md:h-80 overflow-hidden">
       <img
-        src="/images/1000000140.jpg"
+        src="/images/man_with_elephant_sanctuary.jpg"
         alt={t("4x4 adventure in Northern Thailand", "הרפתקת 4x4 בצפון תאילנד")}
         className="w-full h-full object-cover"
         loading="lazy"

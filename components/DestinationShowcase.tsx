@@ -12,8 +12,8 @@ const DESTINATIONS = [
       "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
     descHe:
       "הפסגה הגבוהה ביותר בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
-    image: "/images/optimized/VmAKaqoyTR8S.jpg",
-    imageWebp: "/images/optimized/VmAKaqoyTR8S.webp",
+    image: "/images/optimized/vehicle_offroad_scene.jpg",
+    imageWebp: "/images/optimized/vehicle_offroad_scene.webp",
     tourSlug: "doi-inthanon-roof-of-thailand",
   },
   {
@@ -23,8 +23,8 @@ const DESTINATIONS = [
     descEn:
       "A hidden 700-year-old eco-village with wild gibbons and ancient tea traditions",
     descHe: "כפר אקולוגי נסתר בן 700 שנה עם גיבונים בר ומסורות תה עתיקות",
-    image: "/images/optimized/1000000149.jpg",
-    imageWebp: "/images/optimized/1000000149.webp",
+    image: "/images/optimized/village_hamlet_rice_fields.jpg",
+    imageWebp: "/images/optimized/village_hamlet_rice_fields.webp",
     tourSlug: "mae-kampong-hidden-village",
   },
   {
@@ -35,8 +35,8 @@ const DESTINATIONS = [
       "Climb UP a waterfall barefoot, canopy walkway 20m high, and upper falls no one reaches",
     descHe:
       "טפסו למעלה על מפל יחפים, עברו על גשר צמרות בגובה 20 מ' וגלו קומות עליונות שאף אחד לא מגיע אליהן",
-    image: "/images/optimized/1000000126_compressed.jpg",
-    imageWebp: "/images/optimized/1000000126_compressed.webp",
+    image: "/images/optimized/waterfall_wide_angle_view.jpg",
+    imageWebp: "/images/optimized/waterfall_wide_angle_view.webp",
     tourSlug: "maerim-sticky-waterfalls",
   },
   {
@@ -58,8 +58,8 @@ const DESTINATIONS = [
     descEn:
       "Real off-road through jungle — canyon, elephants, bamboo rafting, and hidden waterfalls",
     descHe: "שטח אמיתי דרך ג'ונגל — קניון, פילים, שייט במבוק ומפלים נסתרים",
-    image: "/images/optimized/1000000140.jpg",
-    imageWebp: "/images/optimized/1000000140.webp",
+    image: "/images/optimized/man_with_elephant_sanctuary.jpg",
+    imageWebp: "/images/optimized/man_with_elephant_sanctuary.webp",
     tourSlug: "mae-wang-jungle-wilderness",
   },
   {
@@ -70,8 +70,8 @@ const DESTINATIONS = [
       "100km mountain circuit — rare Lanna temple, hilltop farm, Hmong village, lakeside sunset",
     descHe:
       'מעגל הרים של 100 ק"מ — מקדש לאנה נדיר, חווה על פסגת הר, כפר המונג, שקיעה על האגם',
-    image: "/images/optimized/1000000143.jpg",
-    imageWebp: "/images/optimized/1000000143.webp",
+    image: "/images/optimized/rice_paddies_village_forest.jpg",
+    imageWebp: "/images/optimized/rice_paddies_village_forest.webp",
     tourSlug: "samoeng-loop-mountain-circuit",
   },
 ];

@@ -42,7 +42,7 @@ export function CommunityConnection() {
     <section
       className="relative py-24 md:py-32 bg-cover bg-center bg-fixed"
       style={{
-        backgroundImage: "url('/images/1000000135.jpg')",
+        backgroundImage: "url('/images/hilltribe_girl_craft_market.jpg')",
       }}
     >
       {/* Dark overlay */}

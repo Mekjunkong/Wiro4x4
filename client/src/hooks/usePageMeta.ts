@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/images/1000000136.jpg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/single_cascade_waterfall.jpg`;
 
 interface PageMetaOptions {
   /** Page title (will be suffixed with "| WIRO 4x4 Kosher Adventures") */

@@ -4,13 +4,19 @@ import { COMPANY_FACEBOOK_URL, COMPANY_INSTAGRAM_URL } from "@/const";
 
 const PREVIEW_IMAGES = [
   {
-    src: "/images/1000000126_compressed.jpg",
+    src: "/images/waterfall_wide_angle_view.jpg",
     alt: "Sticky waterfalls adventure",
   },
-  { src: "/images/1000000135.jpg", alt: "Mountain circuit scenery" },
-  { src: "/images/optimized/1000000149.jpg", alt: "Hidden mountain village" },
   {
-    src: "/images/1000000117_compressed.jpg",
+    src: "/images/hilltribe_girl_craft_market.jpg",
+    alt: "Mountain circuit scenery",
+  },
+  {
+    src: "/images/optimized/village_hamlet_rice_fields.jpg",
+    alt: "Hidden mountain village",
+  },
+  {
+    src: "/images/jungle_waterfall_rocky_stream.jpg",
     alt: "Northern Thailand landscape",
   },
 ];

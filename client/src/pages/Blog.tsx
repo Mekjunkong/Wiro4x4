@@ -21,7 +21,7 @@ const FALLBACK_POSTS = [
       "Everything you need to know about finding and preparing kosher meals during your Chiang Mai adventure.",
     excerptHe:
       "כל מה שצריך לדעת על אוכל כשר בצ'יאנג מאי -- בית חב\"ד, מסעדות, סופרים, וטיפים מהשטח.",
-    coverImage: "/images/optimized/1000000149.jpg",
+    coverImage: "/images/optimized/village_hamlet_rice_fields.jpg",
     category: "Food & Kosher",
     tags: "kosher,food,chiang-mai,chabad",
     publishedAt: "2024-12-01",
@@ -35,7 +35,7 @@ const FALLBACK_POSTS = [
       "Essential advice from experienced Israeli travelers about navigating Thailand, Laos, and Vietnam.",
     excerptHe:
       "טיפים, מידע ועצות מניסיון של שנים -- כסף, בריאות, תחבורה, שבת וקהילה ישראלית.",
-    coverImage: "/images/optimized/1000000139_compressed.jpg",
+    coverImage: "/images/optimized/waterfall_lush_jungle.jpg",
     category: "Travel Tips",
     tags: "travel-tips,israel,southeast-asia,budget",
     publishedAt: "2024-12-01",
@@ -49,7 +49,7 @@ const FALLBACK_POSTS = [
       "Learn the dos and don'ts of interacting with local communities in Thailand, Laos, and Vietnam.",
     excerptHe:
       "שמירת פנים, מקדשים, נזירים, מיקוח ועוד -- כל הכללים שישראלים צריכים להכיר.",
-    coverImage: "/images/1000000135.jpg",
+    coverImage: "/images/hilltribe_girl_craft_market.jpg",
     category: "Culture",
     tags: "culture,etiquette,temples,thailand",
     publishedAt: "2024-12-01",
@@ -83,7 +83,8 @@ export default function Blog() {
         title: isHebrew && post.titleHe ? post.titleHe : post.title,
         excerpt:
           isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
-        image: post.coverImage || "/images/optimized/1000000149.jpg",
+        image:
+          post.coverImage || "/images/optimized/village_hamlet_rice_fields.jpg",
         category: post.category || "",
         tags: ((post as { tags?: string }).tags || "")
           .split(",")
