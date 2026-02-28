@@ -1,16 +1,12 @@
 import { Header } from "@/components/Header";
-import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Hero } from "@/components/Hero";
-import { StatsCounter } from "@/components/StatsCounter";
+import { TrustBar } from "@/components/TrustBar";
 import { ProductTiers } from "@/components/ProductTiers";
 import { GalleryShowcase } from "@/components/GalleryShowcase";
 import { CostCalculator } from "@/components/CostCalculator";
-import { TrustAndKosher } from "@/components/TrustAndKosher";
-import { Testimonials } from "@/components/Testimonials";
-import { CommunityConnection } from "@/components/CommunityConnection";
+import { SocialProofStrip } from "@/components/SocialProofStrip";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
 import { FAQ } from "@/components/FAQ";
-import { NewsletterCTA } from "@/components/NewsletterCTA";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -20,11 +16,10 @@ export default function Home() {
   usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
   return (
     <div className="min-h-screen smooth-scroll">
-      <AnnouncementBar />
       <Header />
       <main id="main-content">
         <Hero />
-        <StatsCounter />
+        <TrustBar />
         <ProductTiers />
         <GalleryShowcase />
         <div className="py-16 md:py-20">
@@ -32,12 +27,9 @@ export default function Home() {
             <CostCalculator />
           </div>
         </div>
-        <TrustAndKosher />
-        <Testimonials />
-        <CommunityConnection />
+        <SocialProofStrip />
         <QuickInquiryForm />
         <FAQ />
-        <NewsletterCTA />
       </main>
       <Footer />
       <FloatingActionButtons />
