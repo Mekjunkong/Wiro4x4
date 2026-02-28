@@ -16,12 +16,10 @@ function getResend(): Resend | null {
 // After domain verification, add pasuthunjunkong@gmail.com back to this list
 const NOTIFICATION_RECIPIENTS = [
   "wiro.adventures@gmail.com",
-  // 'pasuthunjunkong@gmail.com' // Add after domain verification
+  "pasuthunjunkong@gmail.com",
 ];
 
-// Sender email - using Resend's default for unverified domains
-// After verifying a domain (e.g., wiro4x4indochina.com), change to: 'WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>'
-const SENDER_EMAIL = "WIRO 4x4 Bookings <onboarding@resend.dev>";
+const SENDER_EMAIL = "WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>";
 
 export interface BookingEmailData {
   contactName: string;
@@ -152,7 +150,7 @@ export async function sendNewBookingEmail(
         
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <p style="color: #888; font-size: 12px; text-align: center;">
-          💡 <strong>Note:</strong> Please also forward this to pasuthunjunkong@gmail.com until domain verification is complete.
+          💡 Sent from WIRO 4x4 Booking System
         </p>
       </div>
       

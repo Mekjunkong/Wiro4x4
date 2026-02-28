@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Database:** MySQL/TiDB (provided by Manus platform)
 - **Auth:** Manus OAuth (built-in)
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
-- **Email:** Resend (lazy initialization — no crash without API key)
+- **Email:** Resend (lazy init, verified domain: `wiro4x4indochina.com`)
 - **Testing:** Vitest (155 tests across 30 files)
 - **Hosting:** Manus platform (with custom domain support)
 
@@ -231,6 +231,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **Database:** `drizzle/schema.ts` → `bookings` table
 - **Flow:** Form → tRPC mutation → DB save → Email notifications → WhatsApp redirect
 - **Emails:** 3-layer system (Manus notification + Resend email + Customer confirmation with ICS)
+- **Email domain:** `wiro4x4indochina.com` verified on Resend (Tokyo/ap-northeast-1). All outbound emails use this domain.
 
 ### 3. Admin Panel (6 tabs)
 
@@ -610,7 +611,11 @@ pnpm db:push  # Sync database schema
 - **ASK** user before making major architectural changes
 - **Resend/email services** use lazy initialization — never eagerly construct `new Resend()` at module level
 - **Anthropic SDK** uses lazy initialization — never eagerly construct `new Anthropic()` at module level
-- **Newsletter emails** send from `updates@wiro4x4indochina.com` — requires Resend domain verification
+- **Email sending:** Domain `wiro4x4indochina.com` is verified on Resend. All outbound emails MUST use `@wiro4x4indochina.com` as sender:
+  - `bookings@wiro4x4indochina.com` — booking notifications, customer confirmations, auto-responses, payment confirmations
+  - `updates@wiro4x4indochina.com` — newsletters, abandoned booking recovery
+- **Two email constants** in `shared/const.ts`: `COMPANY_EMAIL` (gmail, public contact) vs `COMPANY_SENDER_EMAIL` (verified domain, Resend `from` field). New email services MUST use `COMPANY_SENDER_EMAIL` for sending.
+- **Admin notification recipients:** Both `wiro.adventures@gmail.com` and `pasuthunjunkong@gmail.com` receive booking notifications
 
 ## Quick Reference
 
@@ -638,7 +643,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-03-01
 **Version:** 3.0 (MVP)
 **Platform:** Manus
-**Test Coverage:** 155 tests (30 files) — 125 pass locally, 30 DB-dependent skipped
+**Test Coverage:** 192 tests (34 files) — 156 pass locally, 36 DB-dependent skipped

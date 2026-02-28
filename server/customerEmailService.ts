@@ -2,9 +2,9 @@ import { Resend } from "resend";
 import { createEvents, EventAttributes } from "ics";
 import { captureException } from "./sentry";
 import {
-  COMPANY_EMAIL,
   COMPANY_NAME,
   COMPANY_PHONE,
+  COMPANY_SENDER_EMAIL,
   COMPANY_WHATSAPP,
   COMPANY_WEBSITE,
 } from "@shared/const";
@@ -18,7 +18,7 @@ function getResend(): Resend | null {
   return _resend;
 }
 
-const SENDER_EMAIL = COMPANY_EMAIL;
+const SENDER_EMAIL = COMPANY_SENDER_EMAIL;
 
 interface BookingDetails {
   customerName: string;

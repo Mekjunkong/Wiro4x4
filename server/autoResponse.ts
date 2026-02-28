@@ -8,14 +8,14 @@ import { invokeLLM } from "./_core/llm";
 import { getAllActiveTours } from "./db";
 import { Resend } from "resend";
 import {
-  COMPANY_EMAIL,
   COMPANY_NAME,
   COMPANY_PHONE,
+  COMPANY_SENDER_EMAIL,
   COMPANY_WHATSAPP,
   COMPANY_WEBSITE,
 } from "@shared/const";
 
-const SENDER_EMAIL = COMPANY_EMAIL;
+const SENDER_EMAIL = COMPANY_SENDER_EMAIL;
 
 // Lazy Resend instance
 let _resend: Resend | null = null;
