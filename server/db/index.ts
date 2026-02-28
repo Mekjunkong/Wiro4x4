@@ -206,5 +206,31 @@ export {
   updateBookingDraftStatus,
 } from "./bookingDrafts";
 
+// Accounting (Invoices, Journal Entries, Tax Filings)
+export {
+  createInvoice,
+  getAllInvoicesPaginated,
+  getInvoiceById,
+  updateInvoiceStatus,
+  getNextInvoiceSequence,
+  createAccountingEntry,
+  getAccountingEntriesPaginated,
+  getTrialBalance,
+  createTaxFiling,
+  getAllTaxFilingsPaginated,
+  updateTaxFilingStatus,
+  getUpcomingFilings,
+} from "./accounting";
+
+// Inventory
+export {
+  createInventoryItem,
+  getAllInventoryPaginated,
+  getInventoryById,
+  updateInventoryItem,
+  deleteInventoryItem,
+  getInventorySummary,
+} from "./inventory";
+
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";
