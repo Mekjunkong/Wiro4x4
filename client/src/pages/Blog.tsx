@@ -211,20 +211,30 @@ export default function Blog() {
                     key={post.slug}
                     className="overflow-hidden border-t-2 border-[#D4AF37] rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
                   >
-                    <div className="relative h-56 overflow-hidden">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      {post.category && (
-                        <div className="absolute top-4 left-4">
-                          <span className="inline-block px-3 py-1 bg-[#D4AF37] text-white text-xs font-semibold rounded-sm">
-                            {post.category}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <Link href={`/blog/${post.slug}`}>
+                      <div className="relative h-56 overflow-hidden cursor-pointer">
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          onError={e => {
+                            const target = e.currentTarget;
+                            if (!target.dataset.fallback) {
+                              target.dataset.fallback = "1";
+                              target.src =
+                                "/images/optimized/village_hamlet_rice_fields.jpg";
+                            }
+                          }}
+                        />
+                        {post.category && (
+                          <div className="absolute top-4 left-4">
+                            <span className="inline-block px-3 py-1 bg-[#D4AF37] text-white text-xs font-semibold rounded-sm">
+                              {post.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
 
                     <div className="p-6 space-y-4">
                       {(post.date || post.readTime) && (

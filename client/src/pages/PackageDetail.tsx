@@ -633,12 +633,18 @@ export default function PackageDetail() {
                       >
                         <div className="flex flex-col sm:flex-row">
                           <div className="relative sm:w-52 h-44 sm:h-auto shrink-0">
-                            <img
-                              src={day.image}
-                              alt={t(day.title, day.titleHe)}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
+                            <picture>
+                              <source
+                                srcSet={day.image.replace(".jpg", ".webp")}
+                                type="image/webp"
+                              />
+                              <img
+                                src={day.image}
+                                alt={t(day.title, day.titleHe)}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </picture>
                             <div className="absolute top-3 left-3 bg-[#d4af37] text-white text-xs font-bold px-2.5 py-1 rounded">
                               {t("Day", "יום")} {day.day}
                             </div>
@@ -875,17 +881,22 @@ export default function PackageDetail() {
                       imgMap?.jpg ||
                       tour.imageUrl ||
                       "/images/optimized/samoeng_valley.jpg";
+                    const webpSrc =
+                      imgMap?.webp || imgSrc.replace(".jpg", ".webp");
 
                     return (
                       <Card key={tour.slug} className="overflow-hidden">
                         <div className="flex flex-col sm:flex-row">
                           <div className="relative sm:w-48 h-40 sm:h-auto shrink-0">
-                            <img
-                              src={imgSrc}
-                              alt={t(tour.name, tour.nameHe)}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
+                            <picture>
+                              <source srcSet={webpSrc} type="image/webp" />
+                              <img
+                                src={imgSrc}
+                                alt={t(tour.name, tour.nameHe)}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </picture>
                             <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
                               {t("Day", "יום")} {index + 1}
                             </div>
