@@ -27,13 +27,6 @@ const faqData = [
     ],
   },
   {
-    q: ["How safe are the off-road tours?", "כמה בטוחים טיולי השטח?"],
-    a: [
-      "Safety is our top priority. All vehicles are regularly maintained and equipped with safety features. Our experienced drivers are trained in off-road driving, and we carry first-aid equipment on every tour. We also provide comprehensive safety briefings before each trip.",
-      "בטיחות זה הדבר הכי חשוב אצלנו. כל הרכבים עוברים תחזוקה שוטפת ומצוידים כמו שצריך. הנהגים שלנו מנוסים ומאומנים בנהיגת שטח, ויש ציוד עזרה ראשונה בכל טיול. לפני כל יציאה עושים תדריך בטיחות מקיף.",
-    ],
-  },
-  {
     q: [
       "What are the tour prices and what is included?",
       "כמה עולים הטיולים ומה כלול במחיר?",
@@ -58,71 +51,10 @@ const faqData = [
     ],
   },
   {
-    q: [
-      "What group sizes do you accommodate?",
-      "לכמה אנשים אתם יכולים לארגן טיול?",
-    ],
-    a: [
-      "We cater to all group sizes, from couples and families to large groups of 20+. Our 4x4 vehicles typically seat 4-6 passengers each. For larger groups, we arrange multiple vehicles with coordinated itineraries. Private tours are available for any group size.",
-      "מארגנים לכל גודל -- מזוגות ומשפחות ועד קבוצות של 20 ומעלה. כל רכב 4x4 מכיל 4-6 נוסעים. לקבוצות גדולות מתאמים כמה רכבים עם מסלול משותף. טיולים פרטיים זמינים לכל גודל קבוצה.",
-    ],
-  },
-  {
-    q: ["What should I bring on the tour?", "מה כדאי להביא לטיול?"],
-    a: [
-      "We recommend comfortable clothing and closed-toe shoes suitable for outdoor activities. Bring sunscreen, a hat, sunglasses, and a refillable water bottle. A camera is a must for the stunning scenery! During rainy season (June-October), a light rain jacket is advised. We provide all necessary safety equipment.",
-      "בגדים נוחים ונעליים סגורות. קחו קרם הגנה, כובע, משקפי שמש ובקבוק מים. מצלמה -- חובה, הנופים פה מטורפים! בעונת הגשמים (יוני-אוקטובר) כדאי מעיל גשם קל. ציוד בטיחות אנחנו מספקים.",
-    ],
-  },
-  {
-    q: ["Do you offer Hebrew-speaking guides?", "יש לכם מדריכים דוברי עברית?"],
-    a: [
-      "Yes! We have Hebrew-speaking guides available for all our tours. Our guides are knowledgeable about the local area, culture, and can communicate fluently in Hebrew and English. Just indicate your language preference when booking.",
-      "כן! יש לנו מדריכים דוברי עברית לכל הטיולים. המדריכים שלנו מכירים את האזור לעומק, את התרבות המקומית, ומדברים עברית ואנגלית שוטפות. פשוט ציינו שאתם רוצים מדריך בעברית כשמזמינים.",
-    ],
-  },
-  {
     q: ["Can tours be customized?", "אפשר להתאים את הטיול אישית?"],
     a: [
       "Absolutely! We specialize in custom-tailored experiences. Whether you want to visit specific destinations, need special dietary accommodations, or have a unique itinerary in mind, we will work with you to create the perfect adventure. Contact us to discuss your preferences.",
       "בטח! אנחנו מתמחים בטיולים בהתאמה אישית. רוצים לבקר ביעדים מסוימים? צריכים התאמות תזונתיות? יש לכם מסלול חלום? נבנה אתכם את הטיול המושלם. דברו איתנו ונתאים הכל.",
-    ],
-  },
-  {
-    q: [
-      "Are tours wheelchair accessible?",
-      "האם הטיולים נגישים לכיסאות גלגלים?",
-    ],
-    a: [
-      "We offer adapted tours for travelers with mobility challenges. Our 4x4 vehicles can be configured for easier access, and we customize itineraries to include accessible viewpoints, boardwalk trails, and vehicle-accessible attractions. Contact us to discuss your specific needs and we'll create a personalized accessible itinerary.",
-      "אנחנו מציעים טיולים מותאמים למטיילים עם אתגרי ניידות. רכבי ה-4x4 שלנו ניתנים להתאמה לגישה קלה יותר, ואנו מתאימים מסלולים שכוללים תצפיות נגישות, שבילי גשר ואטרקציות נגישות ברכב. צרו קשר לדון בצרכים הספציפיים שלכם ונייצר מסלול נגיש מותאם אישית.",
-    ],
-  },
-  {
-    q: [
-      "What's the best season for Chiang Mai tours?",
-      "מה העונה הטובה ביותר לטיולים בצ'יאנג מאי?",
-    ],
-    a: [
-      "The best season is November to February — cool temperatures (15-25C), clear skies, and no rain. March-May is hot season with occasional haze. June-October is green season with afternoon showers but lush landscapes. Each season has its charm, but for first-time visitors we recommend the cool season.",
-      "העונה הטובה ביותר היא נובמבר עד פברואר — טמפרטורות נוחות (15-25 מעלות), שמים צלולים ובלי גשם. מרץ-מאי זו עונה חמה עם ערפיח מדי פעם. יוני-אוקטובר זו עונה ירוקה עם מקלחות אחר-צהריים אבל נופים ירוקים. לכל עונה יש את הקסם שלה, אבל למבקרים בפעם הראשונה אנחנו ממליצים על העונה הקרירה.",
-    ],
-  },
-  {
-    q: [
-      "How do I get from Bangkok to Chiang Mai?",
-      "איך מגיעים מבנגקוק לצ'יאנג מאי?",
-    ],
-    a: [
-      "The easiest option is a 1-hour flight (AirAsia, Nok Air, Thai Smile from ~800 THB one way). Overnight trains are a popular budget option (11-13 hours, book sleeper class). VIP buses take 9-10 hours. We can help arrange airport pickup in Chiang Mai when you arrive.",
-      "האפשרות הקלה ביותר היא טיסה של שעה (AirAsia, Nok Air, Thai Smile מ-~800 בהט). רכבת לילה היא אפשרות תקציבית פופולרית (11-13 שעות, הזמינו מחלקת שינה). אוטובוסי VIP לוקחים 9-10 שעות. אנחנו יכולים לעזור לסדר איסוף מנמל התעופה בצ'יאנג מאי כשתגיעו.",
-    ],
-  },
-  {
-    q: ["Can I pay in shekels or USD?", "אפשר לשלם בשקלים או דולרים?"],
-    a: [
-      "Our prices are listed in Thai Baht (THB), but we accept payment in USD, EUR, and can discuss shekel arrangements. Bank transfer, credit card, and cash payments are all accepted. A 50% deposit confirms your booking, with the balance due on tour day.",
-      "המחירים שלנו בבהט תאילנדי (THB), אבל אנחנו מקבלים תשלום בדולרים, יורו ויכולים לדון בהסדרי שקלים. העברה בנקאית, כרטיס אשראי ותשלום במזומן — הכל מתקבל. מקדמה של 50% מאשרת את ההזמנה, והיתרה ביום הטיול.",
     ],
   },
 ];
