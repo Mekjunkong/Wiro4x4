@@ -10,6 +10,7 @@ import { FAQ } from "@/components/FAQ";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { StickyBookBar } from "@/components/StickyBookBar";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Home() {
@@ -33,6 +34,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingActionButtons />
+      <StickyBookBar />
       <NewsletterPopup />
     </div>
   );
