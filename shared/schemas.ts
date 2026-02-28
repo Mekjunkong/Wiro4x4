@@ -246,3 +246,74 @@ export const bookingDraftInputSchema = z.object({
 });
 
 export type BookingDraftInput = z.infer<typeof bookingDraftInputSchema>;
+
+// ── Accounting Schemas ───────────────────────────────────────
+
+export const invoiceInputSchema = z.object({
+  bookingId: z.number().optional(),
+  type: z.enum(["tax_invoice", "receipt", "wht_certificate"]),
+  customerName: z.string().min(1, "Customer name is required").max(255),
+  customerAddress: z.string().max(1000).optional(),
+  customerTaxId: z.string().max(50).optional(),
+  currency: z.enum(["THB", "ILS", "USD"]).default("THB"),
+  subtotal: z.number().min(0),
+  vatAmount: z.number().default(0),
+  whtRate: z.number().min(0).max(500).default(0),
+  whtAmount: z.number().default(0),
+  totalAmount: z.number().min(0),
+  fxRate: z.string().optional(),
+  thbEquivalent: z.number().optional(),
+  paymentMethod: z.string().max(50).optional(),
+  lineItems: z.string().optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+export const accountingEntryInputSchema = z.object({
+  date: z.string().transform(s => new Date(s)),
+  accountCode: z.string().min(5).max(10),
+  description: z.string().min(1, "Description is required").max(500),
+  debit: z.number().min(0).default(0),
+  credit: z.number().min(0).default(0),
+  currency: z.enum(["THB", "ILS", "USD"]).default("THB"),
+  originalAmount: z.number().optional(),
+  fxRate: z.string().optional(),
+  bookingId: z.number().optional(),
+  invoiceId: z.number().optional(),
+  vendorPayee: z.string().max(255).optional(),
+  documentRef: z.string().max(100).optional(),
+});
+
+export const taxFilingInputSchema = z.object({
+  type: z.enum(["vat_pp30", "wht_pnd3", "wht_pnd53", "cit_pnd50", "cit_pnd51"]),
+  period: z.string().min(4).max(20),
+  dueDate: z.string().transform(s => new Date(s)),
+  outputVat: z.number().optional(),
+  inputVat: z.number().optional(),
+  netVat: z.number().optional(),
+  whtTotal: z.number().optional(),
+  taxableIncome: z.number().optional(),
+  taxAmount: z.number().optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+export const inventoryInputSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  category: z.enum(["vehicle", "equipment", "supplies"]),
+  description: z.string().max(1000).optional(),
+  purchaseDate: z
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : undefined)),
+  purchaseCost: z.number().min(0).optional(),
+  currentValue: z.number().min(0).optional(),
+  usefulLifeMonths: z.number().min(1).optional(),
+  condition: z.enum(["new", "good", "fair", "poor", "retired"]).default("good"),
+  quantity: z.number().min(0).default(1),
+  location: z.string().max(255).optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+export type InvoiceInput = z.infer<typeof invoiceInputSchema>;
+export type AccountingEntryInput = z.infer<typeof accountingEntryInputSchema>;
+export type TaxFilingInput = z.infer<typeof taxFilingInputSchema>;
+export type InventoryInput = z.infer<typeof inventoryInputSchema>;
