@@ -75,7 +75,9 @@ export function Header() {
       style={{ zIndex: 10000 }}
     >
       <div className="container">
-        <div className="flex items-center justify-between h-24 md:h-32 lg:h-36">
+        <div
+          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-24 md:h-32 lg:h-36"}`}
+        >
           <Link
             href="/"
             className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
@@ -83,7 +85,7 @@ export function Header() {
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
-              className={`h-24 md:h-32 lg:h-36 w-auto object-contain ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-24 md:h-32 lg:h-36"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
 
