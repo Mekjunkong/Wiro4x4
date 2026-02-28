@@ -12,9 +12,20 @@ const TRUST_ITEMS = [
 ];
 
 export function Hero() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const contentRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
+
+  const whatsappMessage =
+    language === "he"
+      ? encodeURIComponent(
+          "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+        )
+      : encodeURIComponent(
+          "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+        );
+
+  const whatsappUrl = `${COMPANY_WHATSAPP_URL}&text=${whatsappMessage}`;
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -85,7 +96,7 @@ export function Hero() {
             {t("Explore Tours", "גלו את הטיולים")}
           </button>
           <a
-            href={COMPANY_WHATSAPP_URL}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="border-2 border-white/80 hover:bg-white/10 text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors flex items-center gap-2"

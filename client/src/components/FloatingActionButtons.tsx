@@ -5,7 +5,7 @@ import { MessageCircle, Calendar, Plus, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export function FloatingActionButtons() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [location] = useLocation();
   const isBookingPage = location === "/book";
@@ -18,12 +18,14 @@ export function FloatingActionButtons() {
   }, []);
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent(
-      t(
-        "Hi WIRO 4x4 – I want to book a Kosher tour.",
-        "היי WIRO 4x4 — אשמח לשמוע על הטיולים הכשרים שלכם."
-      )
-    );
+    const message =
+      language === "he"
+        ? encodeURIComponent(
+            "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+          )
+        : encodeURIComponent(
+            "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+          );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
