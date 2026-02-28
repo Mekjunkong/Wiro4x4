@@ -20,6 +20,84 @@ import { CHART_OF_ACCOUNTS } from "../../../../shared/accounting";
 
 type SubTab = "invoices" | "journal" | "tax" | "inventory";
 
+// ── Module-level form defaults ──────────────────────────────
+
+const emptyInvoiceForm = {
+  type: "tax_invoice" as "tax_invoice" | "receipt" | "wht_certificate",
+  customerName: "",
+  customerAddress: "",
+  customerTaxId: "",
+  currency: "THB" as "THB" | "ILS" | "USD",
+  subtotal: 0,
+  vatAmount: 0,
+  whtRate: 0,
+  whtAmount: 0,
+  totalAmount: 0,
+  bookingId: undefined as number | undefined,
+  fxRate: "",
+  thbEquivalent: undefined as number | undefined,
+  paymentMethod: "",
+  notes: "",
+};
+
+const emptyInvoiceStatusForm = {
+  status: "unpaid" as "unpaid" | "paid" | "partial" | "cancelled",
+  paymentDate: "",
+  paymentMethod: "",
+};
+
+function getEmptyJournalForm() {
+  return {
+    date: new Date().toISOString().split("T")[0],
+    accountCode: "41000",
+    description: "",
+    debit: 0,
+    credit: 0,
+    currency: "THB" as "THB" | "ILS" | "USD",
+    bookingId: undefined as number | undefined,
+    invoiceId: undefined as number | undefined,
+    fxRate: "",
+    vendorPayee: "",
+    documentRef: "",
+  };
+}
+
+const emptyTaxFilingForm = {
+  type: "vat_pp30" as
+    | "vat_pp30"
+    | "wht_pnd3"
+    | "wht_pnd53"
+    | "cit_pnd50"
+    | "cit_pnd51",
+  period: "",
+  dueDate: "",
+  outputVat: undefined as number | undefined,
+  inputVat: undefined as number | undefined,
+  netVat: undefined as number | undefined,
+  whtTotal: undefined as number | undefined,
+  taxableIncome: undefined as number | undefined,
+  taxAmount: undefined as number | undefined,
+  notes: "",
+};
+
+const emptyTaxFilingStatusForm = {
+  status: "prepared" as "pending" | "prepared" | "filed" | "late",
+};
+
+const emptyInventoryForm = {
+  name: "",
+  category: "equipment" as "vehicle" | "equipment" | "supplies",
+  description: "",
+  purchaseDate: "",
+  purchaseCost: undefined as number | undefined,
+  currentValue: undefined as number | undefined,
+  usefulLifeMonths: undefined as number | undefined,
+  condition: "good" as "new" | "good" | "fair" | "poor" | "retired",
+  quantity: 1,
+  location: "",
+  notes: "",
+};
+
 // ── Invoices Sub-tab ─────────────────────────────────────────
 
 function InvoicesSubTab() {
@@ -37,39 +115,15 @@ function InvoicesSubTab() {
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
-  const emptyForm = {
-    type: "tax_invoice" as "tax_invoice" | "receipt" | "wht_certificate",
-    customerName: "",
-    customerAddress: "",
-    customerTaxId: "",
-    currency: "THB" as "THB" | "ILS" | "USD",
-    subtotal: 0,
-    vatAmount: 0,
-    whtRate: 0,
-    whtAmount: 0,
-    totalAmount: 0,
-    bookingId: undefined as number | undefined,
-    fxRate: "",
-    thbEquivalent: undefined as number | undefined,
-    paymentMethod: "",
-    notes: "",
-  };
-
-  const [form, setForm] = useState(emptyForm);
-
-  const statusForm = {
-    status: "paid" as "unpaid" | "paid" | "partial" | "cancelled",
-    paymentDate: "",
-    paymentMethod: "",
-  };
-  const [sForm, setSForm] = useState(statusForm);
+  const [form, setForm] = useState(emptyInvoiceForm);
+  const [sForm, setSForm] = useState(emptyInvoiceStatusForm);
 
   const createMut = trpc.accounting.createInvoice.useMutation({
     onSuccess: result => {
       utils.accounting.listInvoices.invalidate();
       toast.success(`Invoice ${result.invoiceNumber} created!`);
       setShowForm(false);
-      setForm(emptyForm);
+      setForm(emptyInvoiceForm);
     },
     onError: () => toast.error("Failed to create invoice"),
   });
@@ -134,7 +188,7 @@ function InvoicesSubTab() {
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => {
-            setForm(emptyForm);
+            setForm(emptyInvoiceForm);
             setShowForm(true);
           }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
@@ -153,6 +207,7 @@ function InvoicesSubTab() {
               <button
                 onClick={() => setShowForm(false)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -365,6 +420,7 @@ function InvoicesSubTab() {
               <button
                 onClick={() => setShowStatusForm(null)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -556,28 +612,14 @@ function JournalSubTab() {
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
-  const emptyForm = {
-    date: new Date().toISOString().split("T")[0],
-    accountCode: "41000",
-    description: "",
-    debit: 0,
-    credit: 0,
-    currency: "THB" as "THB" | "ILS" | "USD",
-    bookingId: undefined as number | undefined,
-    invoiceId: undefined as number | undefined,
-    fxRate: "",
-    vendorPayee: "",
-    documentRef: "",
-  };
-
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(getEmptyJournalForm);
 
   const createMut = trpc.accounting.recordEntry.useMutation({
     onSuccess: () => {
       utils.accounting.listEntries.invalidate();
       toast.success("Journal entry recorded!");
       setShowForm(false);
-      setForm(emptyForm);
+      setForm(getEmptyJournalForm());
     },
     onError: () => toast.error("Failed to record entry"),
   });
@@ -609,7 +651,7 @@ function JournalSubTab() {
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => {
-            setForm(emptyForm);
+            setForm(getEmptyJournalForm());
             setShowForm(true);
           }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
@@ -628,6 +670,7 @@ function JournalSubTab() {
               <button
                 onClick={() => setShowForm(false)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -885,30 +928,9 @@ function TaxCalendarSubTab() {
 
   const { data: deadlines } = trpc.accounting.upcomingDeadlines.useQuery();
 
-  const emptyForm = {
-    type: "vat_pp30" as
-      | "vat_pp30"
-      | "wht_pnd3"
-      | "wht_pnd53"
-      | "cit_pnd50"
-      | "cit_pnd51",
-    period: "",
-    dueDate: "",
-    outputVat: undefined as number | undefined,
-    inputVat: undefined as number | undefined,
-    netVat: undefined as number | undefined,
-    whtTotal: undefined as number | undefined,
-    taxableIncome: undefined as number | undefined,
-    taxAmount: undefined as number | undefined,
-    notes: "",
-  };
+  const [form, setForm] = useState(emptyTaxFilingForm);
 
-  const [form, setForm] = useState(emptyForm);
-
-  const statusForm = {
-    status: "prepared" as "pending" | "prepared" | "filed" | "late",
-  };
-  const [sForm, setSForm] = useState(statusForm);
+  const [sForm, setSForm] = useState(emptyTaxFilingStatusForm);
 
   const createMut = trpc.accounting.createFiling.useMutation({
     onSuccess: () => {
@@ -916,7 +938,7 @@ function TaxCalendarSubTab() {
       utils.accounting.upcomingDeadlines.invalidate();
       toast.success("Tax filing created!");
       setShowForm(false);
-      setForm(emptyForm);
+      setForm(emptyTaxFilingForm);
     },
     onError: () => toast.error("Failed to create filing"),
   });
@@ -1002,7 +1024,7 @@ function TaxCalendarSubTab() {
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => {
-            setForm(emptyForm);
+            setForm(emptyTaxFilingForm);
             setShowForm(true);
           }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
@@ -1021,6 +1043,7 @@ function TaxCalendarSubTab() {
               <button
                 onClick={() => setShowForm(false)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1156,6 +1179,7 @@ function TaxCalendarSubTab() {
               <button
                 onClick={() => setShowStatusForm(null)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1317,21 +1341,7 @@ function InventorySubTab() {
 
   const { data: summary } = trpc.inventory.summary.useQuery();
 
-  const emptyForm = {
-    name: "",
-    category: "equipment" as "vehicle" | "equipment" | "supplies",
-    description: "",
-    purchaseDate: "",
-    purchaseCost: undefined as number | undefined,
-    currentValue: undefined as number | undefined,
-    usefulLifeMonths: undefined as number | undefined,
-    condition: "good" as "new" | "good" | "fair" | "poor" | "retired",
-    quantity: 1,
-    location: "",
-    notes: "",
-  };
-
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(emptyInventoryForm);
 
   const createMut = trpc.inventory.create.useMutation({
     onSuccess: () => {
@@ -1364,7 +1374,7 @@ function InventorySubTab() {
 
   function openCreateForm() {
     setEditingId(null);
-    setForm(emptyForm);
+    setForm(emptyInventoryForm);
     setShowForm(true);
   }
 
@@ -1385,7 +1395,7 @@ function InventorySubTab() {
     setEditingId(item.id);
     setForm({
       name: item.name,
-      category: item.category as typeof emptyForm.category,
+      category: item.category as typeof emptyInventoryForm.category,
       description: item.description ?? "",
       purchaseDate: item.purchaseDate
         ? new Date(item.purchaseDate).toISOString().split("T")[0]
@@ -1393,7 +1403,7 @@ function InventorySubTab() {
       purchaseCost: item.purchaseCost ?? undefined,
       currentValue: item.currentValue ?? undefined,
       usefulLifeMonths: item.usefulLifeMonths ?? undefined,
-      condition: item.condition as typeof emptyForm.condition,
+      condition: item.condition as typeof emptyInventoryForm.condition,
       quantity: item.quantity ?? 1,
       location: item.location ?? "",
       notes: item.notes ?? "",
@@ -1404,7 +1414,7 @@ function InventorySubTab() {
   function closeForm() {
     setShowForm(false);
     setEditingId(null);
-    setForm(emptyForm);
+    setForm(emptyInventoryForm);
   }
 
   function handleSubmit() {
@@ -1496,6 +1506,7 @@ function InventorySubTab() {
               <button
                 onClick={closeForm}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1819,12 +1830,18 @@ export function AccountingTab() {
   return (
     <div className="p-6">
       {/* Sub-tab navigation */}
-      <div className="flex gap-2 mb-4">
+      <div
+        className="flex gap-2 mb-4"
+        role="tablist"
+        aria-label="Accounting sections"
+      >
         {(["invoices", "journal", "tax", "inventory"] as const).map(tab => {
           const Icon = SUB_TAB_ICONS[tab];
           return (
             <button
               key={tab}
+              role="tab"
+              aria-selected={subTab === tab}
               onClick={() => setSubTab(tab)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 subTab === tab
