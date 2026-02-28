@@ -18,6 +18,7 @@ import {
   Shield,
   Settings,
   Package,
+  Receipt,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -32,6 +33,7 @@ import {
   ReviewsTab,
   BlogTab,
   CRMTab,
+  AccountingTab,
   UsersTab,
   DashboardCharts,
   PAGE_SIZE,
@@ -68,6 +70,7 @@ type AdminTabId =
   | "agents"
   | "leads"
   | "financial"
+  | "accounting"
   | "gallery"
   | "reviews"
   | "tours"
@@ -172,6 +175,12 @@ export default function AdminDashboard() {
         label: "Financial",
         icon: DollarSign,
         count: financialsTotal,
+      },
+      {
+        id: "accounting" as const,
+        label: "Accounting",
+        icon: Receipt,
+        count: undefined,
       },
       {
         id: "tours" as const,
@@ -548,6 +557,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="financial">
                 <FinancialTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "accounting" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-accounting"
+              aria-labelledby="tab-accounting"
+            >
+              <ErrorBoundary level="section" key="accounting">
+                <AccountingTab />
               </ErrorBoundary>
             </div>
           )}

@@ -9,6 +9,7 @@ export { GalleryTab } from "./GalleryTab";
 export { ReviewsTab } from "./ReviewsTab";
 export { BlogTab } from "./BlogTab";
 export { CRMTab } from "./CRMTab";
+export { AccountingTab } from "./AccountingTab";
 export { UsersTab } from "./UsersTab";
 export {
   TableSkeleton,
