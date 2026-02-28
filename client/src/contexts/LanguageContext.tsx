@@ -1,6 +1,12 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
-type Language = 'en' | 'he';
+type Language = "en" | "he";
 
 interface LanguageContextType {
   language: Language;
@@ -8,21 +14,30 @@ interface LanguageContextType {
   t: (en: string, he: string) => string;
 }
 
-const STORAGE_KEY = 'wiro-preferred-language';
+const STORAGE_KEY = "wiro-preferred-language";
 
 function getStoredLanguage(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'en' || stored === 'he') {
+    if (stored === "en" || stored === "he") {
       return stored;
     }
   } catch {
     // localStorage unavailable (SSR, private browsing, etc.)
   }
-  return 'en';
+  // Auto-detect Hebrew from browser language on first visit
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.language?.startsWith("he")
+  ) {
+    return "he";
+  }
+  return "en";
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined
+);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(getStoredLanguage);
@@ -37,12 +52,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = (en: string, he: string) => {
-    return language === 'en' ? en : he;
+    return language === "en" ? en : he;
   };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      <div lang={language} className={language === 'he' ? 'rtl' : ''}>
+      <div lang={language} className={language === "he" ? "rtl" : ""}>
         {children}
       </div>
     </LanguageContext.Provider>
@@ -52,7 +67,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    throw new Error("useLanguage must be used within a LanguageProvider");
   }
   return context;
 }
