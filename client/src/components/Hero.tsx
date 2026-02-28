@@ -64,7 +64,7 @@ export function Hero() {
         className="absolute bottom-0 left-0 right-0 pb-24 px-6 md:px-12 lg:px-20 text-white"
       >
         {/* Heading */}
-        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4">
+        <h1 className="font-heading text-4xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4">
           WIRO 4×4
         </h1>
 
@@ -80,7 +80,7 @@ export function Hero() {
         <div className="flex flex-wrap gap-4 mb-8">
           <button
             onClick={scrollToTours}
-            className="bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold px-8 py-3 rounded-lg text-lg transition-colors shadow-lg"
+            className="bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-lg"
           >
             {t("Explore Tours", "גלו את הטיולים")}
           </button>
@@ -88,7 +88,7 @@ export function Hero() {
             href={COMPANY_WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-white/80 hover:bg-white/10 text-white font-bold px-8 py-3 rounded-lg text-lg transition-colors flex items-center gap-2"
+            className="border-2 border-white/80 hover:bg-white/10 text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors flex items-center gap-2"
           >
             <MessageCircle className="w-5 h-5" />
             {t("WhatsApp Us", "דברו איתנו בוואטסאפ")}
@@ -100,7 +100,7 @@ export function Hero() {
           {TRUST_ITEMS.map(item => (
             <span
               key={item.en}
-              className="bg-white/15 backdrop-blur-sm text-white text-sm px-4 py-1.5 rounded-full border border-white/20"
+              className="bg-white/15 backdrop-blur-sm text-white text-xs px-3 py-1 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/20"
             >
               {t(item.en, item.he)}
             </span>
@@ -111,7 +111,7 @@ export function Hero() {
       {/* Scroll chevron */}
       <div
         ref={chevronRef}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-subtle-pulse cursor-pointer"
+        className="hidden md:block absolute bottom-6 left-1/2 -translate-x-1/2 animate-subtle-pulse cursor-pointer"
         onClick={scrollToTours}
       >
         <ChevronDown className="w-8 h-8 text-white/70" />

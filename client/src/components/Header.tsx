@@ -76,7 +76,7 @@ export function Header() {
     >
       <div className="container">
         <div
-          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-24 md:h-32 lg:h-36"}`}
+          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-20 md:h-32 lg:h-36"}`}
         >
           <Link
             href="/"
@@ -85,7 +85,7 @@ export function Header() {
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
-              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-24 md:h-32 lg:h-36"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-16 md:h-32 lg:h-36"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
 
@@ -182,44 +182,26 @@ export function Header() {
           </nav>
 
           <div
-            className={`md:hidden flex items-center gap-3 ${!scrolled && isHomePage ? "text-white" : ""}`}
+            className={`md:hidden flex items-center ${!scrolled && isHomePage ? "text-white" : ""}`}
           >
-            {switchable && toggleTheme && (
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
-                aria-label={
-                  theme === "dark"
-                    ? t("Switch to light mode", "מעבר למצב בהיר")
-                    : t("Switch to dark mode", "מעבר למצב כהה")
-                }
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </button>
-            )}
-            <LanguageSwitcher />
             <button
               onClick={toggleMobileMenu}
-              className="p-6 -m-3 hover:bg-[#D4AF37]/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
+              className="p-3 hover:bg-[#D4AF37]/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label={t("Toggle menu", "תפריט")}
               aria-expanded={mobileMenuOpen}
               type="button"
               style={{
-                minWidth: "80px",
-                minHeight: "80px",
+                minWidth: "48px",
+                minHeight: "48px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
               {mobileMenuOpen ? (
-                <X className="h-10 w-10" />
+                <X className="h-7 w-7" />
               ) : (
-                <Menu className="h-10 w-10" />
+                <Menu className="h-7 w-7" />
               )}
             </button>
           </div>
@@ -298,6 +280,26 @@ export function Header() {
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
             </Link>
+            <div className="flex items-center gap-4 mt-8">
+              {switchable && toggleTheme && (
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                  aria-label={
+                    theme === "dark"
+                      ? t("Switch to light mode", "מעבר למצב בהיר")
+                      : t("Switch to dark mode", "מעבר למצב כהה")
+                  }
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
+                </button>
+              )}
+              <LanguageSwitcher />
+            </div>
           </nav>
         </div>
       )}
