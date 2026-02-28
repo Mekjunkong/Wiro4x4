@@ -10,28 +10,8 @@ import {
   COMPANY_FACEBOOK_URL,
   COMPANY_INSTAGRAM_URL,
 } from "@/const";
-import { useLocation } from "wouter";
-
 export function Footer() {
   const { t } = useLanguage();
-  const [currentPath, setLocation] = useLocation();
-
-  const scrollToSection = (id: string) => {
-    if (currentPath !== "/") {
-      setLocation("/");
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 300);
-    } else {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
 
   return (
     <footer id="contact" className="bg-card text-foreground py-12">
@@ -64,36 +44,44 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <button
-                  onClick={() => scrollToSection("tours")}
+                <a
+                  href="/tours"
                   className="hover:text-[#D4AF37] transition-colors"
                 >
                   {t("Tours", "טיולים")}
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("why-wiro")}
+                <a
+                  href="/pricing"
                   className="hover:text-[#D4AF37] transition-colors"
                 >
-                  {t("Why WIRO", "למה WIRO")}
-                </button>
+                  {t("Pricing", "מחירים")}
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("kosher")}
+                <a
+                  href="/gallery"
                   className="hover:text-[#D4AF37] transition-colors"
                 >
-                  {t("Kosher Information", "כשרות")}
-                </button>
+                  {t("Gallery", "גלריה")}
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection("contact")}
+                <a
+                  href="/blog"
                   className="hover:text-[#D4AF37] transition-colors"
                 >
-                  {t("Contact", "צרו קשר")}
-                </button>
+                  {t("Blog", "בלוג")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/reviews"
+                  className="hover:text-[#D4AF37] transition-colors"
+                >
+                  {t("Reviews", "ביקורות")}
+                </a>
               </li>
               <li>
                 <a
