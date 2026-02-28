@@ -537,3 +537,129 @@ export const settings = mysqlTable("settings", {
 
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = typeof settings.$inferInsert;
+
+// Accounting & Finance Tables
+
+export const invoices = mysqlTable(
+  "invoices",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    invoiceNumber: varchar("invoiceNumber", { length: 50 }).notNull().unique(),
+    bookingId: int("bookingId"),
+    type: mysqlEnum("type", [
+      "tax_invoice",
+      "receipt",
+      "wht_certificate",
+    ]).notNull(),
+    customerName: varchar("customerName", { length: 255 }).notNull(),
+    customerAddress: text("customerAddress"),
+    customerTaxId: varchar("customerTaxId", { length: 50 }),
+    currency: varchar("currency", { length: 3 }).notNull().default("THB"),
+    subtotal: int("subtotal").notNull(),
+    vatAmount: int("vatAmount").default(0),
+    whtRate: int("whtRate").default(0),
+    whtAmount: int("whtAmount").default(0),
+    totalAmount: int("totalAmount").notNull(),
+    fxRate: varchar("fxRate", { length: 20 }),
+    thbEquivalent: int("thbEquivalent"),
+    status: mysqlEnum("status", ["unpaid", "paid", "partial", "cancelled"])
+      .default("unpaid")
+      .notNull(),
+    paymentMethod: varchar("paymentMethod", { length: 50 }),
+    paymentDate: timestamp("paymentDate"),
+    lineItems: text("lineItems"),
+    issuedAt: timestamp("issuedAt").defaultNow().notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_invoices_bookingId").on(table.bookingId),
+    index("idx_invoices_status").on(table.status),
+  ]
+);
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = typeof invoices.$inferInsert;
+
+export const accountingEntries = mysqlTable(
+  "accountingEntries",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    date: timestamp("date").notNull(),
+    accountCode: varchar("accountCode", { length: 10 }).notNull(),
+    description: text("description").notNull(),
+    debit: int("debit").default(0),
+    credit: int("credit").default(0),
+    currency: varchar("currency", { length: 3 }).notNull().default("THB"),
+    originalAmount: int("originalAmount"),
+    fxRate: varchar("fxRate", { length: 20 }),
+    bookingId: int("bookingId"),
+    invoiceId: int("invoiceId"),
+    vendorPayee: varchar("vendorPayee", { length: 255 }),
+    documentRef: varchar("documentRef", { length: 100 }),
+    createdBy: varchar("createdBy", { length: 100 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("idx_accountingEntries_accountCode").on(table.accountCode),
+    index("idx_accountingEntries_date").on(table.date),
+    index("idx_accountingEntries_bookingId").on(table.bookingId),
+  ]
+);
+export type AccountingEntry = typeof accountingEntries.$inferSelect;
+export type InsertAccountingEntry = typeof accountingEntries.$inferInsert;
+
+export const taxFilings = mysqlTable("taxFilings", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", [
+    "vat_pp30",
+    "wht_pnd3",
+    "wht_pnd53",
+    "cit_pnd50",
+    "cit_pnd51",
+  ]).notNull(),
+  period: varchar("period", { length: 20 }).notNull(),
+  dueDate: timestamp("dueDate").notNull(),
+  outputVat: int("outputVat"),
+  inputVat: int("inputVat"),
+  netVat: int("netVat"),
+  whtTotal: int("whtTotal"),
+  taxableIncome: int("taxableIncome"),
+  taxAmount: int("taxAmount"),
+  status: mysqlEnum("status", ["pending", "prepared", "filed", "late"])
+    .default("pending")
+    .notNull(),
+  filedAt: timestamp("filedAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TaxFiling = typeof taxFilings.$inferSelect;
+export type InsertTaxFiling = typeof taxFilings.$inferInsert;
+
+export const inventory = mysqlTable("inventory", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: mysqlEnum("category", [
+    "vehicle",
+    "equipment",
+    "supplies",
+  ]).notNull(),
+  description: text("description"),
+  purchaseDate: timestamp("purchaseDate"),
+  purchaseCost: int("purchaseCost"),
+  currentValue: int("currentValue"),
+  usefulLifeMonths: int("usefulLifeMonths"),
+  monthlyDepreciation: int("monthlyDepreciation"),
+  condition: mysqlEnum("condition", ["new", "good", "fair", "poor", "retired"])
+    .default("good")
+    .notNull(),
+  quantity: int("quantity").default(1),
+  location: varchar("location", { length: 255 }),
+  lastMaintenanceDate: timestamp("lastMaintenanceDate"),
+  nextMaintenanceDate: timestamp("nextMaintenanceDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type InventoryItem = typeof inventory.$inferSelect;
+export type InsertInventoryItem = typeof inventory.$inferInsert;
