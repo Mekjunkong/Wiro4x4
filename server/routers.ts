@@ -30,6 +30,8 @@ import { statsRouter } from "./routes/stats";
 import { bookingDraftRouter } from "./routes/bookingDraft";
 import { analyticsRouter } from "./routes/analytics";
 import { packageRouter } from "./routes/package";
+import { accountingRouter } from "./routes/accounting";
+import { inventoryRouter } from "./routes/inventory";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -60,6 +62,8 @@ export const appRouter = router({
   bookingDraft: bookingDraftRouter,
   analytics: analyticsRouter,
   package: packageRouter,
+  accounting: accountingRouter,
+  inventory: inventoryRouter,
 });
 
 export type AppRouter = typeof appRouter;
