@@ -100,18 +100,6 @@ export function Header() {
                 {t("Tours", "טיולים")}
               </span>
             </Link>
-            <button
-              onClick={() => scrollToSection("why-wiro")}
-              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-            >
-              {t("Why WIRO", "למה WIRO")}
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-            >
-              {t("Contact", "צרו קשר")}
-            </button>
             <Link href="/pricing">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -142,6 +130,12 @@ export function Header() {
                 {t("Blog", "בלוג")}
               </span>
             </Link>
+            <button
+              onClick={() => scrollToSection("contact")}
+              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+            >
+              {t("Contact", "צרו קשר")}
+            </button>
             {isAdmin && (
               <Link href="/admin">
                 <span
@@ -221,28 +215,6 @@ export function Header() {
               </span>
             </Link>
             <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <button
-              onClick={() => {
-                scrollToSection("why-wiro");
-                setMobileMenuOpen(false);
-              }}
-              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
-              type="button"
-            >
-              {t("Why WIRO", "למה WIRO")}
-            </button>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
-            <button
-              onClick={() => {
-                scrollToSection("contact");
-                setMobileMenuOpen(false);
-              }}
-              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
-              type="button"
-            >
-              {t("Contact", "צרו קשר")}
-            </button>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Pricing", "מחירים")}
@@ -260,6 +232,17 @@ export function Header() {
                 {t("Blog", "בלוג")}
               </span>
             </Link>
+            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <button
+              onClick={() => {
+                scrollToSection("contact");
+                setMobileMenuOpen(false);
+              }}
+              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
+              type="button"
+            >
+              {t("Contact", "צרו קשר")}
+            </button>
             {isAdmin && (
               <>
                 <div className="h-px w-12 bg-[#D4AF37]/30" />
