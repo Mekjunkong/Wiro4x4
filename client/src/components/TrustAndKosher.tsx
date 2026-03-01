@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   Award,
   MessageSquare,
@@ -73,18 +74,12 @@ export function TrustAndKosher() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: Image */}
           <div className="relative aspect-[4/5] lg:aspect-auto lg:h-full min-h-[400px] rounded-sm overflow-hidden">
-            <picture>
-              <source
-                srcSet="/images/optimized/wiro_with_vehicle.webp"
-                type="image/webp"
-              />
-              <img
-                src="/images/optimized/wiro_with_vehicle.jpg"
-                alt={t("WIRO guide with 4x4 vehicle", "מדריך WIRO עם רכב שטח")}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </picture>
+            <OptimizedImage
+              src="wiro_with_vehicle"
+              alt={t("WIRO guide with 4x4 vehicle", "מדריך WIRO עם רכב שטח")}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Right: Content */}
