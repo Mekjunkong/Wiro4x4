@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
+import {
+  createAuthContext,
+  createPublicContext,
+  itWithDb,
+} from "./test-helpers";
 
 describe("gallery.create", () => {
   itWithDb("creates a gallery photo entry", async () => {
@@ -42,5 +46,24 @@ describe("gallery.listAll (admin)", () => {
     const result = await caller.gallery.listAll();
 
     expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("gallery.listPaginated (public)", () => {
+  it("returns paginated published photos with total count", async () => {
+    const { ctx } = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.gallery.listPaginated({
+      page: 1,
+      pageSize: 20,
+    });
+
+    expect(result).toHaveProperty("items");
+    expect(result).toHaveProperty("total");
+    expect(result).toHaveProperty("page", 1);
+    expect(result).toHaveProperty("pageSize", 20);
+    expect(result).toHaveProperty("totalPages");
+    expect(Array.isArray(result.items)).toBe(true);
   });
 });

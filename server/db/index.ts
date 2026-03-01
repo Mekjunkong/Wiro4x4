@@ -71,6 +71,7 @@ export {
 export {
   createGalleryPhoto,
   getAllPublishedPhotos,
+  getPublishedPhotosPaginated,
   getAllGalleryPhotos,
   updateGalleryPhoto,
   deleteGalleryPhoto,

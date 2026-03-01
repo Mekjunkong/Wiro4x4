@@ -12,6 +12,7 @@ import {
 import {
   createGalleryPhoto,
   getAllPublishedPhotos,
+  getPublishedPhotosPaginated,
   getAllGalleryPhotos,
   getAllGalleryPhotosPaginated,
   updateGalleryPhoto,
@@ -25,6 +26,28 @@ export const galleryRouter = router({
     const photos = await getAllPublishedPhotos();
     return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
   }),
+
+  listPaginated: securePublicProcedure
+    .input(
+      paginationInput.extend({
+        category: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { page, pageSize, category } = input;
+      const { items, total } = await getPublishedPhotosPaginated(
+        page,
+        pageSize,
+        category
+      );
+      return {
+        items: items.map(p => ({ ...p, imageUrl: p.s3Url })),
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
 
   listAll: secureProtectedProcedure.query(async () => {
     const photos = await getAllGalleryPhotos();
