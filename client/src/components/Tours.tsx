@@ -6,6 +6,7 @@ import { Link } from "wouter";
 
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   Clock,
   Mountain,
@@ -127,31 +128,13 @@ const HARDCODED_TOURS = [
 ];
 
 // Local image overrides — always used instead of DB imageUrl
-const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
-  "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/mountain_sunset.webp",
-    jpg: "/images/optimized/mountain_sunset.jpg",
-  },
-  "mae-kampong-hidden-village": {
-    webp: "/images/optimized/mountain_village_view.webp",
-    jpg: "/images/optimized/mountain_village_view.jpg",
-  },
-  "maerim-sticky-waterfalls": {
-    webp: "/images/optimized/sticky_waterfalls.webp",
-    jpg: "/images/optimized/sticky_waterfalls.jpg",
-  },
-  "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/accessible_doi_suthep_temple.webp",
-    jpg: "/images/optimized/accessible_doi_suthep_temple.jpg",
-  },
-  "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/elephant_encounter.webp",
-    jpg: "/images/optimized/elephant_encounter.jpg",
-  },
-  "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/chiang_mai_valley.webp",
-    jpg: "/images/optimized/chiang_mai_valley.jpg",
-  },
+const TOUR_IMAGE_MAP: Record<string, string> = {
+  "doi-inthanon-roof-of-thailand": "mountain_sunset",
+  "mae-kampong-hidden-village": "mountain_village_view",
+  "maerim-sticky-waterfalls": "sticky_waterfalls",
+  "doi-suthep-pui-beyond-temple": "accessible_doi_suthep_temple",
+  "mae-wang-jungle-wilderness": "elephant_encounter",
+  "samoeng-loop-mountain-circuit": "chiang_mai_valley",
 };
 
 const DIFFICULTY_FILTERS = [
@@ -196,12 +179,10 @@ export function Tours() {
     dbTours && dbTours.length > 0
       ? dbTours.map(tour => {
           const slug = tour.slug || generateSlug(tour.name);
-          const localImg = TOUR_IMAGE_MAP[slug];
           return {
             id: tour.id,
             slug,
-            image: localImg?.jpg || tour.imageUrl,
-            imageWebp: localImg?.webp || null,
+            image: TOUR_IMAGE_MAP[slug] || tour.imageUrl,
             title: t(tour.name, tour.nameHe),
             description: t(tour.description, tour.descriptionHe),
             duration: tour.duration,
@@ -213,12 +194,10 @@ export function Tours() {
           };
         })
       : HARDCODED_TOURS.map(tour => {
-          const localImg = TOUR_IMAGE_MAP[tour.slug];
           return {
             id: tour.id,
             slug: tour.slug,
-            image: localImg?.jpg || tour.image,
-            imageWebp: localImg?.webp || null,
+            image: TOUR_IMAGE_MAP[tour.slug] || tour.image,
             title: t(tour.title, tour.titleHe),
             description: t(tour.description, tour.descriptionHe),
             duration: t(tour.duration, tour.durationHe),
@@ -326,19 +305,14 @@ export function Tours() {
             >
               <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#d4af37] rounded-sm bg-card">
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                  <picture>
-                    {tour.imageWebp && (
-                      <source srcSet={tour.imageWebp} type="image/webp" />
-                    )}
-                    <img
-                      src={tour.image}
-                      alt={tour.title}
-                      className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                        IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
-                      }`}
-                      loading="lazy"
-                    />
-                  </picture>
+                  <OptimizedImage
+                    src={tour.image}
+                    alt={tour.title}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                      IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
+                    }`}
+                  />
                   {tour.price != null && (
                     <div className="absolute top-3 right-3 bg-[#d4af37] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
                       &#3647;{tour.price.toLocaleString()}
