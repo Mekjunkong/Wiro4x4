@@ -1,11 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  type RefCallback,
-} from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -19,75 +12,28 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 const CATEGORIES = [
-  { id: "all", en: "All", he: "הכל" },
-  { id: "tours", en: "Tours", he: "טיולים" },
-  { id: "vehicles", en: "Vehicles", he: "רכבים" },
-  { id: "destinations", en: "Destinations", he: "יעדים" },
-  { id: "activities", en: "Activities", he: "פעילויות" },
-  { id: "food", en: "Food", he: "אוכל" },
-  { id: "accommodation", en: "Accommodation", he: "לינה" },
-  { id: "other", en: "Other", he: "אחר" },
+  { id: "all", en: "All", he: "\u05D4\u05DB\u05DC" },
+  { id: "tours", en: "Tours", he: "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD" },
+  { id: "vehicles", en: "Vehicles", he: "\u05E8\u05DB\u05D1\u05D9\u05DD" },
+  {
+    id: "destinations",
+    en: "Destinations",
+    he: "\u05D9\u05E2\u05D3\u05D9\u05DD",
+  },
+  {
+    id: "activities",
+    en: "Activities",
+    he: "\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA",
+  },
+  { id: "food", en: "Food", he: "\u05D0\u05D5\u05DB\u05DC" },
+  { id: "accommodation", en: "Accommodation", he: "\u05DC\u05D9\u05E0\u05D4" },
+  { id: "other", en: "Other", he: "\u05D0\u05D7\u05E8" },
 ];
 
-function LazyImage({
-  src,
-  alt,
-  className,
-  onError: onErrorCb,
-}: {
-  src: string;
-  alt: string;
-  className: string;
-  onError?: () => void;
-}) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [hasError, setHasError] = useState(false);
-
-  const ref: RefCallback<HTMLDivElement> = useCallback(node => {
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} className="w-full h-full relative bg-muted">
-      {isInView && !hasError && (
-        <img
-          src={src}
-          alt={alt}
-          className={`${className} transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-          onLoad={() => setIsLoaded(true)}
-          onError={() => {
-            setHasError(true);
-            onErrorCb?.();
-          }}
-        />
-      )}
-      {(!isInView || (!isLoaded && !hasError)) && (
-        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground animate-pulse">
-          <Camera className="w-8 h-8 opacity-30" />
-        </div>
-      )}
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-          <Camera className="w-8 h-8 opacity-30" />
-        </div>
-      )}
-    </div>
-  );
-}
+const PAGE_SIZE = 20;
 
 export default function Gallery() {
   const { t, language } = useLanguage();
@@ -101,38 +47,92 @@ export default function Gallery() {
 
   const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
 
-  const { data: photos, isLoading } = trpc.gallery.list.useQuery();
-
   // Track broken S3 images to hide them from the grid
   const [brokenIds, setBrokenIds] = useState<Set<number>>(new Set());
 
-  // Deduplicate photos by imageUrl (keep first occurrence)
-  const uniquePhotos = useMemo(() => {
-    if (!photos) return [];
+  // Pagination state
+  const [extraPhotos, setExtraPhotos] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const utils = trpc.useUtils();
+
+  // First page via tRPC useQuery
+  const categoryParam =
+    selectedCategory === "all" ? undefined : selectedCategory;
+  const { data: firstPage, isLoading } = trpc.gallery.listPaginated.useQuery({
+    page: 1,
+    pageSize: PAGE_SIZE,
+    category: categoryParam,
+  });
+
+  // Reset on category change
+  useEffect(() => {
+    setExtraPhotos([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    setBrokenIds(new Set());
+  }, [selectedCategory]);
+
+  // Update hasMore when firstPage arrives
+  useEffect(() => {
+    if (firstPage) {
+      setHasMore(currentPage < firstPage.totalPages);
+    }
+  }, [firstPage, currentPage]);
+
+  // Combine pages
+  const allPhotos = useMemo(() => {
+    const base = firstPage?.items || [];
+    return [...base, ...extraPhotos];
+  }, [firstPage, extraPhotos]);
+
+  // Deduplicate photos by imageUrl (keep first occurrence) and exclude broken
+  const filteredPhotos = useMemo(() => {
     const seen = new Set<string>();
-    return photos.filter(photo => {
-      if (seen.has(photo.imageUrl)) return false;
-      seen.add(photo.imageUrl);
+    return allPhotos.filter(photo => {
+      if (brokenIds.has(photo.id)) return false;
+      const url = photo.imageUrl || "";
+      if (seen.has(url)) return false;
+      seen.add(url);
       return true;
     });
-  }, [photos]);
+  }, [allPhotos, brokenIds]);
 
-  // Compute counts per category from non-broken, unique photos
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const photo of uniquePhotos) {
-      if (brokenIds.has(photo.id)) continue;
-      const cat = photo.category || "other";
-      counts[cat] = (counts[cat] || 0) + 1;
+  // Load more function
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const result = await utils.gallery.listPaginated.fetch({
+        page: nextPage,
+        pageSize: PAGE_SIZE,
+        category: categoryParam,
+      });
+      setExtraPhotos(prev => [...prev, ...result.items]);
+      setCurrentPage(nextPage);
+      setHasMore(nextPage < result.totalPages);
+    } finally {
+      setIsLoadingMore(false);
     }
-    return counts;
-  }, [uniquePhotos, brokenIds]);
+  }, [isLoadingMore, hasMore, currentPage, categoryParam, utils]);
 
-  const filteredPhotos = uniquePhotos.filter(
-    photo =>
-      !brokenIds.has(photo.id) &&
-      (selectedCategory === "all" || photo.category === selectedCategory)
-  );
+  // IntersectionObserver for sentinel
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return;
+    const el = sentinelRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -162,7 +162,7 @@ export default function Gallery() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightboxIndex, goToPrev, goToNext, closeLightbox]);
 
-  // N7: Touch swipe gesture support for lightbox
+  // Touch swipe gesture support for lightbox
   const swipeRef = useRef<{ startX: number; startY: number } | null>(null);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -209,13 +209,16 @@ export default function Gallery() {
           <div className="container">
             <Camera className="w-12 h-12 mx-auto mb-4 opacity-90" />
             <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
-              {t("Photo Gallery", "גלריית תמונות")}
+              {t(
+                "Photo Gallery",
+                "\u05D2\u05DC\u05E8\u05D9\u05D9\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
+              )}
             </h1>
             <GoldDivider />
             <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
               {t(
                 "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
-                "גלו את ההרפתקאות שלנו בצפון תאילנד - משבילי הרים ועד מפלים נסתרים"
+                "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D0\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 - \u05DE\u05E9\u05D1\u05D9\u05DC\u05D9 \u05D4\u05E8\u05D9\u05DD \u05D5\u05E2\u05D3 \u05DE\u05E4\u05DC\u05D9\u05DD \u05E0\u05E1\u05EA\u05E8\u05D9\u05DD"
               )}
             </p>
           </div>
@@ -225,12 +228,11 @@ export default function Gallery() {
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2 justify-center mb-8">
             {CATEGORIES.map(cat => {
-              const count =
-                cat.id === "all"
-                  ? uniquePhotos.filter(p => !brokenIds.has(p.id)).length
-                  : (categoryCounts[cat.id] ?? 0);
-              const isZero = count === 0 && cat.id !== "all";
               const isActive = selectedCategory === cat.id;
+              // Show total count for "All", no counts for individual categories
+              // since server-side pagination doesn't give us per-category totals
+              const showCount = cat.id === "all" && firstPage;
+              const totalCount = firstPage?.total ?? 0;
 
               return (
                 <button
@@ -239,21 +241,21 @@ export default function Gallery() {
                     isActive
                       ? "bg-[#D4AF37] text-[#1C1C1C] border-[#D4AF37]"
                       : "border border-[#D4AF37]/50 text-[#D4AF37]"
-                  } rounded-sm px-4 py-1.5 text-xs tracking-[0.15em] uppercase ${isZero ? "opacity-50" : ""}`}
+                  } rounded-sm px-4 py-1.5 text-xs tracking-[0.15em] uppercase`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
                   {isHebrew ? cat.he : cat.en}
-                  <span
-                    className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
-                      isActive
-                        ? "bg-foreground/20 text-foreground"
-                        : isZero
-                          ? "bg-muted text-muted-foreground"
+                  {showCount && (
+                    <span
+                      className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
+                        isActive
+                          ? "bg-foreground/20 text-foreground"
                           : "bg-[#D4AF37]/10 text-[#D4AF37]"
-                    }`}
-                  >
-                    {count}
-                  </span>
+                      }`}
+                    >
+                      {totalCount}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -275,12 +277,15 @@ export default function Gallery() {
             <div className="text-center py-16">
               <Camera className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-semibold text-muted-foreground mb-2">
-                {t("No photos yet", "אין תמונות עדיין")}
+                {t(
+                  "No photos yet",
+                  "\u05D0\u05D9\u05DF \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF"
+                )}
               </h3>
               <p className="text-muted-foreground">
                 {t(
                   "Check back soon for amazing adventure photos!",
-                  "חזרו בקרוב - תמונות מהטיולים בדרך!"
+                  "\u05D7\u05D6\u05E8\u05D5 \u05D1\u05E7\u05E8\u05D5\u05D1 - \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05DE\u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05D1\u05D3\u05E8\u05DA!"
                 )}
               </p>
             </div>
@@ -299,9 +304,10 @@ export default function Gallery() {
                   onClick={() => openLightbox(index)}
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    <LazyImage
+                    <OptimizedImage
                       src={photo.imageUrl}
                       alt={`${photo.title}${photo.category ? ` - ${photo.category}` : ""} | WIRO 4x4 Gallery`}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={() =>
                         setBrokenIds(prev => {
@@ -329,6 +335,16 @@ export default function Gallery() {
                   </div>
                 </div>
               ))}
+
+              {/* Infinite scroll sentinel */}
+              {hasMore && (
+                <div
+                  ref={sentinelRef}
+                  className="col-span-full flex justify-center py-8"
+                >
+                  <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -367,7 +383,10 @@ export default function Gallery() {
                         alignItems: "center",
                         justifyContent: "center",
                       }}
-                      aria-label={t("Previous photo", "תמונה קודמת")}
+                      aria-label={t(
+                        "Previous photo",
+                        "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05E7\u05D5\u05D3\u05DE\u05EA"
+                      )}
                     >
                       <ChevronLeft className="w-8 h-8" />
                     </button>
@@ -384,7 +403,10 @@ export default function Gallery() {
                         alignItems: "center",
                         justifyContent: "center",
                       }}
-                      aria-label={t("Next photo", "תמונה הבאה")}
+                      aria-label={t(
+                        "Next photo",
+                        "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D4\u05D1\u05D0\u05D4"
+                      )}
                     >
                       <ChevronRight className="w-8 h-8" />
                     </button>
