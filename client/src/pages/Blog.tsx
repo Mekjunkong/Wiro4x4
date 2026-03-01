@@ -141,7 +141,10 @@ export default function Blog() {
         {/* Hero Section */}
         <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
           <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
+            <div
+              className="max-w-3xl mx-auto text-center"
+              dir={isHebrew ? "rtl" : undefined}
+            >
               <h1 className="text-4xl md:text-5xl font-medium mb-6">
                 {t("Travel Resources & Guides", "מדריכים וטיפים לטיול")}
               </h1>
@@ -160,14 +163,19 @@ export default function Blog() {
         <section className="pt-8 pb-0">
           <div className="container max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div
+                className="relative flex-1 max-w-md"
+                dir={isHebrew ? "rtl" : undefined}
+              >
+                <Search
+                  className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground ${isHebrew ? "right-3" : "left-3"}`}
+                />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder={t("Search articles...", "חיפוש מאמרים...")}
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-background"
+                  className={`w-full py-2 border border-border rounded-lg text-sm bg-background ${isHebrew ? "pr-10 pl-4" : "pl-10 pr-4"}`}
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -206,7 +214,10 @@ export default function Blog() {
           <div className="container">
             {/* N2: Empty state when no blog posts */}
             {filteredPosts.length === 0 && (
-              <div className="text-center py-16">
+              <div
+                className="text-center py-16"
+                dir={isHebrew ? "rtl" : undefined}
+              >
                 <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-semibold text-muted-foreground mb-2">
                   {t("No blog posts yet", "אין פוסטים בבלוג עדיין")}
@@ -246,7 +257,9 @@ export default function Blog() {
                           }}
                         />
                         {post.category && (
-                          <div className="absolute top-4 left-4">
+                          <div
+                            className={`absolute top-4 ${isHebrew ? "right-4" : "left-4"}`}
+                          >
                             <span className="inline-block px-3 py-1 bg-[#D4AF37] text-white text-xs font-semibold rounded-sm">
                               {post.category}
                             </span>
@@ -255,7 +268,10 @@ export default function Blog() {
                       </div>
                     </Link>
 
-                    <div className="p-6 space-y-4">
+                    <div
+                      className="p-6 space-y-4"
+                      dir={isHebrew ? "rtl" : undefined}
+                    >
                       {(post.date || post.readTime) && (
                         <div className="flex items-center gap-4 text-xs text-muted-foreground uppercase tracking-wider">
                           {post.date && (
@@ -281,9 +297,13 @@ export default function Blog() {
                       </p>
 
                       <Link href={`/blog/${post.slug}`}>
-                        <span className="inline-flex items-center gap-2 mt-2 text-[#D4AF37] hover:underline text-sm font-medium">
+                        <span
+                          className={`inline-flex items-center gap-2 mt-2 text-[#D4AF37] hover:underline text-sm font-medium ${isHebrew ? "flex-row-reverse" : ""}`}
+                        >
                           {t("Read More", "קראו עוד")}
-                          <ArrowRight className="h-4 w-4" />
+                          <ArrowRight
+                            className={`h-4 w-4 ${isHebrew ? "rotate-180" : ""}`}
+                          />
                         </span>
                       </Link>
                     </div>

@@ -90,11 +90,19 @@ export default function BlogPost() {
 
       {/* Article Content */}
       <article className="container max-w-3xl mx-auto -mt-32 relative z-10 pb-20">
-        <div className="bg-background rounded-sm shadow-premium-lg p-8 md:p-12">
+        <div
+          className="bg-background rounded-sm shadow-premium-lg p-8 md:p-12"
+          dir={isHebrew ? "rtl" : undefined}
+        >
           {/* Back Button */}
           <Link href="/blog">
-            <Button variant="ghost" className="mb-6 text-[#D4AF37]">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button
+              variant="ghost"
+              className={`mb-6 text-[#D4AF37] ${isHebrew ? "flex-row-reverse" : ""}`}
+            >
+              <ArrowLeft
+                className={`h-4 w-4 ${isHebrew ? "ml-2 rotate-180" : "mr-2"}`}
+              />
               {t("Back to Blog", "חזרה לבלוג")}
             </Button>
           </Link>
@@ -106,7 +114,7 @@ export default function BlogPost() {
             {post.title}
           </h1>
 
-          <GoldDivider className="mx-0 mb-8" />
+          <GoldDivider className={`mb-8 ${isHebrew ? "mr-0" : "mx-0"}`} />
 
           <div className="text-lg leading-relaxed">
             <MarkdownRenderer content={post.content} />
