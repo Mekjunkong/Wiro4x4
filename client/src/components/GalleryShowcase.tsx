@@ -4,29 +4,15 @@ import { Link } from "wouter";
 import { Camera, ArrowRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 const FALLBACK_IMAGES = [
-  { src: "/images/optimized/hero-wiro.jpg", caption: "Chiang Mai Adventure" },
-  {
-    src: "/images/optimized/mountain_sunset.jpg",
-    caption: "Doi Inthanon Summit",
-  },
-  {
-    src: "/images/optimized/mae-kampong-village.jpg",
-    caption: "Mae Kampong Village",
-  },
-  {
-    src: "/images/optimized/sticky_waterfalls.jpg",
-    caption: "Sticky Waterfalls",
-  },
-  {
-    src: "/images/optimized/doi_suthep_temple.jpg",
-    caption: "Doi Suthep Temple",
-  },
-  {
-    src: "/images/optimized/mae_wang_elephants.jpg",
-    caption: "Mae Wang Jungle",
-  },
+  { src: "hero-wiro", caption: "Chiang Mai Adventure" },
+  { src: "mountain_sunset", caption: "Doi Inthanon Summit" },
+  { src: "mae-kampong-village", caption: "Mae Kampong Village" },
+  { src: "sticky_waterfalls", caption: "Sticky Waterfalls" },
+  { src: "doi_suthep_temple", caption: "Doi Suthep Temple" },
+  { src: "mae_wang_elephants", caption: "Mae Wang Jungle" },
 ];
 
 export function GalleryShowcase() {
@@ -59,10 +45,10 @@ export function GalleryShowcase() {
               key={img.src}
               className="relative overflow-hidden rounded-lg group break-inside-avoid"
             >
-              <img
+              <OptimizedImage
                 src={img.src}
                 alt={img.caption}
-                loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
