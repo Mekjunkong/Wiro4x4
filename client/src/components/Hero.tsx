@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import gsap from "gsap";
 
 const TRUST_ITEMS = [
@@ -55,15 +56,15 @@ export function Hero() {
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background image */}
-      <img
-        src="/images/banner.jpeg"
+      <OptimizedImage
+        src="banner"
         alt={t(
           "Travelers with WIRO 4x4 vehicle on jungle road in Chiang Mai",
           "מטיילים עם רכב WIRO 4x4 בדרך ג'ונגל בצ'יאנג מאי"
         )}
         className="absolute inset-0 w-full h-full object-cover"
-        loading="eager"
-        fetchPriority="high"
+        priority
+        sizes="100vw"
       />
 
       {/* Bottom gradient overlay */}
