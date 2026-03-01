@@ -3,11 +3,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface Photo {
   src: string;
-  fallback: string;
   caption: string;
 }
 
@@ -18,55 +18,47 @@ export function PhotoGallery() {
   // Curated highlights — always used (DB gallery is for /gallery page)
   const photos: Photo[] = [
     {
-      src: "/images/optimized/guide_wiro.webp",
-      fallback: "/images/optimized/guide_wiro.jpg",
+      src: "guide_wiro",
       caption: t(
         "Meet Guide Wiro — your adventure starts here",
         "הכירו את המדריך וירו — ההרפתקה מתחילה כאן"
       ),
     },
     {
-      src: "/images/optimized/tourists_with_4x4.webp",
-      fallback: "/images/optimized/tourists_with_4x4.jpg",
+      src: "tourists_with_4x4",
       caption: t("Your off-road adventure awaits", "הרפתקת השטח שלכם מחכה"),
     },
     {
-      src: "/images/optimized/wiro_waterfall.webp",
-      fallback: "/images/optimized/wiro_waterfall.jpg",
+      src: "wiro_waterfall",
       caption: t(
         "Chasing waterfalls in the highlands",
         "מרדף אחרי מפלים ברמות"
       ),
     },
     {
-      src: "/images/optimized/elephant_encounter.webp",
-      fallback: "/images/optimized/elephant_encounter.jpg",
+      src: "elephant_encounter",
       caption: t("Elephant encounters in Mae Wang", "מפגש עם פילים במאה וואנג"),
     },
     {
-      src: "/images/optimized/bamboo_rafting.webp",
-      fallback: "/images/optimized/bamboo_rafting.jpg",
+      src: "bamboo_rafting",
       caption: t(
         "Bamboo rafting through the jungle",
         "שייט על רפסודות במבוק בג'ונגל"
       ),
     },
     {
-      src: "/images/optimized/mountain_sunset.webp",
-      fallback: "/images/optimized/mountain_sunset.jpg",
+      src: "mountain_sunset",
       caption: t(
         "Sunset over the Chiang Mai mountains",
         "שקיעה מעל הרי צ'יאנג מאי"
       ),
     },
     {
-      src: "/images/optimized/kosher_meal.webp",
-      fallback: "/images/optimized/kosher_meal.jpg",
+      src: "kosher_meal",
       caption: t("Kosher meals prepared fresh", "ארוחות כשרות טריות"),
     },
     {
-      src: "/images/optimized/cave_boat.webp",
-      fallback: "/images/optimized/cave_boat.jpg",
+      src: "cave_boat",
       caption: t("Explore hidden caves by boat", "גלו מערות נסתרות בסירה"),
     },
   ];
@@ -144,17 +136,13 @@ export function PhotoGallery() {
               {photos.map((photo, index) => (
                 <div key={index} className="flex-[0_0_100%] min-w-0 px-4">
                   <div className="relative aspect-[16/9] max-h-[500px] mx-auto overflow-hidden rounded-lg">
-                    <picture>
-                      <source srcSet={photo.src} type="image/webp" />
-                      <img
-                        src={photo.fallback}
-                        alt={photo.caption}
-                        loading={index === 0 ? "eager" : "lazy"}
-                        decoding={index === 0 ? "sync" : "async"}
-                        fetchPriority={index === 0 ? "high" : undefined}
-                        className="w-full h-full object-cover object-center"
-                      />
-                    </picture>
+                    <OptimizedImage
+                      src={photo.src}
+                      alt={photo.caption}
+                      priority={index === 0}
+                      sizes="100vw"
+                      className="w-full h-full object-cover object-center"
+                    />
 
                     {/* Caption overlay with gradient */}
                     {photo.caption && (
