@@ -1,188 +1,123 @@
 import { ImgHTMLAttributes, useState, useEffect } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface OptimizedImageProps extends Omit<
   ImgHTMLAttributes<HTMLImageElement>,
-  "src"
+  "src" | "srcSet"
 > {
-  /**
-   * Image filename (without extension)
-   * e.g., "hero-waterfall" will load hero-waterfall.webp with hero-waterfall.jpg fallback
-   */
   src: string;
-
-  /**
-   * Alt text for accessibility (required)
-   */
   alt: string;
-
-  /**
-   * Whether this is a priority image (hero/LCP)
-   * Priority images are loaded immediately without lazy loading
-   */
   priority?: boolean;
-
-  /**
-   * Image directory path
-   * @default "/images/optimized"
-   */
   basePath?: string;
-
-  /**
-   * Fallback image format
-   * @default "jpg"
-   */
+  sizes?: string;
+  blur?: string;
+  aspectRatio?: string;
+  onError?: () => void;
   fallbackFormat?: "jpg" | "jpeg" | "png";
-
-  /**
-   * Custom loading behavior
-   */
-  loading?: "lazy" | "eager";
 }
 
-/**
- * OptimizedImage Component
- *
- * Automatically serves WebP images with JPEG/PNG fallback for better performance.
- * Implements lazy loading for non-priority images with loading states.
- *
- * @example
- * ```tsx
- * // Hero image (priority, loads immediately)
- * <OptimizedImage
- *   src="hero-waterfall"
- *   alt="Waterfall adventure"
- *   priority
- *   className="w-full h-full object-cover"
- * />
- *
- * // Regular image (lazy loaded)
- * <OptimizedImage
- *   src="tour-image"
- *   alt="Tour description"
- *   className="rounded-lg"
- * />
- * ```
- */
 export function OptimizedImage({
   src,
   alt,
   priority = false,
   basePath = "/images/optimized",
+  sizes = "100vw",
+  blur,
+  aspectRatio,
   fallbackFormat = "jpg",
-  loading,
   className = "",
+  onError,
+  style,
   ...props
 }: OptimizedImageProps) {
-  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [useFallback, setUseFallback] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  // Remove file extension if provided
-  const cleanSrc = src.replace(/\.(jpg|jpeg|png|webp)$/i, "");
+  const cleanSrc = src
+    .replace(/^\/images\/optimized\//, "")
+    .replace(/\.(jpg|jpeg|png|webp)$/i, "");
 
-  // Construct paths
-  const webpSrc = `${basePath}/${cleanSrc}.webp`;
-  const fallbackSrc = `${basePath}/${cleanSrc}.${fallbackFormat}`;
+  const isExternalUrl = src.startsWith("http://") || src.startsWith("https://");
 
-  // Preload priority images
+  const webpSrcSet = isExternalUrl
+    ? undefined
+    : `${basePath}/${cleanSrc}-sm.webp 400w, ${basePath}/${cleanSrc}-md.webp 800w, ${basePath}/${cleanSrc}-lg.webp 1600w`;
+
+  const jpgSrcSet = isExternalUrl
+    ? undefined
+    : `${basePath}/${cleanSrc}-sm.${fallbackFormat} 400w, ${basePath}/${cleanSrc}-md.${fallbackFormat} 800w, ${basePath}/${cleanSrc}-lg.${fallbackFormat} 1600w`;
+
+  const fallbackSrc = isExternalUrl
+    ? src
+    : `${basePath}/${cleanSrc}-lg.${fallbackFormat}`;
+
   useEffect(() => {
-    if (priority) {
-      const img = new Image();
-      img.src = webpSrc;
-      img.onload = () => setIsLoaded(true);
-      img.onerror = () => {
-        // Try fallback
-        const fallbackImg = new Image();
-        fallbackImg.src = fallbackSrc;
-        fallbackImg.onload = () => {
-          setUseFallback(true);
-          setIsLoaded(true);
-        };
-        fallbackImg.onerror = () => setImageError(true);
-      };
-    }
-  }, [webpSrc, fallbackSrc, priority]);
+    if (!priority || isExternalUrl) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.type = "image/webp";
+    link.imageSrcset = webpSrcSet || "";
+    link.imageSizes = sizes;
+    document.head.appendChild(link);
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [priority, webpSrcSet, sizes, isExternalUrl]);
 
-  // Handle image load error - fallback to JPEG
-  const handleError = () => {
-    if (!useFallback) {
-      setUseFallback(true);
-    } else {
-      setImageError(true);
-    }
+  if (hasError) return null;
+
+  const containerStyle: React.CSSProperties = {
+    ...(aspectRatio ? { aspectRatio } : {}),
+    ...(blur && !isLoaded
+      ? {
+          backgroundImage: `url(${blur})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }
+      : {}),
+    ...style,
   };
 
-  // Error state
-  if (imageError) {
-    return (
-      <div className={`bg-muted flex items-center justify-center ${className}`}>
-        <span className="text-muted-foreground text-sm">
-          {t("Image unavailable", "התמונה לא זמינה")}
-        </span>
-      </div>
-    );
-  }
-
-  const loadingBehavior = loading || (priority ? "eager" : "lazy");
-
   return (
-    <div className="relative">
-      {/* Loading placeholder */}
-      {!isLoaded && (
-        <div
-          className={`absolute inset-0 bg-muted animate-pulse ${className}`}
-        />
+    <picture>
+      {webpSrcSet && (
+        <source srcSet={webpSrcSet} sizes={sizes} type="image/webp" />
       )}
-
-      <picture>
-        {/* WebP source (modern browsers) */}
-        {!useFallback && <source srcSet={webpSrc} type="image/webp" />}
-
-        {/* Fallback image */}
-        <img
-          src={fallbackSrc}
-          alt={alt}
-          loading={loadingBehavior}
-          decoding={priority ? "sync" : "async"}
-          onLoad={() => setIsLoaded(true)}
-          onError={handleError}
-          className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity duration-300`}
-          {...props}
-        />
-      </picture>
-    </div>
+      <img
+        src={fallbackSrc}
+        srcSet={jpgSrcSet}
+        sizes={isExternalUrl ? undefined : sizes}
+        alt={alt}
+        loading={priority ? "eager" : "lazy"}
+        decoding={priority ? "sync" : "async"}
+        fetchPriority={priority ? "high" : undefined}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => {
+          setHasError(true);
+          onError?.();
+        }}
+        className={`${className} transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+        style={containerStyle}
+        {...props}
+      />
+    </picture>
   );
 }
 
-/**
- * Preload a critical image (for hero/LCP images)
- * Call this in the component that uses the hero image
- *
- * @example
- * ```tsx
- * useEffect(() => {
- *   preloadImage('hero-waterfall');
- * }, []);
- * ```
- */
-export function preloadImage(src: string, basePath = "/images/optimized") {
-  const cleanSrc = src.replace(/\.(jpg|jpeg|png|webp)$/i, "");
+export function preloadImage(
+  src: string,
+  basePath = "/images/optimized",
+  sizes = "100vw"
+) {
+  const cleanSrc = src
+    .replace(/^\/images\/optimized\//, "")
+    .replace(/\.(jpg|jpeg|png|webp)$/i, "");
 
-  // Preload WebP
-  const linkWebP = document.createElement("link");
-  linkWebP.rel = "preload";
-  linkWebP.as = "image";
-  linkWebP.href = `${basePath}/${cleanSrc}.webp`;
-  linkWebP.type = "image/webp";
-  document.head.appendChild(linkWebP);
-
-  // Preload fallback
-  const linkJPEG = document.createElement("link");
-  linkJPEG.rel = "preload";
-  linkJPEG.as = "image";
-  linkJPEG.href = `${basePath}/${cleanSrc}.jpg`;
-  linkJPEG.type = "image/jpeg";
-  document.head.appendChild(linkJPEG);
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "image";
+  link.type = "image/webp";
+  link.imageSrcset = `${basePath}/${cleanSrc}-sm.webp 400w, ${basePath}/${cleanSrc}-md.webp 800w, ${basePath}/${cleanSrc}-lg.webp 1600w`;
+  link.imageSizes = sizes;
+  document.head.appendChild(link);
 }
