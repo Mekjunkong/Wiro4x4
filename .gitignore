@@ -110,3 +110,10 @@ temp/
 
 # Git worktrees
 .worktrees/
+
+# Image optimization pipeline outputs
+client/public/image-manifest.json
+client/public/images/optimized/*-sm.*
+client/public/images/optimized/*-md.*
+client/public/images/optimized/*-lg.*
+client/public/images/optimized/*-thumb.*
