@@ -5,6 +5,7 @@ import { ProductTiers } from "@/components/ProductTiers";
 import { GalleryShowcase } from "@/components/GalleryShowcase";
 import { CostCalculator } from "@/components/CostCalculator";
 import { SocialProofStrip } from "@/components/SocialProofStrip";
+import { TrustAndKosher } from "@/components/TrustAndKosher";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
 import { FAQ } from "@/components/FAQ";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
@@ -28,6 +29,7 @@ export default function Home() {
             <CostCalculator />
           </div>
         </div>
+        <TrustAndKosher />
         <SocialProofStrip />
         <QuickInquiryForm />
         <FAQ />

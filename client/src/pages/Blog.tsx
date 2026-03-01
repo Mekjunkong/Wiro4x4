@@ -11,6 +11,23 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { trpc } from "@/lib/trpc";
 
+// Blog slug → local image override (prevents duplicate/missing DB images)
+const BLOG_IMAGE_MAP: Record<string, string> = {
+  "chiang-mai-israeli-travelers-guide":
+    "/images/chiang_mai_valley_panorama.jpg",
+  "israeli-traveler-guide-northern-thailand":
+    "/images/mountain_cafe_scenic_view.jpg",
+  "kosher-dining-northern-thailand": "/images/optimized/kosher_meal.jpg",
+  "4x4-off-road-what-to-expect": "/images/offroad_trail_driving.jpg",
+  "golden-triangle-adventure": "/images/golden_triangle_mekong.jpg",
+  "hill-tribe-respectful-guide": "/images/hilltribe_community_visit.jpg",
+  "shabbat-chiang-mai-guide": "/images/doi_suthep_golden_chedi.jpg",
+  "mae-wang-off-road-adventure": "/images/bamboo_rafting_adventure.jpg",
+  "accessible-chiang-mai-tours":
+    "/images/optimized/accessible_doi_inthanon_summit.jpg",
+  "waterfalls-northern-thailand": "/images/jungle_waterfall_cascade_rocks.jpg",
+};
+
 // Hardcoded fallback posts (used when DB returns empty)
 const FALLBACK_POSTS = [
   {
@@ -84,7 +101,9 @@ export default function Blog() {
         excerpt:
           isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
         image:
-          post.coverImage || "/images/optimized/village_hamlet_rice_fields.jpg",
+          BLOG_IMAGE_MAP[post.slug] ||
+          post.coverImage ||
+          "/images/optimized/village_hamlet_rice_fields.jpg",
         category: post.category || "",
         tags: ((post as { tags?: string }).tags || "")
           .split(",")
