@@ -19,33 +19,16 @@ import {
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
-// Same image map as Tours.tsx — override DB imageUrls with local optimized images
-const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
-  "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/mountain_sunset.webp",
-    jpg: "/images/optimized/mountain_sunset.jpg",
-  },
-  "mae-kampong-hidden-village": {
-    webp: "/images/optimized/mountain_village_view.webp",
-    jpg: "/images/optimized/mountain_village_view.jpg",
-  },
-  "maerim-sticky-waterfalls": {
-    webp: "/images/optimized/sticky_waterfalls.webp",
-    jpg: "/images/optimized/sticky_waterfalls.jpg",
-  },
-  "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/accessible_doi_suthep_temple.webp",
-    jpg: "/images/optimized/accessible_doi_suthep_temple.jpg",
-  },
-  "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/elephant_encounter.webp",
-    jpg: "/images/optimized/elephant_encounter.jpg",
-  },
-  "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/chiang_mai_valley.webp",
-    jpg: "/images/optimized/chiang_mai_valley.jpg",
-  },
+// Same image map as Tours.tsx — override DB imageUrls with local optimized image names
+const TOUR_IMAGE_MAP: Record<string, string> = {
+  "doi-inthanon-roof-of-thailand": "mountain_sunset",
+  "mae-kampong-hidden-village": "mountain_village_view",
+  "maerim-sticky-waterfalls": "sticky_waterfalls",
+  "doi-suthep-pui-beyond-temple": "accessible_doi_suthep_temple",
+  "mae-wang-jungle-wilderness": "elephant_encounter",
+  "samoeng-loop-mountain-circuit": "chiang_mai_valley",
 };
 
 const HARDCODED_TOURS = [
@@ -187,8 +170,7 @@ export default function Pricing() {
             name: t(tour.name, tour.nameHe),
             duration: tour.duration,
             basePrice: tour.price,
-            image: localImg?.jpg || tour.imageUrl,
-            imageWebp: localImg?.webp || null,
+            image: localImg || tour.imageUrl,
             included,
           };
         })
@@ -198,7 +180,6 @@ export default function Pricing() {
           duration: t(tour.duration, tour.durationHe),
           basePrice: tour.basePrice,
           image: tour.image,
-          imageWebp: tour.image.replace(".jpg", ".webp"),
           included: tour.included.map(item => t(item.en, item.he)),
         }));
 
@@ -312,17 +293,12 @@ export default function Pricing() {
                   className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-[#E8E2DA] rounded-sm"
                 >
                   <div className="relative h-48 overflow-hidden">
-                    <picture>
-                      {tour.imageWebp && (
-                        <source srcSet={tour.imageWebp} type="image/webp" />
-                      )}
-                      <img
-                        src={tour.image}
-                        alt={tour.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </picture>
+                    <OptimizedImage
+                      src={tour.image}
+                      alt={tour.name}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
                   <div className="p-6 flex flex-col flex-1">

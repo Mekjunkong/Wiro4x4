@@ -10,13 +10,13 @@
 
 ### Key Images Analysis
 
-| Image | Dimensions | Size | Usage | Target Size |
-|-------|-----------|------|-------|-------------|
-| hero-waterfall.jpg | 608x1080 | 303 KB | Hero/LCP | 1920px width, <150 KB WebP |
-| laos_jungle.jpg | 1350x900 | 428 KB | Tour card | 1200px width, <100 KB WebP |
-| vietnam_rice_terraces.jpg | 1200x675 | 328 KB | Tour card | 1200px width, <80 KB WebP |
-| 1000000149.jpg | 1200x800 | 406 KB | Tour card | 1200px width, <100 KB WebP |
-| 1000000126_compressed.jpg | 1200x676 | 343 KB | Tour card | 1200px width, <80 KB WebP |
+| Image                          | Dimensions | Size   | Usage     | Target Size                |
+| ------------------------------ | ---------- | ------ | --------- | -------------------------- |
+| hero-waterfall.jpg             | 608x1080   | 303 KB | Hero/LCP  | 1920px width, <150 KB WebP |
+| laos_jungle.jpg                | 1350x900   | 428 KB | Tour card | 1200px width, <100 KB WebP |
+| vietnam_rice_terraces.jpg      | 1200x675   | 328 KB | Tour card | 1200px width, <80 KB WebP  |
+| village_hamlet_rice_fields.jpg | 1200x800   | 406 KB | Tour card | 1200px width, <100 KB WebP |
+| waterfall_wide_angle_view.jpg  | 1200x676   | 343 KB | Tour card | 1200px width, <80 KB WebP  |
 
 ### Identified Issues
 
@@ -36,18 +36,19 @@
 
 ### Performance Targets
 
-| Metric | Current | Target | Status |
-|--------|---------|--------|--------|
-| Mobile Performance Score | Unknown | >80/100 | ⏳ To measure |
-| LCP (Largest Contentful Paint) | Unknown | <2.5s | ⏳ To measure |
-| FCP (First Contentful Paint) | Unknown | <1.8s | ⏳ To measure |
-| Total Blocking Time | Unknown | <200ms | ⏳ To measure |
-| Total Page Size | ~4-5 MB | <6 MB | ⏳ To measure |
-| Image Size | 3.9 MB | <2 MB | ❌ Needs optimization |
+| Metric                         | Current | Target  | Status                |
+| ------------------------------ | ------- | ------- | --------------------- |
+| Mobile Performance Score       | Unknown | >80/100 | ⏳ To measure         |
+| LCP (Largest Contentful Paint) | Unknown | <2.5s   | ⏳ To measure         |
+| FCP (First Contentful Paint)   | Unknown | <1.8s   | ⏳ To measure         |
+| Total Blocking Time            | Unknown | <200ms  | ⏳ To measure         |
+| Total Page Size                | ~4-5 MB | <6 MB   | ⏳ To measure         |
+| Image Size                     | 3.9 MB  | <2 MB   | ❌ Needs optimization |
 
 ## Optimization Plan
 
 ### Phase 1: Image Optimization
+
 1. Create image optimization script (Python with Pillow)
 2. Compress all images to 80-85% quality
 3. Resize to appropriate dimensions
@@ -55,18 +56,21 @@
 5. Create OptimizedImage component
 
 ### Phase 2: Code Splitting
+
 1. Split vendor chunks (React, UI libraries)
 2. Implement route-based code splitting
 3. Enable CSS minification
 4. Reduce initial bundle size
 
 ### Phase 3: Critical Resources
+
 1. Preload hero image
 2. Optimize font loading
 3. Preconnect to CDNs
 4. Add resource hints
 
 ### Phase 4: Build Configuration
+
 1. Update Vite config for production
 2. Enable all minification options
 3. Configure chunk size warnings
@@ -78,13 +82,13 @@
 
 ### Image Optimization Complete ✅
 
-| Metric | Before | After (WebP) | After (JPEG) | Improvement |
-|--------|--------|--------------|--------------|-------------|
-| Total Size | 3.9 MB | 2.74 MB | 3.24 MB | -28.4% (WebP) |
-| Format | JPEG only | WebP + fallback | JPEG fallback | Modern format |
-| Lazy Loading | None | Implemented | Implemented | ✅ |
-| Priority Loading | None | Hero image | Hero image | ✅ |
-| Responsive | No | Yes | Yes | ✅ |
+| Metric           | Before    | After (WebP)    | After (JPEG)  | Improvement   |
+| ---------------- | --------- | --------------- | ------------- | ------------- |
+| Total Size       | 3.9 MB    | 2.74 MB         | 3.24 MB       | -28.4% (WebP) |
+| Format           | JPEG only | WebP + fallback | JPEG fallback | Modern format |
+| Lazy Loading     | None      | Implemented     | Implemented   | ✅            |
+| Priority Loading | None      | Hero image      | Hero image    | ✅            |
+| Responsive       | No        | Yes             | Yes           | ✅            |
 
 ### Code Splitting Complete ✅
 
@@ -103,14 +107,14 @@
 
 ### Performance Targets Status
 
-| Metric | Target | Status | Notes |
-|--------|--------|--------|-------|
+| Metric                   | Target  | Status        | Notes                           |
+| ------------------------ | ------- | ------------- | ------------------------------- |
 | Mobile Performance Score | >80/100 | ⏳ To measure | Run Lighthouse after deployment |
-| LCP | <2.5s | ⏳ To measure | Hero image preloaded |
-| FCP | <1.8s | ⏳ To measure | Fonts optimized |
-| Total Blocking Time | <200ms | ⏳ To measure | Code splitting implemented |
-| Total Page Size | <6 MB | ✅ Achieved | ~5 MB estimated |
-| Image Size | <2 MB | ✅ Achieved | 2.74 MB (WebP) |
+| LCP                      | <2.5s   | ⏳ To measure | Hero image preloaded            |
+| FCP                      | <1.8s   | ⏳ To measure | Fonts optimized                 |
+| Total Blocking Time      | <200ms  | ⏳ To measure | Code splitting implemented      |
+| Total Page Size          | <6 MB   | ✅ Achieved   | ~5 MB estimated                 |
+| Image Size               | <2 MB   | ✅ Achieved   | 2.74 MB (WebP)                  |
 
 ---
 

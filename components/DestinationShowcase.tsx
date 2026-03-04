@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { MapPin, ArrowRight } from "lucide-react";
 
 const DESTINATIONS = [
@@ -12,8 +13,7 @@ const DESTINATIONS = [
       "Thailand's highest peak — cloud forests, hidden trails, and Karen village coffee",
     descHe:
       "הפסגה הגבוהה ביותר בתאילנד — יערות ענן, שבילים נסתרים וקפה בכפר קארן",
-    image: "/images/optimized/mountain_sunset.jpg",
-    imageWebp: "/images/optimized/mountain_sunset.webp",
+    imageSrc: "mountain_sunset",
     tourSlug: "doi-inthanon-roof-of-thailand",
   },
   {
@@ -23,8 +23,7 @@ const DESTINATIONS = [
     descEn:
       "A hidden 700-year-old eco-village with wild gibbons and ancient tea traditions",
     descHe: "כפר אקולוגי נסתר בן 700 שנה עם גיבונים בר ומסורות תה עתיקות",
-    image: "/images/optimized/mountain_village_view.jpg",
-    imageWebp: "/images/optimized/mountain_village_view.webp",
+    imageSrc: "mountain_village_view",
     tourSlug: "mae-kampong-hidden-village",
   },
   {
@@ -35,8 +34,7 @@ const DESTINATIONS = [
       "Climb UP a waterfall barefoot, canopy walkway 20m high, and upper falls no one reaches",
     descHe:
       "טפסו למעלה על מפל יחפים, עברו על גשר צמרות בגובה 20 מ' וגלו קומות עליונות שאף אחד לא מגיע אליהן",
-    image: "/images/optimized/sticky_waterfalls.jpg",
-    imageWebp: "/images/optimized/sticky_waterfalls.webp",
+    imageSrc: "sticky_waterfalls",
     tourSlug: "maerim-sticky-waterfalls",
   },
   {
@@ -47,8 +45,7 @@ const DESTINATIONS = [
       "Hike the Monk's Trail, then continue where tourists turn back — hidden coffee village and secluded falls",
     descHe:
       "טיילו בשביל הנזירים, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר קפה נסתר ומפלים מבודדים",
-    image: "/images/optimized/accessible_doi_suthep_temple.jpg",
-    imageWebp: "/images/optimized/accessible_doi_suthep_temple.webp",
+    imageSrc: "accessible_doi_suthep_temple",
     tourSlug: "doi-suthep-pui-beyond-temple",
   },
   {
@@ -58,8 +55,7 @@ const DESTINATIONS = [
     descEn:
       "Real off-road through jungle — canyon, elephants, bamboo rafting, and hidden waterfalls",
     descHe: "שטח אמיתי דרך ג'ונגל — קניון, פילים, שייט במבוק ומפלים נסתרים",
-    image: "/images/optimized/elephant_encounter.jpg",
-    imageWebp: "/images/optimized/elephant_encounter.webp",
+    imageSrc: "elephant_encounter",
     tourSlug: "mae-wang-jungle-wilderness",
   },
   {
@@ -70,8 +66,7 @@ const DESTINATIONS = [
       "100km mountain circuit — rare Lanna temple, hilltop farm, Hmong village, lakeside sunset",
     descHe:
       'מעגל הרים של 100 ק"מ — מקדש לאנה נדיר, חווה על פסגת הר, כפר המונג, שקיעה על האגם',
-    image: "/images/optimized/chiang_mai_valley.jpg",
-    imageWebp: "/images/optimized/chiang_mai_valley.webp",
+    imageSrc: "chiang_mai_valley",
     tourSlug: "samoeng-loop-mountain-circuit",
   },
 ];
@@ -106,15 +101,12 @@ export function DestinationShowcase() {
               href={`/tours/${dest.tourSlug}`}
               className="group relative rounded-sm overflow-hidden h-64 md:h-72 block"
             >
-              <picture>
-                <source srcSet={dest.imageWebp} type="image/webp" />
-                <img
-                  src={dest.image}
-                  alt={t(dest.en, dest.he)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-              </picture>
+              <OptimizedImage
+                src={dest.imageSrc}
+                alt={t(dest.en, dest.he)}
+                sizes="(max-width: 1024px) 50vw, 33vw"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
               {/* Permanent gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               {/* Gold tint overlay on hover */}

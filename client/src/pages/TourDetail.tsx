@@ -30,6 +30,7 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourSocialProof } from "@/components/TourSocialProof";
 import { TourFAQ } from "@/components/TourFAQ";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -1279,9 +1280,11 @@ export default function TourDetail() {
       <main id="main-content">
         {/* Full-bleed Hero Image (60vh) */}
         <section className="relative min-h-[60vh] overflow-hidden">
-          <img
+          <OptimizedImage
             src={tour.imageUrl}
             alt={t(tour.name, tour.nameHe)}
+            priority
+            sizes="100vw"
             className="w-full h-full absolute inset-0 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
@@ -1526,12 +1529,13 @@ export default function TourDetail() {
                           <Link key={rt.slug} href={`/tours/${rt.slug}`}>
                             <Card className="overflow-hidden rounded-sm hover:shadow-premium transition-shadow cursor-pointer group">
                               <div className="relative h-32 overflow-hidden">
-                                <img
+                                <OptimizedImage
                                   src={rt.imageUrl}
                                   alt={t(
                                     `${rt.name} - Related off-road tour`,
                                     `${rt.nameHe} - טיול שטח קשור`
                                   )}
+                                  sizes="(max-width: 640px) 100vw, 50vw"
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                               </div>

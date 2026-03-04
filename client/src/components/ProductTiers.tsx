@@ -1,11 +1,12 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
 import { ArrowRight, MapPin, Clock, Users } from "lucide-react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface ProductTier {
   slug: string;
   href: string;
-  image: { webp: string; jpg: string };
+  imageSrc: string;
   title: string;
   titleHe: string;
   subtitle: string;
@@ -25,10 +26,7 @@ const PRODUCT_TIERS: ProductTier[] = [
   {
     slug: "one-day",
     href: "/tours",
-    image: {
-      webp: "/images/optimized/4x4_water_splash.webp",
-      jpg: "/images/optimized/4x4_water_splash.jpg",
-    },
+    imageSrc: "4x4_water_splash",
     title: "One-Day Adventures",
     titleHe: "טיולי יום",
     subtitle:
@@ -46,10 +44,7 @@ const PRODUCT_TIERS: ProductTier[] = [
   {
     slug: "northern-thailand-3d2n",
     href: "/packages/northern-thailand-3d2n",
-    image: {
-      webp: "/images/optimized/nong_khiaw_river.webp",
-      jpg: "/images/optimized/nong_khiaw_river.jpg",
-    },
+    imageSrc: "nong_khiaw_river",
     title: "3 Days / 2 Nights",
     titleHe: "3 ימים / 2 לילות",
     subtitle:
@@ -69,10 +64,7 @@ const PRODUCT_TIERS: ProductTier[] = [
   {
     slug: "grand-tour-laos-14d",
     href: "/packages/grand-tour-laos-14d",
-    image: {
-      webp: "/images/optimized/vang_vieng_mountains.webp",
-      jpg: "/images/optimized/vang_vieng_mountains.jpg",
-    },
+    imageSrc: "vang_vieng_mountains",
     title: "14-Day Grand Tour",
     titleHe: "מסע גדול 14 ימים",
     subtitle:
@@ -121,15 +113,12 @@ export function ProductTiers() {
               <article className="group relative bg-white dark:bg-[#242424] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer h-full flex flex-col">
                 {/* Cinematic Image */}
                 <div className="relative h-72 md:h-80 overflow-hidden">
-                  <picture>
-                    <source srcSet={tier.image.webp} type="image/webp" />
-                    <img
-                      src={tier.image.jpg}
-                      alt={t(tier.title, tier.titleHe)}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
-                      loading="lazy"
-                    />
-                  </picture>
+                  <OptimizedImage
+                    src={tier.imageSrc}
+                    alt={t(tier.title, tier.titleHe)}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                   {/* Badge */}

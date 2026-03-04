@@ -49,14 +49,14 @@ Each tour needs:
 
 ### Image Mapping
 
-| Tour            | Image File                  |
-| --------------- | --------------------------- |
-| Doi Inthanon    | `vietnam_rice_terraces.jpg` |
-| Mae Kampong     | `1000000149.jpg`            |
-| Maerim & Sticky | `1000000126_compressed.jpg` |
-| Doi Suthep-Pui  | `1000000139_compressed.jpg` |
-| Mae Wang        | `laos_jungle.jpg`           |
-| Samoeng Loop    | `1000000135.jpg`            |
+| Tour            | Image File                        |
+| --------------- | --------------------------------- |
+| Doi Inthanon    | `vietnam_rice_terraces.jpg`       |
+| Mae Kampong     | `village_hamlet_rice_fields.jpg`  |
+| Maerim & Sticky | `waterfall_wide_angle_view.jpg`   |
+| Doi Suthep-Pui  | `waterfall_lush_jungle.jpg`       |
+| Mae Wang        | `laos_jungle.jpg`                 |
+| Samoeng Loop    | `hilltribe_girl_craft_market.jpg` |
 
 ### Validation
 

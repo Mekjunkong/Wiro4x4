@@ -23,6 +23,7 @@ import {
   BedDouble,
 } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/const";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 /* ─── Fallback itinerary day type ─── */
 interface ItineraryDay {
@@ -426,31 +427,13 @@ const FALLBACK_PACKAGES: Record<string, FallbackPackage> = {
 };
 
 /* ─── Tour image map for DB-based packages ─── */
-const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
-  "doi-inthanon-roof-of-thailand": {
-    webp: "/images/optimized/doi_inthanon_peak.webp",
-    jpg: "/images/optimized/doi_inthanon_peak.jpg",
-  },
-  "mae-kampong-hidden-village": {
-    webp: "/images/optimized/mountain_village_view.webp",
-    jpg: "/images/optimized/mountain_village_view.jpg",
-  },
-  "maerim-sticky-waterfalls": {
-    webp: "/images/optimized/sticky_waterfalls.webp",
-    jpg: "/images/optimized/sticky_waterfalls.jpg",
-  },
-  "doi-suthep-pui-beyond-temple": {
-    webp: "/images/optimized/doi_suthep_temple.webp",
-    jpg: "/images/optimized/doi_suthep_temple.jpg",
-  },
-  "mae-wang-jungle-wilderness": {
-    webp: "/images/optimized/mae_wang_elephants.webp",
-    jpg: "/images/optimized/mae_wang_elephants.jpg",
-  },
-  "samoeng-loop-mountain-circuit": {
-    webp: "/images/optimized/samoeng_valley.webp",
-    jpg: "/images/optimized/samoeng_valley.jpg",
-  },
+const TOUR_IMAGE_MAP: Record<string, string> = {
+  "doi-inthanon-roof-of-thailand": "doi_inthanon_peak",
+  "mae-kampong-hidden-village": "mountain_village_view",
+  "maerim-sticky-waterfalls": "sticky_waterfalls",
+  "doi-suthep-pui-beyond-temple": "doi_suthep_temple",
+  "mae-wang-jungle-wilderness": "mae_wang_elephants",
+  "samoeng-loop-mountain-circuit": "samoeng_valley",
 };
 
 export default function PackageDetail() {
@@ -633,18 +616,12 @@ export default function PackageDetail() {
                       >
                         <div className="flex flex-col sm:flex-row">
                           <div className="relative sm:w-52 h-44 sm:h-auto shrink-0">
-                            <picture>
-                              <source
-                                srcSet={day.image.replace(".jpg", ".webp")}
-                                type="image/webp"
-                              />
-                              <img
-                                src={day.image}
-                                alt={t(day.title, day.titleHe)}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                            </picture>
+                            <OptimizedImage
+                              src={day.image}
+                              alt={t(day.title, day.titleHe)}
+                              sizes="(max-width: 640px) 100vw, 208px"
+                              className="w-full h-full object-cover"
+                            />
                             <div className="absolute top-3 left-3 bg-[#d4af37] text-white text-xs font-bold px-2.5 py-1 rounded">
                               {t("Day", "יום")} {day.day}
                             </div>
@@ -808,11 +785,8 @@ export default function PackageDetail() {
   /* ─── DB-based package rendering (existing behavior) ─── */
   const pkg = dbPkg!;
   const coverSlug = pkg.tourSlugs[0];
-  const coverImgMap = coverSlug ? TOUR_IMAGE_MAP[coverSlug] : null;
-  const coverSrc =
-    pkg.coverImage ||
-    coverImgMap?.jpg ||
-    "/images/optimized/samoeng_valley.jpg";
+  const coverImgName = coverSlug ? TOUR_IMAGE_MAP[coverSlug] : null;
+  const coverSrc = pkg.coverImage || coverImgName || "samoeng_valley";
   const bookUrl = `/book?tours=${pkg.tourSlugs.join(",")}`;
 
   return (
@@ -821,9 +795,11 @@ export default function PackageDetail() {
       <main id="main-content" className="flex-1">
         {/* Hero */}
         <section className="relative h-64 md:h-80">
-          <img
+          <OptimizedImage
             src={coverSrc}
             alt={packageName}
+            priority
+            sizes="100vw"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
@@ -876,27 +852,19 @@ export default function PackageDetail() {
                 </h2>
                 <div className="space-y-4">
                   {pkg.resolvedTours.map((tour, index) => {
-                    const imgMap = TOUR_IMAGE_MAP[tour.slug];
-                    const imgSrc =
-                      imgMap?.jpg ||
-                      tour.imageUrl ||
-                      "/images/optimized/samoeng_valley.jpg";
-                    const webpSrc =
-                      imgMap?.webp || imgSrc.replace(".jpg", ".webp");
+                    const imgName = TOUR_IMAGE_MAP[tour.slug];
+                    const imgSrc = imgName || tour.imageUrl || "samoeng_valley";
 
                     return (
                       <Card key={tour.slug} className="overflow-hidden">
                         <div className="flex flex-col sm:flex-row">
                           <div className="relative sm:w-48 h-40 sm:h-auto shrink-0">
-                            <picture>
-                              <source srcSet={webpSrc} type="image/webp" />
-                              <img
-                                src={imgSrc}
-                                alt={t(tour.name, tour.nameHe)}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                            </picture>
+                            <OptimizedImage
+                              src={imgSrc}
+                              alt={t(tour.name, tour.nameHe)}
+                              sizes="(max-width: 640px) 100vw, 192px"
+                              className="w-full h-full object-cover"
+                            />
                             <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
                               {t("Day", "יום")} {index + 1}
                             </div>

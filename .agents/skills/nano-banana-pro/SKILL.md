@@ -42,7 +42,7 @@ uv run {baseDir}/scripts/generate_image.py --prompt "edit instructions" --filena
 Multi-image composition (up to 14 images)
 
 ```bash
-uv run {baseDir}/scripts/generate_image.py --prompt "combine these into one scene" --filename "output.png" -i img1.png -i img2.png -i img3.png
+uv run {baseDir}/scripts/generate_image.py --prompt "combine these into one scene" --filename "output.png" -i imgchiang_mai_tour_photo.png -i img2.png -i img3.png
 ```
 
 API key

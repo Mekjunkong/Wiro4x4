@@ -259,11 +259,11 @@ export function TrustAndKosher() {
           <div className="relative aspect-[4/5] lg:aspect-auto lg:h-full min-h-[400px] rounded-sm overflow-hidden">
             <picture>
               <source
-                srcSet="/images/optimized/1000000135.webp"
+                srcSet="/images/optimized/hilltribe_girl_craft_market.webp"
                 type="image/webp"
               />
               <img
-                src="/images/1000000135.jpg"
+                src="/images/hilltribe_girl_craft_market.jpg"
                 alt={t("WIRO 4x4 off-road adventure", "הרפתקת שטח עם WIRO 4x4")}
                 className="w-full h-full object-cover"
                 loading="lazy"
