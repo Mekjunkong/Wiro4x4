@@ -45,7 +45,7 @@ export function CookieConsent() {
               href="/privacy"
               className="text-primary hover:underline font-medium"
             >
-              {t("Learn more", "למידע נוסף")}
+              {t("Read our Privacy Policy", "קראו את מדיניות הפרטיות שלנו")}
             </a>
           </p>
           <button

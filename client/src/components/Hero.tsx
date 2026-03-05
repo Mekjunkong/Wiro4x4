@@ -62,6 +62,8 @@ export function Hero() {
           "Travelers with WIRO 4x4 vehicle on jungle road in Chiang Mai",
           "מטיילים עם רכב WIRO 4x4 בדרך ג'ונגל בצ'יאנג מאי"
         )}
+        width={1920}
+        height={1080}
         className="absolute inset-0 w-full h-full object-cover"
         priority
         sizes="100vw"
@@ -92,7 +94,7 @@ export function Hero() {
         <div className="flex flex-wrap gap-4 mb-8">
           <button
             onClick={scrollToTours}
-            className="bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-lg"
+            className="bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-lg"
           >
             {t("Explore Tours", "גלו את הטיולים")}
           </button>

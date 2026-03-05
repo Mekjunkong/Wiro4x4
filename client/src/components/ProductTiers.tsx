@@ -93,13 +93,13 @@ export function ProductTiers() {
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#d4af37] text-sm font-medium tracking-[0.2em] uppercase">
+          <span className="text-[#8B7000] dark:text-[#d4af37] text-sm font-medium tracking-[0.2em] uppercase">
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 text-[#1c1c1c] dark:text-white">
             {t("Our Adventures", "ההרפתקאות שלנו")}
           </h2>
-          <p className="text-[#1c1c1c]/60 dark:text-white/60 mt-4 max-w-2xl mx-auto text-lg">
+          <p className="text-[#555555] dark:text-white/60 mt-4 max-w-2xl mx-auto text-lg">
             {t(
               "From single-day excursions to multi-week expeditions — find the perfect off-road adventure for your group.",
               "מטיולי יום ועד מסעות של מספר שבועות — מצאו את הרפתקת השטח המושלמת לקבוצה שלכם."
@@ -116,6 +116,8 @@ export function ProductTiers() {
                   <OptimizedImage
                     src={tier.imageSrc}
                     alt={t(tier.title, tier.titleHe)}
+                    width={800}
+                    height={600}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
@@ -146,12 +148,12 @@ export function ProductTiers() {
 
                 {/* Slim Content Footer */}
                 <div className="p-5 flex-1 flex flex-col">
-                  <p className="text-[#1c1c1c]/60 dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
+                  <p className="text-[#555555] dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
                     {t(tier.subtitle, tier.subtitleHe)}
                   </p>
 
                   {/* Meta info */}
-                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-[#1c1c1c]/50 dark:text-white/50">
+                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-[#666666] dark:text-white/50">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       {t(tier.duration, tier.durationHe)}

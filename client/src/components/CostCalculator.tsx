@@ -212,7 +212,11 @@ export function CostCalculator() {
 
         {/* Add tour dropdown */}
         <div className="relative">
+          <label htmlFor="tour-select" className="sr-only">
+            {t("Select a tour to add", "בחרו טיול להוספה")}
+          </label>
           <select
+            id="tour-select"
             onChange={e => {
               const idx = parseInt(e.target.value);
               if (!isNaN(idx)) {
@@ -305,6 +309,10 @@ export function CostCalculator() {
                     onChange={e =>
                       updateChildAge(idx, parseInt(e.target.value))
                     }
+                    aria-label={t(
+                      `Age of child ${idx + 1}`,
+                      `גיל ילד ${idx + 1}`
+                    )}
                     className="flex-1 px-3 py-2 border border-border rounded-sm text-sm"
                   >
                     {Array.from({ length: 18 }, (_, i) => (
@@ -363,10 +371,14 @@ export function CostCalculator() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+            <label
+              htmlFor="calc-arrival"
+              className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+            >
               {t("Arrival", "הגעה")}
             </label>
             <input
+              id="calc-arrival"
               type="date"
               value={arrivalDate}
               onChange={e => setArrivalDate(e.target.value)}
@@ -375,10 +387,14 @@ export function CostCalculator() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+            <label
+              htmlFor="calc-departure"
+              className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+            >
               {t("Departure", "עזיבה")}
             </label>
             <input
+              id="calc-departure"
               type="date"
               value={departureDate}
               onChange={e => setDepartureDate(e.target.value)}

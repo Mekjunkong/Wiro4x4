@@ -19,6 +19,8 @@ const SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-XSS-Protection": "0",
+  "Permissions-Policy":
+    "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
   // Note: Strict-Transport-Security should be set at reverse proxy level
   // (nginx, Cloudflare, etc.) rather than application level.
 } as const;

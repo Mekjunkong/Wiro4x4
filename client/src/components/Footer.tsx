@@ -26,6 +26,8 @@ export function Footer() {
               <img
                 src={APP_LOGO}
                 alt="WIRO 4x4 Logo"
+                width={64}
+                height={64}
                 className="h-16 w-auto object-contain drop-shadow-lg"
               />
             </a>

@@ -77,6 +77,8 @@ export function TrustAndKosher() {
             <OptimizedImage
               src="wiro_with_vehicle"
               alt={t("WIRO guide with 4x4 vehicle", "מדריך WIRO עם רכב שטח")}
+              width={800}
+              height={1000}
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="w-full h-full object-cover"
             />
@@ -108,9 +110,9 @@ export function TrustAndKosher() {
                     <point.icon className="w-5 h-5 text-[#d4af37]" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm">
+                    <h3 className="font-semibold text-sm">
                       {t(point.en, point.he)}
-                    </h4>
+                    </h3>
                     <p className="text-xs text-muted-foreground">
                       {t(point.descEn, point.descHe)}
                     </p>

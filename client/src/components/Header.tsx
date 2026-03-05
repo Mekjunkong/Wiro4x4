@@ -85,6 +85,8 @@ export function Header() {
             <img
               src={APP_LOGO}
               alt="WIRO 4x4 Logo"
+              width={144}
+              height={144}
               className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-16 md:h-32 lg:h-36"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
@@ -153,7 +155,7 @@ export function Header() {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold border-[#d4af37] hover:border-[#c5a033]"
+                className="bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold border-[#B8960F] hover:border-[#a3850e]"
               >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
@@ -264,7 +266,7 @@ export function Header() {
               <Button
                 variant="default"
                 size="lg"
-                className="w-full max-w-xs mt-6 bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold border-[#d4af37] hover:border-[#c5a033]"
+                className="w-full max-w-xs mt-6 bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold border-[#B8960F] hover:border-[#a3850e]"
               >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>

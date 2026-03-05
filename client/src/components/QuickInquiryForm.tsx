@@ -261,10 +261,17 @@ export function QuickInquiryForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+              <span
+                className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                id="interest-label"
+              >
                 {t("What interests you?", "?מה מעניין אתכם")}
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              </span>
+              <div
+                className="grid grid-cols-2 md:grid-cols-4 gap-2"
+                role="group"
+                aria-labelledby="interest-label"
+              >
                 {INTEREST_OPTIONS.map(option => (
                   <button
                     key={option.value}

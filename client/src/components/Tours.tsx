@@ -250,7 +250,7 @@ export function Tours() {
               aria-pressed={difficultyFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 difficultyFilter === f.value
-                  ? "bg-[#d4af37] text-white"
+                  ? "bg-[#B8960F] text-white"
                   : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
               }`}
             >
@@ -268,7 +268,7 @@ export function Tours() {
               aria-pressed={durationFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 durationFilter === f.value
-                  ? "bg-[#d4af37] text-white"
+                  ? "bg-[#B8960F] text-white"
                   : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
               }`}
             >
@@ -313,13 +313,15 @@ export function Tours() {
                     <OptimizedImage
                       src={tour.image}
                       alt={tour.title}
+                      width={800}
+                      height={500}
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
                         IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
                       }`}
                     />
                     {tour.price != null && (
-                      <div className="absolute top-3 right-3 bg-[#d4af37] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
+                      <div className="absolute top-3 right-3 bg-[#B8960F] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
                         &#3647;{tour.price.toLocaleString()}
                       </div>
                     )}

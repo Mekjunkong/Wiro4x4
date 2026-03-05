@@ -13,6 +13,8 @@ interface OptimizedImageProps extends Omit<
   aspectRatio?: string;
   onError?: () => void;
   fallbackFormat?: "jpg" | "jpeg" | "png";
+  width?: number;
+  height?: number;
 }
 
 export function OptimizedImage({
@@ -27,6 +29,8 @@ export function OptimizedImage({
   className = "",
   onError,
   style,
+  width,
+  height,
   ...props
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -95,6 +99,8 @@ export function OptimizedImage({
         srcSet={showResponsive ? jpgSrcSet : undefined}
         sizes={showResponsive ? sizes : undefined}
         alt={alt}
+        width={width}
+        height={height}
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
         fetchPriority={priority ? "high" : undefined}

@@ -37,8 +37,15 @@ export function NewsletterSignup() {
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <div className="relative flex-1">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+          <Mail
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50"
+            aria-hidden="true"
+          />
+          <label htmlFor="newsletter-email" className="sr-only">
+            {t("Email address for newsletter", "כתובת אימייל לניוזלטר")}
+          </label>
           <input
+            id="newsletter-email"
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
