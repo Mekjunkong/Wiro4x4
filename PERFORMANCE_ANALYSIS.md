@@ -105,19 +105,85 @@
 - Preconnect to external CDNs
 - Optimized font loading (media print trick)
 
-### Performance Targets Status
+### Performance Targets Status (Measured: 2026-03-05)
 
-| Metric                   | Target  | Status        | Notes                           |
-| ------------------------ | ------- | ------------- | ------------------------------- |
-| Mobile Performance Score | >80/100 | ⏳ To measure | Run Lighthouse after deployment |
-| LCP                      | <2.5s   | ⏳ To measure | Hero image preloaded            |
-| FCP                      | <1.8s   | ⏳ To measure | Fonts optimized                 |
-| Total Blocking Time      | <200ms  | ⏳ To measure | Code splitting implemented      |
-| Total Page Size          | <6 MB   | ✅ Achieved   | ~5 MB estimated                 |
-| Image Size               | <2 MB   | ✅ Achieved   | 2.74 MB (WebP)                  |
+Lighthouse CLI v13.0.3 — tested against production site https://www.wiro4x4indochina.com
+
+#### Homepage Scores
+
+| Category       | Desktop | Mobile |
+| -------------- | ------- | ------ |
+| Performance    | 63/100  | 48/100 |
+| Accessibility  | 82/100  | 82/100 |
+| Best Practices | 81/100  | 81/100 |
+| SEO            | 92/100  | 92/100 |
+
+#### Core Web Vitals — Homepage
+
+| Metric | Target | Desktop | Mobile | Desktop Status | Mobile Status |
+| ------ | ------ | ------- | ------ | -------------- | ------------- |
+| FCP    | <1.8s  | 2.4s    | 3.9s   | Needs work     | Needs work    |
+| LCP    | <2.5s  | 2.6s    | 18.7s  | Needs work     | Critical      |
+| CLS    | <0.1   | 0       | 0      | Pass           | Pass          |
+| TBT    | <200ms | 180ms   | 440ms  | Pass           | Needs work    |
+| SI     | <3.4s  | 5.0s    | 9.0s   | Needs work     | Needs work    |
+| TTI    | —      | 3.5s    | 18.9s  | —              | Critical      |
+
+#### Other Pages (Desktop)
+
+| Page    | Performance | FCP  | LCP  | CLS   | TBT  | SI   | Page Weight |
+| ------- | ----------- | ---- | ---- | ----- | ---- | ---- | ----------- |
+| Gallery | 60/100      | 1.8s | 8.1s | 0.048 | 30ms | 3.7s | 39,008 KiB  |
+| Booking | 65/100      | 1.9s | 3.7s | 0.048 | 30ms | 3.4s | 2,289 KiB   |
+
+#### Optimization Wins
+
+- **CLS = 0 on homepage** — no layout shift at all, well above target
+- **TBT = 180ms desktop** — meets <200ms target; code splitting is working
+- **Booking page is lean** — 2.3 MB total weight, only page close to targets
+- **Main-thread work low** — 1.2s on desktop, JS execution only 0.6s
+- **Responsive images passing** — all images served at appropriate resolution
+
+#### Top Issues Identified
+
+1. **Server Response Time (TTFB): ~1,700ms** — the biggest bottleneck. The initial HTML document takes 1.5-1.7 seconds to arrive. This alone accounts for most of the FCP/LCP delays. This is a Manus platform hosting constraint.
+2. **Total Page Weight: ~39 MB on homepage** — the homepage loads gallery images (from S3/CDN) that massively inflate total transfer. The booking page at 2.3 MB shows the app itself is lean.
+3. **Mobile LCP: 18.7s** — on throttled mobile connection, the combination of slow TTFB + large images makes LCP extremely poor. The LCP element appears to be a below-the-fold gallery/S3 image.
+4. **Unused JavaScript: ~240 KiB** — the main bundle and Manus platform scripts contain unused code. Tree-shaking improvements possible.
+5. **Unsized images** — several S3/CDN gallery images lack explicit width/height attributes.
+
+#### Accessibility Issues Found
+
+- Color contrast insufficient on Header buttons and Hero CTA (gold on white)
+- Heading elements skip levels (h4 used without h3 in TrustAndKosher)
+- Form inputs in CostCalculator missing associated labels
+- Viewport meta prevents user zoom (maximum-scale=1)
+- Select elements in CostCalculator missing label elements
+
+#### SEO Issues Found
+
+- Some links lack descriptive text (generic "Read more" or icon-only links)
+
+#### Recommended Next Steps
+
+1. **Reduce homepage image payload** — limit gallery showcase to 6-8 images max, or implement true pagination/virtual scrolling so off-screen images are never fetched
+2. **Add explicit width/height to all images** — prevents CLS and helps browser allocate space
+3. **Fix accessibility contrast** — increase contrast on gold CTA buttons and header elements
+4. **Add form labels** — associate labels with CostCalculator inputs and selects
+5. **Remove maximum-scale=1** — allow user zoom for accessibility compliance
+6. **Investigate TTFB** — if Manus platform allows, enable edge caching or CDN for HTML responses
+
+### Lighthouse HTML Reports
+
+Reports saved in `/lighthouse-reports/`:
+
+- `lighthouse-home.report.html` — Homepage (Desktop)
+- `lighthouse-home-mobile.report.html` — Homepage (Mobile)
+- `lighthouse-gallery.report.html` — Gallery (Desktop)
+- `lighthouse-booking.report.html` — Booking (Desktop)
 
 ---
 
-**Report Generated:** 2026-01-19  
-**Status:** Optimization Complete  
-**Next Steps:** Deploy to production and run Lighthouse audit
+**Report Generated:** 2026-01-19 (initial), **Updated:** 2026-03-05 (Lighthouse audit)
+**Status:** Audit complete, optimization targets partially met
+**Next Steps:** Address TTFB, reduce homepage image payload, fix accessibility issues

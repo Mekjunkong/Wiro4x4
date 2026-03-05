@@ -111,6 +111,9 @@ temp/
 # Git worktrees
 .worktrees/
 
+# Lighthouse reports (large HTML/JSON files)
+lighthouse-reports/
+
 # Image optimization pipeline outputs
 client/public/image-manifest.json
 client/public/images/optimized/*-sm.*
