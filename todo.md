@@ -716,3 +716,33 @@
 - [x] SocialProofBar with animated counters on homepage (tours, reviews, routes, kosher)
 - [x] RecentlyBookedPopup showing real recent bookings (privacy-safe, dismissible)
 - [x] PackageBuilder for multi-day tour combinations with package discounts on /estimate
+
+## Loading States & Accessibility Audit (Mar 5, 2026)
+
+### Loading States (Skeleton Screens)
+
+- [x] Create reusable SkeletonLoader component (TourCardSkeleton, BlogCardSkeleton, ReviewCardSkeleton)
+- [x] Add skeleton loading to Tours.tsx (6-card grid with animate-pulse)
+- [x] Add skeleton loading to Blog.tsx (3-card grid with animate-pulse)
+- [x] Upgrade Reviews.tsx spinner to ReviewCardSkeleton
+- [x] Gallery.tsx already had Skeleton loading (no change needed)
+- [x] Admin tabs already had TableSkeleton/CardGridSkeleton/GalleryGridSkeleton (no change needed)
+- [x] All skeletons match actual content dimensions (no layout shift)
+
+### Accessibility Audit (WCAG 2.1 AA)
+
+- [x] Remove viewport maximum-scale=1 (allows user zooming)
+- [x] Add htmlFor/id associations to QuickInquiryForm labels
+- [x] Add htmlFor/id associations to Reviews form labels
+- [x] Add aria-label to LanguageSwitcher button
+- [x] Add aria-label to Header nav elements (main + mobile)
+- [x] Add aria-label to Blog "Read More" links (includes post title for context)
+- [x] Add aria-label to Blog search input
+- [x] Add aria-label to Reviews sort select
+- [x] Add aria-label to Gallery lightbox close button
+- [x] Make gallery photo items keyboard accessible (role=button, tabIndex, onKeyDown)
+- [x] Add role="alert" to form error messages in QuickInquiryForm
+- [x] Sync root-level Tours.tsx copy with client/src/components/Tours.tsx
+- [x] Create ACCESSIBILITY_AUDIT.md documenting all findings and fixes
+- [x] TypeScript clean (0 errors)
+- [x] All 157 tests passing

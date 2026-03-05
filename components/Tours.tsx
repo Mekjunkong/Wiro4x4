@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { TourCardSkeleton } from "@/components/SkeletonLoader";
 import {
   Clock,
   Mountain,
@@ -173,7 +174,7 @@ export function Tours() {
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
   const [durationFilter, setDurationFilter] = useState<string>("all");
 
-  const { data: dbTours } = trpc.tour.list.useQuery();
+  const { data: dbTours, isLoading } = trpc.tour.list.useQuery();
 
   const tours =
     dbTours && dbTours.length > 0
@@ -276,108 +277,113 @@ export function Tours() {
           ))}
         </div>
 
+        {/* Loading skeleton */}
+        {isLoading && <TourCardSkeleton count={6} />}
+
         {/* Tour grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTours.length === 0 && (
-            <div className="col-span-full text-center py-16 text-muted-foreground">
-              <p>
-                {t(
-                  "No tours match the selected filters.",
-                  "לא נמצאו טיולים התואמים לסינון שנבחר."
-                )}
-              </p>
-              <button
-                onClick={() => {
-                  setDifficultyFilter("all");
-                  setDurationFilter("all");
-                }}
-                className="mt-4 text-[#d4af37] underline text-sm"
-              >
-                {t("Clear filters", "נקה סינונים")}
-              </button>
-            </div>
-          )}
-          {filteredTours.map(tour => (
-            <Link
-              key={tour.id}
-              href={`/tours/${tour.slug}`}
-              className="block group"
-            >
-              <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#d4af37] rounded-sm bg-card">
-                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                  <OptimizedImage
-                    src={tour.image}
-                    alt={tour.title}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                      IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
-                    }`}
-                  />
-                  {tour.price != null && (
-                    <div className="absolute top-3 right-3 bg-[#d4af37] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
-                      &#3647;{tour.price.toLocaleString()}
-                    </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTours.length === 0 && (
+              <div className="col-span-full text-center py-16 text-muted-foreground">
+                <p>
+                  {t(
+                    "No tours match the selected filters.",
+                    "לא נמצאו טיולים התואמים לסינון שנבחר."
                   )}
-                </div>
+                </p>
+                <button
+                  onClick={() => {
+                    setDifficultyFilter("all");
+                    setDurationFilter("all");
+                  }}
+                  className="mt-4 text-[#d4af37] underline text-sm"
+                >
+                  {t("Clear filters", "נקה סינונים")}
+                </button>
+              </div>
+            )}
+            {filteredTours.map(tour => (
+              <Link
+                key={tour.id}
+                href={`/tours/${tour.slug}`}
+                className="block group"
+              >
+                <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#d4af37] rounded-sm bg-card">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    <OptimizedImage
+                      src={tour.image}
+                      alt={tour.title}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                        IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
+                      }`}
+                    />
+                    {tour.price != null && (
+                      <div className="absolute top-3 right-3 bg-[#d4af37] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
+                        &#3647;{tour.price.toLocaleString()}
+                      </div>
+                    )}
+                  </div>
 
-                <div className="p-6 space-y-4">
-                  <h3 className="text-xl font-medium text-foreground">
-                    {tour.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {tour.description}
-                  </p>
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-xl font-medium text-foreground">
+                      {tour.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {tour.description}
+                    </p>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-[#d4af37]" />
-                      <span className="text-foreground">{tour.duration}</span>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-[#d4af37]" />
+                        <span className="text-foreground">{tour.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Mountain className="h-4 w-4 text-[#d4af37]" />
+                        <span className="text-foreground">
+                          {t(
+                            DIFFICULTY_FILTERS.find(
+                              f => f.value === tour.difficulty
+                            )?.en || tour.difficulty,
+                            DIFFICULTY_FILTERS.find(
+                              f => f.value === tour.difficulty
+                            )?.he || tour.difficulty
+                          )}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mountain className="h-4 w-4 text-[#d4af37]" />
-                      <span className="text-foreground">
-                        {t(
-                          DIFFICULTY_FILTERS.find(
-                            f => f.value === tour.difficulty
-                          )?.en || tour.difficulty,
-                          DIFFICULTY_FILTERS.find(
-                            f => f.value === tour.difficulty
-                          )?.he || tour.difficulty
-                        )}
-                      </span>
+
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {tour.kosher && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                          <Utensils className="h-3 w-3" />
+                          {t("Kosher", "כשר")}
+                        </span>
+                      )}
+                      {tour.private && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                          <Users className="h-3 w-3" />
+                          {t("Private", "פרטי")}
+                        </span>
+                      )}
+                      {tour.shabbat && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                          <Calendar className="h-3 w-3" />
+                          {t("Shabbat OK", "מתאים לשבת")}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[#d4af37] font-medium text-sm pt-2">
+                      {t("View Details", "לפרטים נוספים")}
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {tour.kosher && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
-                        <Utensils className="h-3 w-3" />
-                        {t("Kosher", "כשר")}
-                      </span>
-                    )}
-                    {tour.private && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
-                        <Users className="h-3 w-3" />
-                        {t("Private", "פרטי")}
-                      </span>
-                    )}
-                    {tour.shabbat && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
-                        <Calendar className="h-3 w-3" />
-                        {t("Shabbat OK", "מתאים לשבת")}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 text-[#d4af37] font-medium text-sm pt-2">
-                    {t("View Details", "לפרטים נוספים")}
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <Link

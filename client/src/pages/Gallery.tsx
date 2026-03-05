@@ -302,6 +302,15 @@ export default function Gallery() {
                   key={photo.id}
                   className="group relative rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card"
                   onClick={() => openLightbox(index)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openLightbox(index);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t("View photo", "\u05E6\u05E4\u05D4 \u05D1\u05EA\u05DE\u05D5\u05E0\u05D4")}: ${photo.title}`}
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
                     <OptimizedImage
@@ -364,6 +373,10 @@ export default function Gallery() {
                 <button
                   onClick={closeLightbox}
                   className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                  aria-label={t(
+                    "Close lightbox",
+                    "\u05E1\u05D2\u05D5\u05E8 \u05EA\u05E6\u05D5\u05D2\u05D4"
+                  )}
                 >
                   <X className="w-6 h-6" />
                 </button>

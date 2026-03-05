@@ -89,7 +89,10 @@ export function Header() {
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav
+            className="hidden md:flex items-center gap-6"
+            aria-label="Main navigation"
+          >
             <Link href="/tours">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/tours") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -208,7 +211,10 @@ export function Header() {
           className="md:hidden fixed inset-0 bg-[#FAF7F2] dark:bg-[#1A1A1A] overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
           style={{ zIndex: 9999 }}
         >
-          <nav className="container pt-28 flex flex-col items-center justify-center gap-2 min-h-[calc(100vh-8rem)]">
+          <nav
+            className="container pt-28 flex flex-col items-center justify-center gap-2 min-h-[calc(100vh-8rem)]"
+            aria-label="Mobile navigation"
+          >
             <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
                 {t("Tours", "טיולים")}

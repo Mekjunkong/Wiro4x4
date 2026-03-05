@@ -141,11 +141,15 @@ export function QuickInquiryForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label
+                  htmlFor="inquiry-name"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                >
                   {t("Full Name", "שם מלא")}{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="inquiry-name"
                   type="text"
                   required
                   aria-required="true"
@@ -162,14 +166,20 @@ export function QuickInquiryForm() {
                   className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] bg-input text-foreground placeholder:text-muted-foreground ${errors.name ? "border-red-500" : "border-border"}`}
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                  <p className="text-red-500 text-xs mt-1" role="alert">
+                    {errors.name}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label
+                  htmlFor="inquiry-email"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                >
                   {t("Email", "אימייל")} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="inquiry-email"
                   type="email"
                   required
                   aria-required="true"
@@ -186,17 +196,23 @@ export function QuickInquiryForm() {
                   className={`w-full px-4 py-2.5 border rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] bg-input text-foreground placeholder:text-muted-foreground ${errors.email ? "border-red-500" : "border-border"}`}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  <p className="text-red-500 text-xs mt-1" role="alert">
+                    {errors.email}
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label
+                  htmlFor="inquiry-phone"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                >
                   {t("Phone / WhatsApp", "טלפון / וואטסאפ")}
                 </label>
                 <input
+                  id="inquiry-phone"
                   type="tel"
                   value={form.phone}
                   onChange={e =>
@@ -207,10 +223,14 @@ export function QuickInquiryForm() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label
+                  htmlFor="inquiry-dates"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                >
                   {t("Travel Dates", "תאריכי טיול")}
                 </label>
                 <input
+                  id="inquiry-dates"
                   type="text"
                   value={form.travelDates}
                   onChange={e =>
@@ -221,10 +241,14 @@ export function QuickInquiryForm() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5">
+                <label
+                  htmlFor="inquiry-group-size"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1.5"
+                >
                   {t("Group Size", "גודל קבוצה")}
                 </label>
                 <input
+                  id="inquiry-group-size"
                   type="text"
                   value={form.groupSize}
                   onChange={e =>

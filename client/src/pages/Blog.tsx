@@ -10,6 +10,7 @@ import { Link } from "wouter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { trpc } from "@/lib/trpc";
+import { BlogCardSkeleton } from "@/components/SkeletonLoader";
 
 // Blog slug → local image override (prevents duplicate/missing DB images)
 const BLOG_IMAGE_MAP: Record<string, string> = {
@@ -86,7 +87,7 @@ export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
-  const { data: dbPosts } = trpc.blog.list.useQuery();
+  const { data: dbPosts, isLoading } = trpc.blog.list.useQuery();
 
   // Use DB posts if available, otherwise fallback
   const posts = (dbPosts && dbPosts.length > 0 ? dbPosts : FALLBACK_POSTS).map(
@@ -175,6 +176,7 @@ export default function Blog() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder={t("Search articles...", "חיפוש מאמרים...")}
+                  aria-label={t("Search blog articles", "חיפוש מאמרים בבלוג")}
                   className={`w-full py-2 border border-border rounded-lg text-sm bg-background ${isHebrew ? "pr-10 pl-4" : "pl-10 pr-4"}`}
                 />
               </div>
@@ -212,8 +214,11 @@ export default function Blog() {
         {/* Blog Posts Grid */}
         <section className="py-16">
           <div className="container">
+            {/* Loading skeleton */}
+            {isLoading && <BlogCardSkeleton count={3} />}
+
             {/* N2: Empty state when no blog posts */}
-            {filteredPosts.length === 0 && (
+            {!isLoading && filteredPosts.length === 0 && (
               <div
                 className="text-center py-16"
                 dir={isHebrew ? "rtl" : undefined}
@@ -231,7 +236,7 @@ export default function Blog() {
               </div>
             )}
 
-            {filteredPosts.length > 0 && (
+            {!isLoading && filteredPosts.length > 0 && (
               <div
                 ref={gridRef}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
@@ -296,7 +301,10 @@ export default function Blog() {
                         {post.excerpt}
                       </p>
 
-                      <Link href={`/blog/${post.slug}`}>
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        aria-label={`${t("Read More", "קראו עוד")}: ${post.title}`}
+                      >
                         <span
                           className={`inline-flex items-center gap-2 mt-2 text-[#D4AF37] hover:underline text-sm font-medium ${isHebrew ? "flex-row-reverse" : ""}`}
                         >

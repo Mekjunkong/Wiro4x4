@@ -15,6 +15,7 @@ import { Check, MessageSquare, Send, ArrowUpDown } from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ReviewCardSkeleton } from "@/components/SkeletonLoader";
 
 const TOUR_TYPES = [
   { id: "waterfall", en: "Waterfall Adventure", he: "טיול מפלים" },
@@ -262,10 +263,14 @@ export default function Reviews() {
                         )}
 
                         <div>
-                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                          <label
+                            htmlFor="review-name"
+                            className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1"
+                          >
                             {t("Your Name *", "השם שלכם *")}
                           </label>
                           <Input
+                            id="review-name"
                             value={formData.name}
                             onChange={e =>
                               setFormData(prev => ({
@@ -278,10 +283,14 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                          <label
+                            htmlFor="review-email"
+                            className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1"
+                          >
                             {t("Email *", "מייל *")}
                           </label>
                           <Input
+                            id="review-email"
                             type="email"
                             value={formData.email}
                             onChange={e =>
@@ -295,7 +304,10 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                          <label
+                            id="review-rating-label"
+                            className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1"
+                          >
                             {t("Rating *", "דירוג *")}
                           </label>
                           <StarRating
@@ -308,10 +320,14 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                          <label
+                            htmlFor="review-tour-type"
+                            className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1"
+                          >
                             {t("Tour Type", "סוג הטיול")}
                           </label>
                           <select
+                            id="review-tour-type"
                             value={formData.tourType}
                             onChange={e =>
                               setFormData(prev => ({
@@ -335,10 +351,14 @@ export default function Reviews() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+                          <label
+                            htmlFor="review-text"
+                            className="block text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1"
+                          >
                             {t("Your Review *", "חוות הדעת שלכם *")}
                           </label>
                           <Textarea
+                            id="review-text"
                             value={formData.text}
                             onChange={e =>
                               setFormData(prev => ({
@@ -415,6 +435,7 @@ export default function Reviews() {
                       setVisibleCount(REVIEWS_PER_PAGE);
                     }}
                     className="h-8 rounded-sm border border-input bg-transparent px-2 text-sm shadow-xs"
+                    aria-label={t("Sort reviews", "מיון ביקורות")}
                   >
                     <option value="newest">
                       {isHebrew ? "חדש ביותר" : "Newest"}
@@ -432,11 +453,7 @@ export default function Reviews() {
                 </div>
               </div>
 
-              {isLoading && (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full mx-auto"></div>
-                </div>
-              )}
+              {isLoading && <ReviewCardSkeleton count={3} />}
 
               {!isLoading && filteredReviews.length === 0 && (
                 <div className="text-center py-16">
