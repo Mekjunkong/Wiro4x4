@@ -18,11 +18,11 @@ const FALLBACK_IMAGES = [
 export function GalleryShowcase() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  const { data: photos } = trpc.gallery.list.useQuery();
+  const { data: photos } = trpc.gallery.list.useQuery({ limit: 12 });
 
   const images =
     photos && photos.length >= 6
-      ? photos.slice(0, 8).map(p => ({
+      ? photos.slice(0, 12).map(p => ({
           src: p.s3Url || FALLBACK_IMAGES[0].src,
           caption: p.title || "",
         }))

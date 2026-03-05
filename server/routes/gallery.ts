@@ -22,10 +22,18 @@ import { storagePut } from "../storage";
 import { paginationInput } from "../../shared/schemas";
 
 export const galleryRouter = router({
-  list: securePublicProcedure.query(async () => {
-    const photos = await getAllPublishedPhotos();
-    return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
-  }),
+  list: securePublicProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(200).optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const photos = await getAllPublishedPhotos(input?.limit);
+      return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
+    }),
 
   listPaginated: securePublicProcedure
     .input(

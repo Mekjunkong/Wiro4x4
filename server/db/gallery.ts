@@ -9,14 +9,18 @@ export async function createGalleryPhoto(photo: InsertGalleryPhoto) {
   return await db.insert(galleryPhotos).values(photo);
 }
 
-export async function getAllPublishedPhotos() {
+export async function getAllPublishedPhotos(limit?: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db
+  const query = db
     .select()
     .from(galleryPhotos)
     .where(eq(galleryPhotos.isPublished, 1))
     .orderBy(galleryPhotos.sortOrder, desc(galleryPhotos.createdAt));
+  if (limit) {
+    return await query.limit(limit);
+  }
+  return await query;
 }
 
 export async function getAllGalleryPhotos() {
