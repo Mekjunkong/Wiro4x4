@@ -114,6 +114,12 @@ temp/
 # Lighthouse reports (large HTML/JSON files)
 lighthouse-reports/
 
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+
 # Image optimization pipeline outputs
 client/public/image-manifest.json
 client/public/images/optimized/*-sm.*
