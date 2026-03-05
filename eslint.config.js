@@ -16,8 +16,6 @@ export default tseslint.config(
       "*.config.ts",
       "client/public/**",
       // Stray files not in tsconfig scope
-      "Footer.tsx",
-      "components/**",
       "pages/**",
       "hooks/**",
       "contexts/**",
