@@ -17,6 +17,11 @@ const WEBP_QUALITY = 80;
 const JPEG_QUALITY = 85;
 const THUMB_WIDTH = 20;
 
+// Hero/banner images need higher quality (first thing users see)
+const HERO_IMAGES = ["banner", "hero", "hero-bg"];
+const HERO_WEBP_QUALITY = 92;
+const HERO_JPEG_QUALITY = 90;
+
 // Parse CLI flags
 const FORCE = process.argv.includes("--force");
 const REPORT_ONLY = process.argv.includes("--report");
@@ -81,6 +86,11 @@ async function processImage(
   entry.blur = `data:image/webp;base64,${thumbBuffer.toString("base64")}`;
 
   // Generate responsive variants
+  // Use higher quality for hero/banner images
+  const isHeroImage = HERO_IMAGES.some(hero => baseName.includes(hero));
+  const webpQuality = isHeroImage ? HERO_WEBP_QUALITY : WEBP_QUALITY;
+  const jpegQuality = isHeroImage ? HERO_JPEG_QUALITY : JPEG_QUALITY;
+
   for (const size of SIZES) {
     // Skip if source is smaller than target width
     const targetWidth =
@@ -93,12 +103,12 @@ async function processImage(
 
     await sharp(filePath)
       .resize(targetWidth)
-      .webp({ quality: WEBP_QUALITY })
+      .webp({ quality: webpQuality })
       .toFile(webpPath);
 
     await sharp(filePath)
       .resize(targetWidth)
-      .jpeg({ quality: JPEG_QUALITY })
+      .jpeg({ quality: jpegQuality })
       .toFile(jpgPath);
 
     entry[size.suffix as "sm" | "md" | "lg"] = {
