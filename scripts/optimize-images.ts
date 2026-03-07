@@ -17,10 +17,10 @@ const WEBP_QUALITY = 80;
 const JPEG_QUALITY = 85;
 const THUMB_WIDTH = 20;
 
-// Hero/banner images need higher quality (first thing users see, especially on mobile)
+// Hero/banner images need near-lossless quality (first thing users see, especially on mobile)
 const HERO_IMAGES = ["banner", "hero", "hero-bg"];
-const HERO_WEBP_QUALITY = 95;
-const HERO_JPEG_QUALITY = 93;
+const HERO_WEBP_QUALITY = 98;
+const HERO_JPEG_QUALITY = 96;
 
 // Parse CLI flags
 const FORCE = process.argv.includes("--force");
