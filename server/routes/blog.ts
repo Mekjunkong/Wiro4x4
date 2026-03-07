@@ -19,6 +19,7 @@ import {
 import { blogPostInputSchema, paginationInput } from "../../shared/schemas";
 import { generateBlogDraft } from "../aiContentGenerator";
 import { storagePut } from "../storage";
+import { optimizeUploadedImage } from "../imageOptimizer";
 
 export const blogRouter = router({
   list: securePublicProcedure.query(async () => {
@@ -135,9 +136,22 @@ export const blogRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
-      const buffer = Buffer.from(input.fileData, "base64");
-      const key = `blog/${Date.now()}-${input.fileName}`;
-      const { url } = await storagePut(key, buffer, input.contentType);
+      const rawBuffer = Buffer.from(input.fileData, "base64");
+
+      // Optimize: resize to max 1920x1080 and convert to WebP
+      const {
+        buffer,
+        contentType: optimizedType,
+        extension,
+      } = await optimizeUploadedImage(rawBuffer, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 80,
+      });
+
+      const baseName = input.fileName.replace(/\.[^.]+$/, "");
+      const key = `blog/${Date.now()}-${baseName}.${extension}`;
+      const { url } = await storagePut(key, buffer, optimizedType);
       await logAdminAction({
         userId: ctx.user?.id,
         action: "upload_image",

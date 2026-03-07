@@ -20,6 +20,7 @@
     "build:analyze": "ANALYZE=true vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "images:optimize": "tsx scripts/optimize-images.ts",
+    "images:report": "tsx scripts/optimize-images.ts --report",
     "prepare": "husky"
   },
   "lint-staged": {

@@ -532,7 +532,7 @@ Southeast Asia offers incredible experiences for Israeli travelers. With proper 
       ),
       date: t("December 7, 2024", "7 דצמבר 2024"),
       readTime: t("7 min read", "7 דקות קריאה"),
-      image: "/images/hilltribe_girl_craft_market.jpg",
+      image: "/images/optimized/hilltribe_girl_craft_market-md.webp",
       content: t(
         `# Cultural Etiquette Guide for Thailand, Laos & Vietnam
 

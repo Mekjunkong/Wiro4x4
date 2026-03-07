@@ -15,6 +15,13 @@ export const COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 export const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
 export const COMPANY_WEBSITE = "https://www.wiro4x4indochina.com";
 
+// ── Email Sender Addresses (verified domain: wiro4x4indochina.com) ──
+export const EMAIL_SENDERS = {
+  bookings: "bookings@wiro4x4indochina.com",
+  updates: "updates@wiro4x4indochina.com",
+  support: "support@wiro4x4indochina.com",
+};
+
 // ── Social Media ────────────────────────────────────────────────────
 // Update these URLs when you create your Facebook/Instagram pages.
 export const COMPANY_FACEBOOK_URL = "https://www.facebook.com/"; // TODO: Replace with your Facebook page URL

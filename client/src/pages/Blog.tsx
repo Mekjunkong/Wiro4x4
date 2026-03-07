@@ -15,18 +15,24 @@ import { BlogCardSkeleton } from "@/components/SkeletonLoader";
 // Blog slug → local image override (prevents duplicate/missing DB images)
 const BLOG_IMAGE_MAP: Record<string, string> = {
   "chiang-mai-israeli-travelers-guide":
-    "/images/chiang_mai_valley_panorama.jpg",
+    "/images/optimized/chiang_mai_valley_panorama-md.webp",
   "israeli-traveler-guide-northern-thailand":
-    "/images/mountain_cafe_scenic_view.jpg",
+    "/images/optimized/mountain_cafe_scenic_view-md.webp",
   "kosher-dining-northern-thailand": "/images/optimized/kosher_meal.jpg",
-  "4x4-off-road-what-to-expect": "/images/offroad_trail_driving.jpg",
-  "golden-triangle-adventure": "/images/golden_triangle_mekong.jpg",
-  "hill-tribe-respectful-guide": "/images/hilltribe_community_visit.jpg",
-  "shabbat-chiang-mai-guide": "/images/doi_suthep_golden_chedi.jpg",
-  "mae-wang-off-road-adventure": "/images/bamboo_rafting_adventure.jpg",
+  "4x4-off-road-what-to-expect":
+    "/images/optimized/offroad_trail_driving-md.webp",
+  "golden-triangle-adventure":
+    "/images/optimized/golden_triangle_mekong-md.webp",
+  "hill-tribe-respectful-guide":
+    "/images/optimized/hilltribe_community_visit-md.webp",
+  "shabbat-chiang-mai-guide":
+    "/images/optimized/doi_suthep_golden_chedi-md.webp",
+  "mae-wang-off-road-adventure":
+    "/images/optimized/bamboo_rafting_adventure-md.webp",
   "accessible-chiang-mai-tours":
     "/images/optimized/accessible_doi_inthanon_summit.jpg",
-  "waterfalls-northern-thailand": "/images/jungle_waterfall_cascade_rocks.jpg",
+  "waterfalls-northern-thailand":
+    "/images/optimized/jungle_waterfall_cascade_rocks-md.webp",
 };
 
 // Hardcoded fallback posts (used when DB returns empty)
@@ -67,7 +73,7 @@ const FALLBACK_POSTS = [
       "Learn the dos and don'ts of interacting with local communities in Thailand, Laos, and Vietnam.",
     excerptHe:
       "שמירת פנים, מקדשים, נזירים, מיקוח ועוד -- כל הכללים שישראלים צריכים להכיר.",
-    coverImage: "/images/hilltribe_girl_craft_market.jpg",
+    coverImage: "/images/optimized/hilltribe_girl_craft_market-md.webp",
     category: "Culture",
     tags: "culture,etiquette,temples,thailand",
     publishedAt: "2024-12-01",
@@ -251,6 +257,8 @@ export default function Blog() {
                         <img
                           src={post.image}
                           alt={post.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           onError={e => {
                             const target = e.currentTarget;

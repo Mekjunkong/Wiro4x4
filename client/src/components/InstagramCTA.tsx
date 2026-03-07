@@ -1,22 +1,23 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { GoldDivider } from "@/components/GoldDivider";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { COMPANY_FACEBOOK_URL, COMPANY_INSTAGRAM_URL } from "@/const";
 
 const PREVIEW_IMAGES = [
   {
-    src: "/images/waterfall_wide_angle_view.jpg",
+    src: "waterfall_wide_angle_view",
     alt: "Sticky waterfalls adventure",
   },
   {
-    src: "/images/hilltribe_girl_craft_market.jpg",
+    src: "hilltribe_girl_craft_market",
     alt: "Mountain circuit scenery",
   },
   {
-    src: "/images/optimized/village_hamlet_rice_fields.jpg",
+    src: "village_hamlet_rice_fields",
     alt: "Hidden mountain village",
   },
   {
-    src: "/images/jungle_waterfall_rocky_stream.jpg",
+    src: "jungle_waterfall_rocky_stream",
     alt: "Northern Thailand landscape",
   },
 ];
@@ -52,11 +53,11 @@ export function InstagramCTA() {
               rel="noopener noreferrer"
               className="aspect-square overflow-hidden rounded-sm group cursor-pointer"
             >
-              <img
+              <OptimizedImage
                 src={image.src}
                 alt={image.alt}
+                sizes="(max-width: 768px) 50vw, 25vw"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
               />
             </a>
           ))}
