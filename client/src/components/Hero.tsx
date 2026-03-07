@@ -55,7 +55,7 @@ export function Hero() {
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      {/* Background image */}
+      {/* Background image - high quality */}
       <OptimizedImage
         src="banner"
         alt={t(
@@ -69,32 +69,32 @@ export function Hero() {
         sizes="100vw"
       />
 
-      {/* Bottom gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      {/* Bottom gradient overlay - stronger for better text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:from-black/80 md:via-black/30" />
 
       {/* Content */}
       <div
         ref={contentRef}
-        className="absolute bottom-0 left-0 right-0 pb-24 px-6 md:px-12 lg:px-20 text-white"
+        className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white"
       >
-        {/* Heading */}
-        <h1 className="font-heading text-4xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4">
+        {/* Heading - larger on mobile, better contrast */}
+        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl">
           WIRO 4×4
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-lg md:text-2xl lg:text-3xl font-light mb-8 max-w-2xl opacity-90">
+        {/* Subtitle - better mobile sizing */}
+        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg">
           {t(
             "Kosher Off-Road Adventures in Chiang Mai",
             "הרפתקאות שטח כשרות בצ'יאנג מאי"
           )}
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        {/* CTAs - better mobile touch targets */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
           <button
             onClick={scrollToTours}
-            className="bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-lg"
+            className="bg-[#B8960F] hover:bg-[#a3850e] active:bg-[#8f7509] text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-2xl w-full sm:w-auto"
           >
             {t("Explore Tours", "גלו את הטיולים")}
           </button>
@@ -102,19 +102,19 @@ export function Hero() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-white/80 hover:bg-white/10 text-white font-bold px-6 py-2.5 text-base md:px-8 md:py-3 md:text-lg rounded-lg transition-colors flex items-center gap-2"
+            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto"
           >
-            <MessageCircle className="w-5 h-5" />
+            <MessageCircle className="w-6 h-6" />
             {t("WhatsApp Us", "דברו איתנו בוואטסאפ")}
           </a>
         </div>
 
-        {/* Trust badge pills */}
-        <div className="flex flex-wrap gap-2">
+        {/* Trust badge pills - larger and more readable on mobile */}
+        <div className="flex flex-wrap gap-2 md:gap-2.5">
           {TRUST_ITEMS.map(item => (
             <span
               key={item.en}
-              className="bg-white/15 backdrop-blur-sm text-white text-xs px-3 py-1 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/20"
+              className="bg-white/20 backdrop-blur-md text-white text-sm font-medium px-4 py-2 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/30 shadow-lg"
             >
               {t(item.en, item.he)}
             </span>
