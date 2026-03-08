@@ -7,9 +7,11 @@
 // ── Types ────────────────────────────────────────────────────
 
 export interface TourSelection {
-  name: string;
+  slug: string;
+  nameEn: string;
   nameHe: string;
   basePrice: number;
+  bookingCount: number;
 }
 
 export interface ServiceSelection {
@@ -236,7 +238,7 @@ export function calculateTripTotal(config: TripConfig): PriceBreakdown {
 
   // Tour line items
   const tourItems: PriceLineItem[] = tours.map(tour => ({
-    labelEn: tour.name,
+    labelEn: tour.nameEn,
     labelHe: tour.nameHe,
     amount: tour.basePrice,
   }));
@@ -321,6 +323,50 @@ export function calculateTripTotal(config: TripConfig): PriceBreakdown {
     balanceAmount,
     isCustomQuote: isCustom,
   };
+}
+
+/**
+ * Simplified pricing calculation function (spec-compliant wrapper).
+ * Takes flat parameters instead of nested objects.
+ */
+export function calculateTripCost(params: {
+  tours: TourSelection[];
+  adults: number;
+  children: { age: number }[];
+  arrivalDate: Date;
+  departureDate: Date;
+  includesHotels: boolean;
+  includesFood: boolean;
+  includesAttractions: boolean;
+  attractionCount: number;
+  needsShabbatHotel: boolean;
+}): PriceBreakdown {
+  const {
+    tours,
+    adults,
+    children,
+    arrivalDate,
+    departureDate,
+    includesHotels,
+    includesFood,
+    includesAttractions,
+    attractionCount,
+    needsShabbatHotel,
+  } = params;
+
+  return calculateTripTotal({
+    tours,
+    group: { adults, children },
+    arrivalDate,
+    departureDate,
+    services: {
+      includesHotels,
+      includesFood,
+      includesAttractions,
+      attractionCount,
+    },
+    needsShabbatHotel,
+  });
 }
 
 /**

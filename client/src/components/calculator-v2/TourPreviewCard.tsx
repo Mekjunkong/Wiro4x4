@@ -29,7 +29,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
         {tour.imageUrl && (
           <img
             src={tour.imageUrl}
-            alt={language === "en" ? tour.name : tour.nameHe}
+            alt={language === "en" ? tour.nameEn : tour.nameHe}
             className="w-15 h-15 object-cover rounded flex-shrink-0"
           />
         )}
@@ -38,7 +38,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2">
             <h4 className="font-medium text-sm flex-1">
-              {language === "en" ? tour.name : tour.nameHe}
+              {language === "en" ? tour.nameEn : tour.nameHe}
             </h4>
 
             {/* Popular Badge */}

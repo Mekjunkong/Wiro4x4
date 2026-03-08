@@ -240,9 +240,11 @@ export default function BookingForm() {
       // Use number of selected destinations as tours, default to 1
       const numTours = Math.max(formData.suggestedDestinations.length, 1);
       const tours = Array.from({ length: numTours }, (_, i) => ({
-        name: `Tour ${i + 1}`,
+        slug: `tour-${i + 1}`,
+        nameEn: `Tour ${i + 1}`,
         nameHe: `\u05D8\u05D9\u05D5\u05DC ${i + 1}`,
         basePrice: 4500,
+        bookingCount: 0,
       }));
 
       const config: TripConfig = {

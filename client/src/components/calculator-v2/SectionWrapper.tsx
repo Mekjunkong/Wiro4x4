@@ -1,30 +1,26 @@
-import { type LucideIcon, ChevronDown, Check } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface SectionWrapperProps {
   title: string;
-  icon: LucideIcon;
-  isComplete: boolean;
+  sectionId: string;
   isExpanded: boolean;
   onToggle: () => void;
-  summaryPill?: ReactNode;
   stepNumber: number;
   children: ReactNode;
 }
 
 export function SectionWrapper({
   title,
-  icon: Icon,
-  isComplete,
+  sectionId,
   isExpanded,
   onToggle,
-  summaryPill,
   stepNumber,
   children,
 }: SectionWrapperProps) {
-  const contentId = `section-content-${stepNumber}`;
+  const contentId = `section-content-${sectionId}`;
 
   return (
     <Card className="border-[#D4AF37]/30 rounded-sm overflow-hidden">
@@ -52,25 +48,13 @@ export function SectionWrapper({
             "transition-all duration-300"
           )}
         >
-          {isComplete ? (
-            <Check className="w-5 h-5 text-green-600" />
-          ) : (
-            <span>{stepNumber}</span>
-          )}
+          <span>{stepNumber}</span>
         </div>
-
-        {/* Icon */}
-        <Icon className="w-5 h-5 flex-shrink-0" />
 
         {/* Title */}
         <span className="font-semibold text-base md:text-lg flex-grow">
           {title}
         </span>
-
-        {/* Summary Pill - Only shown when collapsed */}
-        {!isExpanded && summaryPill && (
-          <div className="hidden sm:block flex-shrink-0">{summaryPill}</div>
-        )}
 
         {/* Chevron */}
         <ChevronDown

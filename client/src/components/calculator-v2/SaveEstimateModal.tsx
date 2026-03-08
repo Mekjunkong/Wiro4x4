@@ -15,24 +15,33 @@ import { COMPANY_WHATSAPP_URL } from "@/const";
 interface SaveEstimateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  estimateData: {
-    selectedTours: Array<{ slug?: string; name: string }>;
-    adults: number;
-    children: number[];
-    arrivalDate: string;
-    departureDate: string;
-    includesHotels: boolean;
-    includesFood: boolean;
-    includesAttractions: boolean;
-    attractionCount: number;
-    needsShabbatHotel: boolean;
-  };
+  selectedTours: Array<{ slug?: string; nameEn?: string; name?: string }>;
+  adults: number;
+  children: number[];
+  arrivalDate: string;
+  departureDate: string;
+  includesHotels: boolean;
+  includesFood: boolean;
+  includesAttractions: boolean;
+  attractionCount: number;
+  needsShabbatHotel: boolean;
+  total: number;
 }
 
 export function SaveEstimateModal({
   isOpen,
   onClose,
-  estimateData,
+  selectedTours,
+  adults,
+  children,
+  arrivalDate,
+  departureDate,
+  includesHotels,
+  includesFood,
+  includesAttractions,
+  attractionCount,
+  needsShabbatHotel,
+  total: _total,
 }: SaveEstimateModalProps) {
   const { t } = useLanguage();
   const [email, setEmail] = useState("");
@@ -45,33 +54,35 @@ export function SaveEstimateModal({
     const params = new URLSearchParams();
 
     // Tours
-    if (estimateData.selectedTours.length > 0) {
-      const tourSlugs = estimateData.selectedTours
-        .map(t => t.slug || t.name.toLowerCase().replace(/\s+/g, "-"))
+    if (selectedTours.length > 0) {
+      const tourSlugs = selectedTours
+        .map(
+          t =>
+            t.slug ||
+            (t.nameEn || t.name || "").toLowerCase().replace(/\s+/g, "-")
+        )
         .join(",");
       params.set("tours", tourSlugs);
     }
 
     // Group
-    params.set("adults", estimateData.adults.toString());
-    if (estimateData.children.length > 0) {
-      params.set("children", estimateData.children.join(","));
+    params.set("adults", adults.toString());
+    if (children.length > 0) {
+      params.set("children", children.join(","));
     }
 
     // Dates
-    if (estimateData.arrivalDate)
-      params.set("arrival", estimateData.arrivalDate);
-    if (estimateData.departureDate)
-      params.set("departure", estimateData.departureDate);
+    if (arrivalDate) params.set("arrival", arrivalDate);
+    if (departureDate) params.set("departure", departureDate);
 
     // Services
-    if (estimateData.includesHotels) params.set("hotels", "true");
-    if (estimateData.includesFood) params.set("food", "true");
-    if (estimateData.includesAttractions) {
+    if (includesHotels) params.set("hotels", "true");
+    if (includesFood) params.set("food", "true");
+    if (includesAttractions) {
       params.set("attractions", "true");
-      params.set("attractionCount", estimateData.attractionCount.toString());
+      params.set("attractionCount", attractionCount.toString());
     }
-    if (estimateData.needsShabbatHotel) params.set("shabbat", "true");
+    if (needsShabbatHotel) params.set("shabbat", "true");
 
     return `${window.location.origin}/estimate-v2?${params.toString()}`;
   };

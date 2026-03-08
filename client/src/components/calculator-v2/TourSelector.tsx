@@ -36,7 +36,7 @@ export function TourSelector({
             // Check if tour is popular (basic implementation)
 
             const isPopular = POPULAR_TOUR_SLUGS.includes(
-              (tour as any).slug || tour.name.toLowerCase().replace(/\s+/g, "-")
+              tour.slug || tour.nameEn.toLowerCase().replace(/\s+/g, "-")
             );
 
             return (
@@ -74,7 +74,8 @@ export function TourSelector({
           </option>
           {availableTours.map((tour, idx) => (
             <option key={idx} value={idx}>
-              {isHebrew ? tour.nameHe : tour.name} — {formatTHB(tour.basePrice)}
+              {isHebrew ? tour.nameHe : tour.nameEn} —{" "}
+              {formatTHB(tour.basePrice)}
             </option>
           ))}
         </select>

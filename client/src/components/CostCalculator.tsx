@@ -36,31 +36,47 @@ import {
 
 // Fallback tours when DB is empty
 const FALLBACK_TOURS: TourSelection[] = [
-  { name: "Waterfall Adventure Tour", nameHe: "הרפתקת מפלים", basePrice: 3500 },
   {
-    name: "Mountain & Valley Explorer",
+    slug: "waterfall-adventure-tour",
+    nameEn: "Waterfall Adventure Tour",
+    nameHe: "הרפתקת מפלים",
+    basePrice: 3500,
+    bookingCount: 0,
+  },
+  {
+    slug: "mountain-valley-explorer",
+    nameEn: "Mountain & Valley Explorer",
     nameHe: "טיול הרים ועמקים",
     basePrice: 4200,
+    bookingCount: 0,
   },
   {
-    name: "Jungle & River Expedition",
+    slug: "jungle-river-expedition",
+    nameEn: "Jungle & River Expedition",
     nameHe: "טיול ג'ונגל ונהרות",
     basePrice: 4800,
+    bookingCount: 0,
   },
   {
-    name: "Rice Fields & Culture Tour",
+    slug: "rice-fields-culture-tour",
+    nameEn: "Rice Fields & Culture Tour",
     nameHe: "שדות אורז ותרבות מקומית",
     basePrice: 2800,
+    bookingCount: 0,
   },
   {
-    name: "Elephant Sanctuary Visit",
+    slug: "elephant-sanctuary-visit",
+    nameEn: "Elephant Sanctuary Visit",
     nameHe: "ביקור במקלט פילים",
     basePrice: 3200,
+    bookingCount: 0,
   },
   {
-    name: "Hill Tribe Cultural Journey",
+    slug: "hill-tribe-cultural-journey",
+    nameEn: "Hill Tribe Cultural Journey",
     nameHe: "מסע תרבותי לשבטי ההרים",
     basePrice: 3800,
+    bookingCount: 0,
   },
 ];
 
@@ -72,9 +88,11 @@ export function CostCalculator() {
   const availableTours: TourSelection[] = useMemo(() => {
     if (dbTours && dbTours.length > 0) {
       return dbTours.map(tour => ({
-        name: tour.name,
+        slug: tour.slug,
+        nameEn: tour.name,
         nameHe: tour.nameHe,
         basePrice: tour.price,
+        bookingCount: 0,
       }));
     }
     return FALLBACK_TOURS;
@@ -161,7 +179,7 @@ export function CostCalculator() {
   const handleWhatsApp = () => {
     if (!breakdown) return;
     const tourNames = selectedTours
-      .map(t => (isHebrew ? t.nameHe : t.name))
+      .map(t => (isHebrew ? t.nameHe : t.nameEn))
       .join(", ");
     const message = isHebrew
       ? `היי WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatTHB(breakdown.total)}\n\nאפשר לקבל הצעת מחיר מדויקת?`
@@ -192,7 +210,7 @@ export function CostCalculator() {
               >
                 <div>
                   <span className="font-medium text-sm">
-                    {isHebrew ? tour.nameHe : tour.name}
+                    {isHebrew ? tour.nameHe : tour.nameEn}
                   </span>
                   <span className="text-muted-foreground text-sm ml-2">
                     {formatTHB(tour.basePrice)}
@@ -232,7 +250,7 @@ export function CostCalculator() {
             </option>
             {availableTours.map((tour, idx) => (
               <option key={idx} value={idx}>
-                {isHebrew ? tour.nameHe : tour.name} —{" "}
+                {isHebrew ? tour.nameHe : tour.nameEn} —{" "}
                 {formatTHB(tour.basePrice)}
               </option>
             ))}

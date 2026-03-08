@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { Users, Calendar, Mountain, Settings } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  calculateTripTotal,
-  type TourSelection,
-  type PriceBreakdown,
-} from "@shared/pricing";
+import { calculateTripCost } from "@shared/pricing";
+import type { TourSelection, PriceBreakdown } from "@shared/pricing";
 import { SectionWrapper } from "./SectionWrapper";
 import { TourSelector } from "./TourSelector";
 import { GroupSelector } from "./GroupSelector";
@@ -39,11 +35,36 @@ export function CostCalculatorRedesigned() {
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // Mock tour data (will be fetched from tRPC in production)
+  // TODO: Replace with actual tRPC query
   const availableTours: TourSelection[] = [
-    { name: "Doi Inthanon", nameHe: "דוי אינטנון", basePrice: 2500 },
-    { name: "Mae Kampong", nameHe: "מאה קמפונג", basePrice: 1800 },
-    { name: "Sticky Waterfalls", nameHe: "מפלי הדבק", basePrice: 1500 },
+    {
+      slug: "doi-inthanon-roof-of-thailand",
+      nameEn: "Doi Inthanon",
+      nameHe: "דוי אינטנון",
+      basePrice: 2500,
+      bookingCount: 0,
+    },
+    {
+      slug: "mae-kampong-hidden-village",
+      nameEn: "Mae Kampong",
+      nameHe: "מאה קמפונג",
+      basePrice: 1800,
+      bookingCount: 0,
+    },
+    {
+      slug: "maerim-sticky-waterfalls",
+      nameEn: "Sticky Waterfalls",
+      nameHe: "מפלי הדבק",
+      basePrice: 1500,
+      bookingCount: 0,
+    },
+    {
+      slug: "doi-suthep-pui-beyond-temple",
+      nameEn: "Doi Suthep",
+      nameHe: "דוי סות'פ",
+      basePrice: 2000,
+      bookingCount: 0,
+    },
   ];
 
   // Computed values
@@ -66,55 +87,58 @@ export function CostCalculatorRedesigned() {
 
   let breakdown: PriceBreakdown | null = null;
   if (canCalculate) {
-    try {
-      breakdown = calculateTripTotal({
-        tours: selectedTours,
-        group: {
-          adults,
-          children: children.map(age => ({ age })),
-        },
-        arrivalDate: new Date(arrivalDate),
-        departureDate: new Date(departureDate),
-        services: {
-          includesHotels,
-          includesFood,
-          includesAttractions,
-          attractionCount,
-        },
-        needsShabbatHotel,
-      });
-    } catch {
-      // Invalid dates or calculation error
-      breakdown = null;
-    }
+    breakdown = calculateTripCost({
+      tours: selectedTours,
+      adults,
+      children: children.map(age => ({ age })),
+      arrivalDate: new Date(arrivalDate),
+      departureDate: new Date(departureDate),
+      includesHotels,
+      includesFood,
+      includesAttractions,
+      attractionCount,
+      needsShabbatHotel,
+    });
   }
 
   // Progressive disclosure: auto-expand next section when current completes
   useEffect(() => {
-    if (
-      selectedTours.length > 0 &&
-      !expandedSections.has("group") &&
-      !expandedSections.has("dates")
-    ) {
+    if (selectedTours.length > 0 && !expandedSections.has("group")) {
       setExpandedSections(new Set(["group"]));
     }
-  }, [selectedTours.length, expandedSections]);
+  }, [selectedTours.length]);
 
   useEffect(() => {
-    if (
-      adults >= 1 &&
-      !expandedSections.has("dates") &&
-      !expandedSections.has("services")
-    ) {
+    if (adults >= 1 && !expandedSections.has("dates")) {
       setExpandedSections(new Set(["dates"]));
     }
-  }, [adults, expandedSections]);
+  }, [adults]);
 
   useEffect(() => {
     if (arrivalDate && departureDate && !expandedSections.has("services")) {
       setExpandedSections(new Set(["services"]));
     }
-  }, [arrivalDate, departureDate, expandedSections]);
+  }, [arrivalDate, departureDate]);
+
+  const handleAddTour = (tour: TourSelection) => {
+    setSelectedTours(prev => [...prev, tour]);
+  };
+
+  const handleRemoveTour = (index: number) => {
+    setSelectedTours(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddChild = () => {
+    setChildren(prev => [...prev, 5]); // default age 5
+  };
+
+  const handleRemoveChild = (index: number) => {
+    setChildren(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateChildAge = (index: number, age: number) => {
+    setChildren(prev => prev.map((a, i) => (i === index ? age : a)));
+  };
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
@@ -128,33 +152,16 @@ export function CostCalculatorRedesigned() {
     });
   };
 
-  const getSummaryPill = (
-    section: "tours" | "group" | "dates" | "services"
-  ) => {
-    if (section === "tours" && selectedTours.length > 0) {
-      return t(
-        `${selectedTours.length} selected`,
-        `${selectedTours.length} נבחרו`
-      );
-    }
-    if (section === "group" && adults > 0) {
-      const total = adults + children.length;
-      return t(`${total} people`, `${total} אנשים`);
-    }
-    if (section === "dates" && arrivalDate && departureDate) {
-      return `${arrivalDate} - ${departureDate}`;
-    }
-    return undefined;
-  };
-
   const currentSection =
-    expandedSections.size === 1
-      ? (Array.from(expandedSections)[0] as
-          | "tours"
-          | "group"
-          | "dates"
-          | "services")
-      : null;
+    completedSections.size === 0
+      ? "tours"
+      : completedSections.size === 1
+        ? "group"
+        : completedSections.size === 2
+          ? "dates"
+          : completedSections.size === 3
+            ? "services"
+            : null;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
@@ -165,99 +172,82 @@ export function CostCalculatorRedesigned() {
       />
 
       {/* Sections */}
-      <div className="space-y-4">
-        {/* Tours */}
-        <SectionWrapper
-          title={t("Select Tours", "בחירת טיולים")}
-          icon={Mountain}
-          isComplete={completedSections.has("tours")}
-          isExpanded={expandedSections.has("tours")}
-          onToggle={() => toggleSection("tours")}
-          summaryPill={getSummaryPill("tours")}
-          stepNumber={1}
-        >
-          <TourSelector
-            availableTours={availableTours}
-            selectedTours={selectedTours}
-            onAddTour={tour => setSelectedTours([...selectedTours, tour])}
-            onRemoveTour={idx =>
-              setSelectedTours(selectedTours.filter((_, i) => i !== idx))
-            }
-          />
-        </SectionWrapper>
+      {/* Tours */}
+      <SectionWrapper
+        title={t("Select Your Tours", "בחרו את הטיולים")}
+        sectionId="tours"
+        isExpanded={expandedSections.has("tours")}
+        onToggle={() => toggleSection("tours")}
+        stepNumber={1}
+      >
+        <TourSelector
+          availableTours={availableTours}
+          selectedTours={selectedTours}
+          onAddTour={handleAddTour}
+          onRemoveTour={handleRemoveTour}
+        />
+      </SectionWrapper>
 
-        {/* Group */}
-        <SectionWrapper
-          title={t("Group Size", "גודל קבוצה")}
-          icon={Users}
-          isComplete={completedSections.has("group")}
-          isExpanded={expandedSections.has("group")}
-          onToggle={() => toggleSection("group")}
-          summaryPill={getSummaryPill("group")}
-          stepNumber={2}
-        >
-          <GroupSelector
-            adults={adults}
-            children={children}
-            onSetAdults={setAdults}
-            onAddChild={() => setChildren([...children, 0])}
-            onRemoveChild={idx =>
-              setChildren(children.filter((_, i) => i !== idx))
-            }
-            onUpdateChildAge={(idx, age) => {
-              const updated = [...children];
-              updated[idx] = age;
-              setChildren(updated);
-            }}
-          />
-        </SectionWrapper>
+      {/* Group */}
+      <SectionWrapper
+        title={t("Group Details", "פרטי הקבוצה")}
+        sectionId="group"
+        isExpanded={expandedSections.has("group")}
+        onToggle={() => toggleSection("group")}
+        stepNumber={2}
+      >
+        <GroupSelector
+          adults={adults}
+          children={children}
+          onSetAdults={setAdults}
+          onAddChild={handleAddChild}
+          onRemoveChild={handleRemoveChild}
+          onUpdateChildAge={handleUpdateChildAge}
+        />
+      </SectionWrapper>
 
-        {/* Dates */}
-        <SectionWrapper
-          title={t("Travel Dates", "תאריכי נסיעה")}
-          icon={Calendar}
-          isComplete={completedSections.has("dates")}
-          isExpanded={expandedSections.has("dates")}
-          onToggle={() => toggleSection("dates")}
-          summaryPill={getSummaryPill("dates")}
-          stepNumber={3}
-        >
-          <DateSelector
-            arrivalDate={arrivalDate}
-            departureDate={departureDate}
-            onSetArrivalDate={setArrivalDate}
-            onSetDepartureDate={setDepartureDate}
-          />
-        </SectionWrapper>
+      {/* Dates */}
+      <SectionWrapper
+        title={t("Travel Dates", "תאריכי הנסיעה")}
+        sectionId="dates"
+        isExpanded={expandedSections.has("dates")}
+        onToggle={() => toggleSection("dates")}
+        stepNumber={3}
+      >
+        <DateSelector
+          arrivalDate={arrivalDate}
+          departureDate={departureDate}
+          onSetArrivalDate={setArrivalDate}
+          onSetDepartureDate={setDepartureDate}
+        />
+      </SectionWrapper>
 
-        {/* Services */}
-        <SectionWrapper
-          title={t("Additional Services", "שירותים נוספים")}
-          icon={Settings}
-          isComplete={completedSections.has("services")}
-          isExpanded={expandedSections.has("services")}
-          onToggle={() => toggleSection("services")}
-          stepNumber={4}
-        >
-          <ServiceSelector
-            includesHotels={includesHotels}
-            includesFood={includesFood}
-            includesAttractions={includesAttractions}
-            attractionCount={attractionCount}
-            needsShabbatHotel={needsShabbatHotel}
-            onToggleHotels={setIncludesHotels}
-            onToggleFood={setIncludesFood}
-            onToggleAttractions={setIncludesAttractions}
-            onSetAttractionCount={setAttractionCount}
-            onToggleShabbatHotel={setNeedsShabbatHotel}
-          />
-        </SectionWrapper>
+      {/* Services */}
+      <SectionWrapper
+        title={t("Additional Services", "שירותים נוספים")}
+        sectionId="services"
+        isExpanded={expandedSections.has("services")}
+        onToggle={() => toggleSection("services")}
+        stepNumber={4}
+      >
+        <ServiceSelector
+          includesHotels={includesHotels}
+          includesFood={includesFood}
+          includesAttractions={includesAttractions}
+          attractionCount={attractionCount}
+          needsShabbatHotel={needsShabbatHotel}
+          onToggleHotels={setIncludesHotels}
+          onToggleFood={setIncludesFood}
+          onToggleAttractions={setIncludesAttractions}
+          onSetAttractionCount={setAttractionCount}
+          onToggleShabbatHotel={setNeedsShabbatHotel}
+        />
+      </SectionWrapper>
 
-        {/* Package recommendation */}
-        {breakdown?.packageOption && (
-          <PackageRecommendation packageOption={breakdown.packageOption} />
-        )}
-      </div>
+      {/* Package recommendation */}
+      {breakdown?.packageOption && (
+        <PackageRecommendation packageOption={breakdown.packageOption} />
+      )}
 
       {/* Price summary bar */}
       <PriceSummaryBar
@@ -277,18 +267,17 @@ export function CostCalculatorRedesigned() {
       <SaveEstimateModal
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}
-        estimateData={{
-          selectedTours,
-          adults,
-          children,
-          arrivalDate,
-          departureDate,
-          includesHotels,
-          includesFood,
-          includesAttractions,
-          attractionCount,
-          needsShabbatHotel,
-        }}
+        selectedTours={selectedTours}
+        adults={adults}
+        children={children}
+        arrivalDate={arrivalDate}
+        departureDate={departureDate}
+        includesHotels={includesHotels}
+        includesFood={includesFood}
+        includesAttractions={includesAttractions}
+        attractionCount={attractionCount}
+        needsShabbatHotel={needsShabbatHotel}
+        total={breakdown?.total ?? 0}
       />
     </div>
   );
