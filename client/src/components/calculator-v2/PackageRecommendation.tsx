@@ -1,6 +1,6 @@
 // client/src/components/calculator-v2/PackageRecommendation.tsx
 import { useState } from "react";
-import { Lightbulb, ChevronDown, BadgePercent } from "lucide-react";
+import { Lightbulb, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTHB, type PackageComparison } from "@shared/pricing";
 
@@ -30,8 +30,8 @@ export function PackageRecommendation({
           <Lightbulb className="w-5 h-5 text-green-600 shrink-0" />
           <span className="font-semibold text-green-800">
             {t(
-              `Save ${formatTHB(packageOption.savings)} with our ${packageName}!`,
-              `חסכו ${formatTHB(packageOption.savings)} עם ${packageName} שלנו!`
+              `💡 Save ${formatTHB(packageOption.savings)} with our ${packageOption.days}-Day Adventure Package`,
+              `💡 חסכו ${formatTHB(packageOption.savings)} עם חבילת ההרפתקה ל-${packageOption.days} ימים שלנו`
             )}
           </span>
         </div>
@@ -65,12 +65,9 @@ export function PackageRecommendation({
 
             {/* Package price */}
             <div className="flex justify-between items-center py-2 text-sm">
-              <div className="flex items-center gap-2">
-                <BadgePercent className="w-4 h-4 text-green-600" />
-                <span className="font-semibold text-green-800">
-                  {packageName}
-                </span>
-              </div>
+              <span className="font-semibold text-green-800">
+                {packageName}
+              </span>
               <span className="font-bold text-green-700">
                 {formatTHB(packageOption.packagePrice)}
               </span>
@@ -86,14 +83,6 @@ export function PackageRecommendation({
               </span>
             </div>
           </div>
-
-          {/* Info text */}
-          <p className="text-xs text-green-700 mt-3 bg-green-100 px-3 py-2 rounded-sm">
-            {t(
-              "Package discount automatically applied! Includes all selected tours at a special rate.",
-              "הנחת חבילה מוחלת אוטומטית! כולל את כל הטיולים שבחרתם במחיר מיוחד."
-            )}
-          </p>
         </div>
       </div>
     </div>
