@@ -64,7 +64,7 @@ export function Hero() {
         )}
         width={1920}
         height={1080}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover object-[30%_center] md:object-center"
         priority
         sizes="100vw"
       />
