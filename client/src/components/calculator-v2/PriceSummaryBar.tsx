@@ -24,28 +24,32 @@ export function PriceSummaryBar({
   return (
     <>
       {/* Mobile: Fixed bottom bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-border shadow-lg z-40 animate-in slide-in-from-bottom duration-300">
-        <div className="flex items-center justify-between px-4 py-3 pb-safe">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">
+      <div className="md:hidden fixed bottom-0 inset-x-0 h-20 bg-white border-t border-border shadow-lg z-40 animate-in slide-in-from-bottom duration-300">
+        <div className="flex items-center justify-between px-4 h-full pb-safe">
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground mb-0.5">
               {t("Total", "סה״כ")}
             </p>
             <CurrencyTooltip thb={total}>
-              <p className="text-2xl font-bold text-[#D4AF37]">
+              <p className="text-xl font-bold text-[#D4AF37]">
                 {formatTHB(total)}
               </p>
             </CurrencyTooltip>
+            <div className="flex items-center gap-1 text-[10px] text-green-700 mt-0.5">
+              <Shield className="w-2.5 h-2.5" />
+              <span>{t("100% Guarantee", "ערבות מלאה")}</span>
+            </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={onSaveEstimate}
-              className="px-4 py-2 border border-border rounded-sm hover:bg-muted transition-colors text-sm font-medium"
+              className="px-3 py-2 border border-border rounded-sm hover:bg-muted transition-colors text-sm font-medium"
             >
               {t("Save", "שמירה")}
             </button>
             <button
               onClick={onViewBreakdown}
-              className="px-4 py-2 bg-[#D4AF37] text-white rounded-sm hover:bg-[#D4AF37]/90 transition-colors text-sm font-medium"
+              className="px-3 py-2 bg-[#D4AF37] text-white rounded-sm hover:bg-[#D4AF37]/90 transition-colors text-sm font-medium"
             >
               {t("Breakdown", "פירוט")}
             </button>
