@@ -32,6 +32,7 @@ import { analyticsRouter } from "./routes/analytics";
 import { packageRouter } from "./routes/package";
 import { accountingRouter } from "./routes/accounting";
 import { inventoryRouter } from "./routes/inventory";
+import { estimateRouter } from "./routes/estimate";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -64,6 +65,7 @@ export const appRouter = router({
   package: packageRouter,
   accounting: accountingRouter,
   inventory: inventoryRouter,
+  estimate: estimateRouter,
 });
 
 export type AppRouter = typeof appRouter;

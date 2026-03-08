@@ -317,3 +317,29 @@ export type InvoiceInput = z.infer<typeof invoiceInputSchema>;
 export type AccountingEntryInput = z.infer<typeof accountingEntryInputSchema>;
 export type TaxFilingInput = z.infer<typeof taxFilingInputSchema>;
 export type InventoryInput = z.infer<typeof inventoryInputSchema>;
+
+// Estimate email input
+export const estimateEmailInputSchema = z.object({
+  email: z.string().email("Valid email required"),
+  selectedTours: z.array(
+    z.object({
+      slug: z.string(),
+      nameEn: z.string(),
+      nameHe: z.string(),
+      basePrice: z.number(),
+    })
+  ),
+  adults: z.number().min(1),
+  children: z.array(z.number().min(0).max(17)),
+  arrivalDate: z.string(),
+  departureDate: z.string(),
+  includesHotels: z.boolean(),
+  includesFood: z.boolean(),
+  includesAttractions: z.boolean(),
+  attractionCount: z.number().min(1),
+  needsShabbatHotel: z.boolean(),
+  total: z.number(),
+  language: z.enum(["en", "he"]),
+});
+
+export type EstimateEmailInput = z.infer<typeof estimateEmailInputSchema>;
