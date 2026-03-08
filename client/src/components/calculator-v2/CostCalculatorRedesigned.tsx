@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { calculateTripCost } from "@shared/pricing";
-import type { TourSelection, PriceBreakdown } from "@shared/pricing";
+import type { TourSelection } from "@shared/pricing";
 import { SectionWrapper } from "./SectionWrapper";
 import { TourSelector } from "./TourSelector";
 import { GroupSelector } from "./GroupSelector";
@@ -12,6 +12,38 @@ import { PackageRecommendation } from "./PackageRecommendation";
 import { PriceSummaryBar } from "./PriceSummaryBar";
 import { PriceBreakdownModal } from "./PriceBreakdownModal";
 import { SaveEstimateModal } from "./SaveEstimateModal";
+
+// Module-level constant (before the component function)
+const MOCK_AVAILABLE_TOURS: TourSelection[] = [
+  {
+    slug: "doi-inthanon-roof-of-thailand",
+    nameEn: "Doi Inthanon",
+    nameHe: "דוי אינטנון",
+    basePrice: 2500,
+    bookingCount: 0,
+  },
+  {
+    slug: "mae-kampong-hidden-village",
+    nameEn: "Mae Kampong",
+    nameHe: "מאה קמפונג",
+    basePrice: 1800,
+    bookingCount: 0,
+  },
+  {
+    slug: "maerim-sticky-waterfalls",
+    nameEn: "Sticky Waterfalls",
+    nameHe: "מפלי הדבק",
+    basePrice: 1500,
+    bookingCount: 0,
+  },
+  {
+    slug: "doi-suthep-pui-beyond-temple",
+    nameEn: "Doi Suthep",
+    nameHe: "דוי סות'פ",
+    basePrice: 2000,
+    bookingCount: 0,
+  },
+];
 
 export function CostCalculatorRedesigned() {
   const { t } = useLanguage();
@@ -36,58 +68,41 @@ export function CostCalculatorRedesigned() {
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   // TODO: Replace with actual tRPC query
-  const availableTours: TourSelection[] = [
-    {
-      slug: "doi-inthanon-roof-of-thailand",
-      nameEn: "Doi Inthanon",
-      nameHe: "דוי אינטנון",
-      basePrice: 2500,
-      bookingCount: 0,
-    },
-    {
-      slug: "mae-kampong-hidden-village",
-      nameEn: "Mae Kampong",
-      nameHe: "מאה קמפונג",
-      basePrice: 1800,
-      bookingCount: 0,
-    },
-    {
-      slug: "maerim-sticky-waterfalls",
-      nameEn: "Sticky Waterfalls",
-      nameHe: "מפלי הדבק",
-      basePrice: 1500,
-      bookingCount: 0,
-    },
-    {
-      slug: "doi-suthep-pui-beyond-temple",
-      nameEn: "Doi Suthep",
-      nameHe: "דוי סות'פ",
-      basePrice: 2000,
-      bookingCount: 0,
-    },
-  ];
+  const availableTours = MOCK_AVAILABLE_TOURS;
 
   // Computed values
-  const completedSections = new Set<"tours" | "group" | "dates" | "services">();
-  if (selectedTours.length > 0) completedSections.add("tours");
-  if (adults >= 1) completedSections.add("group");
-  if (arrivalDate && departureDate) completedSections.add("dates");
-  if (
-    includesHotels ||
-    includesFood ||
-    includesAttractions ||
-    needsShabbatHotel
-  ) {
-    completedSections.add("services");
-  }
+  const completedSections = useMemo(() => {
+    const sections = new Set<"tours" | "group" | "dates" | "services">();
+    if (selectedTours.length > 0) sections.add("tours");
+    if (adults > 0) sections.add("group");
+    if (arrivalDate && departureDate) sections.add("dates");
+    if (
+      includesHotels ||
+      includesFood ||
+      includesAttractions ||
+      needsShabbatHotel
+    ) {
+      sections.add("services");
+    }
+    return sections;
+  }, [
+    selectedTours.length,
+    adults,
+    arrivalDate,
+    departureDate,
+    includesHotels,
+    includesFood,
+    includesAttractions,
+    needsShabbatHotel,
+  ]);
 
   const canCalculate = Boolean(
     selectedTours.length > 0 && arrivalDate && departureDate
   );
 
-  let breakdown: PriceBreakdown | null = null;
-  if (canCalculate) {
-    breakdown = calculateTripCost({
+  const breakdown = useMemo(() => {
+    if (!canCalculate) return null;
+    return calculateTripCost({
       tours: selectedTours,
       adults,
       children: children.map(age => ({ age })),
@@ -99,26 +114,38 @@ export function CostCalculatorRedesigned() {
       attractionCount,
       needsShabbatHotel,
     });
-  }
+  }, [
+    canCalculate,
+    selectedTours,
+    adults,
+    children,
+    arrivalDate,
+    departureDate,
+    includesHotels,
+    includesFood,
+    includesAttractions,
+    attractionCount,
+    needsShabbatHotel,
+  ]);
 
   // Progressive disclosure: auto-expand next section when current completes
   useEffect(() => {
     if (selectedTours.length > 0 && !expandedSections.has("group")) {
-      setExpandedSections(new Set(["group"]));
+      setExpandedSections(prev => new Set(Array.from(prev).concat("group")));
     }
-  }, [selectedTours.length]);
+  }, [selectedTours.length, expandedSections]);
 
   useEffect(() => {
     if (adults >= 1 && !expandedSections.has("dates")) {
-      setExpandedSections(new Set(["dates"]));
+      setExpandedSections(prev => new Set(Array.from(prev).concat("dates")));
     }
-  }, [adults]);
+  }, [adults, expandedSections]);
 
   useEffect(() => {
     if (arrivalDate && departureDate && !expandedSections.has("services")) {
-      setExpandedSections(new Set(["services"]));
+      setExpandedSections(prev => new Set(Array.from(prev).concat("services")));
     }
-  }, [arrivalDate, departureDate]);
+  }, [arrivalDate, departureDate, expandedSections]);
 
   const handleAddTour = (tour: TourSelection) => {
     setSelectedTours(prev => [...prev, tour]);
