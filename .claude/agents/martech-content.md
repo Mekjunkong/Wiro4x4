@@ -100,13 +100,13 @@ if (process.env.ANTHROPIC_API_KEY) {
 
 ```typescript
 {
-  title: string,        // English title
-  titleHe: string,      // Hebrew title
+  title: string,        // English title (required)
+  titleHe?: string,     // Hebrew title (optional but RECOMMENDED)
   slug: string,         // URL-safe slug (lowercase, hyphens)
   excerpt: string,      // English excerpt (1-2 sentences)
-  excerptHe: string,    // Hebrew excerpt
+  excerptHe?: string,   // Hebrew excerpt (optional but RECOMMENDED)
   content: string,      // English body (markdown)
-  contentHe: string,    // Hebrew body (markdown)
+  contentHe?: string,   // Hebrew body (optional but RECOMMENDED)
   coverImage: string,   // Image URL (optional)
   category: string,     // e.g., "travel-tips", "kosher-guide", "adventure"
   tags: string,         // JSON array: '["chiang mai", "kosher", "off-road"]'
@@ -114,6 +114,8 @@ if (process.env.ANTHROPIC_API_KEY) {
   author: string        // Default: "WIRO 4x4"
 }
 ```
+
+**Note:** While Hebrew fields (titleHe, excerptHe, contentHe) are optional in the schema, Hard Rule #2 requires bilingual content for all public-facing posts. Always generate both English and Hebrew content.
 
 **Process:**
 
@@ -205,22 +207,23 @@ Unsubscribe | Update preferences
 **Read existing content for tone matching:**
 
 ```bash
-# Query via tRPC to see existing blog posts
-trpc.blog.listAll.query()
-
-# Query to see existing tours
-trpc.tour.listAll.query()
+cd /Users/pasuthunjunkong/workspace/Wiro4x4 && npx tsx -e "
+import { getDb } from './server/db';
+import { blogPosts, tours } from './drizzle/schema';
+import { desc } from 'drizzle-orm';
+async function main() {
+  const db = await getDb();
+  if (!db) return;
+  const posts = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt)).limit(3);
+  console.log(JSON.stringify(posts, null, 2));
+}
+main().catch(console.error).finally(() => process.exit(0));
+"
 ```
 
 **Create new content:**
 
-```bash
-# Save blog post
-trpc.blog.create.mutate(blogPostInput)
-
-# Save tour
-trpc.tour.create.mutate(tourInput)
-```
+Content creation happens through the admin UI or by providing JSON drafts that match the schemas. The martech plugin (Task 3) will handle the actual database mutations via tRPC.
 
 ## Integration with wiro-seo
 
