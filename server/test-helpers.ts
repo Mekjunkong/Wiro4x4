@@ -19,10 +19,9 @@ export const itWithDb = hasDatabase ? it : it.skip;
 export function createAuthContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
     id: 1,
-    openId: "test-user",
     email: "test@example.com",
+    passwordHash: "$2b$10$fakehashfortest",
     name: "Test User",
-    loginMethod: "manus",
     role: "admin",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -58,10 +57,9 @@ export function createPublicContext(): { ctx: TrpcContext } {
 export function createOwnerContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
     id: 1,
-    openId: "test-owner",
     email: "owner@example.com",
+    passwordHash: "$2b$10$fakehashfortest",
     name: "Test Owner",
-    loginMethod: "manus",
     role: "admin", // admin = owner equivalent
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -82,10 +80,9 @@ export function createOwnerContext(): { ctx: TrpcContext } {
 export function createManagerContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
     id: 2,
-    openId: "test-manager",
     email: "manager@example.com",
+    passwordHash: "$2b$10$fakehashfortest",
     name: "Test Manager",
-    loginMethod: "manus",
     role: "manager",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -106,10 +103,9 @@ export function createManagerContext(): { ctx: TrpcContext } {
 export function createAgentContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
     id: 3,
-    openId: "test-agent",
     email: "agent@example.com",
+    passwordHash: "$2b$10$fakehashfortest",
     name: "Test Agent",
-    loginMethod: "manus",
     role: "agent",
     createdAt: new Date(),
     updatedAt: new Date(),

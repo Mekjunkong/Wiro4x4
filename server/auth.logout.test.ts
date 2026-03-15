@@ -18,10 +18,9 @@ function createAuthContext(): {
 
   const user: AuthenticatedUser = {
     id: 1,
-    openId: "sample-user",
     email: "sample@example.com",
+    passwordHash: "$2b$10$fakehashfortest",
     name: "Sample User",
-    loginMethod: "manus",
     role: "user",
     createdAt: new Date(),
     updatedAt: new Date(),
