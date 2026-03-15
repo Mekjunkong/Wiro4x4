@@ -9,9 +9,15 @@ const REQUIRED_VARS = [
   "OWNER_EMAIL",
 ] as const;
 
-for (const varName of REQUIRED_VARS) {
-  if (!process.env[varName]) {
-    throw new Error(`Missing required environment variable: ${varName}`);
+// Skip validation in test environment (env vars may not be set)
+const isTestEnv =
+  process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+
+if (!isTestEnv) {
+  for (const varName of REQUIRED_VARS) {
+    if (!process.env[varName]) {
+      throw new Error(`Missing required environment variable: ${varName}`);
+    }
   }
 }
 
