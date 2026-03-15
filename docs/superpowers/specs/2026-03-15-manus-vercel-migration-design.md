@@ -284,10 +284,10 @@ const resetPasswordInput = z.object({
 // 4. Delete used token
 // 5. Invalidate all existing sessions (optional — or force re-login)
 
-// Error cases:
-// - 400: Token expired or invalid
-// - 400: Password too weak
-// - 500: Database error
+// Error cases (use generic messages to prevent enumeration):
+// - 400: "Reset failed. Please request a new password reset link." (for expired/invalid token)
+// - 400: "Password must be at least 8 characters" (for password validation)
+// - 500: "An error occurred. Please try again later." (for database errors)
 ```
 
 **6. GET /api/auth/me**
@@ -517,7 +517,7 @@ export async function storageGet(
          "https://www.wiro4x4indochina.com",
          "https://wiro4x4indochina.com"
        ],
-       "AllowedMethods": ["GET", "PUT", "POST"],
+       "AllowedMethods": ["GET", "PUT"],
        "AllowedHeaders": ["*"],
        "ExposeHeaders": ["ETag"],
        "MaxAgeSeconds": 3600
@@ -892,9 +892,30 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 **Implementation:**
 
-- Add env validation in `server/_core/env.ts` — validate required vars on startup
+- **Modify existing** `server/_core/env.ts` — add validation for required vars on startup
+
+  ```typescript
+  // Add to existing server/_core/env.ts file
+  const REQUIRED_VARS = [
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET_NAME",
+    "R2_PUBLIC_URL",
+    "OWNER_EMAIL",
+  ];
+
+  for (const varName of REQUIRED_VARS) {
+    if (!process.env[varName]) {
+      throw new Error(`Missing required environment variable: ${varName}`);
+    }
+  }
+  ```
+
 - Use lazy initialization for RESEND/OPENAI (existing pattern from CLAUDE.md lines 92, 411)
-- Crash early with clear error messages: `throw new Error('Missing required env var: JWT_SECRET')`
+- Crash early with clear error messages for required vars (shown above)
 
 **Complete `.env.example`:**
 
@@ -1007,13 +1028,36 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 4. **Update file URLs:**
 
+   **Discovery Step:** Find actual domain values
+
    ```sql
-   -- Replace Manus S3 URLs with R2 URLs
-   UPDATE galleryPhotos SET s3Url = REPLACE(s3Url, '<manus-s3-domain>', '<r2-public-url>');
-   UPDATE blogPosts SET coverImage = REPLACE(coverImage, '<manus-s3-domain>', '<r2-public-url>');
+   -- Discover current Manus S3 domain
+   SELECT DISTINCT SUBSTRING_INDEX(s3Url, '/', 3) as domain FROM galleryPhotos WHERE s3Url IS NOT NULL LIMIT 1;
+   -- Example output: https://storage.manus.im or https://s3.manus-cdn.com
+
+   -- Your R2 public URL (from R2 dashboard):
+   -- Example: https://pub-abc123xyz.r2.dev
    ```
 
-   - Test image loading on staging environment
+   **URL Replacement:**
+
+   ```sql
+   -- Replace Manus S3 URLs with R2 URLs
+   -- IMPORTANT: Replace values below with discovered domains
+   UPDATE galleryPhotos
+   SET s3Url = REPLACE(s3Url, 'https://storage.manus.im', 'https://pub-abc123xyz.r2.dev')
+   WHERE s3Url LIKE 'https://storage.manus.im%';
+
+   UPDATE blogPosts
+   SET coverImage = REPLACE(coverImage, 'https://storage.manus.im', 'https://pub-abc123xyz.r2.dev')
+   WHERE coverImage LIKE 'https://storage.manus.im%';
+
+   -- Verify replacements
+   SELECT COUNT(*) FROM galleryPhotos WHERE s3Url LIKE '%pub-abc123xyz.r2.dev%';
+   SELECT COUNT(*) FROM blogPosts WHERE coverImage LIKE '%pub-abc123xyz.r2.dev%';
+   ```
+
+   - Test image loading on staging environment before production deployment
 
 ### Phase 3: Vercel Deployment (Day 2-3)
 
@@ -1063,18 +1107,33 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 **Unit Tests (NEW - to be created):**
 
-- Auth module: `server/auth.test.ts` (new file)
-  - Password hashing/verification
-  - JWT creation/verification
-  - User registration flow
-  - Session token validation
+**`server/auth.test.ts` (new file) - 10 test cases:**
 
-- Storage module: `server/storage.test.ts` (new file)
-  - Upload to R2
-  - Get public URLs
-  - Error handling (missing env vars, upload failures)
+1. Password hashing produces different salts for same password
+2. Password verification succeeds with correct password
+3. Password verification fails with incorrect password
+4. JWT creation includes userId, email, role claims
+5. JWT expiration is set to 30 days
+6. JWT verification succeeds with valid token
+7. JWT verification fails with expired token (mock time advance)
+8. JWT verification fails with invalid signature
+9. Register rejects duplicate email
+10. Reset token generation creates 64-char hex string
 
-**Note:** These are NEW test files to be created during migration. The existing 21 test files (per CLAUDE.md) remain unchanged except for updating any Manus-specific assertions.
+**`server/storage.test.ts` (new file) - 8 test cases:**
+
+1. storagePut uploads buffer to R2 successfully
+2. storagePut returns correct public URL format
+3. storageGet returns public URL for existing key
+4. storagePut handles missing R2_BUCKET_NAME env var gracefully
+5. storagePut handles R2 network timeout (mocked S3Client)
+6. storagePut strips leading slashes from keys
+7. storagePut sets correct ContentType header
+8. Multiple uploads to same key overwrite (S3 behavior)
+
+**Coverage Target:** ≥80% line coverage for auth.ts and storage.ts modules
+
+**Note:** These are NEW test files to be created during migration. The existing 21 test files (per CLAUDE.md) remain unchanged except for updating any Manus-specific assertions (e.g., remove references to `openId` field).
 
 **Integration Tests:**
 
@@ -1138,10 +1197,23 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
    **Maintenance Mode Implementation:**
 
    ```typescript
-   // Add to server/_core/middleware.ts
+   // Add to server/_core/middleware.ts (before tRPC handler)
    const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE === "true";
-   if (MAINTENANCE_MODE && req.path.includes("/api/booking")) {
-     return res.status(503).json({ error: "Under maintenance" });
+   if (MAINTENANCE_MODE && req.path.startsWith("/api/trpc")) {
+     // Block all write operations (mutations) during maintenance
+     const blockedProcedures = [
+       "booking.create",
+       "lead.create",
+       "review.create",
+     ];
+     // Note: tRPC calls are POST to /api/trpc with procedure in body
+     // Full implementation would parse body to check procedure name
+     return res.status(503).json({
+       error: {
+         message: "System under maintenance. Please try again later.",
+         code: "MAINTENANCE_MODE",
+       },
+     });
    }
    ```
 
