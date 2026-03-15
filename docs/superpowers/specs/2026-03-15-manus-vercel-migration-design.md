@@ -875,20 +875,20 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 **Environment Variable Validation Strategy:**
 
-| Variable               | Required? | Crash if Missing? | Fallback Behavior                            |
-| ---------------------- | --------- | ----------------- | -------------------------------------------- |
-| `DATABASE_URL`         | ✅ Yes    | ✅ Crash          | None — app cannot function without DB        |
-| `JWT_SECRET`           | ✅ Yes    | ✅ Crash          | None — auth requires secret                  |
-| `R2_ACCOUNT_ID`        | ✅ Yes    | ✅ Crash          | None — storage is core feature               |
-| `R2_ACCESS_KEY_ID`     | ✅ Yes    | ✅ Crash          | None — storage is core feature               |
-| `R2_SECRET_ACCESS_KEY` | ✅ Yes    | ✅ Crash          | None — storage is core feature               |
-| `R2_BUCKET_NAME`       | ✅ Yes    | ✅ Crash          | None — storage is core feature               |
-| `R2_PUBLIC_URL`        | ✅ Yes    | ✅ Crash          | None — storage is core feature               |
-| `OWNER_EMAIL`          | ✅ Yes    | ✅ Crash          | None — notifications are critical            |
-| `RESEND_API_KEY`       | ✅ Yes    | ❌ Lazy init      | Log warning, disable email features          |
-| `OPENAI_API_KEY`       | ❌ No     | ❌ Lazy init      | Log warning, AI blog generation disabled     |
-| `ANTHROPIC_API_KEY`    | ❌ No     | ❌ Lazy init      | (Existing behavior — kept for compatibility) |
-| `STRIPE_*`             | ❌ No     | ❌ Lazy init      | (Deferred — not yet implemented)             |
+| Variable               | Required? | Crash if Missing? | Fallback Behavior                                                      |
+| ---------------------- | --------- | ----------------- | ---------------------------------------------------------------------- |
+| `DATABASE_URL`         | ✅ Yes    | ✅ Crash          | None — app cannot function without DB                                  |
+| `JWT_SECRET`           | ✅ Yes    | ✅ Crash          | None — auth requires secret                                            |
+| `R2_ACCOUNT_ID`        | ✅ Yes    | ✅ Crash          | None — storage is core feature                                         |
+| `R2_ACCESS_KEY_ID`     | ✅ Yes    | ✅ Crash          | None — storage is core feature                                         |
+| `R2_SECRET_ACCESS_KEY` | ✅ Yes    | ✅ Crash          | None — storage is core feature                                         |
+| `R2_BUCKET_NAME`       | ✅ Yes    | ✅ Crash          | None — storage is core feature                                         |
+| `R2_PUBLIC_URL`        | ✅ Yes    | ✅ Crash          | None — storage is core feature                                         |
+| `OWNER_EMAIL`          | ✅ Yes    | ✅ Crash          | None — notifications are critical                                      |
+| `RESEND_API_KEY`       | ⚠️ Soft   | ❌ Lazy init      | Log warning, disable email features (booking confirmations won't send) |
+| `OPENAI_API_KEY`       | ❌ No     | ❌ Lazy init      | Log warning, AI blog generation disabled                               |
+| `ANTHROPIC_API_KEY`    | ❌ No     | ❌ Lazy init      | (Existing behavior — kept for compatibility)                           |
+| `STRIPE_*`             | ❌ No     | ❌ Lazy init      | (Deferred — not yet implemented)                                       |
 
 **Implementation:**
 
@@ -1137,9 +1137,23 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 **Integration Tests:**
 
-- Login flow: Email + password → JWT cookie → tRPC auth context
-- File upload: Frontend → API → R2 → URL returned
-- Blog generation: tRPC call → OpenAI → draft returned
+**Auth Flows (7 scenarios):**
+
+1. Register → user created in DB → JWT cookie set → can access protected route
+2. Register → duplicate email → 400 error
+3. Login → correct credentials → JWT cookie → authenticated
+4. Login → wrong password → 401 error
+5. Forgot password → email sent → token stored in DB → expires after 1 hour
+6. Reset password → valid token → password updated → token deleted → old password fails login
+7. Reset password → expired token → generic error (no enumeration)
+
+**File Upload Flow:**
+
+- Frontend form → tRPC mutation → server storagePut() → R2 upload → public URL returned → image loads in gallery
+
+**Blog Generation Flow:**
+
+- Admin click "Generate" → tRPC call → OpenAI API → draft returned → editor populated
 
 **Manual Testing:**
 
@@ -1199,23 +1213,23 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
    ```typescript
    // Add to server/_core/middleware.ts (before tRPC handler)
    const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE === "true";
-   if (MAINTENANCE_MODE && req.path.startsWith("/api/trpc")) {
-     // Block all write operations (mutations) during maintenance
-     const blockedProcedures = [
-       "booking.create",
-       "lead.create",
-       "review.create",
-     ];
-     // Note: tRPC calls are POST to /api/trpc with procedure in body
-     // Full implementation would parse body to check procedure name
-     return res.status(503).json({
-       error: {
-         message: "System under maintenance. Please try again later.",
-         code: "MAINTENANCE_MODE",
-       },
-     });
+   if (MAINTENANCE_MODE) {
+     // Block ALL API requests during rollback window
+     // Simple approach: return 503 for all /api/* requests
+     // This forces users to wait until rollback completes
+     if (req.path.startsWith("/api/")) {
+       return res.status(503).json({
+         error: {
+           message:
+             "System under maintenance. Please check back in a few minutes.",
+           code: "MAINTENANCE_MODE",
+         },
+       });
+     }
    }
    ```
+
+   **Alternative (granular control):** If you need read-only mode instead of full blackout, parse tRPC request body and block only mutations. During emergency rollback, full blackout is safer.
 
 **Rollback readiness:**
 
@@ -1280,13 +1294,16 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 2. **Session migration:** ✅ DECIDED - Invalidate all existing sessions (force re-login). All users will need to log in with new credentials after migration.
 
-## Open Questions
+## Open Questions (Optional Decisions)
+
+The following are implementation details that can be decided during execution:
 
 1. **Database migration timing:** Migrate data before or after code deployment?
    - **Recommendation:** Migrate data first (to PlanetScale), then deploy code
+   - **Status:** Non-blocking - both approaches work, recommendation preferred for safety
 
 2. **Domain SSL:** Use Vercel's automatic SSL or bring custom certificate?
-   - **Recommendation:** Use Vercel automatic SSL (Let's Encrypt) - zero config
+   - **Decision:** ✅ Use Vercel automatic SSL (Let's Encrypt) - zero config required
 
 ---
 
