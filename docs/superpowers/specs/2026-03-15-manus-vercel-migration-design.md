@@ -127,10 +127,7 @@ export const users = mysqlTable("users", {
 
   // ADD these fields:
   email: varchar("email", { length: 320 }).notNull().unique(),
-  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
-  emailVerified: int("emailVerified").default(0).notNull(),
-  resetToken: varchar("resetToken", { length: 64 }),
-  resetTokenExpiry: timestamp("resetTokenExpiry"),
+  passwordHash: varchar("passwordHash", { length: 60 }).notNull(), // bcrypt hash
 
   // KEEP unchanged:
   name: text("name"),
@@ -140,6 +137,17 @@ export const users = mysqlTable("users", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+});
+
+// ADD new table for password reset tokens (separate table for cleaner separation)
+export const passwordResetTokens = mysqlTable("passwordResetTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 64 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 ```
 
@@ -390,14 +398,30 @@ DATABASE_URL=mysql://user:password@aws.connect.psdb.cloud/wiro?ssl={"rejectUnaut
    # Create database
    pscale database create wiro --region us-east
 
-   # Import via connection string (NOT pscale CLI — use mysql client)
-   mysql --host=aws.connect.psdb.cloud \
-     --user=<user> \
-     --password=<password> \
-     --ssl-mode=REQUIRED \
+   # Create branch for schema import
+   pscale branch create wiro import-branch
+
+   # Get connection string for import-branch
+   pscale connect wiro import-branch --port 3309
+
+   # Import via mysql client (in separate terminal)
+   mysql --host=127.0.0.1 \
+     --port=3309 \
+     --user=root \
      --database=wiro \
      < backup.sql
+
+   # Create deploy request to merge schema changes to main
+   pscale deploy-request create wiro import-branch --into main
+
+   # Review and deploy
+   pscale deploy-request deploy wiro <number>
    ```
+
+   **PlanetScale Constraints:**
+   - No foreign key constraints (uses Vitess) — FK columns work, but NOT enforced at DB level
+   - Schema changes must go through branch workflow (can't ALTER tables on main branch)
+   - Large data imports may timeout — consider splitting into smaller batches
 
 3. Verify row counts match (see Migration Verification section below)
 
@@ -504,9 +528,29 @@ export async function storageGet(
 
 **Data Migration:**
 
-- Download all files from Manus S3: `aws s3 sync s3://manus-bucket ./backup-files`
-- Upload to R2: `aws s3 sync ./backup-files s3://wiro-storage --endpoint-url https://xxx.r2.cloudflarestorage.com`
-- Update database URLs if needed (search/replace Manus URLs with R2 URLs)
+```bash
+# Step 1: Download from Manus S3 (get endpoint from Manus dashboard)
+aws s3 sync s3://manus-bucket ./backup-files
+
+# Step 2: Configure AWS CLI for R2
+aws configure --profile r2
+# Enter when prompted:
+# AWS Access Key ID: <R2_ACCESS_KEY_ID>
+# AWS Secret Access Key: <R2_SECRET_ACCESS_KEY>
+# Default region name: auto
+# Default output format: json
+
+# Step 3: Upload to R2
+aws s3 sync ./backup-files s3://wiro-storage \
+  --endpoint-url https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com \
+  --profile r2
+
+# Step 4: Verify file count matches
+aws s3 ls s3://wiro-storage --recursive --profile r2 --endpoint-url https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com | wc -l
+# Compare with: find ./backup-files -type f | wc -l
+```
+
+- Update database URLs after upload (see Migration Phase 2, step 4)
 
 ---
 
@@ -551,6 +595,57 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
 **Callers:** No changes needed in `server/aiContentGenerator.ts` (blog draft generation)
 **Model:** GPT-4o-mini ($0.15/1M input tokens, $0.60/1M output tokens)
 **Expected cost:** ~$0.50-1/month for occasional blog drafts
+
+**Error Handling:**
+
+```typescript
+// Update invokeLLM with retry logic and error handling
+export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
+  const { messages, tools, maxTokens = 4096 } = params;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: messages.map(normalizeMessage),
+      tools: tools?.length ? tools : undefined,
+      max_tokens: maxTokens,
+    });
+
+    return response as InvokeResult;
+  } catch (error) {
+    // Error handling by type
+    if (error.status === 429) {
+      // Rate limit - wait and retry once
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages,
+        tools,
+        max_tokens: maxTokens,
+      });
+    } else if (error.status === 401) {
+      // Invalid API key - fail fast
+      throw new Error("OpenAI API key invalid or missing");
+    } else if (error.status >= 500) {
+      // OpenAI server error - return user-friendly message
+      throw new Error(
+        "AI service temporarily unavailable. Please try again later."
+      );
+    } else {
+      // Other errors (quota, network, etc.) - log and rethrow
+      console.error("[LLM] OpenAI error:", error);
+      throw new Error("Failed to generate content. Please try again.");
+    }
+  }
+}
+```
+
+**Behavior in Blog Draft Generation:**
+
+- **Synchronous:** Admin waits for response (no background queue)
+- **Timeout:** 30 seconds max (prevent hanging admin UI)
+- **User-facing errors:** Toast notification with retry button
+- **Logging:** All errors logged to console for debugging
 
 ---
 
@@ -687,13 +782,35 @@ grep -r "generateImage" server/ client/ --include="*.ts" --include="*.tsx"
 }
 ```
 
+**Build Output Structure:**
+
+```
+dist/
+├── public/               # Vite output (frontend)
+│   ├── index.html
+│   ├── assets/
+│   │   ├── index-xyz.js
+│   │   └── index-xyz.css
+│   └── images/
+└── index.js              # esbuild output (backend - SINGLE BUNDLE)
+```
+
+**Backend Bundling Details:**
+
+- Entry point: `server/_core/index.ts` (Express app)
+- **ALL server code bundled:** `server/routers.ts`, `server/db.ts`, `server/storage.ts`, etc. are bundled into single `dist/index.js`
+- `--bundle` flag includes all imports recursively
+- `--packages=external` excludes node_modules (they're installed separately in Vercel function)
+- Dependencies in `package.json` are installed by Vercel at function runtime
+- No separate file copying needed — esbuild handles all imports
+
 **Deployment Flow:**
 
 1. Push to GitHub `main` branch
 2. Vercel auto-deploys (connected to GitHub)
-3. Build runs: Vite (frontend) + esbuild (backend)
-4. Frontend served from `dist/public/`
-5. API served from `dist/index.js` as serverless function
+3. Build runs: Vite (frontend) + esbuild (backend bundle)
+4. Frontend served from `dist/public/` (static files)
+5. API served from `dist/index.js` as serverless function (single entry point)
 
 ---
 
@@ -889,6 +1006,7 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
    - If <5% data loss → identify missing rows, re-export those tables only
 
 4. **Update file URLs:**
+
    ```sql
    -- Replace Manus S3 URLs with R2 URLs
    UPDATE galleryPhotos SET s3Url = REPLACE(s3Url, '<manus-s3-domain>', '<r2-public-url>');
@@ -1084,18 +1202,18 @@ VITE_ANALYTICS_WEBSITE_ID=wiro4x4indochina.com
 
 ---
 
-## Open Questions & Decisions
+## Resolved Decisions
 
-1. **User migration strategy:** Set passwords before migration, or email reset links after?
-   - **Recommendation:** Email all users 3 days before migration with "Set Password" link
+1. **User migration strategy:** ✅ DECIDED - Fresh Start approach (wipe users table, admin manually creates new account via migration script). No password migration needed. See "Migration Strategy for Existing Users" section.
 
-2. **Database migration timing:** Migrate data before or after code deployment?
+2. **Session migration:** ✅ DECIDED - Invalidate all existing sessions (force re-login). All users will need to log in with new credentials after migration.
+
+## Open Questions
+
+1. **Database migration timing:** Migrate data before or after code deployment?
    - **Recommendation:** Migrate data first (to PlanetScale), then deploy code
 
-3. **Session migration:** Invalidate all existing sessions, or try to migrate them?
-   - **Recommendation:** Invalidate all sessions (force re-login) - simpler and more secure
-
-4. **Domain SSL:** Use Vercel's automatic SSL or bring custom certificate?
+2. **Domain SSL:** Use Vercel's automatic SSL or bring custom certificate?
    - **Recommendation:** Use Vercel automatic SSL (Let's Encrypt) - zero config
 
 ---
