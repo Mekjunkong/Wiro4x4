@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { getLoginUrl } from "@/const";
+import { LOGIN_URL } from "@/const";
 import {
   Calendar,
   Users,
@@ -292,7 +292,7 @@ export default function AdminDashboard() {
             Please log in to access the admin dashboard.
           </p>
           <a
-            href={getLoginUrl()}
+            href={LOGIN_URL}
             className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
           >
             Log In

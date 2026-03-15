@@ -6,7 +6,7 @@ import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { getLoginUrl } from "./const";
+import { LOGIN_URL } from "./const";
 import "./index.css";
 
 // Initialize Sentry error tracking
@@ -39,7 +39,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  window.location.href = LOGIN_URL;
 };
 
 queryClient.getQueryCache().subscribe(event => {
