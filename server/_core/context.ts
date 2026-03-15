@@ -1,6 +1,9 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
+import { parse as parseCookieHeader } from "cookie";
 import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
+import { COOKIE_NAME } from "@shared/const";
+import { verifySession } from "../auth";
+import * as db from "../db";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -14,9 +17,22 @@ export async function createContext(
   let user: User | null = null;
 
   try {
-    user = await sdk.authenticateRequest(opts.req);
+    const cookies = opts.req.headers.cookie
+      ? parseCookieHeader(opts.req.headers.cookie)
+      : {};
+    const sessionCookie = cookies[COOKIE_NAME];
+
+    if (sessionCookie) {
+      const payload = await verifySession(sessionCookie);
+      if (payload) {
+        const dbUser = await db.getUserById(payload.userId);
+        if (dbUser) {
+          user = dbUser;
+        }
+      }
+    }
   } catch (error) {
-    // Authentication is optional for public procedures.
+    console.error("[Context] Auth error:", error);
     user = null;
   }
 
