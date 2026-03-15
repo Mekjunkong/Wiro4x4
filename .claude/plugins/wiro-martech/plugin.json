@@ -1,0 +1,115 @@
+{
+  "name": "wiro-martech",
+  "version": "1.0.0",
+  "description": "Marketing automation suite for Wiro 4x4 - Phase 1: Operations & Content",
+  "agents": ["martech-ops", "martech-content"],
+  "commands": [
+    {
+      "name": "morning-briefing",
+      "description": "Daily morning briefing with yesterday's metrics + today's priorities",
+      "pattern": "/martech:morning-briefing",
+      "agent": "martech-ops"
+    },
+    {
+      "name": "eod-report",
+      "description": "End of day summary report",
+      "pattern": "/martech:eod-report",
+      "agent": "martech-ops"
+    },
+    {
+      "name": "weekly-review",
+      "description": "Weekly performance review across all channels",
+      "pattern": "/martech:weekly-review",
+      "agent": "martech-ops"
+    },
+    {
+      "name": "weekly-plan",
+      "description": "Plan next week's content and goals",
+      "pattern": "/martech:weekly-plan",
+      "agent": "martech-ops"
+    },
+    {
+      "name": "content-calendar",
+      "description": "View/plan content calendar for next 30 days",
+      "pattern": "/martech:content-calendar",
+      "agent": "martech-content"
+    },
+    {
+      "name": "write-blog",
+      "description": "Generate bilingual blog post draft",
+      "pattern": "/martech:write-blog",
+      "agent": "martech-content"
+    },
+    {
+      "name": "write-social",
+      "description": "Generate social media caption (FB/IG)",
+      "pattern": "/martech:write-social",
+      "agent": "martech-content"
+    },
+    {
+      "name": "write-newsletter",
+      "description": "Draft newsletter email content",
+      "pattern": "/martech:write-newsletter",
+      "agent": "martech-content"
+    },
+    {
+      "name": "publish",
+      "description": "Publish content to database (validates schema)",
+      "pattern": "/martech:publish",
+      "agent": "martech-content"
+    }
+  ],
+  "scheduledTasks": [
+    {
+      "name": "morning-briefing",
+      "description": "Daily morning briefing at 07:00",
+      "schedule": "0 7 * * *",
+      "command": "/martech:morning-briefing",
+      "enabled": false,
+      "note": "Set enabled: true to activate. Requires Claude Desktop running."
+    },
+    {
+      "name": "eod-report",
+      "description": "End of day report at 18:00",
+      "schedule": "0 18 * * *",
+      "command": "/martech:eod-report",
+      "enabled": false,
+      "note": "Set enabled: true to activate."
+    },
+    {
+      "name": "weekly-plan",
+      "description": "Monday weekly planning at 09:00",
+      "schedule": "0 9 * * 1",
+      "command": "/martech:weekly-plan",
+      "enabled": false,
+      "note": "Set enabled: true to activate. Runs every Monday."
+    },
+    {
+      "name": "weekly-review",
+      "description": "Friday weekly review at 16:00",
+      "schedule": "0 16 * * 5",
+      "command": "/martech:weekly-review",
+      "enabled": false,
+      "note": "Set enabled: true to activate. Runs every Friday."
+    }
+  ],
+  "settings": {
+    "gracefulDegradation": true,
+    "requiredServices": ["MySQL via tRPC"],
+    "optionalServices": ["Google Sheets MCP", "Gmail MCP", "Canva MCP"],
+    "mcpConnectors": {
+      "googleSheets": {
+        "purpose": "Content calendar + lead pipeline tracking",
+        "required": false
+      },
+      "gmail": {
+        "purpose": "Send automated reports via email",
+        "required": false
+      },
+      "canva": {
+        "purpose": "Generate blog cover images",
+        "required": false
+      }
+    }
+  }
+}
