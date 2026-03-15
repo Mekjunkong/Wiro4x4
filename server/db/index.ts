@@ -10,8 +10,11 @@ export { getDb } from "./connection";
 
 // Users
 export {
-  upsertUser,
-  getUserByOpenId,
+  getUserById,
+  getUserByEmail,
+  createUser,
+  updateUserPassword,
+  updateLastSignedIn,
   getAllAdminUsers,
   updateUserRole,
   removeAdminAccess,
