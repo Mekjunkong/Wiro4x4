@@ -124,9 +124,10 @@ function Router() {
 function AppContent() {
   const { language, t } = useLanguage();
 
-  // Set document language (keep LTR layout for both languages)
+  // Set document language and direction
   React.useEffect(() => {
     document.documentElement.lang = language;
+    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
   }, [language]);
 
   return (

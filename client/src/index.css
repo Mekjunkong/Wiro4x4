@@ -241,7 +241,17 @@
     display: none;
   }
 
-  /* RTL removed - Hebrew version uses same LTR layout as English */
+  /* RTL support for Hebrew */
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+  .rtl .text-left {
+    text-align: right;
+  }
+  .rtl .text-right {
+    text-align: left;
+  }
 }
 
 /* Ken Burns hero effect */
