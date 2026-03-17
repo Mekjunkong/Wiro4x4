@@ -70,7 +70,8 @@ const FALLBACK_TESTIMONIALS = [
 ];
 
 export function Testimonials() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isHebrew = language === "he";
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -100,12 +101,13 @@ export function Testimonials() {
     };
   }, [emblaApi]);
 
-  // Auto-advance every 6 seconds
+  // Auto-advance every 6 seconds, pausing on hover/focus for WCAG 2.2.2
+  const [isPaused, setIsPaused] = useState(false);
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi || isPaused) return;
     const interval = setInterval(() => emblaApi.scrollNext(), 6000);
     return () => clearInterval(interval);
-  }, [emblaApi]);
+  }, [emblaApi, isPaused]);
 
   const { data: dbReviews } = trpc.review.listPublic.useQuery();
 
@@ -138,10 +140,7 @@ export function Testimonials() {
           <div className="flex items-center justify-center gap-2 mt-4">
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className="h-5 w-5 fill-[#d4af37] text-[#d4af37]"
-                />
+                <Star key={i} className="h-5 w-5 fill-accent text-accent" />
               ))}
             </div>
             <span className="text-lg font-bold text-foreground">5.0</span>
@@ -155,7 +154,13 @@ export function Testimonials() {
         </div>
 
         {/* Carousel */}
-        <div className="relative">
+        <div
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocus={() => setIsPaused(true)}
+          onBlur={() => setIsPaused(false)}
+        >
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex gap-6">
               {reviews.map((testimonial, index) => (
@@ -163,9 +168,9 @@ export function Testimonials() {
                   key={index}
                   className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="h-full p-6 bg-card border-l-4 border-[#d4af37] rounded-sm shadow-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                  <div className="h-full p-6 bg-card border-l-4 border-accent rounded-sm shadow-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
                     <div className="flex flex-col h-full">
-                      <span className="text-5xl text-[#d4af37] leading-none mb-4">
+                      <span className="text-5xl text-accent leading-none mb-4">
                         {"\u201C"}
                       </span>
                       <div className="flex gap-0.5 mb-3">
@@ -173,7 +178,7 @@ export function Testimonials() {
                           (_, i) => (
                             <Star
                               key={i}
-                              className="h-4 w-4 fill-[#d4af37] text-[#d4af37]"
+                              className="h-4 w-4 fill-accent text-accent"
                             />
                           )
                         )}
@@ -183,7 +188,7 @@ export function Testimonials() {
                       </p>
                       <div>
                         <p className="font-semibold text-foreground">
-                          <span className="text-[#d4af37]">{"\u2014 "}</span>
+                          <span className="text-accent">{"\u2014 "}</span>
                           {testimonial.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -200,14 +205,14 @@ export function Testimonials() {
           {/* Arrows */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#d4af37]/30 rounded-full text-[#d4af37] hover:bg-[#d4af37] hover:text-card transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-accent/30 rounded-full text-accent hover:bg-accent hover:text-card transition-colors"
             aria-label={t("Previous", "\u05d4\u05e7\u05d5\u05d3\u05dd")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#d4af37]/30 rounded-full text-[#d4af37] hover:bg-[#d4af37] hover:text-card transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-accent/30 rounded-full text-accent hover:bg-accent hover:text-card transition-colors"
             aria-label={t("Next", "\u05d4\u05d1\u05d0")}
           >
             <ChevronRight className="h-5 w-5" />
@@ -221,7 +226,7 @@ export function Testimonials() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#d4af37]" : "bg-muted"
+                index === selectedIndex ? "bg-accent" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -230,12 +235,16 @@ export function Testimonials() {
 
         <div className="text-center mt-8">
           <Link href="/reviews">
-            <span className="inline-flex items-center gap-2 text-[#d4af37] font-semibold hover:underline cursor-pointer">
+            <span
+              className={`inline-flex items-center gap-2 text-accent font-semibold hover:underline cursor-pointer ${isHebrew ? "flex-row-reverse" : ""}`}
+            >
               {t(
                 "See All Reviews",
                 "\u05dc\u05db\u05dc \u05d7\u05d5\u05d5\u05ea \u05d4\u05d3\u05e2\u05ea"
               )}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight
+                className={`h-4 w-4 ${isHebrew ? "rotate-180" : ""}`}
+              />
             </span>
           </Link>
         </div>

@@ -148,7 +148,7 @@ export default function Blog() {
       <Header />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
+        <section className="relative py-20 mt-20 bg-gradient-to-br from-accent/5 to-accent/10">
           <div className="container">
             <div
               className="max-w-3xl mx-auto text-center"
@@ -193,7 +193,7 @@ export default function Blog() {
                   onClick={() => setSelectedCategory(null)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     !selectedCategory
-                      ? "bg-[#D4AF37] text-white"
+                      ? "bg-accent text-white"
                       : "bg-muted hover:bg-muted/80"
                   }`}
                 >
@@ -207,7 +207,7 @@ export default function Blog() {
                     }
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                       selectedCategory === cat
-                        ? "bg-[#D4AF37] text-white"
+                        ? "bg-accent text-white"
                         : "bg-muted hover:bg-muted/80"
                     }`}
                   >
@@ -252,7 +252,7 @@ export default function Blog() {
                 {filteredPosts.map(post => (
                   <Card
                     key={post.slug}
-                    className="overflow-hidden border-t-2 border-[#D4AF37] rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
+                    className="overflow-hidden border-t-2 border-accent rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
                   >
                     <Link href={`/blog/${post.slug}`}>
                       <div className="relative h-56 overflow-hidden cursor-pointer">
@@ -275,7 +275,7 @@ export default function Blog() {
                           <div
                             className={`absolute top-4 ${isHebrew ? "right-4" : "left-4"}`}
                           >
-                            <span className="inline-block px-3 py-1 bg-[#D4AF37] text-white text-xs font-semibold rounded-sm">
+                            <span className="inline-block px-3 py-1 bg-accent text-white text-xs font-semibold rounded-sm">
                               {post.category}
                             </span>
                           </div>
@@ -316,7 +316,7 @@ export default function Blog() {
                         aria-label={`${t("Read More", "קראו עוד")}: ${post.title}`}
                       >
                         <span
-                          className={`inline-flex items-center gap-2 mt-2 text-[#D4AF37] hover:underline text-sm font-medium ${isHebrew ? "flex-row-reverse" : ""}`}
+                          className={`inline-flex items-center gap-2 mt-2 text-accent hover:underline text-sm font-medium ${isHebrew ? "flex-row-reverse" : ""}`}
                         >
                           {t("Read More", "קראו עוד")}
                           <ArrowRight

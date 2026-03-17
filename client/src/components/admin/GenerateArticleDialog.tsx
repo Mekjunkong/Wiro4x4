@@ -74,7 +74,7 @@ export function GenerateArticleDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#D4AF37]" />
+            <Sparkles className="w-5 h-5 text-accent" />
             Generate Article with AI
           </DialogTitle>
           <DialogDescription>
@@ -154,7 +154,7 @@ export function GenerateArticleDialog({
           <button
             onClick={handleGenerate}
             disabled={generateMut.isPending}
-            className="flex-1 px-4 py-2 bg-[#D4AF37] text-white rounded-lg text-sm hover:bg-[#D4AF37]/90 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 bg-accent-cta text-white rounded-lg text-sm hover:bg-accent-cta-hover flex items-center justify-center gap-2"
           >
             {generateMut.isPending ? (
               <>

@@ -89,17 +89,17 @@ export function ProductTiers() {
   return (
     <section
       id="tours"
-      className="py-20 md:py-28 bg-[#faf7f2] dark:bg-[#1a1a1a]"
+      className="py-20 md:py-28 bg-background dark:bg-background"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#8B7000] dark:text-[#d4af37] text-sm font-medium tracking-[0.2em] uppercase">
+          <span className="text-accent-cta dark:text-accent text-sm font-medium tracking-[0.2em] uppercase">
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 text-[#1c1c1c] dark:text-white">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 text-foreground dark:text-white">
             {t("Our Adventures", "ההרפתקאות שלנו")}
           </h2>
-          <p className="text-[#555555] dark:text-white/60 mt-4 max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground dark:text-white/60 mt-4 max-w-2xl mx-auto text-lg">
             {t(
               "From single-day excursions to multi-week expeditions — find the perfect off-road adventure for your group.",
               "מטיולי יום ועד מסעות של מספר שבועות — מצאו את הרפתקת השטח המושלמת לקבוצה שלכם."
@@ -110,7 +110,7 @@ export function ProductTiers() {
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {PRODUCT_TIERS.map(tier => (
             <Link key={tier.slug} href={tier.href}>
-              <article className="group relative bg-white dark:bg-[#242424] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer h-full flex flex-col">
+              <article className="group relative bg-white dark:bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer h-full flex flex-col">
                 {/* Cinematic Image */}
                 <div className="relative h-72 md:h-80 overflow-hidden">
                   <OptimizedImage
@@ -125,7 +125,7 @@ export function ProductTiers() {
 
                   {/* Badge */}
                   {tier.badge && (
-                    <span className="absolute top-4 right-4 bg-[#d4af37] text-white text-xs font-bold px-3 py-1.5 rounded-full tracking-wide uppercase shadow-lg">
+                    <span className="absolute top-4 right-4 bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full tracking-wide uppercase shadow-lg">
                       {t(tier.badge, tier.badgeHe || tier.badge)}
                     </span>
                   )}
@@ -148,12 +148,12 @@ export function ProductTiers() {
 
                 {/* Slim Content Footer */}
                 <div className="p-5 flex-1 flex flex-col">
-                  <p className="text-[#555555] dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
+                  <p className="text-muted-foreground dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
                     {t(tier.subtitle, tier.subtitleHe)}
                   </p>
 
                   {/* Meta info */}
-                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-[#666666] dark:text-white/50">
+                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-muted-foreground dark:text-white/50">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       {t(tier.duration, tier.durationHe)}
@@ -169,7 +169,7 @@ export function ProductTiers() {
                   </div>
 
                   {/* CTA */}
-                  <div className="flex items-center gap-2 text-[#d4af37] font-semibold text-sm group-hover:gap-3 transition-all">
+                  <div className="flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
                     {t("Explore", "גלו עוד")}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </div>

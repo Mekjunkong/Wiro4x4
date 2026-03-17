@@ -75,10 +75,10 @@ export function PackageRecommendation({
 
             {/* Savings */}
             <div className="flex justify-between items-center py-2 pt-3 border-t border-green-200">
-              <span className="font-bold text-[#D4AF37]">
+              <span className="font-bold text-accent">
                 {t("You save", "החיסכון שלכם")}
               </span>
-              <span className="font-bold text-xl text-[#D4AF37]">
+              <span className="font-bold text-xl text-accent">
                 {formatTHB(packageOption.savings)}
               </span>
             </div>

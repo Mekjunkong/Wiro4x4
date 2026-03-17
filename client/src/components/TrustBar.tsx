@@ -17,7 +17,7 @@ export function TrustBar() {
   const { t } = useLanguage();
 
   return (
-    <section className="py-4 bg-[#1C1C1C] border-y border-[#D4AF37]/20">
+    <section className="py-4 bg-primary border-y border-accent/20">
       <div className="container">
         <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
           {TRUST_ITEMS.map(item => (
@@ -25,7 +25,7 @@ export function TrustBar() {
               key={item.en}
               className="flex items-center gap-2 text-white/90"
             >
-              <item.icon className="w-4 h-4 text-[#D4AF37]" />
+              <item.icon className="w-4 h-4 text-accent" />
               <span className="font-bold text-sm">{item.value}</span>
               <span className="text-xs text-white/60 uppercase tracking-wider">
                 {t(item.en, item.he)}

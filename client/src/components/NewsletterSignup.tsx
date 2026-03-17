@@ -25,8 +25,8 @@ export function NewsletterSignup() {
   };
 
   return (
-    <div className="mt-6 pt-6 border-t border-[#D4AF37]/20">
-      <h4 className="text-lg font-semibold text-[#D4AF37] mb-3">
+    <div className="mt-6 pt-6 border-t border-accent/20">
+      <h4 className="text-lg font-semibold text-accent mb-3">
         {t("Stay Updated", "הישארו מעודכנים")}
       </h4>
       <p className="text-sm text-white/70 mb-3">
@@ -50,14 +50,14 @@ export function NewsletterSignup() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder={t("Your email", "המייל שלכם")}
-            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             required
           />
         </div>
         <button
           type="submit"
           disabled={subscribe.isPending}
-          className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#1C1C1C] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-accent hover:bg-accent/90 text-accent-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           {subscribe.isPending ? "..." : t("Subscribe", "הרשמה")}
         </button>

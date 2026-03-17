@@ -23,7 +23,7 @@ export function SectionWrapper({
   const contentId = `section-content-${sectionId}`;
 
   return (
-    <Card className="border-[#D4AF37]/30 rounded-sm overflow-hidden">
+    <Card className="border-accent/30 rounded-sm overflow-hidden">
       {/* Header - Always Visible */}
       <button
         onClick={onToggle}
@@ -42,7 +42,7 @@ export function SectionWrapper({
           className={cn(
             "flex-shrink-0",
             "w-8 h-8 rounded-full",
-            "border-2 border-[#D4AF37]",
+            "border-2 border-accent",
             "flex items-center justify-center",
             "font-semibold text-sm",
             "transition-all duration-300"

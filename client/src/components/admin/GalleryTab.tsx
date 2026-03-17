@@ -160,7 +160,7 @@ export function GalleryTab() {
                     }
                     className={`px-2 py-1 rounded text-xs flex items-center gap-1 ${
                       (photo as any).isFeatured
-                        ? "bg-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37]/30"
+                        ? "bg-accent/20 text-accent hover:bg-accent/30"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                     title={
@@ -170,7 +170,7 @@ export function GalleryTab() {
                     }
                   >
                     <Star
-                      className={`w-3 h-3 ${(photo as any).isFeatured ? "fill-[#D4AF37]" : ""}`}
+                      className={`w-3 h-3 ${(photo as any).isFeatured ? "fill-accent" : ""}`}
                     />
                     {(photo as any).isFeatured ? "Featured" : "Feature"}
                   </button>

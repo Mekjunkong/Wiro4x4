@@ -60,7 +60,7 @@ export function GroupSelector({
           </span>
           <button
             onClick={onAddChild}
-            className="text-sm text-[#D4AF37] hover:text-[#D4AF37]/80 font-medium flex items-center gap-1"
+            className="text-sm text-accent hover:text-accent/80 font-medium flex items-center gap-1"
           >
             <Plus className="w-4 h-4" />
             {t("Add child", "הוסיפו ילד")}

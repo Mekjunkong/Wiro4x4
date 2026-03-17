@@ -146,7 +146,7 @@ export default function AccessibleTours() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="container max-w-4xl">
-              <div className="inline-flex items-center gap-2 bg-[#D4AF37]/20 text-[#D4AF37] px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                 <Accessibility className="w-4 h-4" />
                 {t("Accessible Adventures", "הרפתקאות נגישות")}
               </div>
@@ -191,11 +191,11 @@ export default function AccessibleTours() {
                 return (
                   <Card
                     key={idx}
-                    className="p-6 rounded-sm border-border hover:border-[#D4AF37]/30 transition-colors"
+                    className="p-6 rounded-sm border-border hover:border-accent/30 transition-colors"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-6 h-6 text-[#D4AF37]" />
+                      <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6 text-accent" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-2">
@@ -248,7 +248,7 @@ export default function AccessibleTours() {
                     </div>
                     <div className="p-6 md:w-2/3">
                       <div className="flex items-center gap-2 mb-2">
-                        <Accessibility className="w-5 h-5 text-[#D4AF37]" />
+                        <Accessibility className="w-5 h-5 text-accent" />
                         <h3 className="text-xl font-semibold">
                           {t(tour.name, tour.nameHe)}
                         </h3>
@@ -257,7 +257,7 @@ export default function AccessibleTours() {
                         {t(tour.access[0], tour.access[1])}
                       </p>
                       <Link href={`/tours/${tour.slug}`}>
-                        <span className="text-[#D4AF37] text-sm font-medium hover:underline cursor-pointer">
+                        <span className="text-accent text-sm font-medium hover:underline cursor-pointer">
                           {t("View Full Tour Details", "ראו פרטי טיול מלאים")}{" "}
                           &rarr;
                         </span>
@@ -315,9 +315,9 @@ export default function AccessibleTours() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-4 rounded-sm bg-[#D4AF37]/5"
+                  className="flex items-start gap-3 p-4 rounded-sm bg-accent/5"
                 >
-                  <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                  <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                   <span className="text-sm">{t(item.en, item.he)}</span>
                 </div>
               ))}
@@ -326,7 +326,7 @@ export default function AccessibleTours() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 md:py-24 bg-[#1C1C1C] text-white">
+        <section className="py-16 md:py-24 bg-primary text-white">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
               {t(
@@ -353,7 +353,7 @@ export default function AccessibleTours() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="gap-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C]"
+                  className="gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
                 >
                   <Phone className="w-5 h-5" />
                   {t("Request Custom Quote", "בקשו הצעת מחיר מותאמת")}

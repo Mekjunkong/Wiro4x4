@@ -53,7 +53,7 @@ export function CommunityConnection() {
       <div ref={contentRef} className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <Heart className="h-8 w-8 text-[#D4AF37]" />
+            <Heart className="h-8 w-8 text-accent" />
             <h2 className="text-4xl md:text-5xl font-medium text-white">
               {t(
                 "Community Connection",
@@ -78,7 +78,7 @@ export function CommunityConnection() {
                   key={index}
                   className="flex items-center justify-center gap-2 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/10"
                 >
-                  <MapPin className="h-4 w-4 text-[#D4AF37]" />
+                  <MapPin className="h-4 w-4 text-accent" />
                   <div className="text-sm">
                     <div className="font-semibold text-white">
                       {location.city}

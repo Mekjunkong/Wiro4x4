@@ -117,7 +117,7 @@ export default function BlogPost() {
           <Link href="/blog">
             <Button
               variant="ghost"
-              className={`mb-6 text-[#D4AF37] ${isHebrew ? "flex-row-reverse" : ""}`}
+              className={`mb-6 text-accent ${isHebrew ? "flex-row-reverse" : ""}`}
             >
               <ArrowLeft
                 className={`h-4 w-4 ${isHebrew ? "ml-2 rotate-180" : "mr-2"}`}

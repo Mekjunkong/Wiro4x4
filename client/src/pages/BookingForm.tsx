@@ -626,7 +626,7 @@ export default function BookingForm() {
         <div className="max-w-6xl mx-auto -mt-20 relative z-10 mb-24 px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Form Column */}
-            <div className="lg:col-span-2 bg-card border border-[#D4AF37]/30 rounded-sm shadow-premium p-6 md:p-8">
+            <div className="lg:col-span-2 bg-card border border-accent/30 rounded-sm shadow-premium p-6 md:p-8">
               {/* Progress indicator showing form sections */}
               <div className="mb-8 overflow-x-auto scrollbar-hide">
                 <div className="flex items-center justify-between min-w-[500px] px-2">
@@ -653,7 +653,7 @@ export default function BookingForm() {
                         className="flex items-center flex-1 last:flex-initial"
                       >
                         <div className="flex flex-col items-center gap-1">
-                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center text-sm font-bold border-2 border-[#D4AF37]/30">
+                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center text-sm font-bold border-2 border-accent/30">
                             <StepIcon className="w-4 h-4 md:w-5 md:h-5" />
                           </div>
                           <span className="text-[10px] md:text-xs text-muted-foreground font-medium text-center whitespace-nowrap">
@@ -661,7 +661,7 @@ export default function BookingForm() {
                           </span>
                         </div>
                         {idx < arr.length - 1 && (
-                          <div className="flex-1 h-0.5 bg-[#D4AF37]/20 mx-1 md:mx-2 mt-[-16px]" />
+                          <div className="flex-1 h-0.5 bg-accent/20 mx-1 md:mx-2 mt-[-16px]" />
                         )}
                       </div>
                     );
@@ -722,7 +722,7 @@ export default function BookingForm() {
                     id="consentGiven"
                     checked={consentGiven}
                     onChange={e => setConsentGiven(e.target.checked)}
-                    className={`w-5 h-5 mt-0.5 rounded-sm border-border text-[#D4AF37] focus:ring-[#D4AF37] touch-manipulation shrink-0 ${formErrors.consent ? "border-red-500" : ""}`}
+                    className={`w-5 h-5 mt-0.5 rounded-sm border-border text-accent focus:ring-accent touch-manipulation shrink-0 ${formErrors.consent ? "border-red-500" : ""}`}
                     aria-required="true"
                     aria-invalid={!!formErrors.consent}
                     aria-describedby={
@@ -738,7 +738,7 @@ export default function BookingForm() {
                       href="/terms"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#D4AF37] hover:underline font-medium"
+                      className="text-accent hover:underline font-medium"
                     >
                       {t("Terms of Service", "תנאי השירות")}
                     </a>
@@ -747,7 +747,7 @@ export default function BookingForm() {
                       href="/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#D4AF37] hover:underline font-medium"
+                      className="text-accent hover:underline font-medium"
                     >
                       {t("Privacy Policy", "מדיניות הפרטיות")}
                     </a>
@@ -785,7 +785,7 @@ export default function BookingForm() {
                 </Button>
 
                 {/* Trust badges */}
-                <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <RotateCcw className="h-3 w-3" />
                     {t(

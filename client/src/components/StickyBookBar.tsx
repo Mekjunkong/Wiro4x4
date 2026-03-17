@@ -21,7 +21,7 @@ export function StickyBookBar() {
         visible
           ? "translate-y-0 opacity-100"
           : "translate-y-full md:-translate-y-full opacity-0 pointer-events-none"
-      } bottom-0 md:bottom-auto md:top-0 bg-card/95 backdrop-blur-sm border-t md:border-b md:border-t-0 border-[#D4AF37]/30 py-2 px-4`}
+      } bottom-0 md:bottom-auto md:top-0 bg-card/95 backdrop-blur-sm border-t md:border-b md:border-t-0 border-accent/30 py-2 px-4`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div>
@@ -33,7 +33,7 @@ export function StickyBookBar() {
           </p>
         </div>
         <Link href="/book">
-          <button className="bg-[#D4AF37] text-[#1C1C1C] rounded-full px-5 py-2 font-semibold text-sm flex items-center gap-2 hover:bg-[#D4AF37]/90 transition-colors">
+          <button className="bg-accent-cta text-primary-foreground rounded-full px-5 py-2 font-semibold text-sm flex items-center gap-2 hover:bg-accent-cta-hover transition-colors">
             <Calendar className="w-4 h-4" />
             {t("Book Now", "הזמינו עכשיו")}
           </button>

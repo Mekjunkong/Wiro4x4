@@ -23,7 +23,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
   const displayHighlights = highlights?.slice(0, 3) || [];
 
   return (
-    <div className="bg-[#D4AF37]/5 rounded-sm">
+    <div className="bg-accent/5 rounded-sm">
       <div className="p-4 flex items-center gap-3">
         {/* Thumbnail */}
         {tour.imageUrl && (
@@ -43,7 +43,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
 
             {/* Popular Badge */}
             {tour.isPopular && (
-              <span className="bg-gradient-to-r from-[#D4AF37] to-[#B8960F] text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+              <span className="bg-gradient-to-r from-accent to-accent-cta text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
                 <Star className="w-3 h-3" />
                 {t("Popular", "פופולרי")}
               </span>
@@ -65,7 +65,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
             <button
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-1.5 hover:bg-gray-100 rounded-sm transition-colors"
+              className="p-1.5 hover:bg-muted rounded-sm transition-colors"
               aria-label={t("Show details", "הצג פרטים")}
             >
               <ChevronDown
@@ -90,11 +90,11 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
 
       {/* Expanded Highlights */}
       {isExpanded && hasHighlights && (
-        <div className="px-4 pb-4 pt-0 border-t border-[#D4AF37]/10">
+        <div className="px-4 pb-4 pt-0 border-t border-accent/10">
           <ul className="space-y-1 mt-3">
             {displayHighlights.map((highlight, index) => (
               <li key={index} className="text-sm text-muted-foreground flex">
-                <span className="mr-2">&bull;</span>
+                <span className="me-2">&bull;</span>
                 <span>{highlight}</span>
               </li>
             ))}

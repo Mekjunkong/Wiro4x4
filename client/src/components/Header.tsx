@@ -69,7 +69,7 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled
-          ? "bg-[#FAF7F2]/95 dark:bg-[#1A1A1A]/95 backdrop-blur-md border-b border-[#D4AF37]/20"
+          ? "bg-background/95 backdrop-blur-md border-b border-accent/20"
           : "bg-transparent"
       }`}
       style={{ zIndex: 10000 }}
@@ -97,7 +97,7 @@ export function Header() {
           >
             <Link href="/tours">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/tours") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/tours") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/tours")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -107,7 +107,7 @@ export function Header() {
             </Link>
             <Link href="/pricing">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/pricing")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -117,7 +117,7 @@ export function Header() {
             </Link>
             <Link href="/gallery">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/gallery")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -127,7 +127,7 @@ export function Header() {
             </Link>
             <Link href="/blog">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/blog") ? "text-[#D4AF37] border-b border-[#D4AF37] pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/blog") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/blog")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -155,7 +155,7 @@ export function Header() {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold border-[#B8960F] hover:border-[#a3850e]"
+                className="bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
@@ -163,7 +163,7 @@ export function Header() {
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                className="p-2 rounded-lg hover:bg-accent/10 transition-colors"
                 aria-label={
                   theme === "dark"
                     ? t("Switch to light mode", "מעבר למצב בהיר")
@@ -185,7 +185,7 @@ export function Header() {
           >
             <button
               onClick={toggleMobileMenu}
-              className="p-3 hover:bg-[#D4AF37]/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
+              className="p-3 hover:bg-accent/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label={t("Toggle menu", "תפריט")}
               aria-expanded={mobileMenuOpen}
               type="button"
@@ -210,7 +210,7 @@ export function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-[#FAF7F2] dark:bg-[#1A1A1A] overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
+          className="md:hidden fixed inset-0 bg-background overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
           style={{ zIndex: 9999 }}
         >
           <nav
@@ -218,44 +218,44 @@ export function Header() {
             aria-label="Mobile navigation"
           >
             <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Tours", "טיולים")}
               </span>
             </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <div className="h-px w-12 bg-accent/30" />
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Pricing", "מחירים")}
               </span>
             </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <div className="h-px w-12 bg-accent/30" />
             <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Gallery", "גלריה")}
               </span>
             </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <div className="h-px w-12 bg-accent/30" />
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer">
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Blog", "בלוג")}
               </span>
             </Link>
-            <div className="h-px w-12 bg-[#D4AF37]/30" />
+            <div className="h-px w-12 bg-accent/30" />
             <button
               onClick={() => {
                 scrollToSection("contact");
                 setMobileMenuOpen(false);
               }}
-              className="py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors touch-manipulation"
+              className="py-3 text-center text-2xl font-light hover:text-accent transition-colors touch-manipulation"
               type="button"
             >
               {t("Contact", "צרו קשר")}
             </button>
             {isAdmin && (
               <>
-                <div className="h-px w-12 bg-[#D4AF37]/30" />
+                <div className="h-px w-12 bg-accent/30" />
                 <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                  <span className="block py-3 text-center text-2xl font-light hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-2">
+                  <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer flex items-center gap-2">
                     <Shield className="h-4 w-4" />
                     {t("Admin", "ניהול")}
                   </span>
@@ -266,7 +266,7 @@ export function Header() {
               <Button
                 variant="default"
                 size="lg"
-                className="w-full max-w-xs mt-6 bg-[#B8960F] hover:bg-[#a3850e] text-white font-bold border-[#B8960F] hover:border-[#a3850e]"
+                className="w-full max-w-xs mt-6 bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
                 {t("Book Now", "הזמינו עכשיו")}
               </Button>
@@ -275,7 +275,7 @@ export function Header() {
               {switchable && toggleTheme && (
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-lg hover:bg-[#D4AF37]/10 transition-colors"
+                  className="p-2 rounded-lg hover:bg-accent/10 transition-colors"
                   aria-label={
                     theme === "dark"
                       ? t("Switch to light mode", "מעבר למצב בהיר")

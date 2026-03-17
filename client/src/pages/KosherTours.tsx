@@ -177,7 +177,7 @@ export default function KosherTours() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="container max-w-4xl">
-              <div className="inline-flex items-center gap-2 bg-[#D4AF37]/20 text-[#D4AF37] px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                 <Utensils className="w-4 h-4" />
                 {t("100% Kosher Certified", "100% כשרות מאושרת")}
               </div>
@@ -219,11 +219,11 @@ export default function KosherTours() {
                 return (
                   <Card
                     key={idx}
-                    className="p-6 rounded-sm border-border hover:border-[#D4AF37]/30 transition-colors"
+                    className="p-6 rounded-sm border-border hover:border-accent/30 transition-colors"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-6 h-6 text-[#D4AF37]" />
+                      <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6 text-accent" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-2">
@@ -272,13 +272,13 @@ export default function KosherTours() {
                       />
                       <div className="absolute top-3 left-3 flex gap-2">
                         {tour.kosher && (
-                          <span className="bg-[#D4AF37] text-[#1C1C1C] text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                          <span className="bg-accent text-accent-foreground text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
                             <Utensils className="w-3 h-3" />
                             {t("Kosher", "כשר")}
                           </span>
                         )}
                         {tour.shabbat && (
-                          <span className="bg-white/90 text-[#1C1C1C] text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="bg-white/90 text-accent-foreground text-xs font-bold px-2.5 py-1 rounded-full">
                             {t("Shabbat OK", "שבת")}
                           </span>
                         )}
@@ -293,7 +293,7 @@ export default function KosherTours() {
                           <Clock className="w-4 h-4" />
                           {tour.duration}
                         </span>
-                        <span className="text-[#D4AF37] font-bold">
+                        <span className="text-accent font-bold">
                           &#3647;{tour.price.toLocaleString()}
                         </span>
                       </div>
@@ -344,9 +344,9 @@ export default function KosherTours() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-4 rounded-sm bg-[#D4AF37]/5"
+                  className="flex items-start gap-3 p-4 rounded-sm bg-accent/5"
                 >
-                  <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                  <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                   <span className="text-sm leading-relaxed">
                     {t(item.en, item.he)}
                   </span>
@@ -359,7 +359,7 @@ export default function KosherTours() {
         {/* Testimonial Highlight */}
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container max-w-3xl text-center">
-            <Star className="w-10 h-10 text-[#D4AF37] mx-auto mb-4" />
+            <Star className="w-10 h-10 text-accent mx-auto mb-4" />
             <blockquote className="text-xl md:text-2xl italic text-foreground mb-4 leading-relaxed">
               {t(
                 '"WIRO 4x4 understood exactly what we needed as a religious family. The kosher meals were excellent, and they planned everything around Shabbat. We felt completely taken care of."',
@@ -373,7 +373,7 @@ export default function KosherTours() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-[#1C1C1C] text-white">
+        <section className="py-16 md:py-24 bg-primary text-white">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
               {t("Ready for a Kosher Adventure?", "מוכנים להרפתקה כשרה?")}
@@ -397,7 +397,7 @@ export default function KosherTours() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="gap-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C]"
+                  className="gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
                 >
                   <Calendar className="w-5 h-5" />
                   {t("Book Online", "הזמינו אונליין")}

@@ -130,9 +130,9 @@ function ServiceToggle({
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
-        className="w-5 h-5 rounded border-border text-[#D4AF37] focus:ring-[#D4AF37]"
+        className="w-5 h-5 rounded border-border text-accent focus:ring-accent"
       />
-      <Icon className="w-5 h-5 text-[#D4AF37] shrink-0" />
+      <Icon className="w-5 h-5 text-accent shrink-0" />
       <span className="font-medium flex-1">{label}</span>
       <span className="text-xs text-muted-foreground">{detail}</span>
     </label>

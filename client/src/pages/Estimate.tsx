@@ -33,10 +33,10 @@ export default function Estimate() {
       />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-16 md:py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
+        <section className="relative py-16 md:py-20 mt-20 bg-gradient-to-br from-accent/5 to-accent/10">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-[#D4AF37]/10 text-[#D4AF37] px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                 <Calculator className="w-4 h-4" />
                 {t("Instant Estimate", "הערכה מיידית")}
               </div>
@@ -52,15 +52,15 @@ export default function Estimate() {
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#D4AF37]" />
+                  <Shield className="w-5 h-5 text-accent" />
                   <span>{t("No commitment", "ללא התחייבות")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-[#D4AF37]" />
+                  <Clock className="w-5 h-5 text-accent" />
                   <span>{t("Instant results", "תוצאות מיידיות")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-5 h-5 text-[#D4AF37]" />
+                  <Utensils className="w-5 h-5 text-accent" />
                   <span>{t("All-inclusive pricing", "מחיר כולל הכל")}</span>
                 </div>
               </div>

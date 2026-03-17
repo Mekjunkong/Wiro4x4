@@ -42,7 +42,7 @@ export function FloatingActionButtons() {
         {/* Book Now Button */}
         <Link href="/book">
           <button
-            className={`border-2 border-[#D4AF37] text-[#D4AF37] bg-card hover:bg-[#D4AF37] hover:text-card rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2 ${showPulse ? "animate-subtle-pulse" : ""}`}
+            className={`border-2 border-accent text-accent bg-card hover:bg-accent hover:text-card rounded-full p-4 shadow-premium-lg transition-all duration-300 hover:scale-110 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${showPulse ? "animate-subtle-pulse" : ""}`}
             aria-label={t("Book Now", "הזמינו עכשיו")}
           >
             <Calendar className="h-6 w-6" />
@@ -71,7 +71,7 @@ export function FloatingActionButtons() {
           <>
             <Link href="/book">
               <button
-                className="border-2 border-[#D4AF37] text-[#D4AF37] bg-card hover:bg-[#D4AF37] hover:text-card rounded-full p-4 shadow-premium-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2"
+                className="border-2 border-accent text-accent bg-card hover:bg-accent hover:text-card rounded-full p-4 shadow-premium-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                 aria-label={t("Book Now", "הזמינו עכשיו")}
               >
                 <Calendar className="h-6 w-6" />
@@ -90,7 +90,7 @@ export function FloatingActionButtons() {
 
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#1C1C1C] rounded-full p-4 shadow-premium-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2"
+          className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full p-4 shadow-premium-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           aria-label={
             isExpanded
               ? t("Close quick actions", "סגירת פעולות מהירות")

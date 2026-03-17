@@ -162,7 +162,7 @@ export default function HebrewGuide() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="container max-w-4xl">
-              <div className="inline-flex items-center gap-2 bg-[#D4AF37]/20 text-[#D4AF37] px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                 <Globe className="w-4 h-4" />
                 {t("Hebrew Speaking Guide", "מדריך דובר עברית")}
               </div>
@@ -207,11 +207,11 @@ export default function HebrewGuide() {
                 return (
                   <Card
                     key={idx}
-                    className="p-6 rounded-sm border-border hover:border-[#D4AF37]/30 transition-colors"
+                    className="p-6 rounded-sm border-border hover:border-accent/30 transition-colors"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-6 h-6 text-[#D4AF37]" />
+                      <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6 text-accent" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-2">
@@ -246,7 +246,7 @@ export default function HebrewGuide() {
                   className="flex gap-4 p-4 border border-border rounded-sm bg-card"
                 >
                   <div className="w-16 text-center shrink-0">
-                    <span className="text-[#D4AF37] font-bold text-lg">
+                    <span className="text-accent font-bold text-lg">
                       {item.time}
                     </span>
                   </div>
@@ -296,7 +296,7 @@ export default function HebrewGuide() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]"
+                        className="w-4 h-4 text-accent fill-accent"
                       />
                     ))}
                   </div>
@@ -362,7 +362,7 @@ export default function HebrewGuide() {
                 },
               ].map(tour => (
                 <Link key={tour.slug} href={`/tours/${tour.slug}`}>
-                  <span className="inline-block border border-[#D4AF37]/30 hover:border-[#D4AF37] hover:bg-[#D4AF37]/5 px-4 py-2 rounded-full text-sm transition-colors cursor-pointer">
+                  <span className="inline-block border border-accent/30 hover:border-accent hover:bg-accent/5 px-4 py-2 rounded-full text-sm transition-colors cursor-pointer">
                     {t(tour.name, tour.nameHe)}
                   </span>
                 </Link>
@@ -372,7 +372,7 @@ export default function HebrewGuide() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 md:py-24 bg-[#1C1C1C] text-white">
+        <section className="py-16 md:py-24 bg-primary text-white">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
               {t("Ready to Explore in Hebrew?", "מוכנים לטייל בעברית?")}
@@ -396,7 +396,7 @@ export default function HebrewGuide() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="gap-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C]"
+                  className="gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
                 >
                   <Calendar className="w-5 h-5" />
                   {t("Book a Tour", "הזמינו טיול")}

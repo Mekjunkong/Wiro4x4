@@ -10,8 +10,8 @@ export function EmptyStateHero() {
       {/* TODO: Replace with custom 4x4 illustration */}
 
       {/* Icon with circular background */}
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
-        <Calculator className="w-8 h-8 text-[#D4AF37]" />
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
+        <Calculator className="w-8 h-8 text-accent" />
       </div>
 
       {/* Heading */}

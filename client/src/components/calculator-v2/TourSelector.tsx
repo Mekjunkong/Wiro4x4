@@ -67,7 +67,7 @@ export function TourSelector({
             }
           }}
           defaultValue=""
-          className="w-full px-4 py-3 border border-border rounded-sm bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
+          className="w-full px-4 py-3 border border-border rounded-sm bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:border-transparent text-base"
         >
           <option value="" disabled>
             {t("+ Add another tour...", "+ הוסיפו טיול נוסף...")}

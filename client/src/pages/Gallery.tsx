@@ -211,7 +211,7 @@ export default function Gallery() {
       />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-[#1C1C1C] to-[#1C1C1C]/80 py-16 md:py-20 text-center text-white mt-20">
+        <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-primary-foreground mt-20">
           <div className="container">
             <Camera className="w-12 h-12 mx-auto mb-4 opacity-90" />
             <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
@@ -265,8 +265,8 @@ export default function Gallery() {
                   key={cat.id}
                   className={`${
                     isActive
-                      ? "bg-[#D4AF37] text-[#1C1C1C] border-[#D4AF37]"
-                      : "border border-[#D4AF37]/50 text-[#D4AF37]"
+                      ? "bg-accent text-accent-foreground border-accent"
+                      : "border border-accent/50 text-accent"
                   } rounded-sm px-4 py-1.5 text-xs tracking-[0.15em] uppercase`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
@@ -276,7 +276,7 @@ export default function Gallery() {
                       className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
                         isActive
                           ? "bg-foreground/20 text-foreground"
-                          : "bg-[#D4AF37]/10 text-[#D4AF37]"
+                          : "bg-accent/10 text-accent"
                       }`}
                     >
                       {totalCount}
@@ -353,7 +353,7 @@ export default function Gallery() {
                       }
                     />
                     {/* Gold hover overlay */}
-                    <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -377,7 +377,7 @@ export default function Gallery() {
                   ref={sentinelRef}
                   className="col-span-full flex justify-center py-8"
                 >
-                  <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -389,7 +389,13 @@ export default function Gallery() {
           open={lightboxIndex !== null}
           onOpenChange={open => !open && closeLightbox()}
         >
-          <DialogContent className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none">
+          <DialogContent
+            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none"
+            aria-label={t(
+              "Photo lightbox viewer",
+              "\u05EA\u05E6\u05D5\u05D2\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DE\u05D5\u05D2\u05D3\u05DC\u05EA"
+            )}
+          >
             {lightboxIndex !== null && filteredPhotos[lightboxIndex] && (
               <div
                 className="relative flex flex-col items-center justify-center min-h-[60vh]"

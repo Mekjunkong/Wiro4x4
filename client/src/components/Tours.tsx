@@ -168,7 +168,8 @@ function generateSlug(name: string): string {
 }
 
 export function Tours() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isHebrew = language === "he";
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
@@ -250,15 +251,15 @@ export function Tours() {
               aria-pressed={difficultyFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 difficultyFilter === f.value
-                  ? "bg-[#B8960F] text-white"
-                  : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
+                  ? "bg-accent-cta text-white"
+                  : "bg-muted text-foreground hover:bg-accent/20"
               }`}
             >
               {t(f.en, f.he)}
             </button>
           ))}
           <span
-            className="w-px h-8 bg-[#e8e2da] dark:bg-[#444] self-center mx-1"
+            className="w-px h-8 bg-muted self-center mx-1"
             aria-hidden="true"
           />
           {DURATION_FILTERS.map(f => (
@@ -268,8 +269,8 @@ export function Tours() {
               aria-pressed={durationFilter === f.value}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 durationFilter === f.value
-                  ? "bg-[#B8960F] text-white"
-                  : "bg-[#e8e2da] dark:bg-[#333] text-[#1c1c1c] dark:text-[#faf7f2] hover:bg-[#d4af37]/20"
+                  ? "bg-accent-cta text-white"
+                  : "bg-muted text-foreground hover:bg-accent/20"
               }`}
             >
               {t(f.en, f.he)}
@@ -296,7 +297,7 @@ export function Tours() {
                     setDifficultyFilter("all");
                     setDurationFilter("all");
                   }}
-                  className="mt-4 text-[#d4af37] underline text-sm"
+                  className="mt-4 text-accent underline text-sm"
                 >
                   {t("Clear filters", "נקה סינונים")}
                 </button>
@@ -308,7 +309,7 @@ export function Tours() {
                 href={`/tours/${tour.slug}`}
                 className="block group"
               >
-                <Card className="overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-[#d4af37] rounded-sm bg-card">
+                <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-accent rounded-sm bg-card">
                   <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                     <OptimizedImage
                       src={tour.image}
@@ -321,7 +322,7 @@ export function Tours() {
                       }`}
                     />
                     {tour.price != null && (
-                      <div className="absolute top-3 right-3 bg-[#B8960F] text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
+                      <div className="absolute top-3 right-3 bg-accent-cta text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
                         &#3647;{tour.price.toLocaleString()}
                       </div>
                     )}
@@ -337,11 +338,11 @@ export function Tours() {
 
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-[#d4af37]" />
+                        <Clock className="h-4 w-4 text-accent" />
                         <span className="text-foreground">{tour.duration}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Mountain className="h-4 w-4 text-[#d4af37]" />
+                        <Mountain className="h-4 w-4 text-accent" />
                         <span className="text-foreground">
                           {t(
                             DIFFICULTY_FILTERS.find(
@@ -357,28 +358,32 @@ export function Tours() {
 
                     <div className="flex flex-wrap gap-2 pt-2">
                       {tour.kosher && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent text-xs rounded-sm">
                           <Utensils className="h-3 w-3" />
                           {t("Kosher", "כשר")}
                         </span>
                       )}
                       {tour.private && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent text-xs rounded-sm">
                           <Users className="h-3 w-3" />
                           {t("Private", "פרטי")}
                         </span>
                       )}
                       {tour.shabbat && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-xs rounded-sm">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent text-xs rounded-sm">
                           <Calendar className="h-3 w-3" />
                           {t("Shabbat OK", "מתאים לשבת")}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-[#d4af37] font-medium text-sm pt-2">
+                    <div
+                      className={`flex items-center gap-2 text-accent font-medium text-sm pt-2 ${isHebrew ? "flex-row-reverse" : ""}`}
+                    >
                       {t("View Details", "לפרטים נוספים")}
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight
+                        className={`h-4 w-4 group-hover:translate-x-1 transition-transform ${isHebrew ? "rotate-180" : ""}`}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -390,10 +395,10 @@ export function Tours() {
         <div className="text-center mt-12">
           <Link
             href="/estimate"
-            className="inline-flex items-center gap-2 text-[#d4af37] hover:text-[#E8C84A] font-medium text-lg transition-colors"
+            className={`inline-flex items-center gap-2 text-accent hover:text-accent/80 font-medium text-lg transition-colors ${isHebrew ? "flex-row-reverse" : ""}`}
           >
             {t("Estimate Your Trip Cost", "חשבו את עלות הטיול")}
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className={`h-5 w-5 ${isHebrew ? "rotate-180" : ""}`} />
           </Link>
         </div>
       </div>

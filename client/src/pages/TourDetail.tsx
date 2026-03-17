@@ -1176,7 +1176,7 @@ export default function TourDetail() {
       <div className="min-h-screen">
         <Header />
         <div className="flex items-center justify-center py-32">
-          <div className="animate-spin w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full" />
+          <div className="animate-spin w-8 h-8 border-4 border-accent border-t-transparent rounded-full" />
         </div>
         <Footer />
       </div>
@@ -1340,7 +1340,7 @@ export default function TourDetail() {
                 {/* Badges */}
                 <div className="flex flex-wrap gap-3">
                   {tour.isKosher === 1 && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#D4AF37]/10 text-[#D4AF37] text-sm rounded-sm font-medium">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent text-sm rounded-sm font-medium">
                       <Utensils className="h-4 w-4" />
                       {t("Kosher Meals Included", "ארוחות כשרות כלולות")}
                     </span>
@@ -1369,9 +1369,9 @@ export default function TourDetail() {
                       {includedItems.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 p-3 rounded-sm bg-[#D4AF37]/5"
+                          className="flex items-start gap-3 p-3 rounded-sm bg-accent/5"
                         >
-                          <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                          <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                           <span className="text-sm">{t(item.en, item.he)}</span>
                         </div>
                       ))}
@@ -1411,7 +1411,7 @@ export default function TourDetail() {
                           key={idx}
                           className="flex gap-4 p-4 border border-border rounded-sm"
                         >
-                          <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center font-bold text-2xl shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-2xl shrink-0">
                             {idx + 1}
                           </div>
                           <div>
@@ -1435,7 +1435,7 @@ export default function TourDetail() {
                   return (
                     <div>
                       <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Backpack className="w-6 h-6 text-[#D4AF37]" />
+                        <Backpack className="w-6 h-6 text-accent" />
                         {t("What to Bring", "מה להביא")}
                       </h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1444,7 +1444,7 @@ export default function TourDetail() {
                             key={idx}
                             className="flex items-start gap-3 p-3 rounded-sm bg-muted/50"
                           >
-                            <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                            <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                             <span className="text-sm">
                               {t(item.en, item.he)}
                             </span>
@@ -1462,7 +1462,7 @@ export default function TourDetail() {
                   return (
                     <div>
                       <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Sun className="w-6 h-6 text-[#D4AF37]" />
+                        <Sun className="w-6 h-6 text-accent" />
                         {t("Best Time to Visit", "הזמן הטוב ביותר לביקור")}
                       </h2>
                       <p className="text-muted-foreground leading-relaxed">
@@ -1482,16 +1482,16 @@ export default function TourDetail() {
                   return (
                     <div>
                       <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Lightbulb className="w-6 h-6 text-[#D4AF37]" />
+                        <Lightbulb className="w-6 h-6 text-accent" />
                         {t("Local Tips", "טיפים מקומיים")}
                       </h2>
                       <div className="space-y-3">
                         {enrichment.localTips.map((tip, idx) => (
                           <div
                             key={idx}
-                            className="flex items-start gap-3 p-3 rounded-sm border border-[#D4AF37]/20 bg-[#D4AF37]/5"
+                            className="flex items-start gap-3 p-3 rounded-sm border border-accent/20 bg-accent/5"
                           >
-                            <span className="text-[#D4AF37] font-bold shrink-0">
+                            <span className="text-accent font-bold shrink-0">
                               #{idx + 1}
                             </span>
                             <span className="text-sm">{t(tip.en, tip.he)}</span>
@@ -1518,7 +1518,7 @@ export default function TourDetail() {
                   return (
                     <div>
                       <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <ArrowRight className="w-6 h-6 text-[#D4AF37]" />
+                        <ArrowRight className="w-6 h-6 text-accent" />
                         {t("Related Tours", "טיולים קשורים")}
                       </h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1545,7 +1545,7 @@ export default function TourDetail() {
                                     <Clock className="w-3 h-3" />
                                     {rt.duration}
                                   </span>
-                                  <span className="text-[#D4AF37] font-bold">
+                                  <span className="text-accent font-bold">
                                     &#3647;{rt.price.toLocaleString()}
                                   </span>
                                 </div>
@@ -1561,7 +1561,7 @@ export default function TourDetail() {
                 {/* Related Blog Posts Placeholder */}
                 <div>
                   <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-[#D4AF37]" />
+                    <BookOpen className="w-6 h-6 text-accent" />
                     {t("Read More", "קראו עוד")}
                   </h2>
                   <div className="p-4 rounded-sm border border-border bg-muted/30 text-center">
@@ -1572,7 +1572,7 @@ export default function TourDetail() {
                       )}
                     </p>
                     <Link href="/blog">
-                      <span className="text-[#D4AF37] text-sm font-medium hover:underline cursor-pointer">
+                      <span className="text-accent text-sm font-medium hover:underline cursor-pointer">
                         {t("Visit our Blog", "בקרו בבלוג שלנו")} &rarr;
                       </span>
                     </Link>
@@ -1590,7 +1590,7 @@ export default function TourDetail() {
                     <div className="text-sm text-muted-foreground mb-1">
                       {t("Starting from", "החל מ-")}
                     </div>
-                    <div className="text-4xl font-bold text-[#D4AF37]">
+                    <div className="text-4xl font-bold text-accent">
                       &#3647;{tour.price.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -1667,7 +1667,7 @@ export default function TourDetail() {
                             ?.scrollIntoView({ behavior: "smooth" });
                         }, 300);
                       }}
-                      className="block text-center text-sm text-[#D4AF37] hover:underline"
+                      className="block text-center text-sm text-accent hover:underline"
                     >
                       {t("Or request a free quote", "או בקשו הצעת מחיר חינם")}
                     </a>
@@ -1694,19 +1694,19 @@ export default function TourDetail() {
         </div>
 
         {/* Compare with other tours */}
-        <section className="py-12 bg-gray-50">
+        <section className="py-12 bg-muted/30">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h3 className="text-xl font-semibold mb-2">
               {t("Not sure yet?", "עדיין לא בטוחים?")}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               {t(
                 "Compare all our tours to find your perfect adventure",
                 "השוו את כל הטיולים שלנו כדי למצוא את ההרפתקה המושלמת"
               )}
             </p>
             <Link href="/pricing">
-              <button className="border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1C1C1C] font-semibold px-6 py-2 rounded-full transition-all">
+              <button className="border-2 border-accent text-accent hover:bg-accent hover:text-primary font-semibold px-6 py-2 rounded-full transition-all">
                 {t("Compare All Tours", "השוו את כל הטיולים")}
               </button>
             </Link>

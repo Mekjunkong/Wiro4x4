@@ -194,9 +194,9 @@ export function CostCalculator() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Tour Selection */}
-      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
+      <Card className="p-5 md:p-6 border border-accent/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Calculator className="w-5 h-5 text-[#D4AF37]" />
+          <Calculator className="w-5 h-5 text-accent" />
           {t("Select Tours", "בחרו טיולים")}
         </h3>
 
@@ -206,7 +206,7 @@ export function CostCalculator() {
             {selectedTours.map((tour, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between bg-[#D4AF37]/5 rounded-sm px-4 py-2.5"
+                className="flex items-center justify-between bg-accent/5 rounded-sm px-4 py-2.5"
               >
                 <div>
                   <span className="font-medium text-sm">
@@ -243,7 +243,7 @@ export function CostCalculator() {
               }
             }}
             defaultValue=""
-            className="w-full px-4 py-3 border border-border rounded-sm bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
+            className="w-full px-4 py-3 border border-border rounded-sm bg-background appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:border-transparent text-base"
           >
             <option value="" disabled>
               {t("+ Add a tour...", "+ הוסיפו טיול...")}
@@ -271,9 +271,9 @@ export function CostCalculator() {
       </Card>
 
       {/* Group Size */}
-      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
+      <Card className="p-5 md:p-6 border border-accent/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-[#D4AF37]" />
+          <Users className="w-5 h-5 text-accent" />
           {t("Group Size", "גודל הקבוצה")}
         </h3>
 
@@ -308,7 +308,7 @@ export function CostCalculator() {
             </span>
             <button
               onClick={addChild}
-              className="text-sm text-[#D4AF37] hover:text-[#D4AF37]/80 font-medium flex items-center gap-1"
+              className="text-sm text-accent hover:text-accent/80 font-medium flex items-center gap-1"
             >
               <Plus className="w-4 h-4" />
               {t("Add child", "הוסיפו ילד")}
@@ -381,9 +381,9 @@ export function CostCalculator() {
       </Card>
 
       {/* Dates */}
-      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
+      <Card className="p-5 md:p-6 border border-accent/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-[#D4AF37]" />
+          <Calendar className="w-5 h-5 text-accent" />
           {t("Travel Dates", "תאריכי הטיול")}
         </h3>
 
@@ -401,7 +401,7 @@ export function CostCalculator() {
               value={arrivalDate}
               onChange={e => setArrivalDate(e.target.value)}
               min={new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
+              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-accent focus:border-transparent text-base"
             />
           </div>
           <div>
@@ -417,7 +417,7 @@ export function CostCalculator() {
               value={departureDate}
               onChange={e => setDepartureDate(e.target.value)}
               min={arrivalDate || new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
+              className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-accent focus:border-transparent text-base"
             />
           </div>
         </div>
@@ -436,9 +436,9 @@ export function CostCalculator() {
       </Card>
 
       {/* Services */}
-      <Card className="p-5 md:p-6 border border-[#D4AF37]/30 rounded-sm">
+      <Card className="p-5 md:p-6 border border-accent/30 rounded-sm">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Star className="w-5 h-5 text-[#D4AF37]" />
+          <Star className="w-5 h-5 text-accent" />
           {t("Additional Services", "שירותים נוספים")}
         </h3>
 
@@ -512,9 +512,9 @@ export function CostCalculator() {
 
       {/* Price Breakdown */}
       {breakdown && (
-        <Card className="p-5 md:p-6 border-2 border-[#D4AF37]/30 rounded-sm">
+        <Card className="p-5 md:p-6 border-2 border-accent/30 rounded-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-[#D4AF37]" />
+            <Calculator className="w-5 h-5 text-accent" />
             {t("Price Estimate", "הערכת מחיר")}
           </h3>
 
@@ -604,12 +604,12 @@ export function CostCalculator() {
             )}
 
             {/* Total */}
-            <div className="border-t-2 border-[#D4AF37]/20 pt-3 mt-4">
+            <div className="border-t-2 border-accent/20 pt-3 mt-4">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xl font-bold">
                   {t("Estimated Total", "סה״כ הערכה")}
                 </span>
-                <span className="text-2xl font-bold text-[#D4AF37]">
+                <span className="text-2xl font-bold text-accent">
                   {formatTHB(breakdown.total)}
                 </span>
               </div>
@@ -629,7 +629,7 @@ export function CostCalculator() {
             <Button
               onClick={handleWhatsApp}
               variant="default"
-              className="w-full py-3 text-base bg-[#D4AF37] hover:bg-[#B8960F] text-white"
+              className="w-full py-3 text-base bg-accent hover:bg-accent-cta-hover text-white"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               {t(
@@ -639,7 +639,7 @@ export function CostCalculator() {
             </Button>
             <Button
               variant="outline"
-              className="w-full border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10"
+              className="w-full border-accent text-accent hover:bg-accent/10"
               onClick={() => {
                 window.location.href = "/book";
               }}
@@ -694,9 +694,9 @@ function ServiceToggle({
         type="checkbox"
         checked={checked}
         onChange={e => onChange(e.target.checked)}
-        className="w-5 h-5 rounded border-border text-[#D4AF37] focus:ring-[#D4AF37]"
+        className="w-5 h-5 rounded border-border text-accent focus:ring-accent"
       />
-      <Icon className="w-5 h-5 text-[#D4AF37] shrink-0" />
+      <Icon className="w-5 h-5 text-accent shrink-0" />
       <span className="font-medium flex-1">{label}</span>
       <span className="text-xs text-muted-foreground">{detail}</span>
     </label>

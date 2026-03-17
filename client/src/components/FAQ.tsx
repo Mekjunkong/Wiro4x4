@@ -104,7 +104,7 @@ export function FAQ() {
               value={`faq-${index}`}
               className="border-b border-border"
             >
-              <AccordionTrigger className="text-lg font-medium text-foreground hover:no-underline [&>svg]:text-[#D4AF37]">
+              <AccordionTrigger className="text-lg font-medium text-foreground hover:no-underline [&>svg]:text-accent">
                 {t(item.q[0], item.q[1])}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">

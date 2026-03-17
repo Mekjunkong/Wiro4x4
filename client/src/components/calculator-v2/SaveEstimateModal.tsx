@@ -119,11 +119,11 @@ export function SaveEstimateModal({
         <Tabs defaultValue="link" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="link">
-              <LinkIcon className="w-4 h-4 mr-2" />
+              <LinkIcon className="w-4 h-4 me-2" />
               {t("Get Link", "קבלו קישור")}
             </TabsTrigger>
             <TabsTrigger value="email">
-              <Mail className="w-4 h-4 mr-2" />
+              <Mail className="w-4 h-4 me-2" />
               {t("Email Me", "שלחו לי במייל")}
             </TabsTrigger>
           </TabsList>
@@ -144,7 +144,7 @@ export function SaveEstimateModal({
             <div className="flex gap-2">
               <button
                 onClick={handleCopyLink}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#D4AF37] text-white rounded-sm hover:bg-[#D4AF37]/90 transition-colors font-medium"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-accent-cta text-white rounded-sm hover:bg-accent-cta-hover transition-colors font-medium"
               >
                 {copied ? (
                   <>

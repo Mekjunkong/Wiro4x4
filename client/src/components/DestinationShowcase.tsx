@@ -110,7 +110,7 @@ export function DestinationShowcase() {
               {/* Permanent gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               {/* Gold tint overlay on hover */}
-              <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <div className="flex items-center gap-1.5 text-white/80 text-xs mb-1.5">
                   <MapPin className="w-3.5 h-3.5" />
@@ -122,7 +122,7 @@ export function DestinationShowcase() {
                 <p className="text-sm text-white/80 line-clamp-2">
                   {t(dest.descEn, dest.descHe)}
                 </p>
-                <div className="flex items-center gap-1.5 mt-2 text-[#D4AF37] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex items-center gap-1.5 mt-2 text-accent text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {t("Explore Tour", "לפרטי הטיול")}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>

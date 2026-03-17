@@ -47,7 +47,7 @@ function StarRating({ rating }: { rating: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`w-4 h-4 ${i < rating ? "text-[#D4AF37] fill-[#D4AF37]" : "text-gray-300"}`}
+          className={`w-4 h-4 ${i < rating ? "text-accent fill-accent" : "text-gray-300"}`}
         />
       ))}
     </div>
@@ -64,10 +64,7 @@ export function SocialProofStrip() {
     .slice(0, 3);
 
   return (
-    <section
-      ref={sectionRef}
-      className="py-16 md:py-20 bg-[#FAF7F2] dark:bg-[#1A1A1A]"
-    >
+    <section ref={sectionRef} className="py-16 md:py-20 bg-background">
       <div className="container max-w-6xl">
         {/* Section heading */}
         <div className="text-center mb-10">
@@ -90,7 +87,7 @@ export function SocialProofStrip() {
                   &ldquo;{review.text}&rdquo;
                 </p>
                 <div className="mt-4 flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
                     {review.name?.charAt(0) || "?"}
                   </div>
                   <div>
@@ -107,7 +104,7 @@ export function SocialProofStrip() {
           {TRUST_BADGES.map(badge => (
             <div
               key={badge.en}
-              className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-[#D4AF37]/20 shadow-sm"
+              className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-accent/20 shadow-sm"
             >
               <span className="text-lg">{badge.icon}</span>
               <span className="text-sm font-medium">

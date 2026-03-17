@@ -42,7 +42,7 @@ export function DateSelector({
             value={arrivalDate}
             onChange={e => onSetArrivalDate(e.target.value)}
             min={new Date().toISOString().split("T")[0]}
-            className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base"
+            className="w-full px-4 py-3 border border-border rounded-sm focus:ring-2 focus:ring-accent focus:border-transparent text-base"
           />
         </div>
 
@@ -60,7 +60,7 @@ export function DateSelector({
             value={departureDate}
             onChange={e => onSetDepartureDate(e.target.value)}
             min={arrivalDate || new Date().toISOString().split("T")[0]}
-            className={`w-full px-4 py-3 border rounded-sm focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent text-base ${
+            className={`w-full px-4 py-3 border rounded-sm focus:ring-2 focus:ring-accent focus:border-transparent text-base ${
               isInvalidRange ? "border-red-500" : "border-border"
             }`}
           />

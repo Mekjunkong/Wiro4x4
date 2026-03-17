@@ -14,11 +14,11 @@ export function TourSocialProof() {
   const displayReviews = (reviews ?? []).slice(0, 2);
 
   return (
-    <div className="bg-[#F9F7F2] rounded-xl p-6 space-y-4">
+    <div className="bg-muted rounded-xl p-6 space-y-4">
       <div className="flex flex-wrap items-center gap-4 text-sm">
         {stats && stats.totalBookings > 0 && (
-          <div className="flex items-center gap-2 text-gray-700">
-            <Users className="h-4 w-4 text-[#D4AF37]" />
+          <div className="flex items-center gap-2 text-foreground">
+            <Users className="h-4 w-4 text-accent" />
             <span className="font-medium">
               {stats.totalBookings}+{" "}
               {t(
@@ -33,7 +33,7 @@ export function TourSocialProof() {
             {[1, 2, 3, 4, 5].map(i => (
               <Star
                 key={i}
-                className={`h-4 w-4 ${i <= Math.round(displayReviews[0].rating) ? "text-[#D4AF37] fill-[#D4AF37]" : "text-gray-300"}`}
+                className={`h-4 w-4 ${i <= Math.round(displayReviews[0].rating) ? "text-accent fill-accent" : "text-muted-foreground"}`}
               />
             ))}
           </div>
@@ -42,11 +42,11 @@ export function TourSocialProof() {
       {displayReviews.map(review => (
         <blockquote
           key={review.id}
-          className="border-l-2 border-[#D4AF37] pl-4 text-gray-600 text-sm italic"
+          className="border-l-2 border-accent pl-4 text-muted-foreground text-sm italic"
         >
           "{review.text.slice(0, 150)}
           {review.text.length > 150 ? "..." : ""}"
-          <footer className="mt-1 text-gray-500 not-italic text-xs">
+          <footer className="mt-1 text-muted-foreground not-italic text-xs">
             — {review.name}
           </footer>
         </blockquote>

@@ -583,22 +583,22 @@ export default function PackageDetail() {
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-10">
                 {/* Description */}
-                <p className="text-lg text-[#1c1c1c]/70 dark:text-white/70 leading-relaxed">
+                <p className="text-lg text-foreground/70 leading-relaxed">
                   {t(pkg.description, pkg.descriptionHe)}
                 </p>
 
                 {/* Quick Stats */}
                 <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2 text-sm bg-[#faf7f2] dark:bg-[#242424] px-4 py-2.5 rounded-lg">
-                    <Calendar className="w-4 h-4 text-[#d4af37]" />
+                  <div className="flex items-center gap-2 text-sm bg-background dark:bg-card px-4 py-2.5 rounded-lg">
+                    <Calendar className="w-4 h-4 text-accent" />
                     {t(pkg.duration, pkg.durationHe)}
                   </div>
-                  <div className="flex items-center gap-2 text-sm bg-[#faf7f2] dark:bg-[#242424] px-4 py-2.5 rounded-lg">
-                    <MapPin className="w-4 h-4 text-[#d4af37]" />
+                  <div className="flex items-center gap-2 text-sm bg-background dark:bg-card px-4 py-2.5 rounded-lg">
+                    <MapPin className="w-4 h-4 text-accent" />
                     {t(pkg.location, pkg.locationHe)}
                   </div>
-                  <div className="flex items-center gap-2 text-sm bg-[#faf7f2] dark:bg-[#242424] px-4 py-2.5 rounded-lg">
-                    <Users className="w-4 h-4 text-[#d4af37]" />
+                  <div className="flex items-center gap-2 text-sm bg-background dark:bg-card px-4 py-2.5 rounded-lg">
+                    <Users className="w-4 h-4 text-accent" />
                     {t(pkg.groupSize, pkg.groupSizeHe)}
                   </div>
                 </div>
@@ -622,7 +622,7 @@ export default function PackageDetail() {
                               sizes="(max-width: 640px) 100vw, 208px"
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute top-3 left-3 bg-[#d4af37] text-white text-xs font-bold px-2.5 py-1 rounded">
+                            <div className="absolute top-3 left-3 bg-accent-cta text-white text-xs font-bold px-2.5 py-1 rounded">
                               {t("Day", "יום")} {day.day}
                             </div>
                           </div>
@@ -630,7 +630,7 @@ export default function PackageDetail() {
                             <h3 className="text-lg font-bold mb-2">
                               {t(day.title, day.titleHe)}
                             </h3>
-                            <p className="text-sm text-[#1c1c1c]/60 dark:text-white/60 mb-3 leading-relaxed">
+                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                               {t(day.description, day.descriptionHe)}
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -640,7 +640,7 @@ export default function PackageDetail() {
                               ).map(h => (
                                 <span
                                   key={h}
-                                  className="text-xs bg-[#d4af37]/10 text-[#d4af37] px-2.5 py-1 rounded-full font-medium"
+                                  className="text-xs bg-accent/10 text-accent px-2.5 py-1 rounded-full font-medium"
                                 >
                                   {h}
                                 </span>
@@ -676,53 +676,53 @@ export default function PackageDetail() {
 
               {/* Sticky Sidebar */}
               <div className="lg:col-span-1">
-                <div className="sticky top-28 bg-white dark:bg-[#242424] border border-[#d4af37]/20 rounded-2xl p-6 shadow-lg space-y-5">
+                <div className="sticky top-28 bg-white dark:bg-card border border-accent/20 rounded-2xl p-6 shadow-lg space-y-5">
                   <h3 className="font-heading font-bold text-xl flex items-center gap-2">
-                    <Mountain className="w-5 h-5 text-[#d4af37]" />
+                    <Mountain className="w-5 h-5 text-accent" />
                     {t("Trip Overview", "סקירת המסע")}
                   </h3>
 
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4 text-[#d4af37]" />
+                      <Calendar className="w-4 h-4 text-accent" />
                       <div>
                         <div className="font-medium">
                           {t("Duration", "משך")}
                         </div>
-                        <div className="text-[#1c1c1c]/60 dark:text-white/60">
+                        <div className="text-muted-foreground">
                           {t(pkg.duration, pkg.durationHe)}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Users className="w-4 h-4 text-[#d4af37]" />
+                      <Users className="w-4 h-4 text-accent" />
                       <div>
                         <div className="font-medium">
                           {t("Group Size", "גודל קבוצה")}
                         </div>
-                        <div className="text-[#1c1c1c]/60 dark:text-white/60">
+                        <div className="text-muted-foreground">
                           {t(pkg.groupSize, pkg.groupSizeHe)}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Utensils className="w-4 h-4 text-[#d4af37]" />
+                      <Utensils className="w-4 h-4 text-accent" />
                       <div>
                         <div className="font-medium">
                           {t("Kosher Support", "תמיכה כשרה")}
                         </div>
-                        <div className="text-[#1c1c1c]/60 dark:text-white/60">
+                        <div className="text-muted-foreground">
                           {t("Available on request", "זמין לפי בקשה")}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <BedDouble className="w-4 h-4 text-[#d4af37]" />
+                      <BedDouble className="w-4 h-4 text-accent" />
                       <div>
                         <div className="font-medium">
                           {t("Accommodation", "לינה")}
                         </div>
-                        <div className="text-[#1c1c1c]/60 dark:text-white/60">
+                        <div className="text-muted-foreground">
                           {t(
                             "Hotels & mountain lodges",
                             "מלונות ולודג'ים בהרים"
@@ -733,13 +733,13 @@ export default function PackageDetail() {
                   </div>
 
                   <div className="border-t pt-4">
-                    <div className="text-sm text-[#1c1c1c]/50 dark:text-white/50">
+                    <div className="text-sm text-muted-foreground">
                       {t("Starting from", "החל מ-")}
                     </div>
-                    <div className="text-3xl font-heading font-bold text-[#d4af37]">
+                    <div className="text-3xl font-heading font-bold text-accent">
                       {formatTHB(pkg.price)}
                     </div>
-                    <div className="text-xs text-[#1c1c1c]/50 dark:text-white/50">
+                    <div className="text-xs text-muted-foreground">
                       {t("per person", "לאדם")}
                     </div>
                   </div>
@@ -750,7 +750,7 @@ export default function PackageDetail() {
                     rel="noopener noreferrer"
                   >
                     <Button
-                      className="w-full bg-[#d4af37] hover:bg-[#c5a033] text-white font-bold"
+                      className="w-full bg-accent-cta hover:bg-accent-cta-hover text-white font-bold"
                       size="lg"
                     >
                       {t("Inquire via WhatsApp", "פנו אלינו בוואטסאפ")}
@@ -766,7 +766,7 @@ export default function PackageDetail() {
 
                   <Link
                     href="/"
-                    className="block text-center text-sm text-[#1c1c1c]/50 dark:text-white/50 hover:text-[#d4af37] transition-colors"
+                    className="block text-center text-sm text-muted-foreground hover:text-accent transition-colors"
                   >
                     <ArrowLeft className="w-3 h-3 inline mr-1" />
                     {t("All Adventures", "כל ההרפתקאות")}

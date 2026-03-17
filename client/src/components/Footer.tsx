@@ -1,6 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { Link } from "wouter";
 import {
   APP_LOGO,
   WHATSAPP_NUMBER,
@@ -19,7 +20,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div className="space-y-4">
-            <a
+            <Link
               href="/"
               className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105 inline-block"
             >
@@ -30,7 +31,7 @@ export function Footer() {
                 height={64}
                 className="h-16 w-auto object-contain drop-shadow-lg"
               />
-            </a>
+            </Link>
             <p className="text-sm text-muted-foreground">
               {t(
                 "Premium 4x4 tours in Northern Thailand with kosher meals and Hebrew-speaking guides.",
@@ -41,104 +42,104 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-[#D4AF37]">
+            <h4 className="text-lg font-semibold text-accent">
               {t("Quick Links", "קישורים מהירים")}
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a
+                <Link
                   href="/tours"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Tours", "טיולים")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/pricing"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Pricing", "מחירים")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/gallery"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Gallery", "גלריה")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/blog"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Blog", "בלוג")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/reviews"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Reviews", "ביקורות")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/terms"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Terms of Service", "תנאי שירות")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/privacy"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {t("Privacy Policy", "מדיניות פרטיות")}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-[#D4AF37]">
+            <h4 className="text-lg font-semibold text-accent">
               {t("Contact Us", "צרו קשר")}
             </h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-[#D4AF37]" />
+                <MapPin className="h-4 w-4 text-accent" />
                 <span>{t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-[#D4AF37]" />
+                <Phone className="h-4 w-4 text-accent" />
                 <a
                   href={`tel:+${WHATSAPP_NUMBER}`}
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {COMPANY_PHONE}
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[#D4AF37]" />
+                <Mail className="h-4 w-4 text-accent" />
                 <a
                   href={`mailto:${COMPANY_EMAIL}`}
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   {COMPANY_EMAIL}
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4 text-[#D4AF37]" />
+                <MessageCircle className="h-4 w-4 text-accent" />
                 <a
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#D4AF37] transition-colors"
+                  className="hover:text-accent transition-colors"
                 >
                   WhatsApp
                 </a>
@@ -154,7 +155,7 @@ export function Footer() {
             href={COMPANY_FACEBOOK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#D4AF37] hover:brightness-125 transition-all"
+            className="text-accent hover:brightness-125 transition-all"
             aria-label="Facebook"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -165,7 +166,7 @@ export function Footer() {
             href={COMPANY_INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#D4AF37] hover:brightness-125 transition-all"
+            className="text-accent hover:brightness-125 transition-all"
             aria-label="Instagram"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -176,7 +177,7 @@ export function Footer() {
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#D4AF37] hover:brightness-125 transition-all"
+            className="text-accent hover:brightness-125 transition-all"
             aria-label="TikTok"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -185,7 +186,7 @@ export function Footer() {
           </a>
         </div>
 
-        <div className="border-t border-[#D4AF37]/20 pt-8 mt-2">
+        <div className="border-t border-accent/20 pt-8 mt-2">
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
               {t(

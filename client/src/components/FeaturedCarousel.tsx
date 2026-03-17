@@ -62,9 +62,9 @@ export function FeaturedCarousel({
   const isSingle = photos.length === 1;
 
   return (
-    <section className="bg-[#1C1C1C] py-8 md:py-12">
+    <section className="bg-primary py-8 md:py-12">
       <div className="text-center max-w-3xl mx-auto mb-8 px-4">
-        <h2 className="text-3xl md:text-4xl font-medium text-[#D4AF37]">
+        <h2 className="text-3xl md:text-4xl font-medium text-accent">
           {t("Featured Photos", "תמונות נבחרות")}
         </h2>
         <GoldDivider />
@@ -93,7 +93,7 @@ export function FeaturedCarousel({
                   onClick={() => onPhotoClick(index)}
                   className={`relative w-full aspect-[16/9] overflow-hidden rounded-sm transition-all duration-300 block ${
                     index === activeIndex
-                      ? "opacity-100 scale-100 border-2 border-[#D4AF37]"
+                      ? "opacity-100 scale-100 border-2 border-accent"
                       : "opacity-50 scale-95 border-2 border-transparent"
                   }`}
                 >
@@ -128,7 +128,7 @@ export function FeaturedCarousel({
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === activeIndex ? "bg-[#D4AF37]" : "bg-white/30"
+                index === activeIndex ? "bg-accent" : "bg-white/30"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

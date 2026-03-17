@@ -48,8 +48,8 @@ export function ProgressIndicator({
                       isComplete
                         ? "bg-green-600 text-white"
                         : isCurrent
-                          ? "border-2 border-[#D4AF37] bg-white text-[#D4AF37]"
-                          : "border-2 border-gray-300 bg-white text-gray-400"
+                          ? "border-2 border-accent bg-card text-accent"
+                          : "border-2 border-border bg-card text-muted-foreground"
                     }
                   `}
                 >
@@ -78,7 +78,7 @@ export function ProgressIndicator({
                 <div
                   className={`
                     flex-1 h-0.5 mx-2 transition-all duration-300
-                    ${isComplete ? "bg-green-600" : "bg-gray-300"}
+                    ${isComplete ? "bg-green-600" : "bg-border"}
                   `}
                 />
               )}

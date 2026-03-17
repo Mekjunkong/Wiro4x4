@@ -125,11 +125,11 @@ export function PriceBreakdownModal({
           )}
 
           {/* Total */}
-          <div className="border-t-2 border-[#D4AF37]/20 pt-3">
+          <div className="border-t-2 border-accent/20 pt-3">
             <div className="flex justify-between items-center mb-1">
               <span className="text-xl font-bold">{t("Total", "סה״כ")}</span>
               <CurrencyTooltip thb={breakdown.total}>
-                <span className="text-2xl font-bold text-[#D4AF37]">
+                <span className="text-2xl font-bold text-accent">
                   {formatTHB(breakdown.total)}
                 </span>
               </CurrencyTooltip>
@@ -145,8 +145,8 @@ export function PriceBreakdownModal({
           </div>
 
           {/* Customer testimonial */}
-          <div className="bg-[#D4AF37]/10 rounded-lg p-4 border border-[#D4AF37]/30">
-            <Quote className="w-5 h-5 text-[#D4AF37] mb-2" />
+          <div className="bg-accent/10 rounded-lg p-4 border border-accent/30">
+            <Quote className="w-5 h-5 text-accent mb-2" />
             <p className="text-sm italic mb-2">
               {t(
                 "Amazing experience! The kosher meals were delicious and Wiro was so knowledgeable. Highly recommend!",

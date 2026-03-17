@@ -22,7 +22,7 @@ export function ScrollProgress() {
 
   return (
     <div
-      className="fixed top-0 left-0 h-[2px] bg-[#D4AF37] z-[10001] transition-none"
+      className="fixed top-0 left-0 h-[2px] bg-accent z-[10001] transition-none"
       style={{ width: `${progress}%` }}
     />
   );

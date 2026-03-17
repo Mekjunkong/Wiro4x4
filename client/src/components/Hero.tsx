@@ -94,7 +94,7 @@ export function Hero() {
         <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
           <button
             onClick={scrollToTours}
-            className="bg-[#B8960F] hover:bg-[#a3850e] active:bg-[#8f7509] text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-2xl w-full sm:w-auto"
+            className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-2xl w-full sm:w-auto"
           >
             {t("Explore Tours", "גלו את הטיולים")}
           </button>

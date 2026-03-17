@@ -161,14 +161,14 @@ export function PhotoGallery() {
           {/* Arrows — hidden on mobile, visible on md+ */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-accent/30 rounded-full text-accent hover:bg-accent hover:text-card transition-colors"
             aria-label={t("Previous", "הקודם")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-[#D4AF37]/30 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-card transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 hidden md:flex items-center justify-center w-10 h-10 bg-card border border-accent/30 rounded-full text-accent hover:bg-accent hover:text-card transition-colors"
             aria-label={t("Next", "הבא")}
           >
             <ChevronRight className="h-5 w-5" />
@@ -182,7 +182,7 @@ export function PhotoGallery() {
               key={index}
               onClick={() => scrollTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === selectedIndex ? "bg-[#D4AF37]" : "bg-muted"
+                index === selectedIndex ? "bg-accent" : "bg-muted"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

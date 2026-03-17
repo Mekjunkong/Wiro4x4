@@ -12,9 +12,9 @@ export function PricingSummary({ breakdown }: Props) {
   if (!breakdown) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3 sticky top-24">
-      <div className="flex items-center gap-2 text-[#1C1C1C] font-semibold">
-        <Receipt className="h-5 w-5 text-[#D4AF37]" />
+    <div className="bg-card rounded-xl border border-border p-5 space-y-3 sticky top-24">
+      <div className="flex items-center gap-2 text-foreground font-semibold">
+        <Receipt className="h-5 w-5 text-accent" />
         {t(
           "Price Estimate",
           "\u05D4\u05E2\u05E8\u05DB\u05EA \u05DE\u05D7\u05D9\u05E8"
@@ -23,7 +23,7 @@ export function PricingSummary({ breakdown }: Props) {
 
       {breakdown.tourItems.map((item, i) => (
         <div key={`tour-${i}`} className="flex justify-between text-sm">
-          <span className="text-gray-600">
+          <span className="text-muted-foreground">
             {language === "he" ? item.labelHe : item.labelEn}
           </span>
           <span>{formatTHB(item.amount)}</span>
@@ -32,7 +32,7 @@ export function PricingSummary({ breakdown }: Props) {
 
       {breakdown.serviceItems.map((item, i) => (
         <div key={`svc-${i}`} className="flex justify-between text-sm">
-          <span className="text-gray-600">
+          <span className="text-muted-foreground">
             {language === "he" ? item.labelHe : item.labelEn}
           </span>
           <span>{formatTHB(item.amount)}</span>
@@ -53,10 +53,10 @@ export function PricingSummary({ breakdown }: Props) {
 
       <div className="border-t pt-3 flex justify-between font-bold text-lg">
         <span>{t("Total", '\u05E1\u05D4"\u05DB')}</span>
-        <span className="text-[#D4AF37]">{formatTHB(breakdown.total)}</span>
+        <span className="text-accent">{formatTHB(breakdown.total)}</span>
       </div>
 
-      <div className="text-xs text-gray-400 space-y-1">
+      <div className="text-xs text-muted-foreground space-y-1">
         <div className="flex justify-between">
           <span>
             {t("Deposit (30%)", "\u05DE\u05E7\u05D3\u05DE\u05D4 (30%)")}

@@ -22,15 +22,15 @@ export function FunnelChart() {
   }));
 
   return (
-    <div className="bg-white rounded-lg border p-4">
+    <div className="bg-card rounded-lg border p-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-muted-foreground">
           {t(
             "Booking Funnel (30 days)",
             "\u05DE\u05E9\u05E4\u05DA \u05D4\u05D6\u05DE\u05E0\u05D5\u05EA (30 \u05D9\u05D5\u05DD)"
           )}
         </h3>
-        <span className="text-sm font-bold text-[#D4AF37]">
+        <span className="text-sm font-bold text-accent">
           {data.conversionRate}% {t("conversion", "\u05D4\u05DE\u05E8\u05D4")}
         </span>
       </div>
@@ -40,7 +40,7 @@ export function FunnelChart() {
           <XAxis dataKey="name" tick={{ fontSize: 11 }} />
           <YAxis allowDecimals={false} />
           <Tooltip />
-          <Bar dataKey="count" fill="#D4AF37" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="count" fill="var(--accent)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

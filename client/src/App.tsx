@@ -9,8 +9,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
-import { ScrollProgress } from "./components/ScrollProgress";
-import { CustomCursor } from "./components/CustomCursor";
 import { captureUtmParams } from "@/lib/utm";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
@@ -130,8 +128,6 @@ function AppContent() {
 
   return (
     <TooltipProvider>
-      <ScrollProgress />
-      <CustomCursor />
       {/* Skip to main content link (I2) — visible only on keyboard focus */}
       <a
         href="#main-content"

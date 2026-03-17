@@ -92,8 +92,8 @@ export function KosherInfo() {
               >
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#D4AF37]/10 rounded-lg">
-                      <Icon className="h-6 w-6 text-[#D4AF37]" />
+                    <div className="p-2 bg-accent/10 rounded-lg">
+                      <Icon className="h-6 w-6 text-accent" />
                     </div>
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
                   </div>

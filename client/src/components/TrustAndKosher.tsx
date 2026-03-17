@@ -68,7 +68,7 @@ export function TrustAndKosher() {
     <section
       ref={sectionRef}
       id="why-wiro"
-      className="py-16 md:py-20 bg-[#fdfbf7] dark:bg-[#1A1A1A] overflow-hidden"
+      className="py-16 md:py-20 bg-card overflow-hidden"
     >
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -104,10 +104,10 @@ export function TrustAndKosher() {
               {trustPoints.map(point => (
                 <div
                   key={point.en}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-white/50 dark:bg-white/5"
+                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0">
-                    <point.icon className="w-5 h-5 text-[#d4af37]" />
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                    <point.icon className="w-5 h-5 text-accent" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm">
@@ -122,12 +122,12 @@ export function TrustAndKosher() {
             </div>
 
             {/* Kosher Accordion */}
-            <div id="kosher" className="mt-8 border-t border-[#d4af37]/30 pt-6">
+            <div id="kosher" className="mt-8 border-t border-accent/30 pt-6">
               <button
                 onClick={() => setKosherOpen(!kosherOpen)}
                 className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold"
               >
-                <ShieldCheck className="w-6 h-6 text-[#d4af37]" />
+                <ShieldCheck className="w-6 h-6 text-accent" />
                 {t("Kosher Standards & Logistics", "תקני כשרות ולוגיסטיקה")}
                 <ChevronDown
                   className={`w-5 h-5 ml-auto transition-transform ${kosherOpen ? "rotate-180" : ""}`}

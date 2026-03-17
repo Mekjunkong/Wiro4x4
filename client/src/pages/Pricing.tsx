@@ -241,7 +241,7 @@ export default function Pricing() {
       />
       <main id="main-content">
         {/* Hero Section */}
-        <section className="relative py-20 mt-20 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10">
+        <section className="relative py-20 mt-20 bg-gradient-to-br from-accent/5 to-accent/10">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-medium mb-6">
@@ -258,22 +258,22 @@ export default function Pricing() {
                 onClick={() => (window.location.href = "/estimate")}
                 size="lg"
                 variant="default"
-                className="mb-4 bg-[#D4AF37] hover:bg-[#B8960F] text-white"
+                className="mb-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
               >
                 <Calculator className="w-5 h-5 mr-2" />
                 {t("Try the Trip Cost Estimator", "נסו את מחשבון עלות הטיול")}
               </Button>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#D4AF37]" />
+                  <Shield className="w-5 h-5 text-accent" />
                   <span>{t("Fully Insured", "ביטוח מלא")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#D4AF37]" />
+                  <Calendar className="w-5 h-5 text-accent" />
                   <span>{t("Flexible Dates", "תאריכים גמישים")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-5 h-5 text-[#D4AF37]" />
+                  <Utensils className="w-5 h-5 text-accent" />
                   <span>{t("Kosher Meals", "ארוחות כשרות")}</span>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function Pricing() {
               {tours.map(tour => (
                 <Card
                   key={tour.id}
-                  className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-[#E8E2DA] rounded-sm"
+                  className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-border rounded-sm"
                 >
                   <div className="relative h-48 overflow-hidden">
                     <OptimizedImage
@@ -313,7 +313,7 @@ export default function Pricing() {
                     </div>
 
                     <div className="border-t border-b py-4 mt-4">
-                      <div className="text-3xl font-bold text-[#D4AF37] mb-1">
+                      <div className="text-3xl font-bold text-accent mb-1">
                         &#3647;{tour.basePrice.toLocaleString()}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -331,7 +331,7 @@ export default function Pricing() {
                             key={idx}
                             className="flex items-start gap-2 text-sm"
                           >
-                            <Check className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                             <span>{item}</span>
                           </li>
                         ))}
@@ -351,7 +351,7 @@ export default function Pricing() {
                         handleWhatsAppInquiry(tour.name, tour.basePrice)
                       }
                       variant="default"
-                      className="w-full mt-4 bg-[#D4AF37] hover:bg-[#B8960F] text-white"
+                      className="w-full mt-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
                     >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
@@ -363,13 +363,13 @@ export default function Pricing() {
 
             {/* Group Size Pricing */}
             <div className="mt-12 max-w-4xl mx-auto">
-              <Card className="p-8 bg-card border border-[#E8E2DA] rounded-sm">
+              <Card className="p-8 bg-card border border-border rounded-sm">
                 <h3 className="text-xl md:text-2xl font-medium mb-6 text-center">
                   {t("Group Size Pricing", "תמחור לפי גודל קבוצה")}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
+                  <div className="text-center p-3 rounded-sm bg-accent/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-accent" />
                     <div className="font-bold text-sm md:text-base">
                       1-2 {t("people", "אנשים")}
                     </div>
@@ -377,8 +377,8 @@ export default function Pricing() {
                       {t("Base price", "מחיר בסיס")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
+                  <div className="text-center p-3 rounded-sm bg-accent/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-accent" />
                     <div className="font-bold text-sm md:text-base">
                       3-4 {t("people", "אנשים")}
                     </div>
@@ -386,8 +386,8 @@ export default function Pricing() {
                       {t("Same price", "אותו מחיר")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
+                  <div className="text-center p-3 rounded-sm bg-accent/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-accent" />
                     <div className="font-bold text-sm md:text-base">
                       5-6 {t("people", "אנשים")}
                     </div>
@@ -395,8 +395,8 @@ export default function Pricing() {
                       {t("+20%", "+20%")}
                     </div>
                   </div>
-                  <div className="text-center p-3 rounded-sm bg-[#D4AF37]/5">
-                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#D4AF37]" />
+                  <div className="text-center p-3 rounded-sm bg-accent/5">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-accent" />
                     <div className="font-bold text-sm md:text-base">
                       7+ {t("people", "אנשים")}
                     </div>
@@ -429,16 +429,16 @@ export default function Pricing() {
               {packages.map((pkg, idx) => (
                 <Card
                   key={idx}
-                  className={`p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden flex flex-col bg-card rounded-sm ${idx === 1 ? "border-[#D4AF37] border-2 shadow-premium-lg" : "border border-[#E8E2DA]"}`}
+                  className={`p-6 md:p-8 hover:shadow-premium-lg transition-all duration-300 relative overflow-hidden flex flex-col bg-card rounded-sm ${idx === 1 ? "border-accent border-2 shadow-premium-lg" : "border border-border"}`}
                 >
                   {idx === 1 && (
-                    <div className="absolute top-0 left-0 right-0 bg-[#D4AF37] text-white text-center py-1.5 text-xs md:text-sm font-bold">
+                    <div className="absolute top-0 left-0 right-0 bg-accent text-white text-center py-1.5 text-xs md:text-sm font-bold">
                       {t("Most Popular", "הכי פופולרי")}
                     </div>
                   )}
                   {pkg.savings > 0 && (
                     <div
-                      className={`absolute ${idx === 1 ? "top-10" : "top-3"} right-3 md:right-4 bg-[#D4AF37] text-white px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}
+                      className={`absolute ${idx === 1 ? "top-10" : "top-3"} right-3 md:right-4 bg-accent text-white px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}
                     >
                       {t("Save", "חסכו")} &#3647;{pkg.savings}
                     </div>
@@ -453,7 +453,7 @@ export default function Pricing() {
                     <div className="text-sm text-muted-foreground mb-4">
                       {pkg.days} {t("Days", "ימים")}
                     </div>
-                    <div className="text-3xl md:text-4xl font-bold text-[#D4AF37]">
+                    <div className="text-3xl md:text-4xl font-bold text-accent">
                       ฿{pkg.price.toLocaleString()}
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">
@@ -464,7 +464,7 @@ export default function Pricing() {
                   <ul className="space-y-3 mb-6 flex-1">
                     {pkg.tours.map((tour, tourIdx) => (
                       <li key={tourIdx} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+                        <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                         <span>{tour}</span>
                       </li>
                     ))}
@@ -472,7 +472,7 @@ export default function Pricing() {
 
                   <Button
                     onClick={() => handleWhatsAppInquiry(pkg.name, pkg.price)}
-                    className={`w-full mt-auto ${idx === 1 ? "bg-[#D4AF37] hover:bg-[#B8960F] text-white" : "border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10"}`}
+                    className={`w-full mt-auto ${idx === 1 ? "bg-accent-cta hover:bg-accent-cta-hover text-white" : "border-accent text-accent hover:bg-accent/10"}`}
                     variant={idx === 1 ? "default" : "outline"}
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
@@ -487,7 +487,7 @@ export default function Pricing() {
         {/* Additional Information */}
         <section className="py-16">
           <div className="container max-w-4xl">
-            <Card className="p-5 md:p-8 bg-card border border-[#E8E2DA] rounded-sm">
+            <Card className="p-5 md:p-8 bg-card border border-border rounded-sm">
               <h3 className="text-xl md:text-2xl font-medium mb-4 md:mb-6">
                 {t("Booking Terms & Policies", "תנאי הזמנה ומדיניות")}
               </h3>

@@ -148,7 +148,7 @@ export function BlogTab() {
         <div className="flex gap-2">
           <button
             onClick={() => setGenerateDialogOpen(true)}
-            className="px-4 py-2 bg-[#D4AF37] text-white rounded-lg hover:bg-[#D4AF37]/90 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-accent-cta text-white rounded-lg hover:bg-accent-cta-hover transition-colors flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             Generate Article
