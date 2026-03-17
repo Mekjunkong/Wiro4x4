@@ -13,6 +13,14 @@ export function CustomCursor() {
       return;
     }
 
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReduced) {
+      setIsTouch(true);
+      return;
+    }
+
     const move = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
     const hoverIn = () => setIsHovering(true);
     const hoverOut = () => setIsHovering(false);

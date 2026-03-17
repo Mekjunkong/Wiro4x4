@@ -1,0 +1,13 @@
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: wiro_test
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

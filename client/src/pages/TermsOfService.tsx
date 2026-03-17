@@ -78,8 +78,6 @@ export default function TermsOfService() {
             </section>
 
             {/* Cancellation Policy */}
-            {/* TODO: Cancellation timeframes here (48 hours) differ from Pricing.tsx (7 days).
-                Review with the team to align both pages on the same policy. */}
             <section>
               <h2 className="text-xl font-serif font-bold text-foreground mb-3">
                 {t(
@@ -90,20 +88,20 @@ export default function TermsOfService() {
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 <li>
                   {t(
-                    "Cancellations made 48+ hours before the tour: full refund.",
-                    "ביטול 48 שעות או יותר לפני הטיול: החזר מלא."
+                    "Cancellations made 7+ days before the tour: full refund.",
+                    "ביטול 7 ימים או יותר לפני הטיול: החזר מלא."
                   )}
                 </li>
                 <li>
                   {t(
-                    "Cancellations made 24-48 hours before the tour: 50% refund.",
-                    "ביטול 24-48 שעות לפני הטיול: החזר של 50%."
+                    "Cancellations made 3-6 days before the tour: 50% refund.",
+                    "ביטול 3-6 ימים לפני הטיול: החזר של 50%."
                   )}
                 </li>
                 <li>
                   {t(
-                    "Cancellations made less than 24 hours before the tour: no refund.",
-                    "ביטול פחות מ-24 שעות לפני הטיול: ללא החזר."
+                    "Cancellations made less than 3 days before the tour: no refund.",
+                    "ביטול פחות מ-3 ימים לפני הטיול: ללא החזר."
                   )}
                 </li>
                 <li>

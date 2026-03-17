@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
-import Home from "./pages/Home";
+const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
 import { ScrollProgress } from "./components/ScrollProgress";
 import { CustomCursor } from "./components/CustomCursor";
@@ -15,7 +15,6 @@ import { captureUtmParams } from "@/lib/utm";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
 const Estimate = React.lazy(() => import("./pages/Estimate"));
-const EstimateV2 = React.lazy(() => import("./pages/EstimateV2"));
 const TourDetail = React.lazy(() => import("./pages/TourDetail"));
 const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
@@ -84,7 +83,6 @@ function Router() {
               <Route path={"/"} component={Home} />
               <Route path={"/pricing"} component={Pricing} />
               <Route path={"/estimate"} component={Estimate} />
-              <Route path={"/estimate-v2"} component={EstimateV2} />
               <Route path={"/tours"} component={ToursListing} />
               <Route path={"/tours/:slug"} component={TourDetail} />
               <Route path={"/packages"} component={Packages} />

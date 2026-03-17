@@ -5,7 +5,6 @@ import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
 const isAnalyze = process.env.ANALYZE === "true";
 
@@ -13,7 +12,6 @@ const plugins = [
   react(),
   tailwindcss(),
   jsxLocPlugin(),
-  vitePluginManusRuntime(),
   ...(isAnalyze
     ? [
         visualizer({
@@ -61,6 +59,8 @@ export default defineConfig({
             "@radix-ui/react-label",
             "@radix-ui/react-checkbox",
           ],
+          // Animation
+          animation: ["framer-motion", "gsap"],
           // Icons
           icons: ["lucide-react"],
           // Utilities
@@ -79,15 +79,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
-      "localhost",
-      "127.0.0.1",
-    ],
+    allowedHosts: ["localhost", "127.0.0.1"],
     fs: {
       strict: true,
       deny: ["**/.*"],

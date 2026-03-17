@@ -2,6 +2,9 @@
 **/node_modules
 .pnpm-store/
 
+# Original unoptimized images (not served)
+assets-source/
+
 # Build outputs
 dist/
 build/

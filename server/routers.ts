@@ -38,8 +38,10 @@ import { estimateRouter } from "./routes/estimate";
 import { startSessionChecker } from "./stripeSessionChecker";
 import { startReminderScheduler } from "./reminderScheduler";
 
-startSessionChecker();
-startReminderScheduler();
+if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
+  startSessionChecker();
+  startReminderScheduler();
+}
 
 export const appRouter = router({
   system: systemRouter,

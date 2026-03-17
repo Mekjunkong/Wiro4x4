@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, built on the **Manus platform**. This is the **MVP release** — a fully functional bilingual (English/Hebrew) tour booking site with SEO-optimized landing pages, blog content pipeline, admin panel, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, trip cost estimator, and destination showcase.
+**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, originally built on the Manus platform, now deployed on **Vercel**. This is the **MVP release** — a fully functional bilingual (English/Hebrew with RTL support) tour booking site with SEO-optimized landing pages, blog content pipeline, admin panel, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, trip cost estimator, and destination showcase.
 
 **Live Site:** https://www.wiro4x4indochina.com
 
@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy init, verified domain: `wiro4x4indochina.com`)
 - **Testing:** Vitest (155 tests across 30 files)
-- **Hosting:** Manus platform (with custom domain support)
+- **Hosting:** Vercel (auto-deploy on push to `main`)
 
 ## Development Commands
 
@@ -130,7 +130,7 @@ pnpm format
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml               # CI checks
-│       └── deploy-manus.yml     # Deploy workflow (NOT auto — manual Manus pull required)
+│       └── deploy.yml           # CI/CD workflow
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
@@ -221,7 +221,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - `useLanguage()` hook from `contexts/LanguageContext.tsx`
 - `t('English text', 'Hebrew text')` pattern in all components
 - Language switcher in header (flag icons)
-- RTL removed (caused layout issues — English layout used for both)
+- **RTL support:** Hebrew sets `dir="rtl"` on `<html>` element via `AppContent` effect + `.rtl` CSS class on wrapper div. Entire page renders right-to-left for Hebrew readers.
 - **Hero layout:** "WIRO 4×4" text is always right-aligned for both languages (gradient darkens right side)
 
 ### 2. Booking System
@@ -441,9 +441,9 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `drizzle/migrations/*` - Auto-generated
 - `node_modules/*` - Dependencies
 
-## Manus Platform Features
+## Platform Features (Manus Legacy)
 
-### Built-in Services (No Setup Required):
+### Built-in Services (from Manus platform):
 
 1. **Database:** MySQL/TiDB automatically provisioned
 2. **Authentication:** OAuth with user management
@@ -526,37 +526,21 @@ Edit CSS variables in `client/src/index.css`:
 
 ## Deployment
 
-### Push to GitHub (Manual Deploy)
+### Vercel Deployment
 
-Deployment is **NOT automatic**. After pushing to GitHub, the user must manually tell Manus to pull and deploy.
+Deployment is **automatic** via Vercel. Pushing to `main` triggers a production deployment.
 
 ```bash
 git push origin main
 ```
 
-**IMPORTANT — After every `git push`:** Claude Code must output the following Manus deployment prompt for the user to copy-paste into Manus:
+Vercel automatically builds and deploys the site at https://www.wiro4x4indochina.com.
 
----
-
-**Copy this to Manus:**
-
-> Pull the latest code from GitHub (`main` branch) and deploy:
->
-> ```bash
-> cd /home/user/app && git pull origin main && pnpm install && pnpm build
-> ```
->
-> After the build succeeds, restart the server and publish the site. Verify the site is live at https://www.wiro4x4indochina.com
-
----
-
-### Standalone Deployment
-
-1. Build: `pnpm build`
-2. Deploy `dist/` folder
-3. Set environment variables manually
-4. Configure database connection
-5. Set up OAuth redirect URLs
+- **Production:** Pushes to `main` → auto-deploy to production
+- **Preview:** Pushes to other branches / PRs → preview deployment URL
+- **Environment variables:** Configured in Vercel dashboard (Settings → Environment Variables)
+- **Build command:** `pnpm build`
+- **Output directory:** `dist/`
 
 ## Troubleshooting
 
@@ -599,7 +583,7 @@ pnpm db:push  # Sync database schema
 
 ## Notes for Claude Code
 
-- This is a **Manus platform project** - some features are platform-specific
+- This project originated on the Manus platform and is now deployed on **Vercel** — some features still use Manus platform internals (`_core/`)
 - **DO NOT** modify files in `server/_core/` or `client/src/_core/`
 - **ALWAYS** update `todo.md` when making changes
 - **TEST** before pushing to GitHub (`pnpm test` + `npx tsc --noEmit`)
@@ -638,12 +622,12 @@ pnpm db:push  # Sync database schema
 | Generate blog     | Admin → Blog tab → "Generate Article" button               |
 | Send newsletter   | Admin → Blog tab → "Send to Subscribers" on published post |
 | RSS feed          | `/api/rss` — auto-generated from published posts           |
-| Seed blog content | `npx tsx server/seed-blog-articles.ts` (on Manus)          |
+| Seed blog content | `npx tsx server/seed-blog-articles.ts`                     |
 | SEO landing pages | `/kosher-tours`, `/hebrew-guide`, `/accessible-tours`      |
 
 ---
 
-**Last Updated:** 2026-03-01
-**Version:** 3.0 (MVP)
-**Platform:** Manus
-**Test Coverage:** 192 tests (34 files) — 156 pass locally, 36 DB-dependent skipped
+**Last Updated:** 2026-03-17
+**Version:** 3.1
+**Platform:** Vercel
+**Test Coverage:** 235 tests (39 files) — 199 pass locally, 36 DB-dependent skipped
