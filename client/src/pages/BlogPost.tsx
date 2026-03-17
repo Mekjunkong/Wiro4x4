@@ -59,7 +59,26 @@ export default function BlogPost() {
       ? hardcodedPosts[postId]
       : null;
 
-  usePageMeta(post?.title ?? "Blog Post", dbPost?.excerpt ?? undefined);
+  usePageMeta({
+    title: post?.title ?? "Blog Post",
+    description: dbPost?.excerpt ?? "WIRO 4x4 travel blog",
+    canonicalPath: `/blog/${postId}`,
+    jsonLd: post
+      ? {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.title,
+          datePublished: dbPost?.publishedAt ?? undefined,
+          author: { "@type": "Organization", name: "WIRO 4x4" },
+          publisher: {
+            "@type": "Organization",
+            name: "WIRO 4x4",
+            url: "https://www.wiro4x4indochina.com",
+          },
+          image: dbPost?.coverImage || undefined,
+        }
+      : undefined,
+  });
 
   if (!post) {
     return (

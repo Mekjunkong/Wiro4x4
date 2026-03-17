@@ -86,10 +86,12 @@ const defaultFormData: FormData = {
 export default function BookingForm() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
-  usePageMeta(
-    "Book Your Tour",
-    "Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling."
-  );
+  usePageMeta({
+    title: "Book Your Tour",
+    description:
+      "Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling.",
+    canonicalPath: "/book",
+  });
 
   useEffect(() => {
     trackEvent(FUNNEL.BOOKING_STARTED);

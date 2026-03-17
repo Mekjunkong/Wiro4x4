@@ -141,6 +141,21 @@ export async function getPendingFollowUps() {
     .orderBy(customerActivities.dueDate);
 }
 
+/**
+ * Get overdue or soon-due incomplete CRM tasks (dueDate <= tomorrow, not completed).
+ */
+export async function getOverdueTasks() {
+  const db = await getDb();
+  if (!db) return [];
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(
+      sql`${customerActivities.dueDate} IS NOT NULL AND ${customerActivities.dueDate} <= ${tomorrow} AND ${customerActivities.isCompleted} = 0`
+    );
+}
+
 // ─── Pipeline Stats ───────────────────────────────────────
 
 export async function getCustomerPipelineStats() {

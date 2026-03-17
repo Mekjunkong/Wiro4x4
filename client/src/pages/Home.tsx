@@ -15,7 +15,12 @@ import { StickyBookBar } from "@/components/StickyBookBar";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Home() {
-  usePageMeta("Kosher Off-Road Adventures in Chiang Mai");
+  usePageMeta({
+    title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
+    description:
+      "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
+    canonicalPath: "/",
+  });
   return (
     <div className="min-h-screen smooth-scroll">
       <Header />

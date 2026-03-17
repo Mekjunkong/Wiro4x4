@@ -1,7 +1,12 @@
 import { eq, sql } from "drizzle-orm";
 import { desc } from "drizzle-orm";
 import { getDb } from "./connection";
-import { financialRecords, InsertFinancialRecord } from "../../drizzle/schema";
+import {
+  financialRecords,
+  InsertFinancialRecord,
+  bookings,
+  agents,
+} from "../../drizzle/schema";
 import { getBookingById } from "./bookings";
 
 export async function createFinancialRecord(record: InsertFinancialRecord) {
@@ -178,4 +183,131 @@ export async function generateDefaultFinancialRecords(bookingId: number) {
   }
 
   return records;
+}
+
+export async function getFinancialStatsByTour() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Join financialRecords with bookings, then extract tour info from suggestedDestinations
+  const rows = await db
+    .select({
+      bookingId: financialRecords.bookingId,
+      type: financialRecords.type,
+      amount: financialRecords.amount,
+      suggestedDestinations: bookings.suggestedDestinations,
+    })
+    .from(financialRecords)
+    .innerJoin(bookings, eq(financialRecords.bookingId, bookings.id));
+
+  // Group by tour name (parsed from suggestedDestinations JSON array)
+  const tourMap = new Map<
+    string,
+    {
+      totalRevenue: number;
+      totalCosts: number;
+      totalRefunds: number;
+      netProfit: number;
+      bookingIds: Set<number>;
+    }
+  >();
+
+  for (const row of rows) {
+    let tourNames: string[] = [];
+    if (row.suggestedDestinations) {
+      try {
+        const parsed = JSON.parse(row.suggestedDestinations);
+        tourNames = Array.isArray(parsed) ? parsed : [String(parsed)];
+      } catch {
+        tourNames = [row.suggestedDestinations];
+      }
+    }
+    if (tourNames.length === 0) {
+      tourNames = ["Unassigned"];
+    }
+
+    for (const tourName of tourNames) {
+      const name = tourName.trim() || "Unassigned";
+      if (!tourMap.has(name)) {
+        tourMap.set(name, {
+          totalRevenue: 0,
+          totalCosts: 0,
+          totalRefunds: 0,
+          netProfit: 0,
+          bookingIds: new Set(),
+        });
+      }
+      const entry = tourMap.get(name)!;
+      entry.bookingIds.add(row.bookingId);
+
+      if (row.type === "revenue") entry.totalRevenue += row.amount;
+      else if (row.type === "cost") entry.totalCosts += row.amount;
+      else if (row.type === "refund") entry.totalRefunds += row.amount;
+    }
+  }
+
+  return Array.from(tourMap.entries()).map(([tourName, stats]) => ({
+    tourName,
+    totalRevenue: stats.totalRevenue,
+    totalCosts: stats.totalCosts,
+    totalRefunds: stats.totalRefunds,
+    netProfit: stats.totalRevenue - stats.totalCosts - stats.totalRefunds,
+    bookingCount: stats.bookingIds.size,
+  }));
+}
+
+export async function getFinancialStatsByAgent() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select({
+      bookingId: financialRecords.bookingId,
+      type: financialRecords.type,
+      amount: financialRecords.amount,
+      assignedAgentId: bookings.assignedAgentId,
+      agentName: agents.name,
+    })
+    .from(financialRecords)
+    .innerJoin(bookings, eq(financialRecords.bookingId, bookings.id))
+    .leftJoin(agents, eq(bookings.assignedAgentId, agents.id));
+
+  const agentMap = new Map<
+    string,
+    {
+      totalRevenue: number;
+      totalCosts: number;
+      totalRefunds: number;
+      netProfit: number;
+      bookingIds: Set<number>;
+    }
+  >();
+
+  for (const row of rows) {
+    const agentName = row.agentName ?? "Unassigned";
+    if (!agentMap.has(agentName)) {
+      agentMap.set(agentName, {
+        totalRevenue: 0,
+        totalCosts: 0,
+        totalRefunds: 0,
+        netProfit: 0,
+        bookingIds: new Set(),
+      });
+    }
+    const entry = agentMap.get(agentName)!;
+    entry.bookingIds.add(row.bookingId);
+
+    if (row.type === "revenue") entry.totalRevenue += row.amount;
+    else if (row.type === "cost") entry.totalCosts += row.amount;
+    else if (row.type === "refund") entry.totalRefunds += row.amount;
+  }
+
+  return Array.from(agentMap.entries()).map(([agentName, stats]) => ({
+    agentName,
+    totalRevenue: stats.totalRevenue,
+    totalCosts: stats.totalCosts,
+    totalRefunds: stats.totalRefunds,
+    netProfit: stats.totalRevenue - stats.totalCosts - stats.totalRefunds,
+    bookingCount: stats.bookingIds.size,
+  }));
 }

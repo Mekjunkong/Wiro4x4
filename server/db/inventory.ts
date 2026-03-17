@@ -51,6 +51,21 @@ export async function deleteInventoryItem(id: number) {
   return await db.delete(inventory).where(eq(inventory.id, id));
 }
 
+/**
+ * Get inventory items with upcoming maintenance (within N days) that are not retired.
+ */
+export async function getInventoryNeedingMaintenance(withinDays = 7) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() + withinDays * 24 * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(inventory)
+    .where(
+      sql`${inventory.nextMaintenanceDate} IS NOT NULL AND ${inventory.nextMaintenanceDate} <= ${cutoff} AND ${inventory.condition} != 'retired'`
+    );
+}
+
 export async function getInventorySummary() {
   const db = await getDb();
   if (!db) return [];

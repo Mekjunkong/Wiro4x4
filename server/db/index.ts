@@ -35,6 +35,8 @@ export {
   markFeedbackSent,
   getBookingsByAgentId,
   getAgentBookingsInDateRange,
+  getPendingBookingCount,
+  getUpcomingTourCount,
 } from "./bookings";
 
 // Agents
@@ -56,6 +58,9 @@ export {
   getAllLeadsPaginated,
   bulkDeleteLeads,
   updateLeadScore,
+  getStaleNewLeads,
+  getColdContactedLeads,
+  getNewLeadCount,
 } from "./leads";
 
 // Financial Records
@@ -66,6 +71,8 @@ export {
   updateFinancialRecord,
   deleteFinancialRecord,
   getFinancialStats,
+  getFinancialStatsByTour,
+  getFinancialStatsByAgent,
   getAllFinancialRecordsPaginated,
   generateDefaultFinancialRecords,
 } from "./financial";
@@ -93,6 +100,7 @@ export {
   getAllReviewsPaginated,
   bulkApproveReviews,
   bulkDeleteReviews,
+  getPendingReviewCount,
 } from "./reviews";
 
 // Payments
@@ -182,6 +190,7 @@ export {
   getCustomerPipelineStats,
   getCustomerTimeline,
   findOrCreateCustomer,
+  getOverdueTasks,
 } from "./customers";
 
 // Audit & Scheduled Emails
@@ -234,6 +243,7 @@ export {
   updateInventoryItem,
   deleteInventoryItem,
   getInventorySummary,
+  getInventoryNeedingMaintenance,
 } from "./inventory";
 
 // Pagination helper (for advanced use)

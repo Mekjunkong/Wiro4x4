@@ -52,12 +52,13 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "Organization",
+          "@type": ["Organization", "TravelAgency", "LocalBusiness"],
           "@id": "https://www.wiro4x4indochina.com/#organization",
           "name": "WIRO 4x4",
           "alternateName": "WIRO 4x4 Kosher Off-Road Adventures",
           "url": "https://www.wiro4x4indochina.com",
           "logo": "https://www.wiro4x4indochina.com/images/logo.png",
+          "email": "wiro.adventures@gmail.com",
           "contactPoint": {
             "@type": "ContactPoint",
             "telephone": "+66929894495",
@@ -68,7 +69,20 @@
             "@type": "PostalAddress",
             "addressLocality": "Chiang Mai",
             "addressCountry": "TH"
-          }
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 18.7883,
+            "longitude": 98.9853
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+            "opens": "08:00",
+            "closes": "18:00"
+          },
+          "priceRange": "฿฿-฿฿฿",
+          "sameAs": ["https://wa.me/66929894495"]
         },
         {
           "@type": "TouristTrip",
@@ -82,7 +96,12 @@
           "@id": "https://www.wiro4x4indochina.com/#website",
           "url": "https://www.wiro4x4indochina.com",
           "name": "WIRO 4x4",
-          "inLanguage": ["en", "he"]
+          "inLanguage": ["en", "he"],
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.wiro4x4indochina.com/blog?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
         }
       ]
     }

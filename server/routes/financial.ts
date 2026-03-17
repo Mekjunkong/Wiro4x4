@@ -13,6 +13,8 @@ import {
   updateFinancialRecord,
   deleteFinancialRecord,
   getFinancialStats,
+  getFinancialStatsByTour,
+  getFinancialStatsByAgent,
 } from "../db";
 import {
   financialRecordInputSchema,
@@ -104,5 +106,13 @@ export const financialRouter = router({
 
   stats: secureProtectedProcedure.query(async () => {
     return await getFinancialStats();
+  }),
+
+  statsByTour: secureProtectedProcedure.query(async () => {
+    return await getFinancialStatsByTour();
+  }),
+
+  statsByAgent: secureProtectedProcedure.query(async () => {
+    return await getFinancialStatsByAgent();
   }),
 });

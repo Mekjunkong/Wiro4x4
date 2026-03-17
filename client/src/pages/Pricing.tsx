@@ -147,10 +147,12 @@ const HARDCODED_TOURS = [
 
 export default function Pricing() {
   const { t } = useLanguage();
-  usePageMeta(
-    "Tour Pricing",
-    "Transparent pricing for WIRO 4x4 kosher off-road tours in Chiang Mai. Private vehicle, Hebrew guide, kosher meals included."
-  );
+  usePageMeta({
+    title: "Tour Pricing",
+    description:
+      "Transparent pricing for WIRO 4x4 kosher off-road tours in Chiang Mai. Private vehicle, Hebrew guide, kosher meals included.",
+    canonicalPath: "/pricing",
+  });
   const { data: dbTours } = trpc.tour.list.useQuery();
 
   const tours =

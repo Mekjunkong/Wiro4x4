@@ -38,10 +38,12 @@ const PAGE_SIZE = 20;
 export default function Gallery() {
   const { t, language } = useLanguage();
   const isHebrew = language === "he";
-  usePageMeta(
-    "Photo Gallery",
-    "Explore adventure photos from WIRO 4x4 kosher off-road tours in Chiang Mai, Northern Thailand."
-  );
+  usePageMeta({
+    title: "Photo Gallery",
+    description:
+      "Explore adventure photos from WIRO 4x4 kosher off-road tours in Chiang Mai, Northern Thailand.",
+    canonicalPath: "/gallery",
+  });
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 

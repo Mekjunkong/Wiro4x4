@@ -68,7 +68,7 @@ export function generateSitemap(
     <loc>${escapeXml(siteUrl)}/tours/${escapeXml(t.slug)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.85</priority>
   </url>`
     )
     .join("\n");
@@ -90,7 +90,7 @@ export function generateSitemap(
     <loc>${escapeXml(siteUrl)}/blog/${escapeXml(b.slug)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>`
     )
     .join("\n");

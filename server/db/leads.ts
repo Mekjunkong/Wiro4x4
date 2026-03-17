@@ -50,6 +50,50 @@ export async function bulkDeleteLeads(ids: number[]) {
   return await db.delete(leads).where(inArray(leads.id, ids));
 }
 
+// ─── Scheduler Queries ───────────────────────────────────
+
+/**
+ * Count leads created in the last N hours.
+ */
+export async function getNewLeadCount(withinHours = 24): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1000);
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(leads)
+    .where(sql`${leads.createdAt} >= ${cutoff}`);
+  return Number(result[0]?.count ?? 0);
+}
+
+/**
+ * Get leads with status 'new' that haven't been updated in 48+ hours.
+ */
+export async function getStaleNewLeads() {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(leads)
+    .where(sql`${leads.status} = 'new' AND ${leads.updatedAt} < ${cutoff}`);
+}
+
+/**
+ * Get leads with status 'contacted' that haven't been updated in 5+ days.
+ */
+export async function getColdContactedLeads() {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(leads)
+    .where(
+      sql`${leads.status} = 'contacted' AND ${leads.updatedAt} < ${cutoff}`
+    );
+}
+
 export async function updateLeadScore(leadId: number, score: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

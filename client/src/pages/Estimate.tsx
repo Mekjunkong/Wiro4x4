@@ -11,10 +11,12 @@ import { PackageBuilder } from "@/components/PackageBuilder";
 
 export default function Estimate() {
   const { t } = useLanguage();
-  usePageMeta(
-    "Trip Cost Estimator",
-    "Estimate the cost of your WIRO 4x4 kosher off-road tour in Chiang Mai. Select tours, group size, dates, and services for an instant price breakdown."
-  );
+  usePageMeta({
+    title: "Trip Cost Estimator",
+    description:
+      "Estimate the cost of your WIRO 4x4 kosher off-road tour in Chiang Mai. Select tours, group size, dates, and services for an instant price breakdown.",
+    canonicalPath: "/estimate",
+  });
 
   return (
     <div className="min-h-screen">

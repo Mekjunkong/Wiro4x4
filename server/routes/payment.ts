@@ -13,11 +13,15 @@ import {
   getAllPayments,
   getPaymentStats,
   getBookingById,
+  createPayment,
+  createFinancialRecord,
+  getBookingTotalPaid,
 } from "../db";
 import {
   createCheckoutSchema,
   refundSchema,
   verifySessionSchema,
+  manualPaymentInputSchema,
 } from "../../shared/schemas";
 import {
   initiateCheckout,
@@ -173,5 +177,66 @@ export const paymentRouter = router({
           message: err.message || "Failed to process refund",
         });
       }
+    }),
+
+  recordManual: secureProtectedProcedure
+    .input(manualPaymentInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+
+      // Determine payment type based on amount vs booking total
+      const totalPrice = booking.totalPrice ?? 0;
+      const alreadyPaid = await getBookingTotalPaid(input.bookingId);
+      const remainingAfterPayment = totalPrice - alreadyPaid - input.amount;
+      const paymentType: "deposit" | "full" =
+        remainingAfterPayment > 0 ? "deposit" : "full";
+
+      // Create payment record
+      await createPayment({
+        bookingId: input.bookingId,
+        type: paymentType,
+        amount: input.amount,
+        currency: input.currency,
+        status: "completed",
+        paymentMethod: input.paymentMethod,
+        notes: input.notes,
+        paidAt: new Date(),
+      });
+
+      // Create corresponding financial record
+      await createFinancialRecord({
+        bookingId: input.bookingId,
+        type: "revenue",
+        category: "manual_payment",
+        amount: input.amount,
+        currency: input.currency,
+        description: `Manual ${input.paymentMethod} payment`,
+        paymentMethod: input.paymentMethod,
+        paymentDate: new Date(),
+        notes: input.notes,
+      });
+
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "payment",
+        resourceId: input.bookingId,
+        newValue: JSON.stringify({
+          type: paymentType,
+          amount: input.amount,
+          paymentMethod: input.paymentMethod,
+          currency: input.currency,
+        }),
+      });
+
+      return { success: true, paymentType };
     }),
 });

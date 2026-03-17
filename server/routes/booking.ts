@@ -207,6 +207,11 @@ export const bookingRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
+
+      // Fetch current booking to detect status transitions
+      const oldBooking = await getBookingById(input.id);
+      const oldStatus = oldBooking?.status;
+
       await updateBooking(input.id, input.data);
       await logAdminAction({
         userId: ctx.user?.id,
@@ -215,6 +220,24 @@ export const bookingRouter = router({
         resourceId: input.id,
         newValue: JSON.stringify(input.data),
       });
+
+      // Detect status transitions and log for future email notifications
+      if (input.data.status && oldStatus && input.data.status !== oldStatus) {
+        const name = oldBooking?.contactName ?? `#${input.id}`;
+        if (input.data.status === "confirmed") {
+          console.log(
+            `[BookingStatus] Booking for ${name} confirmed (was: ${oldStatus}) — notification pending`
+          );
+        } else if (input.data.status === "cancelled") {
+          console.log(
+            `[BookingStatus] Booking for ${name} cancelled (was: ${oldStatus}) — notification pending`
+          );
+        } else {
+          console.log(
+            `[BookingStatus] Booking for ${name} status changed: ${oldStatus} -> ${input.data.status}`
+          );
+        }
+      }
 
       // Auto-generate financial records when status changes to "confirmed"
       if (input.data.status === "confirmed") {

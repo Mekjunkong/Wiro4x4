@@ -130,6 +130,36 @@ export async function markFeedbackSent(bookingId: number) {
     .where(eq(bookings.id, bookingId));
 }
 
+// ─── Summary / Count Queries ─────────────────────────────
+
+export async function getPendingBookingCount(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(bookings)
+    .where(eq(bookings.status, "pending"));
+  return Number(result[0]?.count ?? 0);
+}
+
+export async function getUpcomingTourCount(withinHours = 48): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const now = new Date();
+  const cutoff = new Date(now.getTime() + withinHours * 60 * 60 * 1000);
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(bookings)
+    .where(
+      and(
+        sql`${bookings.arrivalDate} >= ${now}`,
+        sql`${bookings.arrivalDate} <= ${cutoff}`,
+        sql`${bookings.status} IN ('confirmed', 'in_progress')`
+      )
+    );
+  return Number(result[0]?.count ?? 0);
+}
+
 // ─── Agent-related booking queries ────────────────────────
 
 export async function getBookingsByAgentId(agentId: number) {

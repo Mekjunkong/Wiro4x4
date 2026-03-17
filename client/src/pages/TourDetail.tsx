@@ -1149,11 +1149,8 @@ export default function TourDetail() {
             "@type": "TouristTrip",
             name: tour.name,
             description: tour.description,
-            touristType: [
-              "Jewish travelers",
-              "Kosher travelers",
-              "Adventure seekers",
-            ],
+            touristType: "Adventure, Kosher, Off-Road",
+            image: tour.imageUrl || undefined,
             offers: {
               "@type": "Offer",
               price: tour.price,
@@ -1161,7 +1158,7 @@ export default function TourDetail() {
               availability: "https://schema.org/InStock",
             },
             provider: {
-              "@type": "Organization",
+              "@type": "TravelAgency",
               name: "WIRO 4x4",
               url: "https://www.wiro4x4indochina.com",
             },

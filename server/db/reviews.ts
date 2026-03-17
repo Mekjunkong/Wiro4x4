@@ -88,6 +88,16 @@ export async function bulkApproveReviews(ids: number[]) {
     .where(inArray(reviews.id, ids));
 }
 
+export async function getPendingReviewCount(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(reviews)
+    .where(eq(reviews.isApproved, 0));
+  return Number(result[0]?.count ?? 0);
+}
+
 export async function bulkDeleteReviews(ids: number[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

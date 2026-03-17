@@ -84,10 +84,12 @@ const FALLBACK_POSTS = [
 export default function Blog() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
-  usePageMeta(
-    "Travel Blog",
-    "Travel tips, kosher dining guides, and cultural insights for Israeli travelers exploring Northern Thailand."
-  );
+  usePageMeta({
+    title: "Travel Blog",
+    description:
+      "Travel tips, kosher dining guides, and cultural insights for Israeli travelers exploring Northern Thailand.",
+    canonicalPath: "/blog",
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

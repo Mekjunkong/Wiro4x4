@@ -318,6 +318,24 @@ export type AccountingEntryInput = z.infer<typeof accountingEntryInputSchema>;
 export type TaxFilingInput = z.infer<typeof taxFilingInputSchema>;
 export type InventoryInput = z.infer<typeof inventoryInputSchema>;
 
+// Manual payment recording
+export const manualPaymentInputSchema = z.object({
+  bookingId: z.number(),
+  amount: z.number().positive(),
+  currency: z.string().default("THB"),
+  paymentMethod: z.enum([
+    "bank_transfer",
+    "promptpay",
+    "cash",
+    "bit",
+    "wire",
+    "other",
+  ]),
+  notes: z.string().optional(),
+});
+
+export type ManualPaymentInput = z.infer<typeof manualPaymentInputSchema>;
+
 // Estimate email input
 export const estimateEmailInputSchema = z.object({
   email: z.string().email("Valid email required"),
