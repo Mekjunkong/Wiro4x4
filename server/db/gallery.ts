@@ -23,6 +23,19 @@ export async function getAllPublishedPhotos(limit?: number) {
   return await query;
 }
 
+export async function getFeaturedPhotos(limit = 8) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(galleryPhotos)
+    .where(
+      and(eq(galleryPhotos.isPublished, 1), eq(galleryPhotos.isFeatured, 1))
+    )
+    .orderBy(desc(galleryPhotos.createdAt))
+    .limit(limit);
+}
+
 export async function getAllGalleryPhotos() {
   const db = await getDb();
   if (!db) return [];

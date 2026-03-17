@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
@@ -46,6 +47,9 @@ export default function Gallery() {
   });
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Featured photos for carousel
+  const { data: featuredPhotos } = trpc.gallery.listFeatured.useQuery();
 
   const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
 
@@ -225,6 +229,26 @@ export default function Gallery() {
             </p>
           </div>
         </section>
+
+        {/* Featured Photos Carousel */}
+        {featuredPhotos && featuredPhotos.length > 0 && (
+          <FeaturedCarousel
+            photos={featuredPhotos}
+            onPhotoClick={index => {
+              // Find this featured photo in the main grid to open lightbox at correct index
+              const photo = featuredPhotos[index];
+              const gridIndex = filteredPhotos.findIndex(
+                p => p.id === photo.id
+              );
+              if (gridIndex >= 0) {
+                openLightbox(gridIndex);
+              } else {
+                // Photo might not be in current grid filter — just open first
+                openLightbox(0);
+              }
+            }}
+          />
+        )}
 
         <div className="container py-8 md:py-12">
           {/* Category Filters */}

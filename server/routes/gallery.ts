@@ -13,6 +13,7 @@ import {
   createGalleryPhoto,
   getAllPublishedPhotos,
   getPublishedPhotosPaginated,
+  getFeaturedPhotos,
   getAllGalleryPhotos,
   getAllGalleryPhotosPaginated,
   updateGalleryPhoto,
@@ -34,6 +35,11 @@ export const galleryRouter = router({
       const photos = await getAllPublishedPhotos(input?.limit);
       return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
     }),
+
+  listFeatured: securePublicProcedure.query(async () => {
+    const photos = await getFeaturedPhotos();
+    return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
+  }),
 
   listPaginated: securePublicProcedure
     .input(
@@ -145,6 +151,7 @@ export const galleryRouter = router({
             .optional(),
           sortOrder: z.number().optional(),
           isPublished: z.boolean().optional(),
+          isFeatured: z.boolean().optional(),
         }),
       })
     )
@@ -165,6 +172,8 @@ export const galleryRouter = router({
         updateData.sortOrder = input.data.sortOrder;
       if (input.data.isPublished !== undefined)
         updateData.isPublished = input.data.isPublished ? 1 : 0;
+      if (input.data.isFeatured !== undefined)
+        updateData.isFeatured = input.data.isFeatured ? 1 : 0;
       await updateGalleryPhoto(input.id, updateData as any);
       await logAdminAction({
         userId: ctx.user?.id,

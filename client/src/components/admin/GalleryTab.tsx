@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, Star } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { GalleryGridSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
@@ -150,7 +150,30 @@ export function GalleryTab() {
                 <p className="text-xs text-muted-foreground mb-2">
                   {photo.category} | Order: {photo.sortOrder}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() =>
+                      updatePhotoMut.mutate({
+                        id: photo.id,
+                        data: { isFeatured: !(photo as any).isFeatured },
+                      })
+                    }
+                    className={`px-2 py-1 rounded text-xs flex items-center gap-1 ${
+                      (photo as any).isFeatured
+                        ? "bg-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37]/30"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    title={
+                      (photo as any).isFeatured
+                        ? "Remove from featured"
+                        : "Add to featured carousel"
+                    }
+                  >
+                    <Star
+                      className={`w-3 h-3 ${(photo as any).isFeatured ? "fill-[#D4AF37]" : ""}`}
+                    />
+                    {(photo as any).isFeatured ? "Featured" : "Feature"}
+                  </button>
                   <button
                     onClick={() => {
                       setEditingPhoto(photo);

@@ -240,6 +240,7 @@ export const galleryPhotos = mysqlTable("galleryPhotos", {
     .notNull(),
   sortOrder: int("sortOrder").default(0),
   isPublished: int("isPublished").default(1).notNull(), // boolean as int
+  isFeatured: int("isFeatured").default(0).notNull(), // boolean as int
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
