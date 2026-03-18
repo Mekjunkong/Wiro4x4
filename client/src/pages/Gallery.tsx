@@ -224,41 +224,36 @@ export default function Gallery() {
     }
   }, [firstPage, currentPage]);
 
-  // Combine pages, fall back to local photos when DB is empty
-  const allPhotos = useMemo(() => {
+  // Determine if we should use fallback local photos
+  const dbPhotos = useMemo(() => {
     const base = firstPage?.items || [];
-    const combined = [...base, ...extraPhotos];
-    if (combined.length === 0 && !isLoading) {
+    return [...base, ...extraPhotos];
+  }, [firstPage, extraPhotos]);
+
+  // Check how many DB photos survived the broken filter
+  const visibleDbCount = useMemo(() => {
+    return dbPhotos.filter(p => !brokenIds.has(p.id)).length;
+  }, [dbPhotos, brokenIds]);
+
+  // Use fallback when DB is empty OR all DB photos have broken S3 URLs
+  const usingFallback = !isLoading && visibleDbCount === 0;
+
+  const filteredPhotos = useMemo(() => {
+    if (usingFallback) {
       return selectedCategory === "all"
         ? FALLBACK_GALLERY_PHOTOS
         : FALLBACK_GALLERY_PHOTOS.filter(p => p.category === selectedCategory);
     }
-    return combined;
-  }, [firstPage, extraPhotos, isLoading, selectedCategory]);
-
-  // Deduplicate photos by imageUrl (keep first occurrence) and exclude broken
-  // If all DB photos are broken/filtered out, fall back to local photos
-  const filteredPhotos = useMemo(() => {
+    // Deduplicate and exclude broken DB photos
     const seen = new Set<string>();
-    const result = allPhotos.filter(photo => {
+    return dbPhotos.filter(photo => {
       if (brokenIds.has(photo.id)) return false;
       const url = photo.imageUrl || "";
       if (seen.has(url)) return false;
       seen.add(url);
       return true;
     });
-    // If all DB photos were broken, show fallback local photos
-    if (result.length === 0 && allPhotos.length > 0) {
-      const fallback =
-        selectedCategory === "all"
-          ? FALLBACK_GALLERY_PHOTOS
-          : FALLBACK_GALLERY_PHOTOS.filter(
-              p => p.category === selectedCategory
-            );
-      return fallback;
-    }
-    return result;
-  }, [allPhotos, brokenIds, selectedCategory]);
+  }, [usingFallback, selectedCategory, dbPhotos, brokenIds]);
 
   // Load more function
   const loadMore = useCallback(async () => {
