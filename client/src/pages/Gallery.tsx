@@ -237,16 +237,28 @@ export default function Gallery() {
   }, [firstPage, extraPhotos, isLoading, selectedCategory]);
 
   // Deduplicate photos by imageUrl (keep first occurrence) and exclude broken
+  // If all DB photos are broken/filtered out, fall back to local photos
   const filteredPhotos = useMemo(() => {
     const seen = new Set<string>();
-    return allPhotos.filter(photo => {
+    const result = allPhotos.filter(photo => {
       if (brokenIds.has(photo.id)) return false;
       const url = photo.imageUrl || "";
       if (seen.has(url)) return false;
       seen.add(url);
       return true;
     });
-  }, [allPhotos, brokenIds]);
+    // If all DB photos were broken, show fallback local photos
+    if (result.length === 0 && allPhotos.length > 0) {
+      const fallback =
+        selectedCategory === "all"
+          ? FALLBACK_GALLERY_PHOTOS
+          : FALLBACK_GALLERY_PHOTOS.filter(
+              p => p.category === selectedCategory
+            );
+      return fallback;
+    }
+    return result;
+  }, [allPhotos, brokenIds, selectedCategory]);
 
   // Load more function
   const loadMore = useCallback(async () => {
