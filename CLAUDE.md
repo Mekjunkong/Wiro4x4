@@ -129,8 +129,7 @@ pnpm format
 │   └── migrations/              # Auto-generated migrations
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml               # CI checks
-│       └── deploy.yml           # CI/CD workflow
+│       └── ci.yml               # CI checks (pnpm version from packageManager)
 ├── shared/                      # Shared types between frontend/backend
 │   ├── types.ts                 # Shared TypeScript interfaces
 │   ├── schemas.ts               # Shared Zod validation schemas (single source of truth)
@@ -249,6 +248,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **First image eager-loaded:** `loading="eager"` + `fetchPriority="high"` for fast first paint
 - **Admin:** Upload + manage photos via Gallery tab
 - **Storage:** S3 via `storagePut()` in `server/storage.ts`
+- **Fallback:** 16 local photos from `/images/optimized/` shown when DB is empty or all S3 URLs are broken
 - **Categories:** tours, vehicles, destinations, activities, food, accommodation, other
 
 ### 5. Customer Reviews
@@ -305,6 +305,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 ### 10. Blog Content Pipeline
 
 - **Pages:** `/blog` (listing with search + category filters) and `/blog/:slug` (individual posts with share buttons)
+- **Fallback:** 6 hardcoded blog posts shown when DB is empty (kosher dining, travel tips, culture, off-road, Doi Inthanon, elephants)
 - **Bilingual:** Each post has English + Hebrew content fields (title, excerpt, content)
 - **AI Content Generation:** Admin can generate bilingual blog drafts via Claude API
   - `server/aiContentGenerator.ts` — lazy Anthropic client, system prompt with tour data
@@ -500,7 +501,15 @@ Seeds 10 bilingual articles with cover images. Skips duplicates (safe to re-run)
 
 ### Change Colors:
 
-Edit CSS variables in `client/src/index.css`:
+All colors use CSS custom properties in `client/src/index.css` with Tailwind theme mappings. **Never use hardcoded hex values** — always use semantic tokens:
+
+- `accent` — brand gold (buttons, highlights, icons)
+- `accent-cta` / `accent-cta-hover` — CTA button gold
+- `primary` / `primary-foreground` — dark charcoal sections
+- `background` / `foreground` — page background and text
+- `card` — card backgrounds (adapts to dark mode)
+- `muted` / `muted-foreground` — subtle backgrounds and secondary text
+- `border` — borders
 
 ```css
 :root {
@@ -526,6 +535,7 @@ Vercel automatically builds and deploys the site at https://www.wiro4x4indochina
 - **Environment variables:** Configured in Vercel dashboard (Settings → Environment Variables)
 - **Build command:** `pnpm build`
 - **Output directory:** `dist/`
+- **CI:** `.github/workflows/ci.yml` — TypeScript check, lint, tests, build (pnpm version from `packageManager` in `package.json`)
 
 ## Troubleshooting
 
@@ -612,7 +622,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-03-17
-**Version:** 3.1
+**Last Updated:** 2026-03-18
+**Version:** 3.2
 **Platform:** Vercel
 **Test Coverage:** 235 tests (39 files) — 199 pass locally, 36 DB-dependent skipped
