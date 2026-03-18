@@ -1,32 +1,30 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { Camera, ArrowRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
-const FALLBACK_IMAGES = [
-  { src: "hero-wiro", caption: "Chiang Mai Adventure" },
-  { src: "mountain_sunset", caption: "Doi Inthanon Summit" },
-  { src: "mae-kampong-village", caption: "Mae Kampong Village" },
+const LOCAL_GALLERY_IMAGES = [
+  { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
+  { src: "elephant_sanctuary_encounter", caption: "Elephant Encounter" },
+  { src: "doi_suthep_golden_chedi", caption: "Doi Suthep Temple" },
+  { src: "offroad_trail_driving", caption: "4x4 Off-Road Adventure" },
+  { src: "jungle_waterfall_cascade_rocks", caption: "Jungle Waterfall" },
   { src: "sticky_waterfalls", caption: "Sticky Waterfalls" },
-  { src: "doi_suthep_temple", caption: "Doi Suthep Temple" },
-  { src: "mae_wang_elephants", caption: "Mae Wang Jungle" },
+  { src: "hilltribe_community_visit", caption: "Hilltribe Village" },
+  { src: "golden_triangle_mekong", caption: "Golden Triangle" },
+  { src: "bamboo_rafting_adventure", caption: "Bamboo Rafting" },
+  { src: "4x4_water_splash", caption: "4x4 Water Crossing" },
+  { src: "mae_salong_tea_plantation", caption: "Tea Plantation" },
+  { src: "doi_inthanon_royal_pagoda", caption: "Doi Inthanon Pagodas" },
 ];
 
 export function GalleryShowcase() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  const { data: photos } = trpc.gallery.list.useQuery({ limit: 12 });
-
-  const images =
-    photos && photos.length >= 6
-      ? photos.slice(0, 12).map(p => ({
-          src: p.s3Url || FALLBACK_IMAGES[0].src,
-          caption: p.title || "",
-        }))
-      : FALLBACK_IMAGES;
+  // Always use local images — DB gallery photos may have broken/unwanted S3 URLs
+  const images = LOCAL_GALLERY_IMAGES;
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-background">
