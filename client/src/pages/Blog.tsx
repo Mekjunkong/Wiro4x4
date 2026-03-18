@@ -30,7 +30,7 @@ const BLOG_IMAGE_MAP: Record<string, string> = {
   "mae-wang-off-road-adventure":
     "/images/optimized/bamboo_rafting_adventure-md.webp",
   "accessible-chiang-mai-tours":
-    "/images/optimized/accessible_doi_inthanon_summit.jpg",
+    "/images/optimized/doi_inthanon_royal_pagoda.jpg",
   "waterfalls-northern-thailand":
     "/images/optimized/jungle_waterfall_cascade_rocks-md.webp",
 };

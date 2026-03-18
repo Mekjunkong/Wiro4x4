@@ -74,7 +74,7 @@ const ACCESSIBLE_TOURS = [
       "Elevator access to the temple. Scenic viewpoints accessible by vehicle throughout the national park. Coffee village has flat ground.",
       "גישת מעלית למקדש. תצפיות נופיות נגישות ברכב בכל הפארק הלאומי. לכפר הקפה יש קרקע שטוחה.",
     ],
-    image: "/images/optimized/accessible_doi_suthep_temple.jpg",
+    image: "/images/optimized/doi_suthep_golden_chedi.jpg",
   },
   {
     slug: "samoeng-loop-mountain-circuit",

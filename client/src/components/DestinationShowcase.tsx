@@ -45,7 +45,7 @@ const DESTINATIONS = [
       "Hike the Monk's Trail, then continue where tourists turn back — hidden coffee village and secluded falls",
     descHe:
       "טיילו בשביל הנזירים, ואז המשיכו הלאה, לשם שהתיירים כבר לא מגיעים — כפר קפה נסתר ומפלים מבודדים",
-    imageSrc: "accessible_doi_suthep_temple",
+    imageSrc: "doi_suthep_golden_chedi",
     tourSlug: "doi-suthep-pui-beyond-temple",
   },
   {

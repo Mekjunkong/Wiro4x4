@@ -410,7 +410,7 @@ const FALLBACK_TOURS: Record<
     durationHe: "5-7 שעות",
     difficulty: "easy",
     price: 3500,
-    imageUrl: "/images/optimized/accessible_doi_suthep_temple.jpg",
+    imageUrl: "/images/optimized/doi_suthep_golden_chedi.jpg",
     isKosher: 1,
     isPrivate: 1,
     isShabbatOk: 1,

@@ -55,7 +55,7 @@ const TOUR_CARDS = [
     slug: "doi-suthep-pui-beyond-temple",
     name: "Doi Suthep-Pui — Beyond the Temple",
     nameHe: "דוי סוטפ-פוי — מעבר למקדש",
-    image: "/images/optimized/accessible_doi_suthep_temple.jpg",
+    image: "/images/optimized/doi_suthep_golden_chedi.jpg",
     duration: "5-7 hours",
     price: 3500,
     kosher: true,
