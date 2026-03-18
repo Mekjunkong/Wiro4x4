@@ -79,6 +79,51 @@ const FALLBACK_POSTS = [
     publishedAt: "2024-12-01",
     content: "",
   },
+  {
+    slug: "off-road-adventure-guide",
+    title: "What to Expect on a 4x4 Off-Road Tour",
+    titleHe:
+      "\u05DE\u05D4 \u05DC\u05E6\u05E4\u05D5\u05EA \u05DE\u05D8\u05D9\u05D5\u05DC \u05E9\u05D8\u05D7 \u05D1-4x4",
+    excerpt:
+      "Your complete guide to off-road adventures in Northern Thailand \u2014 what to wear, what to bring, and what makes it unforgettable.",
+    excerptHe:
+      "\u05D4\u05DE\u05D3\u05E8\u05D9\u05DA \u05D4\u05E9\u05DC\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC\u05D9 \u05E9\u05D8\u05D7 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 \u2014 \u05DE\u05D4 \u05DC\u05DC\u05D1\u05D5\u05E9, \u05DE\u05D4 \u05DC\u05D4\u05D1\u05D9\u05D0, \u05D5\u05DE\u05D4 \u05D4\u05D5\u05E4\u05DA \u05D0\u05EA \u05D6\u05D4 \u05DC\u05D1\u05DC\u05EA\u05D9 \u05E0\u05E9\u05DB\u05D7.",
+    coverImage: "/images/optimized/offroad_trail_driving-md.webp",
+    category: "Adventures",
+    tags: "off-road,4x4,adventure,guide",
+    publishedAt: "2024-12-01",
+    content: "",
+  },
+  {
+    slug: "doi-inthanon-experience",
+    title: "Doi Inthanon: Thailand's Highest Peak Experience",
+    titleHe:
+      "\u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF: \u05D7\u05D5\u05D5\u05D9\u05D9\u05EA \u05D4\u05E4\u05E1\u05D2\u05D4 \u05D4\u05D2\u05D1\u05D5\u05D4\u05D4 \u05D1\u05EA\u05D0\u05D9\u05DC\u05E0\u05D3",
+    excerpt:
+      "Discover the breathtaking views, royal pagodas, and hidden waterfalls at Thailand's rooftop.",
+    excerptHe:
+      "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05E0\u05D5\u05E4\u05D9\u05DD \u05E2\u05D5\u05E6\u05E8\u05D9 \u05D4\u05E0\u05E9\u05D9\u05DE\u05D4, \u05D4\u05E4\u05D2\u05D5\u05D3\u05D5\u05EA \u05D4\u05DE\u05DC\u05DB\u05D5\u05EA\u05D9\u05D5\u05EA, \u05D5\u05D4\u05DE\u05E4\u05DC\u05D9\u05DD \u05D4\u05E0\u05E1\u05EA\u05E8\u05D9\u05DD \u05D1\u05D2\u05D2 \u05E9\u05DC \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3.",
+    coverImage: "/images/optimized/doi_inthanon_royal_pagoda-md.webp",
+    category: "Destinations",
+    tags: "doi-inthanon,mountains,pagodas,nature",
+    publishedAt: "2024-12-01",
+    content: "",
+  },
+  {
+    slug: "elephant-sanctuary-guide",
+    title: "Ethical Elephant Encounters in Chiang Mai",
+    titleHe:
+      "\u05DE\u05E4\u05D2\u05E9\u05D9\u05DD \u05D0\u05EA\u05D9\u05D9\u05DD \u05E2\u05DD \u05E4\u05D9\u05DC\u05D9\u05DD \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9",
+    excerpt:
+      "How to choose a responsible elephant sanctuary and what to expect from an unforgettable day with Thailand's gentle giants.",
+    excerptHe:
+      "\u05D0\u05D9\u05DA \u05DC\u05D1\u05D7\u05D5\u05E8 \u05E9\u05DE\u05D5\u05E8\u05EA \u05E4\u05D9\u05DC\u05D9\u05DD \u05D0\u05D7\u05E8\u05D0\u05D9\u05EA \u05D5\u05DE\u05D4 \u05DC\u05E6\u05E4\u05D5\u05EA \u05DE\u05D9\u05D5\u05DD \u05D1\u05DC\u05EA\u05D9 \u05E0\u05E9\u05DB\u05D7 \u05E2\u05DD \u05D4\u05E2\u05E0\u05E7\u05D9\u05DD \u05D4\u05E2\u05D3\u05D9\u05E0\u05D9\u05DD \u05E9\u05DC \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3.",
+    coverImage: "/images/optimized/elephant_sanctuary_encounter-md.webp",
+    category: "Activities",
+    tags: "elephants,sanctuary,ethical,animals",
+    publishedAt: "2024-12-01",
+    content: "",
+  },
 ];
 
 export default function Blog() {

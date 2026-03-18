@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, originally built on the Manus platform, now deployed on **Vercel**. This is the **MVP release** — a fully functional bilingual (English/Hebrew with RTL support) tour booking site with SEO-optimized landing pages, blog content pipeline, admin panel, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, trip cost estimator, and destination showcase.
+**Wiro 4x4** is a kosher off-road tour booking website for Chiang Mai, Thailand, deployed on **Vercel**. This is the **MVP release** — a fully functional bilingual (English/Hebrew with RTL support) tour booking site with SEO-optimized landing pages, blog content pipeline, admin panel, photo gallery, customer reviews, WhatsApp integration, individual tour detail pages, trip cost estimator, and destination showcase.
 
 **Live Site:** https://www.wiro4x4indochina.com
 
@@ -12,8 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 - **Frontend:** React 19 + TypeScript + Tailwind CSS 4 + Wouter (routing)
 - **Backend:** Express 4 + tRPC 11 + Drizzle ORM
-- **Database:** MySQL/TiDB (provided by Manus platform)
-- **Auth:** Manus OAuth (built-in)
+- **Database:** MySQL/TiDB
+- **Auth:** Session-based authentication
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy init, verified domain: `wiro4x4indochina.com`)
 - **Testing:** Vitest (155 tests across 30 files)
@@ -102,11 +102,11 @@ pnpm format
 │   │   └── sitemap.xml          # SEO sitemap
 │   └── index.html               # HTML template (OG tags, JSON-LD, RSS autodiscovery)
 ├── server/                      # Backend Node.js application
-│   ├── _core/                   # Manus framework core (DO NOT EDIT)
+│   ├── _core/                   # Framework core (DO NOT EDIT)
 │   ├── routers.ts               # tRPC API routes — imports shared schemas
 │   ├── db.ts                    # Database query helpers (50+ functions)
 │   ├── storage.ts               # S3 file storage helpers
-│   ├── emailService.ts          # Manus notification emails
+│   ├── emailService.ts          # Notification emails
 │   ├── resendEmailService.ts    # Resend email (lazy init)
 │   ├── customerEmailService.ts  # Customer confirmation + ICS calendar
 │   ├── rateLimit.ts             # In-memory rate limiter
@@ -230,7 +230,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **Backend:** `server/routers.ts` → `booking.create` (rate limited)
 - **Database:** `drizzle/schema.ts` → `bookings` table
 - **Flow:** Form → tRPC mutation → DB save → Email notifications → WhatsApp redirect
-- **Emails:** 3-layer system (Manus notification + Resend email + Customer confirmation with ICS)
+- **Emails:** 3-layer system (notification email + Resend email + Customer confirmation with ICS)
 - **Email domain:** `wiro4x4indochina.com` verified on Resend (Tokyo/ap-northeast-1). All outbound emails use this domain.
 
 ### 3. Admin Panel (6 tabs)
@@ -376,7 +376,7 @@ npx vitest run     # Same thing
 | File                         | Tests | Covers                                             |
 | ---------------------------- | ----- | -------------------------------------------------- |
 | `validation.test.ts`         | 12    | All 6 Zod schemas from `shared/schemas.ts`         |
-| `emailService.test.ts`       | 6     | Manus notification emails (mocked)                 |
+| `emailService.test.ts`       | 6     | Notification emails (mocked)                       |
 | `booking.test.ts`            | 6     | Booking create + list + agent/lead/financial list  |
 | `lead.test.ts`               | 6     | Lead create + list + status transitions            |
 | `review.test.ts`             | 6     | Review create + list + approve + stats             |
@@ -399,7 +399,7 @@ npx vitest run     # Same thing
 - **tRPC caller:** Tests use `appRouter.createCaller(ctx)` — no HTTP server needed
 - **Auth contexts:** `createAuthContext()` / `createPublicContext()` in `server/test-helpers.ts`
 - **DB-dependent tests:** Use `itWithDb` (auto-skips when `DATABASE_URL` not set)
-- **Mocks:** `emailService.test.ts` mocks `notifyOwner`; Resend uses lazy init
+- **Mocks:** `emailService.test.ts` mocks email notifications; Resend uses lazy init
 
 ### Shared Validation Schemas
 
@@ -436,33 +436,18 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 
 ### DO NOT EDIT:
 
-- `server/_core/*` - Manus framework internals
-- `client/src/_core/*` - Manus framework internals
+- `server/_core/*` - Framework internals
+- `client/src/_core/*` - Framework internals
 - `drizzle/migrations/*` - Auto-generated
 - `node_modules/*` - Dependencies
 
-## Platform Features (Manus Legacy)
+## Environment Variables
 
-### Built-in Services (from Manus platform):
-
-1. **Database:** MySQL/TiDB automatically provisioned
-2. **Authentication:** OAuth with user management
-3. **File Storage:** S3-compatible storage via `storagePut()`
-4. **Email:** Resend integration (requires domain verification)
-5. **LLM:** OpenAI API via `invokeLLM()`
-6. **Image Generation:** via `generateImage()`
-7. **Voice Transcription:** via `transcribeAudio()`
-8. **Maps:** Google Maps proxy via `makeRequest()`
-9. **Notifications:** Owner alerts via `notifyOwner()`
-
-### Environment Variables (Auto-injected):
+Configured in Vercel dashboard (Settings → Environment Variables):
 
 - `DATABASE_URL` - MySQL connection
 - `JWT_SECRET` - Session signing
-- `VITE_APP_ID` - OAuth app ID
-- `OAUTH_SERVER_URL` - OAuth backend
-- `VITE_OAUTH_PORTAL_URL` - Login portal
-- `BUILT_IN_FORGE_API_KEY` - Manus API key
+- `VITE_APP_ID` - App ID
 - `RESEND_API_KEY` - Email service + newsletter (lazy — no crash if missing)
 - `ANTHROPIC_API_KEY` - AI blog generation via Claude (lazy — no crash if missing)
 - `SITE_URL` - Site URL for newsletter links (defaults to `https://www.wiro4x4indochina.com`)
@@ -505,7 +490,7 @@ export const WHATSAPP_NUMBER = "+66929894495";
 
 ### Seed Blog Articles:
 
-Run on Manus (requires DATABASE_URL):
+Requires DATABASE_URL:
 
 ```bash
 npx tsx server/seed-blog-articles.ts
@@ -583,7 +568,7 @@ pnpm db:push  # Sync database schema
 
 ## Notes for Claude Code
 
-- This project originated on the Manus platform and is now deployed on **Vercel** — some features still use Manus platform internals (`_core/`)
+- This project is deployed on **Vercel** — legacy framework internals live in `_core/` directories
 - **DO NOT** modify files in `server/_core/` or `client/src/_core/`
 - **ALWAYS** update `todo.md` when making changes
 - **TEST** before pushing to GitHub (`pnpm test` + `npx tsc --noEmit`)

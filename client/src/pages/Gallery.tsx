@@ -34,6 +34,141 @@ const CATEGORIES = [
   { id: "other", en: "Other", he: "\u05D0\u05D7\u05E8" },
 ];
 
+const FALLBACK_GALLERY_PHOTOS = [
+  {
+    id: 1,
+    title: "Mountain Sunset",
+    titleHe: "\u05E9\u05E7\u05D9\u05E2\u05D4 \u05D1\u05D4\u05E8\u05D9\u05DD",
+    imageUrl: "/images/optimized/mountain_sunset_golden-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 2,
+    title: "Elephant Encounter",
+    titleHe:
+      "\u05DE\u05E4\u05D2\u05E9 \u05E2\u05DD \u05E4\u05D9\u05DC\u05D9\u05DD",
+    imageUrl: "/images/optimized/elephant_sanctuary_encounter-md.webp",
+    category: "activities",
+    description: "",
+  },
+  {
+    id: 3,
+    title: "Doi Suthep Temple",
+    titleHe:
+      "\u05DE\u05E7\u05D3\u05E9 \u05D3\u05D5\u05D9 \u05E1\u05D5\u05D8\u05E4",
+    imageUrl: "/images/optimized/doi_suthep_golden_chedi-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 4,
+    title: "4x4 Off-Road Adventure",
+    titleHe: "\u05D8\u05D9\u05D5\u05DC \u05E9\u05D8\u05D7 4x4",
+    imageUrl: "/images/optimized/offroad_trail_driving-md.webp",
+    category: "tours",
+    description: "",
+  },
+  {
+    id: 5,
+    title: "Jungle Waterfall",
+    titleHe: "\u05DE\u05E4\u05DC \u05D1\u05D2'\u05D5\u05E0\u05D2\u05DC",
+    imageUrl: "/images/optimized/jungle_waterfall_cascade_rocks-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 6,
+    title: "Sticky Waterfalls",
+    titleHe: "\u05DE\u05E4\u05DC\u05D9 \u05D4\u05E1\u05D8\u05D9\u05E7\u05D9",
+    imageUrl: "/images/optimized/sticky_waterfalls-md.webp",
+    category: "activities",
+    description: "",
+  },
+  {
+    id: 7,
+    title: "Hilltribe Village",
+    titleHe: "\u05DB\u05E4\u05E8 \u05E9\u05D1\u05D8\u05D9",
+    imageUrl: "/images/optimized/hilltribe_community_visit-md.webp",
+    category: "activities",
+    description: "",
+  },
+  {
+    id: 8,
+    title: "Golden Triangle",
+    titleHe: "\u05DE\u05E9\u05D5\u05DC\u05E9 \u05D4\u05D6\u05D4\u05D1",
+    imageUrl: "/images/optimized/golden_triangle_mekong-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 9,
+    title: "Wiro Guide",
+    titleHe: "\u05D4\u05DE\u05D3\u05E8\u05D9\u05DA \u05D5\u05D9\u05E8\u05D5",
+    imageUrl: "/images/optimized/wiro_guide_thumbsup_portrait-md.webp",
+    category: "tours",
+    description: "",
+  },
+  {
+    id: 10,
+    title: "Mountain Valley View",
+    titleHe: "\u05E0\u05D5\u05E3 \u05E2\u05DE\u05E7 \u05D4\u05E8\u05D9\u05DD",
+    imageUrl: "/images/optimized/mountain_valley_panorama-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 11,
+    title: "Bamboo Rafting",
+    titleHe:
+      "\u05E8\u05E4\u05D8\u05D9\u05E0\u05D2 \u05E2\u05DC \u05D1\u05DE\u05D1\u05D5\u05E7",
+    imageUrl: "/images/optimized/bamboo_rafting_adventure-md.webp",
+    category: "activities",
+    description: "",
+  },
+  {
+    id: 12,
+    title: "4x4 Water Crossing",
+    titleHe: "\u05D7\u05E6\u05D9\u05D9\u05EA \u05DE\u05D9\u05DD \u05D1-4x4",
+    imageUrl: "/images/optimized/4x4_water_splash-md.webp",
+    category: "vehicles",
+    description: "",
+  },
+  {
+    id: 13,
+    title: "Tea Plantation",
+    titleHe: "\u05DE\u05D8\u05E2 \u05EA\u05D4",
+    imageUrl: "/images/optimized/mae_salong_tea_plantation-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 14,
+    title: "Doi Inthanon Pagodas",
+    titleHe:
+      "\u05E4\u05D2\u05D5\u05D3\u05D5\u05EA \u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF",
+    imageUrl: "/images/optimized/doi_inthanon_royal_pagoda-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 15,
+    title: "River Stream",
+    titleHe: "\u05E0\u05D7\u05DC",
+    imageUrl: "/images/optimized/river_stream_nature-md.webp",
+    category: "destinations",
+    description: "",
+  },
+  {
+    id: 16,
+    title: "Off-Road Forest Trail",
+    titleHe: "\u05E9\u05D1\u05D9\u05DC \u05D9\u05E2\u05E8 \u05E9\u05D8\u05D7",
+    imageUrl: "/images/optimized/offroad_vehicle_forest_trail-md.webp",
+    category: "vehicles",
+    description: "",
+  },
+];
+
 const PAGE_SIZE = 20;
 
 export default function Gallery() {
@@ -89,11 +224,17 @@ export default function Gallery() {
     }
   }, [firstPage, currentPage]);
 
-  // Combine pages
+  // Combine pages, fall back to local photos when DB is empty
   const allPhotos = useMemo(() => {
     const base = firstPage?.items || [];
-    return [...base, ...extraPhotos];
-  }, [firstPage, extraPhotos]);
+    const combined = [...base, ...extraPhotos];
+    if (combined.length === 0 && !isLoading) {
+      return selectedCategory === "all"
+        ? FALLBACK_GALLERY_PHOTOS
+        : FALLBACK_GALLERY_PHOTOS.filter(p => p.category === selectedCategory);
+    }
+    return combined;
+  }, [firstPage, extraPhotos, isLoading, selectedCategory]);
 
   // Deduplicate photos by imageUrl (keep first occurrence) and exclude broken
   const filteredPhotos = useMemo(() => {

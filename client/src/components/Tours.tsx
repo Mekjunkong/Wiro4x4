@@ -75,7 +75,7 @@ const HARDCODED_TOURS = [
   {
     id: 4,
     slug: "doi-suthep-pui-beyond-temple",
-    image: "/images/optimized/accessible_doi_suthep_temple.jpg",
+    image: "/images/optimized/doi_suthep_golden_chedi.jpg",
     title: "Doi Suthep-Pui — Beyond the Temple",
     titleHe: "דוי סוטפ-פוי — מעבר למקדש",
     description:
@@ -133,7 +133,7 @@ const TOUR_IMAGE_MAP: Record<string, string> = {
   "doi-inthanon-roof-of-thailand": "mountain_sunset",
   "mae-kampong-hidden-village": "mountain_village_view",
   "maerim-sticky-waterfalls": "sticky_waterfalls",
-  "doi-suthep-pui-beyond-temple": "accessible_doi_suthep_temple",
+  "doi-suthep-pui-beyond-temple": "doi_suthep_golden_chedi",
   "mae-wang-jungle-wilderness": "elephant_encounter",
   "samoeng-loop-mountain-circuit": "chiang_mai_valley",
 };
