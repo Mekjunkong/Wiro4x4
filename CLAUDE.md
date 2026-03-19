@@ -537,6 +537,27 @@ Vercel automatically builds and deploys the site at https://www.wiro4x4indochina
 - **Output directory:** `dist/`
 - **CI:** `.github/workflows/ci.yml` — TypeScript check, lint, tests, build (pnpm version from `packageManager` in `package.json`)
 
+## Gotchas & Patterns
+
+### Removing Dependencies
+
+- When removing a package from `package.json`, also check `vite.config.ts` `manualChunks` — Vite will fail to build if a manual chunk entry module is missing
+
+### Shared Constants
+
+- Cookie consent: `client/src/lib/cookieConsent.ts` exports `COOKIE_CONSENT_KEY` and `COOKIE_CONSENT_EVENT` — used by CookieConsent, StickyBookBar, FloatingActionButtons, NewsletterPopup
+- URL sanitization: `client/src/lib/sanitizeUrl.ts` — allowlist-based URL sanitizer used by MarkdownRenderer
+
+### Client-Side Tests
+
+- `vitest.config.ts` includes `client/src/**/*.test.ts` — client tests use same Vitest setup as server tests
+
+### Animation System
+
+- `useScrollReveal` hook (`client/src/hooks/useScrollReveal.ts`) — used in 15+ components, uses IntersectionObserver + CSS (GSAP removed)
+- Hero animations use CSS `@keyframes heroReveal` in `index.css` with `animation-delay` for stagger
+- `framer-motion` is only used in `App.tsx` for route transitions
+
 ## Troubleshooting
 
 ### Build Errors:
@@ -545,6 +566,12 @@ Vercel automatically builds and deploys the site at https://www.wiro4x4indochina
 pnpm install  # Reinstall dependencies
 pnpm db:push  # Sync database schema
 ```
+
+### Deployment Issues:
+
+- Vercel builds independently of GitHub Actions CI — CI lint failures don't block Vercel, but Vercel build failures (`vite build`) prevent deployment
+- Check Vercel deployment status (not just CI) when changes aren't showing on the live site
+- Pre-existing lint errors in `Login.tsx`, `Register.tsx`, `create-admin.ts`, `auth.test.ts` cause CI failure but don't affect Vercel
 
 ### Database Issues:
 
