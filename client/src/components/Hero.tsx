@@ -1,9 +1,8 @@
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import gsap from "gsap";
 
 const TRUST_ITEMS = [
   { en: "Hebrew Speaking", he: "דוברי עברית" },
@@ -14,7 +13,6 @@ const TRUST_ITEMS = [
 
 export function Hero() {
   const { t, language } = useLanguage();
-  const contentRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
 
   const whatsappMessage =
@@ -27,27 +25,6 @@ export function Hero() {
         );
 
   const whatsappUrl = `${COMPANY_WHATSAPP_URL}&text=${whatsappMessage}`;
-
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReducedMotion || !contentRef.current) return;
-
-    const children = contentRef.current.children;
-    gsap.set(children, { y: 30, opacity: 0 });
-
-    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-    tl.to(children[0], { y: 0, opacity: 1, duration: 0.8 })
-      .to(children[1], { y: 0, opacity: 1, duration: 0.6 }, "-=0.3")
-      .to(children[2], { y: 0, opacity: 1, duration: 0.6 }, "-=0.2")
-      .to(children[3], { y: 0, opacity: 1, duration: 0.5 }, "-=0.2")
-      .to(children[4], { y: 0, opacity: 1, duration: 0.5 }, "-=0.2");
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
 
   const scrollToTours = () => {
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
@@ -72,26 +49,20 @@ export function Hero() {
       {/* Bottom gradient overlay - stronger for better text contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:from-black/80 md:via-black/30" />
 
-      {/* Content */}
-      <div
-        ref={contentRef}
-        className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white"
-      >
-        {/* Heading - larger on mobile, better contrast */}
-        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl">
+      {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
+      <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
+        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl animate-hero-reveal [animation-delay:0.1s]">
           WIRO 4×4
         </h1>
 
-        {/* Subtitle - better mobile sizing */}
-        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg">
+        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg animate-hero-reveal [animation-delay:0.3s]">
           {t(
             "Kosher Off-Road Adventures in Chiang Mai",
             "הרפתקאות שטח כשרות בצ'יאנג מאי"
           )}
         </p>
 
-        {/* CTAs - better mobile touch targets */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s]">
           <button
             onClick={scrollToTours}
             className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-2xl w-full sm:w-auto"
@@ -109,8 +80,7 @@ export function Hero() {
           </a>
         </div>
 
-        {/* Trust badge pills - larger and more readable on mobile */}
-        <div className="flex flex-wrap gap-2 md:gap-2.5">
+        <div className="flex flex-wrap gap-2 md:gap-2.5 animate-hero-reveal [animation-delay:0.7s]">
           {TRUST_ITEMS.map(item => (
             <span
               key={item.en}

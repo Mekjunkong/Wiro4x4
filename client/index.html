@@ -130,16 +130,17 @@
     <link rel="preload" as="image" href="/images/optimized/hero-wiro.webp" type="image/webp" />
     <link rel="preload" as="image" href="/images/optimized/hero-wiro.jpg" type="image/jpeg" />
     
-    <!-- Optimized font loading with media print trick -->
+    <!-- Base fonts (always loaded) — Oswald for headings, Source Sans 3 for body -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Rubik:wght@400;500;700&family=Heebo:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Rubik:wght@400;500;700&family=Heebo:wght@400;500&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
     </noscript>
+    <!-- Hebrew fonts (Rubik + Heebo) loaded conditionally by LanguageContext when lang=he -->
 
     <!-- Analytics (Plausible - privacy-friendly, no cookies) -->
     <script defer data-domain="wiro4x4indochina.com" src="https://plausible.io/js/script.js"></script>
