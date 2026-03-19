@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const COOKIE_CONSENT_KEY = "cookie-consent-accepted";
+import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 
 export function CookieConsent() {
   const { t } = useLanguage();
@@ -23,6 +22,7 @@ export function CookieConsent() {
     } catch {
       // localStorage not available
     }
+    window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
     setVisible(false);
   };
 
@@ -30,7 +30,7 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-fade-in-up"
+      className="fixed bottom-0 left-0 right-0 z-[9997] p-4 animate-fade-in-up"
       role="dialog"
       aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
