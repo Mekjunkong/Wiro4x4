@@ -2,18 +2,34 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar } from "lucide-react";
 import { Link } from "wouter";
+import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 
 export function StickyBookBar() {
   const { t } = useLanguage();
-  const [visible, setVisible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(() => {
+    try {
+      return !!localStorage.getItem(COOKIE_CONSENT_KEY);
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const onConsent = () => setConsentGiven(true);
+    window.addEventListener(COOKIE_CONSENT_EVENT, onConsent);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onConsent);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setVisible(window.scrollY > 600);
+      setScrolled(window.scrollY > 600);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const visible = scrolled && consentGiven;
 
   return (
     <div

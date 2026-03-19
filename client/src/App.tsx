@@ -39,6 +39,13 @@ function ScrollToTop() {
   const [location] = useLocation();
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    try {
+      const views =
+        Number(sessionStorage.getItem("wiro_page_views") || "0") + 1;
+      sessionStorage.setItem("wiro_page_views", String(views));
+    } catch {
+      // sessionStorage not available
+    }
   }, [location]);
   return null;
 }

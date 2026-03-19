@@ -3,12 +3,45 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { MessageCircle, Calendar, Plus, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 
 export function FloatingActionButtons() {
   const { t, language } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [location] = useLocation();
   const isBookingPage = location === "/book";
+
+  const [scrolledPast, setScrolledPast] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(() => {
+    try {
+      return !!localStorage.getItem(COOKIE_CONSENT_KEY);
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const onConsent = () => setConsentGiven(true);
+    window.addEventListener(COOKIE_CONSENT_EVENT, onConsent);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onConsent);
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolledPast(window.scrollY > 600);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const isHomePage = location === "/";
+  const hideOnMobile = isMobile && scrolledPast && consentGiven && isHomePage;
 
   // N4: Only pulse 3 times on mount, then stop
   const [showPulse, setShowPulse] = useState(true);
@@ -28,6 +61,8 @@ export function FloatingActionButtons() {
           );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
+
+  if (hideOnMobile) return null;
 
   return (
     <div
