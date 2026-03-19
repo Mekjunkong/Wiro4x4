@@ -4,6 +4,7 @@ import { TrustBar } from "@/components/TrustBar";
 import { ProductTiers } from "@/components/ProductTiers";
 import { GalleryShowcase } from "@/components/GalleryShowcase";
 import { CostCalculator } from "@/components/CostCalculator";
+import { GoldDivider } from "@/components/GoldDivider";
 import { SocialProofStrip } from "@/components/SocialProofStrip";
 import { TrustAndKosher } from "@/components/TrustAndKosher";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
@@ -13,8 +14,10 @@ import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { StickyBookBar } from "@/components/StickyBookBar";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
   usePageMeta({
     title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
     description:
@@ -28,12 +31,29 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <ProductTiers />
-        <GalleryShowcase />
-        <div className="py-16 md:py-20">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-5xl">
-            <CostCalculator />
+        <section id="estimate" className="py-20 md:py-28 bg-muted/30">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+            <div className="text-center mb-10 md:mb-14">
+              <span className="text-accent-cta text-sm font-medium tracking-[0.2em] uppercase">
+                {t("Plan Your Budget", "תכננו את התקציב")}
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 text-foreground">
+                {t("Estimate Your Trip", "הערכת עלות הטיול")}
+              </h2>
+              <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
+                {t(
+                  "Get an instant price estimate for your group. Select tours, add services, and see the breakdown.",
+                  "קבלו הערכת מחיר מיידית לקבוצה שלכם. בחרו טיולים, הוסיפו שירותים וראו את הפירוט."
+                )}
+              </p>
+              <GoldDivider />
+            </div>
+            <div className="max-w-5xl mx-auto">
+              <CostCalculator />
+            </div>
           </div>
-        </div>
+        </section>
+        <GalleryShowcase />
         <TrustAndKosher />
         <SocialProofStrip />
         <QuickInquiryForm />
