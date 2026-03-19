@@ -4,6 +4,7 @@
  * ordered/unordered lists, blockquotes, and horizontal rules.
  */
 import type { ReactNode } from "react";
+import { sanitizeUrl } from "@/lib/sanitizeUrl";
 
 interface MarkdownRendererProps {
   content: string;
@@ -28,7 +29,7 @@ function renderInline(text: string): ReactNode[] {
       parts.push(
         <img
           key={key++}
-          src={match[2]}
+          src={sanitizeUrl(match[2])}
           alt={match[1] || ""}
           className="rounded-lg my-4 max-w-full"
           loading="lazy"
@@ -39,7 +40,7 @@ function renderInline(text: string): ReactNode[] {
       parts.push(
         <a
           key={key++}
-          href={match[4]}
+          href={sanitizeUrl(match[4])}
           className="text-primary hover:underline"
           target={match[4].startsWith("http") ? "_blank" : undefined}
           rel={match[4].startsWith("http") ? "noopener noreferrer" : undefined}
