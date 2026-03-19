@@ -160,6 +160,39 @@ const IMAGE_FOCAL_POINTS: Record<string, string> = {
   "samoeng-loop-mountain-circuit": "object-[50%_30%]",
 };
 
+const TOUR_BADGES: Record<string, { en: string; he: string; color: string }> = {
+  "doi-inthanon-roof-of-thailand": {
+    en: "Most Popular",
+    he: "הכי פופולרי",
+    color: "bg-amber-500 text-white",
+  },
+  "mae-kampong-hidden-village": {
+    en: "Hidden Gem",
+    he: "פנינה נסתרת",
+    color: "bg-emerald-600 text-white",
+  },
+  "maerim-sticky-waterfalls": {
+    en: "Family Favorite",
+    he: "מועדף למשפחות",
+    color: "bg-sky-600 text-white",
+  },
+  "doi-suthep-pui-beyond-temple": {
+    en: "Limited Spots",
+    he: "מקומות מוגבלים",
+    color: "bg-rose-600 text-white",
+  },
+  "mae-wang-jungle-wilderness": {
+    en: "Adventure Pick",
+    he: "בחירת הרפתקנים",
+    color: "bg-orange-600 text-white",
+  },
+  "samoeng-loop-mountain-circuit": {
+    en: "New Route",
+    he: "מסלול חדש",
+    color: "bg-violet-600 text-white",
+  },
+};
+
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
@@ -321,6 +354,16 @@ export function Tours() {
                         IMAGE_FOCAL_POINTS[tour.slug] ?? "object-center"
                       }`}
                     />
+                    {TOUR_BADGES[tour.slug] && (
+                      <div
+                        className={`absolute top-3 left-3 ${TOUR_BADGES[tour.slug].color} font-semibold px-3 py-1 rounded-lg text-xs shadow-lg`}
+                      >
+                        {t(
+                          TOUR_BADGES[tour.slug].en,
+                          TOUR_BADGES[tour.slug].he
+                        )}
+                      </div>
+                    )}
                     {tour.price != null && (
                       <div className="absolute top-3 right-3 bg-accent-cta text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
                         &#3647;{tour.price.toLocaleString()}
