@@ -3,9 +3,10 @@ import { X, Mail, Send, Plane } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { COOKIE_CONSENT_KEY } from "@/lib/cookieConsent";
 
 const STORAGE_KEY = "wiro_newsletter_dismissed";
-const SHOW_DELAY_MS = 15_000; // 15 seconds after page load
+const SHOW_DELAY_MS = 30_000; // 30 seconds after page load
 const DISMISS_DAYS = 14; // Don't show again for 14 days after dismiss
 
 export function NewsletterPopup() {
@@ -34,6 +35,21 @@ export function NewsletterPopup() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && Date.now() < Number(stored)) return;
 
+    // Gate: cookie consent must be accepted
+    try {
+      if (!localStorage.getItem(COOKIE_CONSENT_KEY)) return;
+    } catch {
+      return;
+    }
+
+    // Gate: must have viewed 2+ pages in this session
+    try {
+      const views = Number(sessionStorage.getItem("wiro_page_views") || "0");
+      if (views < 2) return;
+    } catch {
+      return;
+    }
+
     const timer = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
     return () => clearTimeout(timer);
   }, []);
@@ -60,12 +76,12 @@ export function NewsletterPopup() {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] animate-in fade-in duration-300"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10002] animate-in fade-in duration-300"
         onClick={() => dismiss()}
       />
 
       {/* Popup */}
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-[10003] flex items-center justify-center p-4 pointer-events-none">
         <div className="relative bg-white dark:bg-card rounded-2xl shadow-2xl max-w-md w-full pointer-events-auto animate-in zoom-in-95 fade-in duration-300 overflow-hidden">
           {/* Gold accent bar */}
           <div className="h-1.5 bg-gradient-to-r from-accent via-accent/70 to-accent" />
