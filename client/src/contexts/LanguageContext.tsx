@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   ReactNode,
 } from "react";
 
@@ -39,6 +40,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
+const HEBREW_FONTS_URL =
+  "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Heebo:wght@400;500&display=swap";
+const HEBREW_FONTS_ID = "hebrew-fonts";
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(getStoredLanguage);
 
@@ -50,6 +55,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // localStorage unavailable
     }
   }, []);
+
+  // Load Hebrew fonts (Rubik + Heebo) only when needed
+  useEffect(() => {
+    if (language !== "he") return;
+    if (document.getElementById(HEBREW_FONTS_ID)) return;
+    const link = document.createElement("link");
+    link.id = HEBREW_FONTS_ID;
+    link.rel = "stylesheet";
+    link.href = HEBREW_FONTS_URL;
+    document.head.appendChild(link);
+  }, [language]);
 
   const t = (en: string, he: string) => {
     return language === "en" ? en : he;
