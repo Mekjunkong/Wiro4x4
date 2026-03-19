@@ -1,8 +1,4 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface ScrollRevealOptions {
   y?: number;
@@ -33,29 +29,53 @@ export function useScrollReveal<T extends HTMLElement>(
     ).matches;
     if (prefersReducedMotion) return undefined;
 
-    const children = stagger > 0 ? el.children : [el];
+    const targets: Element[] = stagger > 0 ? Array.from(el.children) : [el];
 
-    gsap.set(children, { opacity: 0, y });
-
-    const tl = gsap.to(children, {
-      opacity: 1,
-      y: 0,
-      duration,
-      delay,
-      stagger,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: el,
-        start: "top 85%",
-        toggleActions: once ? "play none none none" : "play none none reverse",
-      },
+    // Set initial hidden state
+    targets.forEach(child => {
+      const htmlEl = child as HTMLElement;
+      htmlEl.style.opacity = "0";
+      htmlEl.style.transform = `translateY(${y}px)`;
+      htmlEl.style.transition = "none";
     });
 
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(t => {
-        if (t.trigger === el) t.kill();
+    const reveal = () => {
+      targets.forEach((child, i) => {
+        const htmlEl = child as HTMLElement;
+        const itemDelay = delay + i * stagger;
+        htmlEl.style.transition = `opacity ${duration}s cubic-bezier(0.33, 1, 0.68, 1) ${itemDelay}s, transform ${duration}s cubic-bezier(0.33, 1, 0.68, 1) ${itemDelay}s`;
+        htmlEl.style.opacity = "1";
+        htmlEl.style.transform = "translateY(0)";
       });
+    };
+
+    const hide = () => {
+      targets.forEach(child => {
+        const htmlEl = child as HTMLElement;
+        htmlEl.style.transition = "none";
+        htmlEl.style.opacity = "0";
+        htmlEl.style.transform = `translateY(${y}px)`;
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            reveal();
+            if (once) observer.disconnect();
+          } else if (!once) {
+            hide();
+          }
+        });
+      },
+      { threshold: 0, rootMargin: "0px 0px -15% 0px" }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
     };
   }, [y, duration, delay, stagger, once]);
 
