@@ -60,7 +60,7 @@ export default defineConfig({
             "@radix-ui/react-checkbox",
           ],
           // Animation
-          animation: ["framer-motion", "gsap"],
+          animation: ["framer-motion"],
           // Icons
           icons: ["lucide-react"],
           // Utilities
