@@ -8,6 +8,7 @@ export default tseslint.config(
       "node_modules/**",
       "dist/**",
       "build/**",
+      "api/**",
       "drizzle/migrations/**",
       "server/_core/**",
       "client/src/_core/**",

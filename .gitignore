@@ -129,4 +129,4 @@ client/public/images/optimized/*-sm.*
 client/public/images/optimized/*-md.*
 client/public/images/optimized/*-lg.*
 client/public/images/optimized/*-thumb.*
-api/
+# api/ — tracked so Vercel detects the serverless function pre-build
