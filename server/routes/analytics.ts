@@ -2,8 +2,17 @@ import { router, secureProtectedProcedure } from "./_helpers";
 import { getDb } from "../db";
 import { bookings, bookingDrafts } from "../../drizzle/schema";
 import { count, gte } from "drizzle-orm";
+import {
+  getAnalyticsOverview,
+  getRevenueByMonth,
+  getBookingsByMonth,
+  getLeadFunnel,
+  getTopTours,
+  getRecentActivity,
+} from "../db/analytics";
 
 export const analyticsRouter = router({
+  /** Existing booking funnel (30 days). */
   funnelData: secureProtectedProcedure.query(async () => {
     const db = await getDb();
     if (!db) return { steps: [], conversionRate: 0 };
@@ -45,5 +54,35 @@ export const analyticsRouter = router({
       ],
       conversionRate: started > 0 ? Math.round((completed / started) * 100) : 0,
     };
+  }),
+
+  /** KPI overview for the analytics dashboard. */
+  overview: secureProtectedProcedure.query(async () => {
+    return await getAnalyticsOverview();
+  }),
+
+  /** Revenue grouped by month (last 12 months). */
+  revenueByMonth: secureProtectedProcedure.query(async () => {
+    return await getRevenueByMonth();
+  }),
+
+  /** Booking count by month (last 12 months). */
+  bookingsByMonth: secureProtectedProcedure.query(async () => {
+    return await getBookingsByMonth();
+  }),
+
+  /** Lead funnel: count of leads in each status. */
+  leadFunnel: secureProtectedProcedure.query(async () => {
+    return await getLeadFunnel();
+  }),
+
+  /** Most booked tours with revenue. */
+  topTours: secureProtectedProcedure.query(async () => {
+    return await getTopTours();
+  }),
+
+  /** Last 10 bookings + leads combined, sorted by date. */
+  recentActivity: secureProtectedProcedure.query(async () => {
+    return await getRecentActivity();
   }),
 });

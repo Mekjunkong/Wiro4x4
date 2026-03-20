@@ -8,11 +8,128 @@ import {
   Mail,
   Send,
   Clock,
+  RefreshCw,
+  Flame,
+  Thermometer,
+  Snowflake,
+  Info,
 } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { downloadCSV } from "@/lib/csvExport";
+
+// ── Score tier helpers ──────────────────────────────────
+
+type ScoreTier = "hot" | "warm" | "cool" | "cold";
+
+function getScoreTier(score: number): ScoreTier {
+  if (score >= 75) return "hot";
+  if (score >= 50) return "warm";
+  if (score >= 25) return "cool";
+  return "cold";
+}
+
+const TIER_CONFIG: Record<
+  ScoreTier,
+  { label: string; className: string; icon: typeof Flame }
+> = {
+  hot: {
+    label: "Hot",
+    className: "bg-red-100 text-red-700 border-red-200",
+    icon: Flame,
+  },
+  warm: {
+    label: "Warm",
+    className: "bg-orange-100 text-orange-700 border-orange-200",
+    icon: Thermometer,
+  },
+  cool: {
+    label: "Cool",
+    className: "bg-blue-100 text-blue-700 border-blue-200",
+    icon: Snowflake,
+  },
+  cold: {
+    label: "Cold",
+    className: "bg-gray-100 text-gray-500 border-gray-200",
+    icon: Snowflake,
+  },
+};
+
+function ScoreBadge({
+  score,
+  scoreDetails,
+}: {
+  score: number;
+  scoreDetails?: string | null;
+}) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tier = getScoreTier(score);
+  const config = TIER_CONFIG[tier];
+  const TierIcon = config.icon;
+
+  let breakdown: Record<
+    string,
+    { points: number; max: number; reason: string }
+  > | null = null;
+  if (scoreDetails) {
+    try {
+      breakdown = JSON.parse(scoreDetails);
+    } catch {
+      // ignore parse errors
+    }
+  }
+
+  return (
+    <div className="relative inline-block">
+      <button
+        type="button"
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border ${config.className} cursor-default`}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onClick={() => setShowTooltip(prev => !prev)}
+      >
+        <TierIcon className="w-3 h-3" />
+        {score}
+        {breakdown && <Info className="w-3 h-3 opacity-50" />}
+      </button>
+
+      {showTooltip && breakdown && (
+        <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-white border border-border rounded-lg shadow-lg text-xs">
+          <div className="font-semibold mb-2 text-foreground">
+            Score Breakdown ({score}/100) — {config.label}
+          </div>
+          <div className="space-y-1">
+            {Object.entries(breakdown).map(([key, val]) => (
+              <div key={key} className="flex justify-between gap-2">
+                <span className="text-muted-foreground capitalize">
+                  {key.replace(/([A-Z])/g, " $1").trim()}
+                </span>
+                <span className="font-medium whitespace-nowrap">
+                  {val.points}/{val.max}
+                </span>
+              </div>
+            ))}
+          </div>
+          {Object.values(breakdown).some(v => v.reason) && (
+            <div className="mt-2 pt-2 border-t border-border space-y-0.5">
+              {Object.values(breakdown)
+                .filter(v => v.reason && v.points > 0)
+                .map((v, i) => (
+                  <div key={i} className="text-muted-foreground text-[11px]">
+                    {v.reason}
+                  </div>
+                ))}
+            </div>
+          )}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2 h-2 bg-white border-b border-r border-border rotate-45" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Abandoned Leads Section ─────────────────────────────
 
 function AbandonedLeadsSection() {
   const { data: countData, refetch: refetchCount } =
@@ -159,9 +276,12 @@ function AbandonedLeadsSection() {
   );
 }
 
+// ── Main Leads Tab ──────────────────────────────────────
+
 export function LeadsTab() {
   const [leadsPage, setLeadsPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [sortBy, setSortBy] = useState<"score" | "date">("score");
 
   const {
     data: leadsData,
@@ -170,10 +290,21 @@ export function LeadsTab() {
   } = trpc.lead.listPaginated.useQuery({
     page: leadsPage,
     pageSize: PAGE_SIZE,
+    sortBy,
   });
   const leads = leadsData?.items;
   const leadsTotal = leadsData?.total ?? 0;
   const leadsTotalPages = leadsData?.totalPages ?? 1;
+
+  const rescoreAllMut = trpc.leadScoring.scoreAll.useMutation({
+    onSuccess: data => {
+      refetchLeads();
+      toast.success(data.message);
+    },
+    onError: error => {
+      toast.error(`Rescore failed: ${error.message}`);
+    },
+  });
 
   const updateLeadMut = trpc.lead.update.useMutation({
     onSuccess: () => {
@@ -257,6 +388,7 @@ export function LeadsTab() {
       email: l.email,
       phone: l.phone ?? "",
       source: l.source ?? "",
+      score: l.score ?? 0,
       status: l.status,
       createdAt: l.createdAt ? new Date(l.createdAt).toLocaleDateString() : "",
     }));
@@ -267,7 +399,18 @@ export function LeadsTab() {
   return (
     <div className="p-6">
       {/* Actions bar */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <button
+          onClick={() => rescoreAllMut.mutate()}
+          disabled={rescoreAllMut.isPending}
+          className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-sm disabled:opacity-50"
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${rescoreAllMut.isPending ? "animate-spin" : ""}`}
+          />
+          {rescoreAllMut.isPending ? "Scoring..." : "Rescore All"}
+        </button>
+
         <button
           onClick={handleExportCSV}
           className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm"
@@ -275,6 +418,21 @@ export function LeadsTab() {
           <Download className="w-4 h-4" />
           Export CSV
         </button>
+
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Sort by:</span>
+          <select
+            value={sortBy}
+            onChange={e => {
+              setSortBy(e.target.value as "score" | "date");
+              setLeadsPage(1);
+            }}
+            className="px-2 py-1 border border-border rounded text-xs min-h-[36px]"
+          >
+            <option value="score">Score (highest first)</option>
+            <option value="date">Date (newest first)</option>
+          </select>
+        </div>
       </div>
 
       {/* Bulk action bar */}
@@ -373,18 +531,11 @@ export function LeadsTab() {
                     {lead.source}
                   </td>
                   <td className="py-3 px-4 hidden sm:table-cell">
-                    {(lead as any).score != null && (lead as any).score > 0 ? (
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          (lead as any).score >= 70
-                            ? "bg-green-100 text-green-700"
-                            : (lead as any).score >= 40
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {(lead as any).score}
-                      </span>
+                    {lead.score != null && lead.score > 0 ? (
+                      <ScoreBadge
+                        score={lead.score}
+                        scoreDetails={(lead as any).scoreDetails}
+                      />
                     ) : (
                       <span className="text-xs text-muted-foreground">-</span>
                     )}

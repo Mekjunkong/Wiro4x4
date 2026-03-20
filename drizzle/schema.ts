@@ -106,6 +106,7 @@ export const bookings = mysqlTable(
     // Automated email tracking
     reminderSentAt: timestamp("reminderSentAt"),
     feedbackSentAt: timestamp("feedbackSentAt"),
+    postTourEmailSentAt: timestamp("postTourEmailSentAt"),
 
     // UTM Tracking
     utmSource: varchar("utmSource", { length: 255 }),
@@ -183,6 +184,8 @@ export const leads = mysqlTable(
     convertedToBookingId: int("convertedToBookingId"),
     notes: text("notes"),
     score: int("score").default(0), // Lead score 0-100
+    scoreDetails: text("score_details"), // JSON string with scoring breakdown
+    lastScoredAt: timestamp("last_scored_at"), // when score was last computed
     recoveryEmailSentAt: timestamp("recovery_email_sent_at"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

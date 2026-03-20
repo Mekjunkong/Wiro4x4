@@ -37,6 +37,10 @@ export {
   getAgentBookingsInDateRange,
   getPendingBookingCount,
   getUpcomingTourCount,
+  getEligiblePostTourBookings,
+  getEligiblePostTourCount,
+  markPostTourEmailSent,
+  getAlbumByBookingId,
 } from "./bookings";
 
 // Agents
@@ -58,6 +62,8 @@ export {
   getAllLeadsPaginated,
   bulkDeleteLeads,
   updateLeadScore,
+  getLeadsByScore,
+  getAllLeadsPaginatedByScore,
   getStaleNewLeads,
   getColdContactedLeads,
   getNewLeadCount,
@@ -281,6 +287,16 @@ export {
   getWhatsAppMessageStats,
   updateWhatsAppMessageStatus,
 } from "./whatsapp";
+
+// Analytics
+export {
+  getAnalyticsOverview,
+  getRevenueByMonth,
+  getBookingsByMonth,
+  getLeadFunnel,
+  getTopTours,
+  getRecentActivity,
+} from "./analytics";
 
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";

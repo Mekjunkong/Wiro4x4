@@ -13,6 +13,8 @@ export { AccountingTab } from "./AccountingTab";
 export { UsersTab } from "./UsersTab";
 export { TripPhotosTab } from "./TripPhotosTab";
 export { WhatsAppTab } from "./WhatsAppTab";
+export { AnalyticsTab } from "./AnalyticsTab";
+export { PostTourEmailsTab } from "./PostTourEmailsTab";
 export {
   TableSkeleton,
   CardGridSkeleton,

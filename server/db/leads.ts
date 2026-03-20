@@ -123,11 +123,56 @@ export async function markRecoveryEmailSent(leadId: number) {
     .where(eq(leads.id, leadId));
 }
 
-export async function updateLeadScore(leadId: number, score: number) {
+export async function updateLeadScore(
+  leadId: number,
+  score: number,
+  scoreDetails?: string
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db
     .update(leads)
-    .set({ score: Math.max(0, Math.min(100, Math.round(score))) })
+    .set({
+      score: Math.max(0, Math.min(100, Math.round(score))),
+      ...(scoreDetails !== undefined ? { scoreDetails } : {}),
+      lastScoredAt: new Date(),
+    })
     .where(eq(leads.id, leadId));
+}
+
+/**
+ * Get leads sorted by score descending (highest first).
+ * Optionally filter by minimum score.
+ */
+export async function getLeadsByScore(minScore?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (minScore !== undefined && minScore > 0) {
+    return await db
+      .select()
+      .from(leads)
+      .where(sql`${leads.score} >= ${minScore}`)
+      .orderBy(desc(leads.score));
+  }
+  return await db.select().from(leads).orderBy(desc(leads.score));
+}
+
+/**
+ * Get leads paginated, sorted by score descending (highest first).
+ */
+export async function getAllLeadsPaginatedByScore(page = 1, pageSize = 20) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const offset = (page - 1) * pageSize;
+  const items = await db
+    .select()
+    .from(leads)
+    .orderBy(desc(leads.score), desc(leads.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(leads);
+  const total = Number(countResult[0]?.count ?? 0);
+  return { items, total };
 }

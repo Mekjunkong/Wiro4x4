@@ -1136,6 +1136,86 @@ export default function TourDetail() {
     };
   }
 
+  // Build enhanced JSON-LD for tour pages
+  const tourJsonLd = (() => {
+    if (!tour) return undefined;
+    const siteUrl = "https://www.wiro4x4indochina.com";
+    const tourUrl = `${siteUrl}/tours/${slug}`;
+    const imageUrl = tour.imageUrl.startsWith("http")
+      ? tour.imageUrl
+      : `${siteUrl}${tour.imageUrl}`;
+
+    // Parse duration string (e.g. "7-8 hours") into ISO 8601 duration
+    const durationMatch = tour.duration.match(/(\d+)/);
+    const durationHours = durationMatch ? parseInt(durationMatch[1], 10) : 8;
+    const isoDuration = `PT${durationHours}H`;
+
+    // Build itinerary ItemList from parsed itinerary JSON
+    let itineraryItems: Record<string, unknown>[] = [];
+    if (tour.itinerary) {
+      try {
+        const parsed = JSON.parse(tour.itinerary) as {
+          title: string;
+          description: string;
+        }[];
+        itineraryItems = parsed.map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.title,
+          description: item.description,
+        }));
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    const touristTrip: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "TouristTrip",
+      name: tour.name,
+      description: tour.description,
+      touristType: ["Adventure", "Kosher", "Off-Road"],
+      image: imageUrl,
+      url: tourUrl,
+      duration: isoDuration,
+      maximumAttendeeCapacity: tour.groupMaxSize,
+      offers: {
+        "@type": "Offer",
+        price: String(tour.price),
+        priceCurrency: "THB",
+        availability: "https://schema.org/InStock",
+        validFrom: "2024-01-01",
+        url: tourUrl,
+      },
+      provider: {
+        "@type": ["TravelAgency", "LocalBusiness"],
+        "@id": `${siteUrl}/#organization`,
+        name: "WIRO 4x4 Indochina Adventure",
+        url: siteUrl,
+        telephone: "+66929894495",
+      },
+    };
+
+    if (itineraryItems.length > 0) {
+      touristTrip.itinerary = {
+        "@type": "ItemList",
+        numberOfItems: itineraryItems.length,
+        itemListElement: itineraryItems,
+      };
+    }
+
+    if (tour.isKosher) {
+      touristTrip.additionalType = "https://schema.org/FoodService";
+      touristTrip.amenityFeature = {
+        "@type": "LocationFeatureSpecification",
+        name: "Kosher Meals Available",
+        value: true,
+      };
+    }
+
+    return touristTrip;
+  })();
+
   // SEO: Per-tour meta + JSON-LD structured data
   usePageMeta(
     tour
@@ -1148,25 +1228,7 @@ export default function TourDetail() {
             ? tour.imageUrl
             : `https://www.wiro4x4indochina.com${tour.imageUrl}`,
           canonicalPath: `/tours/${slug}`,
-          jsonLd: {
-            "@context": "https://schema.org",
-            "@type": "TouristTrip",
-            name: tour.name,
-            description: tour.description,
-            touristType: "Adventure, Kosher, Off-Road",
-            image: tour.imageUrl || undefined,
-            offers: {
-              "@type": "Offer",
-              price: tour.price,
-              priceCurrency: "THB",
-              availability: "https://schema.org/InStock",
-            },
-            provider: {
-              "@type": "TravelAgency",
-              name: "WIRO 4x4",
-              url: "https://www.wiro4x4indochina.com",
-            },
-          },
+          jsonLd: tourJsonLd,
         }
       : { title: "Tour Details" }
   );

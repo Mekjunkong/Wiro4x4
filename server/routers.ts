@@ -38,6 +38,8 @@ import { availabilityRouter } from "./routes/availability";
 import { tripPhotosRouter } from "./routes/tripPhotos";
 import { googleReviewsRouter } from "./routes/googleReviews";
 import { whatsappAdminRouter } from "./routes/whatsappAdmin";
+import { leadScoringRouter } from "./routes/leadScoring";
+import { postTourEmailRouter } from "./routes/postTourEmail";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -78,6 +80,8 @@ export const appRouter = router({
   tripPhotos: tripPhotosRouter,
   googleReviews: googleReviewsRouter,
   whatsapp: whatsappAdminRouter,
+  leadScoring: leadScoringRouter,
+  postTourEmail: postTourEmailRouter,
 });
 
 export type AppRouter = typeof appRouter;

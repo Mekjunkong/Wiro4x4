@@ -1,7 +1,7 @@
-import { eq, and, sql, inArray } from "drizzle-orm";
+import { eq, and, sql, inArray, lte } from "drizzle-orm";
 import { desc } from "drizzle-orm";
 import { getDb } from "./connection";
-import { bookings, InsertBooking } from "../../drizzle/schema";
+import { bookings, tripPhotoAlbums, InsertBooking } from "../../drizzle/schema";
 
 // ─── CRUD ─────────────────────────────────────────────────
 
@@ -190,4 +190,92 @@ export async function getAgentBookingsInDateRange(
         sql`${bookings.departureDate} >= ${startDate}`
       )
     );
+}
+
+// ─── Post-Tour Follow-up Emails ──────────────────────────
+
+/**
+ * Find bookings eligible for post-tour follow-up email:
+ * - status = 'completed'
+ * - departureDate was 2+ days ago
+ * - postTourEmailSentAt IS NULL
+ * - contactEmail is not null/empty
+ */
+export async function getEligiblePostTourBookings(limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.status, "completed"),
+        lte(bookings.departureDate, twoDaysAgo),
+        sql`${bookings.postTourEmailSentAt} IS NULL`,
+        sql`${bookings.contactEmail} IS NOT NULL`,
+        sql`${bookings.contactEmail} != ''`
+      )
+    )
+    .orderBy(desc(bookings.departureDate))
+    .limit(limit);
+}
+
+/**
+ * Count bookings eligible for post-tour follow-up email.
+ */
+export async function getEligiblePostTourCount(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const now = new Date();
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.status, "completed"),
+        lte(bookings.departureDate, twoDaysAgo),
+        sql`${bookings.postTourEmailSentAt} IS NULL`,
+        sql`${bookings.contactEmail} IS NOT NULL`,
+        sql`${bookings.contactEmail} != ''`
+      )
+    );
+  return Number(result[0]?.count ?? 0);
+}
+
+/**
+ * Mark a booking's post-tour email as sent.
+ */
+export async function markPostTourEmailSent(bookingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(bookings)
+    .set({ postTourEmailSentAt: new Date() } as any)
+    .where(eq(bookings.id, bookingId));
+}
+
+/**
+ * Get trip photo album for a booking (first active album).
+ */
+export async function getAlbumByBookingId(bookingId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const results = await db
+    .select()
+    .from(tripPhotoAlbums)
+    .where(
+      and(
+        eq(tripPhotoAlbums.bookingId, bookingId),
+        eq(tripPhotoAlbums.isActive, 1)
+      )
+    )
+    .limit(1);
+  return results[0] ?? null;
 }

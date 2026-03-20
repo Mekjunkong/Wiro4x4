@@ -1,5 +1,17 @@
 User-agent: *
 Allow: /
+Allow: /tours/
+Allow: /blog/
+Allow: /packages/
+Allow: /gallery
+Allow: /reviews
+Allow: /pricing
+Allow: /estimate
+Allow: /kosher-tours
+Allow: /hebrew-guide
+Allow: /accessible-tours
+Allow: /faq
+Allow: /contact
 Disallow: /admin
 Disallow: /api/
 

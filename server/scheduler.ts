@@ -8,6 +8,7 @@ import { runPostTourFeedback } from "./jobs/postTourFeedback";
 import { runDailySummary } from "./jobs/dailySummary";
 import { runLeadAlerts } from "./jobs/leadAlerts";
 import { recalculateAllLeadScores } from "./leadScoring";
+import { checkAndSendPostTourEmails } from "./postTourEmailService";
 
 const ONE_HOUR = 60 * 60 * 1000;
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
@@ -56,6 +57,15 @@ export function startScheduler() {
     }
   }, ONE_HOUR);
 
+  // Post-tour follow-up emails: check every hour for completed tours (2+ days ago)
+  setInterval(async () => {
+    try {
+      await checkAndSendPostTourEmails();
+    } catch (err) {
+      console.error("[Scheduler] Post-tour follow-up emails failed:", err);
+    }
+  }, ONE_HOUR);
+
   // Lead scoring recalculation: daily
   setInterval(async () => {
     try {
@@ -71,6 +81,7 @@ export function startScheduler() {
     try {
       await runBookingReminders();
       await runPostTourFeedback();
+      await checkAndSendPostTourEmails();
       await runDailySummary();
       await runLeadAlerts();
       await recalculateAllLeadScores();

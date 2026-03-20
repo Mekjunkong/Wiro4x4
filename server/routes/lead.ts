@@ -14,13 +14,14 @@ import {
   updateLead,
   deleteLead,
   getAllLeadsPaginated,
+  getAllLeadsPaginatedByScore,
   bulkDeleteLeads,
   updateLeadScore,
   findOrCreateCustomer,
 } from "../db";
 import { leadInputSchema, paginationInput } from "../../shared/schemas";
 import { sendAutoResponse } from "../autoResponse";
-import { calculateLeadScore } from "../leadScoring";
+import { calculateLeadScore, type LeadData } from "../leadScoring";
 
 export const leadRouter = router({
   create: securePublicProcedure
@@ -51,8 +52,13 @@ export const leadRouter = router({
       const allLeads = await getAllLeads();
       const newLead = allLeads[0]; // Most recent lead
       if (newLead) {
-        const score = calculateLeadScore(newLead as any);
-        updateLeadScore(newLead.id, score).catch(err =>
+        const allEmails = allLeads.map(l => l.email);
+        const result = calculateLeadScore(newLead as LeadData, allEmails);
+        updateLeadScore(
+          newLead.id,
+          result.score,
+          JSON.stringify(result.details)
+        ).catch(err =>
           console.error("[Lead] Failed to update lead score:", err)
         );
       }
@@ -77,10 +83,17 @@ export const leadRouter = router({
   }),
 
   listPaginated: secureProtectedProcedure
-    .input(paginationInput)
+    .input(
+      paginationInput.extend({
+        sortBy: z.enum(["score", "date"]).default("score"),
+      })
+    )
     .query(async ({ input }) => {
-      const { page, pageSize } = input;
-      const { items, total } = await getAllLeadsPaginated(page, pageSize);
+      const { page, pageSize, sortBy } = input;
+      const { items, total } =
+        sortBy === "score"
+          ? await getAllLeadsPaginatedByScore(page, pageSize)
+          : await getAllLeadsPaginated(page, pageSize);
       return {
         items,
         total,

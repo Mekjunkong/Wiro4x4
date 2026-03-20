@@ -49,6 +49,18 @@ function setLinkTag(rel: string, href: string) {
   el.setAttribute("href", href);
 }
 
+function setHreflangLink(hreflang: string, href: string) {
+  const selector = `link[rel="alternate"][hreflang="${hreflang}"]`;
+  let el = document.querySelector(selector) as HTMLLinkElement | null;
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", "alternate");
+    el.setAttribute("hreflang", hreflang);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+}
+
 export function usePageMeta(
   titleOrOptions: string | PageMetaOptions,
   description?: string
@@ -105,14 +117,19 @@ export function usePageMeta(
       options.ogImage || DEFAULT_OG_IMAGE
     );
 
-    // Canonical URL
+    // Canonical URL + hreflang links
     if (options.canonicalPath) {
-      setLinkTag("canonical", `${SITE_URL}${options.canonicalPath}`);
-      setMetaTag(
-        'meta[property="og:url"]',
-        "content",
-        `${SITE_URL}${options.canonicalPath}`
+      const canonicalUrl = `${SITE_URL}${options.canonicalPath}`;
+      setLinkTag("canonical", canonicalUrl);
+      setMetaTag('meta[property="og:url"]', "content", canonicalUrl);
+
+      // Dynamic hreflang links per page
+      setHreflangLink("en", canonicalUrl);
+      setHreflangLink(
+        "he",
+        `${canonicalUrl}${options.canonicalPath.includes("?") ? "&" : "?"}lang=he`
       );
+      setHreflangLink("x-default", canonicalUrl);
     }
 
     // JSON-LD injection

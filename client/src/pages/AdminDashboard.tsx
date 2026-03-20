@@ -21,6 +21,8 @@ import {
   Receipt,
   ImageIcon,
   MessageCircle,
+  BarChart3,
+  MailCheck,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -40,6 +42,8 @@ import {
   TripPhotosTab,
   WhatsAppTab,
   DashboardCharts,
+  AnalyticsTab,
+  PostTourEmailsTab,
   PAGE_SIZE,
 } from "@/components/admin";
 import { SettingsTab } from "@/components/admin/SettingsTab";
@@ -68,6 +72,7 @@ function TabBadge({
 }
 
 type AdminTabId =
+  | "analytics"
   | "crm"
   | "bookings"
   | "calendar"
@@ -83,12 +88,13 @@ type AdminTabId =
   | "users"
   | "tripPhotos"
   | "whatsapp"
+  | "postTourEmails"
   | "abandoned"
   | "settings";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTabId>("crm");
+  const [activeTab, setActiveTab] = useState<AdminTabId>("analytics");
 
   const isAdmin = !!user && user.role === "admin";
 
@@ -151,6 +157,12 @@ export default function AdminDashboard() {
   const userRole = user?.role ?? "";
   const tabs = useMemo(
     () => [
+      {
+        id: "analytics" as const,
+        label: "Analytics",
+        icon: BarChart3,
+        count: undefined,
+      },
       { id: "crm" as const, label: "CRM", icon: UserCircle, count: undefined },
       {
         id: "bookings" as const,
@@ -233,6 +245,12 @@ export default function AdminDashboard() {
         id: "whatsapp" as const,
         label: "WhatsApp",
         icon: MessageCircle,
+        count: undefined,
+      },
+      {
+        id: "postTourEmails" as const,
+        label: "Follow-up",
+        icon: MailCheck,
         count: undefined,
       },
       {
@@ -516,6 +534,17 @@ export default function AdminDashboard() {
             </nav>
           </div>
 
+          {activeTab === "analytics" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-analytics"
+              aria-labelledby="tab-analytics"
+            >
+              <ErrorBoundary level="section" key="analytics">
+                <AnalyticsTab />
+              </ErrorBoundary>
+            </div>
+          )}
           {activeTab === "crm" && (
             <div role="tabpanel" id="tabpanel-crm" aria-labelledby="tab-crm">
               <ErrorBoundary level="section" key="crm">
@@ -670,6 +699,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="whatsapp">
                 <WhatsAppTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "postTourEmails" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-postTourEmails"
+              aria-labelledby="tab-postTourEmails"
+            >
+              <ErrorBoundary level="section" key="postTourEmails">
+                <PostTourEmailsTab />
               </ErrorBoundary>
             </div>
           )}
