@@ -48,7 +48,7 @@ const FALLBACK_GALLERY_PHOTOS = [
     title: "Elephant Encounter",
     titleHe:
       "\u05DE\u05E4\u05D2\u05E9 \u05E2\u05DD \u05E4\u05D9\u05DC\u05D9\u05DD",
-    imageUrl: "/images/optimized/elephant_sanctuary_encounter.webp",
+    imageUrl: "/images/optimized/elephant_bathing.webp",
     category: "activities",
     description: "",
   },
@@ -358,18 +358,32 @@ export default function Gallery() {
         items={[{ label: t("Gallery", "\u05D2\u05DC\u05E8\u05D9\u05D4") }]}
       />
       <main id="main-content">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary to-primary/80 py-16 md:py-20 text-center text-primary-foreground mt-20">
-          <div className="container">
-            <Camera className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
+        {/* Hero Banner with Photo */}
+        <section className="relative h-[50vh] min-h-[320px] max-h-[500px] mt-20 overflow-hidden">
+          <picture>
+            <source
+              srcSet="/images/optimized/forest_waterfall_pool.webp"
+              type="image/webp"
+            />
+            <img
+              src="/images/optimized/forest_waterfall_pool.jpg"
+              alt="Northern Thailand jungle waterfall"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
+            <Camera className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
+            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
               {t(
                 "Photo Gallery",
                 "\u05D2\u05DC\u05E8\u05D9\u05D9\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
               )}
             </h1>
             <GoldDivider />
-            <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl opacity-95 max-w-2xl mx-auto drop-shadow-md">
               {t(
                 "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
                 "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D0\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 - \u05DE\u05E9\u05D1\u05D9\u05DC\u05D9 \u05D4\u05E8\u05D9\u05DD \u05D5\u05E2\u05D3 \u05DE\u05E4\u05DC\u05D9\u05DD \u05E0\u05E1\u05EA\u05E8\u05D9\u05DD"

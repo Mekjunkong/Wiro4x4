@@ -7,7 +7,7 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 
 const LOCAL_GALLERY_IMAGES = [
   { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
-  { src: "elephant_sanctuary_encounter", caption: "Elephant Encounter" },
+  { src: "elephant_bathing", caption: "Elephant Encounter" },
   { src: "doi_suthep_golden_chedi", caption: "Doi Suthep Temple" },
   { src: "offroad_trail_driving", caption: "4x4 Off-Road Adventure" },
   { src: "jungle_waterfall_cascade_rocks", caption: "Jungle Waterfall" },
