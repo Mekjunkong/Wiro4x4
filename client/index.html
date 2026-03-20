@@ -115,6 +115,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="WIRO 4x4" />
     <title>%VITE_APP_TITLE%</title>
+
+    <!-- Prevent flash of wrong theme by applying dark class before paint -->
+    <script>
+      (function() {
+        var stored = localStorage.getItem('wiro-theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'dark' || (!stored && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     
     <!-- DNS Prefetch & Preconnect for external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />

@@ -4,6 +4,7 @@ import { captureException } from "./sentry";
 import {
   COMPANY_NAME,
   COMPANY_PHONE,
+  COMPANY_EMAIL,
   COMPANY_SENDER_EMAIL,
   COMPANY_WHATSAPP,
   COMPANY_WEBSITE,
@@ -51,6 +52,45 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
     const endDate = new Date(startDate);
     endDate.setHours(startDate.getHours() + 8);
 
+    const locationText = booking.pickupLocation
+      ? `${booking.pickupLocation}, Chiang Mai, Thailand`
+      : "Chiang Mai, Thailand";
+
+    const descriptionLines = [
+      `Your ${booking.tourType} adventure with WIRO 4x4!`,
+      ``,
+      `--- Booking Details ---`,
+      `Booking ID: ${booking.bookingId}`,
+      `Group Size: ${booking.groupSize} people`,
+      `Pickup Location: ${booking.pickupLocation || "To be confirmed"}`,
+      `Pickup Time: ${pickupTime}`,
+      ``,
+      `--- Meeting Point ---`,
+      `Your hotel lobby (pickup included) or Chiang Mai Old City area.`,
+      `Google Maps: https://maps.google.com/?q=Chiang+Mai+Thailand`,
+      ``,
+      ...(booking.specialRequests
+        ? [`Special Requests: ${booking.specialRequests}`, ``]
+        : []),
+      `--- What to Bring ---`,
+      `- Comfortable clothing and closed-toe shoes`,
+      `- Sunscreen and insect repellent`,
+      `- Hat and sunglasses`,
+      `- Camera`,
+      `- Water bottle (we'll provide refills)`,
+      `- Light rain jacket (seasonal)`,
+      ``,
+      `--- Contact / Emergency ---`,
+      `Phone: ${COMPANY_PHONE}`,
+      `WhatsApp: https://wa.me/${COMPANY_WHATSAPP}`,
+      `Email: ${COMPANY_EMAIL}`,
+      `Website: ${COMPANY_WEBSITE}`,
+      ``,
+      `Questions? WhatsApp us anytime: +66929894495`,
+      ``,
+      `We look forward to your adventure with us!`,
+    ];
+
     const event: EventAttributes = {
       start: [
         startDate.getFullYear(),
@@ -67,36 +107,32 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
         endDate.getMinutes(),
       ],
       title: `${booking.tourType} - WIRO 4x4`,
-      description:
-        `Your ${booking.tourType} adventure with WIRO 4x4!\n\n` +
-        `Group Size: ${booking.groupSize} people\n` +
-        `Pickup Location: ${booking.pickupLocation || "To be confirmed"}\n` +
-        `Pickup Time: ${pickupTime}\n\n` +
-        `Contact Information:\n` +
-        `Phone: ${COMPANY_PHONE}\n` +
-        `WhatsApp: ${COMPANY_WHATSAPP}\n` +
-        `Website: ${COMPANY_WEBSITE}\n\n` +
-        `Booking ID: ${booking.bookingId}\n\n` +
-        (booking.specialRequests
-          ? `Special Requests: ${booking.specialRequests}\n\n`
-          : "") +
-        `What to Bring:\n` +
-        `- Comfortable clothing and closed-toe shoes\n` +
-        `- Sunscreen and hat\n` +
-        `- Camera\n` +
-        `- Water bottle\n` +
-        `- Sense of adventure!\n\n` +
-        `We look forward to your adventure with us!`,
-      location: booking.pickupLocation || "Chiang Mai, Thailand",
+      description: descriptionLines.join("\n"),
+      location: locationText,
+      geo: { lat: 18.7883, lon: 98.9853 }, // Chiang Mai coordinates
       url: COMPANY_WEBSITE,
       status: "CONFIRMED",
       busyStatus: "BUSY",
-      organizer: { name: COMPANY_NAME, email: SENDER_EMAIL },
+      calName: "WIRO 4x4 Tours",
+      categories: ["Travel", "Tour", "Adventure"],
+      organizer: { name: COMPANY_NAME, email: "wiro.adventures@gmail.com" },
       attendees: [
         {
           name: booking.customerName,
           email: booking.customerEmail,
           rsvp: true,
+        },
+      ],
+      alarms: [
+        {
+          action: "display",
+          description: `Reminder: Your ${booking.tourType} with WIRO 4x4 is tomorrow! Don't forget to pack: comfortable clothes, sunscreen, insect repellent, camera, water bottle.`,
+          trigger: { days: 1, before: true },
+        },
+        {
+          action: "display",
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66929894495`,
+          trigger: { hours: 2, before: true },
         },
       ],
     };
@@ -208,25 +244,41 @@ export async function sendCustomerConfirmation(
           : ""
       }
       
+      <div class="info-box" style="background: #e3f2fd; border-left-color: #1976d2;">
+        <h3 style="margin-top: 0; color: #1976d2;">📍 Meeting Point & Location</h3>
+        <p><strong>Location:</strong> Chiang Mai, Thailand</p>
+        <p><strong>Pickup:</strong> Your hotel lobby (pickup included) or Chiang Mai Old City area</p>
+        <p style="margin-top: 10px;">
+          <a href="https://maps.google.com/?q=Chiang+Mai+Thailand" style="color: #1976d2; text-decoration: underline;">View Chiang Mai on Google Maps</a>
+        </p>
+      </div>
+
       <div class="info-box">
-        <h3 style="margin-top: 0; color: #2d5016;">🎒 What to Bring</h3>
+        <h3 style="margin-top: 0; color: #2d5016;">🎒 What to Bring Checklist</h3>
         <ul>
           <li>Comfortable clothing and closed-toe shoes</li>
-          <li>Sunscreen and hat</li>
+          <li>Sunscreen (SPF 30+) and insect repellent</li>
+          <li>Hat and sunglasses</li>
           <li>Camera for amazing photos</li>
           <li>Water bottle (we'll provide refills)</li>
+          <li>Light rain jacket (just in case)</li>
+          <li>Any personal medications</li>
           <li>Sense of adventure!</li>
         </ul>
       </div>
-      
+
       <div class="contact-info">
-        <h3 style="margin-top: 0; color: #f5a623;">📞 Contact Information</h3>
+        <h3 style="margin-top: 0; color: #f5a623;">📞 Contact & Emergency Info</h3>
         <p><strong>Phone:</strong> <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a></p>
-        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP}">${COMPANY_WHATSAPP}</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/${COMPANY_WHATSAPP}" style="color: #25d366; font-weight: bold;">${COMPANY_PHONE}</a> (fastest way to reach us)</p>
+        <p><strong>Email:</strong> <a href="mailto:${COMPANY_EMAIL}">${COMPANY_EMAIL}</a></p>
         <p><strong>Website:</strong> <a href="${COMPANY_WEBSITE}">${COMPANY_WEBSITE}</a></p>
-        <p style="margin-top: 15px; font-size: 14px;">Have questions? Feel free to reach out anytime!</p>
+        <p style="margin-top: 15px; font-size: 14px; background: #fff8e1; padding: 10px; border-radius: 6px;">
+          <strong>Need help before or during your tour?</strong><br>
+          WhatsApp us anytime at <a href="https://wa.me/${COMPANY_WHATSAPP}" style="color: #25d366; font-weight: bold;">${COMPANY_PHONE}</a> — we respond quickly!
+        </p>
       </div>
-      
+
       <p>We'll send you a reminder 48 hours before your tour with final details.</p>
       
       <p>Looking forward to your adventure!</p>
@@ -350,12 +402,17 @@ export async function sendBookingReminder(
       <h3>Don't Forget to Bring:</h3>
       <ul>
         <li>Comfortable clothing and closed-toe shoes</li>
-        <li>Sunscreen and hat</li>
+        <li>Sunscreen (SPF 30+) and insect repellent</li>
+        <li>Hat and sunglasses</li>
         <li>Camera</li>
         <li>Water bottle</li>
+        <li>Light rain jacket</li>
       </ul>
+      <p><strong>Meeting Point:</strong> Your hotel lobby (pickup included) or Chiang Mai Old City area.
+        <a href="https://maps.google.com/?q=Chiang+Mai+Thailand" style="color: #1976d2;">View on Google Maps</a>
+      </p>
       <p>Questions? Contact us:</p>
-      <p>Phone: <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a> | WhatsApp: <a href="https://wa.me/${COMPANY_WHATSAPP}">${COMPANY_WHATSAPP}</a></p>
+      <p>Phone: <a href="tel:${COMPANY_PHONE}">${COMPANY_PHONE}</a> | WhatsApp: <a href="https://wa.me/${COMPANY_WHATSAPP}" style="color: #25d366; font-weight: bold;">${COMPANY_PHONE}</a> (fastest response)</p>
       <p>See you tomorrow!</p>
       <p><strong>The WIRO 4x4 Team</strong></p>
     </div>

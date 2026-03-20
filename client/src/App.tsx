@@ -27,12 +27,14 @@ const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 const KosherTours = React.lazy(() => import("./pages/KosherTours"));
 const HebrewGuide = React.lazy(() => import("./pages/HebrewGuide"));
 const AccessibleTours = React.lazy(() => import("./pages/AccessibleTours"));
+const Contact = React.lazy(() => import("./pages/Contact"));
 const ToursListing = React.lazy(() => import("./pages/ToursListing"));
 const Packages = React.lazy(() => import("./pages/Packages"));
 const PackageDetail = React.lazy(() => import("./pages/PackageDetail"));
 const Login = React.lazy(() => import("./pages/Login"));
 const Register = React.lazy(() => import("./pages/Register"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
+const FAQ = React.lazy(() => import("./pages/FAQ"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -102,6 +104,8 @@ function Router() {
               <Route path={"/kosher-tours"} component={KosherTours} />
               <Route path={"/hebrew-guide"} component={HebrewGuide} />
               <Route path={"/accessible-tours"} component={AccessibleTours} />
+              <Route path={"/faq"} component={FAQ} />
+              <Route path={"/contact"} component={Contact} />
               <Route path={"/terms"} component={TermsOfService} />
               <Route path={"/privacy"} component={PrivacyPolicy} />
               <Route path={"/login"} component={Login} />

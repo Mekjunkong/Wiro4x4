@@ -16,7 +16,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isAdmin = isAuthenticated && user?.role === "admin";
-  const [currentPath, setLocation] = useLocation();
+  const [currentPath] = useLocation();
 
   const isActive = (path: string) => currentPath === path;
   const isHomePage = currentPath === "/";
@@ -43,23 +43,6 @@ export function Header() {
       return () => document.removeEventListener("click", handleClickOutside);
     }
   }, [mobileMenuOpen]);
-
-  const scrollToSection = (id: string) => {
-    if (currentPath !== "/") {
-      setLocation("/");
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 300);
-    } else {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(prev => !prev);
@@ -135,12 +118,26 @@ export function Header() {
                 {t("Blog", "בלוג")}
               </span>
             </Link>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-            >
-              {t("Contact", "צרו קשר")}
-            </button>
+            <Link href="/faq">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/faq") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/faq")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("FAQ", "שאלות נפוצות")}
+              </span>
+            </Link>
+            <Link href="/contact">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/contact") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/contact")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("Contact", "צרו קשר")}
+              </span>
+            </Link>
             {isAdmin && (
               <Link href="/admin">
                 <span
@@ -241,16 +238,17 @@ export function Header() {
               </span>
             </Link>
             <div className="h-px w-12 bg-accent/30" />
-            <button
-              onClick={() => {
-                scrollToSection("contact");
-                setMobileMenuOpen(false);
-              }}
-              className="py-3 text-center text-2xl font-light hover:text-accent transition-colors touch-manipulation"
-              type="button"
-            >
-              {t("Contact", "צרו קשר")}
-            </button>
+            <Link href="/faq" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
+                {t("FAQ", "שאלות נפוצות")}
+              </span>
+            </Link>
+            <div className="h-px w-12 bg-accent/30" />
+            <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
+                {t("Contact", "צרו קשר")}
+              </span>
+            </Link>
             {isAdmin && (
               <>
                 <div className="h-px w-12 bg-accent/30" />

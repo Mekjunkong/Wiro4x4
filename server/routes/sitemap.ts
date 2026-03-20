@@ -41,6 +41,8 @@ const STATIC_PAGES = [
   { path: "/kosher-tours", priority: "0.9", changefreq: "monthly" },
   { path: "/hebrew-guide", priority: "0.9", changefreq: "monthly" },
   { path: "/accessible-tours", priority: "0.9", changefreq: "monthly" },
+  { path: "/faq", priority: "0.8", changefreq: "monthly" },
+  { path: "/contact", priority: "0.8", changefreq: "monthly" },
   { path: "/terms", priority: "0.3", changefreq: "yearly" },
   { path: "/privacy", priority: "0.3", changefreq: "yearly" },
 ];

@@ -25,6 +25,13 @@ export function ThemeProvider({
     if (switchable) {
       const stored = localStorage.getItem("wiro-theme");
       if (stored === "dark" || stored === "light") return stored;
+      // Respect system preference as default
+      if (
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        return "dark";
+      }
       return defaultTheme;
     }
     return defaultTheme;

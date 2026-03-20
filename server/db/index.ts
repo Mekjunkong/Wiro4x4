@@ -146,6 +146,7 @@ export {
   getAllBlogPosts,
   getBlogPostById,
   getBlogPostBySlug,
+  getPublishedBlogPostBySlug,
   updateBlogPost,
   deleteBlogPost,
   getAllBlogPostsPaginated,

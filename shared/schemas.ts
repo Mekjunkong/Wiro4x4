@@ -138,6 +138,7 @@ export const blogPostInputSchema = z.object({
   category: z.string().optional(),
   tags: z.string().optional(),
   isPublished: z.boolean().optional(),
+  scheduledAt: z.string().optional(), // ISO datetime string for scheduled publishing
   author: z.string().optional(),
 });
 

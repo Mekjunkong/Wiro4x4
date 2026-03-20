@@ -8,7 +8,7 @@ import {
 } from "./_helpers";
 import {
   getAllPublishedBlogPosts,
-  getBlogPostBySlug,
+  getPublishedBlogPostBySlug,
   getAllBlogPosts,
   getAllBlogPostsPaginated,
   createBlogPost,
@@ -29,7 +29,7 @@ export const blogRouter = router({
   getBySlug: securePublicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
-      return await getBlogPostBySlug(input.slug);
+      return await getPublishedBlogPostBySlug(input.slug);
     }),
 
   listAll: secureProtectedProcedure.query(async () => {
@@ -54,10 +54,15 @@ export const blogRouter = router({
     .input(blogPostInputSchema)
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
+      const { scheduledAt, ...rest } = input;
+      let publishedAt: Date | undefined;
+      if (input.isPublished) {
+        publishedAt = scheduledAt ? new Date(scheduledAt) : new Date();
+      }
       await createBlogPost({
-        ...input,
+        ...rest,
         isPublished: input.isPublished ? 1 : 0,
-        publishedAt: input.isPublished ? new Date() : undefined,
+        publishedAt,
       });
       await logAdminAction({
         userId: ctx.user?.id,
@@ -98,8 +103,14 @@ export const blogRouter = router({
       if (input.data.isPublished !== undefined) {
         updateData.isPublished = input.data.isPublished ? 1 : 0;
         if (input.data.isPublished) {
-          updateData.publishedAt = new Date();
+          // Use scheduledAt if provided, otherwise publish now
+          updateData.publishedAt = input.data.scheduledAt
+            ? new Date(input.data.scheduledAt)
+            : new Date();
         }
+      } else if (input.data.scheduledAt !== undefined) {
+        // Allow updating just the scheduled date without changing publish status
+        updateData.publishedAt = new Date(input.data.scheduledAt);
       }
       await updateBlogPost(input.id, updateData as any);
       await logAdminAction({

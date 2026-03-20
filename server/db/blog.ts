@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and, lte } from "drizzle-orm";
 import { desc } from "drizzle-orm";
 import { getDb } from "./connection";
 import { blogPosts, InsertBlogPost } from "../../drizzle/schema";
@@ -15,7 +15,9 @@ export async function getAllPublishedBlogPosts() {
   return await db
     .select()
     .from(blogPosts)
-    .where(eq(blogPosts.isPublished, 1))
+    .where(
+      and(eq(blogPosts.isPublished, 1), lte(blogPosts.publishedAt, sql`NOW()`))
+    )
     .orderBy(desc(blogPosts.publishedAt), desc(blogPosts.createdAt));
 }
 
@@ -43,6 +45,23 @@ export async function getBlogPostBySlug(slug: string) {
     .select()
     .from(blogPosts)
     .where(eq(blogPosts.slug, slug))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPublishedBlogPostBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(
+      and(
+        eq(blogPosts.slug, slug),
+        eq(blogPosts.isPublished, 1),
+        lte(blogPosts.publishedAt, sql`NOW()`)
+      )
+    )
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
