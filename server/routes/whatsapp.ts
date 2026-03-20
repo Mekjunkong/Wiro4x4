@@ -6,6 +6,7 @@
  */
 
 import type { Express } from "express";
+import crypto from "crypto";
 import {
   handleIncomingMessage,
   getVerifyToken,
@@ -13,6 +14,35 @@ import {
 } from "../whatsappService";
 import { updateWhatsAppMessageStatus } from "../db";
 import { checkRateLimit } from "../rateLimit";
+
+/**
+ * Verify the X-Hub-Signature-256 header from Meta's webhook payload.
+ * Returns true if valid or if APP_SECRET is not configured (graceful degradation).
+ */
+function verifyWebhookSignature(
+  rawBody: string | Buffer,
+  signature: string | undefined
+): boolean {
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (!appSecret) {
+    // If no app secret configured, skip verification (dev mode)
+    return true;
+  }
+  if (!signature) {
+    console.warn("[WhatsApp] Missing X-Hub-Signature-256 header");
+    return false;
+  }
+  const expectedSig =
+    "sha256=" +
+    crypto.createHmac("sha256", appSecret).update(rawBody).digest("hex");
+  // Constant-time comparison to prevent timing attacks
+  if (expectedSig.length !== signature.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < expectedSig.length; i++) {
+    mismatch |= expectedSig.charCodeAt(i) ^ signature.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
 
 export function registerWhatsAppWebhookRoute(app: Express) {
   // -----------------------------------------------------------------------
@@ -36,6 +66,16 @@ export function registerWhatsAppWebhookRoute(app: Express) {
   // POST — Incoming messages and status updates
   // -----------------------------------------------------------------------
   app.post("/api/whatsapp/webhook", async (req, res) => {
+    // Verify HMAC signature from Meta
+    const signature = req.headers["x-hub-signature-256"] as string | undefined;
+    const rawBody =
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      console.warn("[WhatsApp] Invalid webhook signature — rejecting");
+      res.sendStatus(403);
+      return;
+    }
+
     // WhatsApp expects a 200 quickly, regardless of processing outcome
     res.sendStatus(200);
 

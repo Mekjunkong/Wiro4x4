@@ -348,7 +348,7 @@ export function GoogleReviewsSection() {
           </div>
         ) : (
           <a
-            href="https://search.google.com/local/reviews?placeid="
+            href="https://search.google.com/local/writereview?placeid=ChIJ_wFoog31dDARWiro4x4"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"

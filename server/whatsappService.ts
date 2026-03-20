@@ -16,8 +16,7 @@ import { createWhatsAppMessage } from "./db";
 function getConfig() {
   const token = process.env.WHATSAPP_API_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const verifyToken =
-    process.env.WHATSAPP_VERIFY_TOKEN || "wiro4x4_webhook_verify";
+  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || "";
   return { token, phoneNumberId, verifyToken };
 }
 
@@ -286,7 +285,11 @@ export async function handleIncomingMessage(
   // 2. Check auto-reply setting (defaults to enabled)
   const { getSetting } = await import("./db");
   const autoReplyEnabled = await getSetting("whatsapp_auto_reply_enabled");
-  if (autoReplyEnabled === false) {
+  if (
+    autoReplyEnabled === false ||
+    autoReplyEnabled === "false" ||
+    autoReplyEnabled === 0
+  ) {
     return;
   }
 

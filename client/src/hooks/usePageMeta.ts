@@ -56,6 +56,7 @@ function setHreflangLink(hreflang: string, href: string) {
     el = document.createElement("link");
     el.setAttribute("rel", "alternate");
     el.setAttribute("hreflang", hreflang);
+    el.setAttribute("data-dynamic-hreflang", "true");
     document.head.appendChild(el);
   }
   el.setAttribute("href", href);
@@ -145,15 +146,25 @@ export function usePageMeta(
         document.head.appendChild(script);
       }
       script.textContent = JSON.stringify(options.jsonLd);
-
-      // Cleanup on unmount
-      return () => {
-        const el = document.getElementById(scriptId);
-        if (el) el.remove();
-      };
     }
 
-    return undefined;
+    // Cleanup on unmount — remove page-specific meta that shouldn't persist
+    return () => {
+      // Remove JSON-LD
+      const jsonLdEl = document.getElementById("page-json-ld");
+      if (jsonLdEl) jsonLdEl.remove();
+
+      // Remove dynamic hreflang links (keep the static ones from index.html)
+      document
+        .querySelectorAll('link[data-dynamic-hreflang="true"]')
+        .forEach(el => el.remove());
+
+      // Reset canonical to homepage
+      const canonicalLink = document.querySelector(
+        'link[rel="canonical"]'
+      ) as HTMLLinkElement | null;
+      if (canonicalLink) canonicalLink.href = SITE_URL + "/";
+    };
   }, [
     options.title,
     options.description,

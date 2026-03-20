@@ -248,11 +248,11 @@ export function PostTourEmailsTab() {
                     <strong>Album:</strong>{" "}
                     {previewData.hasAlbum ? "Yes" : "No"}
                   </div>
-                  <div
-                    className="border rounded-lg overflow-hidden"
-                    dangerouslySetInnerHTML={{
-                      __html: previewData.html,
-                    }}
+                  <iframe
+                    srcDoc={previewData.html}
+                    sandbox=""
+                    className="border rounded-lg overflow-hidden w-full min-h-[500px]"
+                    title="Email preview"
                   />
                 </div>
               ) : (

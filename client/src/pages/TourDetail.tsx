@@ -1184,7 +1184,7 @@ export default function TourDetail() {
         price: String(tour.price),
         priceCurrency: "THB",
         availability: "https://schema.org/InStock",
-        validFrom: "2024-01-01",
+        validFrom: new Date().toISOString().split("T")[0],
         url: tourUrl,
       },
       provider: {
