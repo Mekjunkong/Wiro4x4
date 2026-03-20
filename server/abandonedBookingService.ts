@@ -5,6 +5,7 @@ import {
   COMPANY_WEBSITE,
   EMAIL_SENDERS,
 } from "@shared/const";
+import { escapeHtml } from "@shared/escapeHtml";
 import { captureException } from "./sentry";
 import type { Lead } from "../drizzle/schema";
 
@@ -31,10 +32,10 @@ const SENDER = `${COMPANY_NAME} <${EMAIL_SENDERS.updates}>`;
  * Build a bilingual (EN/HE) recovery email for an abandoned lead.
  */
 function buildRecoveryEmailHtml(lead: Lead): string {
-  const name = lead.name || "Traveler";
+  const name = escapeHtml(lead.name) || "Traveler";
   const inquiryNote =
     lead.message || lead.notes
-      ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${lead.message || lead.notes}"</p>`
+      ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${escapeHtml(lead.message || lead.notes)}"</p>`
       : "";
 
   return `

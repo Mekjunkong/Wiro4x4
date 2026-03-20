@@ -9,6 +9,7 @@ import {
   COMPANY_WHATSAPP,
   COMPANY_WEBSITE,
 } from "@shared/const";
+import { escapeHtml } from "@shared/escapeHtml";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -194,17 +195,17 @@ export async function sendCustomerConfirmation(
     </div>
     
     <div class="content">
-      <p>Dear ${booking.customerName},</p>
-      
+      <p>Dear ${escapeHtml(booking.customerName)},</p>
+
       <p>Thank you for booking with <strong>WIRO 4x4 - Kosher Off-Road Adventures</strong>! We're excited to take you on an unforgettable journey through Northern Thailand.</p>
-      
+
       <div class="booking-details">
         <h2 style="margin-top: 0; color: #2d5016;">📋 Your Booking Details</h2>
         <div class="detail-row">
           <span class="detail-label">Booking ID:</span> ${booking.bookingId}
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tour Type:</span> ${booking.tourType}
+          <span class="detail-label">Tour Type:</span> ${escapeHtml(booking.tourType)}
         </div>
         <div class="detail-row">
           <span class="detail-label">Date:</span> ${new Date(booking.tourDate).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
@@ -213,7 +214,7 @@ export async function sendCustomerConfirmation(
           <span class="detail-label">Group Size:</span> ${booking.groupSize} people
         </div>
         <div class="detail-row">
-          <span class="detail-label">Pickup Location:</span> ${booking.pickupLocation || "To be confirmed"}
+          <span class="detail-label">Pickup Location:</span> ${escapeHtml(booking.pickupLocation) || "To be confirmed"}
         </div>
         <div class="detail-row">
           <span class="detail-label">Pickup Time:</span> ${booking.pickupTime || "08:00 AM"}
@@ -222,7 +223,7 @@ export async function sendCustomerConfirmation(
           booking.specialRequests
             ? `
         <div class="detail-row">
-          <span class="detail-label">Special Requests:</span> ${booking.specialRequests}
+          <span class="detail-label">Special Requests:</span> ${escapeHtml(booking.specialRequests)}
         </div>
         `
             : ""
@@ -390,12 +391,12 @@ export async function sendBookingReminder(
       <p>Get ready for an amazing adventure</p>
     </div>
     <div class="content">
-      <p>Dear ${booking.customerName},</p>
-      <p>This is a friendly reminder that your <strong>${booking.tourType}</strong> with WIRO 4x4 is <strong>tomorrow, ${formattedDate}</strong>!</p>
+      <p>Dear ${escapeHtml(booking.customerName)},</p>
+      <p>This is a friendly reminder that your <strong>${escapeHtml(booking.tourType)}</strong> with WIRO 4x4 is <strong>tomorrow, ${formattedDate}</strong>!</p>
       <div class="info-box">
         <h3 style="margin-top: 0;">Quick Details</h3>
         <p><strong>Pickup Time:</strong> ${booking.pickupTime || "08:00 AM"}</p>
-        <p><strong>Pickup Location:</strong> ${booking.pickupLocation || "To be confirmed"}</p>
+        <p><strong>Pickup Location:</strong> ${escapeHtml(booking.pickupLocation) || "To be confirmed"}</p>
         <p><strong>Group Size:</strong> ${booking.groupSize} people</p>
         <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
       </div>
@@ -504,7 +505,7 @@ export async function sendPaymentConfirmationEmail({
     </div>
 
     <div class="content">
-      <p>Dear ${customerName},</p>
+      <p>Dear ${escapeHtml(customerName)},</p>
 
       <p>We have successfully received your payment. Here are the details:</p>
 
@@ -632,8 +633,8 @@ export async function sendPostTourFeedback(
       <p>We'd love to hear from you!</p>
     </div>
     <div class="content">
-      <p>Dear ${booking.customerName},</p>
-      <p>Thank you for choosing <strong>WIRO 4x4</strong> for your ${booking.tourType} adventure! We hope you had an amazing time exploring Northern Thailand.</p>
+      <p>Dear ${escapeHtml(booking.customerName)},</p>
+      <p>Thank you for choosing <strong>WIRO 4x4</strong> for your ${escapeHtml(booking.tourType)} adventure! We hope you had an amazing time exploring Northern Thailand.</p>
       <p>Your feedback helps us improve and helps other travelers discover our tours. Would you take a moment to share your experience?</p>
       <div style="text-align: center;">
         <a href="${COMPANY_WEBSITE}/reviews" class="cta-button">Leave a Review</a>
@@ -715,10 +716,10 @@ export async function sendBulkEmailToCustomer({
       <p>Kosher Off-Road Adventures</p>
     </div>
     <div class="content">
-      <p>Dear ${customerName},</p>
+      <p>Dear ${escapeHtml(customerName)},</p>
       ${message
         .split("\n")
-        .map(line => `<p>${line}</p>`)
+        .map(line => `<p>${escapeHtml(line)}</p>`)
         .join("")}
       <p style="margin-top: 30px;">
         <strong>The WIRO 4x4 Team</strong><br>

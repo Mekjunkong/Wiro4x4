@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { captureException } from "./sentry";
+import { escapeHtml } from "@shared/escapeHtml";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -79,15 +80,15 @@ export async function sendNewBookingEmail(
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 8px 0; color: #666;">Name:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${data.contactName}</td>
+            <td style="padding: 8px 0; font-weight: bold;">${escapeHtml(data.contactName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #666;">Email:</td>
-            <td style="padding: 8px 0;"><a href="mailto:${data.contactEmail}" style="color: #1a4d2e;">${data.contactEmail}</a></td>
+            <td style="padding: 8px 0;"><a href="mailto:${data.contactEmail}" style="color: #1a4d2e;">${escapeHtml(data.contactEmail)}</a></td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #666;">Phone:</td>
-            <td style="padding: 8px 0;"><a href="tel:${data.contactPhone}" style="color: #1a4d2e;">${data.contactPhone}</a></td>
+            <td style="padding: 8px 0;"><a href="tel:${data.contactPhone}" style="color: #1a4d2e;">${escapeHtml(data.contactPhone)}</a></td>
           </tr>
         </table>
         
@@ -225,11 +226,11 @@ export async function sendBookingStatusEmail(
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 12px 0; color: #666;">Customer:</td>
-            <td style="padding: 12px 0; font-weight: bold;">${customerName}</td>
+            <td style="padding: 12px 0; font-weight: bold;">${escapeHtml(customerName)}</td>
           </tr>
           <tr>
             <td style="padding: 12px 0; color: #666;">Email:</td>
-            <td style="padding: 12px 0;"><a href="mailto:${customerEmail}" style="color: #1a4d2e;">${customerEmail}</a></td>
+            <td style="padding: 12px 0;"><a href="mailto:${encodeURIComponent(customerEmail)}" style="color: #1a4d2e;">${escapeHtml(customerEmail)}</a></td>
           </tr>
           <tr>
             <td style="padding: 12px 0; color: #666;">Previous Status:</td>

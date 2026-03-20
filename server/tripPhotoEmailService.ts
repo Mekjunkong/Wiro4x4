@@ -5,6 +5,7 @@ import {
   COMPANY_WEBSITE,
   COMPANY_NAME,
 } from "../shared/const";
+import { escapeHtml } from "../shared/escapeHtml";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
 let _resend: Resend | null = null;
@@ -53,7 +54,7 @@ export async function sendTripPhotoAlbumEmail(
     ? `
         <div style="background: #f0f7f4; border-left: 4px solid #d4af37; padding: 15px 20px; border-radius: 0 8px 8px 0; margin: 20px 0;">
           <p style="color: #666; font-size: 13px; margin: 0 0 5px 0; font-style: italic;">A personal note from your guide:</p>
-          <p style="color: #333; margin: 0; line-height: 1.6;">${data.personalMessage}</p>
+          <p style="color: #333; margin: 0; line-height: 1.6;">${escapeHtml(data.personalMessage)}</p>
         </div>`
     : "";
 
@@ -66,7 +67,7 @@ export async function sendTripPhotoAlbumEmail(
 
       <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
         <p style="font-size: 16px; color: #333; margin-top: 0;">
-          Hi ${data.customerName},
+          Hi ${escapeHtml(data.customerName)},
         </p>
 
         <p style="color: #555; line-height: 1.6;">
@@ -74,7 +75,7 @@ export async function sendTripPhotoAlbumEmail(
           Click the button below to view and download your photos.
         </p>
 
-        <h2 style="color: #1a4d2e; margin-bottom: 5px;">${data.albumTitle}</h2>
+        <h2 style="color: #1a4d2e; margin-bottom: 5px;">${escapeHtml(data.albumTitle)}</h2>
 
         ${previewSection}
         ${personalMessageSection}

@@ -15,6 +15,7 @@ import {
   COMPANY_WHATSAPP,
   COMPANY_WEBSITE,
 } from "@shared/const";
+import { escapeHtml } from "@shared/escapeHtml";
 import type { Booking } from "../drizzle/schema";
 import {
   getEligiblePostTourBookings,
@@ -45,7 +46,7 @@ export function generatePostTourEmailHtml({
   booking,
   albumToken,
 }: PostTourEmailOptions): string {
-  const customerName = booking.contactName;
+  const customerName = escapeHtml(booking.contactName);
   const tourDate = booking.departureDate
     ? new Date(booking.departureDate).toLocaleDateString("en-US", {
         year: "numeric",
@@ -122,7 +123,7 @@ export function generatePostTourEmailHtml({
     </div>
 
     <div class="content">
-      <p>Dear ${customerName},</p>
+      <p>Dear ${escapeHtml(customerName)},</p>
 
       <p>We hope you had an incredible time on your tour with <strong>WIRO 4x4</strong>${tourDate ? ` on ${tourDate}` : ""}! The mountains, waterfalls, and hidden trails of Northern Thailand are truly special, and we're so glad we got to share them with you.</p>
 
@@ -169,7 +170,7 @@ export function generatePostTourEmailHtml({
       <!-- Hebrew Section -->
       <div dir="rtl" style="text-align:right;">
         <h2 style="color:#2d5016;">?איך היה הטיול 🌿</h2>
-        <p>${customerName} היקר/ה,</p>
+        <p>${escapeHtml(customerName)} היקר/ה,</p>
 
         <p>אנחנו מקווים שנהניתם מהטיול עם <strong>WIRO 4x4</strong>${tourDateHe ? ` ב-${tourDateHe}` : ""}! ההרים, המפלים והשבילים הנסתרים של צפון תאילנד הם באמת מיוחדים, ואנחנו שמחים שזכינו לחלוק אותם איתכם.</p>
 
