@@ -274,5 +274,13 @@ export {
   getAlbumPhotoCount,
 } from "./tripPhotos";
 
+// WhatsApp Messages
+export {
+  createWhatsAppMessage,
+  getAllWhatsAppMessagesPaginated,
+  getWhatsAppMessageStats,
+  updateWhatsAppMessageStatus,
+} from "./whatsapp";
+
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";

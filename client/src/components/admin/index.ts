@@ -12,6 +12,7 @@ export { CRMTab } from "./CRMTab";
 export { AccountingTab } from "./AccountingTab";
 export { UsersTab } from "./UsersTab";
 export { TripPhotosTab } from "./TripPhotosTab";
+export { WhatsAppTab } from "./WhatsAppTab";
 export {
   TableSkeleton,
   CardGridSkeleton,

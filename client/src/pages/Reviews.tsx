@@ -16,6 +16,7 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReviewCardSkeleton } from "@/components/SkeletonLoader";
+import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
 
 const TOUR_TYPES = [
   { id: "waterfall", en: "Waterfall Adventure", he: "טיול מפלים" },
@@ -261,7 +262,18 @@ export default function Reviews() {
           </div>
         </section>
 
+        {/* Google Reviews Section */}
+        <div className="container py-8 md:py-12 border-b border-border">
+          <GoogleReviewsSection />
+        </div>
+
         <div ref={sectionRef} className="container py-8 md:py-12">
+          <h2 className="text-2xl md:text-3xl font-serif font-medium text-center mb-8">
+            {t(
+              "Guest Reviews",
+              "\u05D7\u05D5\u05D5\u05EA \u05D3\u05E2\u05EA \u05E9\u05DC \u05D0\u05D5\u05E8\u05D7\u05D9\u05DD"
+            )}
+          </h2>
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Review Form */}
             <div className="lg:col-span-1">

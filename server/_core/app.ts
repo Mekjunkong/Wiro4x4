@@ -3,6 +3,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerAuthRoutes } from "../routes/authRoutes";
 import { registerRssRoute } from "../routes/rss";
 import { registerSitemapRoute } from "../routes/sitemap";
+import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 
@@ -19,6 +20,7 @@ export function createApp() {
   // RSS feed
   registerRssRoute(app);
   registerSitemapRoute(app);
+  registerWhatsAppWebhookRoute(app);
 
   // tRPC API
   app.use(

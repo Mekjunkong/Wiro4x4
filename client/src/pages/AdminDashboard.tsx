@@ -20,6 +20,7 @@ import {
   Package,
   Receipt,
   ImageIcon,
+  MessageCircle,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -37,6 +38,7 @@ import {
   AccountingTab,
   UsersTab,
   TripPhotosTab,
+  WhatsAppTab,
   DashboardCharts,
   PAGE_SIZE,
 } from "@/components/admin";
@@ -80,6 +82,7 @@ type AdminTabId =
   | "blog"
   | "users"
   | "tripPhotos"
+  | "whatsapp"
   | "abandoned"
   | "settings";
 
@@ -226,6 +229,12 @@ export default function AdminDashboard() {
             },
           ]
         : []),
+      {
+        id: "whatsapp" as const,
+        label: "WhatsApp",
+        icon: MessageCircle,
+        count: undefined,
+      },
       {
         id: "abandoned" as const,
         label: "Abandoned",
@@ -650,6 +659,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="users">
                 <UsersTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "whatsapp" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-whatsapp"
+              aria-labelledby="tab-whatsapp"
+            >
+              <ErrorBoundary level="section" key="whatsapp">
+                <WhatsAppTab />
               </ErrorBoundary>
             </div>
           )}

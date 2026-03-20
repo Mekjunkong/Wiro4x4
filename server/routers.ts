@@ -36,6 +36,8 @@ import { estimateRouter } from "./routes/estimate";
 import { abandonedRouter } from "./routes/abandoned";
 import { availabilityRouter } from "./routes/availability";
 import { tripPhotosRouter } from "./routes/tripPhotos";
+import { googleReviewsRouter } from "./routes/googleReviews";
+import { whatsappAdminRouter } from "./routes/whatsappAdmin";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -74,6 +76,8 @@ export const appRouter = router({
   abandoned: abandonedRouter,
   availability: availabilityRouter,
   tripPhotos: tripPhotosRouter,
+  googleReviews: googleReviewsRouter,
+  whatsapp: whatsappAdminRouter,
 });
 
 export type AppRouter = typeof appRouter;

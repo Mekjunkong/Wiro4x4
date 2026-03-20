@@ -735,3 +735,35 @@ export const tripPhotos = mysqlTable(
 );
 export type TripPhoto = typeof tripPhotos.$inferSelect;
 export type InsertTripPhoto = typeof tripPhotos.$inferInsert;
+
+// WhatsApp Messages Table
+export const whatsappMessages = mysqlTable(
+  "whatsappMessages",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    direction: mysqlEnum("direction", ["incoming", "outgoing"]).notNull(),
+    phoneNumber: varchar("phoneNumber", { length: 50 }).notNull(),
+    customerName: varchar("customerName", { length: 255 }),
+    messageText: text("messageText").notNull(),
+    messageType: mysqlEnum("messageType", [
+      "text",
+      "template",
+      "auto-reply",
+    ]).notNull(),
+    isAutoReply: int("isAutoReply").default(0).notNull(),
+    status: mysqlEnum("status", ["sent", "delivered", "read", "failed"])
+      .default("sent")
+      .notNull(),
+    whatsappMessageId: varchar("whatsappMessageId", { length: 255 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("idx_whatsappMessages_phoneNumber").on(table.phoneNumber),
+    index("idx_whatsappMessages_direction_createdAt").on(
+      table.direction,
+      table.createdAt
+    ),
+  ]
+);
+export type WhatsAppMessage = typeof whatsappMessages.$inferSelect;
+export type InsertWhatsAppMessage = typeof whatsappMessages.$inferInsert;
