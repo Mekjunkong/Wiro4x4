@@ -6,6 +6,7 @@ import {
   securePublicProcedure,
   secureProtectedProcedure,
   checkAdminRateLimit,
+  checkRateLimit,
   logAdminAction,
   captureException,
 } from "./_helpers";
@@ -20,7 +21,10 @@ import {
   deleteGalleryPhoto,
 } from "../db";
 import { storagePut } from "../storage";
-import { paginationInput } from "../../shared/schemas";
+import {
+  paginationInput,
+  userPhotoSubmissionSchema,
+} from "../../shared/schemas";
 
 export const galleryRouter = router({
   list: securePublicProcedure
@@ -260,5 +264,84 @@ export const galleryRouter = router({
         newValue: JSON.stringify({ key: result.key }),
       });
       return { url: result.url, key: result.key };
+    }),
+
+  // Public: user-submitted photo upload
+  submitUserPhoto: securePublicProcedure
+    .input(
+      z.object({
+        metadata: userPhotoSubmissionSchema,
+        filename: z.string(),
+        contentType: z.string(),
+        base64Data: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Rate limit: 5 uploads per hour per IP
+      const ip =
+        ctx.req?.headers?.["x-forwarded-for"]?.toString().split(",")[0] ||
+        ctx.req?.socket?.remoteAddress ||
+        "unknown";
+      const { allowed } = checkRateLimit(`user_photo:${ip}`, 5, 60 * 60 * 1000);
+      if (!allowed) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many photo uploads. Please try again later.",
+        });
+      }
+
+      // Validate file type
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+      if (!ALLOWED_TYPES.includes(input.contentType)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid file type. Allowed: JPG, PNG, WebP",
+        });
+      }
+
+      // Validate file size: max 10MB
+      const fileSize = Buffer.byteLength(input.base64Data, "base64");
+      if (fileSize > 10 * 1024 * 1024) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "File too large. Maximum size is 10MB.",
+        });
+      }
+
+      // Upload to S3
+      const ext =
+        input.contentType.split("/")[1] === "jpeg"
+          ? "jpg"
+          : input.contentType.split("/")[1];
+      const safeFilename = `${randomUUID()}.${ext}`;
+      const key = `gallery/user-submissions/${safeFilename}`;
+
+      const buffer = Buffer.from(input.base64Data, "base64");
+      let result: { key: string; url: string };
+      try {
+        result = await storagePut(key, buffer, input.contentType);
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to upload photo. Please try again.",
+          cause: err,
+        });
+      }
+
+      // Save to DB with isPublished=0 (pending moderation)
+      await createGalleryPhoto({
+        title: input.metadata.title,
+        s3Key: result.key,
+        s3Url: result.url,
+        category: input.metadata.category,
+        isPublished: 0,
+        isUserSubmitted: 1,
+        uploadedBy: input.metadata.name,
+        uploadedByEmail: input.metadata.email,
+        tourDate: input.metadata.tourDate || null,
+      });
+
+      return { success: true };
     }),
 });

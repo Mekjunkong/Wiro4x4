@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import type { Tour } from "../../../../drizzle/schema";
+import { AvailabilityManager } from "./AvailabilityManager";
 
 type TourDifficulty = "easy" | "moderate" | "challenging";
 
@@ -26,6 +27,7 @@ export function ToursTab() {
   const [toursPage, setToursPage] = useState(1);
   const [tourDialogOpen, setTourDialogOpen] = useState(false);
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
+  const [availabilityTour, setAvailabilityTour] = useState<Tour | null>(null);
   const [tourForm, setTourForm] = useState({
     name: "",
     nameHe: "",
@@ -208,6 +210,12 @@ export function ToursTab() {
                     className="px-3 py-1.5 bg-yellow-100 text-yellow-600 rounded text-xs hover:bg-yellow-200 min-h-[36px]"
                   >
                     {tour.isActive === 1 ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    onClick={() => setAvailabilityTour(tour)}
+                    className="px-3 py-1.5 bg-green-100 text-green-600 rounded text-xs hover:bg-green-200 min-h-[36px]"
+                  >
+                    Availability
                   </button>
                   <button
                     onClick={() => {
@@ -622,6 +630,15 @@ export function ToursTab() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Availability Manager Dialog */}
+      {availabilityTour && (
+        <AvailabilityManager
+          tour={availabilityTour}
+          open={!!availabilityTour}
+          onClose={() => setAvailabilityTour(null)}
+        />
+      )}
     </div>
   );
 }

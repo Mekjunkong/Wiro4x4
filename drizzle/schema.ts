@@ -183,6 +183,7 @@ export const leads = mysqlTable(
     convertedToBookingId: int("convertedToBookingId"),
     notes: text("notes"),
     score: int("score").default(0), // Lead score 0-100
+    recoveryEmailSentAt: timestamp("recovery_email_sent_at"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
@@ -241,6 +242,11 @@ export const galleryPhotos = mysqlTable("galleryPhotos", {
   sortOrder: int("sortOrder").default(0),
   isPublished: int("isPublished").default(1).notNull(), // boolean as int
   isFeatured: int("isFeatured").default(0).notNull(), // boolean as int
+  // User-submitted photo fields
+  uploadedBy: varchar("uploaded_by", { length: 255 }),
+  uploadedByEmail: varchar("uploaded_by_email", { length: 255 }),
+  isUserSubmitted: int("is_user_submitted").default(0),
+  tourDate: varchar("tour_date", { length: 50 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -668,3 +674,64 @@ export const inventory = mysqlTable("inventory", {
 });
 export type InventoryItem = typeof inventory.$inferSelect;
 export type InsertInventoryItem = typeof inventory.$inferInsert;
+
+// Tour Availability Table
+export const tourAvailability = mysqlTable(
+  "tourAvailability",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    tourId: int("tourId").notNull(),
+    date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+    maxSlots: int("maxSlots").default(10).notNull(),
+    bookedSlots: int("bookedSlots").default(0).notNull(),
+    isBlocked: int("isBlocked").default(0).notNull(), // boolean as int
+    notes: text("notes"), // e.g., "Shabbat", "Holiday"
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_tourAvailability_tourId_date").on(table.tourId, table.date),
+  ]
+);
+export type TourAvailability = typeof tourAvailability.$inferSelect;
+export type InsertTourAvailability = typeof tourAvailability.$inferInsert;
+
+// Trip Photo Albums Table (private gallery delivery after tours)
+export const tripPhotoAlbums = mysqlTable(
+  "tripPhotoAlbums",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    bookingId: int("bookingId").notNull(),
+    accessToken: varchar("accessToken", { length: 64 }).notNull().unique(),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message"), // personal message from guide
+    isActive: int("isActive").default(1).notNull(),
+    expiresAt: timestamp("expiresAt"), // optional expiry
+    viewCount: int("viewCount").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_tripPhotoAlbums_bookingId").on(table.bookingId),
+    index("idx_tripPhotoAlbums_accessToken").on(table.accessToken),
+  ]
+);
+export type TripPhotoAlbum = typeof tripPhotoAlbums.$inferSelect;
+export type InsertTripPhotoAlbum = typeof tripPhotoAlbums.$inferInsert;
+
+// Trip Photos Table (photos within an album)
+export const tripPhotos = mysqlTable(
+  "tripPhotos",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    albumId: int("albumId").notNull(),
+    s3Key: varchar("s3Key", { length: 512 }).notNull(),
+    s3Url: varchar("s3Url", { length: 1024 }).notNull(),
+    caption: varchar("caption", { length: 500 }),
+    sortOrder: int("sortOrder").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("idx_tripPhotos_albumId").on(table.albumId)]
+);
+export type TripPhoto = typeof tripPhotos.$inferSelect;
+export type InsertTripPhoto = typeof tripPhotos.$inferInsert;

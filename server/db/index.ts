@@ -61,6 +61,8 @@ export {
   getStaleNewLeads,
   getColdContactedLeads,
   getNewLeadCount,
+  getAbandonedLeads,
+  markRecoveryEmailSent,
 } from "./leads";
 
 // Financial Records
@@ -247,6 +249,30 @@ export {
   getInventorySummary,
   getInventoryNeedingMaintenance,
 } from "./inventory";
+
+// Tour Availability
+export {
+  getTourAvailabilityByRange,
+  upsertTourAvailability,
+  bulkUpdateTourAvailability,
+} from "./availability";
+
+// Trip Photo Albums & Photos
+export {
+  createTripPhotoAlbum,
+  getTripPhotoAlbumsByBookingId,
+  getTripPhotoAlbumByToken,
+  getTripPhotoAlbumById,
+  getAllTripPhotoAlbums,
+  updateTripPhotoAlbum,
+  incrementAlbumViewCount,
+  deleteTripPhotoAlbum,
+  createTripPhoto,
+  getTripPhotosByAlbumId,
+  deleteTripPhoto,
+  getTripPhotoById,
+  getAlbumPhotoCount,
+} from "./tripPhotos";
 
 // Pagination helper (for advanced use)
 export { paginatedQuery } from "./pagination";

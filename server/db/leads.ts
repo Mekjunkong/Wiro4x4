@@ -94,6 +94,35 @@ export async function getColdContactedLeads() {
     );
 }
 
+// ─── Abandoned Booking Recovery ──────────────────────────
+
+/**
+ * Find leads with status='new' created more than `hoursAgo` hours ago
+ * that have no matching booking with the same email.
+ */
+export async function getAbandonedLeads(hoursAgo = 24) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(leads)
+    .where(sql`${leads.status} = 'new' AND ${leads.createdAt} < ${cutoff}`)
+    .orderBy(desc(leads.createdAt));
+}
+
+/**
+ * Mark a lead as having received a recovery email.
+ */
+export async function markRecoveryEmailSent(leadId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .update(leads)
+    .set({ recoveryEmailSentAt: new Date() })
+    .where(eq(leads.id, leadId));
+}
+
 export async function updateLeadScore(leadId: number, score: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

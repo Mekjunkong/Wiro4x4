@@ -362,3 +362,34 @@ export const estimateEmailInputSchema = z.object({
 });
 
 export type EstimateEmailInput = z.infer<typeof estimateEmailInputSchema>;
+
+// User photo submission
+export const userPhotoSubmissionSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255)
+    .refine(noHtml, "HTML tags are not allowed"),
+  email: z.string().email("Invalid email"),
+  title: z
+    .string()
+    .min(1, "Caption is required")
+    .max(255)
+    .refine(noHtml, "HTML tags are not allowed"),
+  category: z
+    .enum([
+      "tours",
+      "vehicles",
+      "destinations",
+      "activities",
+      "food",
+      "accommodation",
+      "other",
+    ])
+    .default("other"),
+  tourDate: z.string().max(50).optional(),
+});
+
+export type UserPhotoSubmissionInput = z.infer<
+  typeof userPhotoSubmissionSchema
+>;

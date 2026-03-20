@@ -31,6 +31,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourSocialProof } from "@/components/TourSocialProof";
 import { TourFAQ } from "@/components/TourFAQ";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -1049,6 +1050,7 @@ function getTourEnrichment(slug: string) {
 }
 
 interface NormalizedTour {
+  dbId: number | null; // null for fallback tours
   name: string;
   nameHe: string;
   description: string;
@@ -1085,6 +1087,7 @@ export default function TourDetail() {
   let tour: NormalizedTour | null = null;
   if (dbTour) {
     tour = {
+      dbId: dbTour.id,
       name: dbTour.name,
       nameHe: dbTour.nameHe,
       description: dbTour.description,
@@ -1105,6 +1108,7 @@ export default function TourDetail() {
     };
   } else if (fallback) {
     tour = {
+      dbId: null,
       name: fallback.name,
       nameHe: fallback.nameHe,
       description: fallback.description,
@@ -1427,6 +1431,14 @@ export default function TourDetail() {
                     </div>
                   </div>
                 )}
+
+                {/* Availability Calendar */}
+                <AvailabilityCalendar
+                  tourId={tour.dbId}
+                  tourSlug={slug}
+                  tourName={tour.name}
+                  tourNameHe={tour.nameHe}
+                />
 
                 {/* What to Bring */}
                 {(() => {

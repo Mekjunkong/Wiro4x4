@@ -1,11 +1,163 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Trash2, ArrowRightLeft, Download } from "lucide-react";
+import {
+  Trash2,
+  ArrowRightLeft,
+  Download,
+  Mail,
+  Send,
+  Clock,
+} from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { downloadCSV } from "@/lib/csvExport";
+
+function AbandonedLeadsSection() {
+  const { data: countData, refetch: refetchCount } =
+    trpc.abandoned.count.useQuery();
+  const { data: abandonedLeads, refetch: refetchAbandoned } =
+    trpc.abandoned.list.useQuery({});
+
+  const sendOneMut = trpc.abandoned.sendRecoveryEmail.useMutation({
+    onSuccess: result => {
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+      refetchAbandoned();
+      refetchCount();
+    },
+    onError: error => {
+      toast.error(`Failed: ${error.message}`);
+    },
+  });
+
+  const sendBatchMut = trpc.abandoned.sendBatchRecovery.useMutation({
+    onSuccess: result => {
+      toast.success(
+        `Recovery emails sent: ${result.sent} succeeded, ${result.failed} failed${result.remaining > 0 ? `, ${result.remaining} remaining` : ""}`
+      );
+      refetchAbandoned();
+      refetchCount();
+    },
+    onError: error => {
+      toast.error(`Batch send failed: ${error.message}`);
+    },
+  });
+
+  const unsentCount = countData?.unsent ?? 0;
+  const totalAbandoned = countData?.total ?? 0;
+
+  if (totalAbandoned === 0 && !abandonedLeads?.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-8 border border-amber-200 rounded-lg bg-amber-50/50">
+      <div className="p-4 border-b border-amber-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-5 h-5 text-amber-600" />
+          <h3 className="font-semibold text-amber-800">Abandoned Inquiries</h3>
+          {unsentCount > 0 && (
+            <span className="px-2 py-0.5 bg-amber-200 text-amber-800 rounded-full text-xs font-medium">
+              {unsentCount} unsent
+            </span>
+          )}
+        </div>
+        {unsentCount > 0 && (
+          <button
+            onClick={() => {
+              if (
+                confirm(
+                  `Send recovery emails to up to ${Math.min(unsentCount, 10)} abandoned leads?`
+                )
+              ) {
+                sendBatchMut.mutate();
+              }
+            }}
+            disabled={sendBatchMut.isPending}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+            {sendBatchMut.isPending ? "Sending..." : `Send All (max 10)`}
+          </button>
+        )}
+      </div>
+
+      {abandonedLeads && abandonedLeads.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-amber-200">
+                <th className="text-left py-2 px-4 font-semibold text-amber-800 text-xs">
+                  Name
+                </th>
+                <th className="text-left py-2 px-4 font-semibold text-amber-800 text-xs hidden sm:table-cell">
+                  Email
+                </th>
+                <th className="text-left py-2 px-4 font-semibold text-amber-800 text-xs hidden md:table-cell">
+                  Inquiry Date
+                </th>
+                <th className="text-left py-2 px-4 font-semibold text-amber-800 text-xs hidden lg:table-cell">
+                  Message
+                </th>
+                <th className="text-left py-2 px-4 font-semibold text-amber-800 text-xs">
+                  Recovery
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {abandonedLeads.map(lead => (
+                <tr
+                  key={lead.id}
+                  className="border-b border-amber-100 hover:bg-amber-50"
+                >
+                  <td className="py-2 px-4 text-sm">{lead.name}</td>
+                  <td className="py-2 px-4 text-sm hidden sm:table-cell">
+                    {lead.email}
+                  </td>
+                  <td className="py-2 px-4 text-sm text-muted-foreground hidden md:table-cell">
+                    {lead.createdAt
+                      ? new Date(lead.createdAt).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td className="py-2 px-4 text-sm text-muted-foreground hidden lg:table-cell max-w-[200px] truncate">
+                    {lead.message || lead.notes || "-"}
+                  </td>
+                  <td className="py-2 px-4">
+                    {(lead as any).recoveryEmailSentAt ? (
+                      <span className="flex items-center gap-1 text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full w-fit">
+                        <Mail className="w-3 h-3" />
+                        Sent
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => sendOneMut.mutate({ leadId: lead.id })}
+                        disabled={sendOneMut.isPending}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-amber-100 text-amber-700 rounded text-xs hover:bg-amber-200 transition-colors min-h-[36px] disabled:opacity-50"
+                      >
+                        <Mail className="w-3 h-3" />
+                        <span className="hidden sm:inline">Send Recovery</span>
+                        <span className="sm:hidden">Send</span>
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="p-4 text-center text-sm text-amber-600">
+          No abandoned inquiries found (leads older than 24h with status "new").
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function LeadsTab() {
   const [leadsPage, setLeadsPage] = useState(1);
@@ -292,6 +444,9 @@ export function LeadsTab() {
         total={leadsTotal}
         onPageChange={setLeadsPage}
       />
+
+      {/* Abandoned Booking Recovery Section */}
+      <AbandonedLeadsSection />
     </div>
   );
 }

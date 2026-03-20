@@ -35,6 +35,7 @@ const Login = React.lazy(() => import("./pages/Login"));
 const Register = React.lazy(() => import("./pages/Register"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
+const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -111,6 +112,7 @@ function Router() {
               <Route path={"/login"} component={Login} />
               <Route path={"/register"} component={Register} />
               <Route path={"/forgot-password"} component={ForgotPassword} />
+              <Route path={"/album/:token"} component={TripAlbum} />
               <Route path={"/admin"} component={AdminDashboard} />
               <Route path={"/404"} component={NotFound} />
               {/* Final fallback route */}

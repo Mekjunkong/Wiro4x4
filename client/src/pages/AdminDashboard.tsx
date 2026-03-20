@@ -19,6 +19,7 @@ import {
   Settings,
   Package,
   Receipt,
+  ImageIcon,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -35,6 +36,7 @@ import {
   CRMTab,
   AccountingTab,
   UsersTab,
+  TripPhotosTab,
   DashboardCharts,
   PAGE_SIZE,
 } from "@/components/admin";
@@ -77,6 +79,7 @@ type AdminTabId =
   | "packages"
   | "blog"
   | "users"
+  | "tripPhotos"
   | "abandoned"
   | "settings";
 
@@ -199,6 +202,12 @@ export default function AdminDashboard() {
         label: "Gallery",
         icon: Camera,
         count: galleryTotal,
+      },
+      {
+        id: "tripPhotos" as const,
+        label: "Trip Photos",
+        icon: ImageIcon,
+        count: undefined,
       },
       { id: "blog" as const, label: "Blog", icon: FileText, count: blogTotal },
       {
@@ -601,6 +610,17 @@ export default function AdminDashboard() {
             >
               <ErrorBoundary level="section" key="gallery">
                 <GalleryTab />
+              </ErrorBoundary>
+            </div>
+          )}
+          {activeTab === "tripPhotos" && (
+            <div
+              role="tabpanel"
+              id="tabpanel-tripPhotos"
+              aria-labelledby="tab-tripPhotos"
+            >
+              <ErrorBoundary level="section" key="tripPhotos">
+                <TripPhotosTab />
               </ErrorBoundary>
             </div>
           )}

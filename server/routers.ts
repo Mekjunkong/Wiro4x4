@@ -33,6 +33,9 @@ import { packageRouter } from "./routes/package";
 import { accountingRouter } from "./routes/accounting";
 import { inventoryRouter } from "./routes/inventory";
 import { estimateRouter } from "./routes/estimate";
+import { abandonedRouter } from "./routes/abandoned";
+import { availabilityRouter } from "./routes/availability";
+import { tripPhotosRouter } from "./routes/tripPhotos";
 
 // Side-effects: start background workers
 import { startSessionChecker } from "./stripeSessionChecker";
@@ -68,6 +71,9 @@ export const appRouter = router({
   accounting: accountingRouter,
   inventory: inventoryRouter,
   estimate: estimateRouter,
+  abandoned: abandonedRouter,
+  availability: availabilityRouter,
+  tripPhotos: tripPhotosRouter,
 });
 
 export type AppRouter = typeof appRouter;

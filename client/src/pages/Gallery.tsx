@@ -6,7 +6,16 @@ import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Upload,
+  ChevronDown,
+  ChevronUp,
+  Check,
+} from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -14,6 +23,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { toast } from "sonner";
 
 const CATEGORIES = [
   { id: "all", en: "All", he: "\u05D4\u05DB\u05DC" },
@@ -546,6 +556,9 @@ export default function Gallery() {
           )}
         </div>
 
+        {/* Share Your Photos Section */}
+        <UserPhotoUploadSection />
+
         {/* Lightbox Dialog */}
         <Dialog
           open={lightboxIndex !== null}
@@ -649,4 +662,429 @@ export default function Gallery() {
       <Footer />
     </div>
   );
+}
+
+// ── User Photo Upload Section ────────────────────────────────────────
+
+type UploadCategory =
+  | "tours"
+  | "vehicles"
+  | "destinations"
+  | "activities"
+  | "food"
+  | "accommodation"
+  | "other";
+
+const MAX_FILES = 5;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function UserPhotoUploadSection() {
+  const { t, language } = useLanguage();
+  const isHebrew = language === "he";
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    title: "",
+    tourDate: "",
+    category: "tours" as UploadCategory,
+  });
+
+  const submitMutation = trpc.gallery.submitUserPhoto.useMutation();
+
+  // Generate previews when files change
+  useEffect(() => {
+    const urls = selectedFiles.map(f => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => urls.forEach(u => URL.revokeObjectURL(u));
+  }, [selectedFiles]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const valid: File[] = [];
+    const errors: string[] = [];
+
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        errors.push(`${file.name}: Only JPG, PNG, WebP allowed`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name}: File too large (max 10MB)`);
+        continue;
+      }
+      valid.push(file);
+    }
+
+    const total = selectedFiles.length + valid.length;
+    if (total > MAX_FILES) {
+      errors.push(
+        t(
+          `Maximum ${MAX_FILES} photos allowed`,
+          `\u05DE\u05E7\u05E1\u05D9\u05DE\u05D5\u05DD ${MAX_FILES} \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA`
+        )
+      );
+      valid.splice(MAX_FILES - selectedFiles.length);
+    }
+
+    if (errors.length > 0) {
+      toast.error(errors.join("\n"));
+    }
+    if (valid.length > 0) {
+      setSelectedFiles(prev => [...prev, ...valid]);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (
+      !form.name ||
+      !form.email ||
+      !form.title ||
+      selectedFiles.length === 0
+    ) {
+      toast.error(
+        t(
+          "Please fill in all required fields and select at least one photo.",
+          "\u05D0\u05E0\u05D0 \u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E9\u05D3\u05D5\u05EA \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05D5\u05D1\u05D7\u05E8 \u05DC\u05E4\u05D7\u05D5\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05D0\u05D7\u05EA."
+        )
+      );
+      return;
+    }
+    if (!agreedTerms) {
+      toast.error(
+        t(
+          "Please agree to the terms.",
+          "\u05D0\u05E0\u05D0 \u05D4\u05E1\u05DB\u05DD \u05DC\u05EA\u05E0\u05D0\u05D9\u05DD."
+        )
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      for (const file of selectedFiles) {
+        const base64 = await fileToBase64(file);
+        await submitMutation.mutateAsync({
+          metadata: {
+            name: form.name,
+            email: form.email,
+            title: form.title,
+            category: form.category,
+            tourDate: form.tourDate || undefined,
+          },
+          filename: file.name,
+          contentType: file.type,
+          base64Data: base64,
+        });
+      }
+      setSubmitted(true);
+      toast.success(
+        t(
+          "Photos submitted successfully!",
+          "\u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!"
+        )
+      );
+    } catch (err: any) {
+      const message =
+        err?.message ||
+        t(
+          "Failed to upload photos.",
+          "\u05D4\u05E2\u05DC\u05D0\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E0\u05DB\u05E9\u05DC\u05D4."
+        );
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <section className="container py-12">
+        <div className="max-w-2xl mx-auto text-center bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-8">
+          <Check className="w-12 h-12 text-green-600 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2 text-green-800 dark:text-green-200">
+            {t("Thank You!", "\u05EA\u05D5\u05D3\u05D4 \u05E8\u05D1\u05D4!")}
+          </h3>
+          <p className="text-green-700 dark:text-green-300">
+            {t(
+              "Your photos will be reviewed and added to our gallery.",
+              "\u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E9\u05DC\u05DA \u05D9\u05D9\u05D1\u05D3\u05E7\u05D5 \u05D5\u05D9\u05EA\u05D5\u05D5\u05E1\u05E4\u05D5 \u05DC\u05D2\u05DC\u05E8\u05D9\u05D4 \u05E9\u05DC\u05E0\u05D5."
+            )}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="container py-12">
+      <div className="max-w-2xl mx-auto">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between bg-card border border-border rounded-lg p-4 hover:border-accent/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Upload className="w-5 h-5 text-accent" />
+            <span className="font-semibold">
+              {t(
+                "Share Your Photos",
+                "\u05E9\u05EA\u05E4\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E9\u05DC\u05DB\u05DD"
+              )}
+            </span>
+          </div>
+          {isOpen ? (
+            <ChevronUp className="w-5 h-5 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          )}
+        </button>
+
+        {isOpen && (
+          <div className="mt-4 bg-card border border-border rounded-lg p-6 space-y-5">
+            <p className="text-sm text-muted-foreground">
+              {t(
+                "Been on a WIRO 4x4 adventure? Share your best photos with us! Photos will be reviewed before appearing in the gallery.",
+                "\u05D4\u05D9\u05D9\u05EA\u05DD \u05D1\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05E2\u05DD WIRO 4x4? \u05E9\u05EA\u05E4\u05D5 \u05D0\u05D9\u05EA\u05E0\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05D4\u05DB\u05D9 \u05D8\u05D5\u05D1\u05D5\u05EA \u05E9\u05DC\u05DB\u05DD! \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05D9\u05D9\u05D1\u05D3\u05E7\u05D5 \u05DC\u05E4\u05E0\u05D9 \u05E4\u05E8\u05E1\u05D5\u05DD \u05D1\u05D2\u05DC\u05E8\u05D9\u05D4."
+              )}
+            </p>
+
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("Name", "\u05E9\u05DD")} *
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                placeholder={t(
+                  "Your name",
+                  "\u05D4\u05E9\u05DD \u05E9\u05DC\u05DA"
+                )}
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("Email", "\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC")} *
+              </label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                placeholder="your@email.com"
+              />
+            </div>
+
+            {/* Caption / Title */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("Caption", "\u05DB\u05D9\u05EA\u05D5\u05D1")} *
+              </label>
+              <input
+                type="text"
+                value={form.title}
+                onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                placeholder={t(
+                  "Describe your photo",
+                  "\u05EA\u05D0\u05E8 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4"
+                )}
+              />
+            </div>
+
+            {/* Tour Date (optional) */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t(
+                  "Tour Date",
+                  "\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D8\u05D9\u05D5\u05DC"
+                )}{" "}
+                (
+                {t(
+                  "optional",
+                  "\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9"
+                )}
+                )
+              </label>
+              <input
+                type="date"
+                value={form.tourDate}
+                onChange={e =>
+                  setForm(p => ({ ...p, tourDate: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("Category", "\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4")}
+              </label>
+              <select
+                value={form.category}
+                onChange={e =>
+                  setForm(p => ({
+                    ...p,
+                    category: e.target.value as UploadCategory,
+                  }))
+                }
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+              >
+                {CATEGORIES.filter(c => c.id !== "all").map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {isHebrew ? cat.he : cat.en}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* File Upload */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("Photos", "\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA")} * (
+                {t(
+                  `max ${MAX_FILES}`,
+                  `\u05DE\u05E7\u05E1\u05D9\u05DE\u05D5\u05DD ${MAX_FILES}`
+                )}
+                )
+              </label>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-accent/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
+              >
+                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    "Click to select photos",
+                    "\u05DC\u05D7\u05E5 \u05DC\u05D1\u05D7\u05D9\u05E8\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  JPG, PNG, WebP &middot;{" "}
+                  {t(
+                    "Max 10MB each",
+                    "\u05DE\u05E7\u05E1 10MB \u05DC\u05EA\u05DE\u05D5\u05E0\u05D4"
+                  )}
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+              />
+
+              {/* Preview thumbnails */}
+              {previews.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-3">
+                  {previews.map((url, i) => (
+                    <div key={i} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Preview ${i + 1}`}
+                        className="w-20 h-20 object-cover rounded border border-border"
+                      />
+                      <button
+                        onClick={() => removeFile(i)}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label={t(
+                          "Remove photo",
+                          "\u05D4\u05E1\u05E8 \u05EA\u05DE\u05D5\u05E0\u05D4"
+                        )}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Terms checkbox */}
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                id="photo-terms"
+                checked={agreedTerms}
+                onChange={e => setAgreedTerms(e.target.checked)}
+                className="w-4 h-4 mt-0.5"
+              />
+              <label
+                htmlFor="photo-terms"
+                className="text-sm text-muted-foreground"
+              >
+                {t(
+                  "I agree that my photos can be used on the WIRO 4x4 website and social media.",
+                  "\u05D0\u05E0\u05D9 \u05DE\u05E1\u05DB\u05D9\u05DD \u05E9\u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E9\u05DC\u05D9 \u05D9\u05D5\u05DB\u05DC\u05D5 \u05DC\u05D4\u05D5\u05E4\u05D9\u05E2 \u05D1\u05D0\u05EA\u05E8 WIRO 4x4 \u05D5\u05D1\u05E8\u05E9\u05EA\u05D5\u05EA \u05D4\u05D7\u05D1\u05E8\u05EA\u05D9\u05D5\u05EA."
+                )}
+              </label>
+            </div>
+
+            {/* Submit */}
+            <button
+              onClick={handleSubmit}
+              disabled={
+                isSubmitting || selectedFiles.length === 0 || !agreedTerms
+              }
+              className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-lg font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-accent-foreground border-t-transparent rounded-full animate-spin" />
+                  {t("Uploading...", "\u05DE\u05E2\u05DC\u05D4...")}
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4" />
+                  {t(
+                    "Submit Photos",
+                    "\u05E9\u05DC\u05D7 \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
+                  )}
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }

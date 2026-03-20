@@ -7,6 +7,10 @@ import {
   payments,
   chatSessions,
   chatMessages,
+  tours,
+  tourAvailability,
+  tripPhotoAlbums,
+  tripPhotos,
 } from "./schema";
 
 export const bookingsRelations = relations(bookings, ({ one, many }) => ({
@@ -54,5 +58,37 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   session: one(chatSessions, {
     fields: [chatMessages.sessionId],
     references: [chatSessions.id],
+  }),
+}));
+
+export const toursRelations = relations(tours, ({ many }) => ({
+  availability: many(tourAvailability),
+}));
+
+export const tourAvailabilityRelations = relations(
+  tourAvailability,
+  ({ one }) => ({
+    tour: one(tours, {
+      fields: [tourAvailability.tourId],
+      references: [tours.id],
+    }),
+  })
+);
+
+export const tripPhotoAlbumsRelations = relations(
+  tripPhotoAlbums,
+  ({ one, many }) => ({
+    booking: one(bookings, {
+      fields: [tripPhotoAlbums.bookingId],
+      references: [bookings.id],
+    }),
+    photos: many(tripPhotos),
+  })
+);
+
+export const tripPhotosRelations = relations(tripPhotos, ({ one }) => ({
+  album: one(tripPhotoAlbums, {
+    fields: [tripPhotos.albumId],
+    references: [tripPhotoAlbums.id],
   }),
 }));

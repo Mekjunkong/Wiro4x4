@@ -88,6 +88,16 @@ export function Header() {
                 {t("Tours", "טיולים")}
               </span>
             </Link>
+            <Link href="/packages">
+              <span
+                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/packages") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                {...(isActive("/packages")
+                  ? { "aria-current": "page" as const }
+                  : {})}
+              >
+                {t("Packages", "חבילות")}
+              </span>
+            </Link>
             <Link href="/pricing">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
@@ -217,6 +227,12 @@ export function Header() {
             <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Tours", "טיולים")}
+              </span>
+            </Link>
+            <div className="h-px w-12 bg-accent/30" />
+            <Link href="/packages" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
+                {t("Packages", "חבילות")}
               </span>
             </Link>
             <div className="h-px w-12 bg-accent/30" />
