@@ -112,10 +112,10 @@
     <link rel="apple-touch-icon" href="/images/icon-192.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#1C1C1C" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="WIRO 4x4" />
-    <title>%VITE_APP_TITLE%</title>
+    <title>WIRO 4x4 | Kosher Off-Road Adventures in Chiang Mai</title>
 
     <!-- Prevent flash of wrong theme by applying dark class before paint -->
     <script>
@@ -161,10 +161,23 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Analytics: only loads when VITE_ANALYTICS_ENDPOINT is configured -->
+    <script id="analytics-config" data-endpoint="%VITE_ANALYTICS_ENDPOINT%" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <script>
+      (function() {
+        var cfg = document.getElementById('analytics-config');
+        if (!cfg) return;
+        var ep = cfg.getAttribute('data-endpoint') || '';
+        var wid = cfg.getAttribute('data-website-id') || '';
+        if (ep && ep.indexOf('%') === -1 && wid && wid.indexOf('%') === -1) {
+          var s = document.createElement('script');
+          s.defer = true;
+          s.src = ep + '/umami';
+          s.setAttribute('data-website-id', wid);
+          document.body.appendChild(s);
+        }
+      })();
+    </script>
   </body>
 
 </html>
