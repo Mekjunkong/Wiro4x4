@@ -12,7 +12,6 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="WIRO 4x4 - Premium kosher off-road tours in Chiang Mai, Northern Thailand. Hebrew-speaking guides, Shabbat-friendly scheduling, and authentic 4x4 adventures." />
-    <meta name="keywords" content="Chiang Mai tours, kosher tours Thailand, 4x4 tours, off-road Chiang Mai, Israeli travelers, Hebrew guide, Shabbat tours, Northern Thailand adventures" />
     <meta name="author" content="WIRO 4x4" />
     
     <!-- Open Graph / Facebook -->
@@ -140,7 +139,6 @@
     
     <!-- Preload critical hero image (LCP optimization) -->
     <link rel="preload" as="image" href="/images/optimized/hero-wiro.webp" type="image/webp" />
-    <link rel="preload" as="image" href="/images/optimized/hero-wiro.jpg" type="image/jpeg" />
     
     <!-- Base fonts (always loaded) — Oswald for headings, Source Sans 3 for body -->
     <link
@@ -161,23 +159,7 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Analytics: only loads when VITE_ANALYTICS_ENDPOINT is configured -->
-    <script id="analytics-config" data-endpoint="%VITE_ANALYTICS_ENDPOINT%" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
-    <script>
-      (function() {
-        var cfg = document.getElementById('analytics-config');
-        if (!cfg) return;
-        var ep = cfg.getAttribute('data-endpoint') || '';
-        var wid = cfg.getAttribute('data-website-id') || '';
-        if (ep && ep.indexOf('%') === -1 && wid && wid.indexOf('%') === -1) {
-          var s = document.createElement('script');
-          s.defer = true;
-          s.src = ep + '/umami';
-          s.setAttribute('data-website-id', wid);
-          document.body.appendChild(s);
-        }
-      })();
-    </script>
+    <!-- Analytics: loaded from React app when env vars are configured -->
   </body>
 
 </html>

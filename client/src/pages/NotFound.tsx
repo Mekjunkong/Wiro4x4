@@ -3,12 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export default function NotFound() {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
+  usePageMeta("Page Not Found");
 
   const handleGoHome = () => {
     setLocation("/");

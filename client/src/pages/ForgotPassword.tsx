@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function ForgotPassword() {
+  usePageMeta("Forgot Password");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);

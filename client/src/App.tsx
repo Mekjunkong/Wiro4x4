@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -41,7 +40,13 @@ const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
 function ScrollToTop() {
   const [location] = useLocation();
   React.useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReduced ? "instant" : "smooth",
+    });
     try {
       const views =
         Number(sessionStorage.getItem("wiro_page_views") || "0") + 1;
@@ -63,9 +68,6 @@ function LoadingSpinner() {
 
 function Router() {
   const [location] = useLocation();
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   React.useEffect(() => {
     captureUtmParams();
@@ -75,51 +77,39 @@ function Router() {
     <>
       <ScrollToTop />
       <React.Suspense fallback={<LoadingSpinner />}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location}
-            initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-            exit={prefersReducedMotion ? {} : { opacity: 0, y: -10 }}
-            transition={
-              prefersReducedMotion
-                ? { duration: 0 }
-                : { duration: 0.3, ease: "easeInOut" }
-            }
-          >
-            <Switch>
-              <Route path={"/"} component={Home} />
-              <Route path={"/pricing"} component={Pricing} />
-              <Route path={"/estimate"} component={Estimate} />
-              <Route path={"/tours"} component={ToursListing} />
-              <Route path={"/tours/:slug"} component={TourDetail} />
-              <Route path={"/packages"} component={Packages} />
-              <Route path={"/packages/:slug"} component={PackageDetail} />
-              <Route path={"/blog"} component={Blog} />
-              <Route path={"/blog/:id"} component={BlogPost} />
-              <Route path={"/gallery"} component={Gallery} />
-              <Route path={"/reviews"} component={Reviews} />
-              <Route path={"/book"} component={BookingForm} />
-              <Route path={"/booking/success"} component={BookingSuccess} />
-              <Route path={"/booking/cancel"} component={BookingCancel} />
-              <Route path={"/kosher-tours"} component={KosherTours} />
-              <Route path={"/hebrew-guide"} component={HebrewGuide} />
-              <Route path={"/accessible-tours"} component={AccessibleTours} />
-              <Route path={"/faq"} component={FAQ} />
-              <Route path={"/contact"} component={Contact} />
-              <Route path={"/terms"} component={TermsOfService} />
-              <Route path={"/privacy"} component={PrivacyPolicy} />
-              <Route path={"/login"} component={Login} />
-              <Route path={"/register"} component={Register} />
-              <Route path={"/forgot-password"} component={ForgotPassword} />
-              <Route path={"/album/:token"} component={TripAlbum} />
-              <Route path={"/admin"} component={AdminDashboard} />
-              <Route path={"/404"} component={NotFound} />
-              {/* Final fallback route */}
-              <Route component={NotFound} />
-            </Switch>
-          </motion.div>
-        </AnimatePresence>
+        <div key={location} className="animate-page-enter">
+          <Switch>
+            <Route path={"/"} component={Home} />
+            <Route path={"/pricing"} component={Pricing} />
+            <Route path={"/estimate"} component={Estimate} />
+            <Route path={"/tours"} component={ToursListing} />
+            <Route path={"/tours/:slug"} component={TourDetail} />
+            <Route path={"/packages"} component={Packages} />
+            <Route path={"/packages/:slug"} component={PackageDetail} />
+            <Route path={"/blog"} component={Blog} />
+            <Route path={"/blog/:slug"} component={BlogPost} />
+            <Route path={"/gallery"} component={Gallery} />
+            <Route path={"/reviews"} component={Reviews} />
+            <Route path={"/book"} component={BookingForm} />
+            <Route path={"/booking/success"} component={BookingSuccess} />
+            <Route path={"/booking/cancel"} component={BookingCancel} />
+            <Route path={"/kosher-tours"} component={KosherTours} />
+            <Route path={"/hebrew-guide"} component={HebrewGuide} />
+            <Route path={"/accessible-tours"} component={AccessibleTours} />
+            <Route path={"/faq"} component={FAQ} />
+            <Route path={"/contact"} component={Contact} />
+            <Route path={"/terms"} component={TermsOfService} />
+            <Route path={"/privacy"} component={PrivacyPolicy} />
+            <Route path={"/login"} component={Login} />
+            <Route path={"/register"} component={Register} />
+            <Route path={"/forgot-password"} component={ForgotPassword} />
+            <Route path={"/album/:token"} component={TripAlbum} />
+            <Route path={"/admin"} component={AdminDashboard} />
+            <Route path={"/404"} component={NotFound} />
+            {/* Final fallback route */}
+            <Route component={NotFound} />
+          </Switch>
+        </div>
       </React.Suspense>
     </>
   );

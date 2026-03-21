@@ -377,7 +377,10 @@ export default function Gallery() {
             />
             <img
               src="/images/optimized/forest_waterfall_pool.jpg"
-              alt="Northern Thailand jungle waterfall"
+              alt={t(
+                "Northern Thailand jungle waterfall",
+                "מפל ג'ונגל בצפון תאילנד"
+              )}
               className="absolute inset-0 w-full h-full object-cover"
               loading="eager"
               fetchPriority="high"

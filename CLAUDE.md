@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - **Auth:** Session-based authentication
 - **AI:** Anthropic Claude API via `@anthropic-ai/sdk` (lazy init — no crash without API key)
 - **Email:** Resend (lazy init, verified domain: `wiro4x4indochina.com`)
-- **Testing:** Vitest (155 tests across 30 files)
+- **Testing:** Vitest (237 tests across 44 files)
 - **Hosting:** Vercel (auto-deploy on push to `main`)
 
 ## Development Commands
@@ -28,7 +28,7 @@ pnpm install
 # Start development server (frontend + backend)
 pnpm dev
 
-# Run tests (155 tests: 125 pass locally, 30 DB-dependent skipped)
+# Run tests (237 tests: 237 pass locally, 36 DB-dependent skipped)
 pnpm test
 
 # Type check
@@ -98,12 +98,12 @@ pnpm format
 │   │   ├── main.tsx             # Entry point with providers
 │   │   └── index.css            # Global styles + Tailwind
 │   ├── public/
-│   │   ├── robots.txt           # SEO crawl rules
-│   │   └── sitemap.xml          # SEO sitemap
+│   │   └── robots.txt           # SEO crawl rules (sitemap is dynamic via /sitemap.xml)
 │   └── index.html               # HTML template (OG tags, JSON-LD, RSS autodiscovery)
 ├── server/                      # Backend Node.js application
 │   ├── _core/                   # Framework core (DO NOT EDIT)
 │   ├── routers.ts               # tRPC API routes — imports shared schemas
+│   ├── seoMiddleware.ts         # Server-side meta tag injection for crawlers
 │   ├── db.ts                    # Database query helpers (50+ functions)
 │   ├── storage.ts               # S3 file storage helpers
 │   ├── emailService.ts          # Notification emails
@@ -232,7 +232,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 - **Emails:** 3-layer system (notification email + Resend email + Customer confirmation with ICS)
 - **Email domain:** `wiro4x4indochina.com` verified on Resend (Tokyo/ap-northeast-1). All outbound emails use this domain.
 
-### 3. Admin Panel (6 tabs)
+### 3. Admin Panel (9 tabs)
 
 - **URL:** `/admin` (requires authentication)
 - **Tabs:** Bookings, Calendar, Agents, Leads, Financial, Tours, Gallery, Blog, Reviews
@@ -365,7 +365,7 @@ All `listPaginated` procedures accept `{ page: number, pageSize: number }` and r
 
 ## Testing
 
-**Framework:** Vitest | **131 total tests** | **21 test files**
+**Framework:** Vitest | **237 total tests** | **44 test files**
 
 ```bash
 pnpm test          # Run all tests
@@ -417,6 +417,7 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 ### Frequently Modified:
 
 - `server/routers.ts` - API endpoints (imports schemas from `shared/schemas.ts`)
+- `server/seoMiddleware.ts` - SEO meta tags for crawlers (update when adding pages)
 - `server/db.ts` - Database query helpers (50+ functions)
 - `drizzle/schema.ts` - Database tables (11 tables)
 - `client/src/pages/AdminDashboard.tsx` - Admin panel (6 tabs)
@@ -429,11 +430,6 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 - `client/src/const.ts` - Constants (WhatsApp, logos)
 - `shared/schemas.ts` - Shared Zod validation schemas
 - `shared/pricing.ts` - Pure pricing calculation functions
-
-### Stale Root-Level Copies (keep in sync):
-
-- `components/Tours.tsx` and `components/DestinationShowcase.tsx` are root-level copies of `client/src/components/` files
-- When editing `client/src/components/Tours.tsx` or `DestinationShowcase.tsx`, also sync the root copies
 
 ### DO NOT EDIT:
 
@@ -481,13 +477,15 @@ export const WHATSAPP_NUMBER = "+66929894495";
 ### Add New Page:
 
 1. Create `client/src/pages/NewPage.tsx`
-2. Add route in `client/src/App.tsx`:
+2. Add `usePageMeta({ title, description, canonicalPath })` in the page component
+3. Add route in `client/src/App.tsx`:
 
 ```typescript
 <Route path="/new-page" component={NewPage} />
 ```
 
-3. Add to `client/public/sitemap.xml`
+4. Add meta to `STATIC_ROUTES` in `server/seoMiddleware.ts` (for crawler SEO)
+5. Add to `STATIC_PAGES` in `server/routes/sitemap.ts` (for sitemap XML)
 
 ### Seed Blog Articles:
 
@@ -513,8 +511,9 @@ All colors use CSS custom properties in `client/src/index.css` with Tailwind the
 
 ```css
 :root {
-  --primary: 142 76% 36%; /* Forest green */
-  --secondary: 43 74% 66%; /* Gold */
+  --primary: #1c1c1c; /* Charcoal */
+  --secondary: #d4af37; /* Gold */
+  --accent-cta: #b8960f; /* CTA gold (darker for WCAG contrast) */
 }
 ```
 
@@ -556,7 +555,21 @@ Vercel automatically builds and deploys the site at https://www.wiro4x4indochina
 
 - `useScrollReveal` hook (`client/src/hooks/useScrollReveal.ts`) — used in 15+ components, uses IntersectionObserver + CSS (GSAP removed)
 - Hero animations use CSS `@keyframes heroReveal` in `index.css` with `animation-delay` for stagger
-- `framer-motion` is only used in `App.tsx` for route transitions
+- Route transitions use CSS `@keyframes pageEnter` in `index.css` (framer-motion was removed)
+- `@media (prefers-reduced-motion: reduce)` disables page-enter and respects `ScrollToTop`
+
+### SEO Middleware
+
+- `server/seoMiddleware.ts` injects route-specific `<title>`, meta description, OG tags, Twitter cards, canonical URL, and JSON-LD into the SPA HTML server-side for crawlers
+- Registered in both `server/vercel-entry.ts` and `server/index.ts` — BEFORE the `_core` catch-all handler
+- Static routes have hardcoded meta; dynamic routes (`/tours/:slug`, `/blog/:slug`) query the DB
+- When adding new public pages, add their meta to `STATIC_ROUTES` in `seoMiddleware.ts`
+
+### Build & Bundle
+
+- `vite.config.ts` esbuild `pure` strips `console.log/warn/debug` in production — `console.error` is preserved
+- `lucide-react` is NOT in `manualChunks` — Vite tree-shakes it into consuming chunks
+- Do NOT remove `openai` from dependencies — `server/_core/llm.ts` imports it
 
 ## Troubleshooting
 
@@ -632,7 +645,7 @@ pnpm db:push  # Sync database schema
 | Type check        | `npx tsc --noEmit`                                         |
 | Update database   | `pnpm db:push`                                             |
 | Add API endpoint  | `shared/schemas.ts` + `server/db.ts` + `server/routers.ts` |
-| Add page          | Create in `client/src/pages/` + add route in `App.tsx`     |
+| Add page          | `pages/` + `App.tsx` + `seoMiddleware.ts` + `sitemap.ts`   |
 | Add test          | Create `server/*.test.ts` using `test-helpers.ts`          |
 | Update styles     | Edit `client/src/index.css` or use Tailwind classes        |
 | Change WhatsApp   | Edit `client/src/const.ts`                                 |
@@ -649,7 +662,7 @@ pnpm db:push  # Sync database schema
 
 ---
 
-**Last Updated:** 2026-03-18
-**Version:** 3.2
+**Last Updated:** 2026-03-21
+**Version:** 3.3
 **Platform:** Vercel
-**Test Coverage:** 235 tests (39 files) — 199 pass locally, 36 DB-dependent skipped
+**Test Coverage:** 237 tests (44 files) — 237 pass locally, 36 DB-dependent skipped

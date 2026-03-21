@@ -81,11 +81,23 @@ createRoot(document.getElementById("root")!).render(
   </trpc.Provider>
 );
 
+// Load Umami analytics when env vars are configured
+if (
+  import.meta.env.VITE_ANALYTICS_ENDPOINT &&
+  import.meta.env.VITE_ANALYTICS_WEBSITE_ID
+) {
+  const s = document.createElement("script");
+  s.defer = true;
+  s.src = `${import.meta.env.VITE_ANALYTICS_ENDPOINT}/umami`;
+  s.dataset.websiteId = import.meta.env.VITE_ANALYTICS_WEBSITE_ID;
+  document.body.appendChild(s);
+}
+
 // Register service worker for PWA support
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(err => {
-      console.warn("[SW] Registration failed:", err);
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // SW registration failed — non-critical
     });
   });
 }

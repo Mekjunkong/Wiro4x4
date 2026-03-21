@@ -36,6 +36,14 @@ export default defineConfig({
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
+  esbuild: {
+    // Strip console.log/warn/debug in production builds (keep console.error)
+    pure:
+      process.env.NODE_ENV === "production"
+        ? ["console.log", "console.warn", "console.debug"]
+        : [],
+    drop: process.env.NODE_ENV === "production" ? ["debugger"] : [],
+  },
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
@@ -59,10 +67,6 @@ export default defineConfig({
             "@radix-ui/react-label",
             "@radix-ui/react-checkbox",
           ],
-          // Animation
-          animation: ["framer-motion"],
-          // Icons
-          icons: ["lucide-react"],
           // Utilities
           utils: ["clsx", "tailwind-merge", "date-fns"],
         },

@@ -21,8 +21,8 @@ import {
 export default function BlogPost() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
-  const [, params] = useRoute("/blog/:id");
-  const postId = params?.id;
+  const [, params] = useRoute("/blog/:slug");
+  const postId = params?.slug;
 
   // Try to fetch from DB by slug
   const { data: dbPost } = trpc.blog.getBySlug.useQuery(
