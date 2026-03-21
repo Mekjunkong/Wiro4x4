@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Plus, Pencil, Trash2, X, Loader2 } from "lucide-react";
+import {
+  Download,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
-import { downloadCSV } from "@/lib/csvExport";
+import { exportToCsv, todayStamp, fmtDate } from "@/lib/csvExport";
 
 interface RecordFormData {
   bookingId: number;
@@ -151,18 +159,50 @@ export function FinancialTab() {
     }
   }
 
-  const handleExportCSV = () => {
-    if (!financials?.length) return;
-    const data = financials.map(r => ({
-      date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "",
-      type: r.type,
-      category: r.category,
-      amount: r.amount,
-      currency: r.currency,
-      description: r.description ?? "",
-    }));
-    downloadCSV(data, "financial-records.csv");
-    toast.success("CSV exported successfully!");
+  const [isExporting, setIsExporting] = useState(false);
+  const allFinancialsQuery = trpc.financial.listAll.useQuery(undefined, {
+    enabled: false,
+  });
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data: allRecords } = await allFinancialsQuery.refetch();
+      if (!allRecords?.length) {
+        toast.error("No financial records to export");
+        return;
+      }
+      const headers = [
+        "ID",
+        "Type",
+        "Amount",
+        "Currency",
+        "Category",
+        "Description",
+        "Booking ID",
+        "Payment Method",
+        "Notes",
+        "Created At",
+      ];
+      const rows = allRecords.map(r => [
+        r.id,
+        r.type ?? "",
+        r.amount ?? "",
+        r.currency ?? "",
+        r.category ?? "",
+        r.description ?? "",
+        r.bookingId ?? "",
+        r.paymentMethod ?? "",
+        r.notes ?? "",
+        fmtDate(r.createdAt),
+      ]);
+      exportToCsv(`wiro-financial-${todayStamp()}.csv`, headers, rows);
+      toast.success("CSV exported successfully!");
+    } catch {
+      toast.error("Failed to export financial records");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const isSaving = createMut.isPending || updateMut.isPending;
@@ -180,10 +220,15 @@ export function FinancialTab() {
         </button>
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm"
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm disabled:opacity-50"
         >
-          <Download className="w-4 h-4" />
-          Export CSV
+          {isExporting ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
+          {isExporting ? "Exporting..." : "Export CSV"}
         </button>
       </div>
 

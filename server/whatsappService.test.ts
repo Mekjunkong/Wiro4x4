@@ -25,7 +25,7 @@ describe("WhatsApp Service", () => {
     expect(result).toBeNull();
   });
 
-  it("returns default verify token when env var is not set", () => {
-    expect(getVerifyToken()).toBe("wiro4x4_webhook_verify");
+  it("returns empty verify token when env var is not set", () => {
+    expect(getVerifyToken()).toBe("");
   });
 });

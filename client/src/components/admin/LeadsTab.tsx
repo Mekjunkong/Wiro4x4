@@ -17,7 +17,7 @@ import {
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
-import { downloadCSV } from "@/lib/csvExport";
+import { exportToCsv, todayStamp, fmtDate } from "@/lib/csvExport";
 
 // ── Score tier helpers ──────────────────────────────────
 
@@ -381,19 +381,46 @@ export function LeadsTab() {
     }
   };
 
-  const handleExportCSV = () => {
-    if (!leads?.length) return;
-    const data = leads.map(l => ({
-      name: l.name,
-      email: l.email,
-      phone: l.phone ?? "",
-      source: l.source ?? "",
-      score: l.score ?? 0,
-      status: l.status,
-      createdAt: l.createdAt ? new Date(l.createdAt).toLocaleDateString() : "",
-    }));
-    downloadCSV(data, "leads.csv");
-    toast.success("CSV exported successfully!");
+  const [isExporting, setIsExporting] = useState(false);
+  const allLeadsQuery = trpc.lead.list.useQuery(undefined, { enabled: false });
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data: allLeads } = await allLeadsQuery.refetch();
+      if (!allLeads?.length) {
+        toast.error("No leads to export");
+        return;
+      }
+      const headers = [
+        "ID",
+        "Name",
+        "Email",
+        "Phone",
+        "Source",
+        "Status",
+        "Score",
+        "Message",
+        "Created At",
+      ];
+      const rows = allLeads.map(l => [
+        l.id,
+        l.name ?? "",
+        l.email ?? "",
+        l.phone ?? "",
+        l.source ?? "",
+        l.status ?? "",
+        l.score ?? 0,
+        l.message ?? "",
+        fmtDate(l.createdAt),
+      ]);
+      exportToCsv(`wiro-leads-${todayStamp()}.csv`, headers, rows);
+      toast.success("CSV exported successfully!");
+    } catch {
+      toast.error("Failed to export leads");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -413,10 +440,15 @@ export function LeadsTab() {
 
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm"
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm disabled:opacity-50"
         >
-          <Download className="w-4 h-4" />
-          Export CSV
+          {isExporting ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
+          {isExporting ? "Exporting..." : "Export CSV"}
         </button>
 
         <div className="ml-auto flex items-center gap-2">

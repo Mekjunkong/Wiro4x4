@@ -25,7 +25,7 @@ import { InlineStatusDropdown } from "./InlineStatusDropdown";
 import { BulkEmailDialog } from "./BulkEmailDialog";
 import { Pagination } from "./Pagination";
 import { PaymentSection } from "./PaymentSection";
-import { downloadCSV } from "@/lib/csvExport";
+import { exportToCsv, todayStamp, fmtDate } from "@/lib/csvExport";
 import { TableSkeleton } from "./AdminSkeleton";
 
 function getWhatsAppUrl(booking: {
@@ -197,24 +197,54 @@ export function BookingsTab() {
     }
   };
 
-  const handleExportCSV = () => {
-    if (!filteredBookings.length) return;
-    const data = filteredBookings.map(b => ({
-      contactName: b.contactName,
-      contactEmail: b.contactEmail,
-      contactPhone: b.contactPhone,
-      arrivalDate: b.arrivalDate
-        ? new Date(b.arrivalDate).toLocaleDateString()
-        : "",
-      departureDate: b.departureDate
-        ? new Date(b.departureDate).toLocaleDateString()
-        : "",
-      numberOfAdults: b.numberOfAdults,
-      status: b.status,
-      assignedAgentId: b.assignedAgentId ?? "",
-    }));
-    downloadCSV(data, "bookings.csv");
-    toast.success("CSV exported successfully!");
+  const [isExporting, setIsExporting] = useState(false);
+  const allBookingsQuery = trpc.booking.list.useQuery(undefined, {
+    enabled: false,
+  });
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data: allBookings } = await allBookingsQuery.refetch();
+      if (!allBookings?.length) {
+        toast.error("No bookings to export");
+        return;
+      }
+      const headers = [
+        "ID",
+        "Name",
+        "Email",
+        "Phone",
+        "Start Date",
+        "End Date",
+        "Status",
+        "Adults",
+        "Children",
+        "Special Requests",
+        "Budget",
+        "Created At",
+      ];
+      const rows = allBookings.map(b => [
+        b.id,
+        b.contactName ?? "",
+        b.contactEmail ?? "",
+        b.contactPhone ?? "",
+        fmtDate(b.arrivalDate),
+        fmtDate(b.departureDate),
+        b.status ?? "",
+        b.numberOfAdults ?? "",
+        b.numberOfChildren ?? "",
+        b.specialRequests ?? "",
+        b.budget ?? "",
+        fmtDate(b.createdAt),
+      ]);
+      exportToCsv(`wiro-bookings-${todayStamp()}.csv`, headers, rows);
+      toast.success("CSV exported successfully!");
+    } catch {
+      toast.error("Failed to export bookings");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -249,10 +279,15 @@ export function BookingsTab() {
         </select>
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors disabled:opacity-50"
         >
-          <Download className="w-4 h-4" />
-          Export CSV
+          {isExporting ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
+          {isExporting ? "Exporting..." : "Export CSV"}
         </button>
         <button
           onClick={() => refetchBookings()}
