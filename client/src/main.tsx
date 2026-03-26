@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { inject } from "@vercel/analytics";
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,6 +20,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     replaysOnErrorSampleRate: 0,
   });
 }
+
+// Vercel Analytics
+inject();
 
 const queryClient = new QueryClient({
   defaultOptions: {
