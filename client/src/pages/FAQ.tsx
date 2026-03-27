@@ -7,6 +7,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   Accordion,
   AccordionContent,
@@ -229,22 +230,16 @@ export default function FAQ() {
       <main id="main-content">
         {/* Hero Banner */}
         <section className="relative h-[50vh] min-h-[320px] max-h-[500px] mt-20 overflow-hidden">
-          <picture>
-            <source
-              srcSet="/images/optimized/wiro_crew_team.webp"
-              type="image/webp"
-            />
-            <img
-              src="/images/optimized/wiro_crew_team.jpg"
-              alt={t(
-                "WIRO 4x4 team ready for adventure",
-                "צוות WIRO 4x4 מוכן להרפתקה"
-              )}
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </picture>
+          <OptimizedImage
+            src="wiro_crew_team"
+            alt={t(
+              "WIRO 4x4 team ready for adventure",
+              "צוות WIRO 4x4 מוכן להרפתקה"
+            )}
+            className="absolute inset-0 w-full h-full object-cover"
+            sizes="100vw"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <HelpCircle className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />

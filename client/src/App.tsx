@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
+import { ChatWidget } from "./components/ChatWidget";
 import { captureUtmParams } from "@/lib/utm";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
@@ -143,6 +144,7 @@ function AppContent() {
         <Router />
       </ErrorBoundary>
       <CookieConsent />
+      <ChatWidget />
     </TooltipProvider>
   );
 }

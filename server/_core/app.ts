@@ -5,6 +5,7 @@ import { registerRssRoute } from "../routes/rss";
 import { registerSitemapRoute } from "../routes/sitemap";
 import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
 import { registerAgentApiRoutes } from "../routes/agentApi";
+import { registerChatApiRoute } from "../routes/chatApi";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 
@@ -23,6 +24,9 @@ export function createApp() {
   registerSitemapRoute(app);
   registerWhatsAppWebhookRoute(app);
   registerAgentApiRoutes(app);
+
+  // AI Chat API
+  registerChatApiRoute(app);
 
   // tRPC API
   app.use(

@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
@@ -135,13 +136,15 @@ export default function AccessibleTours() {
       <main id="main-content">
         {/* Hero */}
         <section className="relative min-h-[50vh] overflow-hidden">
-          <img
-            src="/images/optimized/chiang_mai_valley.jpg"
+          <OptimizedImage
+            src="chiang_mai_valley"
             alt={t(
               "Accessible off-road tour vehicle overlooking Chiang Mai valley",
               "רכב טיול נגיש משקיף על עמק צ'יאנג מאי"
             )}
             className="w-full h-full absolute inset-0 object-cover"
+            sizes="100vw"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">

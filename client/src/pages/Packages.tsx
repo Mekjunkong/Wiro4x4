@@ -20,6 +20,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { WHATSAPP_NUMBER } from "@/const";
@@ -490,22 +491,16 @@ export default function Packages() {
       <main id="main-content" className="flex-1">
         {/* ── Hero Banner ──────────────────────────────────── */}
         <section className="relative h-64 md:h-80 overflow-hidden">
-          <picture>
-            <source
-              srcSet="/images/optimized/wiro_fleet_lineup.webp"
-              type="image/webp"
-            />
-            <img
-              src="/images/optimized/wiro_fleet_lineup.jpg"
-              alt={t(
-                "WIRO 4x4 fleet of off-road vehicles",
-                "צי רכבי השטח של WIRO 4x4"
-              )}
-              className="w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </picture>
+          <OptimizedImage
+            src="wiro_fleet_lineup"
+            alt={t(
+              "WIRO 4x4 fleet of off-road vehicles",
+              "צי רכבי השטח של WIRO 4x4"
+            )}
+            className="w-full h-full object-cover"
+            sizes="100vw"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8">
             <Breadcrumb

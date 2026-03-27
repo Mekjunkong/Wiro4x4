@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
@@ -166,13 +167,15 @@ export default function KosherTours() {
       <main id="main-content">
         {/* Hero Section */}
         <section className="relative min-h-[50vh] overflow-hidden">
-          <img
-            src="/images/optimized/mountain_sunset.jpg"
+          <OptimizedImage
+            src="mountain_sunset"
             alt={t(
               "Kosher off-road tour in Chiang Mai mountains with WIRO 4x4",
               "טיול שטח כשר בהרי צ'יאנג מאי עם WIRO 4x4"
             )}
             className="w-full h-full absolute inset-0 object-cover"
+            sizes="100vw"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">

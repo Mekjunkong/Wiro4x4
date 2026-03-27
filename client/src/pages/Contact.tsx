@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { GoldDivider } from "@/components/GoldDivider";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -159,22 +160,13 @@ export default function Contact() {
       <main id="main-content">
         {/* Hero Banner */}
         <section className="relative h-[50vh] min-h-[320px] max-h-[500px] mt-20 overflow-hidden">
-          <picture>
-            <source
-              srcSet="/images/optimized/wiro_with_colleague.webp"
-              type="image/webp"
-            />
-            <img
-              src="/images/optimized/wiro_with_colleague.jpg"
-              alt={t(
-                "WIRO 4x4 team in Chiang Mai",
-                "צוות WIRO 4x4 בצ'יאנג מאי"
-              )}
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </picture>
+          <OptimizedImage
+            src="wiro_with_colleague"
+            alt={t("WIRO 4x4 team in Chiang Mai", "צוות WIRO 4x4 בצ'יאנג מאי")}
+            className="absolute inset-0 w-full h-full object-cover"
+            sizes="100vw"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <Mail className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />

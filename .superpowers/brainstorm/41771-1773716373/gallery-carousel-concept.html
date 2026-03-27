@@ -1,0 +1,88 @@
+<h2>Gallery Page: Featured Carousel + Grid</h2>
+<p class="subtitle">Hero carousel showcases best photos, grid below for browsing by category</p>
+
+<div class="mockup">
+  <div class="mockup-header">Gallery Page Layout</div>
+  <div class="mockup-body" style="padding: 0; background: #faf7f2;">
+
+    <!-- Hero Carousel Section -->
+    <div style="background: #1c1c1c; padding: 20px; position: relative; overflow: hidden;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center;">
+        <!-- Prev arrow -->
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer;">&lt;</div>
+
+        <!-- Carousel slides -->
+        <div style="display: flex; gap: 8px; overflow: hidden; max-width: 600px;">
+          <div style="min-width: 180px; height: 120px; border-radius: 4px; background: linear-gradient(135deg, #2d5a27, #4a8c3f); display: flex; align-items: flex-end; padding: 8px;">
+            <span style="color: white; font-size: 11px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">Doi Inthanon Summit</span>
+          </div>
+          <div style="min-width: 280px; height: 140px; border-radius: 4px; background: linear-gradient(135deg, #1a6b8a, #2d9ab7); display: flex; align-items: flex-end; padding: 10px; transform: scale(1.05); box-shadow: 0 4px 20px rgba(212,175,55,0.3); border: 2px solid #d4af37;">
+            <span style="color: white; font-size: 13px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">Sticky Waterfalls Adventure</span>
+          </div>
+          <div style="min-width: 180px; height: 120px; border-radius: 4px; background: linear-gradient(135deg, #8B6914, #c49b2a); display: flex; align-items: flex-end; padding: 8px;">
+            <span style="color: white; font-size: 11px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">Mae Kampong Village</span>
+          </div>
+        </div>
+
+        <!-- Next arrow -->
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer;">&gt;</div>
+      </div>
+
+      <!-- Dots -->
+      <div style="display: flex; gap: 6px; justify-content: center; margin-top: 12px;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: #d4af37;"></div>
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+      </div>
+
+      <p style="color: rgba(255,255,255,0.5); text-align: center; font-size: 11px; margin-top: 8px; letter-spacing: 0.1em; text-transform: uppercase;">Featured Photos</p>
+    </div>
+
+    <!-- Category Filters -->
+    <div style="padding: 16px 20px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+      <span style="background: #d4af37; color: #1c1c1c; padding: 4px 14px; border-radius: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">All (48)</span>
+      <span style="border: 1px solid rgba(212,175,55,0.5); color: #d4af37; padding: 4px 14px; border-radius: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Tours</span>
+      <span style="border: 1px solid rgba(212,175,55,0.5); color: #d4af37; padding: 4px 14px; border-radius: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Vehicles</span>
+      <span style="border: 1px solid rgba(212,175,55,0.5); color: #d4af37; padding: 4px 14px; border-radius: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Destinations</span>
+      <span style="border: 1px solid rgba(212,175,55,0.5); color: #d4af37; padding: 4px 14px; border-radius: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Food</span>
+    </div>
+
+    <!-- Photo Grid -->
+    <div style="padding: 0 20px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #3a7d44, #5ba868);"></div>
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #2d6a8f, #4a9bc4);"></div>
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #8B6914, #c49b2a);"></div>
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #6b4423, #9b7043);"></div>
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #2d5a27, #4a8c3f);"></div>
+      <div style="aspect-ratio: 4/3; border-radius: 4px; background: linear-gradient(135deg, #1a6b8a, #2d9ab7);"></div>
+    </div>
+
+  </div>
+</div>
+
+<h3 style="margin-top: 24px;">Carousel Behavior</h3>
+<div class="options">
+  <div class="option" data-choice="autoplay" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Autoplay + Manual</h3>
+      <p>Auto-advances every 5s, pauses on hover. Arrows + swipe + dots for manual control. Like your existing Hero carousel.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="manual" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Manual Only</h3>
+      <p>User-driven with arrows, swipe, and dots. No auto-advance. Better for intentional browsing.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="peek" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Peek Carousel (Recommended)</h3>
+      <p>Shows current photo large + peek of prev/next on sides. Swipe to advance. Click to open lightbox. Most modern feel.</p>
+    </div>
+  </div>
+</div>
