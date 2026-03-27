@@ -87,7 +87,10 @@ agentApi.get("/finance/summary", async (_req: Request, res: Response) => {
     const revenue = await getRevenueByMonth();
     res.json({ revenue });
   } catch (_e) {
-    res.status(500).json({ error: "Failed to fetch finance data" });
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res
+      .status(500)
+      .json({ error: "Failed to fetch finance data", detail: msg });
   }
 });
 
