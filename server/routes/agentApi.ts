@@ -16,11 +16,11 @@ const agentApi = Router();
 // Auth middleware: require AGENT_API_KEY
 agentApi.use((req: Request, res: Response, next: NextFunction) => {
   const key = req.headers["x-agent-key"];
-  if (!process.env.AGENT_API_KEY) {
+  if (!process.env.WIRO_AGENT_KEY) {
     res.status(503).json({ error: "Agent API not configured" });
     return;
   }
-  if (key !== process.env.AGENT_API_KEY) {
+  if (key !== process.env.WIRO_AGENT_KEY) {
     res.status(401).json({ error: "Invalid agent API key" });
     return;
   }
