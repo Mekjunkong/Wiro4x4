@@ -8,8 +8,8 @@ import {
   getTopTours,
   getRecentActivity,
 } from "../db/analytics";
-import { bookings } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { bookings, whatsappMessages } from "../../drizzle/schema";
+import { eq, desc, and, gte } from "drizzle-orm";
 
 const agentApi = Router();
 
@@ -101,6 +101,40 @@ agentApi.get("/activity/recent", async (_req: Request, res: Response) => {
     res.json({ activity });
   } catch (_e) {
     res.status(500).json({ error: "Failed to fetch activity" });
+  }
+});
+
+// Recent WhatsApp messages (for Closer agent)
+agentApi.get("/whatsapp/recent", async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    if (!db) {
+      res.json({ count: 0, messages: [] });
+      return;
+    }
+
+    const hours = parseInt(req.query.hours as string) || 24;
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+    // Query recent incoming WhatsApp messages
+    const messages = await db
+      .select()
+      .from(whatsappMessages)
+      .where(
+        and(
+          eq(whatsappMessages.direction, "incoming"),
+          gte(whatsappMessages.createdAt, since)
+        )
+      )
+      .orderBy(desc(whatsappMessages.createdAt))
+      .limit(20);
+
+    res.json({ count: messages.length, messages });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res
+      .status(500)
+      .json({ error: "Failed to fetch WhatsApp messages", detail: msg });
   }
 });
 
