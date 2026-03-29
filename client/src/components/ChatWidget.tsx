@@ -1,85 +1,64 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, Globe } from "lucide-react";
+import { MessageCircle, X, Send } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 
-type ChatLanguage = "en" | "he" | "th";
-
 interface ChatMessage {
-  role: "user" | "assistant";
+  role: "user" | "ai";
   content: string;
 }
 
-interface ChatResponse {
-  reply: string;
-  language: ChatLanguage;
-  escalate: boolean;
-}
-
-const TRANSLATIONS = {
-  en: {
-    chatTitle: "WIRO 4x4 Assistant",
-    placeholder: "Ask about our tours...",
-    greeting:
-      "Hi! 👋 I'm the WIRO 4x4 assistant. I can help you with information about our off-road tours in Chiang Mai, kosher arrangements, and more. How can I help you today?",
-    sendError: "Sorry, something went wrong. Please try again.",
-    typing: "Typing...",
-    languageLabel: "Language",
-  },
-  he: {
-    chatTitle: "עוזר WIRO 4x4",
-    placeholder: "שאלו על הטיולים שלנו...",
-    greeting:
-      "שלום! 👋 אני העוזר של WIRO 4x4. אני יכול לעזור לכם עם מידע על טיולי השטח שלנו בצ'יאנג מאי, הסדרי כשרות ועוד. איך אני יכול לעזור לכם היום?",
-    sendError: "מצטער, משהו השתבש. אנא נסו שוב.",
-    typing: "מקליד...",
-    languageLabel: "שפה",
-  },
-  th: {
-    chatTitle: "ผู้ช่วย WIRO 4x4",
-    placeholder: "สอบถามเกี่ยวกับทัวร์ของเรา...",
-    greeting:
-      "สวัสดีครับ! 👋 ผมคือผู้ช่วยของ WIRO 4x4 ผมสามารถช่วยให้ข้อมูลเกี่ยวกับทัวร์ออฟโรดในเชียงใหม่ การจัดเตรียมอาหารโคเชอร์ และอื่นๆ วันนี้ช่วยอะไรได้บ้างครับ?",
-    sendError: "ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-    typing: "กำลังพิมพ์...",
-    languageLabel: "ภาษา",
-  },
-};
-
-function detectBrowserLanguage(): ChatLanguage {
-  if (typeof navigator === "undefined") return "en";
-
-  const lang =
-    navigator.language ||
-    (navigator as unknown as { userLanguage?: string }).userLanguage ||
-    "";
-  const langCode = lang.toLowerCase().slice(0, 2);
-
-  if (langCode === "he" || langCode === "iw") return "he";
-  if (langCode === "th") return "th";
-  return "en";
+// Generate or retrieve visitor ID from localStorage
+function getVisitorId(): string {
+  const STORAGE_KEY = "wiro_chat_visitor_id";
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return stored;
+    const newId = Date.now().toString(36) + Math.random().toString(36);
+    localStorage.setItem(STORAGE_KEY, newId);
+    return newId;
+  } catch {
+    // localStorage unavailable
+    return Date.now().toString(36) + Math.random().toString(36);
+  }
 }
 
 export function ChatWidget() {
+  const { language: appLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [language, setLanguage] = useState<ChatLanguage>(() =>
-    detectBrowserLanguage()
-  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [chatLanguage, setChatLanguage] = useState<"en" | "he">(appLanguage);
+  const [visitorId] = useState(getVisitorId);
+  const [_sessionId, setSessionId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const t = TRANSLATIONS[language];
-  const isRtl = language === "he";
+  const isRtl = chatLanguage === "he";
 
-  // Initialize with greeting when opened for the first time
+  // Welcome messages
+  const welcomeMessage =
+    chatLanguage === "en"
+      ? "Hi! I am Wiro 🤙 Ask me anything about our 4x4 tours, kosher options, or how to book!"
+      : "שלום! אני וירו 🤙 שאל אותי כל דבר על הסיורים שלנו, אפשרויות כשרות, או איך להזמין!";
+
+  const errorMessage =
+    chatLanguage === "en"
+      ? `Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}`
+      : `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`;
+
+  // Sync chat language with app language
+  useEffect(() => {
+    setChatLanguage(appLanguage);
+  }, [appLanguage]);
+
+  // Add welcome message when opened for the first time
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([{ role: "assistant", content: t.greeting }]);
+      setMessages([{ role: "ai", content: welcomeMessage }]);
     }
-  }, [isOpen, messages.length, t.greeting]);
+  }, [isOpen, messages.length, welcomeMessage]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -102,13 +81,13 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          visitorId,
           message: userMessage,
-          language,
-          history: messages.slice(-10), // Send last 10 messages for context
+          language: chatLanguage,
         }),
       });
 
@@ -116,214 +95,160 @@ export function ChatWidget() {
         throw new Error("Chat request failed");
       }
 
-      const data: ChatResponse = await response.json();
+      const data = (await response.json()) as {
+        reply: string;
+        sessionId: number;
+      };
 
-      setMessages(prev => [
-        ...prev,
-        { role: "assistant", content: data.reply },
-      ]);
-
-      // If escalation is suggested, update the language if server detected different
-      if (data.language !== language) {
-        setLanguage(data.language);
-      }
+      setSessionId(data.sessionId);
+      setMessages(prev => [...prev, { role: "ai", content: data.reply }]);
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [
-        ...prev,
-        { role: "assistant", content: t.sendError },
-      ]);
+      setMessages(prev => [...prev, { role: "ai", content: errorMessage }]);
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, language, messages, t.sendError]);
+  }, [input, isLoading, visitorId, chatLanguage, errorMessage]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !isLoading) {
       e.preventDefault();
       void sendMessage();
     }
   };
 
-  const handleWhatsAppEscalate = () => {
-    const message = encodeURIComponent(
-      language === "he"
-        ? "שלום, דיברתי עם הבוט ואשמח לפרטים נוספים על הטיולים"
-        : language === "th"
-          ? "สวัสดีครับ ผมคุยกับบอทแล้ว อยากทราบข้อมูลเพิ่มเติมเกี่ยวกับทัวร์"
-          : "Hi, I was chatting with your bot and would like more information about tours"
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+  const toggleLanguage = () => {
+    const newLang = chatLanguage === "en" ? "he" : "en";
+    setChatLanguage(newLang);
+    // Update welcome message if no conversation yet
+    if (messages.length <= 1) {
+      const newWelcome =
+        newLang === "en"
+          ? "Hi! I am Wiro 🤙 Ask me anything about our 4x4 tours, kosher options, or how to book!"
+          : "שלום! אני וירו 🤙 שאל אותי כל דבר על הסיורים שלנו, אפשרויות כשרות, או איך להזמין!";
+      setMessages([{ role: "ai", content: newWelcome }]);
+    }
   };
 
   return (
     <>
-      {/* Chat Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed z-[9998] rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-          isOpen
-            ? "bg-gray-600 hover:bg-gray-700 bottom-[420px] md:bottom-[520px]"
-            : "bg-[#f97316] hover:bg-[#ea580c] bottom-4 md:bottom-6"
-        } ${isRtl ? "left-4 md:left-6" : "right-20 md:right-24"}`}
-        style={{ zIndex: 9998 }}
-        aria-label={isOpen ? "Close chat" : "Open chat"}
-        aria-expanded={isOpen}
-      >
-        {isOpen ? (
-          <X className="h-6 w-6 text-white" />
-        ) : (
-          <MessageCircle className="h-6 w-6 text-white" />
-        )}
-      </button>
+      {/* Chat Button (closed state) */}
+      {!isOpen && (
+        <div className="fixed bottom-36 right-4 z-50 flex flex-col items-center gap-2">
+          {/* Tooltip label */}
+          <span className="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded shadow-md">
+            {t("Ask Wiro", "שאל את וירו")}
+          </span>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="w-14 h-14 bg-secondary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+            aria-label={t("Open chat", "פתח צ'אט")}
+          >
+            <MessageCircle className="h-6 w-6 text-white" />
+          </button>
+        </div>
+      )}
 
-      {/* Chat Window */}
+      {/* Chat Panel (open state) */}
       {isOpen && (
         <div
-          className={`fixed z-[9997] bg-white dark:bg-gray-900 rounded-lg shadow-2xl flex flex-col overflow-hidden ${
-            isRtl ? "left-4 md:left-6" : "right-4 md:right-6"
-          }`}
-          style={{
-            bottom: "80px",
-            width: "min(360px, calc(100vw - 32px))",
-            height: "min(500px, calc(100vh - 120px))",
-            zIndex: 9997,
-          }}
+          className="fixed bottom-36 right-4 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden"
           dir={isRtl ? "rtl" : "ltr"}
         >
           {/* Header */}
-          <div className="bg-[#f97316] text-white px-4 py-3 flex items-center justify-between">
+          <div className="h-12 bg-secondary/10 rounded-t-2xl px-3 flex items-center justify-between">
+            <span className="font-semibold text-gray-800 flex items-center gap-1">
+              🌿 {t("Wiro Assistant", "עוזר וירו")}
+            </span>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <MessageCircle className="h-4 w-4" />
-              </div>
-              <span className="font-semibold">{t.chatTitle}</span>
-            </div>
-
-            {/* Language Selector */}
-            <div className="relative">
+              {/* Language toggle */}
               <button
-                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/20 transition-colors"
-                aria-label={t.languageLabel}
+                onClick={toggleLanguage}
+                className="text-xs font-medium px-2 py-1 rounded hover:bg-secondary/20 transition-colors"
+                aria-label={t("Toggle language", "החלף שפה")}
               >
-                <Globe className="h-4 w-4" />
-                <span className="text-sm uppercase">{language}</span>
+                {chatLanguage === "en" ? "עב" : "EN"}
               </button>
-
-              {showLanguageMenu && (
-                <div
-                  className={`absolute top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${
-                    isRtl ? "left-0" : "right-0"
-                  }`}
-                >
-                  {(["en", "he", "th"] as ChatLanguage[]).map(lang => (
-                    <button
-                      key={lang}
-                      onClick={() => {
-                        setLanguage(lang);
-                        setShowLanguageMenu(false);
-                        // Update greeting if no conversation yet
-                        if (messages.length <= 1) {
-                          setMessages([
-                            {
-                              role: "assistant",
-                              content: TRANSLATIONS[lang].greeting,
-                            },
-                          ]);
-                        }
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                        language === lang
-                          ? "bg-gray-100 dark:bg-gray-700 font-medium"
-                          : ""
-                      } text-gray-900 dark:text-gray-100`}
-                    >
-                      {lang === "en"
-                        ? "English"
-                        : lang === "he"
-                          ? "עברית"
-                          : "ไทย"}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* Close button */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded hover:bg-secondary/20 transition-colors"
+                aria-label={t("Close chat", "סגור צ'אט")}
+              >
+                <X className="h-4 w-4 text-gray-600" />
+              </button>
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* Messages area */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${msg.role === "user" ? (isRtl ? "justify-start" : "justify-end") : isRtl ? "justify-end" : "justify-start"}`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div
-                  className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
+                <span
+                  className={`px-3 py-2 text-sm max-w-[75%] ${
                     msg.role === "user"
-                      ? "bg-[#f97316] text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      ? "bg-secondary text-white rounded-2xl rounded-br-sm"
+                      : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm"
                   }`}
                 >
-                  {msg.content.split("\n").map((line, i) => (
-                    <p key={i} className={i > 0 ? "mt-2" : ""}>
-                      {line}
-                    </p>
-                  ))}
-
-                  {/* WhatsApp CTA for assistant messages containing WhatsApp mention */}
-                  {msg.role === "assistant" &&
-                    msg.content.toLowerCase().includes("whatsapp") && (
-                      <button
-                        onClick={handleWhatsAppEscalate}
-                        className="mt-2 flex items-center gap-2 text-xs bg-[#25D366] text-white px-3 py-1.5 rounded-full hover:bg-[#20BA5A] transition-colors"
-                      >
-                        <MessageCircle className="h-3 w-3" />
-                        WhatsApp
-                      </button>
-                    )}
-                </div>
+                  {msg.content}
+                </span>
               </div>
             ))}
 
-            {/* Typing indicator */}
+            {/* Loading indicator */}
             {isLoading && (
-              <div
-                className={`flex ${isRtl ? "justify-end" : "justify-start"}`}
-              >
-                <div className="bg-gray-100 dark:bg-gray-800 text-gray-500 px-4 py-2 rounded-2xl text-sm flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t.typing}
-                </div>
+              <div className="flex justify-start">
+                <span className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm">
+                  <span className="inline-flex gap-1">
+                    <span className="animate-bounce">.</span>
+                    <span
+                      className="animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    >
+                      .
+                    </span>
+                    <span
+                      className="animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    >
+                      .
+                    </span>
+                  </span>
+                </span>
               </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-3">
-            <div className="flex items-center gap-2">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t.placeholder}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-full text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent disabled:opacity-50"
-                dir={isRtl ? "rtl" : "ltr"}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={isLoading || !input.trim()}
-                className="p-2 bg-[#f97316] text-white rounded-full hover:bg-[#ea580c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2"
-                aria-label="Send message"
-              >
-                <Send className="h-5 w-5" />
-              </button>
-            </div>
+          {/* Input area */}
+          <div className="h-12 border-t flex items-center px-2 gap-1">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t(
+                "Ask about our tours...",
+                "שאלו על הסיורים שלנו..."
+              )}
+              disabled={isLoading}
+              className="flex-1 rounded-full border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
+              dir={isRtl ? "rtl" : "ltr"}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading}
+              className="rounded-full bg-secondary text-white p-1.5 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
+              aria-label={t("Send message", "שלח הודעה")}
+            >
+              <Send className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
