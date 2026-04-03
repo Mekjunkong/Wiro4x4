@@ -96,7 +96,7 @@ export function FloatingActionButtons() {
         >
           <MessageCircle className="h-6 w-6" />
           <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-card text-foreground text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            {t("Chat with us", "שלחו הודעה")}
+            {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
           </span>
         </button>
       </div>
