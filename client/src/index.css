@@ -491,3 +491,40 @@ textarea {
 .hero-section:hover .hero-progress-bar {
   animation-play-state: paused;
 }
+
+/* Premium UI classes */
+.luxury-card {
+  transition:
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.4s ease;
+}
+.luxury-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(212, 175, 55, 0.15);
+}
+
+.glass-card {
+  background: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+@keyframes gold-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, #d4af37, #f5d76e, #d4af37, #b8960f);
+  background-size: 200% auto;
+  animation: gold-shimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
