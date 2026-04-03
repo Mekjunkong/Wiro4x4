@@ -1,4 +1,5 @@
 export { BookingsTab } from "./BookingsTab";
+export { UnifiedInboxTab } from "./UnifiedInboxTab";
 export { CalendarTab } from "./CalendarTab";
 export { AgentsTab } from "./AgentsTab";
 export { LeadsTab } from "./LeadsTab";

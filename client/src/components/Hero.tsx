@@ -31,7 +31,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-hidden grain-overlay">
       {/* Background image - high quality */}
       <OptimizedImage
         src="banner"
@@ -51,21 +51,22 @@ export function Hero() {
 
       {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
-        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl animate-hero-reveal [animation-delay:0.1s]">
+        <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl animate-hero-reveal [animation-delay:0.1s]">
           WIRO 4×4
         </h1>
 
-        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg animate-hero-reveal [animation-delay:0.3s]">
+        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg animate-hero-reveal [animation-delay:0.3s] relative inline-block">
           {t(
             "Kosher Off-Road Adventures in Chiang Mai",
             "הרפתקאות שטח כשרות בצ'יאנג מאי"
           )}
+          <span className="absolute -bottom-2 left-0 h-[2px] w-16 bg-accent" />
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s]">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
           <button
             onClick={scrollToTours}
-            className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors shadow-2xl w-full sm:w-auto"
+            className="bg-accent hover:bg-accent/90 active:bg-accent/80 text-[#1c1c1c] font-bold px-8 py-4 text-lg rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
           >
             {t("Explore Tours", "גלו את הטיולים")}
           </button>
@@ -73,18 +74,21 @@ export function Hero() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg md:px-8 md:py-3 md:text-lg rounded-lg transition-colors flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto"
+            className="glass-card hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto border border-white/30 tracking-wide uppercase text-sm md:text-base"
           >
-            <MessageCircle className="w-6 h-6" />
+            <MessageCircle className="w-5 h-5" />
             {t("WhatsApp Us", "דברו איתנו בוואטסאפ")}
           </a>
         </div>
+
+        {/* Gold separator */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent mb-4 animate-hero-reveal [animation-delay:0.6s]" />
 
         <div className="flex flex-wrap gap-2 md:gap-2.5 animate-hero-reveal [animation-delay:0.7s]">
           {TRUST_ITEMS.map(item => (
             <span
               key={item.en}
-              className="bg-white/20 backdrop-blur-md text-white text-sm font-medium px-4 py-2 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/30 shadow-lg"
+              className="bg-white/10 backdrop-blur-md text-white text-sm font-medium px-4 py-2 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/20 shadow-lg"
             >
               {t(item.en, item.he)}
             </span>
@@ -92,13 +96,16 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll chevron */}
+      {/* Animated scroll chevron */}
       <div
         ref={chevronRef}
-        className="hidden md:block absolute bottom-6 left-1/2 -translate-x-1/2 animate-subtle-pulse cursor-pointer"
+        className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 cursor-pointer group"
         onClick={scrollToTours}
       >
-        <ChevronDown className="w-8 h-8 text-white/70" />
+        <span className="text-white/50 text-xs tracking-[0.2em] uppercase">
+          Scroll
+        </span>
+        <ChevronDown className="w-6 h-6 text-accent animate-hero-chevron" />
       </div>
     </section>
   );

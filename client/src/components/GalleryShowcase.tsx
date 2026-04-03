@@ -1,9 +1,9 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
-import { Camera, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { GoldDivider } from "@/components/GoldDivider";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { PremiumSectionHeading } from "@/components/PremiumSectionHeading";
 
 const LOCAL_GALLERY_IMAGES = [
   { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
@@ -29,12 +29,12 @@ export function GalleryShowcase() {
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
-        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14 px-4">
-          <Camera className="w-8 h-8 text-accent mx-auto mb-3" />
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-3">
-            {t("Adventure Gallery", "גלריית הרפתקאות")}
-          </h2>
-          <GoldDivider />
+        <div className="max-w-3xl mx-auto mb-10 md:mb-14 px-4">
+          <PremiumSectionHeading
+            eyebrow={t("Visual Stories", "סיפורי חווייה")}
+            heading={t("Adventure Gallery", "גלריית הרפתקאות")}
+            decorativeBgText="GALLERY"
+          />
         </div>
 
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 px-4 md:px-0">

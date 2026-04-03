@@ -92,14 +92,19 @@ export function ProductTiers() {
       className="py-20 md:py-28 bg-background dark:bg-background"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="text-center mb-12 md:mb-16">
-          <span className="text-accent-cta dark:text-accent text-sm font-medium tracking-[0.2em] uppercase">
+        {/* Premium section heading with decorative bg text */}
+        <div className="text-center mb-12 md:mb-16 relative">
+          <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-[8rem] md:text-[12rem] font-heading font-black text-foreground/[0.03] dark:text-white/[0.03] leading-none select-none pointer-events-none tracking-widest">
+            ADVENTURES
+          </span>
+          <span className="relative text-accent text-xs font-bold tracking-[0.3em] uppercase block mb-3">
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 text-foreground dark:text-white">
+          <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-bold mt-2 text-foreground dark:text-white tracking-tight">
             {t("Our Adventures", "ההרפתקאות שלנו")}
           </h2>
-          <p className="text-muted-foreground dark:text-white/60 mt-4 max-w-2xl mx-auto text-lg">
+          <div className="w-16 h-[3px] bg-accent mx-auto mt-4 mb-5" />
+          <p className="relative text-muted-foreground dark:text-white/60 max-w-2xl mx-auto text-lg">
             {t(
               "From single-day excursions to multi-week expeditions — find the perfect off-road adventure for your group.",
               "מטיולי יום ועד מסעות של מספר שבועות — מצאו את הרפתקת השטח המושלמת לקבוצה שלכם."
@@ -110,9 +115,9 @@ export function ProductTiers() {
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {PRODUCT_TIERS.map(tier => (
             <Link key={tier.slug} href={tier.href}>
-              <article className="group relative bg-white dark:bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer h-full flex flex-col">
-                {/* Cinematic Image */}
-                <div className="relative h-72 md:h-80 overflow-hidden">
+              <article className="luxury-card group relative bg-white dark:bg-card rounded-2xl overflow-hidden shadow-md cursor-pointer h-full flex flex-col border border-border/50 dark:border-border">
+                {/* Cinematic Image — taller */}
+                <div className="relative h-80 md:h-96 overflow-hidden">
                   <OptimizedImage
                     src={tier.imageSrc}
                     alt={t(tier.title, tier.titleHe)}
@@ -121,33 +126,40 @@ export function ProductTiers() {
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  {/* Dark gradient — stronger on hover to reveal text */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 transition-all duration-500 group-hover:from-black/90 group-hover:via-black/50" />
 
-                  {/* Badge */}
+                  {/* Badge — gold foil */}
                   {tier.badge && (
-                    <span className="absolute top-4 right-4 bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full tracking-wide uppercase shadow-lg">
+                    <span
+                      className="absolute top-4 right-4 text-[#1c1c1c] text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase shadow-lg"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #f5d76e 0%, #d4af37 40%, #b8960f 100%)",
+                      }}
+                    >
                       {t(tier.badge, tier.badgeHe || tier.badge)}
                     </span>
                   )}
 
                   {/* Title + Price overlay on image */}
                   <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="text-xl md:text-2xl font-heading font-bold text-white mb-1">
+                    <h3 className="text-xl md:text-2xl font-heading font-bold text-white mb-2">
                       {t(tier.title, tier.titleHe)}
                     </h3>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-white/60 text-xs tracking-wide uppercase">
-                        {t("From", "החל מ-")}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-white/60 text-xs tracking-widest uppercase block">
+                        {t("from", "החל מ-")}
                       </span>
-                      <span className="text-white text-2xl font-bold font-heading">
+                      <span className="text-white text-3xl font-bold font-heading ml-1">
                         {tier.startingPrice}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Slim Content Footer */}
-                <div className="p-5 flex-1 flex flex-col">
+                {/* Content Footer */}
+                <div className="p-5 flex-1 flex flex-col relative">
                   <p className="text-muted-foreground dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
                     {t(tier.subtitle, tier.subtitleHe)}
                   </p>
@@ -173,6 +185,9 @@ export function ProductTiers() {
                     {t("Explore", "גלו עוד")}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </div>
+
+                  {/* Gold bottom border that expands on hover */}
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] bg-accent w-0 group-hover:w-full transition-all duration-500 ease-out rounded-b-2xl" />
                 </div>
               </article>
             </Link>

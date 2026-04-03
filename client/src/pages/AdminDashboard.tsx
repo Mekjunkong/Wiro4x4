@@ -31,10 +31,12 @@ import {
   ChevronDown,
   ChevronRight,
   X,
+  Inbox,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
   BookingsTab,
+  UnifiedInboxTab,
   CalendarTab,
   AgentsTab,
   LeadsTab,
@@ -82,6 +84,7 @@ function TabBadge({
 type AdminTabId =
   | "analytics"
   | "crm"
+  | "inbox"
   | "bookings"
   | "calendar"
   | "agents"
@@ -111,7 +114,7 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
   {
     id: "operations",
     label: "OPERATIONS",
-    items: ["bookings", "calendar", "agents", "tours", "packages"],
+    items: ["inbox", "bookings", "calendar", "agents", "tours", "packages"],
   },
   {
     id: "sales",
@@ -252,6 +255,12 @@ export default function AdminDashboard() {
         id: "crm" as const,
         label: "CRM",
         icon: UserCircle,
+        count: undefined,
+      },
+      {
+        id: "inbox" as const,
+        label: "Inbox",
+        icon: Inbox,
         count: undefined,
       },
       {
@@ -437,6 +446,10 @@ export default function AdminDashboard() {
     Record<AdminTabId, { count: number; color: "red" | "orange" | "gray" }>
   > = {
     crm: { count: badges?.crm ?? 0, color: "gray" },
+    inbox: {
+      count: (badges?.bookings ?? 0) + (badges?.leads ?? 0),
+      color: "red",
+    },
     bookings: { count: badges?.bookings ?? 0, color: "red" },
     calendar: { count: badges?.calendar ?? 0, color: "gray" },
     leads: { count: badges?.leads ?? 0, color: "orange" },
@@ -870,6 +883,17 @@ export default function AdminDashboard() {
               <div role="tabpanel" id="tabpanel-crm" aria-labelledby="tab-crm">
                 <ErrorBoundary level="section" key="crm">
                   <CRMTab />
+                </ErrorBoundary>
+              </div>
+            )}
+            {activeTab === "inbox" && (
+              <div
+                role="tabpanel"
+                id="tabpanel-inbox"
+                aria-labelledby="tab-inbox"
+              >
+                <ErrorBoundary level="section" key="inbox">
+                  <UnifiedInboxTab />
                 </ErrorBoundary>
               </div>
             )}
