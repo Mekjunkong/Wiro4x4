@@ -35,7 +35,7 @@ export async function createSession(
   return new SignJWT({ userId, email, role } satisfies SessionPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30d")
+    .setExpirationTime("7d")
     .sign(getJwtSecret());
 }
 

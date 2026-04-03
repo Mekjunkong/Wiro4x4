@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   hashPassword,
   verifyPassword,
@@ -72,15 +72,15 @@ describe("auth module", () => {
       expect(payload).toBeNull();
     });
 
-    it("sets expiration to 30 days", async () => {
+    it("sets expiration to 7 days", async () => {
       const token = await createSession(1, "user@test.com", "user");
-      const payload = await verifySession(token);
-      // The exp claim should be ~30 days from now
+      await verifySession(token);
+      // The exp claim should be ~7 days from now
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      const thirtyDaysSeconds = 30 * 24 * 60 * 60;
+      const sevenDaysSeconds = 7 * 24 * 60 * 60;
       const now = Math.floor(Date.now() / 1000);
-      expect(decoded.exp).toBeGreaterThan(now + thirtyDaysSeconds - 60);
-      expect(decoded.exp).toBeLessThan(now + thirtyDaysSeconds + 60);
+      expect(decoded.exp).toBeGreaterThan(now + sevenDaysSeconds - 60);
+      expect(decoded.exp).toBeLessThan(now + sevenDaysSeconds + 60);
     });
   });
 

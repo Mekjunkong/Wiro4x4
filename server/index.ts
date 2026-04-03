@@ -19,7 +19,7 @@ async function startServer() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "https://plausible.io", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "https://plausible.io"],
           styleSrc: [
             "'self'",
             "'unsafe-inline'",
