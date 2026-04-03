@@ -74,7 +74,7 @@ export function Hero() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-card hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto border border-white/30 tracking-wide uppercase text-sm md:text-base"
+            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
           >
             <MessageCircle className="w-5 h-5" />
             {t("WhatsApp Us", "דברו איתנו בוואטסאפ")}
