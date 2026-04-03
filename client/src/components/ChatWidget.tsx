@@ -152,7 +152,7 @@ export function ChatWidget() {
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
-          className="fixed bottom-24 md:bottom-24 right-4 md:right-4 w-[calc(100vw-2rem)] max-w-sm h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-[9998] overflow-hidden"
+          className="fixed bottom-24 md:bottom-24 left-2 right-2 md:left-auto md:right-4 md:w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-[9998] overflow-hidden"
           dir={isRtl ? "rtl" : "ltr"}
         >
           {/* Header */}
