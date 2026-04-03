@@ -134,7 +134,7 @@ export function ChatWidget() {
     <>
       {/* Chat Button (closed state) */}
       {!isOpen && (
-        <div className="fixed bottom-36 right-4 z-50 flex flex-col items-center gap-2">
+        <div className="fixed bottom-20 md:bottom-6 right-[5.5rem] md:right-[6.5rem] z-[9998] flex flex-col items-center gap-2">
           {/* Tooltip label */}
           <span className="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded shadow-md">
             {t("Ask Wiro", "שאל את וירו")}
@@ -152,7 +152,7 @@ export function ChatWidget() {
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
-          className="fixed bottom-36 right-4 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden"
+          className="fixed bottom-20 md:bottom-6 right-[5.5rem] md:right-[6.5rem] w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-[9998] overflow-hidden"
           dir={isRtl ? "rtl" : "ltr"}
         >
           {/* Header */}
