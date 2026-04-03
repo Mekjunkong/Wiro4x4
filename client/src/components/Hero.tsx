@@ -31,7 +31,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden grain-overlay">
+    <section className="relative h-screen w-full overflow-hidden">
       {/* Background image - high quality */}
       <OptimizedImage
         src="banner"
