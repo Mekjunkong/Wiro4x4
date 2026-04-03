@@ -26,6 +26,11 @@ function getVisitorId(): string {
 export function ChatWidget() {
   const { language: appLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Notify FAB to hide when chat is open
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("chat-open", { detail: isOpen }));
+  }, [isOpen]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -226,7 +231,7 @@ export function ChatWidget() {
           </div>
 
           {/* Input area */}
-          <div className="h-12 border-t flex items-center px-2 gap-1 pr-2">
+          <div className="h-14 border-t flex items-center px-3 gap-2">
             <input
               ref={inputRef}
               type="text"

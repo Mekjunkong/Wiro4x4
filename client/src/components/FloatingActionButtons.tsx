@@ -12,6 +12,13 @@ export function FloatingActionButtons() {
   const isBookingPage = location === "/book";
 
   const [scrolledPast, setScrolledPast] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
+    window.addEventListener("chat-open", handler);
+    return () => window.removeEventListener("chat-open", handler);
+  }, []);
   const [isMobile, setIsMobile] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => {
     try {
@@ -63,7 +70,7 @@ export function FloatingActionButtons() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
 
-  if (hideOnMobile) return null;
+  if (hideOnMobile || chatOpen) return null;
 
   return (
     <div
