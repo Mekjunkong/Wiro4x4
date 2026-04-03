@@ -58,6 +58,8 @@ export interface PriceBreakdown {
   depositAmount: number;
   balanceAmount: number;
   isCustomQuote: boolean;
+  season: SeasonInfo;
+  seasonalSurcharge: number;
 }
 
 export interface PackageComparison {
@@ -126,6 +128,102 @@ export function calculatePackageDiscount(
 }
 
 export const DEPOSIT_RATE = 0.3;
+
+// ── Seasonal Pricing ────────────────────────────────────────
+
+export type SeasonType = "high" | "low" | "passover" | "sukkot";
+
+export interface SeasonInfo {
+  type: SeasonType;
+  multiplier: number;
+  labelEn: string;
+  labelHe: string;
+  note?: string;
+}
+
+/**
+ * Determine the season for a given date.
+ * - Passover (April 5–13): +25%
+ * - Sukkot (Oct 2–9): +25%
+ * - High Season (Nov–Feb): +20%
+ * - Low Season (May–Oct): standard
+ *
+ * When a date range spans multiple seasons, the most expensive season wins.
+ */
+export function getSeasonForDate(date: Date): SeasonInfo {
+  const month = date.getMonth() + 1; // 1-indexed
+  const day = date.getDate();
+
+  // Passover: April 5–13 (fixed dates approximation; exact dates vary year to year)
+  if (month === 4 && day >= 5 && day <= 13) {
+    return {
+      type: "passover",
+      multiplier: 1.25,
+      labelEn: "Passover (Peak)",
+      labelHe: "פסח (עונת שיא)",
+    };
+  }
+
+  // Sukkot: Oct 2–9 (fixed dates approximation)
+  if (month === 10 && day >= 2 && day <= 9) {
+    return {
+      type: "sukkot",
+      multiplier: 1.25,
+      labelEn: "Sukkot (Peak)",
+      labelHe: "סוכות (עונת שיא)",
+    };
+  }
+
+  // High Season: Nov–Feb
+  if (month >= 11 || month <= 2) {
+    return {
+      type: "high",
+      multiplier: 1.2,
+      labelEn: "High Season (Nov–Feb)",
+      labelHe: "עונה גבוהה (נוב–פבר)",
+    };
+  }
+
+  // Low Season: May–Oct (excluding Sukkot above)
+  return {
+    type: "low",
+    multiplier: 1.0,
+    labelEn: "Standard Season",
+    labelHe: "עונה רגילה",
+  };
+}
+
+/**
+ * Get the highest-priced season within a date range.
+ * Returns the season with the highest multiplier.
+ */
+export function getSeasonForDateRange(
+  arrival: Date,
+  departure: Date
+): SeasonInfo {
+  // Check arrival and departure dates, pick the one with higher multiplier
+  const arrivalSeason = getSeasonForDate(arrival);
+  const departureSeason = getSeasonForDate(departure);
+
+  // Also check midpoint
+  const midMs = (arrival.getTime() + departure.getTime()) / 2;
+  const midSeason = getSeasonForDate(new Date(midMs));
+
+  const seasons = [arrivalSeason, departureSeason, midSeason];
+  return seasons.reduce((best, s) =>
+    s.multiplier > best.multiplier ? s : best
+  );
+}
+
+/**
+ * Apply seasonal multiplier to a base price.
+ */
+export function applySeasonalPrice(
+  basePrice: number,
+  season: SeasonInfo
+): number {
+  return roundToNearest100(basePrice * season.multiplier);
+}
 
 // ── Calculation Functions ────────────────────────────────────
 
@@ -296,10 +394,18 @@ export function calculateTripTotal(config: TripConfig): PriceBreakdown {
   // Package comparison (based on tour-only total, before services)
   const packageOption = findPackageOption(tours.length, groupAdjustedTotal);
 
-  // Total
-  const tourCost = packageOption
+  // Seasonal pricing
+  const season = getSeasonForDateRange(arrivalDate, departureDate);
+  const preTourCost = packageOption
     ? packageOption.packagePrice
     : groupAdjustedTotal;
+  const seasonalSurcharge =
+    season.multiplier > 1
+      ? roundToNearest100(preTourCost * (season.multiplier - 1))
+      : 0;
+
+  // Total
+  const tourCost = preTourCost + seasonalSurcharge;
   const subtotal =
     tourCost + childrenSurcharge + servicesSubtotal + shabbatCost;
   const total = roundToNearest100(subtotal);
@@ -322,6 +428,8 @@ export function calculateTripTotal(config: TripConfig): PriceBreakdown {
     depositAmount,
     balanceAmount,
     isCustomQuote: isCustom,
+    season,
+    seasonalSurcharge,
   };
 }
 

@@ -309,7 +309,8 @@ describe("Pricing Module", () => {
 
       expect(result.shabbatNights).toBe(1);
       expect(result.shabbatCost).toBe(2000);
-      expect(result.total).toBe(5500); // 3500 + 2000
+      // Feb 13-15 is High Season (+20%), so tour = 3500*1.2 = 4200, + shabbat 2000 = 6200
+      expect(result.total).toBe(6200); // 4200 (high season) + 2000 shabbat
     });
   });
 

@@ -19,6 +19,7 @@ import {
   Baby,
   BadgePercent,
   Star,
+  TrendingUp,
 } from "lucide-react";
 import {
   calculateTripTotal,
@@ -592,6 +593,26 @@ export function CostCalculator() {
               </div>
             )}
 
+            {/* Seasonal surcharge */}
+            {breakdown.seasonalSurcharge > 0 && (
+              <div className="px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-sm">
+                <div className="flex items-center gap-2 text-amber-800 font-medium text-sm mb-1">
+                  <TrendingUp className="w-4 h-4" />
+                  {isHebrew
+                    ? breakdown.season.labelHe
+                    : breakdown.season.labelEn}
+                </div>
+                <LineItem
+                  label={t(
+                    `Peak Season Surcharge (${Math.round((breakdown.season.multiplier - 1) * 100)}%)`,
+                    `תוספת עונת שיא (${Math.round((breakdown.season.multiplier - 1) * 100)}%)`
+                  )}
+                  amount={breakdown.seasonalSurcharge}
+                  className="text-amber-700"
+                />
+              </div>
+            )}
+
             {/* Shabbat */}
             {breakdown.shabbatCost > 0 && (
               <LineItem
@@ -652,6 +673,12 @@ export function CostCalculator() {
             {t(
               "Prices are estimates. Final pricing confirmed upon booking.",
               "המחירים הם הערכה. המחיר הסופי יאושר בעת ההזמנה."
+            )}
+          </p>
+          <p className="text-xs text-amber-600 text-center mt-1">
+            {t(
+              "⚠️ Prices may vary during Jewish holidays.",
+              "⚠️ המחירים עשויים להשתנות בחגים יהודיים."
             )}
           </p>
         </Card>

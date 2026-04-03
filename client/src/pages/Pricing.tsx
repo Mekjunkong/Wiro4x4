@@ -16,8 +16,10 @@ import {
   Shield,
   Calendar,
   MessageCircle,
+  TrendingUp,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { getSeasonForDate, applySeasonalPrice } from "@shared/pricing";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
@@ -142,6 +144,38 @@ const HARDCODED_TOURS = [
       { en: "Village visit permissions", he: "אישורי ביקור בכפרים" },
       { en: "Cultural gifts for communities", he: "מתנות לקהילות המקומיות" },
     ],
+  },
+];
+
+// Seasonal pricing season table for display
+const SEASON_TABLE = [
+  {
+    months: "Nov – Feb",
+    monthsHe: "נוב–פבר",
+    label: "High Season",
+    labelHe: "עונה גבוהה",
+    adjust: "+20%",
+  },
+  {
+    months: "Apr 5–13",
+    monthsHe: "5–13 אפר",
+    label: "Passover",
+    labelHe: "פסח",
+    adjust: "+25%",
+  },
+  {
+    months: "Oct 2–9",
+    monthsHe: "2–9 אוק",
+    label: "Sukkot",
+    labelHe: "סוכות",
+    adjust: "+25%",
+  },
+  {
+    months: "May – Oct",
+    monthsHe: "מאי–אוק",
+    label: "Standard Season",
+    labelHe: "עונה רגילה",
+    adjust: "—",
   },
 ];
 
@@ -288,77 +322,180 @@ export default function Pricing() {
               {t("Individual Tours", "טיולים בודדים")}
             </h2>
 
+            {/* Seasonal Pricing Notice */}
+            <div className="mb-10 max-w-3xl mx-auto">
+              <Card className="p-5 md:p-6 border border-amber-300 bg-amber-50/60 dark:bg-amber-900/10 dark:border-amber-700 rounded-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                  <h3 className="font-bold text-amber-800 dark:text-amber-300">
+                    {t("Seasonal Pricing", "תמחור עונתי")}
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left border-b border-amber-200">
+                        <th className="pb-2 pr-4 font-semibold text-amber-700 dark:text-amber-400">
+                          {t("Period", "תקופה")}
+                        </th>
+                        <th className="pb-2 pr-4 font-semibold text-amber-700 dark:text-amber-400">
+                          {t("Season", "עונה")}
+                        </th>
+                        <th className="pb-2 font-semibold text-amber-700 dark:text-amber-400">
+                          {t("Price Adjustment", "שינוי מחיר")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {SEASON_TABLE.map((row, i) => (
+                        <tr
+                          key={i}
+                          className="border-b border-amber-100 last:border-0"
+                        >
+                          <td className="py-1.5 pr-4 text-muted-foreground">
+                            {t(row.months, row.monthsHe)}
+                          </td>
+                          <td className="py-1.5 pr-4">
+                            {t(row.label, row.labelHe)}
+                          </td>
+                          <td className="py-1.5 font-semibold text-accent">
+                            {row.adjust}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-3 text-xs text-amber-700 dark:text-amber-400 italic">
+                  {t(
+                    "⚠️ Prices may vary during Jewish holidays. Contact us for exact seasonal pricing.",
+                    "⚠️ המחירים עשויים להשתנות בחגים יהודיים. צורו קשר לתמחור מדויק."
+                  )}
+                </p>
+              </Card>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {tours.map(tour => (
-                <Card
-                  key={tour.id}
-                  className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-border rounded-sm"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <OptimizedImage
-                      src={tour.image}
-                      alt={tour.name}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-1">
-                    <div>
-                      <h3 className="text-xl font-medium mb-2">{tour.name}</h3>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        <span>{tour.duration}</span>
-                      </div>
+              {tours.map(tour => {
+                const today = new Date();
+                const currentSeason = getSeasonForDate(today);
+                const peakSeason = {
+                  type: "passover" as const,
+                  multiplier: 1.25,
+                  labelEn: "Peak Season",
+                  labelHe: "עונת שיא",
+                };
+                const peakPrice = applySeasonalPrice(
+                  tour.basePrice,
+                  peakSeason
+                );
+                const isCurrentlyPeak = currentSeason.multiplier > 1;
+                return (
+                  <Card
+                    key={tour.id}
+                    className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 flex flex-col bg-card border border-border rounded-sm"
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <OptimizedImage
+                        src={tour.image}
+                        alt={tour.name}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
-                    <div className="border-t border-b py-4 mt-4">
-                      <div className="text-3xl font-bold text-accent mb-1">
-                        &#3647;{tour.basePrice.toLocaleString()}
+                    <div className="p-6 flex flex-col flex-1">
+                      <div>
+                        <h3 className="text-xl font-medium mb-2">
+                          {tour.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          <span>{tour.duration}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {t("Per group (1-4 people)", "לקבוצה (1-4 אנשים)")}
-                      </p>
-                    </div>
 
-                    <div className="space-y-2 mt-4 flex-1">
-                      <p className="font-semibold text-sm">
-                        {t("What's Included:", "מה כלול:")}
-                      </p>
-                      <ul className="space-y-1">
-                        {tour.included.slice(0, 3).map((item, idx) => (
-                          <li
-                            key={idx}
-                            className="flex items-start gap-2 text-sm"
-                          >
-                            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {tour.included.length > 3 && (
-                        <p className="text-xs text-muted-foreground">
-                          {t(
-                            `+ ${tour.included.length - 3} more inclusions`,
-                            `+ ${tour.included.length - 3} פריטים נוספים`
-                          )}
+                      <div className="border-t border-b py-4 mt-4">
+                        {isCurrentlyPeak ? (
+                          <>
+                            <div className="text-3xl font-bold text-accent mb-1">
+                              &#3647;
+                              {applySeasonalPrice(
+                                tour.basePrice,
+                                currentSeason
+                              ).toLocaleString()}
+                            </div>
+                            <p className="text-xs font-medium text-amber-600 mb-1">
+                              {t(
+                                `Peak Season Price (${currentSeason.labelEn})`,
+                                `מחיר עונת שיא (${currentSeason.labelHe})`
+                              )}
+                            </p>
+                            <p className="text-sm text-muted-foreground line-through">
+                              {t("Standard:", "סטנדרט:")} &#3647;
+                              {tour.basePrice.toLocaleString()}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-3xl font-bold text-accent mb-1">
+                              &#3647;{tour.basePrice.toLocaleString()}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {t("Standard Price", "מחיר סטנדרט")}
+                            </p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">
+                              {t(
+                                `Peak Season: ฿${peakPrice.toLocaleString()}`,
+                                `עונת שיא: ฿${peakPrice.toLocaleString()}`
+                              )}
+                            </p>
+                          </>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t("Per group (1-4 people)", "לקבוצה (1-4 אנשים)")}
                         </p>
-                      )}
-                    </div>
+                      </div>
 
-                    <Button
-                      onClick={() =>
-                        handleWhatsAppInquiry(tour.name, tour.basePrice)
-                      }
-                      variant="default"
-                      className="w-full mt-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                      <div className="space-y-2 mt-4 flex-1">
+                        <p className="font-semibold text-sm">
+                          {t("What's Included:", "מה כלול:")}
+                        </p>
+                        <ul className="space-y-1">
+                          {tour.included.slice(0, 3).map((item, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-start gap-2 text-sm"
+                            >
+                              <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {tour.included.length > 3 && (
+                          <p className="text-xs text-muted-foreground">
+                            {t(
+                              `+ ${tour.included.length - 3} more inclusions`,
+                              `+ ${tour.included.length - 3} פריטים נוספים`
+                            )}
+                          </p>
+                        )}
+                      </div>
+
+                      <Button
+                        onClick={() =>
+                          handleWhatsAppInquiry(tour.name, tour.basePrice)
+                        }
+                        variant="default"
+                        className="w-full mt-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Group Size Pricing */}
