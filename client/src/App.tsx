@@ -78,7 +78,7 @@ function Router() {
     <>
       <ScrollToTop />
       <React.Suspense fallback={<LoadingSpinner />}>
-        <div key={location} className="animate-page-enter">
+        <div key={location} className="animate-page-enter w-full">
           <Switch>
             <Route path={"/"} component={Home} />
             <Route path={"/pricing"} component={Pricing} />
