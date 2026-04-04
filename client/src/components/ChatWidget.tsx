@@ -139,7 +139,7 @@ export function ChatWidget() {
     <>
       {/* Chat Button (closed state) */}
       {!isOpen && (
-        <div className="fixed bottom-24 md:bottom-6 left-4 md:left-auto md:right-[6.5rem] z-[9998] flex flex-col items-center gap-2">
+        <div className="fixed bottom-[4.5rem] md:bottom-6 right-4 md:left-auto md:right-[6.5rem] z-[9997] flex flex-col items-center gap-2">
           {/* Tooltip label */}
           <span className="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded shadow-md">
             {t("Ask Wiro", "שאל את וירו")}

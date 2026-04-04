@@ -45,13 +45,22 @@ function AnimatedNumber({
   suffix?: string;
   isDecimal?: boolean;
 }) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(isDecimal ? target : target);
   const ref = useRef<HTMLSpanElement>(null);
   const hasRun = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // Fallback: if IntersectionObserver not supported, show target immediately
+    if (typeof IntersectionObserver === "undefined") {
+      setCount(target);
+      return;
+    }
+
+    // Reset to 0 and animate on scroll into view
+    setCount(0);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasRun.current) {
@@ -73,7 +82,7 @@ function AnimatedNumber({
           }, stepTime);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.1, rootMargin: "0px 0px -20px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
