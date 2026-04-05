@@ -123,27 +123,37 @@ export function ChatWidget() {
         }
       }
 
-      // Fallback: Claude with Eli persona + real DB data
-      const response = await fetch("/api/eli/chat", {
+      // Use Eli relay with polling for response
+      const sessionId = `${visitorId}-${Date.now()}`;
+      await fetch("/api/eli/relay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage,
+          sessionId,
           language: chatLanguage,
+          visitorName: "Website Visitor",
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Chat request failed");
+      // Poll for Eli response (max 30 seconds)
+      for (let i = 0; i < 30; i++) {
+        await new Promise(r => setTimeout(r, 1000));
+        try {
+          const pollRes = await fetch(`/api/eli/relay/poll?sessionId=${sessionId.slice(0, 8)}`);
+          if (pollRes.ok) {
+            const pollData = (await pollRes.json()) as { reply?: string; waiting?: boolean };
+            if (pollData.reply) {
+              setMessages(prev => [...prev, { role: "ai", content: pollData.reply! }]);
+              setEliAvailable(true);
+              setIsLoading(false);
+              return;
+            }
+          }
+        } catch { /* keep polling */ }
       }
-
-      const data = (await response.json()) as {
-        reply: string;
-        agent?: string;
-      };
-
-      setEliAvailable(false);
-      setMessages(prev => [...prev, { role: "ai", content: data.reply }]);
+      // Timeout
+      setMessages(prev => [...prev, { role: "ai", content: "Thanks for your message! We'll get back to you soon." }]);
     } catch (error) {
       console.error("Chat error:", error);
       setMessages(prev => [...prev, { role: "ai", content: errorMessage }]);

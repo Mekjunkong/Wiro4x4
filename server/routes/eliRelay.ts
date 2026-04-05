@@ -18,7 +18,7 @@ import { notifyChatMessage } from "../eliNotify";
 const BOT_TOKEN =
   process.env.TELEGRAM_BOT_TOKEN ??
   "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
-const ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "8506295306"; // Mek's chat — Eli sees + responds
+const ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "-1003893672464"; // WIRO group — Eli sees + responds
 
 // In-memory session store (keyed by visitorId → {chatId, pendingResponses})
 const sessions = new Map<string, { chatId: string; lastUpdate: number }>();
@@ -64,6 +64,7 @@ async function sendToEli(
         : "🇬🇧 English";
   const text = `💬 *WIRO Website Chat* [${langLabel}]\n👤 Visitor: ${visitorName}\n🆔 Session: \`${sessionId.slice(0, 8)}\`\n\n${message}`;
 
+  // Send to WIRO group where Eli (via OpenClaw gateway) will see and respond
   await telegramPost("sendMessage", {
     chat_id: ELI_CHAT_ID,
     text,
