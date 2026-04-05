@@ -6,6 +6,7 @@
 
 import type { Express } from "express";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { checkRateLimit } from "../rateLimit";
 import { notifyChatMessage } from "../eliNotify";
 
@@ -158,14 +159,28 @@ async function fetchRealTours(): Promise<TourSummary[]> {
 }
 
 // ── MiniMax OpenAI-Compatible Client ───────────────────────────────────
-let _client: OpenAI | null = null;
-function getClient(): OpenAI {
-  if (!_client) {
+let _minimaxClient: OpenAI | null = null;
+function getMiniMaxClient(): OpenAI {
+  if (!_minimaxClient) {
     const apiKey = process.env.MINIMAX_API_KEY;
     if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
-    _client = new OpenAI({ apiKey, baseURL: "https://api.minimax.chat/v1" });
+    _minimaxClient = new OpenAI({
+      apiKey,
+      baseURL: "https://api.minimax.chat/v1",
+    });
   }
-  return _client;
+  return _minimaxClient;
+}
+
+// ── Anthropic Fallback Client ─────────────────────────────────────────────
+let _anthropicClient: Anthropic | null = null;
+function getAnthropicClient(): Anthropic {
+  if (!_anthropicClient) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) throw new Error("ANTHROPIC_API_KEY missing");
+    _anthropicClient = new Anthropic({ apiKey });
+  }
+  return _anthropicClient;
 }
 
 // ── Route ─────────────────────────────────────────────────────────────────
@@ -197,21 +212,43 @@ export function registerEliChatRoute(app: Express) {
 
       const systemPrompt = buildEliPrompt(language, tours, availability);
 
-      const response = await getClient().chat.completions.create({
-        model: "MiniMax-Text-01",
-        max_tokens: 512,
-        messages: [
-          { role: "system" as const, content: systemPrompt },
-          ...history.map(m => ({
-            role:
-              m.role === "user" ? ("user" as const) : ("assistant" as const),
-            content: m.content,
-          })),
-          { role: "user" as const, content: body.message },
-        ],
-      });
-
-      const reply = response.choices[0]?.message?.content ?? "";
+      let reply = "";
+      try {
+        const mm = getMiniMaxClient();
+        const mmResponse = await mm.chat.completions.create({
+          model: "MiniMax-Text-01",
+          max_tokens: 512,
+          messages: [
+            { role: "system" as const, content: systemPrompt },
+            ...history.map(m => ({
+              role:
+                m.role === "user" ? ("user" as const) : ("assistant" as const),
+              content: m.content,
+            })),
+            { role: "user" as const, content: body.message },
+          ],
+        });
+        reply = mmResponse.choices[0]?.message?.content ?? "";
+      } catch {
+        try {
+          const ac = getAnthropicClient();
+          const acResponse = await ac.messages.create({
+            model: "claude-haiku-4-5-20251114",
+            max_tokens: 512,
+            system: systemPrompt,
+            messages: history.concat([
+              { role: "user" as const, content: body.message },
+            ]),
+          });
+          reply =
+            acResponse.content[0]?.type === "text"
+              ? acResponse.content[0].text
+              : "";
+        } catch (err2) {
+          console.error("[EliChat] Both MiniMax and Anthropic failed:", err2);
+          throw err2;
+        }
+      }
 
       // Alert Mek via Telegram if booking intent
       if (isBookingIntent(body.message)) {
