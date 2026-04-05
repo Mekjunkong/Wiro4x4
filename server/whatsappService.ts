@@ -293,7 +293,7 @@ export async function handleIncomingMessage(
     return;
   }
 
-  // 3. Generate and send auto-reply
+  // 3. Generate and send auto-reply (keyword-based fallback)
   const { reply, isAutoReply } = getAutoReply(text);
   const sentMessageId = await sendWhatsAppMessage(from, reply);
 
@@ -311,6 +311,84 @@ export async function handleIncomingMessage(
     });
   } catch (err) {
     console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
+  }
+
+  // 5. Draft a smarter reply via LLM and notify Eli (non-blocking)
+  draftAndNotifyEli(from, name, text).catch(err => {
+    console.error("[WhatsApp] Eli draft/notify failed:", err);
+  });
+}
+
+// ── Language detection ───────────────────────────────────────────────────────
+
+type WsLang = "he" | "en" | "th";
+
+function detectWsLanguage(text: string): WsLang {
+  if (HEBREW_REGEX.test(text)) return "he";
+  if (/[\u0E00-\u0E7F]/.test(text)) return "th";
+  return "en";
+}
+
+// ── LLM Draft + Eli Notify ───────────────────────────────────────────────────
+
+async function draftAndNotifyEli(
+  phoneNumber: string,
+  name: string | undefined,
+  message: string
+): Promise<void> {
+  const lang = detectWsLanguage(message);
+
+  const SYSTEM_PROMPT = `You are a helpful assistant for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Thailand.
+
+Tour prices:
+- Doi Inthanon: ฿3,500/person
+- Doi Suthep: ฿2,000/person
+- Mae Wang: ฿3,500/person
+- Multi-day packages from ฿7,500
+
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 92-989-4495.`;
+
+  let draft =
+    "Hi! Thanks for reaching out. A team member will get back to you soon.";
+
+  try {
+    const { invokeLLM } = await import("./_core/llm");
+    const result = await invokeLLM({
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: message },
+      ],
+      maxTokens: 200,
+    });
+    const raw = result.choices[0]?.message?.content;
+    const text =
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? ((
+              raw.find(p => p.type === "text") as
+                | { type: "text"; text: string }
+                | undefined
+            )?.text ?? "")
+          : "";
+    if (text.trim().length > 0) {
+      draft = text.trim();
+    }
+  } catch (err) {
+    console.warn("[WhatsApp] LLM draft failed, using fallback:", err);
+  }
+
+  try {
+    const { notifyWhatsAppMessage } = await import("./eliNotify");
+    await notifyWhatsAppMessage({
+      phoneNumber,
+      name,
+      language: lang,
+      message,
+      draftReply: draft,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] notifyWhatsAppMessage failed:", err);
   }
 }
 

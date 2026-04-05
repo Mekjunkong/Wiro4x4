@@ -114,6 +114,32 @@ export async function notifyNewReview(review: {
   );
 }
 
+// ── F: WhatsApp incoming message with Eli draft ───────────────────────────
+export async function notifyWhatsAppMessage(wa: {
+  phoneNumber: string;
+  name?: string;
+  language: "he" | "en" | "th";
+  message: string;
+  draftReply: string;
+}) {
+  const langLabel: Record<string, string> = {
+    he: "🇮🇱 Hebrew",
+    en: "🇬🇧 English",
+    th: "🇹🇭 Thai",
+  };
+  const displayName = wa.name
+    ? `${wa.name} (+${wa.phoneNumber})`
+    : `+${wa.phoneNumber}`;
+
+  await sendTelegram(
+    `📱 *WhatsApp from* ${displayName}\n` +
+      `🌐 Language: ${langLabel[wa.language] ?? wa.language}\n\n` +
+      `💬 "${wa.message.slice(0, 200)}"\n\n` +
+      `📝 *Draft reply:*\n${wa.draftReply.slice(0, 500)}\n\n` +
+      `✅ Send: https://wiro4x4indochina.com/admin/whatsapp`
+  );
+}
+
 // ── E: Daily brief ────────────────────────────────────────────────────────
 export async function sendDailyBrief(stats: {
   pendingLeads: number;
