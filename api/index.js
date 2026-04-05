@@ -4243,6 +4243,132 @@ var init_upsellService = __esm({
   },
 });
 
+// server/competitorMonitor.ts
+var competitorMonitor_exports = {};
+__export(competitorMonitor_exports, {
+  checkCompetitors: () => checkCompetitors,
+});
+async function fetchViatorPrices() {
+  try {
+    const response = await fetch(VIATOR_URL, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      },
+    });
+    if (!response.ok) {
+      console.warn(
+        `[CompetitorMonitor] Viator fetch failed: ${response.status}`
+      );
+      return [];
+    }
+    const html = await response.text();
+    const pricePattern =
+      /\$[\d,]+(?:\.\d{2})?|฿[\d,]+(?:\.\d{2})?|€[\d,]+(?:\.\d{2})?/g;
+    const tourNamePattern =
+      /class="(?:card|tour|title)"[^>]*>([^<]+)<\/(?:div|h|span)/gi;
+    const prices = html.match(pricePattern) || [];
+    const tourNames = html.match(tourNamePattern) || [];
+    const result = [];
+    for (let i = 0; i < Math.min(tourNames.length, prices.length); i++) {
+      const name = tourNames[i]
+        ?.replace(/class="[^"]*">/i, "")
+        .replace(/<\/[^>]+>/, "")
+        .trim();
+      const priceStr = prices[i];
+      if (!name || !priceStr) continue;
+      let price = 0;
+      let currency = "USD";
+      if (priceStr.startsWith("$")) {
+        currency = "USD";
+        price = parseFloat(priceStr.replace(/[$,]/g, ""));
+      } else if (priceStr.startsWith("\u0E3F")) {
+        currency = "THB";
+        price = parseFloat(priceStr.replace(/[฿,]/g, ""));
+      } else if (priceStr.startsWith("\u20AC")) {
+        currency = "EUR";
+        price = parseFloat(priceStr.replace(/[€,]/g, ""));
+      }
+      if (price > 0 && name.length < 100) {
+        result.push({ tourName: name, price, currency });
+      }
+    }
+    console.log(
+      `[CompetitorMonitor] Fetched ${result.length} competitor tours`
+    );
+    return result;
+  } catch (err) {
+    console.error("[CompetitorMonitor] Fetch error:", err);
+    return [];
+  }
+}
+function buildReport(viatorTours, wiroPrices) {
+  const findings = [];
+  if (viatorTours.length === 0) {
+    findings.push("\u26A0\uFE0F  Could not fetch Viator pricing data");
+  } else {
+    const avgViatorPrice =
+      viatorTours.reduce((sum3, t2) => sum3 + (t2.price ?? 0), 0) /
+      viatorTours.length;
+    const avgWiroPrice =
+      Object.values(wiroPrices).reduce((a, b) => a + b, 0) /
+      Object.keys(wiroPrices).length;
+    findings.push(`Average Viator price: $${avgViatorPrice.toFixed(0)}`);
+    findings.push(`Average WIRO price: \u0E3F${avgWiroPrice.toFixed(0)}`);
+    const viatorInTHB = avgViatorPrice * 33;
+    const diff = ((avgWiroPrice - viatorInTHB) / viatorInTHB) * 100;
+    if (diff > 10) {
+      findings.push(
+        `\u{1F4C8} WIRO prices are ${diff.toFixed(0)}% higher than Viator`
+      );
+    } else if (diff < -10) {
+      findings.push(
+        `\u{1F4C9} WIRO prices are ${Math.abs(diff).toFixed(0)}% lower than Viator`
+      );
+    } else {
+      findings.push("\u2705 WIRO prices are competitive");
+    }
+  }
+  return {
+    timestamp: /* @__PURE__ */ new Date().toISOString(),
+    viatorTours,
+    wiroPrices,
+    findings,
+  };
+}
+async function checkCompetitors() {
+  const viatorTours = await fetchViatorPrices();
+  const wiroPrices = {
+    "Doi Inthanon": 3500,
+    "Doi Suthep": 2e3,
+    "Mae Wang": 3500,
+    "Mae Kampong": 2500,
+    "Sticky Waterfalls": 3e3,
+    "Samoeng Loop": 3200,
+  };
+  const report = buildReport(viatorTours, wiroPrices);
+  try {
+    const { notifyCompetitorReport: notifyCompetitorReport2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    const reportText =
+      report.findings.join("\n") +
+      `
+
+\u{1F4CA} Data: ${viatorTours.length} Viator tours analyzed`;
+    await notifyCompetitorReport2(reportText);
+  } catch (err) {
+    console.error("[CompetitorMonitor] Failed to notify Eli:", err);
+  }
+  return report;
+}
+var VIATOR_URL;
+var init_competitorMonitor = __esm({
+  "server/competitorMonitor.ts"() {
+    "use strict";
+    VIATOR_URL = "https://www.viator.com/Chiang-Mai/d343-ttd";
+  },
+});
+
 // server/vercel-entry.ts
 import "dotenv/config";
 import helmet from "helmet";
@@ -5444,6 +5570,18 @@ agentApi.get("/upsells/process", async (_req, res) => {
     res.status(500).json({ error: "Failed to process upsells", detail: msg });
   }
 });
+agentApi.get("/competitor/check", async (_req, res) => {
+  try {
+    const { runCompetitorCheck } = await Promise.resolve().then(
+      () => (init_competitorMonitor(), competitorMonitor_exports)
+    );
+    const report = await runCompetitorCheck();
+    res.json({ ok: true, report });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Competitor check failed", detail: msg });
+  }
+});
 function registerAgentApiRoutes(app2) {
   app2.use("/api/agent", agentApi);
 }
@@ -6023,7 +6161,6 @@ var BOT_TOKEN2 =
   process.env.TELEGRAM_BOT_TOKEN ??
   "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
 var ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "8506295306";
-var WIRO_RELAY_CHAT = process.env.WIRO_RELAY_CHAT_ID ?? "";
 var sessions = /* @__PURE__ */ new Map();
 var pendingReplies = /* @__PURE__ */ new Map();
 async function telegramPost(method, body) {

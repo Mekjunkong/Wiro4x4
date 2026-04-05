@@ -196,6 +196,18 @@ agentApi.get("/upsells/process", async (_req: Request, res: Response) => {
   }
 });
 
+// ── Competitor Monitor ──────────────────────────────────────────
+agentApi.get("/competitor/check", async (_req: Request, res: Response) => {
+  try {
+    const { checkCompetitors } = await import("../competitorMonitor");
+    const report = await checkCompetitors();
+    res.json({ ok: true, report });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Competitor check failed", detail: msg });
+  }
+});
+
 export function registerAgentApiRoutes(app: Express) {
   app.use("/api/agent", agentApi);
 }
