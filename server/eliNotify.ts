@@ -114,7 +114,34 @@ export async function notifyNewReview(review: {
   );
 }
 
-// ── F: WhatsApp incoming message with Eli draft ───────────────────────────
+// ── F: Pre-tour reminder due ───────────────────────────────────────────────
+export async function notifyBookingReminder(wa: {
+  bookingId: number;
+  reminderTime: string;
+}) {
+  const time = new Date(wa.reminderTime).toLocaleString("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  await sendTelegram(
+    `⏰ *Pre-Tour Reminder — Departure in ~24h*\n\n` +
+      `🎫 Booking #${wa.bookingId}\n` +
+      `🕐 Reminder time: ${time} BKK\n\n` +
+      `📋 Action: Confirm vehicle, guide & guest readiness\n` +
+      `🔗 https://wiro4x4indochina.com/admin`
+  );
+}
+
+// ── G: Competitor report ───────────────────────────────────────────────────
+export async function notifyCompetitorReport(report: string) {
+  await sendTelegram(`🏁 *Competitor Monitor*\n\n${report.slice(0, 4000)}`);
+}
+
+// ── H: WhatsApp incoming message with Eli draft ───────────────────────────
 export async function notifyWhatsAppMessage(wa: {
   phoneNumber: string;
   name?: string;

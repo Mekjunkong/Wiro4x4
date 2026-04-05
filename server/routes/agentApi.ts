@@ -172,6 +172,18 @@ agentApi.get("/chat/context", async (_req: Request, res: Response) => {
   }
 });
 
+// ── Process due booking reminders ─────────────────────────────────────────
+agentApi.get("/reminders/process", async (_req: Request, res: Response) => {
+  try {
+    const { processReminders } = await import("../bookingReminder");
+    const sent = await processReminders();
+    res.json({ success: true, remindersSent: sent });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Failed to process reminders", detail: msg });
+  }
+});
+
 export function registerAgentApiRoutes(app: Express) {
   app.use("/api/agent", agentApi);
 }

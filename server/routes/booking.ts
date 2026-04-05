@@ -33,6 +33,8 @@ import {
   sendBulkEmailToCustomer,
 } from "../customerEmailService";
 import { bookingInputSchema, paginationInput } from "../../shared/schemas";
+import { notifyBookingConfirmed } from "../eliNotify";
+import { scheduleBookingReminder } from "../bookingReminder";
 
 export const bookingRouter = router({
   create: securePublicProcedure
@@ -151,6 +153,22 @@ export const bookingRouter = router({
           console.error("[Booking] Failed to send customer confirmation:", err);
           captureException(err);
         });
+
+      // Notify Eli of new booking
+      notifyBookingConfirmed({
+        name: input.contactName,
+        date: input.arrivalDate.toISOString().split("T")[0],
+        pax: totalGuests,
+      }).catch(err => {
+        console.error("[Booking] Failed to notify Eli:", err);
+      });
+
+      // Schedule pre-tour reminder (24h before departure)
+      if (input.departureDate) {
+        scheduleBookingReminder(bookingId, input.departureDate).catch(err => {
+          console.error("[Booking] Failed to schedule reminder:", err);
+        });
+      }
 
       return {
         success: true,
