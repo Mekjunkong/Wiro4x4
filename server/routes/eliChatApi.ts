@@ -6,7 +6,6 @@
 
 import type { Express } from "express";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
 import { checkRateLimit } from "../rateLimit";
 import { notifyChatMessage } from "../eliNotify";
 
@@ -158,29 +157,32 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── OpenRouter Client ─────────────────────────────────────────────────
-let _minimaxClient: OpenAI | null = null;
+// ── Google Gemini Client (primary) ───────────────────────────────────
+let _geminiClient: OpenAI | null = null;
+function _getGeminiClient(): OpenAI {
+  if (!_geminiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY missing");
+    _geminiClient = new OpenAI({
+      apiKey,
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    });
+  }
+  return _geminiClient;
+}
+
+// ── OpenRouter Fallback ──────────────────────────────────────────────────
+let _openRouterClient: OpenAI | null = null;
 function getOpenRouterClient(): OpenAI {
-  if (!_minimaxClient) {
+  if (!_openRouterClient) {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) throw new Error("OPENROUTER_API_KEY missing");
-    _minimaxClient = new OpenAI({
+    _openRouterClient = new OpenAI({
       apiKey,
       baseURL: "https://openrouter.ai/api/v1",
     });
   }
-  return _minimaxClient;
-}
-
-// ── Anthropic Fallback Client ─────────────────────────────────────────────
-let _anthropicClient: Anthropic | null = null;
-function getAnthropicClient(): Anthropic {
-  if (!_anthropicClient) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY missing");
-    _anthropicClient = new Anthropic({ apiKey });
-  }
-  return _anthropicClient;
+  return _openRouterClient;
 }
 
 // ── Route ─────────────────────────────────────────────────────────────────
@@ -229,25 +231,9 @@ export function registerEliChatRoute(app: Express) {
           ],
         });
         reply = mmResponse.choices[0]?.message?.content ?? "";
-      } catch {
-        try {
-          const ac = getAnthropicClient();
-          const acResponse = await ac.messages.create({
-            model: "claude-haiku-4-5-20251114",
-            max_tokens: 512,
-            system: systemPrompt,
-            messages: history.concat([
-              { role: "user" as const, content: body.message },
-            ]),
-          });
-          reply =
-            acResponse.content[0]?.type === "text"
-              ? acResponse.content[0].text
-              : "";
-        } catch (err2) {
-          console.error("[EliChat] Both MiniMax and Anthropic failed:", err2);
+      } catch (err2) {
+          console.error("[EliChat] Gemini failed:", err2);
           throw err2;
-        }
       }
 
       // Alert Mek via Telegram if booking intent
