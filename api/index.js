@@ -2751,19 +2751,23 @@ async function createAccountingEntry(data) {
   if (!db) throw new Error("Database not available");
   return await db.insert(accountingEntries).values(data);
 }
-async function getAccountingEntriesPaginated(page = 1, pageSize = 20, filters) {
+async function getAccountingEntriesPaginated(
+  page = 1,
+  pageSize = 20,
+  filters2
+) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
   const conditions = [];
-  if (filters?.accountCode) {
-    conditions.push(eq19(accountingEntries.accountCode, filters.accountCode));
+  if (filters2?.accountCode) {
+    conditions.push(eq19(accountingEntries.accountCode, filters2.accountCode));
   }
-  if (filters?.startDate) {
-    conditions.push(gte2(accountingEntries.date, new Date(filters.startDate)));
+  if (filters2?.startDate) {
+    conditions.push(gte2(accountingEntries.date, new Date(filters2.startDate)));
   }
-  if (filters?.endDate) {
-    conditions.push(lte3(accountingEntries.date, new Date(filters.endDate)));
+  if (filters2?.endDate) {
+    conditions.push(lte3(accountingEntries.date, new Date(filters2.endDate)));
   }
   const whereClause = conditions.length > 0 ? and9(...conditions) : void 0;
   const itemsQuery = db
@@ -3715,6 +3719,534 @@ var init_db = __esm({
   },
 });
 
+// server/_core/llm.ts
+var llm_exports = {};
+__export(llm_exports, {
+  invokeLLM: () => invokeLLM,
+});
+import OpenAI from "openai";
+function getOpenAIClient() {
+  if (!openaiClient) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY is not configured");
+    }
+    openaiClient = new OpenAI({ apiKey });
+  }
+  return openaiClient;
+}
+async function invokeLLM(params) {
+  const openai = getOpenAIClient();
+  const { messages, tools, maxTokens, max_tokens } = params;
+  const resolvedMaxTokens = maxTokens || max_tokens || 4096;
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: messages.map(normalizeMessage),
+      tools: tools?.length ? tools : void 0,
+      max_tokens: resolvedMaxTokens,
+    });
+    return response;
+  } catch (error) {
+    if (error.status === 429) {
+      await new Promise(resolve => setTimeout(resolve, 2e3));
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: messages.map(normalizeMessage),
+        tools: tools?.length ? tools : void 0,
+        max_tokens: resolvedMaxTokens,
+      });
+      return response;
+    } else if (error.status === 401) {
+      throw new Error("OpenAI API key invalid or missing");
+    } else if (error.status >= 500) {
+      throw new Error(
+        "AI service temporarily unavailable. Please try again later."
+      );
+    }
+    console.error("[LLM] OpenAI error:", error);
+    throw new Error("Failed to generate content. Please try again.");
+  }
+}
+var ensureArray, normalizeContentPart, normalizeMessage, openaiClient;
+var init_llm = __esm({
+  "server/_core/llm.ts"() {
+    "use strict";
+    ensureArray = value => (Array.isArray(value) ? value : [value]);
+    normalizeContentPart = part => {
+      if (typeof part === "string") {
+        return { type: "text", text: part };
+      }
+      if (part.type === "text") {
+        return part;
+      }
+      if (part.type === "image_url") {
+        return part;
+      }
+      if (part.type === "file_url") {
+        return part;
+      }
+      throw new Error("Unsupported message content part");
+    };
+    normalizeMessage = message => {
+      const { role, name, tool_call_id } = message;
+      if (role === "tool" || role === "function") {
+        const content = ensureArray(message.content)
+          .map(part => (typeof part === "string" ? part : JSON.stringify(part)))
+          .join("\n");
+        return {
+          role,
+          name,
+          tool_call_id,
+          content,
+        };
+      }
+      const contentParts = ensureArray(message.content).map(
+        normalizeContentPart
+      );
+      if (contentParts.length === 1 && contentParts[0].type === "text") {
+        return {
+          role,
+          name,
+          content: contentParts[0].text,
+        };
+      }
+      return {
+        role,
+        name,
+        content: contentParts,
+      };
+    };
+    openaiClient = null;
+  },
+});
+
+// server/eliNotify.ts
+var eliNotify_exports = {};
+__export(eliNotify_exports, {
+  notifyBookingConfirmed: () => notifyBookingConfirmed,
+  notifyBookingReminder: () => notifyBookingReminder,
+  notifyChatMessage: () => notifyChatMessage,
+  notifyCompetitorReport: () => notifyCompetitorReport,
+  notifyNewLead: () => notifyNewLead,
+  notifyNewReview: () => notifyNewReview,
+  notifyUpsellSent: () => notifyUpsellSent,
+  notifyWhatsAppMessage: () => notifyWhatsAppMessage,
+  sendDailyBrief: () => sendDailyBrief,
+});
+async function sendTelegram(text2) {
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: text2,
+        parse_mode: "Markdown",
+      }),
+    });
+  } catch (e) {
+    console.error("[EliNotify] Telegram failed:", e);
+  }
+}
+async function notifyNewLead(lead) {
+  const tours2 = lead.interestedTours
+    ? `
+\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}`
+    : "";
+  const phone = lead.phone
+    ? `
+\u{1F4F1} Phone: ${lead.phone}`
+    : "";
+  const msg = lead.message
+    ? `
+\u{1F4AC} "${lead.message.slice(0, 100)}"`
+    : "";
+  const src = lead.source ? ` (via ${lead.source})` : "";
+  await sendTelegram(
+    `\u{1F514} *New Inquiry!*${src}
+
+\u{1F464} *${lead.name}*
+\u{1F4E7} ${lead.email}${phone}${tours2}${msg}
+
+\u26A1 Reply now: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyBookingConfirmed(booking) {
+  await sendTelegram(
+    `\u2705 *Booking Confirmed!*
+
+\u{1F464} ${booking.name}
+\u{1F5FA}\uFE0F ${booking.tourName ?? "Tour"}
+\u{1F4C5} ${booking.date ?? "TBD"}
+\u{1F465} ${booking.pax ?? "?"} pax
+` +
+      (booking.totalAmount
+        ? `\u{1F4B0} \u0E3F${booking.totalAmount.toLocaleString()}
+`
+        : "") +
+      `
+\u{1F4CB} View: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyChatMessage(msg) {
+  const intent = msg.userMessage.toLowerCase();
+  const isBooking = [
+    "book",
+    "price",
+    "cost",
+    "available",
+    "reserve",
+    "tour",
+    "\u0E23\u0E32\u0E04\u0E32",
+    "\u0E08\u0E2D\u0E07",
+    "\u0E27\u0E48\u0E32\u0E07",
+    "\u05DB\u05DE\u05D4",
+    "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
+    "\u05D6\u05DE\u05D9\u05DF",
+  ].some(k => intent.includes(k));
+  if (!isBooking) return;
+  await sendTelegram(
+    `\u{1F4AC} *Chat \u2014 Booking Intent*
+
+\u{1F310} Language: ${msg.language ?? "EN"}
+\u{1F4AD} "${msg.userMessage.slice(0, 120)}"
+
+\u{1F440} Live chat: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyNewReview(review) {
+  const stars = "\u2B50".repeat(Math.min(review.rating, 5));
+  await sendTelegram(
+    `${stars} *New Review \u2014 ${review.platform ?? "Google"}*
+
+\u{1F464} ${review.author}
+${review.text ? `\u{1F4AC} "${review.text.slice(0, 100)}"` : ""}
+
+Reply: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyBookingReminder(wa) {
+  const time = new Date(wa.reminderTime).toLocaleString("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  await sendTelegram(
+    `\u23F0 *Pre-Tour Reminder \u2014 Departure in ~24h*
+
+\u{1F3AB} Booking #${wa.bookingId}
+\u{1F550} Reminder time: ${time} BKK
+
+\u{1F4CB} Action: Confirm vehicle, guide & guest readiness
+\u{1F517} https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyUpsellSent(wa) {
+  const emailLine = wa.customerEmail
+    ? `
+\u{1F4E7} ${wa.customerEmail}`
+    : "";
+  await sendTelegram(
+    `\u{1F4E7} *Post-Tour Upsell Sent*
+
+\u{1F3AB} Booking #${wa.bookingId}
+\u{1F464} ${wa.customerName}${emailLine}
+
+\u2705 Upsell email delivered 3 days after completion`
+  );
+}
+async function notifyCompetitorReport(report) {
+  await sendTelegram(`\u{1F3C1} *Competitor Monitor*
+
+${report.slice(0, 4e3)}`);
+}
+async function notifyWhatsAppMessage(wa) {
+  const langLabel = {
+    he: "\u{1F1EE}\u{1F1F1} Hebrew",
+    en: "\u{1F1EC}\u{1F1E7} English",
+    th: "\u{1F1F9}\u{1F1ED} Thai",
+  };
+  const displayName = wa.name
+    ? `${wa.name} (+${wa.phoneNumber})`
+    : `+${wa.phoneNumber}`;
+  await sendTelegram(
+    `\u{1F4F1} *WhatsApp from* ${displayName}
+\u{1F310} Language: ${langLabel[wa.language] ?? wa.language}
+
+\u{1F4AC} "${wa.message.slice(0, 200)}"
+
+\u{1F4DD} *Draft reply:*
+${wa.draftReply.slice(0, 500)}
+
+\u2705 Send: https://wiro4x4indochina.com/admin/whatsapp`
+  );
+}
+async function sendDailyBrief(stats) {
+  const today = /* @__PURE__ */ new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Bangkok",
+  });
+  await sendTelegram(
+    `\u2600\uFE0F *Good morning, Mek!*
+\u{1F4C5} ${today}
+
+\u{1F4CB} Pending inquiries: *${stats.pendingLeads}*
+\u{1F3AB} Bookings this month: *${stats.bookingsThisMonth}*
+\u{1F4B0} Revenue MTD: *\u0E3F${stats.revenue.toLocaleString()}*
+` +
+      (stats.weather
+        ? `\u{1F324}\uFE0F ${stats.weather}
+`
+        : "") +
+      `
+${stats.pendingLeads > 0 ? `\u26A0\uFE0F *${stats.pendingLeads} inquiry(s) waiting!*` : "\u2705 All caught up!"}
+
+\u{1F5A5}\uFE0F Dashboard: https://monitoring-dashboard-iota.vercel.app`
+  );
+}
+var BOT_TOKEN, CHAT_ID;
+var init_eliNotify = __esm({
+  "server/eliNotify.ts"() {
+    "use strict";
+    BOT_TOKEN =
+      process.env.TELEGRAM_BOT_TOKEN ??
+      "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
+    CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
+  },
+});
+
+// server/bookingReminder.ts
+var bookingReminder_exports = {};
+__export(bookingReminder_exports, {
+  processReminders: () => processReminders,
+  scheduleBookingReminder: () => scheduleBookingReminder,
+});
+import fs from "fs/promises";
+async function readReminders() {
+  try {
+    const raw = await fs.readFile(REMINDER_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+async function writeReminders(entries) {
+  await fs.writeFile(REMINDER_FILE, JSON.stringify(entries, null, 2), "utf-8");
+}
+async function scheduleBookingReminder(bookingId, departureDate) {
+  const departure =
+    typeof departureDate === "string" ? new Date(departureDate) : departureDate;
+  const reminderTime = new Date(departure.getTime() - 24 * 60 * 60 * 1e3);
+  const now = /* @__PURE__ */ new Date();
+  if (reminderTime <= now) {
+    console.log(
+      `[BookingReminder] Booking #${bookingId} reminder time ${reminderTime.toISOString()} is in the past \u2014 skipping`
+    );
+    return;
+  }
+  const reminders = await readReminders();
+  const filtered = reminders.filter(r => r.bookingId !== bookingId);
+  filtered.push({
+    bookingId,
+    reminderTime: reminderTime.toISOString(),
+    sent: false,
+    createdAt: now.toISOString(),
+  });
+  await writeReminders(filtered);
+  console.log(
+    `[BookingReminder] Scheduled reminder for booking #${bookingId} at ${reminderTime.toISOString()}`
+  );
+}
+async function processReminders() {
+  const reminders = await readReminders();
+  const now = /* @__PURE__ */ new Date();
+  let sentCount = 0;
+  const updated = [];
+  for (const entry of reminders) {
+    if (entry.sent) {
+      updated.push(entry);
+      continue;
+    }
+    const reminderTime = new Date(entry.reminderTime);
+    if (reminderTime <= now) {
+      try {
+        await sendReminderTelegram(entry.bookingId, reminderTime);
+        entry.sent = true;
+        sentCount++;
+      } catch (err) {
+        console.error(
+          `[BookingReminder] Failed to send reminder for booking #${entry.bookingId}:`,
+          err
+        );
+      }
+    }
+    updated.push(entry);
+  }
+  await writeReminders(updated);
+  console.log(
+    `[BookingReminder] Processed reminders: ${sentCount} sent, ${updated.filter(r => !r.sent).length} pending`
+  );
+  return sentCount;
+}
+async function sendReminderTelegram(bookingId, reminderTime) {
+  const { notifyBookingReminder: notifyBookingReminder2 } =
+    await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+  await notifyBookingReminder2({
+    bookingId,
+    reminderTime: reminderTime.toISOString(),
+  });
+}
+var REMINDER_FILE;
+var init_bookingReminder = __esm({
+  "server/bookingReminder.ts"() {
+    "use strict";
+    REMINDER_FILE = "/tmp/wiro_reminders.json";
+  },
+});
+
+// server/upsellService.ts
+var upsellService_exports = {};
+__export(upsellService_exports, {
+  processUpsells: () => processUpsells,
+  scheduleUpsell: () => scheduleUpsell,
+});
+import fs2 from "fs/promises";
+async function readUpsells() {
+  try {
+    const raw = await fs2.readFile(UPSELL_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+async function writeUpsells(entries) {
+  await fs2.writeFile(UPSELL_FILE, JSON.stringify(entries, null, 2), "utf-8");
+}
+async function scheduleUpsell(params) {
+  const completed =
+    typeof params.completedAt === "string"
+      ? new Date(params.completedAt)
+      : params.completedAt;
+  const sendTime = new Date(completed.getTime() + 3 * 24 * 60 * 60 * 1e3);
+  const now = /* @__PURE__ */ new Date();
+  const upsells = await readUpsells();
+  const filtered = upsells.filter(u => u.bookingId !== params.bookingId);
+  filtered.push({
+    bookingId: params.bookingId,
+    customerName: params.customerName,
+    customerEmail: params.customerEmail ?? null,
+    sendTime: sendTime.toISOString(),
+    sent: false,
+    createdAt: now.toISOString(),
+  });
+  await writeUpsells(filters);
+  console.log(
+    `[Upsell] Scheduled upsell for booking #${params.bookingId} at ${sendTime.toISOString()}`
+  );
+}
+async function processUpsells() {
+  const upsells = await readUpsells();
+  const now = /* @__PURE__ */ new Date();
+  let sentCount = 0;
+  const updated = [];
+  for (const entry of upsells) {
+    if (entry.sent) {
+      updated.push(entry);
+      continue;
+    }
+    const sendTime = new Date(entry.sendTime);
+    if (sendTime <= now) {
+      try {
+        await sendUpsellEmail(entry);
+        await sendUpsellTelegram(entry);
+        entry.sent = true;
+        sentCount++;
+      } catch (err) {
+        console.error(
+          `[Upsell] Failed to send upsell for booking #${entry.bookingId}:`,
+          err
+        );
+      }
+    }
+    updated.push(entry);
+  }
+  await writeUpsells(updated);
+  console.log(
+    `[Upsell] Processed upsells: ${sentCount} sent, ${updated.filter(u => !u.sent).length} pending`
+  );
+  return sentCount;
+}
+async function sendUpsellEmail(entry) {
+  if (!entry.customerEmail) {
+    console.log(
+      `[Upsell] No email for booking #${entry.bookingId} \u2014 skipping email`
+    );
+    return;
+  }
+  const { Resend: Resend8 } = await import("resend");
+  const resend = new Resend8(process.env.RESEND_API_KEY);
+  const html = buildUpsellHtml(entry.customerName);
+  await resend.emails.send({
+    from: "WIRO 4x4 <wiro.adventures@gmail.com>",
+    to: entry.customerEmail,
+    subject:
+      "How was your WIRO 4x4 adventure? \u{1F3CE}\uFE0F We'd love to hear from you!",
+    html,
+  });
+  console.log(`[Upsell] Email sent to ${entry.customerEmail}`);
+}
+function buildUpsellHtml(customerName) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>WIRO 4x4 \u2014 We'd love to have you back!</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  <h2 style="color:#e67e22;">Hey ${customerName}! \u{1F3CE}\uFE0F</h2>
+  <p>Hope you had an amazing time on your WIRO 4x4 adventure in Chiang Mai!</p>
+  <p>We'd love to have you back for another tour. Here are some popular options:</p>
+  <ul>
+    <li><strong>Doi Inthanon</strong> \u2014 Thailand's highest peak, waterfalls & hill tribes \u2014 from \u0E3F3,500</li>
+    <li><strong>Mae Wang Jungle</strong> \u2014 bamboo rafting, elephants & waterfalls \u2014 from \u0E3F3,500</li>
+    <li><strong>Multi-Day Adventure</strong> \u2014 explore more of Northern Thailand \u2014 from \u0E3F7,500</li>
+  </ul>
+  <p>Reply to this email or message us on WhatsApp for the best availability!</p>
+  <p style="margin-top:24px;">Safe travels,<br/><strong>Wiro & the WIRO 4x4 Team</strong></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
+  <p style="font-size:12px;color:#999;">
+    WIRO 4x4 \u2014 Kosher Off-Road Adventures \xB7 Chiang Mai, Thailand<br/>
+    <a href="https://wiro4x4indochina.com">wiro4x4indochina.com</a>
+  </p>
+</body>
+</html>`;
+}
+async function sendUpsellTelegram(entry) {
+  try {
+    const { notifyUpsellSent: notifyUpsellSent2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    await notifyUpsellSent2({
+      bookingId: entry.bookingId,
+      customerName: entry.customerName,
+      customerEmail: entry.customerEmail ?? void 0,
+    });
+  } catch (err) {
+    console.error("[Upsell] Telegram notify failed:", err);
+  }
+}
+var UPSELL_FILE;
+var init_upsellService = __esm({
+  "server/upsellService.ts"() {
+    "use strict";
+    UPSELL_FILE = "/tmp/wiro_upsells.json";
+  },
+});
+
 // server/vercel-entry.ts
 import "dotenv/config";
 import helmet from "helmet";
@@ -4445,6 +4977,65 @@ async function handleIncomingMessage(message) {
   } catch (err) {
     console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
   }
+  draftAndNotifyEli(from, name, text2).catch(err => {
+    console.error("[WhatsApp] Eli draft/notify failed:", err);
+  });
+}
+function detectWsLanguage(text2) {
+  if (HEBREW_REGEX.test(text2)) return "he";
+  if (/[\u0E00-\u0E7F]/.test(text2)) return "th";
+  return "en";
+}
+async function draftAndNotifyEli(phoneNumber, name, message) {
+  const lang = detectWsLanguage(message);
+  const SYSTEM_PROMPT2 = `You are a helpful assistant for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Thailand.
+
+Tour prices:
+- Doi Inthanon: \u0E3F3,500/person
+- Doi Suthep: \u0E3F2,000/person
+- Mae Wang: \u0E3F3,500/person
+- Multi-day packages from \u0E3F7,500
+
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 92-989-4495.`;
+  let draft =
+    "Hi! Thanks for reaching out. A team member will get back to you soon.";
+  try {
+    const { invokeLLM: invokeLLM2 } = await Promise.resolve().then(
+      () => (init_llm(), llm_exports)
+    );
+    const result = await invokeLLM2({
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT2 },
+        { role: "user", content: message },
+      ],
+      maxTokens: 200,
+    });
+    const raw = result.choices[0]?.message?.content;
+    const text2 =
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? (raw.find(p => p.type === "text")?.text ?? "")
+          : "";
+    if (text2.trim().length > 0) {
+      draft = text2.trim();
+    }
+  } catch (err) {
+    console.warn("[WhatsApp] LLM draft failed, using fallback:", err);
+  }
+  try {
+    const { notifyWhatsAppMessage: notifyWhatsAppMessage2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    await notifyWhatsAppMessage2({
+      phoneNumber,
+      name,
+      language: lang,
+      message,
+      draftReply: draft,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] notifyWhatsAppMessage failed:", err);
+  }
 }
 async function sendManualMessage(to, text2) {
   const sentMessageId = await sendWhatsAppMessage(to, text2);
@@ -4802,7 +5393,7 @@ agentApi.get("/whatsapp/recent", async (req, res) => {
 });
 agentApi.post("/eli/dispatch", async (req, res) => {
   try {
-    const { task, agentId, result } = req.body;
+    const { task, agentId } = req.body;
     console.log(`[EliDispatch] ${agentId}: ${task}`);
     res.json({ received: true, agentId, task });
   } catch (_e) {
@@ -4832,84 +5423,38 @@ agentApi.get("/chat/context", async (_req, res) => {
     });
   }
 });
+agentApi.get("/reminders/process", async (_req, res) => {
+  try {
+    const { processReminders: processReminders3 } =
+      await Promise.resolve().then(
+        () => (init_bookingReminder(), bookingReminder_exports)
+      );
+    const sent = await processReminders3();
+    res.json({ success: true, remindersSent: sent });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Failed to process reminders", detail: msg });
+  }
+});
+agentApi.get("/upsells/process", async (_req, res) => {
+  try {
+    const { processUpsells: processUpsells2 } = await Promise.resolve().then(
+      () => (init_upsellService(), upsellService_exports)
+    );
+    const sent = await processUpsells2();
+    res.json({ success: true, upsellsSent: sent });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Failed to process upsells", detail: msg });
+  }
+});
 function registerAgentApiRoutes(app2) {
   app2.use("/api/agent", agentApi);
 }
 
 // server/routes/chatApi.ts
 import Anthropic from "@anthropic-ai/sdk";
-
-// server/eliNotify.ts
-var BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ??
-  "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
-var CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
-async function sendTelegram(text2) {
-  try {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: text2,
-        parse_mode: "Markdown",
-      }),
-    });
-  } catch (e) {
-    console.error("[EliNotify] Telegram failed:", e);
-  }
-}
-async function notifyNewLead(lead) {
-  const tours2 = lead.interestedTours
-    ? `
-\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}`
-    : "";
-  const phone = lead.phone
-    ? `
-\u{1F4F1} Phone: ${lead.phone}`
-    : "";
-  const msg = lead.message
-    ? `
-\u{1F4AC} "${lead.message.slice(0, 100)}"`
-    : "";
-  const src = lead.source ? ` (via ${lead.source})` : "";
-  await sendTelegram(
-    `\u{1F514} *New Inquiry!*${src}
-
-\u{1F464} *${lead.name}*
-\u{1F4E7} ${lead.email}${phone}${tours2}${msg}
-
-\u26A1 Reply now: https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyChatMessage(msg) {
-  const intent = msg.userMessage.toLowerCase();
-  const isBooking = [
-    "book",
-    "price",
-    "cost",
-    "available",
-    "reserve",
-    "tour",
-    "\u0E23\u0E32\u0E04\u0E32",
-    "\u0E08\u0E2D\u0E07",
-    "\u0E27\u0E48\u0E32\u0E07",
-    "\u05DB\u05DE\u05D4",
-    "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
-    "\u05D6\u05DE\u05D9\u05DF",
-  ].some(k => intent.includes(k));
-  if (!isBooking) return;
-  await sendTelegram(
-    `\u{1F4AC} *Chat \u2014 Booking Intent*
-
-\u{1F310} Language: ${msg.language ?? "EN"}
-\u{1F4AD} "${msg.userMessage.slice(0, 120)}"
-
-\u{1F440} Live chat: https://wiro4x4indochina.com/admin`
-  );
-}
-
-// server/routes/chatApi.ts
+init_eliNotify();
 var _client = null;
 function getClient() {
   if (!_client) {
@@ -4924,6 +5469,15 @@ function getClient() {
   return _client;
 }
 var WIRO_CONTEXT = `
+You are Eli, the AI assistant and business partner for WIRO 4x4.
+
+## Who You Are:
+- Name: Eli
+- Role: Personal AI assistant for WIRO 4x4 customers
+- Personality: Warm, knowledgeable, direct, helpful \u2014 not a corporate chatbot
+- You know Northern Thailand deeply and genuinely love helping travelers plan adventures
+- You speak naturally in the customer's language \u2014 no stiff formal language
+
 You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company based in Chiang Mai, Northern Thailand.
 
 ## About WIRO 4x4:
@@ -4960,11 +5514,12 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 
 ## Your Role:
 1. Answer questions about tours, availability, and experiences in the user's preferred language
-2. Be warm, helpful, and knowledgeable about Northern Thailand
-3. When users ask about SPECIFIC PRICING beyond what's listed, or want to BOOK a tour, or need to discuss custom arrangements \u2192 politely direct them to WhatsApp for personalized assistance
-4. Detect the conversation language and respond accordingly (English, Hebrew, or Thai)
-5. Keep responses concise but informative (2-4 paragraphs max)
-6. Use emojis sparingly for a friendly tone
+2. Be genuinely helpful \u2014 skip the filler phrases like "Great question!" or "I'd be happy to help" \u2014 just help
+3. Have opinions: suggest the best tour for their group, be honest about difficulty levels, recommend best seasons
+4. When users ask about SPECIFIC PRICING beyond what's listed, or want to BOOK a tour, or need to discuss custom arrangements \u2192 connect them to WhatsApp personally
+5. Detect the conversation language and respond accordingly (English, Hebrew, or Thai)
+6. Keep responses concise but informative \u2014 bullet points first, details if asked
+7. Use emojis naturally, not excessively
 
 ## IMPORTANT ESCALATION RULES:
 When the user:
@@ -6740,6 +7295,9 @@ var userPhotoSubmissionSchema = z3.object({
 });
 
 // server/routes/booking.ts
+init_eliNotify();
+init_bookingReminder();
+init_upsellService();
 var bookingRouter = router({
   create: securePublicProcedure
     .input(bookingInputSchema)
@@ -6845,6 +7403,18 @@ var bookingRouter = router({
           console.error("[Booking] Failed to send customer confirmation:", err);
           captureException(err);
         });
+      notifyBookingConfirmed({
+        name: input.contactName,
+        date: input.arrivalDate.toISOString().split("T")[0],
+        pax: totalGuests,
+      }).catch(err => {
+        console.error("[Booking] Failed to notify Eli:", err);
+      });
+      if (input.departureDate) {
+        scheduleBookingReminder(bookingId, input.departureDate).catch(err => {
+          console.error("[Booking] Failed to schedule reminder:", err);
+        });
+      }
       return {
         success: true,
         message: "Booking created successfully",
@@ -6920,6 +7490,16 @@ var bookingRouter = router({
           console.log(
             `[BookingStatus] Booking for ${name} status changed: ${oldStatus} -> ${input.data.status}`
           );
+        }
+        if (input.data.status === "completed") {
+          scheduleUpsell({
+            bookingId: input.id,
+            customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
+            customerEmail: oldBooking?.contactEmail,
+            completedAt: /* @__PURE__ */ new Date(),
+          }).catch(err => {
+            console.error("[Booking] Failed to schedule upsell:", err);
+          });
         }
       }
       if (input.data.status === "confirmed") {
@@ -7213,97 +7793,8 @@ var agentRouter = router({
 import { z as z6 } from "zod";
 init_db();
 
-// server/_core/llm.ts
-import OpenAI from "openai";
-var ensureArray = value => (Array.isArray(value) ? value : [value]);
-var normalizeContentPart = part => {
-  if (typeof part === "string") {
-    return { type: "text", text: part };
-  }
-  if (part.type === "text") {
-    return part;
-  }
-  if (part.type === "image_url") {
-    return part;
-  }
-  if (part.type === "file_url") {
-    return part;
-  }
-  throw new Error("Unsupported message content part");
-};
-var normalizeMessage = message => {
-  const { role, name, tool_call_id } = message;
-  if (role === "tool" || role === "function") {
-    const content = ensureArray(message.content)
-      .map(part => (typeof part === "string" ? part : JSON.stringify(part)))
-      .join("\n");
-    return {
-      role,
-      name,
-      tool_call_id,
-      content,
-    };
-  }
-  const contentParts = ensureArray(message.content).map(normalizeContentPart);
-  if (contentParts.length === 1 && contentParts[0].type === "text") {
-    return {
-      role,
-      name,
-      content: contentParts[0].text,
-    };
-  }
-  return {
-    role,
-    name,
-    content: contentParts,
-  };
-};
-var openaiClient = null;
-function getOpenAIClient() {
-  if (!openaiClient) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
-    }
-    openaiClient = new OpenAI({ apiKey });
-  }
-  return openaiClient;
-}
-async function invokeLLM(params) {
-  const openai = getOpenAIClient();
-  const { messages, tools, maxTokens, max_tokens } = params;
-  const resolvedMaxTokens = maxTokens || max_tokens || 4096;
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messages.map(normalizeMessage),
-      tools: tools?.length ? tools : void 0,
-      max_tokens: resolvedMaxTokens,
-    });
-    return response;
-  } catch (error) {
-    if (error.status === 429) {
-      await new Promise(resolve => setTimeout(resolve, 2e3));
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: messages.map(normalizeMessage),
-        tools: tools?.length ? tools : void 0,
-        max_tokens: resolvedMaxTokens,
-      });
-      return response;
-    } else if (error.status === 401) {
-      throw new Error("OpenAI API key invalid or missing");
-    } else if (error.status >= 500) {
-      throw new Error(
-        "AI service temporarily unavailable. Please try again later."
-      );
-    }
-    console.error("[LLM] OpenAI error:", error);
-    throw new Error("Failed to generate content. Please try again.");
-  }
-}
-
 // server/autoResponse.ts
+init_llm();
 init_db();
 import { Resend as Resend3 } from "resend";
 var SENDER_EMAIL3 = COMPANY_SENDER_EMAIL;
@@ -7419,6 +7910,9 @@ Requirements:
     return false;
   }
 }
+
+// server/routes/lead.ts
+init_eliNotify();
 
 // server/leadScoring.ts
 init_db();
@@ -12350,7 +12844,7 @@ async function generateDailySummary() {
     captureException(err);
   }
 }
-async function processReminders() {
+async function processReminders2() {
   let remindersSent = 0;
   let feedbackSent = 0;
   let checked = 0;
@@ -12418,7 +12912,7 @@ async function processReminders() {
   );
 }
 async function hourlyTick() {
-  await processReminders();
+  await processReminders2();
   const staleCount = await checkStaleLeads();
   const coldCount = await checkColdLeads();
   if (staleCount > 0 || coldCount > 0) {
@@ -12556,7 +13050,7 @@ function createApp() {
 // server/seoMiddleware.ts
 init_tours();
 init_blog();
-import fs from "node:fs";
+import fs3 from "node:fs";
 import path from "node:path";
 var SITE_URL3 = "https://www.wiro4x4indochina.com";
 var DEFAULT_OG_IMAGE = `${SITE_URL3}/images/optimized/single_cascade_waterfall-lg.jpg`;
@@ -12792,7 +13286,7 @@ function getIndexHtml() {
       ? path.resolve(import.meta.dirname, "public", "index.html")
       : path.resolve(import.meta.dirname, "..", "dist", "public", "index.html");
   try {
-    cachedHtml = fs.readFileSync(distPath, "utf-8");
+    cachedHtml = fs3.readFileSync(distPath, "utf-8");
     return cachedHtml;
   } catch {
     return null;

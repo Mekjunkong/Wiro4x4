@@ -45,8 +45,8 @@ export function ChatWidget() {
   // Welcome messages
   const welcomeMessage =
     chatLanguage === "en"
-      ? "Hi! I am Wiro 🤙 Ask me anything about our 4x4 tours, kosher options, or how to book!"
-      : "שלום! אני וירו 🤙 שאל אותי כל דבר על הסיורים שלנו, אפשרויות כשרות, או איך להזמין!";
+      ? "Hey! I'm Eli 🤖 WIRO's AI assistant. Ask me anything about our 4x4 tours, kosher options, pricing, or availability — I'll give you straight answers."
+      : "שלום! אני Eli 🤖 העוזר החכם של WIRO 4x4. שאל אותי כל דבר על הסיורים, מחירים, כשרות, או זמינות — אענה מיד!";
 
   const errorMessage =
     chatLanguage === "en"
@@ -130,7 +130,7 @@ export function ChatWidget() {
       const newWelcome =
         newLang === "en"
           ? "Hi! I am Wiro 🤙 Ask me anything about our 4x4 tours, kosher options, or how to book!"
-          : "שלום! אני וירו 🤙 שאל אותי כל דבר על הסיורים שלנו, אפשרויות כשרות, או איך להזמין!";
+          : "שלום! אני Eli 🤖 העוזר החכם של WIRO 4x4. שאל אותי כל דבר על הסיורים, מחירים, כשרות, או זמינות!";
       setMessages([{ role: "ai", content: newWelcome }]);
     }
   };
@@ -163,7 +163,7 @@ export function ChatWidget() {
           {/* Header */}
           <div className="h-12 bg-secondary/10 rounded-t-2xl px-3 flex items-center justify-between">
             <span className="font-semibold text-gray-800 flex items-center gap-1">
-              🌿 {t("Wiro Assistant", "עוזר וירו")}
+              🤖 {t("Eli — AI Assistant", "Eli — עוזר AI")}
             </span>
             <div className="flex items-center gap-2">
               {/* Language toggle */}

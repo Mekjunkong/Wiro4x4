@@ -137,6 +137,21 @@ export async function notifyBookingReminder(wa: {
 }
 
 // ── G: Competitor report ───────────────────────────────────────────────────
+export async function notifyUpsellSent(wa: {
+  bookingId: number;
+  customerName: string;
+  customerEmail?: string;
+}) {
+  const emailLine = wa.customerEmail ? `\n📧 ${wa.customerEmail}` : "";
+  await sendTelegram(
+    `📧 *Post-Tour Upsell Sent*\n\n` +
+      `🎫 Booking #${wa.bookingId}\n` +
+      `👤 ${wa.customerName}${emailLine}\n\n` +
+      `✅ Upsell email delivered 3 days after completion`
+  );
+}
+
+// ── G: Competitor report ───────────────────────────────────────────────────
 export async function notifyCompetitorReport(report: string) {
   await sendTelegram(`🏁 *Competitor Monitor*\n\n${report.slice(0, 4000)}`);
 }

@@ -35,6 +35,7 @@ import {
 import { bookingInputSchema, paginationInput } from "../../shared/schemas";
 import { notifyBookingConfirmed } from "../eliNotify";
 import { scheduleBookingReminder } from "../bookingReminder";
+import { scheduleUpsell } from "../upsellService";
 
 export const bookingRouter = router({
   create: securePublicProcedure
@@ -254,6 +255,18 @@ export const bookingRouter = router({
           console.log(
             `[BookingStatus] Booking for ${name} status changed: ${oldStatus} -> ${input.data.status}`
           );
+        }
+
+        // Schedule post-tour upsell when tour is marked completed
+        if (input.data.status === "completed") {
+          scheduleUpsell({
+            bookingId: input.id,
+            customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
+            customerEmail: oldBooking?.contactEmail,
+            completedAt: new Date(),
+          }).catch(err => {
+            console.error("[Booking] Failed to schedule upsell:", err);
+          });
         }
       }
 

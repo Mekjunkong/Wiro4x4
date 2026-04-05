@@ -184,6 +184,18 @@ agentApi.get("/reminders/process", async (_req: Request, res: Response) => {
   }
 });
 
+// ── Process due post-tour upsells ─────────────────────────────────────────
+agentApi.get("/upsells/process", async (_req: Request, res: Response) => {
+  try {
+    const { processUpsells } = await import("../upsellService");
+    const sent = await processUpsells();
+    res.json({ success: true, upsellsSent: sent });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res.status(500).json({ error: "Failed to process upsells", detail: msg });
+  }
+});
+
 export function registerAgentApiRoutes(app: Express) {
   app.use("/api/agent", agentApi);
 }
