@@ -2,6 +2,10 @@ import type { Express } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { checkRateLimit } from "../rateLimit";
 import { notifyChatMessage } from "../eliNotify";
+import {
+  checkAvailability,
+  extractDateFromMessage,
+} from "../availabilityHelper";
 
 type ChatLanguage = "en" | "he" | "th";
 
@@ -109,8 +113,14 @@ const LANGUAGE_INSTRUCTIONS: Record<ChatLanguage, string> = {
   th: "Respond in Thai (ภาษาไทย). Use polite Thai with appropriate particles (ครับ/ค่ะ). Be helpful and respectful.",
 };
 
-function buildSystemPrompt(language: ChatLanguage): string {
-  return `${WIRO_CONTEXT}
+function buildSystemPrompt(
+  language: ChatLanguage,
+  availabilityInfo?: string
+): string {
+  const avail = availabilityInfo
+    ? `\n\n## Live Availability:\n${availabilityInfo}`
+    : "";
+  return `${WIRO_CONTEXT}${avail}
 
 ## Language Instruction:
 ${LANGUAGE_INSTRUCTIONS[language]}
@@ -225,6 +235,36 @@ export function registerChatApiRoute(app: Express) {
       // Detect actual language from message content
       const detectedLanguage = detectLanguage(body.message, language);
 
+      // Detect availability request: keywords + date pattern
+      const availKeywords = [
+        "available",
+        "ว่าง",
+        "פנוי",
+        "open on",
+        " свободен",
+      ];
+      const messageLower = body.message.toLowerCase();
+      const looksLikeAvailability =
+        availKeywords.some(k => messageLower.includes(k)) ||
+        /\d{4}-\d{2}-\d{2}/.test(body.message) ||
+        /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(body.message);
+
+      let availabilityInfo: string | undefined;
+      if (looksLikeAvailability) {
+        const dateStr = extractDateFromMessage(body.message);
+        if (dateStr) {
+          const avail = await checkAvailability(dateStr);
+          if (avail.length > 0) {
+            availabilityInfo = avail
+              .map(
+                a =>
+                  `- ${a.tourName}: ${a.isBlocked ? "❌ Unavailable" : `✅ ${a.available} slots`}`
+              )
+              .join("\n");
+          }
+        }
+      }
+
       try {
         const client = getClient();
 
@@ -245,7 +285,7 @@ export function registerChatApiRoute(app: Express) {
         const response = await client.messages.create({
           model: "claude-sonnet-4-5-20250929",
           max_tokens: 1024,
-          system: buildSystemPrompt(detectedLanguage),
+          system: buildSystemPrompt(detectedLanguage, availabilityInfo),
           messages: conversationMessages,
         });
 

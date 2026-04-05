@@ -2751,23 +2751,19 @@ async function createAccountingEntry(data) {
   if (!db) throw new Error("Database not available");
   return await db.insert(accountingEntries).values(data);
 }
-async function getAccountingEntriesPaginated(
-  page = 1,
-  pageSize = 20,
-  filters2
-) {
+async function getAccountingEntriesPaginated(page = 1, pageSize = 20, filters) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
   const conditions = [];
-  if (filters2?.accountCode) {
-    conditions.push(eq19(accountingEntries.accountCode, filters2.accountCode));
+  if (filters?.accountCode) {
+    conditions.push(eq19(accountingEntries.accountCode, filters.accountCode));
   }
-  if (filters2?.startDate) {
-    conditions.push(gte2(accountingEntries.date, new Date(filters2.startDate)));
+  if (filters?.startDate) {
+    conditions.push(gte2(accountingEntries.date, new Date(filters.startDate)));
   }
-  if (filters2?.endDate) {
-    conditions.push(lte3(accountingEntries.date, new Date(filters2.endDate)));
+  if (filters?.endDate) {
+    conditions.push(lte3(accountingEntries.date, new Date(filters.endDate)));
   }
   const whereClause = conditions.length > 0 ? and9(...conditions) : void 0;
   const itemsQuery = db
@@ -4144,7 +4140,7 @@ async function scheduleUpsell(params) {
     sent: false,
     createdAt: now.toISOString(),
   });
-  await writeUpsells(filters);
+  await writeUpsells(filtered);
   console.log(
     `[Upsell] Scheduled upsell for booking #${params.bookingId} at ${sendTime.toISOString()}`
   );
@@ -5455,6 +5451,120 @@ function registerAgentApiRoutes(app2) {
 // server/routes/chatApi.ts
 import Anthropic from "@anthropic-ai/sdk";
 init_eliNotify();
+
+// server/availabilityHelper.ts
+init_connection();
+init_schema();
+import { eq as eq27, and as and15 } from "drizzle-orm";
+async function checkAvailability(dateStr) {
+  const db = await getDb();
+  if (!db) return [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return [];
+  try {
+    const { getAllActiveTours: getAllActiveTours2 } =
+      await Promise.resolve().then(() => (init_db(), db_exports));
+    const tours2 = await getAllActiveTours2();
+    const results = [];
+    for (const tour of tours2) {
+      const tourId = tour.id;
+      const records = await db
+        .select()
+        .from(tourAvailability)
+        .where(
+          and15(
+            eq27(tourAvailability.tourId, tourId),
+            eq27(tourAvailability.date, dateStr)
+          )
+        )
+        .limit(1);
+      const record = records[0];
+      if (!record) {
+        results.push({
+          date: dateStr,
+          tourId,
+          tourName: tour.name ?? "Unknown Tour",
+          available: 10,
+          isBlocked: false,
+        });
+      } else if (record.isBlocked) {
+        results.push({
+          date: dateStr,
+          tourId,
+          tourName: tour.name ?? "Unknown Tour",
+          available: 0,
+          isBlocked: true,
+        });
+      } else {
+        results.push({
+          date: dateStr,
+          tourId,
+          tourName: tour.name ?? "Unknown Tour",
+          available: record.maxSlots - record.bookedSlots,
+          isBlocked: false,
+        });
+      }
+    }
+    return results;
+  } catch (err) {
+    console.error("[AvailabilityHelper] checkAvailability error:", err);
+    return [];
+  }
+}
+function extractDateFromMessage(message) {
+  const isoMatch = message.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  if (isoMatch) return isoMatch[1];
+  const dmyMatch = message.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\b/);
+  if (dmyMatch) {
+    const [, d, m, y] = dmyMatch;
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+  const thaiMonths = {
+    january: 1,
+    february: 2,
+    march: 3,
+    april: 4,
+    may: 5,
+    june: 6,
+    july: 7,
+    august: 8,
+    september: 9,
+    october: 10,
+    november: 11,
+    december: 12,
+    jan: 1,
+    feb: 2,
+    mar: 3,
+    apr: 4,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    oct: 10,
+    nov: 11,
+    dec: 12,
+  };
+  const monthNameMatch = message.match(
+    /\b(\d{1,2})\s+(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i
+  );
+  if (monthNameMatch) {
+    const day = parseInt(monthNameMatch[1]);
+    const monthNum = thaiMonths[monthNameMatch[2].toLowerCase()];
+    const year = /* @__PURE__ */ new Date().getFullYear();
+    return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+  const nameDateMatch = message.match(
+    /\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+(\d{1,2})\b/i
+  );
+  if (nameDateMatch) {
+    const monthNum = thaiMonths[nameDateMatch[1].toLowerCase()];
+    const day = parseInt(nameDateMatch[2]);
+    const year = /* @__PURE__ */ new Date().getFullYear();
+    return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+  return null;
+}
+
+// server/routes/chatApi.ts
 var _client = null;
 function getClient() {
   if (!_client) {
@@ -5536,8 +5646,14 @@ var LANGUAGE_INSTRUCTIONS = {
   he: "Respond in Hebrew (\u05E2\u05D1\u05E8\u05D9\u05EA). Use natural Hebrew, not machine-translated. Israeli travelers appreciate a warm, direct communication style.",
   th: "Respond in Thai (\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22). Use polite Thai with appropriate particles (\u0E04\u0E23\u0E31\u0E1A/\u0E04\u0E48\u0E30). Be helpful and respectful.",
 };
-function buildSystemPrompt(language) {
-  return `${WIRO_CONTEXT}
+function buildSystemPrompt(language, availabilityInfo) {
+  const avail = availabilityInfo
+    ? `
+
+## Live Availability:
+${availabilityInfo}`
+    : "";
+  return `${WIRO_CONTEXT}${avail}
 
 ## Language Instruction:
 ${LANGUAGE_INSTRUCTIONS[language]}
@@ -5631,6 +5747,33 @@ function registerChatApiRoute(app2) {
         });
       }
       const detectedLanguage = detectLanguage2(body.message, language);
+      const availKeywords = [
+        "available",
+        "\u0E27\u0E48\u0E32\u0E07",
+        "\u05E4\u05E0\u05D5\u05D9",
+        "open on",
+        " \u0441\u0432\u043E\u0431\u043E\u0434\u0435\u043D",
+      ];
+      const messageLower = body.message.toLowerCase();
+      const looksLikeAvailability =
+        availKeywords.some(k => messageLower.includes(k)) ||
+        /\d{4}-\d{2}-\d{2}/.test(body.message) ||
+        /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(body.message);
+      let availabilityInfo;
+      if (looksLikeAvailability) {
+        const dateStr = extractDateFromMessage(body.message);
+        if (dateStr) {
+          const avail = await checkAvailability(dateStr);
+          if (avail.length > 0) {
+            availabilityInfo = avail
+              .map(
+                a =>
+                  `- ${a.tourName}: ${a.isBlocked ? "\u274C Unavailable" : `\u2705 ${a.available} slots`}`
+              )
+              .join("\n");
+          }
+        }
+      }
       try {
         const client = getClient();
         const conversationMessages = history.slice(-10).map(msg => ({
@@ -5644,7 +5787,7 @@ function registerChatApiRoute(app2) {
         const response = await client.messages.create({
           model: "claude-sonnet-4-5-20250929",
           max_tokens: 1024,
-          system: buildSystemPrompt(detectedLanguage),
+          system: buildSystemPrompt(detectedLanguage, availabilityInfo),
           messages: conversationMessages,
         });
         const replyText =
@@ -5681,22 +5824,215 @@ function registerChatApiRoute(app2) {
   });
 }
 
-// server/routes/chat.ts
-import { Router as Router2 } from "express";
+// server/routes/eliChatApi.ts
 import Anthropic2 from "@anthropic-ai/sdk";
-init_chat();
+init_eliNotify();
+function buildEliPrompt(language, tours2, availability) {
+  const tourList =
+    tours2.length > 0
+      ? tours2
+          .map(
+            t2 =>
+              `- **${t2.name}**: ${t2.duration ?? "Full day"} \xB7 \u0E3F${t2.basePrice?.toLocaleString() ?? "ask"}/person${t2.description ? ` \u2014 ${t2.description.slice(0, 80)}` : ""}`
+          )
+          .join("\n")
+      : `- Doi Inthanon (Roof of Thailand): \u0E3F3,500/pp \u2014 Full day
+- Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day  
+- Mae Kampong Village: \u0E3F2,500/pp \u2014 Half/full day
+- Maerim Sticky Waterfalls: \u0E3F3,000/pp \u2014 Full day
+- Mae Wang Jungle Wilderness: \u0E3F3,500/pp \u2014 Full day
+- Samoeng Loop Circuit: \u0E3F3,200/pp \u2014 Full day
+- 2-Day Adventure Package: \u0E3F7,500/pp
+- 3-Day Explorer Package: \u0E3F12,000/pp
+- 5-Day Ultimate Package: \u0E3F22,000/pp`;
+  const availNote = availability.nextAvailable
+    ? `
+Next available date: ${availability.nextAvailable}`
+    : "";
+  const langInstructions = {
+    en: "Respond in English. Be direct and warm \u2014 no filler phrases.",
+    he: "\u05E2\u05E0\u05D4 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA \u05D8\u05D1\u05E2\u05D9\u05EA. \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D9\u05E9\u05D9\u05E8\u05D4 \u05D5\u05D7\u05DE\u05D4. \u05D0\u05DC \u05EA\u05E9\u05EA\u05DE\u05E9 \u05D1\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05DB\u05D0\u05E0\u05D9.",
+    th: "\u0E15\u0E2D\u0E1A\u0E40\u0E1B\u0E47\u0E19\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E43\u0E0A\u0E49\u0E20\u0E32\u0E29\u0E32\u0E17\u0E35\u0E48\u0E40\u0E1B\u0E47\u0E19\u0E18\u0E23\u0E23\u0E21\u0E0A\u0E32\u0E15\u0E34 \u0E2A\u0E38\u0E20\u0E32\u0E1E \u0E01\u0E23\u0E30\u0E0A\u0E31\u0E1A",
+  };
+  return `You are Eli, the AI assistant for WIRO 4x4 \u2014 a kosher off-road adventure company in Chiang Mai, Thailand.
+
+## Who You Are
+- Name: Eli (not "Wiro" \u2014 you are the AI, Wiro is the human guide)
+- Personality: Direct, knowledgeable, genuinely helpful. No corporate speak. No "Great question!" filler.
+- You know Northern Thailand deeply and love helping travelers plan real adventures.
+- You speak naturally in the customer's language.
+
+## WIRO 4x4 \u2014 Current Tours
+${tourList}${availNote}
+
+## Kosher & Jewish Travelers
+- All tours can include kosher meals (advance notice needed)
+- Hebrew-speaking guide (Wiro) available
+- Shabbat-friendly scheduling possible
+- Coordination with Chabad Chiang Mai available
+- This is a specialty \u2014 we're experienced with Israeli/Jewish travelers
+
+## Contact
+- WhatsApp: +66 92-989-4495
+- Website: wiro4x4indochina.com
+- Email: wiro.adventures@gmail.com
+
+## How to Respond
+- Give real, useful answers first \u2014 then offer to connect them with Mek (owner) for booking
+- If asked for specific group pricing / exact dates / custom routes \u2192 say you'll connect them to WhatsApp for a personal quote
+- Suggest the best tour for their situation (family? adventure? short time?)
+- Be concise: bullet points work great
+- For booking/payment: "Message us on WhatsApp +66 92-989-4495 for an instant quote"
+
+## Language
+${langInstructions[language]}`;
+}
+function detectLanguage3(text2, hint) {
+  if (hint && ["en", "he", "th"].includes(hint)) return hint;
+  const hebrewPattern = /[\u0590-\u05FF]/;
+  const thaiPattern = /[\u0E00-\u0E7F]/;
+  if (hebrewPattern.test(text2)) return "he";
+  if (thaiPattern.test(text2)) return "th";
+  return "en";
+}
+function isBookingIntent(msg) {
+  const kw = [
+    "book",
+    "reserve",
+    "available",
+    "price",
+    "cost",
+    "how much",
+    "quote",
+    "schedule",
+    "date",
+    "\u0E23\u0E32\u0E04\u0E32",
+    "\u0E08\u0E2D\u0E07",
+    "\u0E27\u0E48\u0E32\u0E07",
+    "\u05DB\u05DE\u05D4",
+    "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
+    "\u05D6\u05DE\u05D9\u05DF",
+    "\u05DE\u05D7\u05D9\u05E8",
+    "\u05EA\u05D0\u05E8\u05D9\u05DA",
+  ];
+  const lower = msg.toLowerCase();
+  return kw.some(k => lower.includes(k));
+}
+async function fetchRealTours() {
+  try {
+    const { getAllActiveTours: getAllActiveTours2 } =
+      await Promise.resolve().then(() => (init_db(), db_exports));
+    const tours2 = await getAllActiveTours2();
+    return tours2.slice(0, 12).map(t2 => ({
+      name: String(t2.name ?? ""),
+      duration: t2.duration ? String(t2.duration) : null,
+      basePrice:
+        typeof t2.basePrice === "number"
+          ? t2.basePrice
+          : typeof t2.price === "number"
+            ? t2.price
+            : null,
+      description: t2.description ? String(t2.description).slice(0, 100) : null,
+    }));
+  } catch {
+    return [];
+  }
+}
 var _client2 = null;
 function getClient2() {
   if (!_client2) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) throw new Error("ANTHROPIC_API_KEY missing");
+    _client2 = new Anthropic2({ apiKey });
+  }
+  return _client2;
+}
+function registerEliChatRoute(app2) {
+  app2.post("/api/eli/chat", async (req, res) => {
+    try {
+      const ip = req.headers["x-forwarded-for"] || "unknown";
+      const { allowed } = checkRateLimit(`eli-chat:${ip}`, 30, 6e4);
+      if (!allowed) {
+        return res.status(429).json({ error: "Rate limit exceeded" });
+      }
+      const body = req.body;
+      if (!body.message || typeof body.message !== "string") {
+        return res.status(400).json({ error: "Message required" });
+      }
+      if (body.message.length > 2e3) {
+        return res.status(400).json({ error: "Message too long" });
+      }
+      const language = detectLanguage3(body.message, body.language);
+      const history = Array.isArray(body.history)
+        ? body.history.slice(-10)
+        : [];
+      const [tours2] = await Promise.all([fetchRealTours()]);
+      const availability = {};
+      const systemPrompt = buildEliPrompt(language, tours2, availability);
+      const messages = [
+        ...history.map(m => ({
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.content,
+        })),
+        { role: "user", content: body.message },
+      ];
+      const response = await getClient2().messages.create({
+        model: "claude-haiku-4-5-20251014",
+        max_tokens: 512,
+        system: systemPrompt,
+        messages,
+      });
+      const reply =
+        response.content[0]?.type === "text" ? response.content[0].text : "";
+      if (isBookingIntent(body.message)) {
+        notifyChatMessage({
+          userMessage: body.message,
+          language,
+          sessionId: body.sessionId,
+        }).catch(() => {});
+      }
+      return res.json({
+        reply,
+        language,
+        agent: "eli",
+        escalate: isBookingIntent(body.message),
+        sessionId: null,
+      });
+    } catch (err) {
+      console.error("[EliChat] Error:", err);
+      const fallback = {
+        en: "I'm having a moment \u2014 please WhatsApp us at +66 92-989-4495 for immediate help!",
+        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495",
+        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +66 92-989-4495",
+      };
+      const lang = detectLanguage3(req.body?.message ?? "", req.body?.language);
+      return res.json({
+        reply: fallback[lang],
+        language: lang,
+        agent: "eli",
+        escalate: true,
+        sessionId: null,
+      });
+    }
+  });
+}
+
+// server/routes/chat.ts
+import { Router as Router2 } from "express";
+import Anthropic3 from "@anthropic-ai/sdk";
+init_chat();
+var _client3 = null;
+function getClient3() {
+  if (!_client3) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error(
         "ANTHROPIC_API_KEY environment variable is required for chat"
       );
     }
-    _client2 = new Anthropic2({ apiKey });
+    _client3 = new Anthropic3({ apiKey });
   }
-  return _client2;
+  return _client3;
 }
 var SYSTEM_PROMPT = `You are Wiro, the friendly AI assistant for WIRO 4x4 Indochina \u2014 a kosher off-road 4x4 tour company in Chiang Mai, Thailand. You help travelers (mostly Israeli/Jewish tourists) plan their Northern Thailand adventures.
 
@@ -5763,7 +6099,7 @@ chatRouter.post("/message", async (req, res) => {
     });
     let reply;
     try {
-      const client = getClient2();
+      const client = getClient3();
       const response = await client.messages.create({
         model: "claude-sonnet-4-5-20250929",
         max_tokens: 300,
@@ -9396,19 +9732,19 @@ import { z as z12 } from "zod";
 init_db();
 
 // server/aiContentGenerator.ts
-import Anthropic3 from "@anthropic-ai/sdk";
-var _client3 = null;
-function getClient3() {
-  if (!_client3) {
+import Anthropic4 from "@anthropic-ai/sdk";
+var _client4 = null;
+function getClient4() {
+  if (!_client4) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error(
         "ANTHROPIC_API_KEY environment variable is required for AI content generation"
       );
     }
-    _client3 = new Anthropic3({ apiKey });
+    _client4 = new Anthropic4({ apiKey });
   }
-  return _client3;
+  return _client4;
 }
 function buildSystemPrompt2(tourData) {
   const tourList =
@@ -9448,7 +9784,7 @@ You MUST respond with a valid JSON object containing these exact fields:
 Respond ONLY with the JSON object, no other text.`;
 }
 async function generateBlogDraft(options) {
-  const client = getClient3();
+  const client = getClient4();
   const response = await client.messages.create({
     model: "claude-sonnet-4-5-20250929",
     max_tokens: 4096,
@@ -10106,10 +10442,10 @@ var settingsRouter = router({
 // server/routes/dashboard.ts
 import {
   sql as sql20,
-  eq as eq27,
-  and as and15,
-  gte as gte7,
-  lte as lte5,
+  eq as eq28,
+  and as and16,
+  gte as gte8,
+  lte as lte6,
   count as count3,
   sum as sum2,
 } from "drizzle-orm";
@@ -10137,7 +10473,7 @@ var dashboardRouter = router({
         count: count3().as("count"),
       })
       .from(bookings)
-      .where(gte7(bookings.createdAt, thirtyDaysAgo))
+      .where(gte8(bookings.createdAt, thirtyDaysAgo))
       .groupBy(sql20`DATE(${bookings.createdAt})`)
       .orderBy(sql20`DATE(${bookings.createdAt})`);
     const revenueByDay = await db
@@ -10147,9 +10483,9 @@ var dashboardRouter = router({
       })
       .from(financialRecords)
       .where(
-        and15(
-          eq27(financialRecords.type, "revenue"),
-          gte7(financialRecords.createdAt, thirtyDaysAgo)
+        and16(
+          eq28(financialRecords.type, "revenue"),
+          gte8(financialRecords.createdAt, thirtyDaysAgo)
         )
       )
       .groupBy(sql20`DATE(${financialRecords.createdAt})`)
@@ -10167,9 +10503,9 @@ var dashboardRouter = router({
       .select()
       .from(bookings)
       .where(
-        and15(
-          gte7(bookings.arrivalDate, sql20`CURDATE()`),
-          lte5(bookings.arrivalDate, sevenDaysFromNow),
+        and16(
+          gte8(bookings.arrivalDate, sql20`CURDATE()`),
+          lte6(bookings.arrivalDate, sevenDaysFromNow),
           sql20`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       )
@@ -10178,11 +10514,11 @@ var dashboardRouter = router({
     const [pendingCount] = await db
       .select({ count: count3().as("count") })
       .from(bookings)
-      .where(eq27(bookings.status, "pending"));
+      .where(eq28(bookings.status, "pending"));
     const [newLeadsCount] = await db
       .select({ count: count3().as("count") })
       .from(leads)
-      .where(eq27(leads.status, "new"));
+      .where(eq28(leads.status, "new"));
     return {
       bookingsByDay: bookingsByDay.map(r => ({
         date: r.date,
@@ -10225,30 +10561,30 @@ var dashboardRouter = router({
     const [pendingBookings] = await db
       .select({ count: count3() })
       .from(bookings)
-      .where(eq27(bookings.status, "pending"));
+      .where(eq28(bookings.status, "pending"));
     const [newLeads] = await db
       .select({ count: count3() })
       .from(leads)
-      .where(eq27(leads.status, "new"));
+      .where(eq28(leads.status, "new"));
     const [pendingReviews] = await db
       .select({ count: count3() })
       .from(reviews)
-      .where(eq27(reviews.isApproved, 0));
+      .where(eq28(reviews.isApproved, 0));
     const [draftPosts] = await db
       .select({ count: count3() })
       .from(blogPosts)
-      .where(eq27(blogPosts.isPublished, 0));
+      .where(eq28(blogPosts.isPublished, 0));
     const [newCustomers] = await db
       .select({ count: count3() })
       .from(customers)
-      .where(gte7(customers.createdAt, weekAgo));
+      .where(gte8(customers.createdAt, weekAgo));
     const [todayTours] = await db
       .select({ count: count3() })
       .from(bookings)
       .where(
-        and15(
-          gte7(bookings.arrivalDate, sql20`CURDATE()`),
-          lte5(bookings.arrivalDate, tomorrow),
+        and16(
+          gte8(bookings.arrivalDate, sql20`CURDATE()`),
+          lte6(bookings.arrivalDate, tomorrow),
           sql20`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       );
@@ -10413,7 +10749,7 @@ var bookingDraftRouter = router({
 init_db();
 init_schema();
 init_analytics();
-import { count as count4, gte as gte8 } from "drizzle-orm";
+import { count as count4, gte as gte9 } from "drizzle-orm";
 var analyticsRouter = router({
   /** Existing booking funnel (30 days). */
   funnelData: secureProtectedProcedure.query(async () => {
@@ -10423,11 +10759,11 @@ var analyticsRouter = router({
     const [completedResult] = await db
       .select({ count: count4() })
       .from(bookings)
-      .where(gte8(bookings.createdAt, thirtyDaysAgo));
+      .where(gte9(bookings.createdAt, thirtyDaysAgo));
     const [draftsResult] = await db
       .select({ count: count4() })
       .from(bookingDrafts)
-      .where(gte8(bookingDrafts.createdAt, thirtyDaysAgo));
+      .where(gte9(bookingDrafts.createdAt, thirtyDaysAgo));
     const completed = completedResult?.count ?? 0;
     const abandoned = draftsResult?.count ?? 0;
     const started = completed + abandoned;
@@ -13036,6 +13372,7 @@ function createApp() {
   registerWhatsAppWebhookRoute(app2);
   registerAgentApiRoutes(app2);
   registerChatApiRoute(app2);
+  registerEliChatRoute(app2);
   registerChatRoute(app2);
   app2.use(
     "/api/trpc",
