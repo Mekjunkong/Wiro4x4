@@ -157,15 +157,15 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── Google Gemini Client (primary) ───────────────────────────────────
+// ── MiniMax Client (primary) ───────────────────────────────────
 let _geminiClient: OpenAI | null = null;
 function _getGeminiClient(): OpenAI {
   if (!_geminiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY missing");
+    const apiKey = process.env.MINIMAX_API_KEY;
+    if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
     _geminiClient = new OpenAI({
       apiKey,
-      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+      baseURL: "https://api.minimax.io/v1",
     });
   }
   return _geminiClient;
