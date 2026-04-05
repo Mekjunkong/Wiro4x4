@@ -32,11 +32,12 @@ export function ChatWidget() {
     window.dispatchEvent(new CustomEvent("chat-open", { detail: isOpen }));
   }, [isOpen]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [eliAvailable, setEliAvailable] = useState<boolean | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatLanguage, setChatLanguage] = useState<"en" | "he">(appLanguage);
   const [visitorId] = useState(getVisitorId);
-  const [_sessionId, setSessionId] = useState<number | null>(null);
+  const [_sessionId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +87,43 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
+      if (eliAvailable === null) {
+        // First message: try Eli relay with fast timeout (4s)
+        try {
+          const controller = new AbortController();
+          const id = setTimeout(() => controller.abort(), 4000);
+          const relayRes = await fetch("/api/eli/relay", {
+            method: "POST",
+            signal: controller.signal,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: userMessage,
+              sessionId: `${visitorId}-${Date.now()}`,
+              language: chatLanguage,
+              visitorName: "Website Visitor",
+            }),
+          });
+          clearTimeout(id);
+          if (relayRes.ok) {
+            const relayData = (await relayRes.json()) as { reply?: string };
+            // Poll for response (max 10s)
+            if (relayData.reply) {
+              setMessages(prev => [
+                ...prev,
+                { role: "ai", content: relayData.reply! },
+              ]);
+              setIsLoading(false);
+              setEliAvailable(true);
+              return;
+            }
+            // If no immediate reply, fall through to direct
+          }
+        } catch {
+          // Relay failed, fall through to direct Claude
+        }
+      }
+
+      // Fallback: Claude with Eli persona + real DB data
       const response = await fetch("/api/eli/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,10 +139,10 @@ export function ChatWidget() {
 
       const data = (await response.json()) as {
         reply: string;
-        sessionId: number;
+        agent?: string;
       };
 
-      setSessionId(data.sessionId);
+      setEliAvailable(false);
       setMessages(prev => [...prev, { role: "ai", content: data.reply }]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -112,7 +150,7 @@ export function ChatWidget() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, visitorId, chatLanguage, errorMessage]);
+  }, [input, isLoading, visitorId, chatLanguage, errorMessage, eliAvailable]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey && !isLoading) {

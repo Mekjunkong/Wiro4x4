@@ -5572,10 +5572,11 @@ agentApi.get("/upsells/process", async (_req, res) => {
 });
 agentApi.get("/competitor/check", async (_req, res) => {
   try {
-    const { runCompetitorCheck } = await Promise.resolve().then(
-      () => (init_competitorMonitor(), competitorMonitor_exports)
-    );
-    const report = await runCompetitorCheck();
+    const { checkCompetitors: checkCompetitors2 } =
+      await Promise.resolve().then(
+        () => (init_competitorMonitor(), competitorMonitor_exports)
+      );
+    const report = await checkCompetitors2();
     res.json({ ok: true, report });
   } catch (_e) {
     const msg = _e instanceof Error ? _e.message : "Unknown error";
@@ -6228,6 +6229,29 @@ async function pollEliReplies() {
   }
 }
 function registerEliRelayRoute(app2) {
+  app2.get("/api/eli/gateway-health", async (_req, res) => {
+    try {
+      const gwUrl =
+        process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789";
+      const gwToken =
+        process.env.OPENCLAW_GATEWAY_TOKEN ??
+        "51732cbbbcc9d9e1a9a2db8cd1e6062351615c2c44102e76";
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 3e3);
+      const result = await fetch(`${gwUrl}/health`, {
+        signal: controller.signal,
+        headers: { Authorization: `Bearer ${gwToken}` },
+      });
+      clearTimeout(id);
+      res
+        .status(result.ok ? 200 : 503)
+        .json({ ok: result.ok, gateway: "openclaw" });
+    } catch {
+      res
+        .status(503)
+        .json({ ok: false, gateway: "openclaw", reason: "unreachable" });
+    }
+  });
   app2.post("/api/eli/relay", async (req, res) => {
     try {
       const ip = req.headers["x-forwarded-for"] || "unknown";

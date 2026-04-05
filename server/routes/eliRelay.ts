@@ -117,6 +117,31 @@ interface TelegramUpdate {
 
 // ── Express Routes ────────────────────────────────────────────────────────────
 export function registerEliRelayRoute(app: Express) {
+  // GET /api/eli/gateway-health — Check if OpenClaw gateway is reachable
+  app.get("/api/eli/gateway-health", async (_req, res) => {
+    try {
+      const gwUrl =
+        process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789";
+      const gwToken =
+        process.env.OPENCLAW_GATEWAY_TOKEN ??
+        "51732cbbbcc9d9e1a9a2db8cd1e6062351615c2c44102e76";
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 3000);
+      const result = await fetch(`${gwUrl}/health`, {
+        signal: controller.signal,
+        headers: { Authorization: `Bearer ${gwToken}` },
+      });
+      clearTimeout(id);
+      res
+        .status(result.ok ? 200 : 503)
+        .json({ ok: result.ok, gateway: "openclaw" });
+    } catch {
+      res
+        .status(503)
+        .json({ ok: false, gateway: "openclaw", reason: "unreachable" });
+    }
+  });
+
   // POST /api/eli/relay — Send message to Eli, wait for response
   app.post("/api/eli/relay", async (req, res) => {
     try {
