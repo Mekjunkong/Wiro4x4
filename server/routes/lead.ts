@@ -21,6 +21,7 @@ import {
 } from "../db";
 import { leadInputSchema, paginationInput } from "../../shared/schemas";
 import { sendAutoResponse } from "../autoResponse";
+import { notifyNewLead } from "../eliNotify";
 import { calculateLeadScore, type LeadData } from "../leadScoring";
 
 export const leadRouter = router({
@@ -62,6 +63,16 @@ export const leadRouter = router({
           console.error("[Lead] Failed to update lead score:", err)
         );
       }
+
+      // Notify Eli → Telegram (async, non-blocking)
+      notifyNewLead({
+        name: input.name,
+        email: input.email,
+        phone: input.phone ?? undefined,
+        source: input.source ?? undefined,
+        interestedTours: input.interestedTours ?? undefined,
+        message: input.message ?? undefined,
+      }).catch(err => console.error("[Lead] Eli notify failed:", err));
 
       // Send AI auto-response (async, non-blocking)
       sendAutoResponse({

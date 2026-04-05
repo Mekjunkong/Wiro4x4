@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { checkRateLimit } from "../rateLimit";
+import { notifyChatMessage } from "../eliNotify";
 
 type ChatLanguage = "en" | "he" | "th";
 
@@ -243,6 +244,12 @@ export function registerChatApiRoute(app: Express) {
 
         // Determine if escalation is needed
         const escalate = shouldEscalate(replyText, body.message);
+
+        // Notify Eli if booking intent detected (async, non-blocking)
+        notifyChatMessage({
+          userMessage: body.message,
+          language: detectedLanguage,
+        }).catch(() => {});
 
         const chatResponse: ChatResponse = {
           reply: replyText,

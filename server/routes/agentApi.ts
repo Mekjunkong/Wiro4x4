@@ -138,6 +138,40 @@ agentApi.get("/whatsapp/recent", async (req: Request, res: Response) => {
   }
 });
 
+// ── Eli Webhook: receive task dispatch from monitoring dashboard ──────────
+agentApi.post("/eli/dispatch", async (req: Request, res: Response) => {
+  try {
+    const { task, agentId } = req.body as {
+      task: string;
+      agentId: string;
+      result?: string;
+    };
+    console.log(`[EliDispatch] ${agentId}: ${task}`);
+    // Log to activity (future: save to DB)
+    res.json({ received: true, agentId, task });
+  } catch (_e) {
+    res.status(500).json({ error: "Dispatch failed" });
+  }
+});
+
+// ── Live context for chat widget (tours + availability) ────────────────────
+agentApi.get("/chat/context", async (_req: Request, res: Response) => {
+  try {
+    const { getAllActiveTours } = await import("../db/index.js");
+    const tours = await getAllActiveTours();
+    const tourList = tours.slice(0, 10).map((t: Record<string, unknown>) => ({
+      name: t.name,
+      price: t.price,
+      duration: t.duration,
+      description:
+        typeof t.description === "string" ? t.description.slice(0, 100) : "",
+    }));
+    res.json({ tours: tourList, updatedAt: new Date().toISOString() });
+  } catch (_e) {
+    res.json({ tours: [], updatedAt: new Date().toISOString() });
+  }
+});
+
 export function registerAgentApiRoutes(app: Express) {
   app.use("/api/agent", agentApi);
 }
