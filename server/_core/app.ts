@@ -8,6 +8,7 @@ import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
 import { registerAgentApiRoutes } from "../routes/agentApi";
 import { registerChatApiRoute } from "../routes/chatApi";
 import { registerEliChatRoute } from "../routes/eliChatApi";
+import { registerEliRelayRoute } from "../routes/eliRelay";
 import { registerChatRoute } from "../routes/chat";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -46,6 +47,7 @@ export function createApp() {
   // AI Chat API (legacy endpoint)
   registerChatApiRoute(app);
   registerEliChatRoute(app);
+  registerEliRelayRoute(app);
 
   // AI Chat API with DB persistence
   registerChatRoute(app);

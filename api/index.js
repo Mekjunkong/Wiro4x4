@@ -6017,6 +6017,140 @@ function registerEliChatRoute(app2) {
   });
 }
 
+// server/routes/eliRelay.ts
+init_eliNotify();
+var BOT_TOKEN2 =
+  process.env.TELEGRAM_BOT_TOKEN ??
+  "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
+var ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "8506295306";
+var WIRO_RELAY_CHAT = process.env.WIRO_RELAY_CHAT_ID ?? "";
+var sessions = /* @__PURE__ */ new Map();
+var pendingReplies = /* @__PURE__ */ new Map();
+async function telegramPost(method, body) {
+  const res = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN2}/${method}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }
+  );
+  return res.json();
+}
+async function telegramGet(method, params = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(params).map(([k, v]) => [k, String(v)])
+  );
+  const res = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN2}/${method}?${qs}`
+  );
+  return res.json();
+}
+async function sendToEli(sessionId, visitorName, message, language) {
+  const langLabel =
+    language === "he"
+      ? "\u{1F1EE}\u{1F1F1} Hebrew"
+      : language === "th"
+        ? "\u{1F1F9}\u{1F1ED} Thai"
+        : "\u{1F1EC}\u{1F1E7} English";
+  const text2 = `\u{1F4AC} *WIRO Website Chat* [${langLabel}]
+\u{1F464} Visitor: ${visitorName}
+\u{1F194} Session: \`${sessionId.slice(0, 8)}\`
+
+${message}`;
+  await telegramPost("sendMessage", {
+    chat_id: ELI_CHAT_ID,
+    text: text2,
+    parse_mode: "Markdown",
+  });
+}
+var lastUpdateId = 0;
+async function pollEliReplies() {
+  try {
+    const data = await telegramGet("getUpdates", {
+      offset: lastUpdateId + 1,
+      limit: 10,
+      timeout: 0,
+    });
+    if (!data.ok || !data.result?.length) return;
+    for (const update of data.result) {
+      lastUpdateId = update.update_id;
+      const msg = update.message;
+      if (!msg?.text) continue;
+      const text2 = msg.text;
+      const sessionMatch = text2.match(/\[session:([a-f0-9]+)\]/i);
+      if (sessionMatch) {
+        const sessionId = sessionMatch[1];
+        const replies = pendingReplies.get(sessionId) ?? [];
+        replies.push(text2.replace(/\[session:[a-f0-9]+\]/i, "").trim());
+        pendingReplies.set(sessionId, replies);
+      }
+    }
+  } catch (e) {
+    console.error("[EliRelay] Poll error:", e);
+  }
+}
+function registerEliRelayRoute(app2) {
+  app2.post("/api/eli/relay", async (req, res) => {
+    try {
+      const ip = req.headers["x-forwarded-for"] || "unknown";
+      const { allowed } = checkRateLimit(`eli-relay:${ip}`, 20, 6e4);
+      if (!allowed) {
+        return res.status(429).json({ error: "Rate limit exceeded" });
+      }
+      const { message, sessionId, language, visitorName } = req.body;
+      if (!message || !sessionId) {
+        return res
+          .status(400)
+          .json({ error: "message and sessionId required" });
+      }
+      const lang = language ?? "en";
+      const name = visitorName ?? "Anonymous";
+      const shortSession = sessionId.slice(0, 8);
+      await sendToEli(shortSession, name, message, lang);
+      notifyChatMessage({
+        userMessage: message,
+        language: lang,
+        sessionId,
+      }).catch(() => {});
+      sessions.set(shortSession, {
+        chatId: ELI_CHAT_ID,
+        lastUpdate: Date.now(),
+      });
+      return res.json({
+        ok: true,
+        sessionId: shortSession,
+        message:
+          "Message sent to Eli. Use /api/eli/relay/poll to get response.",
+      });
+    } catch (e) {
+      console.error("[EliRelay] Send error:", e);
+      return res.status(500).json({ error: "Relay failed" });
+    }
+  });
+  app2.get("/api/eli/relay/poll", async (req, res) => {
+    const { sessionId } = req.query;
+    if (!sessionId)
+      return res.status(400).json({ error: "sessionId required" });
+    await pollEliReplies();
+    const replies = pendingReplies.get(sessionId) ?? [];
+    if (replies.length > 0) {
+      pendingReplies.delete(sessionId);
+      return res.json({ reply: replies[0], hasMore: replies.length > 1 });
+    }
+    return res.json({ reply: null, waiting: true });
+  });
+  app2.post("/api/eli/relay/webhook", async (req, res) => {
+    const { sessionId, reply } = req.body;
+    if (sessionId && reply) {
+      const existing = pendingReplies.get(sessionId) ?? [];
+      existing.push(reply);
+      pendingReplies.set(sessionId, existing);
+    }
+    return res.json({ ok: true });
+  });
+}
+
 // server/routes/chat.ts
 import { Router as Router2 } from "express";
 import Anthropic3 from "@anthropic-ai/sdk";
@@ -10444,8 +10578,8 @@ import {
   sql as sql20,
   eq as eq28,
   and as and16,
-  gte as gte8,
-  lte as lte6,
+  gte as gte7,
+  lte as lte5,
   count as count3,
   sum as sum2,
 } from "drizzle-orm";
@@ -10473,7 +10607,7 @@ var dashboardRouter = router({
         count: count3().as("count"),
       })
       .from(bookings)
-      .where(gte8(bookings.createdAt, thirtyDaysAgo))
+      .where(gte7(bookings.createdAt, thirtyDaysAgo))
       .groupBy(sql20`DATE(${bookings.createdAt})`)
       .orderBy(sql20`DATE(${bookings.createdAt})`);
     const revenueByDay = await db
@@ -10485,7 +10619,7 @@ var dashboardRouter = router({
       .where(
         and16(
           eq28(financialRecords.type, "revenue"),
-          gte8(financialRecords.createdAt, thirtyDaysAgo)
+          gte7(financialRecords.createdAt, thirtyDaysAgo)
         )
       )
       .groupBy(sql20`DATE(${financialRecords.createdAt})`)
@@ -10504,8 +10638,8 @@ var dashboardRouter = router({
       .from(bookings)
       .where(
         and16(
-          gte8(bookings.arrivalDate, sql20`CURDATE()`),
-          lte6(bookings.arrivalDate, sevenDaysFromNow),
+          gte7(bookings.arrivalDate, sql20`CURDATE()`),
+          lte5(bookings.arrivalDate, sevenDaysFromNow),
           sql20`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       )
@@ -10577,14 +10711,14 @@ var dashboardRouter = router({
     const [newCustomers] = await db
       .select({ count: count3() })
       .from(customers)
-      .where(gte8(customers.createdAt, weekAgo));
+      .where(gte7(customers.createdAt, weekAgo));
     const [todayTours] = await db
       .select({ count: count3() })
       .from(bookings)
       .where(
         and16(
-          gte8(bookings.arrivalDate, sql20`CURDATE()`),
-          lte6(bookings.arrivalDate, tomorrow),
+          gte7(bookings.arrivalDate, sql20`CURDATE()`),
+          lte5(bookings.arrivalDate, tomorrow),
           sql20`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       );
@@ -10749,7 +10883,7 @@ var bookingDraftRouter = router({
 init_db();
 init_schema();
 init_analytics();
-import { count as count4, gte as gte9 } from "drizzle-orm";
+import { count as count4, gte as gte8 } from "drizzle-orm";
 var analyticsRouter = router({
   /** Existing booking funnel (30 days). */
   funnelData: secureProtectedProcedure.query(async () => {
@@ -10759,11 +10893,11 @@ var analyticsRouter = router({
     const [completedResult] = await db
       .select({ count: count4() })
       .from(bookings)
-      .where(gte9(bookings.createdAt, thirtyDaysAgo));
+      .where(gte8(bookings.createdAt, thirtyDaysAgo));
     const [draftsResult] = await db
       .select({ count: count4() })
       .from(bookingDrafts)
-      .where(gte9(bookingDrafts.createdAt, thirtyDaysAgo));
+      .where(gte8(bookingDrafts.createdAt, thirtyDaysAgo));
     const completed = completedResult?.count ?? 0;
     const abandoned = draftsResult?.count ?? 0;
     const started = completed + abandoned;
@@ -13373,6 +13507,7 @@ function createApp() {
   registerAgentApiRoutes(app2);
   registerChatApiRoute(app2);
   registerEliChatRoute(app2);
+  registerEliRelayRoute(app2);
   registerChatRoute(app2);
   app2.use(
     "/api/trpc",
