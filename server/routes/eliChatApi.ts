@@ -158,12 +158,12 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── MiniMax OpenAI-Compatible Client ───────────────────────────────────
+// ── OpenRouter Client ─────────────────────────────────────────────────
 let _minimaxClient: OpenAI | null = null;
-function getMiniMaxClient(): OpenAI {
+function getOpenRouterClient(): OpenAI {
   if (!_minimaxClient) {
-    const apiKey = process.env.MINIMAX_API_KEY;
-    if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) throw new Error("OPENROUTER_API_KEY missing");
     _minimaxClient = new OpenAI({
       apiKey,
       baseURL: "https://openrouter.ai/api/v1",
@@ -214,8 +214,8 @@ export function registerEliChatRoute(app: Express) {
 
       let reply = "";
       try {
-        const mm = getMiniMaxClient();
-        const mmResponse = await mm.chat.completions.create({
+        const orc = getOpenRouterClient();
+        const mmResponse = await orc.chat.completions.create({
           model: "google/gemma-4-31b-it",
           max_tokens: 512,
           messages: [
