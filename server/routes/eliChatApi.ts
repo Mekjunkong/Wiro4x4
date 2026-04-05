@@ -207,7 +207,7 @@ export function registerEliChatRoute(app: Express) {
       ];
 
       const response = await getClient().messages.create({
-        model: "claude-haiku-4-5-20251014",
+        model: "claude-sonnet-4-6-20251120",
         max_tokens: 512,
         system: systemPrompt,
         messages,
