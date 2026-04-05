@@ -166,7 +166,7 @@ function getMiniMaxClient(): OpenAI {
     if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
     _minimaxClient = new OpenAI({
       apiKey,
-      baseURL: "https://api.minimax.io/v1",
+      baseURL: "https://openrouter.ai/api/v1",
     });
   }
   return _minimaxClient;
@@ -216,7 +216,7 @@ export function registerEliChatRoute(app: Express) {
       try {
         const mm = getMiniMaxClient();
         const mmResponse = await mm.chat.completions.create({
-          model: "MiniMax-M2.7",
+          model: "google/gemma-4-31b-it",
           max_tokens: 512,
           messages: [
             { role: "system" as const, content: systemPrompt },
