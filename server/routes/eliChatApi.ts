@@ -5,7 +5,7 @@
  */
 
 import type { Express } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { checkRateLimit } from "../rateLimit";
 import { notifyChatMessage } from "../eliNotify";
 
@@ -157,13 +157,13 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── Anthropic Client ──────────────────────────────────────────────────────
-let _client: Anthropic | null = null;
-function getClient(): Anthropic {
+// ── MiniMax OpenAI-Compatible Client ───────────────────────────────────
+let _client: OpenAI | null = null;
+function getClient(): OpenAI {
   if (!_client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY missing");
-    _client = new Anthropic({ apiKey });
+    const apiKey = process.env.MINIMAX_API_KEY;
+    if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
+    _client = new OpenAI({ apiKey, baseURL: "https://api.minimax.chat/v1" });
   }
   return _client;
 }
@@ -197,24 +197,21 @@ export function registerEliChatRoute(app: Express) {
 
       const systemPrompt = buildEliPrompt(language, tours, availability);
 
-      // Build messages for Claude
-      const messages: Anthropic.MessageParam[] = [
-        ...history.map(m => ({
-          role: m.role === "user" ? ("user" as const) : ("assistant" as const),
-          content: m.content,
-        })),
-        { role: "user" as const, content: body.message },
-      ];
-
-      const response = await getClient().messages.create({
-        model: "claude-sonnet-4-6-20251120",
+      const response = await getClient().chat.completions.create({
+        model: "MiniMax-Text-01",
         max_tokens: 512,
-        system: systemPrompt,
-        messages,
+        messages: [
+          { role: "system" as const, content: systemPrompt },
+          ...history.map(m => ({
+            role:
+              m.role === "user" ? ("user" as const) : ("assistant" as const),
+            content: m.content,
+          })),
+          { role: "user" as const, content: body.message },
+        ],
       });
 
-      const reply =
-        response.content[0]?.type === "text" ? response.content[0].text : "";
+      const reply = response.choices[0]?.message?.content ?? "";
 
       // Alert Mek via Telegram if booking intent
       if (isBookingIntent(body.message)) {
