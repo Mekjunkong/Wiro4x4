@@ -157,15 +157,15 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── MiniMax Client (primary) ───────────────────────────────────
+// ── Gemini Client (primary) ───────────────────────────────────
 let _geminiClient: OpenAI | null = null;
 function _getGeminiClient(): OpenAI {
   if (!_geminiClient) {
-    const apiKey = process.env.MINIMAX_API_KEY;
-    if (!apiKey) throw new Error("MINIMAX_API_KEY missing");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY missing");
     _geminiClient = new OpenAI({
       apiKey,
-      baseURL: "https://api.minimax.io/v1",
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
     });
   }
   return _geminiClient;
@@ -216,9 +216,9 @@ export function registerEliChatRoute(app: Express) {
 
       let reply = "";
       try {
-        const orc = getOpenRouterClient();
-        const mmResponse = await orc.chat.completions.create({
-          model: "google/gemma-4-31b-it",
+        const gemini = _getGeminiClient();
+        const gemResponse = await gemini.chat.completions.create({
+          model: "gemini-2.0-flash",
           max_tokens: 512,
           messages: [
             { role: "system" as const, content: systemPrompt },
@@ -230,10 +230,28 @@ export function registerEliChatRoute(app: Express) {
             { role: "user" as const, content: body.message },
           ],
         });
-        reply = mmResponse.choices[0]?.message?.content ?? "";
+        reply = gemResponse.choices[0]?.message?.content ?? "";
       } catch (err2) {
-          console.error("[EliChat] Gemini failed:", err2);
-          throw err2;
+        try {
+          const orc = getOpenRouterClient();
+          const orResponse = await orc.chat.completions.create({
+            model: "google/gemma-4-31b-it",
+            max_tokens: 512,
+            messages: [
+              { role: "system" as const, content: systemPrompt },
+              ...history.map(m => ({
+                role:
+                  m.role === "user" ? ("user" as const) : ("assistant" as const),
+                content: m.content,
+              })),
+              { role: "user" as const, content: body.message },
+            ],
+          });
+          reply = orResponse.choices[0]?.message?.content ?? "";
+        } catch (err3) {
+          console.error("[EliChat] Both Gemini and OpenRouter failed:", err3);
+          throw err3;
+        }
       }
 
       // Alert Mek via Telegram if booking intent
