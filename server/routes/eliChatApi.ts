@@ -159,8 +159,8 @@ async function fetchRealTours(): Promise<TourSummary[]> {
 
 // ── Gemini direct fetch ────────────────────────────────────────────
 async function callGemini(model: string, systemPrompt: string, messages: {role:string;content:string}[], maxTokens = 512): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY missing");
+  const apiKey = process.env.Gemini_API_Key;
+  if (!apiKey) throw new Error("Gemini_API_Key missing");
   const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
   const body = {
     model,
@@ -201,9 +201,9 @@ export function registerEliChatRoute(app: Express) {
   // GET /api/eli/test — Test Gemini API directly
   app.get("/api/eli/test", async (req, res) => {
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = process.env.Gemini_API_Key;
       if (!apiKey) {
-        return res.json({ error: "GEMINI_API_KEY not set", keys: Object.keys(process.env).filter(k => k.includes("KEY")) });
+        return res.json({ error: "Gemini_API_Key not set", keys: Object.keys(process.env).filter(k => k.includes("KEY")) });
       }
       const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method: "POST",
