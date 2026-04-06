@@ -209,7 +209,7 @@ export function registerEliChatRoute(app: Express) {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: "gemini-2.0-flash",
+          model: "gemini-2.5-flash",
           max_tokens: 20,
           messages: [{ role: "user", content: "hi" }],
         }),
@@ -251,7 +251,7 @@ export function registerEliChatRoute(app: Express) {
       let reply = "";
       try {
         reply = await callGemini(
-          "gemini-2.0-flash",
+          "gemini-2.5-flash",
           systemPrompt,
           history.map(m => ({
             role: m.role === "user" ? "user" : "assistant",
