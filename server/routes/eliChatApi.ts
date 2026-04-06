@@ -187,17 +187,6 @@ function getOpenRouterClient(): OpenAI {
 
 // ── Route ─────────────────────────────────────────────────────────────────
 
-// GET /api/eli/debug — Check if API keys are accessible
-app.get("/api/eli/debug", async (req, res) => {
-  res.json({
-    GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-    OPENROUTER_API_KEY: !!process.env.OPENROUTER_API_KEY,
-    MINIMAX_API_KEY: !!process.env.MINIMAX_API_KEY,
-    ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
-    nodeEnv: process.env.NODE_ENV,
-  });
-});
-
 export function registerEliChatRoute(app: Express) {
   app.post("/api/eli/chat", async (req, res) => {
     try {
