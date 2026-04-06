@@ -88,11 +88,11 @@ export function ChatWidget() {
 
     try {
       if (eliAvailable === null) {
-        // First message: try Eli relay with fast timeout (4s)
+        // First message: try Eli direct chat
         try {
           const controller = new AbortController();
           const id = setTimeout(() => controller.abort(), 4000);
-          const relayRes = await fetch("/api/eli/relay", {
+          const chatRes = await fetch("/api/eli/chat", {
             method: "POST",
             signal: controller.signal,
             headers: { "Content-Type": "application/json" },
@@ -104,13 +104,13 @@ export function ChatWidget() {
             }),
           });
           clearTimeout(id);
-          if (relayRes.ok) {
-            const relayData = (await relayRes.json()) as { reply?: string };
+          if (chatRes.ok) {
+            const chatData = (await chatRes.json()) as { reply?: string };
             // Poll for response (max 10s)
-            if (relayData.reply) {
+            if (chatData.reply) {
               setMessages(prev => [
                 ...prev,
-                { role: "ai", content: relayData.reply! },
+                { role: "ai", content: chatData.reply! },
               ]);
               setIsLoading(false);
               setEliAvailable(true);
@@ -119,40 +119,31 @@ export function ChatWidget() {
             // If no immediate reply, fall through to direct
           }
         } catch {
-          // Relay failed, fall through to direct Claude
+          // Chat failed, fall through to fallback
         }
       }
 
-      // Use Eli relay with polling for response
-      const sessionId = `${visitorId}-${Date.now()}`;
-      await fetch("/api/eli/relay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          sessionId,
-          language: chatLanguage,
-          visitorName: "Website Visitor",
-        }),
-      });
-
-      // Poll for Eli response (max 30 seconds)
-      for (let i = 0; i < 30; i++) {
-        await new Promise(r => setTimeout(r, 1000));
-        try {
-          const pollRes = await fetch(`/api/eli/relay/poll?sessionId=${sessionId.slice(0, 8)}`);
-          if (pollRes.ok) {
-            const pollData = (await pollRes.json()) as { reply?: string; waiting?: boolean };
-            if (pollData.reply) {
-              setMessages(prev => [...prev, { role: "ai", content: pollData.reply! }]);
-              setEliAvailable(true);
-              setIsLoading(false);
-              return;
-            }
+      // Direct Eli chat API (Gemini-powered)
+      try {
+        const res = await fetch("/api/eli/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userMessage,
+            language: chatLanguage,
+          }),
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { reply?: string; escalate?: boolean };
+          if (data.reply) {
+            setMessages(prev => [...prev, { role: "ai", content: data.reply! }]);
+            setEliAvailable(true);
+            setIsLoading(false);
+            return;
           }
-        } catch { /* keep polling */ }
-      }
-      // Timeout
+        }
+      } catch { /* fall through to fallback */ }
+      // Fallback
       setMessages(prev => [...prev, { role: "ai", content: "Thanks for your message! We'll get back to you soon." }]);
     } catch (error) {
       console.error("Chat error:", error);
