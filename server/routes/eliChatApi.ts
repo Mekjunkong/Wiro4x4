@@ -166,6 +166,24 @@ function _getGeminiClient(): OpenAI {
     _geminiClient = new OpenAI({
       apiKey,
       baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+      // Custom fetch to strip OpenAI beta fields that Google doesn't support
+      fetch: async (url, init = {}) => {
+        // Clone and clean the request body
+        if (init.body) {
+          try {
+            const body = JSON.parse(init.body as string);
+            delete body.betas;
+            delete body["anthropic-version"];
+            init.body = JSON.stringify(body);
+          } catch { /* ignore */ }
+        }
+        // Remove problematic headers
+        const headers = new Headers(init.headers as Record<string, string>);
+        headers.delete("anthropic-beta");
+        headers.delete("betas");
+        init.headers = Object.fromEntries(headers.entries());
+        return fetch(url as string, init);
+      },
     });
   }
   return _geminiClient;
