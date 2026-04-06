@@ -74,7 +74,7 @@ export function FloatingActionButtons() {
 
   return (
     <div
-      className={`fixed right-4 md:right-6 flex flex-col gap-3 ${isBookingPage ? "bottom-20 md:bottom-6" : "bottom-20 md:bottom-6"}`}
+      className={`hidden md:flex fixed right-4 md:right-6 flex flex-col gap-3 ${isBookingPage ? "bottom-20 md:bottom-6" : "bottom-20 md:bottom-6"}`}
       style={{ zIndex: 9999 }}
       role="group"
       aria-label={t("Quick actions", "פעולות מהירות")}
