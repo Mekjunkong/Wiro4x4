@@ -40,7 +40,7 @@ export function StickyBookBar() {
 
   return (
     <div
-      className={`fixed left-0 right-0 z-[9998] transition-all duration-300 ${
+      className={`fixed inset-x-0 z-[9998] transition-all duration-300 ${
         visible
           ? "translate-y-0 opacity-100"
           : "translate-y-full md:-translate-y-full opacity-0 pointer-events-none"

@@ -30,7 +30,7 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9997] p-4 animate-fade-in-up"
+      className="fixed bottom-0 inset-x-0 z-[9997] p-4 animate-fade-in-up"
       role="dialog"
       aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
