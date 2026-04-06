@@ -157,36 +157,27 @@ async function fetchRealTours(): Promise<TourSummary[]> {
   }
 }
 
-// ── Gemini Client (primary) ───────────────────────────────────
-let _geminiClient: OpenAI | null = null;
-function _getGeminiClient(): OpenAI {
-  if (!_geminiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY missing");
-    _geminiClient = new OpenAI({
-      apiKey,
-      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-      // Custom fetch to strip OpenAI beta fields that Google doesn't support
-      fetch: async (url, init = {}) => {
-        // Clone and clean the request body
-        if (init.body) {
-          try {
-            const body = JSON.parse(init.body as string);
-            delete body.betas;
-            delete body["anthropic-version"];
-            init.body = JSON.stringify(body);
-          } catch { /* ignore */ }
-        }
-        // Remove problematic headers
-        const headers = new Headers(init.headers as Record<string, string>);
-        headers.delete("anthropic-beta");
-        headers.delete("betas");
-        init.headers = Object.fromEntries(headers.entries());
-        return fetch(url as string, init);
-      },
-    });
+// ── Gemini direct fetch ────────────────────────────────────────────
+async function callGemini(model: string, systemPrompt: string, messages: {role:string;content:string}[], maxTokens = 512): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY missing");
+  const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  const body = {
+    model,
+    max_tokens: maxTokens,
+    messages: [{ role: "system", content: systemPrompt }, ...messages],
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini error ${res.status}: ${err}`);
   }
-  return _geminiClient;
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  return data.choices?.[0]?.message?.content ?? "";
 }
 
 // ── OpenRouter Fallback ──────────────────────────────────────────────────
@@ -235,21 +226,14 @@ export function registerEliChatRoute(app: Express) {
 
       let reply = "";
       try {
-        const gemini = _getGeminiClient();
-        const gemResponse = await gemini.chat.completions.create({
-          model: "gemini-2.0-flash",
-          max_tokens: 512,
-          messages: [
-            { role: "system" as const, content: systemPrompt },
-            ...history.map(m => ({
-              role:
-                m.role === "user" ? ("user" as const) : ("assistant" as const),
-              content: m.content,
-            })),
-            { role: "user" as const, content: body.message },
-          ],
-        });
-        reply = gemResponse.choices[0]?.message?.content ?? "";
+        reply = await callGemini(
+          "gemini-2.0-flash",
+          systemPrompt,
+          history.map(m => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.content,
+          })).concat([{ role: "user", content: body.message }])
+        );
       } catch (err2) {
         try {
           const orc = getOpenRouterClient();
