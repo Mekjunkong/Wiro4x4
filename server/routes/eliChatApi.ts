@@ -197,6 +197,30 @@ function getOpenRouterClient(): OpenAI {
 // ── Route ─────────────────────────────────────────────────────────────────
 
 export function registerEliChatRoute(app: Express) {
+
+  // GET /api/eli/test — Test Gemini API directly
+  app.get("/api/eli/test", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.json({ error: "GEMINI_API_KEY not set", keys: Object.keys(process.env).filter(k => k.includes("KEY")) });
+      }
+      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "gemini-2.0-flash",
+          max_tokens: 20,
+          messages: [{ role: "user", content: "hi" }],
+        }),
+      });
+      const data = await r.json();
+      return res.json({ ok: r.ok, status: r.status, data });
+    } catch (e: unknown) {
+      const err = e instanceof Error ? e.message : String(e);
+      return res.json({ error: err });
+    }
+  });
   app.post("/api/eli/chat", async (req, res) => {
     try {
       const ip = (req.headers["x-forwarded-for"] as string) || "unknown";
