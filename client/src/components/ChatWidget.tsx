@@ -51,7 +51,7 @@ export function ChatWidget() {
 
   const errorMessage =
     chatLanguage === "en"
-      ? `Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}`
+      const WHATSAPP_FALLBACK_MSG = "Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}";
       : `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`;
 
   // Sync chat language with app language
@@ -195,7 +195,7 @@ export function ChatWidget() {
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
-          className="fixed bottom-0 left-0 right-0 md:bottom-6 md:left-auto md:right-4 md:w-80 h-[60vh] md:h-96 bg-white md:rounded-2xl shadow-2xl border-t md:border border-gray-200 flex flex-col z-[9999] overflow-hidden"
+          className="fixed inset-x-0 bottom-0 md:bottom-6 md:left-auto md:right-4 md:w-80 md:inset-auto w-full md:w-auto h-[60vh] md:h-96 bg-white md:rounded-2xl shadow-2xl border-t md:border border-gray-200 flex flex-col z-[9999] overflow-hidden"
           dir={isRtl ? "rtl" : "ltr"}
         >
           {/* Header */}
