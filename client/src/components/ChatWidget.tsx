@@ -51,8 +51,10 @@ export function ChatWidget() {
 
   const errorMessage =
     chatLanguage === "en"
-      const WHATSAPP_FALLBACK_MSG = "Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}";
-      : `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`;
+      ? `Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}`
+      : chatLanguage === "he"
+      ? `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`
+      : `ขออภัย ขณะนี้ไม่สะดวก ติดต่อ WhatsApp: +${WHATSAPP_NUMBER}`;
 
   // Sync chat language with app language
   useEffect(() => {
