@@ -45,9 +45,10 @@ function AnimatedNumber({
   suffix?: string;
   isDecimal?: boolean;
 }) {
-  const [count, setCount] = useState(isDecimal ? target : target);
+  // Start at target immediately to avoid flash of "0" on first paint
+  const [count, setCount] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
-  const hasRun = useRef(false);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -59,12 +60,12 @@ function AnimatedNumber({
       return;
     }
 
-    // Reset to 0 and animate on scroll into view
-    setCount(0);
+    // Animate from 0 → target when scrolled into view (once)
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasRun.current) {
-          hasRun.current = true;
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          setCount(0); // reset before animating
           const duration = 1200;
           const steps = 40;
           const stepTime = duration / steps;
@@ -78,7 +79,10 @@ function AnimatedNumber({
                 ? Math.round(eased * target * 10) / 10
                 : Math.round(eased * target)
             );
-            if (step >= steps) clearInterval(timer);
+            if (step >= steps) {
+              clearInterval(timer);
+              setCount(isDecimal ? Number(target.toFixed(1)) : target);
+            }
           }, stepTime);
         }
       },
