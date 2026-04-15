@@ -174,7 +174,7 @@ export function Footer() {
             </svg>
           </a>
           <a
-            href="#"
+            href="https://www.tiktok.com/@wiro4x4"
             target="_blank"
             rel="noopener noreferrer"
             className="text-accent hover:brightness-125 transition-all"

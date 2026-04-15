@@ -21,7 +21,7 @@ export const EMAIL_SENDERS = {
   support: "support@wiro4x4indochina.com",
 };
 
-// ── Social Media ────────────────────────────────────────────────────
+// ── Social Media ───────────────────────────────────────────────────
 // Update these URLs when you create your Facebook/Instagram pages.
-export const COMPANY_FACEBOOK_URL = "https://www.facebook.com/"; // TODO: Replace with your Facebook page URL
-export const COMPANY_INSTAGRAM_URL = "https://www.instagram.com/"; // TODO: Replace with your Instagram URL
+export const COMPANY_FACEBOOK_URL = "https://www.facebook.com/WIRO4x4"; // TODO: Replace with your Facebook page URL
+export const COMPANY_INSTAGRAM_URL = "https://www.instagram.com/wiro4x4"; // TODO: Replace with your Instagram URL

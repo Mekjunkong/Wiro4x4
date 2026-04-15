@@ -24,7 +24,7 @@ export function Hero() {
           "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
         );
 
-  const whatsappUrl = `${COMPANY_WHATSAPP_URL}&text=${whatsappMessage}`;
+  const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
 
   const scrollToTours = () => {
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });

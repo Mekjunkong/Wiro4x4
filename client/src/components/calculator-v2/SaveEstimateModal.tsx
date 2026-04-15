@@ -104,7 +104,7 @@ export function SaveEstimateModal({
     const message = encodeURIComponent(
       `Check out my Chiang Mai trip estimate: ${shareableUrl}`
     );
-    window.open(`${COMPANY_WHATSAPP_URL}&text=${message}`, "_blank");
+    window.open(`${COMPANY_WHATSAPP_URL}?text=${message}`, "_blank");
   };
 
   return (
