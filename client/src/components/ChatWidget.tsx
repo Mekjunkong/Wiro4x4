@@ -35,7 +35,9 @@ export function ChatWidget() {
   const [eliAvailable, setEliAvailable] = useState<boolean | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [chatLanguage, setChatLanguage] = useState<"en" | "he">(appLanguage);
+  const [chatLanguage, setChatLanguage] = useState<"en" | "th" | "he">(
+    appLanguage
+  );
   const [visitorId] = useState(getVisitorId);
   const [_sessionId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,8 +55,8 @@ export function ChatWidget() {
     chatLanguage === "en"
       ? `Sorry, I am unavailable right now. Please contact us via WhatsApp: +${WHATSAPP_NUMBER}`
       : chatLanguage === "he"
-      ? `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`
-      : `ขออภัย ขณะนี้ไม่สะดวก ติดต่อ WhatsApp: +${WHATSAPP_NUMBER}`;
+        ? `מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +${WHATSAPP_NUMBER}`
+        : `ขออภัย ขณะนี้ไม่สะดวก ติดต่อ WhatsApp: +${WHATSAPP_NUMBER}`;
 
   // Sync chat language with app language
   useEffect(() => {
@@ -136,17 +138,31 @@ export function ChatWidget() {
           }),
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply?: string; escalate?: boolean };
+          const data = (await res.json()) as {
+            reply?: string;
+            escalate?: boolean;
+          };
           if (data.reply) {
-            setMessages(prev => [...prev, { role: "ai", content: data.reply! }]);
+            setMessages(prev => [
+              ...prev,
+              { role: "ai", content: data.reply! },
+            ]);
             setEliAvailable(true);
             setIsLoading(false);
             return;
           }
         }
-      } catch { /* fall through to fallback */ }
+      } catch {
+        /* fall through to fallback */
+      }
       // Fallback
-      setMessages(prev => [...prev, { role: "ai", content: "Thanks for your message! We'll get back to you soon." }]);
+      setMessages(prev => [
+        ...prev,
+        {
+          role: "ai",
+          content: "Thanks for your message! We'll get back to you soon.",
+        },
+      ]);
     } catch (error) {
       console.error("Chat error:", error);
       setMessages(prev => [...prev, { role: "ai", content: errorMessage }]);
