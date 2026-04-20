@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { PremiumSectionHeading } from "@/components/PremiumSectionHeading";
 import {
   Award,
   MessageSquare,
@@ -87,15 +87,16 @@ export function TrustAndKosher() {
           {/* Right: Content */}
           <div className="space-y-8">
             <div>
-              <PremiumSectionHeading
-                eyebrow={t("Our Promise", "הבטחתנו")}
-                heading={t("Why WIRO 4×4?", "?למה WIRO 4×4")}
-                description={t(
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground mb-4">
+                {t("Why WIRO 4×4?", "?למה WIRO 4×4")}
+              </h2>
+              <GoldDivider />
+              <p className="text-lg text-muted-foreground">
+                {t(
                   "Authentic off-road adventures with the comfort and cultural understanding Israeli travelers deserve.",
                   "הרפתקאות שטח אמיתיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים."
                 )}
-                className="text-left [&>span]:text-left [&>h2]:text-left [&>div]:mx-0"
-              />
+              </p>
             </div>
 
             {/* Trust Points — 2x3 Grid */}

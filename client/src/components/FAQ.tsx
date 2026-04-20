@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { PremiumSectionHeading } from "@/components/PremiumSectionHeading";
+import { GoldDivider } from "@/components/GoldDivider";
 import {
   Accordion,
   AccordionContent,
@@ -84,16 +84,17 @@ export function FAQ() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="container max-w-3xl">
-        <div className="mb-10">
-          <PremiumSectionHeading
-            eyebrow={t("Common Questions", "שאלות שכיחות")}
-            heading={t("Frequently Asked Questions", "שאלות נפוצות")}
-            description={t(
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-3">
+            {t("Frequently Asked Questions", "שאלות נפוצות")}
+          </h2>
+          <GoldDivider />
+          <p className="text-muted-foreground text-lg">
+            {t(
               "Everything you need to know about our tours",
               "כל מה שצריך לדעת על הטיולים שלנו"
             )}
-            decorativeBgText="FAQ"
-          />
+          </p>
         </div>
 
         <Accordion type="single" collapsible className="w-full">

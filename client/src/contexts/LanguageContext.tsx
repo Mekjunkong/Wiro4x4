@@ -7,13 +7,12 @@ import {
   ReactNode,
 } from "react";
 
-type Language = "en" | "th" | "he";
+type Language = "en" | "he";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  /** Bilingual t() — Thai falls back to English if not provided */
-  t: (en: string, th?: string, he?: string) => string;
+  t: (en: string, he: string) => string;
 }
 
 const STORAGE_KEY = "wiro-preferred-language";
@@ -21,17 +20,18 @@ const STORAGE_KEY = "wiro-preferred-language";
 function getStoredLanguage(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "en" || stored === "he" || stored === "th") {
+    if (stored === "en" || stored === "he") {
       return stored;
     }
   } catch {
     // localStorage unavailable (SSR, private browsing, etc.)
   }
-  // Auto-detect from browser language on first visit
-  if (typeof navigator !== "undefined") {
-    const lang = navigator.language?.toLowerCase();
-    if (lang?.startsWith("he")) return "he";
-    if (lang?.startsWith("th")) return "th";
+  // Auto-detect Hebrew from browser language on first visit
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.language?.startsWith("he")
+  ) {
+    return "he";
   }
   return "en";
 }
@@ -67,10 +67,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.head.appendChild(link);
   }, [language]);
 
-  const t = (en: string, th?: string, he?: string) => {
-    if (language === "en") return en;
-    if (language === "th") return th ?? en;
-    return he ?? en; // Hebrew fallback
+  const t = (en: string, he: string) => {
+    return language === "en" ? en : he;
   };
 
   return (
