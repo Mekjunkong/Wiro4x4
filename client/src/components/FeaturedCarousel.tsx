@@ -84,14 +84,12 @@ export function FeaturedCarousel({
             {photos.map((photo, index) => (
               <CarouselItem
                 key={photo.id}
-                className={
-                  isSingle ? "basis-full" : "basis-[85%] md:basis-[60%]"
-                }
+                className="basis-[90%] md:basis-[65%] lg:basis-[55%]"
               >
                 <button
                   type="button"
                   onClick={() => onPhotoClick(index)}
-                  className={`relative w-full aspect-[16/9] overflow-hidden rounded-sm transition-all duration-300 block ${
+                  className={`relative w-full h-[240px] md:h-[340px] overflow-hidden rounded-sm transition-all duration-300 block ${
                     index === activeIndex
                       ? "opacity-100 scale-100 border-2 border-accent"
                       : "opacity-50 scale-95 border-2 border-transparent"
