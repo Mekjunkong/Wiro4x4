@@ -6,18 +6,18 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { PremiumSectionHeading } from "@/components/PremiumSectionHeading";
 
 const LOCAL_GALLERY_IMAGES = [
+  { src: "wiro_4x4_river_splash", caption: "4x4 River Crossing" },
   { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
+  { src: "wiro_jungle_convoy", caption: "Jungle Convoy" },
   { src: "elephant_bathing", caption: "Elephant Encounter" },
-  { src: "doi_suthep_golden_chedi", caption: "Doi Suthep Temple" },
-  { src: "offroad_trail_driving", caption: "4x4 Off-Road Adventure" },
   { src: "jungle_waterfall_cascade_rocks", caption: "Jungle Waterfall" },
+  { src: "wiro_between_4x4s", caption: "The Wiro Fleet" },
   { src: "sticky_waterfalls", caption: "Sticky Waterfalls" },
-  { src: "hilltribe_community_visit", caption: "Hilltribe Village" },
-  { src: "golden_triangle_mekong", caption: "Golden Triangle" },
-  { src: "bamboo_rafting_adventure", caption: "Bamboo Rafting" },
-  { src: "4x4_water_splash", caption: "4x4 Water Crossing" },
-  { src: "mae_salong_tea_plantation", caption: "Tea Plantation" },
-  { src: "doi_inthanon_royal_pagoda", caption: "Doi Inthanon Pagodas" },
+  { src: "hilltribe_girl_craft_market", caption: "Hilltribe Market" },
+  { src: "4x4_truck_countryside_road", caption: "Mountain Trail Drive" },
+  { src: "4x4_water_splash", caption: "4x4 Water Splash" },
+  { src: "wiro_vehicle_scenic_stop", caption: "Scenic Overlook" },
+  { src: "twin_falls_forest_view", caption: "Twin Waterfalls" },
 ];
 
 export function GalleryShowcase() {
