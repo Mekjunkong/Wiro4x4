@@ -19,9 +19,217 @@ import {
   FileText,
   AlertCircle,
   BadgePercent,
+  MapPin,
+  Car,
+  Search,
+  X,
+  Sparkles,
 } from "lucide-react";
 import { formatTHB } from "@shared/pricing";
 import { nanoid } from "nanoid";
+
+// ── Destination Database ─────────────────────────────────────
+
+interface EntranceFee {
+  name: string;
+  costPerPerson: number;
+}
+
+interface DestinationPreset {
+  id: string;
+  name: string;
+  region: string;
+  entranceFees: EntranceFee[];
+  suggestedCarPerDay: number;
+  suggestedHotelPerNight: number;
+  notes?: string;
+}
+
+const DESTINATIONS: DestinationPreset[] = [
+  // ── Chiang Mai area ──────────────────────────────────────
+  {
+    id: "doi-inthanon",
+    name: "Doi Inthanon National Park",
+    region: "Chiang Mai",
+    entranceFees: [
+      { name: "National Park Entry", costPerPerson: 300 },
+      { name: "Royal Pagodas (King & Queen)", costPerPerson: 40 },
+    ],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1800,
+    notes: "Wachirathan Waterfall & Pha Dok Siew included in park fee",
+  },
+  {
+    id: "mae-kampong",
+    name: "Mae Kampong Village",
+    region: "Chiang Mai",
+    entranceFees: [{ name: "Village Conservation Fee", costPerPerson: 50 }],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1500,
+    notes: "Scenic village stay, coffee farms, bamboo bridges",
+  },
+  {
+    id: "sticky-waterfalls",
+    name: "Sticky Waterfalls (Bua Tong)",
+    region: "Mae Rim / Chiang Mai",
+    entranceFees: [{ name: "Waterfall Entrance", costPerPerson: 0 }],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1800,
+    notes: "Free entrance. Climbable limestone waterfall",
+  },
+  {
+    id: "doi-suthep",
+    name: "Doi Suthep Temple & National Park",
+    region: "Chiang Mai",
+    entranceFees: [
+      { name: "Wat Phra That Doi Suthep", costPerPerson: 50 },
+      { name: "Doi Suthep-Pui NP Entry", costPerPerson: 100 },
+    ],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1800,
+  },
+  {
+    id: "mae-wang",
+    name: "Mae Wang Jungle & Riverside",
+    region: "Chiang Mai",
+    entranceFees: [],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1500,
+    notes: "Off-road jungle trails, river crossing, remote villages",
+  },
+  {
+    id: "samoeng-loop",
+    name: "Samoeng Mountain Loop",
+    region: "Chiang Mai",
+    entranceFees: [],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1800,
+    notes: "Scenic mountain circuit, hill tribe villages",
+  },
+  {
+    id: "elephant-sanctuary",
+    name: "Elephant Sanctuary (Mae Taeng)",
+    region: "Chiang Mai",
+    entranceFees: [
+      { name: "Sanctuary Admission (half-day)", costPerPerson: 1500 },
+    ],
+    suggestedCarPerDay: 2500,
+    suggestedHotelPerNight: 1800,
+  },
+  {
+    id: "chiang-mai-city",
+    name: "Chiang Mai City Tour",
+    region: "Chiang Mai",
+    entranceFees: [
+      { name: "Wat Chedi Luang", costPerPerson: 50 },
+      { name: "Wat Phra Singh", costPerPerson: 50 },
+    ],
+    suggestedCarPerDay: 2000,
+    suggestedHotelPerNight: 1800,
+  },
+  // ── Northern Thailand (longer trips) ─────────────────────
+  {
+    id: "chiang-rai",
+    name: "Chiang Rai City & Temples",
+    region: "Chiang Rai",
+    entranceFees: [
+      { name: "White Temple (Wat Rong Khun)", costPerPerson: 100 },
+      { name: "Black House Museum (Baan Dam)", costPerPerson: 80 },
+      { name: "Golden Triangle Viewpoint", costPerPerson: 50 },
+    ],
+    suggestedCarPerDay: 3500,
+    suggestedHotelPerNight: 1800,
+    notes: "Blue Temple is free. ~3 hrs from Chiang Mai",
+  },
+  {
+    id: "pai",
+    name: "Pai Valley",
+    region: "Mae Hong Son",
+    entranceFees: [
+      { name: "Pai Canyon Entrance", costPerPerson: 0 },
+      { name: "Mae Yen Waterfall", costPerPerson: 100 },
+      { name: "Tha Pai Hot Springs", costPerPerson: 300 },
+    ],
+    suggestedCarPerDay: 3500,
+    suggestedHotelPerNight: 1500,
+    notes: "~3 hrs via 762 curves. Great for 2-3 day trips",
+  },
+  {
+    id: "mae-hong-son",
+    name: "Mae Hong Son Loop",
+    region: "Mae Hong Son",
+    entranceFees: [
+      { name: "Tham Lot Cave (with guide)", costPerPerson: 350 },
+      { name: "Ban Rak Thai Village", costPerPerson: 0 },
+    ],
+    suggestedCarPerDay: 3500,
+    suggestedHotelPerNight: 1500,
+    notes: "Remote mountain province near Myanmar border",
+  },
+  {
+    id: "lampang",
+    name: "Lampang & Elephant Center",
+    region: "Lampang",
+    entranceFees: [
+      { name: "Thai Elephant Conservation Center", costPerPerson: 250 },
+      { name: "Wat Phra That Lampang Luang", costPerPerson: 0 },
+    ],
+    suggestedCarPerDay: 3000,
+    suggestedHotelPerNight: 1800,
+    notes: "~1.5 hrs from Chiang Mai",
+  },
+  {
+    id: "nan",
+    name: "Nan Province",
+    region: "Nan",
+    entranceFees: [
+      { name: "Nan National Museum", costPerPerson: 100 },
+      { name: "Doi Phu Kha NP", costPerPerson: 200 },
+    ],
+    suggestedCarPerDay: 4000,
+    suggestedHotelPerNight: 1500,
+    notes: "Remote province, ~5 hrs from Chiang Mai",
+  },
+  {
+    id: "sukhothai",
+    name: "Sukhothai Historical Park",
+    region: "Sukhothai",
+    entranceFees: [
+      { name: "Central Zone Entry", costPerPerson: 150 },
+      { name: "North Zone Entry", costPerPerson: 100 },
+    ],
+    suggestedCarPerDay: 4500,
+    suggestedHotelPerNight: 1500,
+    notes: "UNESCO World Heritage. ~5 hrs south of Chiang Mai",
+  },
+  // ── International ─────────────────────────────────────────
+  {
+    id: "luang-prabang",
+    name: "Luang Prabang, Laos",
+    region: "Laos",
+    entranceFees: [
+      { name: "Lao Visa on Arrival", costPerPerson: 1500 },
+      { name: "Kuang Si Waterfall", costPerPerson: 400 },
+      { name: "Pak Ou Caves (boat)", costPerPerson: 500 },
+      { name: "Royal Palace Museum", costPerPerson: 200 },
+    ],
+    suggestedCarPerDay: 4500,
+    suggestedHotelPerNight: 2000,
+    notes: "International trip. Visa required. Budget 3–5 days minimum",
+  },
+  {
+    id: "golden-triangle-myanmar",
+    name: "Golden Triangle & Myanmar Border",
+    region: "Chiang Rai / Myanmar",
+    entranceFees: [
+      { name: "Golden Triangle Hall of Opium", costPerPerson: 200 },
+      { name: "Boat to Laos island (optional)", costPerPerson: 100 },
+    ],
+    suggestedCarPerDay: 4000,
+    suggestedHotelPerNight: 2000,
+    notes: "Where Thailand, Laos, and Myanmar meet",
+  },
+];
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -37,51 +245,37 @@ interface DayItinerary {
   id: string;
   dayNumber: number;
   label: string;
+  destinationId: string | null;
   lunch: number;
   dinner: number;
   hotel: number;
+  carCost: number;
+  driverCost: number;
   attractions: AttractionFee[];
 }
 
-interface TourTypeConfig {
-  guideRatePerDay: number;
-  transferRatePerDay: number;
-}
-
 // ── Constants ────────────────────────────────────────────────
-
-const TOUR_TYPE_DEFAULTS: Record<TourTypeKey, TourTypeConfig> = {
-  "1-day": { guideRatePerDay: 1000, transferRatePerDay: 2500 },
-  "2-3-day": { guideRatePerDay: 1500, transferRatePerDay: 2500 },
-  "7-14-day": { guideRatePerDay: 1500, transferRatePerDay: 2500 },
-};
 
 const TOUR_TYPE_LABELS: Record<
   TourTypeKey,
   { label: string; maxDays: number }
 > = {
-  "1-day": { label: "One Day Tour", maxDays: 1 },
-  "2-3-day": { label: "2–3 Day Tour", maxDays: 3 },
-  "7-14-day": { label: "7–14 Day Tour", maxDays: 14 },
+  "1-day": { label: "One Day", maxDays: 1 },
+  "2-3-day": { label: "2–3 Days", maxDays: 3 },
+  "7-14-day": { label: "7–14 Days", maxDays: 14 },
 };
 
-const KNOWN_ATTRACTIONS: { name: string; cost: number }[] = [
-  { name: "Wachirathan Waterfall (Doi Inthanon)", cost: 400 },
-  { name: "Pha Dok Siew Nature Trail", cost: 200 },
-  { name: "Doi Inthanon National Park Fee", cost: 300 },
-  { name: "Royal Pagodas", cost: 40 },
-  { name: "Elephant Sanctuary Admission", cost: 800 },
-  { name: "Hot Springs Entrance", cost: 100 },
-];
-
-function makeDay(n: number): DayItinerary {
+function makeDay(n: number, carCost = 2500, driverCost = 1000): DayItinerary {
   return {
     id: nanoid(),
     dayNumber: n,
     label: `Day ${n}`,
+    destinationId: null,
     lunch: 450,
     dinner: n > 1 ? 450 : 0,
     hotel: n > 1 ? 1800 : 0,
+    carCost,
+    driverCost,
     attractions: [],
   };
 }
@@ -90,8 +284,8 @@ function makeDay(n: number): DayItinerary {
 
 interface CostBreakdown {
   numberOfDays: number;
-  totalGuide: number;
-  totalTransfer: number;
+  totalCar: number;
+  totalDriver: number;
   totalFixedCosts: number;
   fixedCostPerPerson: number;
   variableCostPerPerson: number;
@@ -100,24 +294,19 @@ interface CostBreakdown {
   sellingPricePerPerson: number;
   totalSellingPrice: number;
   totalProfit: number;
-  dailyBreakdown: {
-    day: DayItinerary;
-    totalVariableThisDay: number;
-  }[];
+  dailyBreakdown: { day: DayItinerary; totalVariableThisDay: number }[];
 }
 
 function calculateCosts(
   participants: number,
   profitMargin: number,
-  guideRate: number,
-  transferRate: number,
   days: DayItinerary[]
 ): CostBreakdown {
   if (participants <= 0 || days.length === 0) {
     return {
       numberOfDays: 0,
-      totalGuide: 0,
-      totalTransfer: 0,
+      totalCar: 0,
+      totalDriver: 0,
       totalFixedCosts: 0,
       fixedCostPerPerson: 0,
       variableCostPerPerson: 0,
@@ -130,10 +319,9 @@ function calculateCosts(
     };
   }
 
-  const n = days.length;
-  const totalGuide = guideRate * n;
-  const totalTransfer = transferRate * n;
-  const totalFixedCosts = totalGuide + totalTransfer;
+  const totalCar = days.reduce((s, d) => s + d.carCost, 0);
+  const totalDriver = days.reduce((s, d) => s + d.driverCost, 0);
+  const totalFixedCosts = totalCar + totalDriver;
   const fixedCostPerPerson = totalFixedCosts / participants;
 
   const dailyBreakdown = days.map(day => {
@@ -146,7 +334,6 @@ function calculateCosts(
     (s, d) => s + d.totalVariableThisDay,
     0
   );
-
   const baseCostPerPerson = fixedCostPerPerson + variableCostPerPerson;
   const profitAmountPerPerson = baseCostPerPerson * (profitMargin / 100);
   const sellingPricePerPerson =
@@ -155,9 +342,9 @@ function calculateCosts(
   const totalProfit = totalSellingPrice - baseCostPerPerson * participants;
 
   return {
-    numberOfDays: n,
-    totalGuide,
-    totalTransfer,
+    numberOfDays: days.length,
+    totalCar,
+    totalDriver,
     totalFixedCosts,
     fixedCostPerPerson,
     variableCostPerPerson,
@@ -184,7 +371,6 @@ export default function AdminCostCalculator() {
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Header */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -198,14 +384,14 @@ export default function AdminCostCalculator() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Calculator className="w-6 h-6 text-accent" />
-              Tour Cost Calculator
+              Trip Cost Planner
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Internal pricing tool — calculates base cost + profit margin
+              Pick destinations → entrance fees, car & hotel auto-fill → get
+              your quote
             </p>
           </div>
         </div>
-
         <CostCalculatorDashboard />
       </div>
     </div>
@@ -216,20 +402,12 @@ export default function AdminCostCalculator() {
 
 function CostCalculatorDashboard() {
   const [activeType, setActiveType] = useState<TourTypeKey>("1-day");
-  const defaults = TOUR_TYPE_DEFAULTS[activeType];
-
   const [participants, setParticipants] = useState(4);
   const [profitMargin, setProfitMargin] = useState(30);
-  const [guideRate, setGuideRate] = useState(defaults.guideRatePerDay);
-  const [transferRate, setTransferRate] = useState(defaults.transferRatePerDay);
   const [days, setDays] = useState<DayItinerary[]>([makeDay(1)]);
 
-  // When tour type changes, reset to sensible defaults
   const handleTypeChange = (type: TourTypeKey) => {
     setActiveType(type);
-    const d = TOUR_TYPE_DEFAULTS[type];
-    setGuideRate(d.guideRatePerDay);
-    setTransferRate(d.transferRatePerDay);
     setDays([makeDay(1)]);
   };
 
@@ -237,17 +415,14 @@ function CostCalculatorDashboard() {
 
   const addDay = () => {
     if (days.length >= maxDays) return;
-    setDays(prev => [...prev, makeDay(prev.length + 1)]);
+    const prev = days[days.length - 1];
+    setDays(d => [...d, makeDay(d.length + 1, prev.carCost, prev.driverCost)]);
   };
 
   const removeDay = (id: string) => {
     setDays(prev => {
       const next = prev.filter(d => d.id !== id);
-      return next.map((d, i) => ({
-        ...d,
-        dayNumber: i + 1,
-        label: `Day ${i + 1}`,
-      }));
+      return next.map((d, i) => ({ ...d, dayNumber: i + 1 }));
     });
   };
 
@@ -255,20 +430,43 @@ function CostCalculatorDashboard() {
     setDays(prev => prev.map(d => (d.id === id ? { ...d, ...patch } : d)));
   }, []);
 
+  // When a destination is picked for a day, auto-fill costs
+  const applyDestination = useCallback(
+    (dayId: string, dest: DestinationPreset) => {
+      setDays(prev =>
+        prev.map(d => {
+          if (d.id !== dayId) return d;
+          return {
+            ...d,
+            label: dest.name,
+            destinationId: dest.id,
+            carCost: dest.suggestedCarPerDay,
+            hotel: d.dayNumber > 1 ? dest.suggestedHotelPerNight : 0,
+            attractions: dest.entranceFees.map(f => ({
+              id: nanoid(),
+              name: f.name,
+              cost: f.costPerPerson,
+            })),
+          };
+        })
+      );
+    },
+    []
+  );
+
   const breakdown = useMemo(
-    () =>
-      calculateCosts(participants, profitMargin, guideRate, transferRate, days),
-    [participants, profitMargin, guideRate, transferRate, days]
+    () => calculateCosts(participants, profitMargin, days),
+    [participants, profitMargin, days]
   );
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      {/* Left column: inputs */}
+      {/* Left: inputs */}
       <div className="xl:col-span-2 space-y-5">
-        {/* Tour type tabs */}
+        {/* Tour type */}
         <Card className="p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-            Tour Type
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+            Trip Duration
           </h2>
           <div className="flex gap-2 flex-wrap">
             {(Object.keys(TOUR_TYPE_LABELS) as TourTypeKey[]).map(key => (
@@ -287,13 +485,11 @@ function CostCalculatorDashboard() {
           </div>
         </Card>
 
-        {/* Global inputs */}
+        {/* Group & profit */}
         <Card className="p-5 space-y-5">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Group & Profit Settings
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Group & Profit
           </h2>
-
-          {/* Participants + profit margin in a 2-col grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
@@ -347,32 +543,13 @@ function CostCalculatorDashboard() {
               </div>
             </div>
           </div>
-
-          {/* Fixed rate overrides */}
-          <div className="border-t pt-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
-              Daily Fixed Rates (shared across group)
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <CurrencyField
-                label="Tour Guide / day"
-                value={guideRate}
-                onChange={setGuideRate}
-              />
-              <CurrencyField
-                label="Transfer / day"
-                value={transferRate}
-                onChange={setTransferRate}
-              />
-            </div>
-          </div>
         </Card>
 
-        {/* Daily itinerary */}
+        {/* Days */}
         <Card className="p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-              Daily Itinerary — Variable Costs per Person
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Itinerary — Destinations & Costs
             </h2>
             <span className="text-xs text-muted-foreground">
               {days.length} / {maxDays} days
@@ -387,6 +564,7 @@ function CostCalculatorDashboard() {
                 canRemove={days.length > 1}
                 onRemove={() => removeDay(day.id)}
                 onChange={patch => updateDay(day.id, patch)}
+                onApplyDestination={dest => applyDestination(day.id, dest)}
               />
             ))}
           </div>
@@ -405,15 +583,97 @@ function CostCalculatorDashboard() {
         </Card>
       </div>
 
-      {/* Right column: live summary */}
+      {/* Right: summary */}
       <div className="xl:col-span-1">
         <div className="sticky top-6 space-y-4">
           <SummaryPanel
             breakdown={breakdown}
             participants={participants}
             profitMargin={profitMargin}
+            days={days}
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Destination Picker ───────────────────────────────────────
+
+function DestinationPicker({
+  onSelect,
+  onClose,
+}: {
+  onSelect: (dest: DestinationPreset) => void;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const results =
+    query.length > 0
+      ? DESTINATIONS.filter(
+          d =>
+            d.name.toLowerCase().includes(query.toLowerCase()) ||
+            d.region.toLowerCase().includes(query.toLowerCase())
+        )
+      : DESTINATIONS;
+
+  return (
+    <div className="border border-border rounded-sm bg-background shadow-lg mt-2 overflow-hidden">
+      {/* Search */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
+        <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+        <input
+          autoFocus
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Search destination..."
+          className="flex-1 text-sm bg-transparent outline-none"
+        />
+        <button onClick={onClose}>
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Results */}
+      <div className="max-h-64 overflow-y-auto">
+        {results.map(dest => (
+          <button
+            key={dest.id}
+            onClick={() => {
+              onSelect(dest);
+              onClose();
+            }}
+            className="w-full text-left px-3 py-2.5 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">{dest.name}</p>
+                <p className="text-xs text-muted-foreground">{dest.region}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-xs text-accent font-medium">
+                  Car {formatTHB(dest.suggestedCarPerDay)}/day
+                </p>
+                {dest.entranceFees.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {dest.entranceFees.length} entrance fee
+                    {dest.entranceFees.length > 1 ? "s" : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+            {dest.notes && (
+              <p className="text-xs text-muted-foreground/70 mt-0.5 italic">
+                {dest.notes}
+              </p>
+            )}
+          </button>
+        ))}
+        {results.length === 0 && (
+          <p className="px-3 py-4 text-sm text-muted-foreground text-center">
+            No destinations found
+          </p>
+        )}
       </div>
     </div>
   );
@@ -426,19 +686,26 @@ function DayCard({
   canRemove,
   onRemove,
   onChange,
+  onApplyDestination,
 }: {
   day: DayItinerary;
   canRemove: boolean;
   onRemove: () => void;
   onChange: (patch: Partial<DayItinerary>) => void;
+  onApplyDestination: (dest: DestinationPreset) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const currentDest = day.destinationId
+    ? DESTINATIONS.find(d => d.id === day.destinationId)
+    : null;
 
   const addAttraction = () =>
     onChange({
       attractions: [
         ...day.attractions,
-        { id: nanoid(), name: "Attraction", cost: 200 },
+        { id: nanoid(), name: "Custom fee", cost: 100 },
       ],
     });
 
@@ -452,35 +719,44 @@ function DayCard({
       ),
     });
 
-  const dayTotal =
+  const dayVariableTotal =
     day.lunch +
     day.dinner +
     day.hotel +
     day.attractions.reduce((s, a) => s + a.cost, 0);
+  const dayFixedTotal = day.carCost + day.driverCost;
 
   return (
     <div className="border border-border rounded-sm overflow-hidden">
-      {/* Day header */}
+      {/* Header */}
       <button
         className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
         onClick={() => setExpanded(v => !v)}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {expanded ? (
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
           )}
-          <input
-            value={day.label}
-            onChange={e => onChange({ label: e.target.value })}
-            onClick={e => e.stopPropagation()}
-            className="font-semibold text-sm bg-transparent border-0 outline-none focus:underline w-28"
-          />
+          <span className="font-semibold text-sm shrink-0">
+            Day {day.dayNumber}
+          </span>
+          {currentDest ? (
+            <span className="text-xs text-accent truncate flex items-center gap-1">
+              <MapPin className="w-3 h-3 shrink-0" />
+              {currentDest.name}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground italic">
+              No destination set
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-accent">
-            {formatTHB(dayTotal)} / person
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs text-muted-foreground hidden sm:block">
+            Fixed: {formatTHB(dayFixedTotal)} · Var:{" "}
+            {formatTHB(dayVariableTotal)}/pp
           </span>
           {canRemove && (
             <button
@@ -496,80 +772,132 @@ function DayCard({
         </div>
       </button>
 
-      {/* Day body */}
+      {/* Body */}
       {expanded && (
-        <div className="px-4 py-3 space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <CurrencyField
-              label={
-                <>
-                  <Utensils className="inline w-3 h-3 mr-0.5" /> Lunch
-                </>
-              }
-              value={day.lunch}
-              onChange={v => onChange({ lunch: v })}
-              compact
-            />
-            <CurrencyField
-              label={
-                <>
-                  <Utensils className="inline w-3 h-3 mr-0.5" /> Dinner
-                </>
-              }
-              value={day.dinner}
-              onChange={v => onChange({ dinner: v })}
-              compact
-            />
-            <CurrencyField
-              label={
-                <>
-                  <Hotel className="inline w-3 h-3 mr-0.5" /> Hotel
-                </>
-              }
-              value={day.hotel}
-              onChange={v => onChange({ hotel: v })}
-              compact
-            />
+        <div className="px-4 py-3 space-y-4">
+          {/* Destination picker */}
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+              <MapPin className="w-3 h-3" /> Destination
+            </p>
+            <button
+              onClick={() => setShowPicker(v => !v)}
+              className="w-full flex items-center justify-between px-3 py-2 border border-border rounded-sm hover:border-accent/50 transition-colors text-sm"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-accent" />
+                {currentDest
+                  ? currentDest.name
+                  : "Pick destination to auto-fill costs..."}
+              </span>
+              <Search className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+            {showPicker && (
+              <DestinationPicker
+                onSelect={dest => {
+                  onApplyDestination(dest);
+                  setShowPicker(false);
+                }}
+                onClose={() => setShowPicker(false)}
+              />
+            )}
+            {currentDest?.notes && (
+              <p className="text-xs text-muted-foreground/70 italic mt-1 px-1">
+                {currentDest.notes}
+              </p>
+            )}
           </div>
 
-          {/* Attractions */}
-          <div className="border-t pt-3 space-y-2">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1">
-              <Mountain className="w-3 h-3" /> Attractions
+          {/* Car & Driver (fixed per day) */}
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+              <Car className="w-3 h-3" /> Car & Driver (shared cost)
             </p>
+            <div className="grid grid-cols-2 gap-3">
+              <CurrencyField
+                label="Car / Transfer"
+                value={day.carCost}
+                onChange={v => onChange({ carCost: v })}
+                compact
+              />
+              <CurrencyField
+                label="Driver / Guide"
+                value={day.driverCost}
+                onChange={v => onChange({ driverCost: v })}
+                compact
+              />
+            </div>
+          </div>
+
+          {/* Meals & Hotel (per person) */}
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+              <Utensils className="w-3 h-3" /> Meals & Hotel (per person)
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              <CurrencyField
+                label="Lunch"
+                value={day.lunch}
+                onChange={v => onChange({ lunch: v })}
+                compact
+              />
+              <CurrencyField
+                label="Dinner"
+                value={day.dinner}
+                onChange={v => onChange({ dinner: v })}
+                compact
+              />
+              <CurrencyField
+                label={
+                  <>
+                    <Hotel className="inline w-3 h-3 mr-0.5" />
+                    Hotel
+                  </>
+                }
+                value={day.hotel}
+                onChange={v => onChange({ hotel: v })}
+                compact
+              />
+            </div>
+          </div>
+
+          {/* Entrance fees */}
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+              <Mountain className="w-3 h-3" /> Entrance Fees (per person)
+            </p>
+            {day.attractions.length === 0 && (
+              <p className="text-xs text-muted-foreground italic mb-2">
+                No fees — pick a destination above to auto-fill, or add manually
+              </p>
+            )}
             {day.attractions.map(attr => (
-              <div key={attr.id} className="flex gap-2 items-center">
-                <select
-                  value={attr.name}
-                  onChange={e => {
-                    const preset = KNOWN_ATTRACTIONS.find(
-                      a => a.name === e.target.value
-                    );
-                    updateAttraction(attr.id, {
-                      name: e.target.value,
-                      cost: preset?.cost ?? attr.cost,
-                    });
-                  }}
-                  className="flex-1 text-xs border border-border rounded px-2 py-1.5 bg-background"
-                >
-                  {KNOWN_ATTRACTIONS.map(a => (
-                    <option key={a.name} value={a.name}>
-                      {a.name}
-                    </option>
-                  ))}
-                  <option value={attr.name}>{attr.name}</option>
-                </select>
+              <div key={attr.id} className="flex gap-2 items-center mb-1.5">
                 <input
-                  type="number"
-                  min={0}
-                  value={attr.cost}
+                  type="text"
+                  value={attr.name}
                   onChange={e =>
-                    updateAttraction(attr.id, {
-                      cost: parseInt(e.target.value) || 0,
-                    })
+                    updateAttraction(attr.id, { name: e.target.value })
                   }
-                  className="w-20 text-xs border border-border rounded px-2 py-1.5 text-right"
+                  className="flex-1 text-xs border border-border rounded px-2 py-1.5 bg-background"
+                  placeholder="Fee name"
                 />
+                <div className="relative w-24">
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
+                    ฿
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={attr.cost}
+                    onChange={e =>
+                      updateAttraction(attr.id, {
+                        cost: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full pl-5 pr-2 text-xs border border-border rounded py-1.5 text-right"
+                  />
+                </div>
                 <button
                   onClick={() => removeAttraction(attr.id)}
                   className="text-red-400 hover:text-red-600"
@@ -580,9 +908,9 @@ function DayCard({
             ))}
             <button
               onClick={addAttraction}
-              className="text-xs text-accent hover:text-accent/80 flex items-center gap-1"
+              className="text-xs text-accent hover:text-accent/80 flex items-center gap-1 mt-1"
             >
-              <Plus className="w-3 h-3" /> Add attraction
+              <Plus className="w-3 h-3" /> Add fee manually
             </button>
           </div>
         </div>
@@ -597,30 +925,65 @@ function SummaryPanel({
   breakdown,
   participants,
   profitMargin,
+  days,
 }: {
   breakdown: CostBreakdown;
   participants: number;
   profitMargin: number;
+  days: DayItinerary[];
 }) {
   const empty = breakdown.numberOfDays === 0;
+  const destinations = days
+    .map(d => DESTINATIONS.find(dest => dest.id === d.destinationId)?.name)
+    .filter(Boolean);
 
   return (
     <>
-      {/* Cost Breakdown Table */}
+      {/* Trip summary header */}
+      {destinations.length > 0 && (
+        <Card className="p-4 bg-accent/5 border-accent/20">
+          <p className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
+            Trip Route
+          </p>
+          <div className="space-y-0.5">
+            {days.map((d, i) => {
+              const dest = DESTINATIONS.find(
+                dest => dest.id === d.destinationId
+              );
+              return (
+                <p key={d.id} className="text-sm">
+                  <span className="text-muted-foreground text-xs w-12 inline-block">
+                    Day {i + 1}
+                  </span>
+                  {dest ? (
+                    dest.name
+                  ) : (
+                    <span className="italic text-muted-foreground">
+                      Not set
+                    </span>
+                  )}
+                </p>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Cost breakdown */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Cost Breakdown
         </h3>
 
         {empty ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Configure tour details to see breakdown
+            Configure the trip to see costs
           </p>
         ) : (
           <div className="space-y-1 text-sm">
-            <SectionHeader label="Fixed Costs (Shared)" />
-            <Row label="Tour Guide" value={breakdown.totalGuide} />
-            <Row label="Transfer / Vehicle" value={breakdown.totalTransfer} />
+            <SectionHeader label="Fixed Costs (whole group)" />
+            <Row label="Car / Transfer" value={breakdown.totalCar} />
+            <Row label="Driver / Guide" value={breakdown.totalDriver} />
             <Row
               label="÷ Participants"
               value={null}
@@ -650,7 +1013,6 @@ function SummaryPanel({
             />
 
             <div className="border-t-2 border-accent/30 my-3" />
-
             <Row
               label="Base Cost / Person"
               value={breakdown.baseCostPerPerson}
@@ -665,9 +1027,9 @@ function SummaryPanel({
         )}
       </Card>
 
-      {/* Summary Numbers */}
+      {/* Quote */}
       <Card className="p-5 space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Quote Summary
         </h3>
 
@@ -694,7 +1056,6 @@ function SummaryPanel({
               color="green"
             />
 
-            {/* Deposit split */}
             <div className="border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Deposit (30%)</span>
@@ -722,26 +1083,22 @@ function SummaryPanel({
                 <span>Margin below 15% — may not cover unexpected costs</span>
               </div>
             )}
-
             {profitMargin >= 40 && (
               <div className="flex items-start gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-sm text-xs text-blue-800">
                 <BadgePercent className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                <span>
-                  High margin — verify competitiveness vs. market rates
-                </span>
+                <span>High margin — verify vs. market rates</span>
               </div>
             )}
           </>
         )}
       </Card>
 
-      {/* Export note */}
       {!empty && (
         <Card className="p-4 flex items-start gap-3 bg-muted/30">
           <FileText className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground">
-            This is an internal planning tool. Use the final selling price when
-            generating customer quotes via WhatsApp or the booking form.
+            Internal tool only. Share the final selling price with customers via
+            WhatsApp or the booking form.
           </p>
         </Card>
       )}
@@ -749,7 +1106,7 @@ function SummaryPanel({
   );
 }
 
-// ── Sub-components ───────────────────────────────────────────
+// ── Shared sub-components ────────────────────────────────────
 
 function CurrencyField({
   label,
@@ -848,14 +1205,17 @@ function BigStat({
   sub: string;
   color: "accent" | "green";
 }) {
-  const colorClass = color === "accent" ? "text-accent" : "text-green-600";
   return (
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-xs text-muted-foreground/70">{sub}</p>
       </div>
-      <p className={`text-xl font-bold tabular-nums ${colorClass}`}>{value}</p>
+      <p
+        className={`text-xl font-bold tabular-nums ${color === "accent" ? "text-accent" : "text-green-600"}`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
