@@ -7,17 +7,17 @@ import { PremiumSectionHeading } from "@/components/PremiumSectionHeading";
 
 const LOCAL_GALLERY_IMAGES = [
   { src: "wiro_4x4_river_splash", caption: "4x4 River Crossing" },
-  { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
-  { src: "wiro_jungle_convoy", caption: "Jungle Convoy" },
   { src: "elephant_bathing", caption: "Elephant Encounter" },
-  { src: "jungle_waterfall_cascade_rocks", caption: "Jungle Waterfall" },
-  { src: "wiro_between_4x4s", caption: "The Wiro Fleet" },
   { src: "sticky_waterfalls", caption: "Sticky Waterfalls" },
+  { src: "mountain_sunset_golden", caption: "Mountain Sunset" },
+  { src: "jungle_waterfall_cascade_rocks", caption: "Jungle Waterfall" },
   { src: "hilltribe_girl_craft_market", caption: "Hilltribe Market" },
-  { src: "4x4_truck_countryside_road", caption: "Mountain Trail Drive" },
-  { src: "4x4_water_splash", caption: "4x4 Water Splash" },
-  { src: "wiro_vehicle_scenic_stop", caption: "Scenic Overlook" },
+  { src: "atv_group_mountain_hilltop", caption: "Mountain Summit" },
+  { src: "bamboo_rafting", caption: "Bamboo Rafting" },
+  { src: "wiro_crew_team", caption: "The Wiro Team" },
+  { src: "tourists_river_crossing", caption: "River Adventure" },
   { src: "twin_falls_forest_view", caption: "Twin Waterfalls" },
+  { src: "doi_inthanon_waterfall", caption: "Doi Inthanon Waterfall" },
 ];
 
 export function GalleryShowcase() {
