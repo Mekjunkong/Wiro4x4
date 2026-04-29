@@ -1,7 +1,7 @@
 // client/src/components/calculator-v2/PriceSummaryBar.tsx
-import { Shield } from "lucide-react";
+import { Shield, Thermometer, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB } from "@shared/pricing";
+import { formatTHB, type PriceBreakdown } from "@shared/pricing";
 import { CurrencyTooltip } from "./CurrencyTooltip";
 
 interface PriceSummaryBarProps {
@@ -9,6 +9,7 @@ interface PriceSummaryBarProps {
   isVisible: boolean;
   onViewBreakdown: () => void;
   onSaveEstimate: () => void;
+  breakdown?: PriceBreakdown | null;
 }
 
 export function PriceSummaryBar({
@@ -16,16 +17,47 @@ export function PriceSummaryBar({
   isVisible,
   onViewBreakdown,
   onSaveEstimate,
+  breakdown,
 }: PriceSummaryBarProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isHebrew = language === "he";
 
   if (!isVisible || total === null) return null;
+
+  const hasSurcharge =
+    breakdown && breakdown.seasonalSurcharge > 0 && breakdown.season;
+  const seasonLabel = hasSurcharge
+    ? isHebrew
+      ? breakdown.season.labelHe
+      : breakdown.season.labelEn
+    : null;
+  const isHolidaySeason =
+    breakdown?.season?.type === "passover" ||
+    breakdown?.season?.type === "sukkot";
+  const SeasonIcon = isHolidaySeason ? Star : Thermometer;
 
   return (
     <>
       {/* Mobile: Fixed bottom bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 h-20 bg-card border-t border-border shadow-lg z-40 animate-in slide-in-from-bottom duration-300">
-        <div className="flex items-center justify-between px-4 h-full pb-safe">
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-card border-t border-border shadow-lg z-40 animate-in slide-in-from-bottom duration-300">
+        {/* Seasonal notice strip on mobile */}
+        {hasSurcharge && (
+          <div
+            className={`flex items-center justify-center gap-1.5 px-4 py-1.5 text-xs font-medium ${
+              isHolidaySeason
+                ? "bg-purple-100 text-purple-800"
+                : "bg-orange-100 text-orange-800"
+            }`}
+          >
+            <SeasonIcon className="w-3 h-3" />
+            <span>
+              {seasonLabel} — +
+              {Math.round((breakdown!.season.multiplier - 1) * 100)}%{" "}
+              {t("surcharge applied", "תוספת עונתית")}
+            </span>
+          </div>
+        )}
+        <div className="flex items-center justify-between px-4 h-20 pb-safe">
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-0.5">
               {t("Total", "סה״כ")}
@@ -71,6 +103,24 @@ export function PriceSummaryBar({
               </p>
             </CurrencyTooltip>
           </div>
+
+          {/* Seasonal surcharge badge */}
+          {hasSurcharge && (
+            <div
+              className={`flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-sm border ${
+                isHolidaySeason
+                  ? "bg-purple-50 text-purple-800 border-purple-200"
+                  : "bg-orange-50 text-orange-800 border-orange-200"
+              }`}
+            >
+              <SeasonIcon className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>
+                {seasonLabel} (+
+                {Math.round((breakdown!.season.multiplier - 1) * 100)}%{" "}
+                {t("surcharge", "תוספת")})
+              </span>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="space-y-2">

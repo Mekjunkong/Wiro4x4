@@ -1,5 +1,5 @@
 // client/src/components/calculator-v2/PriceBreakdownModal.tsx
-import { BadgePercent, Quote } from "lucide-react";
+import { BadgePercent, Quote, Thermometer, Sun, Star } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   formatTHB,
   type PriceBreakdown,
   type PriceLineItem,
+  type SeasonType,
 } from "@shared/pricing";
 import { CurrencyTooltip } from "./CurrencyTooltip";
 
@@ -19,6 +20,42 @@ interface PriceBreakdownModalProps {
   onClose: () => void;
   breakdown: PriceBreakdown | null;
 }
+
+// Season badge config
+const SEASON_BADGE_CONFIG: Record<
+  SeasonType,
+  {
+    icon: React.ElementType;
+    bgClass: string;
+    borderClass: string;
+    textClass: string;
+  }
+> = {
+  passover: {
+    icon: Star,
+    bgClass: "bg-purple-50",
+    borderClass: "border-purple-200",
+    textClass: "text-purple-800",
+  },
+  sukkot: {
+    icon: Star,
+    bgClass: "bg-purple-50",
+    borderClass: "border-purple-200",
+    textClass: "text-purple-800",
+  },
+  high: {
+    icon: Thermometer,
+    bgClass: "bg-orange-50",
+    borderClass: "border-orange-200",
+    textClass: "text-orange-800",
+  },
+  low: {
+    icon: Sun,
+    bgClass: "bg-green-50",
+    borderClass: "border-green-200",
+    textClass: "text-green-800",
+  },
+};
 
 export function PriceBreakdownModal({
   isOpen,
@@ -30,6 +67,11 @@ export function PriceBreakdownModal({
   if (!breakdown) return null;
 
   const isHebrew = language === "he";
+  const hasSeason = breakdown.season && breakdown.season.type !== "low";
+  const seasonConfig = breakdown.season
+    ? SEASON_BADGE_CONFIG[breakdown.season.type]
+    : null;
+  const SeasonIcon = seasonConfig?.icon ?? Sun;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -46,6 +88,29 @@ export function PriceBreakdownModal({
                 "Group of 7+ — prices below are estimates. Contact us for exact pricing.",
                 "קבוצה של 7+ — המחירים למטה הם הערכה. צרו קשר לקבלת מחיר מדויק."
               )}
+            </div>
+          )}
+
+          {/* Seasonal Pricing Notice */}
+          {hasSeason && seasonConfig && (
+            <div
+              className={`px-3 py-2.5 ${seasonConfig.bgClass} border ${seasonConfig.borderClass} rounded-sm`}
+            >
+              <div
+                className={`flex items-center gap-2 font-medium text-sm mb-1 ${seasonConfig.textClass}`}
+              >
+                <SeasonIcon className="w-4 h-4" />
+                {isHebrew ? breakdown.season.labelHe : breakdown.season.labelEn}
+                <span className="ml-auto font-bold">
+                  +{Math.round((breakdown.season.multiplier - 1) * 100)}%
+                </span>
+              </div>
+              <p className={`text-xs ${seasonConfig.textClass} opacity-80`}>
+                {t(
+                  "A seasonal surcharge applies to your selected travel dates.",
+                  "תוספת עונתית חלה על תאריכי הנסיעה שבחרתם."
+                )}
+              </p>
             </div>
           )}
 
@@ -76,6 +141,18 @@ export function PriceBreakdownModal({
                 label={t("Children surcharge", "תוספת ילדים")}
                 amount={breakdown.childrenSurcharge}
                 className="text-amber-600"
+              />
+            )}
+            {/* Seasonal surcharge line item */}
+            {breakdown.seasonalSurcharge > 0 && (
+              <LineItem
+                label={
+                  isHebrew
+                    ? `תוספת עונתית — ${breakdown.season.labelHe}`
+                    : `Seasonal surcharge — ${breakdown.season.labelEn}`
+                }
+                amount={breakdown.seasonalSurcharge}
+                className={seasonConfig?.textClass ?? "text-orange-600"}
               />
             )}
           </div>

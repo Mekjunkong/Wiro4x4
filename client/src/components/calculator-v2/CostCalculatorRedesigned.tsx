@@ -282,6 +282,7 @@ export function CostCalculatorRedesigned() {
         isVisible={canCalculate}
         onViewBreakdown={() => setShowBreakdownModal(true)}
         onSaveEstimate={() => setShowSaveModal(true)}
+        breakdown={breakdown}
       />
 
       {/* Modals */}
