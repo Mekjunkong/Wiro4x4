@@ -25,6 +25,7 @@ import {
   X,
   Sparkles,
   Bookmark,
+  Layers,
 } from "lucide-react";
 import { formatTHB } from "@shared/pricing";
 import { nanoid } from "nanoid";
@@ -260,9 +261,112 @@ const MEAL_DEFAULTS = {
   kosher: { breakfast: 150, lunch: 300, dinner: 450 },
 } as const;
 
-// ── Types ────────────────────────────────────────────────────
+// ── Tour Templates ────────────────────────────────────────────
+
+interface TemplateDay {
+  dayNumber: number;
+  label: string;
+  destinationId: string | null;
+  isKosher: boolean;
+  breakfastEnabled: boolean;
+  breakfast: number;
+  lunchEnabled: boolean;
+  lunch: number;
+  dinnerEnabled: boolean;
+  dinner: number;
+  hotel: number;
+  carCost: number;
+  driverCost: number;
+  attractions: { name: string; cost: number }[];
+}
+
+interface TourTemplate {
+  id: string;
+  name: string;
+  description: string;
+  tourType: TourTypeKey;
+  days: TemplateDay[];
+}
 
 type TourTypeKey = "1-day" | "2-3-day" | "7-14-day";
+
+const TOUR_TEMPLATES: TourTemplate[] = [
+  {
+    id: "chiang-mai-pai-3d",
+    name: "Chiang Mai → Pai  (3 days)",
+    description:
+      "Karen tribe · Mok Fha waterfall · Pa Pae hot spring · Cave lodge · Elephant camp · Long neck village",
+    tourType: "2-3-day",
+    days: [
+      {
+        dayNumber: 1,
+        label: "Day 1 — Chiang Mai → Pai",
+        destinationId: "pai",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: true,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 1500,
+        carCost: 3500,
+        driverCost: 1000,
+        attractions: [
+          { name: "Karen Tribe Village", cost: 0 },
+          { name: "Mok Fha Waterfall (trekking)", cost: 0 },
+          { name: "Pa Pae Hot Spring", cost: 300 },
+          { name: "Pai Canyon (sunset)", cost: 0 },
+        ],
+      },
+      {
+        dayNumber: 2,
+        label: "Day 2 — Pai Adventure",
+        destinationId: "pai",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: true,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 1500,
+        carCost: 2500,
+        driverCost: 1000,
+        attractions: [
+          { name: "Kiew Lom Viewpoint", cost: 0 },
+          { name: "Cave Lodge (stalactite + bamboo raft bat cave)", cost: 350 },
+          { name: "Lahu Tribe Village (Thailand–Myanmar border)", cost: 0 },
+          { name: "Ban Sai Chon Chinese Refugee Village", cost: 0 },
+        ],
+      },
+      {
+        dayNumber: 3,
+        label: "Day 3 — Pai → Chiang Mai",
+        destinationId: "elephant-sanctuary",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: false,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 0,
+        carCost: 3500,
+        driverCost: 1000,
+        attractions: [
+          { name: "Pai History Bridge", cost: 0 },
+          {
+            name: "Meateang Elephant Camp (show + riding + ox kart + bamboo raft)",
+            cost: 1500,
+          },
+          { name: "Karen Long Neck & Big Ears Village", cost: 200 },
+          { name: "Hmong Tribe Village", cost: 0 },
+        ],
+      },
+    ],
+  },
+];
 
 interface AttractionFee {
   id: string;
@@ -496,6 +600,17 @@ function CostCalculatorDashboard() {
     []
   );
 
+  const loadTemplate = useCallback((template: TourTemplate) => {
+    setActiveType(template.tourType);
+    setDays(
+      template.days.map(d => ({
+        ...d,
+        id: nanoid(),
+        attractions: d.attractions.map(a => ({ ...a, id: nanoid() })),
+      }))
+    );
+  }, []);
+
   const breakdown = useMemo(
     () => calculateCosts(participants, profitMargin, days),
     [participants, profitMargin, days]
@@ -507,9 +622,12 @@ function CostCalculatorDashboard() {
       <div className="xl:col-span-2 space-y-5">
         {/* Tour type */}
         <Card className="p-5">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-            Trip Duration
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Trip Duration
+            </h2>
+            <TemplateLoader onLoad={loadTemplate} />
+          </div>
           <div className="flex gap-2 flex-wrap">
             {(Object.keys(TOUR_TYPE_LABELS) as TourTypeKey[]).map(key => (
               <button
@@ -636,6 +754,65 @@ function CostCalculatorDashboard() {
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Template Loader ──────────────────────────────────────────
+
+function TemplateLoader({ onLoad }: { onLoad: (t: TourTemplate) => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={`flex items-center gap-1.5 text-xs border rounded-sm px-2.5 py-1.5 transition-colors ${
+          open
+            ? "bg-accent text-white border-accent"
+            : "text-accent border-accent/30 hover:bg-accent/5"
+        }`}
+      >
+        <Layers className="w-3.5 h-3.5" />
+        Load Template
+      </button>
+
+      {open && (
+        <>
+          {/* backdrop */}
+          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-30 top-full mt-1 w-80 border border-border rounded-sm bg-background shadow-xl overflow-hidden">
+            <div className="px-3 py-2 border-b border-border bg-muted/40">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Tour Templates
+              </p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">
+                Pre-fills all days, meals & attractions
+              </p>
+            </div>
+            {TOUR_TEMPLATES.map(t => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  onLoad(t);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-3 py-3 hover:bg-accent/5 transition-colors border-b border-border/50 last:border-0"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold">{t.name}</p>
+                  <span className="text-xs bg-accent/10 text-accent px-1.5 py-0.5 rounded shrink-0">
+                    {t.days.length} days
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  {t.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
