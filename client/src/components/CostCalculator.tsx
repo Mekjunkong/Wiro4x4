@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -20,10 +20,14 @@ import {
   BadgePercent,
   Star,
   TrendingUp,
+  Share2,
+  Link2,
+  Check,
+  Globe,
+  BookOpen,
 } from "lucide-react";
 import {
   calculateTripTotal,
-  formatTHB,
   getEffectiveGroupSize,
   isCustomQuoteRequired,
   detectShabbatNights,
@@ -34,6 +38,30 @@ import {
   type PriceBreakdown,
   type PriceLineItem,
 } from "@shared/pricing";
+
+// ── Currency Types & Conversion ────────────────────────────────
+
+export type Currency = "THB" | "USD" | "ILS";
+
+const EXCHANGE_RATES: Record<Currency, number> = {
+  THB: 1,
+  USD: 35, // 1 USD ≈ 35 THB
+  ILS: 13.5, // 1 ILS ≈ 13.5 THB
+};
+
+const CURRENCY_SYMBOLS: Record<Currency, string> = {
+  THB: "฿",
+  USD: "$",
+  ILS: "₪",
+};
+
+export function formatCurrency(amountTHB: number, currency: Currency): string {
+  const converted = amountTHB / EXCHANGE_RATES[currency];
+  return `${CURRENCY_SYMBOLS[currency]}${converted.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}
 
 // Fallback tours when DB is empty
 const FALLBACK_TOURS: TourSelection[] = [
@@ -81,6 +109,31 @@ const FALLBACK_TOURS: TourSelection[] = [
   },
 ];
 
+// ── URL Quote Encoding ─────────────────────────────────────────
+
+function encodeQuoteParams(config: {
+  tours: string[];
+  adults: number;
+  children: number[];
+  arrivalDate: string;
+  departureDate: string;
+  includesHotels: boolean;
+  includesFood: boolean;
+  includesAttractions: boolean;
+  attractionCount: number;
+  needsShabbatHotel: boolean;
+}): string {
+  return btoa(JSON.stringify(config));
+}
+
+function decodeQuoteParams(encoded: string) {
+  try {
+    return JSON.parse(atob(encoded));
+  } catch {
+    return null;
+  }
+}
+
 export function CostCalculator() {
   const { t, language } = useLanguage();
   const isHebrew = language === "he";
@@ -110,6 +163,39 @@ export function CostCalculator() {
   const [includesAttractions, setIncludesAttractions] = useState(false);
   const [attractionCount, setAttractionCount] = useState(1);
   const [needsShabbatHotel, setNeedsShabbatHotel] = useState(false);
+  const [currency, setCurrency] = useState<Currency>("THB");
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  // Restore state from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get("quote");
+    if (encoded) {
+      const config = decodeQuoteParams(encoded);
+      if (config) {
+        // Restore tours
+        const tours: TourSelection[] = [];
+        for (const slug of config.tours) {
+          const tour = availableTours.find(t => t.slug === slug);
+          if (tour) tours.push(tour);
+        }
+        if (tours.length > 0) setSelectedTours(tours);
+        if (config.adults) setAdults(config.adults);
+        if (config.children) setChildren(config.children);
+        if (config.arrivalDate) setArrivalDate(config.arrivalDate);
+        if (config.departureDate) setDepartureDate(config.departureDate);
+        if (config.includesHotels !== undefined)
+          setIncludesHotels(config.includesHotels);
+        if (config.includesFood !== undefined)
+          setIncludesFood(config.includesFood);
+        if (config.includesAttractions !== undefined)
+          setIncludesAttractions(config.includesAttractions);
+        if (config.attractionCount) setAttractionCount(config.attractionCount);
+        if (config.needsShabbatHotel !== undefined)
+          setNeedsShabbatHotel(config.needsShabbatHotel);
+      }
+    }
+  }, [availableTours]);
 
   // ── Derived ────────────────────────────────────────────────
   const canCalculate =
@@ -162,6 +248,57 @@ export function CostCalculator() {
     children: children.map(age => ({ age })),
   });
 
+  // ── Share Quote ─────────────────────────────────────────────
+  const shareUrl = useMemo(() => {
+    if (!canCalculate || !breakdown) return "";
+    const params = encodeQuoteParams({
+      tours: selectedTours.map(t => t.slug),
+      adults,
+      children,
+      arrivalDate,
+      departureDate,
+      includesHotels,
+      includesFood,
+      includesAttractions,
+      attractionCount,
+      needsShabbatHotel,
+    });
+    const url = new URL(window.location.href);
+    url.search = `?quote=${params}`;
+    return url.toString();
+  }, [
+    canCalculate,
+    breakdown,
+    selectedTours,
+    adults,
+    children,
+    arrivalDate,
+    departureDate,
+    includesHotels,
+    includesFood,
+    includesAttractions,
+    attractionCount,
+    needsShabbatHotel,
+  ]);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch {
+      // Fallback: select the URL from an input
+      const input = document.createElement("input");
+      input.value = shareUrl;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    }
+  };
+
   // ── Handlers ───────────────────────────────────────────────
   const addTour = (tour: TourSelection) => {
     setSelectedTours(prev => [...prev, tour]);
@@ -182,9 +319,21 @@ export function CostCalculator() {
     const tourNames = selectedTours
       .map(t => (isHebrew ? t.nameHe : t.nameEn))
       .join(", ");
+    const serviceLabels: string[] = [];
+    if (includesHotels) serviceLabels.push(isHebrew ? "מלונות" : "Hotels");
+    if (includesFood)
+      serviceLabels.push(isHebrew ? "ארוחות כשרות" : "Kosher Meals");
+    if (includesAttractions)
+      serviceLabels.push(isHebrew ? "אטרקציות" : "Attractions");
+    if (needsShabbatHotel)
+      serviceLabels.push(isHebrew ? "מלון שבת" : "Shabbat Hotel");
+    const servicesText =
+      serviceLabels.length > 0
+        ? `\n${isHebrew ? "שירותים" : "Services"}: ${serviceLabels.join(", ")}`
+        : "";
     const message = isHebrew
-      ? `היי WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatTHB(breakdown.total)}\n\nאפשר לקבל הצעת מחיר מדויקת?`
-      : `Hi WIRO 4x4! I used the cost estimator on your site:\n\nTours: ${tourNames}\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nDates: ${arrivalDate} → ${departureDate}\nEstimated price: ${formatTHB(breakdown.total)}\n\nCan I get an exact quote?`;
+      ? `היי WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatCurrency(breakdown.total, currency)}${servicesText}\n\n${shareUrl ? `קישור לשיתוף: ${shareUrl}\n` : ""}אפשר לקבל הצעת מחיר מדויקת?`
+      : `Hi WIRO 4x4! I used the cost estimator on your site:\n\nTours: ${tourNames}\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nDates: ${arrivalDate} → ${departureDate}\nEstimated price: ${formatCurrency(breakdown.total, currency)}${servicesText}\n\n${shareUrl ? `Share link: ${shareUrl}\n` : ""}Can I get an exact quote?`;
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank"
@@ -214,7 +363,7 @@ export function CostCalculator() {
                     {isHebrew ? tour.nameHe : tour.nameEn}
                   </span>
                   <span className="text-muted-foreground text-sm ml-2">
-                    {formatTHB(tour.basePrice)}
+                    {formatCurrency(tour.basePrice, currency)}
                   </span>
                 </div>
                 <button
@@ -252,7 +401,7 @@ export function CostCalculator() {
             {availableTours.map((tour, idx) => (
               <option key={idx} value={idx}>
                 {isHebrew ? tour.nameHe : tour.nameEn} —{" "}
-                {formatTHB(tour.basePrice)}
+                {formatCurrency(tour.basePrice, currency)}
               </option>
             ))}
           </select>
@@ -448,8 +597,8 @@ export function CostCalculator() {
             icon={Hotel}
             label={t("Hotels", "מלונות")}
             detail={t(
-              `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/night`,
-              `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/לילה`
+              `~${formatCurrency(SERVICE_PRICES.hotelPerNight, currency)}/night`,
+              `~${formatCurrency(SERVICE_PRICES.hotelPerNight, currency)}/לילה`
             )}
             checked={includesHotels}
             onChange={setIncludesHotels}
@@ -458,8 +607,8 @@ export function CostCalculator() {
             icon={Utensils}
             label={t("Kosher Meals", "ארוחות כשרות")}
             detail={t(
-              `~${formatTHB(SERVICE_PRICES.foodPerDay)}/day`,
-              `~${formatTHB(SERVICE_PRICES.foodPerDay)}/יום`
+              `~${formatCurrency(SERVICE_PRICES.foodPerDay, currency)}/day`,
+              `~${formatCurrency(SERVICE_PRICES.foodPerDay, currency)}/יום`
             )}
             checked={includesFood}
             onChange={setIncludesFood}
@@ -468,8 +617,8 @@ export function CostCalculator() {
             icon={Mountain}
             label={t("Attractions", "אטרקציות")}
             detail={t(
-              `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/attraction`,
-              `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
+              `~${formatCurrency(SERVICE_PRICES.attractionPerItem, currency)}/attraction`,
+              `~${formatCurrency(SERVICE_PRICES.attractionPerItem, currency)}/אטרקציה`
             )}
             checked={includesAttractions}
             onChange={setIncludesAttractions}
@@ -502,8 +651,8 @@ export function CostCalculator() {
             icon={Hotel}
             label={t("Shabbat Hotel (near Chabad)", 'מלון שבת (ליד חב"ד)')}
             detail={t(
-              `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
-              `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
+              `${formatCurrency(SERVICE_PRICES.shabbatHotelPerNight, currency)}/night`,
+              `${formatCurrency(SERVICE_PRICES.shabbatHotelPerNight, currency)}/לילה`
             )}
             checked={needsShabbatHotel}
             onChange={setNeedsShabbatHotel}
@@ -518,6 +667,29 @@ export function CostCalculator() {
             <Calculator className="w-5 h-5 text-accent" />
             {t("Price Estimate", "הערכת מחיר")}
           </h3>
+
+          {/* Currency Toggle */}
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground mr-1">
+              {t("Currency:", "מטבע:")}
+            </span>
+            <div className="flex gap-1">
+              {(["THB", "USD", "ILS"] as Currency[]).map(c => (
+                <button
+                  key={c}
+                  onClick={() => setCurrency(c)}
+                  className={`px-3 py-1 text-sm rounded-sm font-medium transition-colors ${
+                    currency === c
+                      ? "bg-accent text-white"
+                      : "bg-muted hover:bg-muted/70 text-muted-foreground"
+                  }`}
+                >
+                  {c === "THB" ? "฿ THB" : c === "USD" ? "$ USD" : "₪ ILS"}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {breakdown.isCustomQuote && (
             <div className="mb-4 px-3 py-2 bg-amber-50 border border-amber-200 rounded-sm text-sm text-amber-800">
@@ -539,6 +711,7 @@ export function CostCalculator() {
                   key={idx}
                   label={isHebrew ? item.labelHe : item.labelEn}
                   amount={item.amount}
+                  currency={currency}
                 />
               ))}
               {breakdown.groupMultiplier > 1 && (
@@ -548,6 +721,7 @@ export function CostCalculator() {
                     `תוספת קבוצה (×${breakdown.groupMultiplier})`
                   )}
                   amount={breakdown.groupAdjustedTotal - breakdown.tourSubtotal}
+                  currency={currency}
                   className="text-amber-600"
                 />
               )}
@@ -555,6 +729,7 @@ export function CostCalculator() {
                 <LineItem
                   label={t("Children surcharge", "תוספת ילדים")}
                   amount={breakdown.childrenSurcharge}
+                  currency={currency}
                   className="text-amber-600"
                 />
               )}
@@ -569,8 +744,8 @@ export function CostCalculator() {
                 </div>
                 <p className="text-xs text-green-700">
                   {isHebrew
-                    ? `${breakdown.packageOption.nameHe}: ${formatTHB(breakdown.packageOption.packagePrice)} (חיסכון ${formatTHB(breakdown.packageOption.savings)})`
-                    : `${breakdown.packageOption.nameEn}: ${formatTHB(breakdown.packageOption.packagePrice)} (save ${formatTHB(breakdown.packageOption.savings)})`}
+                    ? `${breakdown.packageOption.nameHe}: ${formatCurrency(breakdown.packageOption.packagePrice, currency)} (חיסכון ${formatCurrency(breakdown.packageOption.savings, currency)})`
+                    : `${breakdown.packageOption.nameEn}: ${formatCurrency(breakdown.packageOption.packagePrice, currency)} (save ${formatCurrency(breakdown.packageOption.savings, currency)})`}
                 </p>
               </div>
             )}
@@ -587,6 +762,7 @@ export function CostCalculator() {
                       key={idx}
                       label={isHebrew ? item.labelHe : item.labelEn}
                       amount={item.amount}
+                      currency={currency}
                     />
                   )
                 )}
@@ -608,6 +784,7 @@ export function CostCalculator() {
                     `תוספת עונת שיא (${Math.round((breakdown.season.multiplier - 1) * 100)}%)`
                   )}
                   amount={breakdown.seasonalSurcharge}
+                  currency={currency}
                   className="text-amber-700"
                 />
               </div>
@@ -621,6 +798,7 @@ export function CostCalculator() {
                   `מלון שבת (${breakdown.shabbatNights} ${breakdown.shabbatNights > 1 ? "לילות" : "לילה"})`
                 )}
                 amount={breakdown.shabbatCost}
+                currency={currency}
               />
             )}
 
@@ -631,26 +809,27 @@ export function CostCalculator() {
                   {t("Estimated Total", "סה״כ הערכה")}
                 </span>
                 <span className="text-2xl font-bold text-accent">
-                  {formatTHB(breakdown.total)}
+                  {formatCurrency(breakdown.total, currency)}
                 </span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
-                <span>{formatTHB(breakdown.depositAmount)}</span>
+                <span>{formatCurrency(breakdown.depositAmount, currency)}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{t("Balance on tour day", "יתרה ביום הטיול")}</span>
-                <span>{formatTHB(breakdown.balanceAmount)}</span>
+                <span>{formatCurrency(breakdown.balanceAmount, currency)}</span>
               </div>
             </div>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons — Feature 7: More prominent */}
           <div className="mt-6 space-y-3">
+            {/* Primary CTA: WhatsApp */}
             <Button
               onClick={handleWhatsApp}
               variant="default"
-              className="w-full py-3 text-base bg-accent hover:bg-accent-cta-hover text-white"
+              className="w-full py-4 text-base bg-green-600 hover:bg-green-700 text-white font-bold shadow-md"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               {t(
@@ -658,15 +837,45 @@ export function CostCalculator() {
                 "קבלו הצעת מחיר מדויקת בוואטסאפ"
               )}
             </Button>
+
+            {/* Secondary CTA: Book Now */}
             <Button
-              variant="outline"
-              className="w-full border-accent text-accent hover:bg-accent/10"
+              variant="default"
+              className="w-full py-3 text-base bg-accent hover:bg-accent-cta-hover text-white font-semibold"
               onClick={() => {
                 window.location.href = "/book";
               }}
             >
-              {t("Book Now", "להזמנה")}
+              <BookOpen className="w-5 h-5 mr-2" />
+              {t("Book This Trip Now", "הזמינו את הטיול הזה עכשיו")}
             </Button>
+
+            {/* Share Quote — Feature 4 */}
+            <Button
+              variant="outline"
+              className="w-full border-accent text-accent hover:bg-accent/10 py-3"
+              onClick={handleCopyLink}
+            >
+              {linkCopied ? (
+                <>
+                  <Check className="w-5 h-5 mr-2 text-green-600" />
+                  {t("Link Copied!", "הקישור הועתק!")}
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-5 h-5 mr-2" />
+                  {t("Share This Quote", "שתפו את ההערכה")}
+                </>
+              )}
+            </Button>
+
+            {/* Shareable link display */}
+            {shareUrl && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-sm text-xs text-muted-foreground">
+                <Link2 className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate flex-1">{shareUrl}</span>
+              </div>
+            )}
           </div>
 
           <p className="text-xs text-muted-foreground text-center mt-4">
@@ -733,16 +942,18 @@ function ServiceToggle({
 function LineItem({
   label,
   amount,
+  currency,
   className = "",
 }: {
   label: string;
   amount: number;
+  currency: Currency;
   className?: string;
 }) {
   return (
     <div className={`flex justify-between text-sm py-1 ${className}`}>
       <span>{label}</span>
-      <span className="font-medium">{formatTHB(amount)}</span>
+      <span className="font-medium">{formatCurrency(amount, currency)}</span>
     </div>
   );
 }
