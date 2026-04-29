@@ -159,7 +159,7 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light" switchable>
+      <ThemeProvider defaultTheme="light">
         <LanguageProvider>
           <AppContent />
         </LanguageProvider>

@@ -175,9 +175,9 @@ describe("Pricing Module", () => {
   });
 
   describe("formatTHB", () => {
-    it("formats with baht symbol and commas", () => {
-      expect(formatTHB(3500)).toBe("฿3,500");
-      expect(formatTHB(17800)).toBe("฿17,800");
+    it("converts THB to USD and formats with dollar symbol", () => {
+      expect(formatTHB(3500)).toBe("$98"); // 3500 * 0.028 = 98
+      expect(formatTHB(17800)).toBe("$498"); // 17800 * 0.028 = 498.4 → 498
     });
   });
 

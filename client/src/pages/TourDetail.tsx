@@ -1182,7 +1182,7 @@ export default function TourDetail() {
       offers: {
         "@type": "Offer",
         price: String(tour.price),
-        priceCurrency: "THB",
+        priceCurrency: "USD",
         availability: "https://schema.org/InStock",
         validFrom: new Date().toISOString().split("T")[0],
         url: tourUrl,

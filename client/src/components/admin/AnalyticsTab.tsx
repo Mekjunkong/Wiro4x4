@@ -17,7 +17,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function formatCurrency(amount: number) {
-  return `฿${amount.toLocaleString()}`;
+  return `$${amount.toLocaleString()}`;
 }
 
 function shortMonth(ym: string) {

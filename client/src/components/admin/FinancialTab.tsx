@@ -31,7 +31,7 @@ const emptyForm: RecordFormData = {
   type: "revenue",
   category: "",
   amount: 0,
-  currency: "THB",
+  currency: "USD",
   description: "",
   paymentMethod: "",
   notes: "",

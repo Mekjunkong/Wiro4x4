@@ -97,7 +97,7 @@ export function DashboardCharts({
               <YAxis hide />
               <Tooltip
                 formatter={(value: number) => [
-                  `${value.toLocaleString()} THB`,
+                  `${value.toLocaleString()} USD`,
                   "Revenue",
                 ]}
                 labelFormatter={(label: string) =>

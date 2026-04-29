@@ -258,8 +258,8 @@ export default function Pricing() {
   const handleWhatsAppInquiry = (tourName: string, price: number) => {
     const message = encodeURIComponent(
       t(
-        `Hi WIRO 4x4! I'm interested in the ${tourName} (${price} THB). Can you provide more details?`,
-        `היי WIRO 4x4! מתעניינים ב${tourName} (${price} ฿). אפשר לשמוע פרטים?`
+        `Hi WIRO 4x4! I'm interested in the ${tourName} ($${price.toLocaleString()}). Can you provide more details?`,
+        `היי WIRO 4x4! מתעניינים ב${tourName} ($${price.toLocaleString()}). אפשר לשמוע פרטים?`
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
@@ -446,8 +446,8 @@ export default function Pricing() {
                             </p>
                             <p className="text-xs text-muted-foreground/70 mt-1">
                               {t(
-                                `Peak Season: ฿${peakPrice.toLocaleString()}`,
-                                `עונת שיא: ฿${peakPrice.toLocaleString()}`
+                                `Peak Season: $${Math.round(peakPrice * 0.028).toLocaleString()}`,
+                                `עונת שיא: $${Math.round(peakPrice * 0.028).toLocaleString()}`
                               )}
                             </p>
                           </>
@@ -591,7 +591,7 @@ export default function Pricing() {
                       {pkg.days} {t("Days", "ימים")}
                     </div>
                     <div className="text-3xl md:text-4xl font-bold text-accent">
-                      ฿{pkg.price.toLocaleString()}
+                      ${Math.round(pkg.price * 0.028).toLocaleString()}
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">
                       {t("Per group", "לקבוצה")}

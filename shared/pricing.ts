@@ -478,8 +478,10 @@ export function calculateTripCost(params: {
 }
 
 /**
- * Format THB amount: ฿3,500
+ * Convert THB → USD and format: $98
+ * Rate: 1 THB = $0.028 USD (≈ 36 THB per dollar)
  */
 export function formatTHB(amount: number): string {
-  return `฿${amount.toLocaleString()}`;
+  const usd = Math.round(amount * 0.028);
+  return `$${usd.toLocaleString()}`;
 }
