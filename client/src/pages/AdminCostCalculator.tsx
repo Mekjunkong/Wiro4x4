@@ -27,7 +27,7 @@ import {
   Bookmark,
   Layers,
 } from "lucide-react";
-import { formatTHB } from "@shared/pricing";
+import { formatUSD } from "@shared/pricing";
 import { nanoid } from "nanoid";
 
 // ── Destination Database ─────────────────────────────────────
@@ -868,7 +868,7 @@ function DestinationPicker({
               </div>
               <div className="text-right shrink-0">
                 <p className="text-xs text-accent font-medium">
-                  Car {formatTHB(dest.suggestedCarPerDay)}/day
+                  Car {formatUSD(dest.suggestedCarPerDay)}/day
                 </p>
                 {dest.entranceFees.length > 0 && (
                   <p className="text-xs text-muted-foreground">
@@ -1008,7 +1008,7 @@ function AttractionAdder({
                     {a.name}
                   </span>
                   <span className="text-muted-foreground shrink-0">
-                    {formatTHB(a.cost)}
+                    {formatUSD(a.cost)}
                   </span>
                 </button>
               ))}
@@ -1133,8 +1133,8 @@ function DayCard({
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs text-muted-foreground hidden sm:block">
-            Fixed: {formatTHB(dayFixedTotal)} · Var:{" "}
-            {formatTHB(dayVariableTotal)}/pp
+            Fixed: {formatUSD(dayFixedTotal)} · Var:{" "}
+            {formatUSD(dayVariableTotal)}/pp
           </span>
           {canRemove && (
             <button
@@ -1465,20 +1465,20 @@ function SummaryPanel({
           <>
             <BigStat
               label="Selling Price / Person"
-              value={formatTHB(breakdown.sellingPricePerPerson)}
-              sub={`Base ${formatTHB(Math.round(breakdown.baseCostPerPerson))} + ${profitMargin}% margin`}
+              value={formatUSD(breakdown.sellingPricePerPerson)}
+              sub={`Base ${formatUSD(Math.round(breakdown.baseCostPerPerson))} + ${profitMargin}% margin`}
               color="accent"
             />
             <BigStat
               label="Total Quote"
-              value={formatTHB(breakdown.totalSellingPrice)}
+              value={formatUSD(breakdown.totalSellingPrice)}
               sub={`${participants} person${participants > 1 ? "s" : ""}`}
               color="accent"
             />
             <BigStat
               label="Your Profit"
-              value={formatTHB(Math.round(breakdown.totalProfit))}
-              sub={`${formatTHB(Math.round(breakdown.profitAmountPerPerson))} / person`}
+              value={formatUSD(Math.round(breakdown.totalProfit))}
+              sub={`${formatUSD(Math.round(breakdown.profitAmountPerPerson))} / person`}
               color="green"
             />
 
@@ -1486,7 +1486,7 @@ function SummaryPanel({
               <div className="flex justify-between text-muted-foreground">
                 <span>Deposit (30%)</span>
                 <span className="font-medium">
-                  {formatTHB(
+                  {formatUSD(
                     Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100
                   )}
                 </span>
@@ -1494,7 +1494,7 @@ function SummaryPanel({
               <div className="flex justify-between text-muted-foreground">
                 <span>Balance on tour day</span>
                 <span className="font-medium">
-                  {formatTHB(
+                  {formatUSD(
                     breakdown.totalSellingPrice -
                       Math.round((breakdown.totalSellingPrice * 0.3) / 100) *
                         100
@@ -1597,7 +1597,7 @@ function Row({
       </span>
       {value !== null ? (
         <span className="text-sm tabular-nums">
-          {formatTHB(Math.round(value))}
+          {formatUSD(Math.round(value))}
         </span>
       ) : (
         <span className="text-xs text-muted-foreground">{note}</span>

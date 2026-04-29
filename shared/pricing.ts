@@ -1,7 +1,7 @@
 /**
  * Pure pricing calculation functions for Wiro 4x4 tour cost estimation.
  * No database dependency — used by both client (calculator) and server (quotes).
- * All amounts in THB.
+ * Amounts stored in THB internally, displayed in USD.
  */
 
 // ── Types ────────────────────────────────────────────────────
@@ -315,7 +315,7 @@ export function findPackageOption(
 }
 
 /**
- * Round to nearest 100 THB.
+ * Round to nearest 100 (internal THB units).
  */
 export function roundToNearest100(amount: number): number {
   return Math.round(amount / 100) * 100;
@@ -478,10 +478,13 @@ export function calculateTripCost(params: {
 }
 
 /**
- * Convert THB → USD and format: $98
- * Rate: 1 THB = $0.028 USD (≈ 36 THB per dollar)
+ * Format amount as USD: $98
+ * Amounts are stored in THB internally; converted at 0.028 rate
  */
-export function formatTHB(amount: number): string {
+export function formatUSD(amount: number): string {
   const usd = Math.round(amount * 0.028);
   return `$${usd.toLocaleString()}`;
 }
+
+/** @deprecated Use formatUSD instead */
+export const formatTHB = formatUSD;

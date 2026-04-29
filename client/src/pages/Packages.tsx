@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import {
   calculatePackageDiscount,
   calculateTripTotal,
-  formatTHB,
+  formatUSD,
   getEffectiveGroupSize,
   isCustomQuoteRequired,
   detectShabbatNights,
@@ -403,7 +403,7 @@ export default function Packages() {
     if (includesAttractions) addons.push(isHebrew ? "אטרקציות" : "Attractions");
     if (needsShabbatHotel) addons.push(isHebrew ? "מלון שבת" : "Shabbat Hotel");
 
-    const total = breakdown ? formatTHB(breakdown.total) : "";
+    const total = breakdown ? formatUSD(breakdown.total) : "";
     const discount =
       packageDiscount && packageDiscount.savings > 0
         ? ` (${packageDiscount.discountPercent}% ${isHebrew ? "הנחה" : "discount"})`
@@ -427,7 +427,7 @@ export default function Packages() {
     const tourNames = selectedTours
       .map((t, i) => `${i + 1}. ${t.nameEn}`)
       .join(", ");
-    const total = breakdown ? formatTHB(breakdown.total) : "N/A";
+    const total = breakdown ? formatUSD(breakdown.total) : "N/A";
 
     try {
       await leadMutation.mutateAsync({
@@ -589,11 +589,11 @@ export default function Packages() {
                         <div>
                           {discounted.savings > 0 && (
                             <span className="text-sm text-muted-foreground line-through mr-2">
-                              {formatTHB(tourPrices)}
+                              {formatUSD(tourPrices)}
                             </span>
                           )}
                           <span className="text-xl font-bold text-primary">
-                            {formatTHB(discounted.discountedPrice)}
+                            {formatUSD(discounted.discountedPrice)}
                           </span>
                         </div>
                       </div>
@@ -793,7 +793,7 @@ export default function Packages() {
                                 {tour.duration}
                               </span>
                               <span className="font-medium text-foreground">
-                                {formatTHB(tour.price)}
+                                {formatUSD(tour.price)}
                               </span>
                             </div>
                           </div>
@@ -874,8 +874,8 @@ export default function Packages() {
                     <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
                       <BadgePercent className="w-4 h-4 shrink-0" />
                       {t(
-                        `${packageDiscount.discountPercent}% package discount applied — save ${formatTHB(packageDiscount.savings)}!`,
-                        `הנחת חבילה ${packageDiscount.discountPercent}% — חסכו ${formatTHB(packageDiscount.savings)}!`
+                        `${packageDiscount.discountPercent}% package discount applied — save ${formatUSD(packageDiscount.savings)}!`,
+                        `הנחת חבילה ${packageDiscount.discountPercent}% — חסכו ${formatUSD(packageDiscount.savings)}!`
                       )}
                     </div>
                   )}
@@ -1014,8 +1014,8 @@ export default function Packages() {
                         icon={Hotel}
                         label={t("Hotel Accommodation", "לינה במלון")}
                         detail={t(
-                          `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/night`,
-                          `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/לילה`
+                          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/night`,
+                          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/לילה`
                         )}
                         checked={includesHotels}
                         onChange={setIncludesHotels}
@@ -1024,8 +1024,8 @@ export default function Packages() {
                         icon={Utensils}
                         label={t("Kosher Meals", "ארוחות כשרות")}
                         detail={t(
-                          `~${formatTHB(SERVICE_PRICES.foodPerDay)}/day`,
-                          `~${formatTHB(SERVICE_PRICES.foodPerDay)}/יום`
+                          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/day`,
+                          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/יום`
                         )}
                         checked={includesFood}
                         onChange={setIncludesFood}
@@ -1037,8 +1037,8 @@ export default function Packages() {
                           "אטרקציות ופעילויות"
                         )}
                         detail={t(
-                          `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/attraction`,
-                          `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
+                          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/attraction`,
+                          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
                         )}
                         checked={includesAttractions}
                         onChange={setIncludesAttractions}
@@ -1076,8 +1076,8 @@ export default function Packages() {
                           'מלון שבת (ליד חב"ד)'
                         )}
                         detail={t(
-                          `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
-                          `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
+                          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
+                          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
                         )}
                         checked={needsShabbatHotel}
                         onChange={setNeedsShabbatHotel}
@@ -1173,7 +1173,7 @@ export default function Packages() {
                               </div>
                             </div>
                             <div className="text-sm font-medium shrink-0">
-                              {formatTHB(tour.price)}
+                              {formatUSD(tour.price)}
                             </div>
                           </div>
                         );
@@ -1284,8 +1284,8 @@ export default function Packages() {
                             </div>
                             <p className="text-xs text-green-700">
                               {isHebrew
-                                ? `${breakdown.packageOption.nameHe}: ${formatTHB(breakdown.packageOption.packagePrice)} (חיסכון ${formatTHB(breakdown.packageOption.savings)})`
-                                : `${breakdown.packageOption.nameEn}: ${formatTHB(breakdown.packageOption.packagePrice)} (save ${formatTHB(breakdown.packageOption.savings)})`}
+                                ? `${breakdown.packageOption.nameHe}: ${formatUSD(breakdown.packageOption.packagePrice)} (חיסכון ${formatUSD(breakdown.packageOption.savings)})`
+                                : `${breakdown.packageOption.nameEn}: ${formatUSD(breakdown.packageOption.packagePrice)} (save ${formatUSD(breakdown.packageOption.savings)})`}
                             </p>
                           </div>
                         )}
@@ -1326,18 +1326,18 @@ export default function Packages() {
                               {t("Estimated Total", "סה״כ הערכה")}
                             </span>
                             <span className="text-2xl font-bold text-accent">
-                              {formatTHB(breakdown.total)}
+                              {formatUSD(breakdown.total)}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm text-muted-foreground">
                             <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
-                            <span>{formatTHB(breakdown.depositAmount)}</span>
+                            <span>{formatUSD(breakdown.depositAmount)}</span>
                           </div>
                           <div className="flex justify-between text-sm text-muted-foreground">
                             <span>
                               {t("Balance on tour day", "יתרה ביום הטיול")}
                             </span>
-                            <span>{formatTHB(breakdown.balanceAmount)}</span>
+                            <span>{formatUSD(breakdown.balanceAmount)}</span>
                           </div>
                         </div>
 
@@ -1364,7 +1364,7 @@ export default function Packages() {
                             <div className="flex justify-between text-sm">
                               <span>{t("Tours subtotal", "סה״כ טיולים")}</span>
                               <span className="line-through text-muted-foreground">
-                                {formatTHB(
+                                {formatUSD(
                                   selectedTours.reduce(
                                     (sum, t) => sum + t.basePrice,
                                     0
@@ -1379,14 +1379,14 @@ export default function Packages() {
                                   {packageDiscount.discountPercent}%)
                                 </span>
                                 <span>
-                                  -{formatTHB(packageDiscount.savings)}
+                                  -{formatUSD(packageDiscount.savings)}
                                 </span>
                               </div>
                             )}
                             <div className="flex justify-between font-bold text-lg border-t pt-2">
                               <span>{t("Tours total", "סה״כ טיולים")}</span>
                               <span className="text-accent">
-                                {formatTHB(packageDiscount.discountedPrice)}
+                                {formatUSD(packageDiscount.discountedPrice)}
                               </span>
                             </div>
                           </div>
@@ -1554,7 +1554,7 @@ function LineItem({
   return (
     <div className={`flex justify-between text-sm py-1 ${className}`}>
       <span>{label}</span>
-      <span className="font-medium">{formatTHB(amount)}</span>
+      <span className="font-medium">{formatUSD(amount)}</span>
     </div>
   );
 }

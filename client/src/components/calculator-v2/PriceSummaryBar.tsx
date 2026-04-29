@@ -1,7 +1,7 @@
 // client/src/components/calculator-v2/PriceSummaryBar.tsx
 import { Shield, Thermometer, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB, type PriceBreakdown } from "@shared/pricing";
+import { formatUSD, type PriceBreakdown } from "@shared/pricing";
 import { CurrencyTooltip } from "./CurrencyTooltip";
 
 interface PriceSummaryBarProps {
@@ -64,7 +64,7 @@ export function PriceSummaryBar({
             </p>
             <CurrencyTooltip thb={total}>
               <p className="text-xl font-bold text-accent">
-                {formatTHB(total)}
+                {formatUSD(total)}
               </p>
             </CurrencyTooltip>
             <div className="flex items-center gap-1 text-[10px] text-green-700 mt-0.5">
@@ -99,7 +99,7 @@ export function PriceSummaryBar({
             </p>
             <CurrencyTooltip thb={total}>
               <p className="text-3xl font-bold text-accent">
-                {formatTHB(total)}
+                {formatUSD(total)}
               </p>
             </CurrencyTooltip>
           </div>

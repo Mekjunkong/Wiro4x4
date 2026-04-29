@@ -1,5 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB, type PriceBreakdown } from "@shared/pricing";
+import { formatUSD, type PriceBreakdown } from "@shared/pricing";
 import { Receipt } from "lucide-react";
 
 interface Props {
@@ -26,7 +26,7 @@ export function PricingSummary({ breakdown }: Props) {
           <span className="text-muted-foreground">
             {language === "he" ? item.labelHe : item.labelEn}
           </span>
-          <span>{formatTHB(item.amount)}</span>
+          <span>{formatUSD(item.amount)}</span>
         </div>
       ))}
 
@@ -35,7 +35,7 @@ export function PricingSummary({ breakdown }: Props) {
           <span className="text-muted-foreground">
             {language === "he" ? item.labelHe : item.labelEn}
           </span>
-          <span>{formatTHB(item.amount)}</span>
+          <span>{formatUSD(item.amount)}</span>
         </div>
       ))}
 
@@ -47,13 +47,13 @@ export function PricingSummary({ breakdown }: Props) {
               "\u05D7\u05D9\u05E1\u05DB\u05D5\u05DF \u05DE\u05D7\u05D1\u05D9\u05DC\u05D4"
             )}
           </span>
-          <span>-{formatTHB(breakdown.packageOption.savings)}</span>
+          <span>-{formatUSD(breakdown.packageOption.savings)}</span>
         </div>
       )}
 
       <div className="border-t pt-3 flex justify-between font-bold text-lg">
         <span>{t("Total", '\u05E1\u05D4"\u05DB')}</span>
-        <span className="text-accent">{formatTHB(breakdown.total)}</span>
+        <span className="text-accent">{formatUSD(breakdown.total)}</span>
       </div>
 
       <div className="text-xs text-muted-foreground space-y-1">
@@ -61,11 +61,11 @@ export function PricingSummary({ breakdown }: Props) {
           <span>
             {t("Deposit (30%)", "\u05DE\u05E7\u05D3\u05DE\u05D4 (30%)")}
           </span>
-          <span>{formatTHB(breakdown.depositAmount)}</span>
+          <span>{formatUSD(breakdown.depositAmount)}</span>
         </div>
         <div className="flex justify-between">
           <span>{t("Balance", "\u05D9\u05EA\u05E8\u05D4")}</span>
-          <span>{formatTHB(breakdown.balanceAmount)}</span>
+          <span>{formatUSD(breakdown.balanceAmount)}</span>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  formatTHB,
+  formatUSD,
   type PriceBreakdown,
   type PriceLineItem,
   type SeasonType,
@@ -166,8 +166,8 @@ export function PriceBreakdownModal({
               </div>
               <p className="text-xs text-green-700">
                 {isHebrew
-                  ? `${breakdown.packageOption.nameHe}: ${formatTHB(breakdown.packageOption.packagePrice)} (חיסכון ${formatTHB(breakdown.packageOption.savings)})`
-                  : `${breakdown.packageOption.nameEn}: ${formatTHB(breakdown.packageOption.packagePrice)} (save ${formatTHB(breakdown.packageOption.savings)})`}
+                  ? `${breakdown.packageOption.nameHe}: ${formatUSD(breakdown.packageOption.packagePrice)} (חיסכון ${formatUSD(breakdown.packageOption.savings)})`
+                  : `${breakdown.packageOption.nameEn}: ${formatUSD(breakdown.packageOption.packagePrice)} (save ${formatUSD(breakdown.packageOption.savings)})`}
               </p>
             </div>
           )}
@@ -207,17 +207,17 @@ export function PriceBreakdownModal({
               <span className="text-xl font-bold">{t("Total", "סה״כ")}</span>
               <CurrencyTooltip thb={breakdown.total}>
                 <span className="text-2xl font-bold text-accent">
-                  {formatTHB(breakdown.total)}
+                  {formatUSD(breakdown.total)}
                 </span>
               </CurrencyTooltip>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
-              <span>{formatTHB(breakdown.depositAmount)}</span>
+              <span>{formatUSD(breakdown.depositAmount)}</span>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>{t("Balance on tour day", "יתרה ביום הטיול")}</span>
-              <span>{formatTHB(breakdown.balanceAmount)}</span>
+              <span>{formatUSD(breakdown.balanceAmount)}</span>
             </div>
           </div>
 
@@ -252,7 +252,7 @@ function LineItem({
   return (
     <div className={`flex justify-between text-sm py-1 ${className}`}>
       <span>{label}</span>
-      <span className="font-medium">{formatTHB(amount)}</span>
+      <span className="font-medium">{formatUSD(amount)}</span>
     </div>
   );
 }

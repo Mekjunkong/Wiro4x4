@@ -1,7 +1,7 @@
 // client/src/components/calculator-v2/TourSelector.tsx
 import { ChevronDown, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB, type TourSelection } from "@shared/pricing";
+import { formatUSD, type TourSelection } from "@shared/pricing";
 import { TourPreviewCard } from "./TourPreviewCard";
 import { EmptyStateHero } from "./EmptyStateHero";
 
@@ -75,7 +75,7 @@ export function TourSelector({
           {availableTours.map((tour, idx) => (
             <option key={idx} value={idx}>
               {isHebrew ? tour.nameHe : tour.nameEn} —{" "}
-              {formatTHB(tour.basePrice)}
+              {formatUSD(tour.basePrice)}
             </option>
           ))}
         </select>

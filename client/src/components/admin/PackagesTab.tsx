@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
   calculatePackageDiscount,
-  formatTHB,
+  formatUSD,
 } from "../../../../shared/pricing";
 import {
   Dialog,
@@ -222,7 +222,7 @@ export function PackagesTab() {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {pkg.tourSlugs.length} tours &middot;{" "}
-                  {formatTHB(pkg.discountedPrice)} (
+                  {formatUSD(pkg.discountedPrice)} (
                   {pkg.discountPercent > 0
                     ? `-${pkg.discountPercent}%`
                     : "no discount"}
@@ -358,7 +358,7 @@ export function PackagesTab() {
                             : "hover:bg-muted"
                       }`}
                     >
-                      {tour.name} — {formatTHB(tour.price)}
+                      {tour.name} — {formatUSD(tour.price)}
                     </button>
                   );
                 })}
@@ -414,16 +414,16 @@ export function PackagesTab() {
                 <div className="flex justify-between mb-1">
                   <span>Original</span>
                   <span className="line-through text-muted-foreground">
-                    {formatTHB(totalPrice)}
+                    {formatUSD(totalPrice)}
                   </span>
                 </div>
                 <div className="flex justify-between text-green-700 font-medium">
                   <span>After {liveDiscount.discountPercent}% discount</span>
-                  <span>{formatTHB(liveDiscount.discountedPrice)}</span>
+                  <span>{formatUSD(liveDiscount.discountedPrice)}</span>
                 </div>
                 <div className="flex justify-between text-green-600 text-xs mt-1">
                   <span>Savings</span>
-                  <span>{formatTHB(liveDiscount.savings)}</span>
+                  <span>{formatUSD(liveDiscount.savings)}</span>
                 </div>
               </div>
             )}

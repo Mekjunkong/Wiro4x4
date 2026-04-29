@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Lightbulb, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB, type PackageComparison } from "@shared/pricing";
+import { formatUSD, type PackageComparison } from "@shared/pricing";
 
 interface PackageRecommendationProps {
   packageOption: PackageComparison | null;
@@ -30,8 +30,8 @@ export function PackageRecommendation({
           <Lightbulb className="w-5 h-5 text-green-600 shrink-0" />
           <span className="font-semibold text-green-800">
             {t(
-              `💡 Save ${formatTHB(packageOption.savings)} with our ${packageOption.days}-Day Adventure Package`,
-              `💡 חסכו ${formatTHB(packageOption.savings)} עם חבילת ההרפתקה ל-${packageOption.days} ימים שלנו`
+              `💡 Save ${formatUSD(packageOption.savings)} with our ${packageOption.days}-Day Adventure Package`,
+              `💡 חסכו ${formatUSD(packageOption.savings)} עם חבילת ההרפתקה ל-${packageOption.days} ימים שלנו`
             )}
           </span>
         </div>
@@ -59,7 +59,7 @@ export function PackageRecommendation({
                 )}
               </span>
               <span className="font-medium line-through text-muted-foreground">
-                {formatTHB(packageOption.individualPrice)}
+                {formatUSD(packageOption.individualPrice)}
               </span>
             </div>
 
@@ -69,7 +69,7 @@ export function PackageRecommendation({
                 {packageName}
               </span>
               <span className="font-bold text-green-700">
-                {formatTHB(packageOption.packagePrice)}
+                {formatUSD(packageOption.packagePrice)}
               </span>
             </div>
 
@@ -79,7 +79,7 @@ export function PackageRecommendation({
                 {t("You save", "החיסכון שלכם")}
               </span>
               <span className="font-bold text-xl text-accent">
-                {formatTHB(packageOption.savings)}
+                {formatUSD(packageOption.savings)}
               </span>
             </div>
           </div>

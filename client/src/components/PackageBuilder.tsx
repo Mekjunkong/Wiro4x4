@@ -4,7 +4,7 @@ import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MULTI_DAY_PACKAGES, formatTHB } from "@shared/pricing";
+import { MULTI_DAY_PACKAGES, formatUSD } from "@shared/pricing";
 import { Check, Package, MessageCircle, BadgePercent } from "lucide-react";
 
 interface Tour {
@@ -108,14 +108,14 @@ export function PackageBuilder() {
   const whatsappMessage = encodeURIComponent(
     isHebrew
       ? `היי WIRO 4x4! אשמח לבנות חבילה של ${totalDays} ימים:\n\n${selectedTours
-          .map(tour => `- ${tour.nameHe} (${formatTHB(tour.price)})`)
-          .join("\n")}\n\nסה"כ משוער: ${formatTHB(packageTotal)}${
-          savings > 0 ? ` (חיסכון ${formatTHB(savings)})` : ""
+          .map(tour => `- ${tour.nameHe} (${formatUSD(tour.price)})`)
+          .join("\n")}\n\nסה"כ משוער: ${formatUSD(packageTotal)}${
+          savings > 0 ? ` (חיסכון ${formatUSD(savings)})` : ""
         }\n\nאשמח לקבל הצעת מחיר!`
       : `Hi WIRO 4x4! I'd like to build a ${totalDays}-day package:\n\n${selectedTours
-          .map(tour => `- ${tour.name} (${formatTHB(tour.price)})`)
-          .join("\n")}\n\nTotal estimate: ${formatTHB(packageTotal)}${
-          savings > 0 ? ` (saving ${formatTHB(savings)})` : ""
+          .map(tour => `- ${tour.name} (${formatUSD(tour.price)})`)
+          .join("\n")}\n\nTotal estimate: ${formatUSD(packageTotal)}${
+          savings > 0 ? ` (saving ${formatUSD(savings)})` : ""
         }\n\nPlease send me a quote!`
   );
 
@@ -165,7 +165,7 @@ export function PackageBuilder() {
                   {t(tour.name, tour.nameHe)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatTHB(tour.price)}
+                  {formatUSD(tour.price)}
                 </p>
               </div>
             </button>
@@ -183,7 +183,7 @@ export function PackageBuilder() {
               )}
             </span>
             <span className="line-through text-muted-foreground">
-              {formatTHB(individualTotal)}
+              {formatUSD(individualTotal)}
             </span>
           </div>
           {savings > 0 && (
@@ -196,7 +196,7 @@ export function PackageBuilder() {
                 )}
               </span>
               <span className="text-emerald-600 font-medium">
-                -{formatTHB(savings)}
+                -{formatUSD(savings)}
               </span>
             </div>
           )}
@@ -207,7 +207,7 @@ export function PackageBuilder() {
                 "\u05E1\u05D4\u05F4\u05DB \u05D7\u05D1\u05D9\u05DC\u05D4"
               )}
             </span>
-            <span className="text-primary">{formatTHB(packageTotal)}</span>
+            <span className="text-primary">{formatUSD(packageTotal)}</span>
           </div>
 
           <Button

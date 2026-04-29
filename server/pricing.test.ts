@@ -9,7 +9,7 @@ import {
   findPackageOption,
   roundToNearest100,
   calculateTripTotal,
-  formatTHB,
+  formatUSD,
   calculatePackageDiscount,
 } from "../shared/pricing";
 
@@ -174,10 +174,10 @@ describe("Pricing Module", () => {
     });
   });
 
-  describe("formatTHB", () => {
+  describe("formatUSD", () => {
     it("converts THB to USD and formats with dollar symbol", () => {
-      expect(formatTHB(3500)).toBe("$98"); // 3500 * 0.028 = 98
-      expect(formatTHB(17800)).toBe("$498"); // 17800 * 0.028 = 498.4 → 498
+      expect(formatUSD(3500)).toBe("$98"); // 3500 * 0.028 = 98
+      expect(formatUSD(17800)).toBe("$498"); // 17800 * 0.028 = 498.4 → 498
     });
   });
 

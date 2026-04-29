@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Trash2, ChevronDown, Star } from "lucide-react";
-import { formatTHB, type TourSelection } from "@shared/pricing";
+import { formatUSD, type TourSelection } from "@shared/pricing";
 import { CurrencyTooltip } from "./CurrencyTooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -53,7 +53,7 @@ export function TourPreviewCard({ tour, onRemove }: TourPreviewCardProps) {
           {/* Price */}
           <CurrencyTooltip thb={tour.basePrice}>
             <span className="text-sm text-muted-foreground">
-              {formatTHB(tour.basePrice)}
+              {formatUSD(tour.basePrice)}
             </span>
           </CurrencyTooltip>
         </div>

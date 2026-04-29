@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
 import { useParams, Link } from "wouter";
-import { formatTHB } from "../../../shared/pricing";
+import { formatUSD } from "../../../shared/pricing";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -737,7 +737,7 @@ export default function PackageDetail() {
                       {t("Starting from", "החל מ-")}
                     </div>
                     <div className="text-3xl font-heading font-bold text-accent">
-                      {formatTHB(pkg.price)}
+                      {formatUSD(pkg.price)}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {t("per person", "לאדם")}
@@ -958,7 +958,7 @@ export default function PackageDetail() {
                         {t(tour.name, tour.nameHe)}
                       </span>
                       <span className="text-muted-foreground whitespace-nowrap">
-                        {formatTHB(tour.price)}
+                        {formatUSD(tour.price)}
                       </span>
                     </li>
                   ))}
@@ -969,7 +969,7 @@ export default function PackageDetail() {
                     <div className="flex justify-between text-sm">
                       <span>{t("Original Price", "מחיר מקורי")}</span>
                       <span className="line-through text-muted-foreground">
-                        {formatTHB(pkg.originalPrice)}
+                        {formatUSD(pkg.originalPrice)}
                       </span>
                     </div>
                   )}
@@ -979,13 +979,13 @@ export default function PackageDetail() {
                         {t("You Save", "אתם חוסכים")} (-{pkg.discountPercent}
                         %)
                       </span>
-                      <span>-{formatTHB(pkg.savings)}</span>
+                      <span>-{formatUSD(pkg.savings)}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-lg">
                     <span>{t("Total", "סה״כ")}</span>
                     <span className="text-primary">
-                      {formatTHB(pkg.discountedPrice)}
+                      {formatUSD(pkg.discountedPrice)}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground text-center">

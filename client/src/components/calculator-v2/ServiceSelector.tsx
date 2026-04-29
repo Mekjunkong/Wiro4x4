@@ -1,7 +1,7 @@
 // client/src/components/calculator-v2/ServiceSelector.tsx
 import { Hotel, Utensils, Mountain, Plus, Minus } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatTHB, SERVICE_PRICES } from "@shared/pricing";
+import { formatUSD, SERVICE_PRICES } from "@shared/pricing";
 
 interface ServiceSelectorProps {
   includesHotels: boolean;
@@ -37,8 +37,8 @@ export function ServiceSelector({
         icon={Hotel}
         label={t("Hotels", "מלונות")}
         detail={t(
-          `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/night`,
-          `~${formatTHB(SERVICE_PRICES.hotelPerNight)}/לילה`
+          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/night`,
+          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/לילה`
         )}
         checked={includesHotels}
         onChange={onToggleHotels}
@@ -49,8 +49,8 @@ export function ServiceSelector({
         icon={Utensils}
         label={t("Kosher Meals", "ארוחות כשרות")}
         detail={t(
-          `~${formatTHB(SERVICE_PRICES.foodPerDay)}/day`,
-          `~${formatTHB(SERVICE_PRICES.foodPerDay)}/יום`
+          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/day`,
+          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/יום`
         )}
         checked={includesFood}
         onChange={onToggleFood}
@@ -61,8 +61,8 @@ export function ServiceSelector({
         icon={Mountain}
         label={t("Attractions", "אטרקציות")}
         detail={t(
-          `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/attraction`,
-          `~${formatTHB(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
+          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/attraction`,
+          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
         )}
         checked={includesAttractions}
         onChange={onToggleAttractions}
@@ -100,8 +100,8 @@ export function ServiceSelector({
         icon={Hotel}
         label={t("Shabbat Hotel (near Chabad)", 'מלון שבת (ליד חב"ד)')}
         detail={t(
-          `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
-          `${formatTHB(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
+          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
+          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
         )}
         checked={needsShabbatHotel}
         onChange={onToggleShabbatHotel}
