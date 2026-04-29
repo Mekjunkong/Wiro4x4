@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useId } from "react";
+import { useState, useMemo, useCallback, useId, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { LOGIN_URL } from "@/const";
@@ -24,6 +24,7 @@ import {
   Search,
   X,
   Sparkles,
+  Bookmark,
 } from "lucide-react";
 import { formatTHB } from "@shared/pricing";
 import { nanoid } from "nanoid";
@@ -46,7 +47,6 @@ interface DestinationPreset {
 }
 
 const DESTINATIONS: DestinationPreset[] = [
-  // ── Chiang Mai area ──────────────────────────────────────
   {
     id: "doi-inthanon",
     name: "Doi Inthanon National Park",
@@ -127,7 +127,6 @@ const DESTINATIONS: DestinationPreset[] = [
     suggestedCarPerDay: 2000,
     suggestedHotelPerNight: 1800,
   },
-  // ── Northern Thailand (longer trips) ─────────────────────
   {
     id: "chiang-rai",
     name: "Chiang Rai City & Temples",
@@ -202,7 +201,6 @@ const DESTINATIONS: DestinationPreset[] = [
     suggestedHotelPerNight: 1500,
     notes: "UNESCO World Heritage. ~5 hrs south of Chiang Mai",
   },
-  // ── International ─────────────────────────────────────────
   {
     id: "luang-prabang",
     name: "Luang Prabang, Laos",
@@ -231,6 +229,37 @@ const DESTINATIONS: DestinationPreset[] = [
   },
 ];
 
+// ── Saved Attractions (localStorage) ─────────────────────────
+
+const SAVED_KEY = "wiro_calc_attractions";
+
+function loadSavedAttractions(): { name: string; cost: number }[] {
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function persistAttraction(name: string, cost: number) {
+  try {
+    const list = loadSavedAttractions();
+    if (list.some(a => a.name.toLowerCase() === name.trim().toLowerCase()))
+      return;
+    localStorage.setItem(
+      SAVED_KEY,
+      JSON.stringify([...list, { name: name.trim(), cost }])
+    );
+  } catch {}
+}
+
+// ── Meal defaults ─────────────────────────────────────────────
+
+const MEAL_DEFAULTS = {
+  regular: { breakfast: 80, lunch: 180, dinner: 250 },
+  kosher: { breakfast: 150, lunch: 300, dinner: 450 },
+} as const;
+
 // ── Types ────────────────────────────────────────────────────
 
 type TourTypeKey = "1-day" | "2-3-day" | "7-14-day";
@@ -246,7 +275,12 @@ interface DayItinerary {
   dayNumber: number;
   label: string;
   destinationId: string | null;
+  isKosher: boolean;
+  breakfastEnabled: boolean;
+  breakfast: number;
+  lunchEnabled: boolean;
   lunch: number;
+  dinnerEnabled: boolean;
   dinner: number;
   hotel: number;
   carCost: number;
@@ -266,13 +300,19 @@ const TOUR_TYPE_LABELS: Record<
 };
 
 function makeDay(n: number, carCost = 2500, driverCost = 1000): DayItinerary {
+  const m = MEAL_DEFAULTS.regular;
   return {
     id: nanoid(),
     dayNumber: n,
     label: `Day ${n}`,
     destinationId: null,
-    lunch: 450,
-    dinner: n > 1 ? 450 : 0,
+    isKosher: false,
+    breakfastEnabled: false,
+    breakfast: m.breakfast,
+    lunchEnabled: true,
+    lunch: m.lunch,
+    dinnerEnabled: n > 1,
+    dinner: m.dinner,
     hotel: n > 1 ? 1800 : 0,
     carCost,
     driverCost,
@@ -325,9 +365,12 @@ function calculateCosts(
   const fixedCostPerPerson = totalFixedCosts / participants;
 
   const dailyBreakdown = days.map(day => {
+    const meals =
+      (day.breakfastEnabled ? day.breakfast : 0) +
+      (day.lunchEnabled ? day.lunch : 0) +
+      (day.dinnerEnabled ? day.dinner : 0);
     const attractionTotal = day.attractions.reduce((s, a) => s + a.cost, 0);
-    const total = day.lunch + day.dinner + day.hotel + attractionTotal;
-    return { day, totalVariableThisDay: total };
+    return { day, totalVariableThisDay: meals + day.hotel + attractionTotal };
   });
 
   const variableCostPerPerson = dailyBreakdown.reduce(
@@ -430,7 +473,6 @@ function CostCalculatorDashboard() {
     setDays(prev => prev.map(d => (d.id === id ? { ...d, ...patch } : d)));
   }, []);
 
-  // When a destination is picked for a day, auto-fill costs
   const applyDestination = useCallback(
     (dayId: string, dest: DestinationPreset) => {
       setDays(prev =>
@@ -619,7 +661,6 @@ function DestinationPicker({
 
   return (
     <div className="border border-border rounded-sm bg-background shadow-lg mt-2 overflow-hidden">
-      {/* Search */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
         <Search className="w-4 h-4 text-muted-foreground shrink-0" />
         <input
@@ -633,8 +674,6 @@ function DestinationPicker({
           <X className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
-
-      {/* Results */}
       <div className="max-h-64 overflow-y-auto">
         {results.map(dest => (
           <button
@@ -679,6 +718,160 @@ function DestinationPicker({
   );
 }
 
+// ── Meal Checkbox ─────────────────────────────────────────────
+
+function MealCheckbox({
+  label,
+  enabled,
+  cost,
+  onToggle,
+  onCostChange,
+}: {
+  label: string;
+  enabled: boolean;
+  cost: number;
+  onToggle: (v: boolean) => void;
+  onCostChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 py-1">
+      <input
+        type="checkbox"
+        checked={enabled}
+        onChange={e => onToggle(e.target.checked)}
+        className="w-4 h-4 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+      />
+      <span
+        className={`text-xs w-16 shrink-0 ${!enabled ? "text-muted-foreground/50" : "text-foreground"}`}
+      >
+        {label}
+      </span>
+      <div className="relative flex-1">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
+          ฿
+        </span>
+        <input
+          type="number"
+          min={0}
+          disabled={!enabled}
+          value={cost}
+          onChange={e => onCostChange(parseInt(e.target.value) || 0)}
+          className={`w-full pl-5 pr-2 text-xs border rounded py-1.5 text-right transition-colors ${
+            enabled
+              ? "border-border bg-background font-medium"
+              : "border-border/30 bg-muted/30 text-muted-foreground/50"
+          }`}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ── Attraction Adder (with memory) ───────────────────────────
+
+function AttractionAdder({
+  onAdd,
+}: {
+  onAdd: (name: string, cost: number) => void;
+}) {
+  const [name, setName] = useState("");
+  const [cost, setCost] = useState(0);
+  const [open, setOpen] = useState(false);
+  const saved = loadSavedAttractions();
+  const filtered = name.trim()
+    ? saved.filter(a => a.name.toLowerCase().includes(name.toLowerCase()))
+    : saved;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleAdd = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    onAdd(trimmed, cost);
+    persistAttraction(trimmed, cost);
+    setName("");
+    setCost(0);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleAdd();
+  };
+
+  return (
+    <div ref={containerRef} className="relative mt-2">
+      <div className="flex gap-1.5 items-center">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={name}
+            onChange={e => {
+              setName(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            onKeyDown={handleKeyDown}
+            placeholder="Add attraction / fee name..."
+            className="w-full text-xs border border-dashed border-accent/40 rounded px-2 py-1.5 bg-background focus:border-accent focus:outline-none"
+          />
+          {open && filtered.length > 0 && (
+            <div className="absolute z-20 left-0 right-0 mt-1 border border-border rounded bg-background shadow-lg max-h-40 overflow-y-auto">
+              {filtered.map(a => (
+                <button
+                  key={a.name}
+                  onMouseDown={() => {
+                    setName(a.name);
+                    setCost(a.cost);
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs hover:bg-muted flex items-center justify-between gap-2"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Bookmark className="w-3 h-3 text-accent/60 shrink-0" />
+                    {a.name}
+                  </span>
+                  <span className="text-muted-foreground shrink-0">
+                    {formatTHB(a.cost)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="relative w-24 shrink-0">
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+            ฿
+          </span>
+          <input
+            type="number"
+            min={0}
+            value={cost}
+            onChange={e => setCost(parseInt(e.target.value) || 0)}
+            onKeyDown={handleKeyDown}
+            className="w-full pl-5 pr-2 text-xs border border-dashed border-accent/40 rounded py-1.5 text-right focus:border-accent focus:outline-none"
+          />
+        </div>
+
+        <button
+          onClick={handleAdd}
+          disabled={!name.trim()}
+          className="w-7 h-7 rounded bg-accent text-white flex items-center justify-center hover:bg-accent/90 disabled:opacity-30 transition-opacity shrink-0"
+        >
+          <Plus className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {saved.length > 0 && !open && (
+        <p className="text-xs text-muted-foreground/50 mt-1 pl-1 flex items-center gap-1">
+          <Bookmark className="w-3 h-3" />
+          {saved.length} saved — type to search
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── DayCard ─────────────────────────────────────────────────
 
 function DayCard({
@@ -701,14 +894,6 @@ function DayCard({
     ? DESTINATIONS.find(d => d.id === day.destinationId)
     : null;
 
-  const addAttraction = () =>
-    onChange({
-      attractions: [
-        ...day.attractions,
-        { id: nanoid(), name: "Custom fee", cost: 100 },
-      ],
-    });
-
   const removeAttraction = (id: string) =>
     onChange({ attractions: day.attractions.filter(a => a.id !== id) });
 
@@ -719,11 +904,22 @@ function DayCard({
       ),
     });
 
+  const toggleKosher = (isKosher: boolean) => {
+    const m = MEAL_DEFAULTS[isKosher ? "kosher" : "regular"];
+    onChange({
+      isKosher,
+      breakfast: m.breakfast,
+      lunch: m.lunch,
+      dinner: m.dinner,
+    });
+  };
+
+  const mealsCost =
+    (day.breakfastEnabled ? day.breakfast : 0) +
+    (day.lunchEnabled ? day.lunch : 0) +
+    (day.dinnerEnabled ? day.dinner : 0);
   const dayVariableTotal =
-    day.lunch +
-    day.dinner +
-    day.hotel +
-    day.attractions.reduce((s, a) => s + a.cost, 0);
+    mealsCost + day.hotel + day.attractions.reduce((s, a) => s + a.cost, 0);
   const dayFixedTotal = day.carCost + day.driverCost;
 
   return (
@@ -742,6 +938,11 @@ function DayCard({
           <span className="font-semibold text-sm shrink-0">
             Day {day.dayNumber}
           </span>
+          {day.isKosher && (
+            <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-sm font-medium shrink-0">
+              Kosher
+            </span>
+          )}
           {currentDest ? (
             <span className="text-xs text-accent truncate flex items-center gap-1">
               <MapPin className="w-3 h-3 shrink-0" />
@@ -808,7 +1009,7 @@ function DayCard({
             )}
           </div>
 
-          {/* Car & Driver (fixed per day) */}
+          {/* Car & Driver */}
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
               <Car className="w-3 h-3" /> Car & Driver (shared cost)
@@ -829,36 +1030,73 @@ function DayCard({
             </div>
           </div>
 
-          {/* Meals & Hotel (per person) */}
+          {/* Meals */}
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
-              <Utensils className="w-3 h-3" /> Meals & Hotel (per person)
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              <CurrencyField
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <Utensils className="w-3 h-3" /> Meals (per person)
+              </p>
+              {/* Kosher toggle */}
+              <div className="flex items-center overflow-hidden border border-border rounded-sm text-xs">
+                <button
+                  onClick={() => toggleKosher(false)}
+                  className={`px-2.5 py-1 transition-colors ${
+                    !day.isKosher
+                      ? "bg-accent text-white"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Regular
+                </button>
+                <button
+                  onClick={() => toggleKosher(true)}
+                  className={`px-2.5 py-1 transition-colors ${
+                    day.isKosher
+                      ? "bg-accent text-white"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  ✡ Kosher
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-0.5">
+              <MealCheckbox
+                label="Breakfast"
+                enabled={day.breakfastEnabled}
+                cost={day.breakfast}
+                onToggle={v => onChange({ breakfastEnabled: v })}
+                onCostChange={v => onChange({ breakfast: v })}
+              />
+              <MealCheckbox
                 label="Lunch"
-                value={day.lunch}
-                onChange={v => onChange({ lunch: v })}
-                compact
+                enabled={day.lunchEnabled}
+                cost={day.lunch}
+                onToggle={v => onChange({ lunchEnabled: v })}
+                onCostChange={v => onChange({ lunch: v })}
               />
-              <CurrencyField
+              <MealCheckbox
                 label="Dinner"
-                value={day.dinner}
-                onChange={v => onChange({ dinner: v })}
-                compact
-              />
-              <CurrencyField
-                label={
-                  <>
-                    <Hotel className="inline w-3 h-3 mr-0.5" />
-                    Hotel
-                  </>
-                }
-                value={day.hotel}
-                onChange={v => onChange({ hotel: v })}
-                compact
+                enabled={day.dinnerEnabled}
+                cost={day.dinner}
+                onToggle={v => onChange({ dinnerEnabled: v })}
+                onCostChange={v => onChange({ dinner: v })}
               />
             </div>
+          </div>
+
+          {/* Hotel */}
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+              <Hotel className="w-3 h-3" /> Hotel (per person / night)
+            </p>
+            <CurrencyField
+              label=""
+              value={day.hotel}
+              onChange={v => onChange({ hotel: v })}
+              compact
+            />
           </div>
 
           {/* Entrance fees */}
@@ -866,11 +1104,13 @@ function DayCard({
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
               <Mountain className="w-3 h-3" /> Entrance Fees (per person)
             </p>
+
             {day.attractions.length === 0 && (
               <p className="text-xs text-muted-foreground italic mb-2">
-                No fees — pick a destination above to auto-fill, or add manually
+                Pick a destination to auto-fill, or add below
               </p>
             )}
+
             {day.attractions.map(attr => (
               <div key={attr.id} className="flex gap-2 items-center mb-1.5">
                 <input
@@ -906,12 +1146,17 @@ function DayCard({
                 </button>
               </div>
             ))}
-            <button
-              onClick={addAttraction}
-              className="text-xs text-accent hover:text-accent/80 flex items-center gap-1 mt-1"
-            >
-              <Plus className="w-3 h-3" /> Add fee manually
-            </button>
+
+            <AttractionAdder
+              onAdd={(name, cost) =>
+                onChange({
+                  attractions: [
+                    ...day.attractions,
+                    { id: nanoid(), name, cost },
+                  ],
+                })
+              }
+            />
           </div>
         </div>
       )}
@@ -939,7 +1184,6 @@ function SummaryPanel({
 
   return (
     <>
-      {/* Trip summary header */}
       {destinations.length > 0 && (
         <Card className="p-4 bg-accent/5 border-accent/20">
           <p className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
@@ -951,12 +1195,19 @@ function SummaryPanel({
                 dest => dest.id === d.destinationId
               );
               return (
-                <p key={d.id} className="text-sm">
-                  <span className="text-muted-foreground text-xs w-12 inline-block">
+                <p key={d.id} className="text-sm flex items-center gap-2">
+                  <span className="text-muted-foreground text-xs w-12 shrink-0">
                     Day {i + 1}
                   </span>
                   {dest ? (
-                    dest.name
+                    <span className="flex items-center gap-1 min-w-0">
+                      {dest.name}
+                      {d.isKosher && (
+                        <span className="text-xs text-blue-600 shrink-0">
+                          ✡
+                        </span>
+                      )}
+                    </span>
                   ) : (
                     <span className="italic text-muted-foreground">
                       Not set
@@ -969,7 +1220,6 @@ function SummaryPanel({
         </Card>
       )}
 
-      {/* Cost breakdown */}
       <Card className="p-5">
         <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Cost Breakdown
@@ -1027,7 +1277,6 @@ function SummaryPanel({
         )}
       </Card>
 
-      {/* Quote */}
       <Card className="p-5 space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Quote Summary
@@ -1122,12 +1371,14 @@ function CurrencyField({
   const id = useId();
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="block text-xs text-muted-foreground mb-1 font-medium"
-      >
-        {label}
-      </label>
+      {label && (
+        <label
+          htmlFor={id}
+          className="block text-xs text-muted-foreground mb-1 font-medium"
+        >
+          {label}
+        </label>
+      )}
       <div className="relative">
         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
           ฿
