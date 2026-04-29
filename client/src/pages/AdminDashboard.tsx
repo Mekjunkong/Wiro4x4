@@ -32,6 +32,7 @@ import {
   ChevronRight,
   X,
   Inbox,
+  Calculator,
 } from "lucide-react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -602,6 +603,27 @@ export default function AdminDashboard() {
           </div>
         );
       })}
+
+      {/* Cost Calculator link — separate admin page */}
+      <div className="mt-2 px-2 border-t pt-2">
+        <a
+          href="/admin/cost-calculator"
+          title={sidebarCollapsed ? "Cost Calculator" : undefined}
+          className={`group relative flex items-center gap-3 w-full min-h-[40px] transition-colors text-muted-foreground hover:bg-muted hover:text-foreground border-l-2 border-transparent ${
+            sidebarCollapsed ? "justify-center px-2" : "px-2"
+          }`}
+        >
+          <Calculator className="w-4 h-4 shrink-0" />
+          {!sidebarCollapsed && (
+            <span className="text-sm truncate">Cost Calculator</span>
+          )}
+          {sidebarCollapsed && (
+            <span className="absolute left-full ml-2 px-2 py-1 text-xs font-medium bg-foreground text-background rounded shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+              Cost Calculator
+            </span>
+          )}
+        </a>
+      </div>
     </nav>
   );
 

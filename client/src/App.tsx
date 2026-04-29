@@ -18,6 +18,9 @@ const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
 const BookingForm = React.lazy(() => import("./pages/BookingForm"));
 const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
+const AdminCostCalculator = React.lazy(
+  () => import("./pages/AdminCostCalculator")
+);
 const Gallery = React.lazy(() => import("./pages/Gallery"));
 const Reviews = React.lazy(() => import("./pages/Reviews"));
 const BookingSuccess = React.lazy(() => import("./pages/BookingSuccess"));
@@ -106,6 +109,10 @@ function Router() {
             <Route path={"/forgot-password"} component={ForgotPassword} />
             <Route path={"/album/:token"} component={TripAlbum} />
             <Route path={"/admin"} component={AdminDashboard} />
+            <Route
+              path={"/admin/cost-calculator"}
+              component={AdminCostCalculator}
+            />
             <Route path={"/404"} component={NotFound} />
             {/* Final fallback route */}
             <Route component={NotFound} />
