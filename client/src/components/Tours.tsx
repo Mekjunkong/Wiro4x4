@@ -160,37 +160,13 @@ const IMAGE_FOCAL_POINTS: Record<string, string> = {
   "samoeng-loop-mountain-circuit": "object-[50%_30%]",
 };
 
-const TOUR_BADGES: Record<string, { en: string; he: string; color: string }> = {
-  "doi-inthanon-roof-of-thailand": {
-    en: "Most Popular",
-    he: "הכי פופולרי",
-    color: "bg-amber-500 text-white",
-  },
-  "mae-kampong-hidden-village": {
-    en: "Hidden Gem",
-    he: "פנינה נסתרת",
-    color: "bg-emerald-600 text-white",
-  },
-  "maerim-sticky-waterfalls": {
-    en: "Family Favorite",
-    he: "מועדף למשפחות",
-    color: "bg-sky-600 text-white",
-  },
-  "doi-suthep-pui-beyond-temple": {
-    en: "Limited Spots",
-    he: "מקומות מוגבלים",
-    color: "bg-rose-600 text-white",
-  },
-  "mae-wang-jungle-wilderness": {
-    en: "Adventure Pick",
-    he: "בחירת הרפתקנים",
-    color: "bg-orange-600 text-white",
-  },
-  "samoeng-loop-mountain-circuit": {
-    en: "New Route",
-    he: "מסלול חדש",
-    color: "bg-violet-600 text-white",
-  },
+const TOUR_BADGES: Record<string, { en: string; he: string }> = {
+  "doi-inthanon-roof-of-thailand": { en: "Most Popular", he: "הכי פופולרי" },
+  "mae-kampong-hidden-village": { en: "Hidden Gem", he: "פנינה נסתרת" },
+  "maerim-sticky-waterfalls": { en: "Family Favorite", he: "מועדף למשפחות" },
+  "doi-suthep-pui-beyond-temple": { en: "Limited Spots", he: "מקומות מוגבלים" },
+  "mae-wang-jungle-wilderness": { en: "Adventure Pick", he: "בחירת הרפתקנים" },
+  "samoeng-loop-mountain-circuit": { en: "New Route", he: "מסלול חדש" },
 };
 
 function generateSlug(name: string): string {
@@ -342,7 +318,7 @@ export function Tours() {
                 href={`/tours/${tour.slug}`}
                 className="block group"
               >
-                <Card className="overflow-hidden hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-1 h-full border-l-4 border-accent rounded-sm bg-card">
+                <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 hover:-translate-y-1 h-full border-l-4 border-accent rounded-sm bg-card">
                   <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                     <OptimizedImage
                       src={tour.image}
@@ -355,9 +331,7 @@ export function Tours() {
                       }`}
                     />
                     {TOUR_BADGES[tour.slug] && (
-                      <div
-                        className={`absolute top-3 left-3 ${TOUR_BADGES[tour.slug].color} font-semibold px-3 py-1 rounded-lg text-xs shadow-lg`}
-                      >
+                      <div className="absolute top-3 left-3 bg-black/65 backdrop-blur-sm text-white text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 rounded-sm">
                         {t(
                           TOUR_BADGES[tour.slug].en,
                           TOUR_BADGES[tour.slug].he
@@ -365,8 +339,10 @@ export function Tours() {
                       </div>
                     )}
                     {tour.price != null && (
-                      <div className="absolute top-3 right-3 bg-accent-cta text-white font-bold px-3 py-1 rounded-lg text-sm shadow-lg">
-                        &#3647;{tour.price.toLocaleString()}
+                      <div className="absolute top-3 right-3 bg-primary/85 backdrop-blur-sm px-3 py-1 rounded-sm">
+                        <span className="text-accent font-semibold text-sm">
+                          &#3647;{tour.price.toLocaleString()}
+                        </span>
                       </div>
                     )}
                   </div>
