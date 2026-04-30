@@ -1182,7 +1182,7 @@ export default function TourDetail() {
       offers: {
         "@type": "Offer",
         price: String(tour.price),
-        priceCurrency: "USD",
+        priceCurrency: "THB",
         availability: "https://schema.org/InStock",
         validFrom: new Date().toISOString().split("T")[0],
         url: tourUrl,
@@ -1220,7 +1220,7 @@ export default function TourDetail() {
   usePageMeta(
     tour
       ? {
-          title: `${tour.name} | Chiang Mai Off-Road Tour`,
+          title: `${tour.name} — Chiang Mai 4x4 Tour`,
           description: tour.description.slice(0, 160),
           ogTitle: `${tour.name} | Kosher Off-Road Tour | WIRO 4x4`,
           ogDescription: tour.description.slice(0, 200),

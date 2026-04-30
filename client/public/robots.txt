@@ -12,7 +12,12 @@ Allow: /hebrew-guide
 Allow: /accessible-tours
 Allow: /faq
 Allow: /contact
-Disallow: /admin
+Disallow: /admin/
 Disallow: /api/
+Disallow: /booking/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /album/
 
 Sitemap: https://www.wiro4x4indochina.com/sitemap.xml

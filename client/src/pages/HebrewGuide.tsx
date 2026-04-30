@@ -119,12 +119,17 @@ export default function HebrewGuide() {
     canonicalPath: "/hebrew-guide",
     jsonLd: {
       "@context": "https://schema.org",
-      "@type": "TouristTrip",
-      name: "Hebrew Speaking Guide Tours in Chiang Mai",
+      "@type": "Service",
+      name: "Hebrew-Speaking Guide Tours in Chiang Mai",
       description:
         "Private off-road tours in Chiang Mai with fluent Hebrew-speaking guides for Israeli and Hebrew-speaking travelers.",
-      touristType: ["Israeli travelers", "Hebrew-speaking travelers"],
+      serviceType: "TourOperator",
       inLanguage: ["he", "en"],
+      audience: {
+        "@type": "Audience",
+        audienceType: "Israeli travelers, Hebrew-speaking travelers",
+      },
+      areaServed: { "@type": "City", name: "Chiang Mai" },
       provider: {
         "@type": "Organization",
         name: "WIRO 4x4",

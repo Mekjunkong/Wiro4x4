@@ -61,15 +61,28 @@ export default function BlogPost() {
 
   usePageMeta({
     title: post?.title ?? "Blog Post",
-    description: dbPost?.excerpt ?? "WIRO 4x4 travel blog",
+    description:
+      dbPost?.excerpt ??
+      (post?.content
+        ? post.content.slice(0, 155)
+        : "Off-road travel stories, kosher tips, and insider guides from Northern Thailand by WIRO 4x4."),
     canonicalPath: `/blog/${postId}`,
     jsonLd: post
       ? {
           "@context": "https://schema.org",
           "@type": "BlogPosting",
           headline: post.title,
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `https://www.wiro4x4indochina.com/blog/${postId}`,
+          },
           datePublished: dbPost?.publishedAt ?? undefined,
-          author: { "@type": "Organization", name: "WIRO 4x4" },
+          dateModified: dbPost?.publishedAt ?? undefined,
+          author: {
+            "@type": "Person",
+            name: "Wiro",
+            worksFor: { "@type": "Organization", name: "WIRO 4x4" },
+          },
           publisher: {
             "@type": "Organization",
             name: "WIRO 4x4",

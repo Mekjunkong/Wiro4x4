@@ -126,10 +126,6 @@ export function usePageMeta(
 
       // Dynamic hreflang links per page
       setHreflangLink("en", canonicalUrl);
-      setHreflangLink(
-        "he",
-        `${canonicalUrl}${options.canonicalPath.includes("?") ? "&" : "?"}lang=he`
-      );
       setHreflangLink("x-default", canonicalUrl);
     }
 

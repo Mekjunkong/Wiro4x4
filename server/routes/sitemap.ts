@@ -21,32 +21,109 @@ interface SlugItem {
 }
 
 const STATIC_PAGES = [
-  { path: "/", priority: "1.0", changefreq: "daily" },
-  { path: "/tours", priority: "0.9", changefreq: "weekly" },
-  { path: "/packages", priority: "0.9", changefreq: "weekly" },
+  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-04-30" },
+  {
+    path: "/tours",
+    priority: "0.9",
+    changefreq: "weekly",
+    lastmod: "2026-04-30",
+  },
+  {
+    path: "/packages",
+    priority: "0.9",
+    changefreq: "weekly",
+    lastmod: "2026-03-21",
+  },
   {
     path: "/packages/northern-thailand-3d2n",
     priority: "0.9",
     changefreq: "monthly",
+    lastmod: "2026-03-21",
   },
   {
     path: "/packages/grand-tour-laos-14d",
     priority: "0.9",
     changefreq: "monthly",
+    lastmod: "2026-03-21",
   },
-  { path: "/pricing", priority: "0.9", changefreq: "monthly" },
-  { path: "/estimate", priority: "0.9", changefreq: "monthly" },
-  { path: "/book", priority: "0.9", changefreq: "monthly" },
-  { path: "/blog", priority: "0.8", changefreq: "weekly" },
-  { path: "/gallery", priority: "0.8", changefreq: "weekly" },
-  { path: "/reviews", priority: "0.8", changefreq: "weekly" },
-  { path: "/kosher-tours", priority: "0.9", changefreq: "monthly" },
-  { path: "/hebrew-guide", priority: "0.9", changefreq: "monthly" },
-  { path: "/accessible-tours", priority: "0.9", changefreq: "monthly" },
-  { path: "/faq", priority: "0.8", changefreq: "monthly" },
-  { path: "/contact", priority: "0.8", changefreq: "monthly" },
-  { path: "/terms", priority: "0.3", changefreq: "yearly" },
-  { path: "/privacy", priority: "0.3", changefreq: "yearly" },
+  {
+    path: "/pricing",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-04-30",
+  },
+  {
+    path: "/estimate",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/book",
+    priority: "0.4",
+    changefreq: "yearly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/blog",
+    priority: "0.8",
+    changefreq: "weekly",
+    lastmod: "2026-04-30",
+  },
+  {
+    path: "/gallery",
+    priority: "0.8",
+    changefreq: "weekly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/reviews",
+    priority: "0.8",
+    changefreq: "weekly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/kosher-tours",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/hebrew-guide",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/accessible-tours",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/faq",
+    priority: "0.8",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/contact",
+    priority: "0.8",
+    changefreq: "monthly",
+    lastmod: "2026-03-21",
+  },
+  {
+    path: "/terms",
+    priority: "0.3",
+    changefreq: "yearly",
+    lastmod: "2025-06-01",
+  },
+  {
+    path: "/privacy",
+    priority: "0.3",
+    changefreq: "yearly",
+    lastmod: "2025-06-01",
+  },
 ];
 
 function formatDate(date: Date | string | null | undefined): string | null {
@@ -61,7 +138,6 @@ function buildHreflangLinks(siteUrl: string, path: string): string {
   const escapedPath = escapeXml(path);
   return [
     `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapedPath}"/>`,
-    `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapedPath}?lang=he"/>`,
     `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`,
   ].join("\n");
 }
@@ -91,7 +167,7 @@ export function generateSitemap(
   const today = new Date().toISOString().split("T")[0];
 
   const staticUrls = STATIC_PAGES.map(p =>
-    buildUrlEntry(siteUrl, p.path, today, p.changefreq, p.priority)
+    buildUrlEntry(siteUrl, p.path, p.lastmod, p.changefreq, p.priority)
   ).join("\n");
 
   const tourUrls = tours

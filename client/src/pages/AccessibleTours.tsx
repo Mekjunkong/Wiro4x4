@@ -102,15 +102,17 @@ export default function AccessibleTours() {
     canonicalPath: "/accessible-tours",
     jsonLd: {
       "@context": "https://schema.org",
-      "@type": "TouristTrip",
-      name: "Accessible Tours in Chiang Mai",
+      "@type": "Service",
+      name: "Accessible & Family-Friendly Tours in Chiang Mai",
       description:
         "Wheelchair accessible and mobility-friendly 4x4 tours in Chiang Mai with adapted vehicles and customized itineraries.",
-      touristType: [
-        "Travelers with disabilities",
-        "Wheelchair users",
-        "Mobility-impaired travelers",
-      ],
+      serviceType: "TourOperator",
+      audience: {
+        "@type": "Audience",
+        audienceType:
+          "Travelers with disabilities, Wheelchair users, Families with children",
+      },
+      areaServed: { "@type": "City", name: "Chiang Mai" },
       provider: {
         "@type": "Organization",
         name: "WIRO 4x4",

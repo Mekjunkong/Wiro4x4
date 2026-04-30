@@ -19,6 +19,9 @@
     <meta property="og:title" content="WIRO 4x4 – Kosher Off-Road Tours Chiang Mai" />
     <meta property="og:description" content="Premium kosher off-road tours in Chiang Mai with Hebrew-speaking guides and Shabbat-friendly scheduling." />
     <meta property="og:image" content="https://www.wiro4x4indochina.com/images/single_cascade_waterfall.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:url" content="https://www.wiro4x4indochina.com/" />
     <meta property="og:site_name" content="WIRO 4x4" />
     
@@ -34,7 +37,6 @@
     <!-- Canonical & Hreflang -->
     <link rel="canonical" href="https://www.wiro4x4indochina.com/" />
     <link rel="alternate" hreflang="en" href="https://www.wiro4x4indochina.com/" />
-    <link rel="alternate" hreflang="he" href="https://www.wiro4x4indochina.com/?lang=he" />
     <link rel="alternate" hreflang="x-default" href="https://www.wiro4x4indochina.com/" />
     <meta name="robots" content="index, follow" />
 
@@ -58,6 +60,15 @@
           "alternateName": "WIRO 4x4 Kosher Off-Road Adventures",
           "url": "https://www.wiro4x4indochina.com",
           "logo": "https://www.wiro4x4indochina.com/images/logo.png",
+          "image": [
+            "https://www.wiro4x4indochina.com/images/optimized/banner-lg.webp",
+            "https://www.wiro4x4indochina.com/images/optimized/mountain_sunset.jpg"
+          ],
+          "founder": {
+            "@type": "Person",
+            "name": "Wiro",
+            "url": "https://www.wiro4x4indochina.com"
+          },
           "email": "wiro.adventures@gmail.com",
           "contactPoint": {
             "@type": "ContactPoint",
@@ -85,10 +96,14 @@
           "sameAs": ["https://wa.me/66929894495"]
         },
         {
-          "@type": "TouristTrip",
-          "name": "Kosher Off-Road Adventures in Chiang Mai",
+          "@type": "Service",
+          "name": "Kosher Off-Road Tours in Chiang Mai",
           "description": "Premium kosher-friendly 4x4 off-road tours in Northern Thailand with Hebrew-speaking guides",
-          "touristType": ["Jewish travelers", "Kosher travelers", "Adventure seekers"],
+          "serviceType": "TourOperator",
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "Jewish travelers, Israeli travelers, Kosher travelers"
+          },
           "provider": {"@id": "https://www.wiro4x4indochina.com/#organization"}
         },
         {
@@ -155,7 +170,7 @@
     <!-- Hebrew fonts (Rubik + Heebo) loaded conditionally by LanguageContext when lang=he -->
 
     <!-- Analytics (Plausible - privacy-friendly, no cookies) -->
-    <script defer data-domain="wiro4x4indochina.com" src="https://plausible.io/js/script.js"></script>
+    <script defer data-domain="www.wiro4x4indochina.com" src="https://plausible.io/js/script.js"></script>
   </head>
 
   <body>

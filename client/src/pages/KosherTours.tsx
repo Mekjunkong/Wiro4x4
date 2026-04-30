@@ -132,16 +132,17 @@ export default function KosherTours() {
     canonicalPath: "/kosher-tours",
     jsonLd: {
       "@context": "https://schema.org",
-      "@type": "TouristTrip",
+      "@type": "Service",
       name: "Kosher Off-Road Tours in Chiang Mai",
       description:
         "Premium kosher-friendly 4x4 tours in Chiang Mai with certified kosher meals, Shabbat scheduling, and Hebrew-speaking guides.",
-      touristType: [
-        "Jewish travelers",
-        "Kosher travelers",
-        "Frum travelers",
-        "Orthodox Jewish travelers",
-      ],
+      serviceType: "TourOperator",
+      audience: {
+        "@type": "Audience",
+        audienceType:
+          "Jewish travelers, Kosher travelers, Orthodox Jewish travelers",
+      },
+      areaServed: { "@type": "City", name: "Chiang Mai" },
       provider: {
         "@type": "Organization",
         name: "WIRO 4x4",

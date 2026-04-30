@@ -17,7 +17,9 @@ interface PageMeta {
   title: string;
   description: string;
   ogImage?: string;
+  ogType?: string;
   canonicalPath: string;
+  lang?: string;
   jsonLd?: Record<string, unknown>;
 }
 
@@ -30,81 +32,82 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     canonicalPath: "/",
   },
   "/tours": {
-    title: "Our Tours",
+    title: "4x4 Off-Road Tours in Chiang Mai",
     description:
-      "Browse our collection of 4x4 off-road tours in Chiang Mai and Northern Thailand. Day trips and multi-day adventures with kosher meal options.",
+      "6 private off-road day trips in Chiang Mai and Northern Thailand. Kosher meals, Hebrew-speaking guides, and Shabbat-friendly scheduling for Israeli travelers.",
     canonicalPath: "/tours",
   },
   "/pricing": {
-    title: "Pricing",
+    title: "4x4 Tour Pricing — Chiang Mai, Thailand",
     description:
-      "Transparent pricing for WIRO 4x4 tours in Chiang Mai. Private tours, group rates, and kosher meal packages available.",
+      "Transparent group pricing for WIRO 4x4 tours in Chiang Mai. Private tours from $98/group, multi-day packages, kosher meal add-ons, and peak season rates.",
     canonicalPath: "/pricing",
   },
   "/estimate": {
-    title: "Trip Cost Estimator",
+    title: "4x4 Tour Price Estimator — Chiang Mai",
     description:
-      "Get an instant price estimate for your Chiang Mai 4x4 tour. Select tours, group size, and add-ons to see your total.",
+      "Get an instant price estimate for your Chiang Mai 4x4 tour. Select tours, group size, children ages, and add-ons to see your exact total.",
     canonicalPath: "/estimate",
   },
   "/blog": {
-    title: "Blog",
+    title: "Chiang Mai Travel Blog & Kosher Travel Tips",
     description:
-      "Travel tips, destination guides, and stories from Northern Thailand. Kosher travel advice and Chiang Mai insider knowledge.",
+      "Guides, insider tips, and stories for Israeli travelers in Northern Thailand. Kosher dining, Shabbat travel, off-road adventures, and Chiang Mai destination guides.",
     canonicalPath: "/blog",
   },
   "/gallery": {
-    title: "Photo Gallery",
+    title: "Chiang Mai Off-Road Tour Photos — WIRO 4x4",
     description:
-      "Photos from WIRO 4x4 off-road adventures in Chiang Mai. Waterfalls, jungle trails, mountain views, and happy travelers.",
+      "Photos from WIRO 4x4 adventures: waterfalls, jungle trails, mountain views, hill tribe villages, and happy travelers in Northern Thailand.",
     canonicalPath: "/gallery",
   },
   "/reviews": {
-    title: "Customer Reviews",
+    title: "Customer Reviews — Chiang Mai 4x4 Tours",
     description:
-      "Read what our guests say about their WIRO 4x4 experience. Verified reviews from Israeli travelers and international visitors.",
+      "Verified reviews from Israeli travelers and international visitors. See what guests say about kosher off-road tours with WIRO 4x4 in Chiang Mai.",
     canonicalPath: "/reviews",
   },
   "/book": {
-    title: "Book a Tour",
+    title: "Book a Chiang Mai 4x4 Tour",
     description:
-      "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy booking with WhatsApp confirmation.",
+      "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy online booking with WhatsApp confirmation.",
     canonicalPath: "/book",
   },
   "/kosher-tours": {
-    title: "Kosher Tours in Thailand",
+    title: "Kosher Tours in Chiang Mai, Thailand",
     description:
-      "Fully kosher off-road tours in Chiang Mai with certified kosher meals, Shabbat accommodation, and Hebrew-speaking guides.",
+      "Fully kosher off-road tours in Chiang Mai with certified kosher meals, Shabbat accommodation, and Hebrew-speaking guides. Designed for observant Jewish travelers.",
     canonicalPath: "/kosher-tours",
   },
   "/hebrew-guide": {
-    title: "Hebrew-Speaking Guide in Chiang Mai",
+    title: "Hebrew-Speaking Guide — Chiang Mai Tours",
     description:
-      "Tour Chiang Mai and Northern Thailand with an experienced Hebrew-speaking guide. Custom private tours for Israeli travelers.",
+      "Tour Chiang Mai and Northern Thailand with an experienced Hebrew-speaking guide. Custom private 4x4 tours for Israeli travelers and families.",
     canonicalPath: "/hebrew-guide",
+    lang: "he",
   },
   "/accessible-tours": {
-    title: "Accessible & Family-Friendly Tours",
+    title: "Family-Friendly & Accessible Tours Chiang Mai",
     description:
-      "Family-friendly and accessible 4x4 tours in Chiang Mai. Safe adventures for children, seniors, and travelers with special needs.",
+      "Family-friendly and accessible 4x4 tours in Chiang Mai. Safe adventures for children, seniors, and travelers with mobility needs.",
     canonicalPath: "/accessible-tours",
   },
   "/faq": {
-    title: "FAQ",
+    title: "FAQ — Kosher Tours & Off-Road Adventures Chiang Mai",
     description:
-      "Frequently asked questions about WIRO 4x4 tours, kosher meals, booking, cancellation, and traveling in Northern Thailand.",
+      "Frequently asked questions about WIRO 4x4 tours, kosher meals, booking, cancellation, Shabbat support, and traveling in Northern Thailand.",
     canonicalPath: "/faq",
   },
   "/contact": {
-    title: "Contact Us",
+    title: "Contact WIRO 4x4 — Chiang Mai Tour Guide",
     description:
       "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
     canonicalPath: "/contact",
   },
   "/packages": {
-    title: "Tour Packages",
+    title: "Multi-Day Tour Packages — Northern Thailand",
     description:
-      "Multi-day tour packages in Northern Thailand and Indochina. All-inclusive 4x4 adventures with accommodation and kosher meals.",
+      "Multi-day tour packages in Northern Thailand and Indochina. 2–5 day all-inclusive 4x4 adventures with kosher meals and accommodation.",
     canonicalPath: "/packages",
   },
   "/terms": {
@@ -135,6 +138,7 @@ function injectMeta(html: string, meta: PageMeta): string {
   const safeDesc = escapeHtml(meta.description);
   const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
   const canonicalUrl = `${SITE_URL}${meta.canonicalPath}`;
+  const ogType = meta.ogType || "website";
 
   // Replace <title>
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${safeTitle}</title>`);
@@ -146,6 +150,10 @@ function injectMeta(html: string, meta: PageMeta): string {
   );
 
   // Replace OG tags
+  html = html.replace(
+    /<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:type" content="${ogType}" />`
+  );
   html = html.replace(
     /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/,
     `<meta property="og:title" content="${safeTitle}" />`
@@ -183,6 +191,14 @@ function injectMeta(html: string, meta: PageMeta): string {
     `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`
   );
 
+  // Override lang attribute for non-English pages
+  if (meta.lang) {
+    html = html.replace(
+      /(<html\b[^>]*)\blang="[^"]*"/,
+      `$1 lang="${meta.lang}"`
+    );
+  }
+
   // Inject page-specific JSON-LD before closing </head>
   if (meta.jsonLd) {
     const jsonLdScript = `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`;
@@ -200,10 +216,10 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
     const tour = await getTourBySlug(tourMatch[1]);
     if (tour) {
       return {
-        title: tour.name,
+        title: `${tour.name} — Chiang Mai 4x4 Tour`,
         description:
           tour.description?.slice(0, 155) ||
-          `${tour.name} — off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+          `${tour.name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
         ogImage: tour.imageUrl || undefined,
         canonicalPath: `/tours/${tour.slug}`,
         jsonLd: {
@@ -216,6 +232,12 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
             name: "WIRO 4x4",
             url: SITE_URL,
           },
+          offers: {
+            "@type": "Offer",
+            price: String(tour.price),
+            priceCurrency: "THB",
+            availability: "https://schema.org/InStock",
+          },
         },
       };
     }
@@ -226,6 +248,9 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   if (blogMatch) {
     const post = await getPublishedBlogPostBySlug(blogMatch[1]);
     if (post) {
+      const publishedIso = post.publishedAt
+        ? new Date(post.publishedAt).toISOString()
+        : undefined;
       return {
         title: post.title,
         description:
@@ -233,6 +258,7 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
           post.content?.slice(0, 155) ||
           `${post.title} — WIRO 4x4 blog.`,
         ogImage: post.coverImage || undefined,
+        ogType: "article",
         canonicalPath: `/blog/${post.slug}`,
         jsonLd: {
           "@context": "https://schema.org",
@@ -240,9 +266,14 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
           headline: post.title,
           description: post.excerpt || post.content?.slice(0, 200),
           image: post.coverImage || DEFAULT_OG_IMAGE,
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `${SITE_URL}/blog/${post.slug}`,
+          },
           author: {
-            "@type": "Organization",
-            name: "WIRO 4x4",
+            "@type": "Person",
+            name: "Wiro",
+            worksFor: { "@type": "Organization", name: "WIRO 4x4" },
           },
           publisher: {
             "@type": "Organization",
@@ -252,9 +283,9 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
               url: `${SITE_URL}/images/logo.png`,
             },
           },
-          datePublished: post.publishedAt
-            ? new Date(post.publishedAt).toISOString()
-            : undefined,
+          datePublished: publishedIso,
+          dateModified: publishedIso,
+          url: `${SITE_URL}/blog/${post.slug}`,
         },
       };
     }
