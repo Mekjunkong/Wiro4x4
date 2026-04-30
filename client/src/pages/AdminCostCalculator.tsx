@@ -26,6 +26,10 @@ import {
   Bookmark,
   Layers,
   MessageCircle,
+  Copy,
+  Save,
+  FolderOpen,
+  ChevronsUpDown,
 } from "lucide-react";
 import { formatUSD } from "@shared/pricing";
 import { nanoid } from "nanoid";
@@ -233,6 +237,7 @@ const DESTINATIONS: DestinationPreset[] = [
 // ── Saved Attractions (localStorage) ─────────────────────────
 
 const SAVED_KEY = "wiro_calc_attractions";
+const QUOTES_KEY = "wiro_calc_quotes";
 
 function loadSavedAttractions(): { name: string; cost: number }[] {
   try {
@@ -251,6 +256,43 @@ function persistAttraction(name: string, cost: number) {
       SAVED_KEY,
       JSON.stringify([...list, { name: name.trim(), cost }])
     );
+  } catch {}
+}
+
+// ── Saved Quotes ──────────────────────────────────────────────
+
+interface SavedQuote {
+  id: string;
+  name: string;
+  savedAt: string;
+  participants: number;
+  profitMargin: number;
+  tourType: TourTypeKey;
+  days: DayItinerary[];
+}
+
+function loadSavedQuotes(): SavedQuote[] {
+  try {
+    return JSON.parse(localStorage.getItem(QUOTES_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveQuote(quote: SavedQuote) {
+  try {
+    const list = loadSavedQuotes().filter(q => q.id !== quote.id);
+    localStorage.setItem(
+      QUOTES_KEY,
+      JSON.stringify([quote, ...list].slice(0, 20))
+    );
+  } catch {}
+}
+
+function deleteQuote(id: string) {
+  try {
+    const list = loadSavedQuotes().filter(q => q.id !== id);
+    localStorage.setItem(QUOTES_KEY, JSON.stringify(list));
   } catch {}
 }
 
@@ -557,7 +599,12 @@ function CostCalculatorDashboard() {
   const [activeType, setActiveType] = useState<TourTypeKey>("1-day");
   const [participants, setParticipants] = useState(4);
   const [profitMargin, setProfitMargin] = useState(30);
+  const [profitInput, setProfitInput] = useState("30");
   const [days, setDays] = useState<DayItinerary[]>([makeDay(1)]);
+  const [saveNameOpen, setSaveNameOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [quotesOpen, setQuotesOpen] = useState(false);
+  const [savedQuotes, setSavedQuotes] = useState<SavedQuote[]>(loadSavedQuotes);
 
   const handleTypeChange = (type: TourTypeKey) => {
     setActiveType(type);
@@ -572,6 +619,20 @@ function CostCalculatorDashboard() {
     setDays(d => [...d, makeDay(d.length + 1, prev.carCost, prev.driverCost)]);
   };
 
+  const copyDay = (id: string) => {
+    if (days.length >= maxDays) return;
+    const src = days.find(d => d.id === id);
+    if (!src) return;
+    const copy: DayItinerary = {
+      ...src,
+      id: nanoid(),
+      dayNumber: days.length + 1,
+      label: `Day ${days.length + 1}`,
+      attractions: src.attractions.map(a => ({ ...a, id: nanoid() })),
+    };
+    setDays(prev => [...prev, copy]);
+  };
+
   const removeDay = (id: string) => {
     setDays(prev => {
       const next = prev.filter(d => d.id !== id);
@@ -582,6 +643,18 @@ function CostCalculatorDashboard() {
   const updateDay = useCallback((id: string, patch: Partial<DayItinerary>) => {
     setDays(prev => prev.map(d => (d.id === id ? { ...d, ...patch } : d)));
   }, []);
+
+  const applyCarToAll = (fromId: string) => {
+    const src = days.find(d => d.id === fromId);
+    if (!src) return;
+    setDays(prev =>
+      prev.map(d => ({
+        ...d,
+        carCost: src.carCost,
+        driverCost: src.driverCost,
+      }))
+    );
+  };
 
   const applyDestination = useCallback(
     (dayId: string, dest: DestinationPreset) => {
@@ -617,150 +690,352 @@ function CostCalculatorDashboard() {
     );
   }, []);
 
+  const handleSaveQuote = () => {
+    const name = saveName.trim() || `Quote ${new Date().toLocaleDateString()}`;
+    const q: SavedQuote = {
+      id: nanoid(),
+      name,
+      savedAt: new Date().toISOString(),
+      participants,
+      profitMargin,
+      tourType: activeType,
+      days,
+    };
+    saveQuote(q);
+    setSavedQuotes(loadSavedQuotes());
+    setSaveName("");
+    setSaveNameOpen(false);
+  };
+
+  const handleLoadQuote = (q: SavedQuote) => {
+    setActiveType(q.tourType);
+    setParticipants(q.participants);
+    setProfitMargin(q.profitMargin);
+    setProfitInput(String(q.profitMargin));
+    setDays(q.days);
+    setQuotesOpen(false);
+  };
+
+  const handleDeleteQuote = (id: string) => {
+    deleteQuote(id);
+    setSavedQuotes(loadSavedQuotes());
+  };
+
   const breakdown = useMemo(
     () => calculateCosts(participants, profitMargin, days),
     [participants, profitMargin, days]
   );
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      {/* Left: inputs */}
-      <div className="xl:col-span-2 space-y-5">
-        {/* Tour type */}
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Trip Duration
-            </h2>
-            <TemplateLoader onLoad={loadTemplate} />
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {(Object.keys(TOUR_TYPE_LABELS) as TourTypeKey[]).map(key => (
-              <button
-                key={key}
-                onClick={() => handleTypeChange(key)}
-                className={`px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
-                  activeType === key
-                    ? "bg-accent text-white border-accent"
-                    : "border-border hover:border-accent/50 hover:bg-accent/5"
-                }`}
-              >
-                {TOUR_TYPE_LABELS[key].label}
-              </button>
-            ))}
-          </div>
-        </Card>
-
-        {/* Group & profit */}
-        <Card className="p-5 space-y-5">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Group & Profit
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
-                <Users className="inline w-3.5 h-3.5 mr-1" />
-                Participants
-              </label>
-              <div className="flex items-center gap-3">
+    <>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-20">
+        {/* Left: inputs */}
+        <div className="xl:col-span-2 space-y-5">
+          {/* Tour type */}
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Trip Duration
+              </h2>
+              <div className="flex items-center gap-2">
+                {/* Save */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setSaveNameOpen(v => !v);
+                      setQuotesOpen(false);
+                    }}
+                    className="flex items-center gap-1.5 text-xs border rounded-sm px-2.5 py-1.5 text-accent border-accent/30 hover:bg-accent/5 transition-colors"
+                  >
+                    <Save className="w-3.5 h-3.5" /> Save
+                  </button>
+                  {saveNameOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setSaveNameOpen(false)}
+                      />
+                      <div className="absolute right-0 z-30 top-full mt-1 w-64 border border-border rounded-sm bg-background shadow-xl p-3 space-y-2">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          Save quote as
+                        </p>
+                        <input
+                          autoFocus
+                          value={saveName}
+                          onChange={e => setSaveName(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") handleSaveQuote();
+                          }}
+                          placeholder="e.g. Family 4 pax Pai 3D"
+                          className="w-full text-sm border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent"
+                        />
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={handleSaveQuote}
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Load */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setQuotesOpen(v => !v);
+                      setSaveNameOpen(false);
+                    }}
+                    className={`flex items-center gap-1.5 text-xs border rounded-sm px-2.5 py-1.5 transition-colors ${quotesOpen ? "bg-accent text-white border-accent" : "text-accent border-accent/30 hover:bg-accent/5"}`}
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    Load{" "}
+                    {savedQuotes.length > 0 && (
+                      <span className="ml-0.5 bg-accent/20 text-accent rounded-full px-1.5">
+                        {savedQuotes.length}
+                      </span>
+                    )}
+                  </button>
+                  {quotesOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setQuotesOpen(false)}
+                      />
+                      <div className="absolute right-0 z-30 top-full mt-1 w-80 border border-border rounded-sm bg-background shadow-xl overflow-hidden">
+                        <div className="px-3 py-2 border-b border-border bg-muted/40">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Saved Quotes
+                          </p>
+                        </div>
+                        {savedQuotes.length === 0 && (
+                          <p className="px-3 py-4 text-sm text-center text-muted-foreground">
+                            No saved quotes yet
+                          </p>
+                        )}
+                        {savedQuotes.map(q => (
+                          <div
+                            key={q.id}
+                            className="flex items-center gap-2 px-3 py-2.5 border-b border-border/50 last:border-0 hover:bg-muted/40"
+                          >
+                            <button
+                              onClick={() => handleLoadQuote(q)}
+                              className="flex-1 text-left min-w-0"
+                            >
+                              <p className="text-sm font-medium truncate">
+                                {q.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {q.participants} pax · {q.days.length} day
+                                {q.days.length > 1 ? "s" : ""} ·{" "}
+                                {new Date(q.savedAt).toLocaleDateString()}
+                              </p>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuote(q.id)}
+                              className="text-red-400 hover:text-red-600 shrink-0 p-1"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <TemplateLoader onLoad={loadTemplate} />
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {(Object.keys(TOUR_TYPE_LABELS) as TourTypeKey[]).map(key => (
                 <button
-                  onClick={() => setParticipants(p => Math.max(1, p - 1))}
-                  className="w-9 h-9 rounded-sm border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                  key={key}
+                  onClick={() => handleTypeChange(key)}
+                  className={`px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
+                    activeType === key
+                      ? "bg-accent text-white border-accent"
+                      : "border-border hover:border-accent/50 hover:bg-accent/5"
+                  }`}
                 >
-                  −
+                  {TOUR_TYPE_LABELS[key].label}
                 </button>
-                <input
-                  type="number"
-                  min={1}
-                  value={participants}
-                  onChange={e =>
-                    setParticipants(Math.max(1, parseInt(e.target.value) || 1))
-                  }
-                  className="w-16 text-center border border-border rounded-sm py-2 text-lg font-bold focus:ring-2 focus:ring-accent focus:border-transparent"
+              ))}
+            </div>
+          </Card>
+
+          {/* Group & profit */}
+          <Card className="p-5 space-y-5">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Group & Profit
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
+                  <Users className="inline w-3.5 h-3.5 mr-1" />
+                  Participants
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setParticipants(p => Math.max(1, p - 1))}
+                    className="w-9 h-9 rounded-sm border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    value={participants}
+                    onChange={e =>
+                      setParticipants(
+                        Math.max(1, parseInt(e.target.value) || 1)
+                      )
+                    }
+                    className="w-16 text-center border border-border rounded-sm py-2 text-lg font-bold focus:ring-2 focus:ring-accent focus:border-transparent"
+                  />
+                  <button
+                    onClick={() => setParticipants(p => p + 1)}
+                    className="w-9 h-9 rounded-sm border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
+                  <TrendingUp className="inline w-3.5 h-3.5 mr-1" />
+                  Profit Margin
+                </label>
+                <div className="flex items-center gap-3 mt-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={80}
+                    step={5}
+                    value={profitMargin}
+                    onChange={e => {
+                      const v = Number(e.target.value);
+                      setProfitMargin(v);
+                      setProfitInput(String(v));
+                    }}
+                    className="flex-1 accent-[var(--accent)]"
+                  />
+                  <div className="relative w-16 shrink-0">
+                    <input
+                      type="number"
+                      min={0}
+                      max={80}
+                      value={profitInput}
+                      onChange={e => {
+                        setProfitInput(e.target.value);
+                        const v = Math.min(
+                          80,
+                          Math.max(0, parseInt(e.target.value) || 0)
+                        );
+                        setProfitMargin(v);
+                      }}
+                      onBlur={() => setProfitInput(String(profitMargin))}
+                      className="w-full text-center border border-border rounded-sm py-1.5 text-sm font-bold focus:ring-2 focus:ring-accent focus:border-transparent pr-4"
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                      %
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Days */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Itinerary — Destinations & Costs
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {days.length} / {maxDays} days
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {days.map(day => (
+                <DayCard
+                  key={day.id}
+                  day={day}
+                  canRemove={days.length > 1}
+                  canCopy={days.length < maxDays}
+                  onRemove={() => removeDay(day.id)}
+                  onCopy={() => copyDay(day.id)}
+                  onChange={patch => updateDay(day.id, patch)}
+                  onApplyDestination={dest => applyDestination(day.id, dest)}
+                  onApplyCarToAll={() => applyCarToAll(day.id)}
+                  multiDay={days.length > 1}
                 />
-                <button
-                  onClick={() => setParticipants(p => p + 1)}
-                  className="w-9 h-9 rounded-sm border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  +
-                </button>
-              </div>
+              ))}
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
-                <TrendingUp className="inline w-3.5 h-3.5 mr-1" />
-                Profit Margin:{" "}
-                <span className="text-accent font-bold">{profitMargin}%</span>
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={80}
-                step={5}
-                value={profitMargin}
-                onChange={e => setProfitMargin(Number(e.target.value))}
-                className="mt-3 w-full accent-[var(--accent)]"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>0%</span>
-                <span>40%</span>
-                <span>80%</span>
-              </div>
-            </div>
+            {days.length < maxDays && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addDay}
+                className="w-full border-dashed border-accent/50 text-accent hover:bg-accent/5"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Add Day {days.length + 1}
+              </Button>
+            )}
+          </Card>
+        </div>
+
+        {/* Right: summary */}
+        <div className="xl:col-span-1">
+          <div className="sticky top-6 space-y-4">
+            <SummaryPanel
+              breakdown={breakdown}
+              participants={participants}
+              profitMargin={profitMargin}
+              days={days}
+            />
           </div>
-        </Card>
-
-        {/* Days */}
-        <Card className="p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Itinerary — Destinations & Costs
-            </h2>
-            <span className="text-xs text-muted-foreground">
-              {days.length} / {maxDays} days
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {days.map(day => (
-              <DayCard
-                key={day.id}
-                day={day}
-                canRemove={days.length > 1}
-                onRemove={() => removeDay(day.id)}
-                onChange={patch => updateDay(day.id, patch)}
-                onApplyDestination={dest => applyDestination(day.id, dest)}
-              />
-            ))}
-          </div>
-
-          {days.length < maxDays && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addDay}
-              className="w-full border-dashed border-accent/50 text-accent hover:bg-accent/5"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add Day {days.length + 1}
-            </Button>
-          )}
-        </Card>
-      </div>
-
-      {/* Right: summary */}
-      <div className="xl:col-span-1">
-        <div className="sticky top-6 space-y-4">
-          <SummaryPanel
-            breakdown={breakdown}
-            participants={participants}
-            profitMargin={profitMargin}
-            days={days}
-          />
         </div>
       </div>
-    </div>
+
+      {/* Sticky footer bar — always visible */}
+      {breakdown.numberOfDays > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-lg px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-6 text-sm">
+              <span className="text-muted-foreground">
+                {participants} pax · {breakdown.numberOfDays} day
+                {breakdown.numberOfDays > 1 ? "s" : ""} · {profitMargin}% margin
+              </span>
+              <span className="font-semibold">
+                {formatUSD(breakdown.sellingPricePerPerson)}{" "}
+                <span className="text-muted-foreground font-normal">
+                  / person
+                </span>
+              </span>
+              <span className="text-accent font-bold text-base">
+                {formatUSD(breakdown.totalSellingPrice)} total
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>
+                Deposit 30%:{" "}
+                {formatUSD(
+                  Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100
+                )}
+              </span>
+              <span className="text-green-600 font-semibold">
+                Profit: {formatUSD(Math.round(breakdown.totalProfit))}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1060,15 +1335,23 @@ function AttractionAdder({
 function DayCard({
   day,
   canRemove,
+  canCopy,
   onRemove,
+  onCopy,
   onChange,
   onApplyDestination,
+  onApplyCarToAll,
+  multiDay,
 }: {
   day: DayItinerary;
   canRemove: boolean;
+  canCopy: boolean;
   onRemove: () => void;
+  onCopy: () => void;
   onChange: (patch: Partial<DayItinerary>) => void;
   onApplyDestination: (dest: DestinationPreset) => void;
+  onApplyCarToAll: () => void;
+  multiDay: boolean;
 }) {
   const [expanded, setExpanded] = useState(true);
   const [showPicker, setShowPicker] = useState(false);
@@ -1137,11 +1420,23 @@ function DayCard({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs text-muted-foreground hidden sm:block">
-            Fixed: ฿{dayFixedTotal.toLocaleString()} · Var: ฿
+            ฿{dayFixedTotal.toLocaleString()} fix · ฿
             {dayVariableTotal.toLocaleString()}/pp
           </span>
+          {canCopy && (
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                onCopy();
+              }}
+              className="text-muted-foreground hover:text-accent p-1 transition-colors"
+              title="Copy this day"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          )}
           {canRemove && (
             <button
               onClick={e => {
@@ -1211,8 +1506,8 @@ function DayCard({
                 compact
               />
             </div>
-            {/* Vehicles count */}
-            <div className="mt-2 flex items-center gap-3">
+            {/* Vehicles count + apply to all */}
+            <div className="mt-2 flex items-center gap-3 flex-wrap">
               <span className="text-xs text-muted-foreground">Vehicles:</span>
               <div className="flex items-center gap-2">
                 <button
@@ -1241,6 +1536,16 @@ function DayCard({
                 = ฿{(day.carCost * day.numberOfVehicles).toLocaleString()} total
                 car
               </span>
+              {multiDay && (
+                <button
+                  onClick={onApplyCarToAll}
+                  className="ml-auto text-xs text-accent border border-accent/30 rounded px-2 py-0.5 hover:bg-accent/5 transition-colors flex items-center gap-1"
+                  title="Apply this car & driver cost to all days"
+                >
+                  <ChevronsUpDown className="w-3 h-3" />
+                  Apply to all days
+                </button>
+              )}
             </div>
           </div>
 
