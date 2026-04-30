@@ -30,6 +30,11 @@ import {
   Save,
   FolderOpen,
   ChevronsUpDown,
+  RotateCcw,
+  User,
+  Calendar,
+  CheckCheck,
+  Pencil,
 } from "lucide-react";
 import { formatUSD } from "@shared/pricing";
 import { nanoid } from "nanoid";
@@ -259,6 +264,22 @@ function persistAttraction(name: string, cost: number) {
   } catch {}
 }
 
+// ── Client Info ───────────────────────────────────────────────
+
+interface ClientInfo {
+  clientName: string;
+  arrivalDate: string;
+  departureDate: string;
+  notes: string;
+}
+
+const EMPTY_CLIENT: ClientInfo = {
+  clientName: "",
+  arrivalDate: "",
+  departureDate: "",
+  notes: "",
+};
+
 // ── Saved Quotes ──────────────────────────────────────────────
 
 interface SavedQuote {
@@ -269,6 +290,7 @@ interface SavedQuote {
   profitMargin: number;
   tourType: TourTypeKey;
   days: DayItinerary[];
+  client?: ClientInfo;
 }
 
 function loadSavedQuotes(): SavedQuote[] {
@@ -408,6 +430,157 @@ const TOUR_TEMPLATES: TourTemplate[] = [
           },
           { name: "Karen Long Neck & Big Ears Village", cost: 200 },
           { name: "Hmong Tribe Village", cost: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    id: "doi-inthanon-1d",
+    name: "Doi Inthanon Day Trip  (1 day)",
+    description:
+      "Roof of Thailand · Royal Pagodas · Wachirathan Waterfall · Pha Dok Siew nature trail",
+    tourType: "1-day",
+    days: [
+      {
+        dayNumber: 1,
+        label: "Doi Inthanon National Park",
+        destinationId: "doi-inthanon",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: false,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 0,
+        carCost: 2500,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "National Park Entry", cost: 300 },
+          { name: "Royal Pagodas (King & Queen)", cost: 40 },
+        ],
+      },
+    ],
+  },
+  {
+    id: "chiang-rai-2d",
+    name: "Chiang Rai Explorer  (2 days)",
+    description:
+      "White Temple · Black House · Blue Temple · Golden Triangle · Long Neck Village · Night Bazaar",
+    tourType: "2-3-day",
+    days: [
+      {
+        dayNumber: 1,
+        label: "Day 1 — Chiang Rai Temples",
+        destinationId: "chiang-rai",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: true,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 1800,
+        carCost: 3500,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "White Temple (Wat Rong Khun)", cost: 100 },
+          { name: "Blue Temple (free)", cost: 0 },
+          { name: "Black House Museum (Baan Dam)", cost: 80 },
+        ],
+      },
+      {
+        dayNumber: 2,
+        label: "Day 2 — Golden Triangle → Chiang Mai",
+        destinationId: "golden-triangle-myanmar",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: false,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 0,
+        carCost: 4000,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "Hall of Opium Museum", cost: 200 },
+          { name: "Golden Triangle Viewpoint", cost: 50 },
+          { name: "Karen Long Neck Village", cost: 200 },
+          { name: "Boat to Laos island (optional)", cost: 100 },
+        ],
+      },
+    ],
+  },
+  {
+    id: "mae-hong-son-3d",
+    name: "Mae Hong Son Loop  (3 days)",
+    description:
+      "Tham Lot Cave · Pang Mapha · Ban Rak Thai Chinese village · Pha Sua Waterfall · Padaung tribe",
+    tourType: "2-3-day",
+    days: [
+      {
+        dayNumber: 1,
+        label: "Day 1 — Chiang Mai → Soppong",
+        destinationId: "mae-hong-son",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: true,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 1500,
+        carCost: 3500,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "Tham Lot Cave (with guide)", cost: 350 },
+          { name: "Lod Cave bamboo raft", cost: 150 },
+        ],
+      },
+      {
+        dayNumber: 2,
+        label: "Day 2 — Mae Hong Son Town",
+        destinationId: "mae-hong-son",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: true,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 1500,
+        carCost: 2500,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "Ban Rak Thai Chinese Village", cost: 0 },
+          { name: "Pha Sua Waterfall", cost: 0 },
+          { name: "Padaung (Long Neck) Village", cost: 300 },
+        ],
+      },
+      {
+        dayNumber: 3,
+        label: "Day 3 — Return to Chiang Mai",
+        destinationId: "mae-hong-son",
+        isKosher: false,
+        breakfastEnabled: false,
+        breakfast: MEAL_DEFAULTS.regular.breakfast,
+        lunchEnabled: true,
+        lunch: MEAL_DEFAULTS.regular.lunch,
+        dinnerEnabled: false,
+        dinner: MEAL_DEFAULTS.regular.dinner,
+        hotel: 0,
+        carCost: 3500,
+        numberOfVehicles: 1,
+        driverCost: 1000,
+        attractions: [
+          { name: "Wat Phra That Doi Kong Mu viewpoint", cost: 0 },
+          { name: "Pang Tong Royal Project", cost: 0 },
         ],
       },
     ],
@@ -601,6 +774,7 @@ function CostCalculatorDashboard() {
   const [profitMargin, setProfitMargin] = useState(30);
   const [profitInput, setProfitInput] = useState("30");
   const [days, setDays] = useState<DayItinerary[]>([makeDay(1)]);
+  const [clientInfo, setClientInfo] = useState<ClientInfo>(EMPTY_CLIENT);
   const [saveNameOpen, setSaveNameOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [quotesOpen, setQuotesOpen] = useState(false);
@@ -690,6 +864,30 @@ function CostCalculatorDashboard() {
     );
   }, []);
 
+  const handleReset = () => {
+    setActiveType("1-day");
+    setParticipants(4);
+    setProfitMargin(30);
+    setProfitInput("30");
+    setDays([makeDay(1)]);
+    setClientInfo(EMPTY_CLIENT);
+  };
+
+  const toggleAllKosher = (isKosher: boolean) => {
+    setDays(prev =>
+      prev.map(d => {
+        const m = MEAL_DEFAULTS[isKosher ? "kosher" : "regular"];
+        return {
+          ...d,
+          isKosher,
+          breakfast: m.breakfast,
+          lunch: m.lunch,
+          dinner: m.dinner,
+        };
+      })
+    );
+  };
+
   const handleSaveQuote = () => {
     const name = saveName.trim() || `Quote ${new Date().toLocaleDateString()}`;
     const q: SavedQuote = {
@@ -700,6 +898,7 @@ function CostCalculatorDashboard() {
       profitMargin,
       tourType: activeType,
       days,
+      client: clientInfo,
     };
     saveQuote(q);
     setSavedQuotes(loadSavedQuotes());
@@ -713,6 +912,7 @@ function CostCalculatorDashboard() {
     setProfitMargin(q.profitMargin);
     setProfitInput(String(q.profitMargin));
     setDays(q.days);
+    setClientInfo(q.client ?? EMPTY_CLIENT);
     setQuotesOpen(false);
   };
 
@@ -864,11 +1064,91 @@ function CostCalculatorDashboard() {
             </div>
           </Card>
 
+          {/* Client Info */}
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" /> Client Info
+              </h2>
+              <span className="text-xs text-muted-foreground italic">
+                Optional — included in WhatsApp quote
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">
+                  Client Name
+                </label>
+                <input
+                  type="text"
+                  value={clientInfo.clientName}
+                  onChange={e =>
+                    setClientInfo(c => ({ ...c, clientName: e.target.value }))
+                  }
+                  placeholder="e.g. Cohen Family"
+                  className="w-full text-sm border border-border rounded-sm px-3 py-1.5 focus:ring-2 focus:ring-accent focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">
+                  Notes / Special Requests
+                </label>
+                <input
+                  type="text"
+                  value={clientInfo.notes}
+                  onChange={e =>
+                    setClientInfo(c => ({ ...c, notes: e.target.value }))
+                  }
+                  placeholder="e.g. wheelchair accessible, gluten-free"
+                  className="w-full text-sm border border-border rounded-sm px-3 py-1.5 focus:ring-2 focus:ring-accent focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Arrival Date
+                </label>
+                <input
+                  type="date"
+                  value={clientInfo.arrivalDate}
+                  onChange={e =>
+                    setClientInfo(c => ({ ...c, arrivalDate: e.target.value }))
+                  }
+                  className="w-full text-sm border border-border rounded-sm px-3 py-1.5 focus:ring-2 focus:ring-accent focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Departure Date
+                </label>
+                <input
+                  type="date"
+                  value={clientInfo.departureDate}
+                  onChange={e =>
+                    setClientInfo(c => ({
+                      ...c,
+                      departureDate: e.target.value,
+                    }))
+                  }
+                  className="w-full text-sm border border-border rounded-sm px-3 py-1.5 focus:ring-2 focus:ring-accent focus:outline-none"
+                />
+              </div>
+            </div>
+          </Card>
+
           {/* Group & profit */}
           <Card className="p-5 space-y-5">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Group & Profit
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Group & Profit
+              </h2>
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground border border-border rounded-sm px-2 py-1 hover:bg-muted transition-colors"
+                title="Reset everything"
+              >
+                <RotateCcw className="w-3 h-3" /> Reset
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
@@ -899,6 +1179,22 @@ function CostCalculatorDashboard() {
                   >
                     +
                   </button>
+                </div>
+                {/* Quick picks */}
+                <div className="flex gap-1.5 mt-2 flex-wrap">
+                  {[2, 4, 6, 8, 10, 12].map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setParticipants(n)}
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                        participants === n
+                          ? "bg-accent text-white border-accent"
+                          : "border-border hover:border-accent/50 text-muted-foreground"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -941,6 +1237,34 @@ function CostCalculatorDashboard() {
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                       %
                     </span>
+                  </div>
+                </div>
+                {/* Kosher all-days toggle */}
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    All days:
+                  </span>
+                  <div className="flex items-center overflow-hidden border border-border rounded-sm text-xs">
+                    <button
+                      onClick={() => toggleAllKosher(false)}
+                      className={`px-2.5 py-1 transition-colors ${
+                        days.every(d => !d.isKosher)
+                          ? "bg-accent text-white"
+                          : "hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      Regular
+                    </button>
+                    <button
+                      onClick={() => toggleAllKosher(true)}
+                      className={`px-2.5 py-1 transition-colors ${
+                        days.every(d => d.isKosher)
+                          ? "bg-accent text-white"
+                          : "hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      ✡ All Kosher
+                    </button>
                   </div>
                 </div>
               </div>
@@ -997,6 +1321,7 @@ function CostCalculatorDashboard() {
               participants={participants}
               profitMargin={profitMargin}
               days={days}
+              clientInfo={clientInfo}
             />
           </div>
         </div>
@@ -1355,6 +1680,8 @@ function DayCard({
 }) {
   const [expanded, setExpanded] = useState(true);
   const [showPicker, setShowPicker] = useState(false);
+  const [editingLabel, setEditingLabel] = useState(false);
+  const [labelDraft, setLabelDraft] = useState(day.label);
 
   const currentDest = day.destinationId
     ? DESTINATIONS.find(d => d.id === day.destinationId)
@@ -1391,16 +1718,15 @@ function DayCard({
   return (
     <div className="border border-border rounded-sm overflow-hidden">
       {/* Header */}
-      <button
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          {expanded ? (
-            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-          )}
+      <div className="w-full flex items-center justify-between px-4 py-3 bg-muted/30">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <button onClick={() => setExpanded(v => !v)} className="shrink-0">
+            {expanded ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
           <span className="font-semibold text-sm shrink-0">
             Day {day.dayNumber}
           </span>
@@ -1409,15 +1735,40 @@ function DayCard({
               Kosher
             </span>
           )}
-          {currentDest ? (
-            <span className="text-xs text-accent truncate flex items-center gap-1">
-              <MapPin className="w-3 h-3 shrink-0" />
-              {currentDest.name}
-            </span>
+          {editingLabel ? (
+            <input
+              autoFocus
+              value={labelDraft}
+              onChange={e => setLabelDraft(e.target.value)}
+              onBlur={() => {
+                onChange({ label: labelDraft.trim() || day.label });
+                setEditingLabel(false);
+              }}
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === "Escape") {
+                  onChange({ label: labelDraft.trim() || day.label });
+                  setEditingLabel(false);
+                }
+              }}
+              className="flex-1 text-xs border border-accent rounded px-1.5 py-0.5 focus:outline-none min-w-0"
+              onClick={e => e.stopPropagation()}
+            />
           ) : (
-            <span className="text-xs text-muted-foreground italic">
-              No destination set
-            </span>
+            <button
+              className="flex items-center gap-1 text-xs text-accent truncate hover:underline min-w-0"
+              onClick={e => {
+                e.stopPropagation();
+                setLabelDraft(day.label);
+                setEditingLabel(true);
+              }}
+              title="Click to rename"
+            >
+              <MapPin className="w-3 h-3 shrink-0" />
+              <span className="truncate">
+                {currentDest ? currentDest.name : day.label}
+              </span>
+              <Pencil className="w-2.5 h-2.5 shrink-0 opacity-50" />
+            </button>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -1449,7 +1800,7 @@ function DayCard({
             </button>
           )}
         </div>
-      </button>
+      </div>
 
       {/* Body */}
       {expanded && (
@@ -1690,11 +2041,13 @@ function SummaryPanel({
   participants,
   profitMargin,
   days,
+  clientInfo,
 }: {
   breakdown: CostBreakdown;
   participants: number;
   profitMargin: number;
   days: DayItinerary[];
+  clientInfo: ClientInfo;
 }) {
   const empty = breakdown.numberOfDays === 0;
   const destinations = days
@@ -1866,6 +2219,7 @@ function SummaryPanel({
           breakdown={breakdown}
           participants={participants}
           days={days}
+          clientInfo={clientInfo}
         />
       )}
     </>
@@ -1878,11 +2232,15 @@ function WhatsAppQuoteButton({
   breakdown,
   participants,
   days,
+  clientInfo,
 }: {
   breakdown: CostBreakdown;
   participants: number;
   days: DayItinerary[];
+  clientInfo: ClientInfo;
 }) {
+  const [copied, setCopied] = useState(false);
+
   const route = days
     .map(d => {
       const dest = DESTINATIONS.find(dest => dest.id === d.destinationId);
@@ -1892,13 +2250,30 @@ function WhatsAppQuoteButton({
 
   const deposit = Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100;
   const balance = breakdown.totalSellingPrice - deposit;
+  const hasKosher = days.some(d => d.isKosher);
 
-  const message = [
+  const dayLines = breakdown.dailyBreakdown.map(
+    ({ day, totalVariableThisDay }) => {
+      const dest = DESTINATIONS.find(d => d.id === day.destinationId);
+      const name = dest ? dest.name : day.label;
+      return `  Day ${day.dayNumber}: ${name}${day.isKosher ? " ✡" : ""} — ${formatUSD(totalVariableThisDay)}/pp`;
+    }
+  );
+
+  const lines: (string | null)[] = [
     `🏕 *WIRO 4x4 Tour Quote*`,
+    clientInfo.clientName ? `👤 Client: ${clientInfo.clientName}` : null,
+    clientInfo.arrivalDate
+      ? `📅 Dates: ${clientInfo.arrivalDate}${clientInfo.departureDate ? ` → ${clientInfo.departureDate}` : ""}`
+      : null,
     ``,
     route ? `📍 Route: ${route}` : null,
-    `📅 Duration: ${breakdown.numberOfDays} day${breakdown.numberOfDays > 1 ? "s" : ""}`,
+    `🗓 Duration: ${breakdown.numberOfDays} day${breakdown.numberOfDays > 1 ? "s" : ""}`,
     `👥 Group: ${participants} person${participants > 1 ? "s" : ""}`,
+    hasKosher ? `✡ Kosher meals included` : null,
+    ``,
+    `*Day-by-Day Costs (per person):*`,
+    ...dayLines,
     ``,
     `💰 *${formatUSD(breakdown.sellingPricePerPerson)} per person*`,
     `📦 Total: *${formatUSD(breakdown.totalSellingPrice)}*`,
@@ -1907,24 +2282,53 @@ function WhatsAppQuoteButton({
     `Balance on tour day: ${formatUSD(balance)}`,
     ``,
     `Includes: private 4x4, Hebrew-speaking guide, all entrance fees`,
+    hasKosher ? `Includes: kosher meals throughout` : null,
+    clientInfo.notes ? `Note: ${clientInfo.notes}` : null,
     ``,
     `To book: https://www.wiro4x4indochina.com/booking`,
-  ]
-    .filter(l => l !== null)
-    .join("\n");
+  ];
 
+  const message = lines.filter(l => l !== null).join("\n");
   const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold rounded-sm py-3 text-sm transition-colors"
-    >
-      <MessageCircle className="w-4 h-4" />
-      Send Quote via WhatsApp
-    </a>
+    <div className="space-y-2">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold rounded-sm py-3 text-sm transition-colors"
+      >
+        <MessageCircle className="w-4 h-4" />
+        Send Quote via WhatsApp
+      </a>
+      <button
+        onClick={handleCopy}
+        className="flex items-center justify-center gap-2 w-full border border-border rounded-sm py-2.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
+      >
+        {copied ? (
+          <>
+            <CheckCheck className="w-4 h-4 text-green-600" />
+            <span className="text-green-600">Copied!</span>
+          </>
+        ) : (
+          <>
+            <Copy className="w-4 h-4" />
+            Copy Quote Text
+          </>
+        )}
+      </button>
+    </div>
   );
 }
 
