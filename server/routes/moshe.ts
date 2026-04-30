@@ -1,17 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { Express } from "express";
 
 const WHATSAPP_NUMBER = "66929894495";
-
-let anthropicClient: Anthropic | null = null;
-
-function getAnthropic(): Anthropic | null {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  if (!anthropicClient) {
-    anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  }
-  return anthropicClient;
-}
 
 const MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm and knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You help Israeli and English-speaking travelers plan kosher off-road adventures.
 
@@ -29,6 +18,42 @@ Rules:
 - Be warm, friendly, and concise (2-4 sentences max)
 - For detailed pricing or booking, invite them to WhatsApp: +${WHATSAPP_NUMBER}
 - You are a real human guide — never reveal you are an AI`;
+
+async function getGeminiReply(message: string): Promise<string | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: MOSHE_SYSTEM_PROMPT }],
+          },
+          contents: [{ role: "user", parts: [{ text: message }] }],
+          generationConfig: { maxOutputTokens: 300 },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[Moshe] Gemini API error ${res.status}: ${errText}`);
+      return null;
+    }
+
+    const data = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+  } catch (err) {
+    console.error("[Moshe] Gemini request failed:", err);
+    return null;
+  }
+}
 
 export function registerMosheRoute(app: Express) {
   app.post("/api/moshe/message", async (req, res) => {
@@ -77,32 +102,15 @@ export function registerMosheRoute(app: Express) {
       console.log(`[Moshe] Customer message (${language ?? "en"}): ${message}`);
     }
 
-    // Generate AI reply
-    const anthropic = getAnthropic();
-    if (anthropic) {
-      try {
-        const aiResponse = await anthropic.messages.create({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 300,
-          system: MOSHE_SYSTEM_PROMPT,
-          messages: [{ role: "user", content: String(message).trim() }],
-        });
+    // Generate AI reply via Gemini Flash
+    const reply = await getGeminiReply(String(message).trim());
 
-        const reply =
-          aiResponse.content[0]?.type === "text"
-            ? aiResponse.content[0].text
-            : null;
-
-        if (reply) {
-          res.json({ success: true, reply });
-          return;
-        }
-      } catch (err) {
-        console.error("[Moshe] AI response failed:", err);
-      }
+    if (reply) {
+      res.json({ success: true, reply });
+      return;
     }
 
-    // Fallback when no AI key configured
+    // Fallback when API key not configured
     const fallback =
       language === "he"
         ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp 📱"
