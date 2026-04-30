@@ -341,7 +341,7 @@ export function Tours() {
                     {tour.price != null && (
                       <div className="absolute top-3 right-3 bg-primary/85 backdrop-blur-sm px-3 py-1 rounded-sm">
                         <span className="text-accent font-semibold text-sm">
-                          &#3647;{tour.price.toLocaleString()}
+                          ${Math.round(tour.price * 0.028).toLocaleString()}
                         </span>
                       </div>
                     )}

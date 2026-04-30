@@ -258,8 +258,8 @@ export default function Pricing() {
   const handleWhatsAppInquiry = (tourName: string, price: number) => {
     const message = encodeURIComponent(
       t(
-        `Hi WIRO 4x4! I'm interested in the ${tourName} ($${price.toLocaleString()}). Can you provide more details?`,
-        `היי WIRO 4x4! מתעניינים ב${tourName} ($${price.toLocaleString()}). אפשר לשמוע פרטים?`
+        `Hi WIRO 4x4! I'm interested in the ${tourName} ($${Math.round(price * 0.028).toLocaleString()}). Can you provide more details?`,
+        `היי WIRO 4x4! מתעניינים ב${tourName} ($${Math.round(price * 0.028).toLocaleString()}). אפשר לשמוע פרטים?`
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
@@ -419,10 +419,12 @@ export default function Pricing() {
                         {isCurrentlyPeak ? (
                           <>
                             <div className="text-3xl font-bold text-accent mb-1">
-                              &#3647;
-                              {applySeasonalPrice(
-                                tour.basePrice,
-                                currentSeason
+                              $
+                              {Math.round(
+                                applySeasonalPrice(
+                                  tour.basePrice,
+                                  currentSeason
+                                ) * 0.028
                               ).toLocaleString()}
                             </div>
                             <p className="text-xs font-medium text-amber-600 mb-1">
@@ -432,14 +434,19 @@ export default function Pricing() {
                               )}
                             </p>
                             <p className="text-sm text-muted-foreground line-through">
-                              {t("Standard:", "סטנדרט:")} &#3647;
-                              {tour.basePrice.toLocaleString()}
+                              {t("Standard:", "סטנדרט:")} $
+                              {Math.round(
+                                tour.basePrice * 0.028
+                              ).toLocaleString()}
                             </p>
                           </>
                         ) : (
                           <>
                             <div className="text-3xl font-bold text-accent mb-1">
-                              &#3647;{tour.basePrice.toLocaleString()}
+                              $
+                              {Math.round(
+                                tour.basePrice * 0.028
+                              ).toLocaleString()}
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {t("Standard Price", "מחיר סטנדרט")}
@@ -577,7 +584,7 @@ export default function Pricing() {
                     <div
                       className={`absolute ${idx === 1 ? "top-10" : "top-3"} right-3 md:right-4 bg-accent text-white px-2.5 py-1 rounded-full text-xs md:text-sm font-bold`}
                     >
-                      {t("Save", "חסכו")} &#3647;{pkg.savings}
+                      {t("Save", "חסכו")} ${Math.round(pkg.savings * 0.028)}
                     </div>
                   )}
 
