@@ -72,7 +72,7 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
-      await fetch("/api/moshe/message", {
+      const res = await fetch("/api/moshe/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -82,10 +82,12 @@ export function ChatWidget() {
         }),
       });
 
+      const data = (await res.json()) as { reply?: string };
       const reply =
-        chatLanguage === "he"
+        data.reply ??
+        (chatLanguage === "he"
           ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp 📱"
-          : "Thanks! Moshe received your message and will reply via WhatsApp shortly 📱";
+          : "Thanks! Moshe received your message and will reply via WhatsApp shortly 📱");
 
       setMessages(prev => [...prev, { role: "moshe", content: reply }]);
     } catch {
