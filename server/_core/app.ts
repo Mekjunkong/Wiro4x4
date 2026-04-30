@@ -10,6 +10,7 @@ import { registerChatApiRoute } from "../routes/chatApi";
 import { registerEliChatRoute } from "../routes/eliChatApi";
 import { registerEliRelayRoute } from "../routes/eliRelay";
 import { registerChatRoute } from "../routes/chat";
+import { registerMosheRoute } from "../routes/moshe";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 
@@ -51,6 +52,9 @@ export function createApp() {
 
   // AI Chat API with DB persistence
   registerChatRoute(app);
+
+  // Moshe human-handoff chat → Telegram notification
+  registerMosheRoute(app);
 
   // tRPC API
   app.use(
