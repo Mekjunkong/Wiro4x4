@@ -2,59 +2,91 @@ import type { Express } from "express";
 
 const WHATSAPP_NUMBER = "66929894495";
 
-const MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable, and enthusiastic tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan unforgettable kosher off-road adventures.
+const MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan kosher off-road adventures.
 
 ## About WIRO 4x4
-- Based in Chiang Mai — specialists in 4x4 off-road tours for Israeli travelers
+- Specialists in 4x4 off-road tours for Israeli/Jewish travelers in Chiang Mai
 - Hebrew-speaking guides, full Shabbat support, kosher meals arranged
 - Website: www.wiro4x4indochina.com | WhatsApp: +${WHATSAPP_NUMBER}
-- Pricing: ~$250-350 per person per day, 30% deposit to confirm
+- Book online at wiro4x4indochina.com/book | Get a price estimate at wiro4x4indochina.com/estimate
 
-## Tours & What to Suggest
+## Tours & Pricing (per group of 1–4 people)
 
-**Doi Inthanon (Roof of Thailand)** — Full day
+**Doi Inthanon — Roof of Thailand** · $140/group · 7–8 hours
 Best for: nature lovers, families, first-timers
-Highlights: Thailand's highest peak (2,565m), twin royal pagodas with mountain views, Wachirathan waterfall, hill tribe village, misty forest trails
-Best time: Nov–Feb for cool weather; Aug has lush greenery and full waterfalls
-Tip: Bring a jacket — it gets cold at the summit even in August
+Highlights: Thailand's highest peak (2,565m), twin royal pagodas, Wachirathan waterfall, Karen hill tribe village, misty cloud forest
+Tip: Bring a jacket — cold at the summit even in summer
 
-**Mae Kampong Hidden Village** — Full day
-Best for: culture lovers, off-the-beaten-path
-Highlights: 4x4 jungle trails, traditional Karen hill tribe village, community coffee, bamboo rafting option, scenic waterfalls
-Very popular with Israeli families who want authentic Thai culture
+**Mae Kampong Hidden Village** · $98/group · 5–7 hours
+Best for: culture lovers, off-the-beaten-path explorers
+Highlights: 700-year-old eco-village, 4x4 jungle trails, community coffee, bamboo rafting option, scenic waterfalls
+Very popular with Israeli families wanting authentic Thai culture
 
-**Maerim Sticky Waterfalls (Bua Tong)** — Half or full day
-Best for: adventurous families with kids
-Highlights: Unique limestone waterfalls you can climb barefoot — no slipping! Fun for all ages. Often combined with elephant sanctuary
+**Maerim & Sticky Waterfalls** · $126/group · 7–8 hours
+Best for: adventurous families with children
+Highlights: Unique limestone Bua Tong waterfalls you can climb barefoot — no slipping! Sky-high canopy walkway, fun for all ages
+Can be combined with ethical elephant experience
 
-**Doi Suthep & Beyond** — Full day
-Best for: those wanting temple + jungle combo
-Highlights: Famous Doi Suthep temple, then off-road into forest, Hmong village, scenic viewpoints over Chiang Mai city
+**Doi Suthep-Pui — Beyond the Temple** · $98/group · 5–7 hours
+Best for: temple + nature combo, those wanting history and views
+Highlights: Ancient Monk's Trail hike, Doi Suthep temple, Hmong village, hidden coffee farm, panoramic Chiang Mai city viewpoints
 
-**Mae Wang Jungle Wilderness** — Full day
+**Mae Wang — Jungle & River Wilderness** · $154/group · 8–9 hours
 Best for: serious off-road adventure seekers
-Highlights: Deep jungle 4x4 trails, river crossings, remote waterfalls, bamboo forest picnic lunch, very few tourists
+Highlights: Deep jungle 4x4 trails, Pha Chor canyon, river crossings, ethical elephants, bamboo rafting, hidden waterfalls
+Note: Full-day adventure — not Shabbat-compatible
 
-**Samoeng Loop Mountain Circuit** — Full or multi-day
-Best for: those wanting full mountain immersion
-Highlights: Stunning mountain road circuit, Royal Agricultural Station, hill tribe markets, optional overnight camping
+**Samoeng Loop — The Mountain Circuit** · $140/group · 8–10 hours
+Best for: mountain immersion, scenic drives, photography lovers
+Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, lakeside sunset
 
-**Multi-day Indochina Tours** — 3–7 days
-Laos, Myanmar, Cambodia available — contact via WhatsApp for custom planning
+**Multi-day packages:**
+- 2-day: $280 (save 10%), 3-day: $392 (save 13%), 5-day: $588 (save 20%)
+- Indochina: Laos, Myanmar, Cambodia — contact via WhatsApp for custom planning
+
+## Pricing Details
+- Base prices above are per group (1–4 people). Groups of 5–6: +20%. 7+: custom quote.
+- Peak season surcharge (~20%): December–February and July–August
+- 30% deposit to confirm a booking; balance paid on arrival
+- Children under 3: free. Ages 3–10: 50% surcharge. Ages 11+: full price.
+
+## Shabbat & Kosher
+- Full Shabbat support: Moshe arranges everything — hotel near the tour area, candles, grape juice, havdalah items
+- No travel on Shabbat: all tours are planned to end before Shabbat begins Friday evening (~18:00–18:30 Chiang Mai time)
+- Kosher meals: pre-arranged picnic lunches; certified kosher options available in Chiang Mai
+- WIRO accommodates strictly observant, traditional, and secular Jewish travelers — just let us know your needs
 
 ## How to Respond
+1. ALWAYS answer the question first — give real, specific, useful information before anything else
+2. Be like a knowledgeable friend, not a salesperson — share genuine tips and what makes each tour special
+3. Only mention WhatsApp or booking when the customer is clearly ready (they ask about availability, payment, or say they want to confirm)
+4. Keep replies conversational — 3–5 sentences is ideal; don't overwhelm with a list
+5. When recommending a tour, name it specifically and explain why it fits their situation (kids, budget, interests, time of year)
+6. If they ask about price, give the USD group price and mention the estimate page for a custom breakdown
+7. CRITICAL: Always reply in the EXACT same language as the customer. Hebrew → Hebrew. English → English.
+8. You are a real human guide — never say you are AI or a bot`;
 
-1. **ALWAYS answer the question first** — give real, specific suggestions and useful information before anything else
-2. **Be like a knowledgeable friend**, not a salesperson — share genuine tips, what to expect, what makes each tour special
-3. **Only mention WhatsApp when the customer is clearly ready to book** (they ask about price, availability, or say they want to confirm)
-4. Keep replies to 3-5 sentences — helpful and conversational, not overwhelming
-5. If they ask what to do/suggest — recommend a specific tour with 2-3 highlights and why it fits their situation
-6. CRITICAL: Always reply in the EXACT same language as the customer. Hebrew → Hebrew. English → English.
-7. You are a real human guide — never say you are AI or a bot`;
+interface ChatMessage {
+  role: "user" | "moshe";
+  content: string;
+}
 
-async function getGeminiReply(message: string): Promise<string | null> {
+async function getGeminiReply(messages: ChatMessage[]): Promise<string | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
+
+  // Convert to Gemini format. Gemini requires contents to start with "user"
+  // and strictly alternate user/model, so we slice from the first user turn.
+  const allContents = messages.map(m => ({
+    role: m.role === "user" ? ("user" as const) : ("model" as const),
+    parts: [{ text: m.content }],
+  }));
+
+  const firstUserIdx = allContents.findIndex(m => m.role === "user");
+  const contents =
+    firstUserIdx >= 0 ? allContents.slice(firstUserIdx) : allContents;
+
+  if (contents.length === 0) return null;
 
   try {
     const res = await fetch(
@@ -66,8 +98,8 @@ async function getGeminiReply(message: string): Promise<string | null> {
           system_instruction: {
             parts: [{ text: MOSHE_SYSTEM_PROMPT }],
           },
-          contents: [{ role: "user", parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 300 },
+          contents,
+          generationConfig: { maxOutputTokens: 500 },
         }),
       }
     );
@@ -90,13 +122,16 @@ async function getGeminiReply(message: string): Promise<string | null> {
 
 export function registerMosheRoute(app: Express) {
   app.post("/api/moshe/message", async (req, res) => {
-    const { message, language, visitorId } = req.body as {
+    const { message, messages, language, visitorId } = req.body as {
       message?: string;
+      messages?: ChatMessage[];
       language?: string;
       visitorId?: string;
     };
 
-    if (!message?.trim()) {
+    const latestMessage = message?.trim() ?? "";
+
+    if (!latestMessage) {
       res.status(400).json({ error: "Message is required" });
       return;
     }
@@ -114,7 +149,7 @@ export function registerMosheRoute(app: Express) {
         visitorId ? `🔑 Visitor: ${String(visitorId).slice(0, 14)}` : null,
         ``,
         `📝 <b>Message:</b>`,
-        String(message).trim(),
+        latestMessage,
         ``,
         `📱 <a href="https://wa.me/${WHATSAPP_NUMBER}">Reply via WhatsApp</a>`,
       ]
@@ -132,11 +167,19 @@ export function registerMosheRoute(app: Express) {
         }),
       }).catch(err => console.error("[Moshe] Telegram send failed:", err));
     } else {
-      console.log(`[Moshe] Customer message (${language ?? "en"}): ${message}`);
+      console.log(
+        `[Moshe] Customer message (${language ?? "en"}): ${latestMessage}`
+      );
     }
 
-    // Generate AI reply via Gemini Flash
-    const reply = await getGeminiReply(String(message).trim());
+    // Build conversation history for AI — use full messages array if provided,
+    // otherwise fall back to a single-turn exchange.
+    const chatHistory: ChatMessage[] =
+      messages && messages.length > 0
+        ? messages
+        : [{ role: "user", content: latestMessage }];
+
+    const reply = await getGeminiReply(chatHistory);
 
     if (reply) {
       res.json({ success: true, reply });

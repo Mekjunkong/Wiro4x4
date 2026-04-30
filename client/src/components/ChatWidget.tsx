@@ -83,6 +83,7 @@ export function ChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage,
+          messages: [...messages, { role: "user", content: userMessage }],
           language: chatLanguage,
           visitorId,
         }),
