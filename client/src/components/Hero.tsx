@@ -57,7 +57,7 @@ export function Hero() {
           {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
         </p>
 
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
           {t("Adventures Made for Families", "הרפתקאות שנוצרו למשפחות")}
         </h1>
 

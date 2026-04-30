@@ -68,18 +68,25 @@ export function FloatingActionButtons() {
 
   if (hideOnMobile || chatOpen) return null;
 
+  const isRtl = language === "he";
   const bottomClass = isBookingPage ? "bottom-20 md:bottom-6" : "bottom-6";
+  const sideClass = isRtl ? "left-4 md:left-6" : "right-4 md:right-6";
+  // In RTL: button is on the left, so tooltip appears to the right
+  const tooltipOrder = isRtl ? "order-last" : "";
+  const rowDir = isRtl ? "flex-row-reverse" : "";
 
   return (
     <div
-      className={`fixed right-4 md:right-6 ${bottomClass} flex flex-col items-end gap-3`}
+      className={`fixed ${sideClass} ${bottomClass} flex flex-col items-end gap-3`}
       style={{ zIndex: 9997 }}
       role="group"
       aria-label={t("Quick actions", "פעולות מהירות")}
     >
       {/* Chat with Moshe */}
-      <div className="relative group flex items-center gap-2">
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap">
+      <div className={`relative group flex items-center gap-2 ${rowDir}`}>
+        <span
+          className={`${tooltipOrder} opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap`}
+        >
           {t("Chat with Moshe", "דברו עם משה")}
         </span>
         <button
@@ -92,8 +99,10 @@ export function FloatingActionButtons() {
       </div>
 
       {/* Book Now */}
-      <div className="relative group flex items-center gap-2">
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap">
+      <div className={`relative group flex items-center gap-2 ${rowDir}`}>
+        <span
+          className={`${tooltipOrder} opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap`}
+        >
           {t("Book Now", "הזמינו עכשיו")}
         </span>
         <Link href="/book">
@@ -107,8 +116,10 @@ export function FloatingActionButtons() {
       </div>
 
       {/* WhatsApp */}
-      <div className="relative group flex items-center gap-2">
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap">
+      <div className={`relative group flex items-center gap-2 ${rowDir}`}>
+        <span
+          className={`${tooltipOrder} opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg shadow-md whitespace-nowrap`}
+        >
           {t("WhatsApp", "וואטסאפ")}
         </span>
         <button
