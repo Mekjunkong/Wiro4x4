@@ -16,7 +16,6 @@ import {
   Utensils,
   Hotel,
   Mountain,
-  FileText,
   AlertCircle,
   BadgePercent,
   MapPin,
@@ -26,6 +25,7 @@ import {
   Sparkles,
   Bookmark,
   Layers,
+  MessageCircle,
 } from "lucide-react";
 import { formatUSD } from "@shared/pricing";
 import { nanoid } from "nanoid";
@@ -276,6 +276,7 @@ interface TemplateDay {
   dinner: number;
   hotel: number;
   carCost: number;
+  numberOfVehicles: number;
   driverCost: number;
   attractions: { name: string; cost: number }[];
 }
@@ -311,6 +312,7 @@ const TOUR_TEMPLATES: TourTemplate[] = [
         dinner: MEAL_DEFAULTS.regular.dinner,
         hotel: 1500,
         carCost: 3500,
+        numberOfVehicles: 1,
         driverCost: 1000,
         attractions: [
           { name: "Karen Tribe Village", cost: 0 },
@@ -332,6 +334,7 @@ const TOUR_TEMPLATES: TourTemplate[] = [
         dinner: MEAL_DEFAULTS.regular.dinner,
         hotel: 1500,
         carCost: 2500,
+        numberOfVehicles: 1,
         driverCost: 1000,
         attractions: [
           { name: "Kiew Lom Viewpoint", cost: 0 },
@@ -353,6 +356,7 @@ const TOUR_TEMPLATES: TourTemplate[] = [
         dinner: MEAL_DEFAULTS.regular.dinner,
         hotel: 0,
         carCost: 3500,
+        numberOfVehicles: 1,
         driverCost: 1000,
         attractions: [
           { name: "Pai History Bridge", cost: 0 },
@@ -388,6 +392,7 @@ interface DayItinerary {
   dinner: number;
   hotel: number;
   carCost: number;
+  numberOfVehicles: number;
   driverCost: number;
   attractions: AttractionFee[];
 }
@@ -419,6 +424,7 @@ function makeDay(n: number, carCost = 2500, driverCost = 1000): DayItinerary {
     dinner: m.dinner,
     hotel: n > 1 ? 1800 : 0,
     carCost,
+    numberOfVehicles: 1,
     driverCost,
     attractions: [],
   };
@@ -463,7 +469,7 @@ function calculateCosts(
     };
   }
 
-  const totalCar = days.reduce((s, d) => s + d.carCost, 0);
+  const totalCar = days.reduce((s, d) => s + d.carCost * d.numberOfVehicles, 0);
   const totalDriver = days.reduce((s, d) => s + d.driverCost, 0);
   const totalFixedCosts = totalCar + totalDriver;
   const fixedCostPerPerson = totalFixedCosts / participants;
@@ -868,7 +874,7 @@ function DestinationPicker({
               </div>
               <div className="text-right shrink-0">
                 <p className="text-xs text-accent font-medium">
-                  Car {formatUSD(dest.suggestedCarPerDay)}/day
+                  Car ฿{dest.suggestedCarPerDay.toLocaleString()}/day
                 </p>
                 {dest.entranceFees.length > 0 && (
                   <p className="text-xs text-muted-foreground">
@@ -1133,8 +1139,8 @@ function DayCard({
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs text-muted-foreground hidden sm:block">
-            Fixed: {formatUSD(dayFixedTotal)} · Var:{" "}
-            {formatUSD(dayVariableTotal)}/pp
+            Fixed: ฿{dayFixedTotal.toLocaleString()} · Var: ฿
+            {dayVariableTotal.toLocaleString()}/pp
           </span>
           {canRemove && (
             <button
@@ -1193,7 +1199,7 @@ function DayCard({
             </p>
             <div className="grid grid-cols-2 gap-3">
               <CurrencyField
-                label="Car / Transfer"
+                label="Car / Transfer (per vehicle)"
                 value={day.carCost}
                 onChange={v => onChange({ carCost: v })}
                 compact
@@ -1204,6 +1210,37 @@ function DayCard({
                 onChange={v => onChange({ driverCost: v })}
                 compact
               />
+            </div>
+            {/* Vehicles count */}
+            <div className="mt-2 flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">Vehicles:</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    onChange({
+                      numberOfVehicles: Math.max(1, day.numberOfVehicles - 1),
+                    })
+                  }
+                  className="w-6 h-6 rounded border border-border flex items-center justify-center text-xs hover:bg-muted"
+                >
+                  −
+                </button>
+                <span className="text-sm font-semibold w-4 text-center">
+                  {day.numberOfVehicles}
+                </span>
+                <button
+                  onClick={() =>
+                    onChange({ numberOfVehicles: day.numberOfVehicles + 1 })
+                  }
+                  className="w-6 h-6 rounded border border-border flex items-center justify-center text-xs hover:bg-muted"
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                = ฿{(day.carCost * day.numberOfVehicles).toLocaleString()} total
+                car
+              </span>
             </div>
           </div>
 
@@ -1520,15 +1557,69 @@ function SummaryPanel({
       </Card>
 
       {!empty && (
-        <Card className="p-4 flex items-start gap-3 bg-muted/30">
-          <FileText className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-          <p className="text-xs text-muted-foreground">
-            Internal tool only. Share the final selling price with customers via
-            WhatsApp or the booking form.
-          </p>
-        </Card>
+        <WhatsAppQuoteButton
+          breakdown={breakdown}
+          participants={participants}
+          days={days}
+        />
       )}
     </>
+  );
+}
+
+// ── WhatsApp Quote Button ────────────────────────────────────
+
+function WhatsAppQuoteButton({
+  breakdown,
+  participants,
+  days,
+}: {
+  breakdown: CostBreakdown;
+  participants: number;
+  days: DayItinerary[];
+}) {
+  const route = days
+    .map(d => {
+      const dest = DESTINATIONS.find(dest => dest.id === d.destinationId);
+      return dest ? dest.name : d.label;
+    })
+    .join(" → ");
+
+  const deposit = Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100;
+  const balance = breakdown.totalSellingPrice - deposit;
+
+  const message = [
+    `🏕 *WIRO 4x4 Tour Quote*`,
+    ``,
+    route ? `📍 Route: ${route}` : null,
+    `📅 Duration: ${breakdown.numberOfDays} day${breakdown.numberOfDays > 1 ? "s" : ""}`,
+    `👥 Group: ${participants} person${participants > 1 ? "s" : ""}`,
+    ``,
+    `💰 *${formatUSD(breakdown.sellingPricePerPerson)} per person*`,
+    `📦 Total: *${formatUSD(breakdown.totalSellingPrice)}*`,
+    ``,
+    `Deposit (30%): ${formatUSD(deposit)}`,
+    `Balance on tour day: ${formatUSD(balance)}`,
+    ``,
+    `Includes: private 4x4, Hebrew-speaking guide, all entrance fees`,
+    ``,
+    `To book: https://www.wiro4x4indochina.com/booking`,
+  ]
+    .filter(l => l !== null)
+    .join("\n");
+
+  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold rounded-sm py-3 text-sm transition-colors"
+    >
+      <MessageCircle className="w-4 h-4" />
+      Send Quote via WhatsApp
+    </a>
   );
 }
 
