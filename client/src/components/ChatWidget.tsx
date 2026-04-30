@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { X, Send } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 
@@ -42,6 +42,12 @@ export function ChatWidget() {
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("chat-open", { detail: isOpen }));
   }, [isOpen]);
+
+  useEffect(() => {
+    const handler = () => setIsOpen(prev => !prev);
+    window.addEventListener("chat-toggle", handler);
+    return () => window.removeEventListener("chat-toggle", handler);
+  }, []);
 
   useEffect(() => {
     setChatLanguage(appLanguage);
@@ -122,22 +128,6 @@ export function ChatWidget() {
 
   return (
     <>
-      {/* Chat Button (closed state) */}
-      {!isOpen && (
-        <div className="fixed bottom-[4.5rem] md:bottom-6 right-4 md:left-auto md:right-[6.5rem] z-[9997] flex flex-col items-center gap-2">
-          <span className="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded shadow-md">
-            {t("Chat with Moshe", "דברו עם משה")}
-          </span>
-          <button
-            onClick={() => setIsOpen(true)}
-            className="w-14 h-14 bg-secondary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-            aria-label={t("Open chat", "פתח צ'אט")}
-          >
-            <MessageCircle className="h-6 w-6 text-white" />
-          </button>
-        </div>
-      )}
-
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
