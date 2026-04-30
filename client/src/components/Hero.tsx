@@ -51,16 +51,22 @@ export function Hero() {
 
       {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
-        <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight mb-3 md:mb-4 drop-shadow-2xl animate-hero-reveal [animation-delay:0.1s]">
-          WIRO 4×4
+        {/* Brand eyebrow — small, elegant */}
+        <p className="text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-accent mb-3 md:mb-4 animate-hero-reveal [animation-delay:0.1s]">
+          WIRO 4×4 &nbsp;·&nbsp;{" "}
+          {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
+        </p>
+
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+          {t("Adventures Made for Families", "הרפתקאות שנוצרו למשפחות")}
         </h1>
 
-        <p className="text-xl md:text-2xl lg:text-3xl font-medium mb-6 md:mb-8 max-w-2xl drop-shadow-lg animate-hero-reveal [animation-delay:0.3s] relative inline-block">
+        <p className="text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
           {t(
-            "Kosher Off-Road Adventures in Chiang Mai",
-            "הרפתקאות שטח כשרות בצ'יאנג מאי"
+            "Explore Northern Thailand with Hebrew-speaking guides, kosher meals & full Shabbat support",
+            "גלו את צפון תאילנד עם מדריכים דוברי עברית, ארוחות כשרות ותמיכה מלאה בשבת"
           )}
-          <span className="absolute -bottom-2 left-0 h-[2px] w-16 bg-accent" />
+          <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
