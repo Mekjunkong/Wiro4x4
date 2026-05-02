@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
+import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { trackEvent } from "@/lib/analytics";
 
 const TRUST_ITEMS = [
   { en: "Hebrew Speaking", he: "דוברי עברית" },
@@ -26,7 +28,12 @@ export function Hero() {
 
   const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
 
+  const trackHeroAction = (action: string) => {
+    trackEvent("hero_cta_click", { action, language });
+  };
+
   const scrollToTours = () => {
+    trackHeroAction("view_tours");
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -58,33 +65,45 @@ export function Hero() {
         </p>
 
         <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
-          {t("Adventures Made for Families", "הרפתקאות שנוצרו למשפחות")}
+          {t(
+            "Kosher 4×4 Adventures in Chiang Mai",
+            "טיולי 4×4 כשרים בצ'יאנג מאי"
+          )}
         </h1>
 
         <p className="text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
           {t(
-            "Explore Northern Thailand with Hebrew-speaking guides, kosher meals & full Shabbat support",
-            "גלו את צפון תאילנד עם מדריכים דוברי עברית, ארוחות כשרות ותמיכה מלאה בשבת"
+            "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
+            "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
           )}
           <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
-          <button
-            onClick={scrollToTours}
-            className="bg-accent hover:bg-accent/90 active:bg-accent/80 text-[#1c1c1c] font-bold px-8 py-4 text-lg rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
-          >
-            {t("Explore Tours", "גלו את הטיולים")}
-          </button>
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 text-lg rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            onClick={() => trackHeroAction("whatsapp")}
+            className="bg-[#25D366] hover:bg-[#20BA5A] active:bg-[#1EA653] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
           >
             <MessageCircle className="w-5 h-5" />
-            {t("WhatsApp Us", "דברו איתנו בוואטסאפ")}
+            {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
           </a>
+          <Link href="/book">
+            <button
+              onClick={() => trackHeroAction("get_quote")}
+              className="bg-accent hover:bg-accent/90 active:bg-accent/80 text-[#1c1c1c] font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            >
+              {t("Get a Quote", "קבלו הצעת מחיר")}
+            </button>
+          </Link>
+          <button
+            onClick={scrollToTours}
+            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+          >
+            {t("View Tours", "ראו טיולים")}
+          </button>
         </div>
 
         {/* Gold separator */}

@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
+import { trackEvent } from "@/lib/analytics";
 
 export function StickyBookBar() {
   const { t } = useLanguage();
@@ -56,7 +57,10 @@ export function StickyBookBar() {
           </p>
         </div>
         <Link href="/book">
-          <button className="bg-accent-cta text-primary-foreground rounded-full px-5 py-2 font-semibold text-sm flex items-center gap-2 hover:bg-accent-cta-hover transition-colors">
+          <button
+            onClick={() => trackEvent("sticky_book_click")}
+            className="bg-accent-cta text-primary-foreground rounded-full px-5 py-2 font-semibold text-sm flex items-center gap-2 hover:bg-accent-cta-hover transition-colors"
+          >
             <Calendar className="w-4 h-4" />
             {t("Book Now", "הזמינו עכשיו")}
           </button>

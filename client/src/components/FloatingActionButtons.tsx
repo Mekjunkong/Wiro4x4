@@ -4,6 +4,7 @@ import { WHATSAPP_NUMBER } from "@/const";
 import { MessageCircle, Calendar, Bot } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
+import { trackEvent } from "@/lib/analytics";
 
 export function FloatingActionButtons() {
   const { t, language } = useLanguage();
@@ -51,6 +52,7 @@ export function FloatingActionButtons() {
   const hideOnMobile = isMobile && scrolledPast && consentGiven && isHomePage;
 
   const handleWhatsAppClick = () => {
+    trackEvent("floating_whatsapp_click", { language, path: location });
     const message =
       language === "he"
         ? encodeURIComponent(
@@ -107,6 +109,9 @@ export function FloatingActionButtons() {
         </span>
         <Link href="/book">
           <button
+            onClick={() =>
+              trackEvent("floating_book_click", { language, path: location })
+            }
             className="w-12 h-12 border-2 border-secondary text-secondary bg-white hover:bg-secondary hover:text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
             aria-label={t("Book Now", "הזמינו עכשיו")}
           >

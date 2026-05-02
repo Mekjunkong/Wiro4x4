@@ -18,6 +18,9 @@ interface ProductTier {
   groupSize: string;
   groupSizeHe: string;
   startingPrice: string;
+  startingPriceHe: string;
+  priceNote: string;
+  priceNoteHe: string;
   badge?: string;
   badgeHe?: string;
 }
@@ -40,6 +43,9 @@ const PRODUCT_TIERS: ProductTier[] = [
     groupSize: "1–7 guests",
     groupSizeHe: "1–7 אורחים",
     startingPrice: "$81",
+    startingPriceHe: "₪300",
+    priceNote: "THB available on request",
+    priceNoteHe: "מחיר ב-THB לפי בקשה",
   },
   {
     slug: "northern-thailand-3d2n",
@@ -58,6 +64,9 @@ const PRODUCT_TIERS: ProductTier[] = [
     groupSize: "2–6 guests",
     groupSizeHe: "2–6 אורחים",
     startingPrice: "$361",
+    startingPriceHe: "₪1,336",
+    priceNote: "THB available on request",
+    priceNoteHe: "מחיר ב-THB לפי בקשה",
     badge: "Popular",
     badgeHe: "פופולרי",
   },
@@ -78,6 +87,9 @@ const PRODUCT_TIERS: ProductTier[] = [
     groupSize: "2–4 guests",
     groupSizeHe: "2–4 אורחים",
     startingPrice: "$1,677",
+    startingPriceHe: "₪6,205",
+    priceNote: "THB available on request",
+    priceNoteHe: "מחיר ב-THB לפי בקשה",
     badge: "Grand Adventure",
     badgeHe: "הרפתקה גדולה",
   },
@@ -152,9 +164,12 @@ export function ProductTiers() {
                         {t("from", "החל מ-")}
                       </span>
                       <span className="text-white text-3xl font-bold font-heading ml-1">
-                        {tier.startingPrice}
+                        {t(tier.startingPrice, tier.startingPriceHe)}
                       </span>
                     </div>
+                    <p className="mt-1 text-[11px] text-white/65">
+                      {t(tier.priceNote, tier.priceNoteHe)}
+                    </p>
                   </div>
                 </div>
 

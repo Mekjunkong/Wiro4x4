@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { COOKIE_CONSENT_KEY } from "@/lib/cookieConsent";
 
 const STORAGE_KEY = "wiro_newsletter_dismissed";
-const SHOW_DELAY_MS = 30_000; // 30 seconds after page load
-const DISMISS_DAYS = 14; // Don't show again for 14 days after dismiss
+const SHOW_DELAY_MS = 120_000; // Delay so booking CTAs stay primary
+const DISMISS_DAYS = 30; // Don't show again for 30 days after dismiss
 
 export function NewsletterPopup() {
   const { t, language } = useLanguage();
@@ -42,10 +42,10 @@ export function NewsletterPopup() {
       return;
     }
 
-    // Gate: must have viewed 2+ pages in this session
+    // Gate: must have viewed 3+ pages in this session
     try {
       const views = Number(sessionStorage.getItem("wiro_page_views") || "0");
-      if (views < 2) return;
+      if (views < 3) return;
     } catch {
       return;
     }

@@ -17,7 +17,7 @@ import {
 export function TrustAndKosher() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  const [kosherOpen, setKosherOpen] = useState(false);
+  const [kosherOpen, setKosherOpen] = useState(true);
 
   const trustPoints = [
     {
@@ -119,6 +119,23 @@ export function TrustAndKosher() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Kosher proof — visible before the details accordion */}
+            <div className="rounded-xl border border-accent/40 bg-accent/10 p-4 text-sm leading-relaxed text-foreground">
+              <div className="mb-2 flex items-center gap-2 font-heading text-lg font-bold">
+                <ShieldCheck className="h-5 w-5 text-accent" />
+                {t(
+                  "Kosher support is built into the trip",
+                  "הכשרות מובנית בתוך הטיול"
+                )}
+              </div>
+              <p className="text-muted-foreground">
+                {t(
+                  "Meals are planned in advance with sealed packaging, separate handling, and route timing that can respect Shabbat needs.",
+                  "הארוחות מתוכננות מראש עם אריזות סגורות, טיפול נפרד ותזמון מסלול שיכול להתחשב בצרכי שבת."
+                )}
+              </p>
             </div>
 
             {/* Kosher Accordion */}
