@@ -34,8 +34,8 @@ async function main() {
       lastSignedIn: new Date(),
     });
     console.log(`Admin user created: ${email}`);
-  } catch (error: any) {
-    if (error.message?.includes("Duplicate")) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("Duplicate")) {
       console.error(`User with email ${email} already exists`);
     } else {
       console.error("Failed to create admin:", error);

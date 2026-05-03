@@ -156,10 +156,16 @@ async function fetchRealTours(): Promise<TourSummary[]> {
 }
 
 // ── Gemini direct fetch ────────────────────────────────────────────
-async function callGemini(model: string, systemPrompt: string, messages: {role:string;content:string}[], maxTokens = 512): Promise<string> {
+async function callGemini(
+  model: string,
+  systemPrompt: string,
+  messages: { role: string; content: string }[],
+  maxTokens = 512
+): Promise<string> {
   const apiKey = process.env.Gemini_API_Key;
   if (!apiKey) throw new Error("Gemini_API_Key missing");
-  const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  const url =
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
   const body = {
     model,
     max_tokens: maxTokens,
@@ -167,14 +173,19 @@ async function callGemini(model: string, systemPrompt: string, messages: {role:s
   };
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`Gemini error ${res.status}: ${err}`);
   }
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
   return data.choices?.[0]?.message?.content ?? "";
 }
 
@@ -195,23 +206,31 @@ function getOpenRouterClient(): OpenAI {
 // ── Route ─────────────────────────────────────────────────────────────────
 
 export function registerEliChatRoute(app: Express) {
-
   // GET /api/eli/test — Test Gemini API directly
   app.get("/api/eli/test", async (req, res) => {
     try {
       const apiKey = process.env.Gemini_API_Key;
       if (!apiKey) {
-        return res.json({ error: "Gemini_API_Key not set", keys: Object.keys(process.env).filter(k => k.includes("KEY")) });
+        return res.json({
+          error: "Gemini_API_Key not set",
+          keys: Object.keys(process.env).filter(k => k.includes("KEY")),
+        });
       }
-      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: "gemini-2.5-flash",
-          max_tokens: 20,
-          messages: [{ role: "user", content: "hi" }],
-        }),
-      });
+      const r = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gemini-2.5-flash",
+            max_tokens: 20,
+            messages: [{ role: "user", content: "hi" }],
+          }),
+        }
+      );
       const data = await r.json();
       return res.json({ ok: r.ok, status: r.status, data });
     } catch (e: unknown) {
@@ -251,12 +270,14 @@ export function registerEliChatRoute(app: Express) {
         reply = await callGemini(
           "gemini-2.5-flash",
           systemPrompt,
-          history.map(m => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.content,
-          })).concat([{ role: "user", content: body.message }])
+          history
+            .map(m => ({
+              role: m.role === "user" ? "user" : "assistant",
+              content: m.content,
+            }))
+            .concat([{ role: "user", content: body.message }])
         );
-      } catch (err2) {
+      } catch (_err2) {
         try {
           const orc = getOpenRouterClient();
           const orResponse = await orc.chat.completions.create({
@@ -266,7 +287,9 @@ export function registerEliChatRoute(app: Express) {
               { role: "system" as const, content: systemPrompt },
               ...history.map(m => ({
                 role:
-                  m.role === "user" ? ("user" as const) : ("assistant" as const),
+                  m.role === "user"
+                    ? ("user" as const)
+                    : ("assistant" as const),
                 content: m.content,
               })),
               { role: "user" as const, content: body.message },

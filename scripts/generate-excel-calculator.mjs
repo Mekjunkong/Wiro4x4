@@ -48,10 +48,6 @@ function setFormula(ws, col, row, formula) {
   ws[ref(col, row)] = { t: "n", f: formula };
 }
 
-function setRef(ws, ws_range, col, row) {
-  ws["!ref"] = ws_range;
-}
-
 // ── Sheet 1: Cost Calculator ──────────────────────────────────
 
 function buildCalculatorSheet() {
