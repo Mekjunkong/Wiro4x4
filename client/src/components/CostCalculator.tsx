@@ -356,6 +356,7 @@ export function CostCalculator() {
             {selectedTours.map((tour, idx) => (
               <div
                 key={idx}
+                data-testid="selected-tour-item"
                 className="flex items-center justify-between bg-accent/5 rounded-sm px-4 py-2.5"
               >
                 <div>
@@ -438,7 +439,12 @@ export function CostCalculator() {
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="w-8 text-center font-bold text-lg">{adults}</span>
+            <span
+              data-testid="adult-count"
+              className="w-8 text-center font-bold text-lg"
+            >
+              {adults}
+            </span>
             <button
               onClick={() => setAdults(a => a + 1)}
               className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
@@ -575,7 +581,7 @@ export function CostCalculator() {
         {/* Shabbat detection */}
         {shabbatAutoDetected > 0 && (
           <div className="mt-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-sm text-sm">
-            <span className="text-amber-800">
+            <span data-testid="shabbat-detection" className="text-amber-800">
               {t(
                 `Your trip includes ${shabbatAutoDetected} Friday night${shabbatAutoDetected > 1 ? "s" : ""} (Shabbat)`,
                 `הטיול שלכם כולל ${shabbatAutoDetected} ליל${shabbatAutoDetected > 1 ? "ות" : ""} שישי (שבת)`
@@ -827,6 +833,7 @@ export function CostCalculator() {
           <div className="mt-6 space-y-3">
             {/* Primary CTA: WhatsApp */}
             <Button
+              data-testid="whatsapp-cta"
               onClick={handleWhatsApp}
               variant="default"
               className="w-full py-4 text-base bg-green-600 hover:bg-green-700 text-white font-bold shadow-md"

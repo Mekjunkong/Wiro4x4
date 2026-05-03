@@ -46,8 +46,8 @@ export default function Estimate() {
               <GoldDivider />
               <p className="text-lg text-muted-foreground mb-6">
                 {t(
-                  "Build your dream trip and get an instant price estimate. Select tours, group size, and services below.",
-                  "בנו את הטיול החלומי שלכם וקבלו הערכת מחיר מיידית. בחרו טיולים, גודל קבוצה ושירותים למטה."
+                  "Build your dream trip and get an instant cost breakdown. Pick your tours, group size, and services below.",
+                  "בנו את הטיול החלומי שלכם וקבלו פירוט עלויות מיידי. הוסיפו טיולים, גודל קבוצה ושירותים למטה."
                 )}
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm">

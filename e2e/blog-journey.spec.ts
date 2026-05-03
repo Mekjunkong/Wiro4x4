@@ -143,7 +143,9 @@ test.describe("Blog Reading Journey", () => {
       await expect(page.locator("article")).toBeVisible();
 
       // Post title (h1) should be visible
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { level: 1 }).first()
+      ).toBeVisible();
     }
   });
 

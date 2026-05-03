@@ -57,9 +57,15 @@ test.describe("Cost Calculator Flow", () => {
     ).toBeVisible();
 
     // Calculator sections should be visible
-    await expect(page.getByText(/select tours|בחרו טיולים/i)).toBeVisible();
-    await expect(page.getByText(/group size|גודל הקבוצה/i)).toBeVisible();
-    await expect(page.getByText(/travel dates|תאריכי הטיול/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /select tours|בחרו טיולים/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /group size|גודל הקבוצה/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /travel dates|תאריכי הטיול/i })
+    ).toBeVisible();
   });
 
   test("should have a tour selection dropdown", async ({ page }) => {
@@ -94,7 +100,9 @@ test.describe("Cost Calculator Flow", () => {
       await page.waitForTimeout(300);
 
       // The selected tour should appear in the selected tours list
-      const selectedTourItem = page.locator('[class*="bg-[#D4AF37]/5"]');
+      const selectedTourItem = page.locator(
+        '[data-testid="selected-tour-item"]'
+      );
       await expect(selectedTourItem.first()).toBeVisible();
 
       // Should have a remove button
@@ -121,7 +129,7 @@ test.describe("Cost Calculator Flow", () => {
     await increaseButton.click();
 
     // Adult count should now be 3
-    await expect(page.locator("text=3").first()).toBeVisible();
+    await expect(page.locator('[data-testid="adult-count"]')).toHaveText("3");
 
     // Click decrease adults button
     const decreaseButton = page.getByRole("button", {
@@ -221,9 +229,7 @@ test.describe("Cost Calculator Flow", () => {
     await page.waitForTimeout(500);
 
     // Shabbat detection message should appear
-    const shabbatMessage = page.getByText(
-      /friday night|ליל.*שישי|shabbat|שבת/i
-    );
+    const shabbatMessage = page.locator('[data-testid="shabbat-detection"]');
     await expect(shabbatMessage).toBeVisible();
   });
 
@@ -293,7 +299,9 @@ test.describe("Cost Calculator Flow", () => {
     await page.waitForTimeout(500);
 
     // Price Estimate section should appear
-    await expect(page.getByText(/price estimate|הערכת מחיר/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /price estimate|הערכת מחיר/i })
+    ).toBeVisible();
 
     // Total should be shown
     await expect(page.getByText(/estimated total|סה״כ הערכה/i)).toBeVisible();
@@ -329,10 +337,8 @@ test.describe("Cost Calculator Flow", () => {
 
     await page.waitForTimeout(500);
 
-    // WhatsApp CTA button
-    const whatsappButton = page.getByRole("button", {
-      name: /whatsapp|וואטסאפ/i,
-    });
+    // WhatsApp CTA button (calculator's quote button, not the floating action button)
+    const whatsappButton = page.locator('[data-testid="whatsapp-cta"]');
     await expect(whatsappButton).toBeVisible();
   });
 
@@ -381,9 +387,15 @@ test.describe("Cost Calculator - Hebrew", () => {
     expect(lang).toBe("he");
 
     // Hebrew headings should be visible
-    await expect(page.getByText(/מחשבון עלות טיול/)).toBeVisible();
-    await expect(page.getByText(/בחרו טיולים/)).toBeVisible();
-    await expect(page.getByText(/גודל הקבוצה/)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /מחשבון עלות טיול/ })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /בחרו טיולים/ })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /גודל הקבוצה/ })
+    ).toBeVisible();
   });
 });
 

@@ -88,6 +88,7 @@ test.describe("Accessibility Basics", () => {
 
   test("should have proper heading hierarchy", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
 
     // Should have exactly one h1
     const h1Count = await page.locator("h1").count();

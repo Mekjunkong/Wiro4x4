@@ -116,27 +116,27 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // Headings
     if (line.startsWith("### ")) {
       elements.push(
-        <h3 key={elements.length} className="text-xl font-bold mt-4 mb-2">
+        <h4 key={elements.length} className="text-lg font-bold mt-4 mb-2">
           {renderInline(line.slice(4))}
-        </h3>
+        </h4>
       );
       i++;
       continue;
     }
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={elements.length} className="text-2xl font-bold mt-6 mb-3">
+        <h3 key={elements.length} className="text-xl font-bold mt-6 mb-3">
           {renderInline(line.slice(3))}
-        </h2>
+        </h3>
       );
       i++;
       continue;
     }
     if (line.startsWith("# ")) {
       elements.push(
-        <h1 key={elements.length} className="text-3xl font-bold mt-8 mb-4">
+        <h2 key={elements.length} className="text-2xl font-bold mt-8 mb-4">
           {renderInline(line.slice(2))}
-        </h1>
+        </h2>
       );
       i++;
       continue;
