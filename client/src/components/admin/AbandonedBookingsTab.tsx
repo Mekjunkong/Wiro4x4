@@ -27,7 +27,7 @@ export function AbandonedBookingsTab() {
           "\u05D8\u05D9\u05D5\u05D8\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4"
         )
       );
-      refetch();
+      void refetch();
     },
   });
   const sendEmail = trpc.bookingDraft.sendRecoveryEmail.useMutation({

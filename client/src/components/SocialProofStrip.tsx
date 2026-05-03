@@ -59,9 +59,7 @@ export function SocialProofStrip() {
   const sectionRef = useScrollReveal<HTMLElement>({ y: 30, duration: 0.5 });
   const { data: reviews } = trpc.review.listPublic.useQuery();
 
-  const topReviews = (reviews || [])
-    .filter((r: any) => r.rating >= 4)
-    .slice(0, 3);
+  const topReviews = (reviews || []).filter(r => r.rating >= 4).slice(0, 3);
 
   return (
     <section ref={sectionRef} className="py-16 md:py-20 bg-background">
@@ -77,7 +75,7 @@ export function SocialProofStrip() {
         {/* Reviews grid */}
         {topReviews.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {topReviews.map((review: any, i: number) => (
+            {topReviews.map((review, i) => (
               <div
                 key={i}
                 className="bg-card rounded-xl p-6 shadow-sm border border-border"

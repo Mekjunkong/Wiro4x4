@@ -120,7 +120,7 @@ function InvoicesSubTab() {
 
   const createMut = trpc.accounting.createInvoice.useMutation({
     onSuccess: result => {
-      utils.accounting.listInvoices.invalidate();
+      void utils.accounting.listInvoices.invalidate();
       toast.success(`Invoice ${result.invoiceNumber} created!`);
       setShowForm(false);
       setForm(emptyInvoiceForm);
@@ -130,7 +130,7 @@ function InvoicesSubTab() {
 
   const updateStatusMut = trpc.accounting.updateInvoiceStatus.useMutation({
     onSuccess: () => {
-      utils.accounting.listInvoices.invalidate();
+      void utils.accounting.listInvoices.invalidate();
       toast.success("Invoice status updated!");
       setShowStatusForm(null);
     },
@@ -616,7 +616,7 @@ function JournalSubTab() {
 
   const createMut = trpc.accounting.recordEntry.useMutation({
     onSuccess: () => {
-      utils.accounting.listEntries.invalidate();
+      void utils.accounting.listEntries.invalidate();
       toast.success("Journal entry recorded!");
       setShowForm(false);
       setForm(getEmptyJournalForm());
@@ -934,8 +934,8 @@ function TaxCalendarSubTab() {
 
   const createMut = trpc.accounting.createFiling.useMutation({
     onSuccess: () => {
-      utils.accounting.listFilings.invalidate();
-      utils.accounting.upcomingDeadlines.invalidate();
+      void utils.accounting.listFilings.invalidate();
+      void utils.accounting.upcomingDeadlines.invalidate();
       toast.success("Tax filing created!");
       setShowForm(false);
       setForm(emptyTaxFilingForm);
@@ -945,8 +945,8 @@ function TaxCalendarSubTab() {
 
   const markFiledMut = trpc.accounting.markFiled.useMutation({
     onSuccess: () => {
-      utils.accounting.listFilings.invalidate();
-      utils.accounting.upcomingDeadlines.invalidate();
+      void utils.accounting.listFilings.invalidate();
+      void utils.accounting.upcomingDeadlines.invalidate();
       toast.success("Filing status updated!");
       setShowStatusForm(null);
     },
