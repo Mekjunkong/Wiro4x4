@@ -45,8 +45,8 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Push database schema
-        run: pnpm db:push
+      - name: Sync database schema for tests
+        run: pnpm exec drizzle-kit push --force
         env:
           DATABASE_URL: mysql://root:test@localhost:3306/wiro_test
 
