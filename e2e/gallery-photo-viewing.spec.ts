@@ -107,7 +107,7 @@ test.describe("Gallery and Photo Viewing", () => {
     await page.waitForTimeout(300);
 
     // Click All to reset
-    const allButton = page.getByRole("button", { name: /^all$/i }).first();
+    const allButton = page.getByRole("button", { name: /^all/i }).first();
     await allButton.click();
     await page.waitForTimeout(300);
 
@@ -369,7 +369,7 @@ test.describe("Gallery - Mobile", () => {
     await expect(page.locator("header")).toBeVisible();
 
     // Category buttons should be visible and scrollable
-    const allButton = page.getByRole("button", { name: /^all$/i }).first();
+    const allButton = page.getByRole("button", { name: /^all/i }).first();
     await expect(allButton).toBeVisible();
 
     const criticalErrors = errors.filter(

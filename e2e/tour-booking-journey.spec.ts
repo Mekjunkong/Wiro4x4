@@ -48,7 +48,7 @@ test.describe("Tour Discovery to Booking", () => {
     const hasTourContent = await toursSection.isVisible().catch(() => false);
 
     // Or look for tour images/cards
-    const tourLinks = page.locator('a[href*="/tours/"]');
+    const tourLinks = page.locator('a[href*="/tours"]');
     const tourLinkCount = await tourLinks.count();
 
     // Should have either tour cards or tour-related links

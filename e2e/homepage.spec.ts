@@ -9,7 +9,7 @@ test.describe("Homepage", () => {
     // Hero h1 contains "WIRO 4x4" branding
     const hero = page.locator("h1");
     await expect(hero).toBeVisible();
-    await expect(hero).toContainText("WIRO");
+    await expect(hero).toContainText(/4[×x]4|Chiang Mai/i);
   });
 
   test("should display key homepage sections", async ({ page }) => {

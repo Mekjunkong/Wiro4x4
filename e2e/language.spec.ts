@@ -15,7 +15,7 @@ test.describe("Language Switching", () => {
       // Try opening mobile menu
       const menuButton = page.getByRole("button", { name: /toggle menu/i });
       if (await menuButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await menuButton.dispatchEvent("click");
+        await menuButton.click();
         await page.waitForTimeout(500);
       }
     }
@@ -40,7 +40,7 @@ test.describe("Language Switching", () => {
     if (!(await langSwitcher.isVisible({ timeout: 2000 }).catch(() => false))) {
       const menuButton = page.getByRole("button", { name: /toggle menu/i });
       if (await menuButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await menuButton.dispatchEvent("click");
+        await menuButton.click();
         await page.waitForTimeout(500);
       }
       langSwitcher = page.getByRole("button", {
@@ -66,7 +66,7 @@ test.describe("Language Switching", () => {
           name: /toggle menu/i,
         });
         if (await menuButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-          await menuButton.dispatchEvent("click");
+          await menuButton.click();
           await page.waitForTimeout(500);
         }
         switcher = page.getByRole("button", { name });
@@ -97,7 +97,7 @@ test.describe("Language Switching", () => {
     if (!(await langSwitcher.isVisible({ timeout: 2000 }).catch(() => false))) {
       const menuButton = page.getByRole("button", { name: /toggle menu/i });
       if (await menuButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await menuButton.dispatchEvent("click");
+        await menuButton.click();
         await page.waitForTimeout(500);
       }
       langSwitcher = page.getByRole("button", {
