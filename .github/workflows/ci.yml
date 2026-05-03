@@ -107,3 +107,10 @@ jobs:
         env:
           CI: true
           DATABASE_URL: mysql://root:test@localhost:3306/wiro_test
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          R2_ACCOUNT_ID: e2e-r2-account
+          R2_ACCESS_KEY_ID: e2e-r2-key-id
+          R2_SECRET_ACCESS_KEY: e2e-r2-secret-key
+          R2_BUCKET_NAME: e2e-bucket
+          R2_PUBLIC_URL: https://e2e-bucket.example.com
+          OWNER_EMAIL: e2e@example.com
