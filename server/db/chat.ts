@@ -28,7 +28,7 @@ export async function getChatSessionByVisitorId(visitorId: string) {
         sql`${chatSessions.mode} != 'closed'`
       )
     )
-    .orderBy(desc(chatSessions.createdAt))
+    .orderBy(desc(chatSessions.createdAt), desc(chatSessions.id))
     .limit(1);
   return result.length > 0 ? result[0] : null;
 }
