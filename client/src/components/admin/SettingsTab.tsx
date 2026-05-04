@@ -83,7 +83,7 @@ export function SettingsTab() {
   const { data: allSettings, isLoading } = trpc.settings.getAll.useQuery();
   const updateSetting = trpc.settings.update.useMutation({
     onSuccess: () => {
-      utils.settings.getAll.invalidate();
+      void utils.settings.getAll.invalidate();
       toast.success("Setting saved");
     },
     onError: () => toast.error("Failed to save setting"),
@@ -136,7 +136,7 @@ export function SettingsTab() {
   }, [allSettings]);
 
   function saveSection(entries: Record<string, unknown>) {
-    Promise.all(
+    void Promise.all(
       Object.entries(entries).map(([key, value]) =>
         updateSetting.mutateAsync({ key, value })
       )

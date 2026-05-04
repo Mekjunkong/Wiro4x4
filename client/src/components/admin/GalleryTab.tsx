@@ -89,7 +89,7 @@ export function GalleryTab() {
 
   const createPhoto = trpc.gallery.create.useMutation({
     onSuccess: () => {
-      refetchGallery();
+      void refetchGallery();
       setGalleryDialogOpen(false);
       resetPhotoForm();
       toast.success("Photo added!");
@@ -98,7 +98,7 @@ export function GalleryTab() {
   });
   const updatePhotoMut = trpc.gallery.update.useMutation({
     onSuccess: () => {
-      refetchGallery();
+      void refetchGallery();
       setGalleryDialogOpen(false);
       resetPhotoForm();
       toast.success("Photo updated!");
@@ -107,7 +107,7 @@ export function GalleryTab() {
   });
   const deletePhotoMut = trpc.gallery.delete.useMutation({
     onSuccess: () => {
-      refetchGallery();
+      void refetchGallery();
       toast.success("Photo deleted!");
     },
     onError: () => toast.error("Failed to delete photo."),

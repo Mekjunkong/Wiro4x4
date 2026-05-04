@@ -1345,8 +1345,8 @@ function InventorySubTab() {
 
   const createMut = trpc.inventory.create.useMutation({
     onSuccess: () => {
-      utils.inventory.list.invalidate();
-      utils.inventory.summary.invalidate();
+      void utils.inventory.list.invalidate();
+      void utils.inventory.summary.invalidate();
       toast.success("Inventory item created!");
       closeForm();
     },
@@ -1355,8 +1355,8 @@ function InventorySubTab() {
 
   const updateMut = trpc.inventory.update.useMutation({
     onSuccess: () => {
-      utils.inventory.list.invalidate();
-      utils.inventory.summary.invalidate();
+      void utils.inventory.list.invalidate();
+      void utils.inventory.summary.invalidate();
       toast.success("Inventory item updated!");
       closeForm();
     },
@@ -1365,8 +1365,8 @@ function InventorySubTab() {
 
   const deleteMut = trpc.inventory.delete.useMutation({
     onSuccess: () => {
-      utils.inventory.list.invalidate();
-      utils.inventory.summary.invalidate();
+      void utils.inventory.list.invalidate();
+      void utils.inventory.summary.invalidate();
       toast.success("Inventory item deleted!");
     },
     onError: () => toast.error("Failed to delete item"),

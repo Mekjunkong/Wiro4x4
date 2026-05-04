@@ -69,8 +69,8 @@ export function BookingsTab() {
 
   const updateBooking = trpc.booking.update.useMutation({
     onSuccess: () => {
-      refetchBookings();
-      utils.dashboard.badgeCounts.invalidate();
+      void refetchBookings();
+      void utils.dashboard.badgeCounts.invalidate();
       toast.success("Booking updated successfully!");
     },
     onError: error => {
@@ -80,7 +80,7 @@ export function BookingsTab() {
   });
   const deleteBookingMut = trpc.booking.delete.useMutation({
     onSuccess: () => {
-      refetchBookings();
+      void refetchBookings();
       toast.success("Booking deleted successfully!");
     },
     onError: error => {
@@ -90,7 +90,7 @@ export function BookingsTab() {
   });
   const bulkDeleteMut = trpc.booking.bulkDelete.useMutation({
     onSuccess: data => {
-      refetchBookings();
+      void refetchBookings();
       setSelectedIds(new Set());
       toast.success(`${data.deleted} booking(s) deleted successfully!`);
     },

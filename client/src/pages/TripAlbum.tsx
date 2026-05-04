@@ -335,7 +335,7 @@ export default function TripAlbum() {
                     <button
                       onClick={e => {
                         e.stopPropagation();
-                        downloadPhoto(photo.url, index);
+                        void downloadPhoto(photo.url, index);
                       }}
                       className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-full hover:bg-muted"
                       aria-label={t(

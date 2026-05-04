@@ -60,7 +60,7 @@ export function PaymentSection({
         .catch(() => {
           toast.success("Payment link created! URL: " + data.url);
         });
-      refetchPayments();
+      void refetchPayments();
     },
     onError: error => {
       toast.error(error.message || "Failed to create payment link");
@@ -73,7 +73,7 @@ export function PaymentSection({
       setRefundPaymentId(null);
       setRefundAmount("");
       setRefundReason("");
-      refetchPayments();
+      void refetchPayments();
     },
     onError: error => {
       toast.error(error.message || "Failed to process refund");

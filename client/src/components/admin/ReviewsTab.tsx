@@ -11,7 +11,7 @@ function GoogleReviewsAdmin() {
     trpc.googleReviews.getStatus.useQuery();
   const refreshMut = trpc.googleReviews.refresh.useMutation({
     onSuccess: data => {
-      refetchStatus();
+      void refetchStatus();
       toast.success(
         `Google reviews refreshed! ${data.count} review(s) loaded.`
       );
@@ -159,7 +159,7 @@ export function ReviewsTab() {
   });
   const bulkApproveMut = trpc.review.bulkApprove.useMutation({
     onSuccess: data => {
-      refetchReviews();
+      void refetchReviews();
       setSelectedIds(new Set());
       toast.success(`${data.approved} review(s) approved!`);
     },
@@ -167,7 +167,7 @@ export function ReviewsTab() {
   });
   const bulkDeleteMut = trpc.review.bulkDelete.useMutation({
     onSuccess: data => {
-      refetchReviews();
+      void refetchReviews();
       setSelectedIds(new Set());
       toast.success(`${data.deleted} review(s) deleted!`);
     },

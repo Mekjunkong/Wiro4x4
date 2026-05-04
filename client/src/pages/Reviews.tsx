@@ -173,7 +173,7 @@ export default function Reviews() {
       setShowSuccess(true);
       setFormError("");
       setFormData({ name: "", email: "", rating: 5, text: "", tourType: "" });
-      utils.review.listPublic.invalidate();
+      void utils.review.listPublic.invalidate();
     },
     onError: error => {
       setFormError(

@@ -144,8 +144,8 @@ function AbandonedLeadsSection() {
       } else {
         toast.error(result.message);
       }
-      refetchAbandoned();
-      refetchCount();
+      void refetchAbandoned();
+      void refetchCount();
     },
     onError: error => {
       toast.error(`Failed: ${error.message}`);
@@ -157,8 +157,8 @@ function AbandonedLeadsSection() {
       toast.success(
         `Recovery emails sent: ${result.sent} succeeded, ${result.failed} failed${result.remaining > 0 ? `, ${result.remaining} remaining` : ""}`
       );
-      refetchAbandoned();
-      refetchCount();
+      void refetchAbandoned();
+      void refetchCount();
     },
     onError: error => {
       toast.error(`Batch send failed: ${error.message}`);
@@ -298,7 +298,7 @@ export function LeadsTab() {
 
   const rescoreAllMut = trpc.leadScoring.scoreAll.useMutation({
     onSuccess: data => {
-      refetchLeads();
+      void refetchLeads();
       toast.success(data.message);
     },
     onError: error => {
@@ -308,7 +308,7 @@ export function LeadsTab() {
 
   const updateLeadMut = trpc.lead.update.useMutation({
     onSuccess: () => {
-      refetchLeads();
+      void refetchLeads();
       toast.success("Lead updated successfully!");
     },
     onError: error => {
@@ -318,7 +318,7 @@ export function LeadsTab() {
   });
   const deleteLeadMut = trpc.lead.delete.useMutation({
     onSuccess: () => {
-      refetchLeads();
+      void refetchLeads();
       toast.success("Lead deleted successfully!");
     },
     onError: error => {
@@ -328,7 +328,7 @@ export function LeadsTab() {
   });
   const bulkDeleteMut = trpc.lead.bulkDelete.useMutation({
     onSuccess: data => {
-      refetchLeads();
+      void refetchLeads();
       setSelectedIds(new Set());
       toast.success(`${data.deleted} lead(s) deleted successfully!`);
     },
