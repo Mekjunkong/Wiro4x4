@@ -58,8 +58,8 @@ export function FinancialTab() {
 
   const createMut = trpc.financial.create.useMutation({
     onSuccess: () => {
-      utils.financial.listAllPaginated.invalidate();
-      utils.financial.stats.invalidate();
+      void utils.financial.listAllPaginated.invalidate();
+      void utils.financial.stats.invalidate();
       toast.success("Record created successfully!");
       closeForm();
     },
@@ -68,8 +68,8 @@ export function FinancialTab() {
 
   const updateMut = trpc.financial.update.useMutation({
     onSuccess: () => {
-      utils.financial.listAllPaginated.invalidate();
-      utils.financial.stats.invalidate();
+      void utils.financial.listAllPaginated.invalidate();
+      void utils.financial.stats.invalidate();
       toast.success("Record updated successfully!");
       closeForm();
     },
@@ -78,8 +78,8 @@ export function FinancialTab() {
 
   const deleteMut = trpc.financial.delete.useMutation({
     onSuccess: () => {
-      utils.financial.listAllPaginated.invalidate();
-      utils.financial.stats.invalidate();
+      void utils.financial.listAllPaginated.invalidate();
+      void utils.financial.stats.invalidate();
       toast.success("Record deleted successfully!");
     },
     onError: () => toast.error("Failed to delete record"),

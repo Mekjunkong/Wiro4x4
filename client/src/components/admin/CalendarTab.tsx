@@ -11,8 +11,8 @@ export function CalendarTab() {
 
   const updateDateMut = trpc.booking.updateDate.useMutation({
     onSuccess: () => {
-      utils.booking.list.invalidate();
-      utils.booking.listPaginated.invalidate();
+      void utils.booking.list.invalidate();
+      void utils.booking.listPaginated.invalidate();
       toast.success("Booking rescheduled successfully!");
     },
     onError: () => toast.error("Failed to reschedule booking"),

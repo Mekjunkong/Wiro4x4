@@ -44,7 +44,7 @@ export function TripPhotosTab() {
       setAlbumTitle("");
       setAlbumMessage("");
       setSelectedBookingId(null);
-      utils.tripPhotos.listAlbums.invalidate();
+      void utils.tripPhotos.listAlbums.invalidate();
     },
     onError: err => toast.error(err.message),
   });
@@ -52,7 +52,7 @@ export function TripPhotosTab() {
   const deleteAlbumMutation = trpc.tripPhotos.deleteAlbum.useMutation({
     onSuccess: () => {
       toast.success("Album deleted");
-      utils.tripPhotos.listAlbums.invalidate();
+      void utils.tripPhotos.listAlbums.invalidate();
     },
     onError: err => toast.error(err.message),
   });
@@ -60,7 +60,7 @@ export function TripPhotosTab() {
   const updateAlbumMutation = trpc.tripPhotos.updateAlbum.useMutation({
     onSuccess: () => {
       toast.success("Album updated");
-      utils.tripPhotos.listAlbums.invalidate();
+      void utils.tripPhotos.listAlbums.invalidate();
     },
     onError: err => toast.error(err.message),
   });
@@ -272,7 +272,7 @@ function AlbumCard({
   const albumUrl = `${window.location.origin}/album/${album.accessToken}`;
 
   const copyLink = () => {
-    navigator.clipboard.writeText(albumUrl);
+    void navigator.clipboard.writeText(albumUrl);
     toast.success("Album link copied!");
   };
 
@@ -392,8 +392,8 @@ function AlbumPhotosSection({ albumId }: { albumId: number }) {
 
   const uploadMutation = trpc.tripPhotos.uploadPhoto.useMutation({
     onSuccess: () => {
-      utils.tripPhotos.getAlbumPhotos.invalidate({ albumId });
-      utils.tripPhotos.listAlbums.invalidate();
+      void utils.tripPhotos.getAlbumPhotos.invalidate({ albumId });
+      void utils.tripPhotos.listAlbums.invalidate();
     },
     onError: err => toast.error(err.message),
   });
@@ -401,8 +401,8 @@ function AlbumPhotosSection({ albumId }: { albumId: number }) {
   const deleteMutation = trpc.tripPhotos.deletePhoto.useMutation({
     onSuccess: () => {
       toast.success("Photo deleted");
-      utils.tripPhotos.getAlbumPhotos.invalidate({ albumId });
-      utils.tripPhotos.listAlbums.invalidate();
+      void utils.tripPhotos.getAlbumPhotos.invalidate({ albumId });
+      void utils.tripPhotos.listAlbums.invalidate();
     },
     onError: err => toast.error(err.message),
   });

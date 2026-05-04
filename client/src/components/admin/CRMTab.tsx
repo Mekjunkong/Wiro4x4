@@ -36,8 +36,8 @@ export function CRMTab() {
       toast.success("Customer created successfully!");
       setForm(INITIAL_FORM);
       setShowAddForm(false);
-      utils.crm.listCustomers.invalidate();
-      utils.crm.getPipelineStats.invalidate();
+      void utils.crm.listCustomers.invalidate();
+      void utils.crm.getPipelineStats.invalidate();
     },
     onError: error => {
       console.error("Failed to create customer:", error);

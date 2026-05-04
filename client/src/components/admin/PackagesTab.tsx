@@ -58,7 +58,7 @@ export function PackagesTab() {
 
   const createMut = trpc.package.create.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setDialogOpen(false);
       resetForm();
       toast.success("Package created!");
@@ -68,7 +68,7 @@ export function PackagesTab() {
 
   const updateMut = trpc.package.update.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setDialogOpen(false);
       resetForm();
       toast.success("Package updated!");
@@ -78,7 +78,7 @@ export function PackagesTab() {
 
   const deleteMut = trpc.package.delete.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       toast.success("Package deleted!");
     },
     onError: () => toast.error("Failed to delete package."),
@@ -86,7 +86,7 @@ export function PackagesTab() {
 
   const togglePublishMut = trpc.package.update.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       toast.success("Publish status updated!");
     },
     onError: () => toast.error("Failed to update publish status."),

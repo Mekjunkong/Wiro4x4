@@ -24,8 +24,8 @@ export function AgentsTab() {
 
   const updateAvailability = trpc.agent.updateAvailability.useMutation({
     onSuccess: () => {
-      utils.agent.list.invalidate();
-      utils.agent.stats.invalidate();
+      void utils.agent.list.invalidate();
+      void utils.agent.stats.invalidate();
       toast.success("Agent availability updated");
     },
     onError: () => toast.error("Failed to update availability"),

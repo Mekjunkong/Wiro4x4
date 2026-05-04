@@ -93,7 +93,7 @@ export function BlogTab() {
 
   const createBlogMut = trpc.blog.create.useMutation({
     onSuccess: () => {
-      refetchBlog();
+      void refetchBlog();
       setBlogDialogOpen(false);
       resetBlogForm();
       toast.success("Blog post created!");
@@ -105,7 +105,7 @@ export function BlogTab() {
   });
   const updateBlogMut = trpc.blog.update.useMutation({
     onSuccess: () => {
-      refetchBlog();
+      void refetchBlog();
       setBlogDialogOpen(false);
       resetBlogForm();
       toast.success("Blog post updated!");
@@ -117,7 +117,7 @@ export function BlogTab() {
   });
   const deleteBlogMut = trpc.blog.delete.useMutation({
     onSuccess: () => {
-      refetchBlog();
+      void refetchBlog();
       toast.success("Blog post deleted!");
     },
     onError: error => {

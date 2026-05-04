@@ -320,7 +320,7 @@ export default function Gallery() {
     const el = sentinelRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) loadMore();
+        if (entry.isIntersecting) void loadMore();
       },
       { rootMargin: "200px" }
     );

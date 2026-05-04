@@ -84,7 +84,7 @@ export function CRMPipelineBoard({ onSelectCustomer }: CRMPipelineBoardProps) {
 
   const movePipelineMut = trpc.crm.movePipeline.useMutation({
     onSuccess: () => {
-      refetchCustomers();
+      void refetchCustomers();
       toast.success("Customer moved successfully!");
     },
     onError: error => {

@@ -55,7 +55,7 @@ export function AvailabilityManager({
 
   const updateMut = trpc.availability.update.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       toast.success("Availability updated");
     },
     onError: () => toast.error("Failed to update availability"),
@@ -63,7 +63,7 @@ export function AvailabilityManager({
 
   const bulkUpdateMut = trpc.availability.bulkUpdate.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setSelectedDates(new Set());
       toast.success("Bulk update complete");
     },

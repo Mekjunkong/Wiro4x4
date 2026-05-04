@@ -91,7 +91,7 @@ export function ToursTab() {
 
   const createTourMut = trpc.tour.create.useMutation({
     onSuccess: () => {
-      refetchTours();
+      void refetchTours();
       setTourDialogOpen(false);
       resetTourForm();
       toast.success("Tour created!");
@@ -103,7 +103,7 @@ export function ToursTab() {
   });
   const updateTourMut = trpc.tour.update.useMutation({
     onSuccess: () => {
-      refetchTours();
+      void refetchTours();
       setTourDialogOpen(false);
       resetTourForm();
       toast.success("Tour updated!");
@@ -115,7 +115,7 @@ export function ToursTab() {
   });
   const deleteTourMut = trpc.tour.delete.useMutation({
     onSuccess: () => {
-      refetchTours();
+      void refetchTours();
       toast.success("Tour deleted!");
     },
     onError: error => {

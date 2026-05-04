@@ -41,8 +41,8 @@ export function WhatsAppTab() {
         setSendTo("");
         setSendText("");
         setShowSendForm(false);
-        refetchMessages();
-        refetchStats();
+        void refetchMessages();
+        void refetchStats();
       } else {
         toast.error(data.error || "Failed to send message");
       }
@@ -55,7 +55,7 @@ export function WhatsAppTab() {
       toast.success(
         `Auto-reply ${data.autoReplyEnabled ? "enabled" : "disabled"}`
       );
-      refetchStats();
+      void refetchStats();
     },
     onError: () => toast.error("Failed to update auto-reply setting"),
   });

@@ -149,7 +149,7 @@ export function CRMCustomerDetail({
 
   const movePipelineMut = trpc.crm.movePipeline.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       toast.success("Stage updated successfully!");
     },
     onError: error => {
@@ -160,7 +160,7 @@ export function CRMCustomerDetail({
 
   const addActivityMut = trpc.crm.addActivity.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setNewActivityContent("");
       setNewActivityDueDate("");
       toast.success("Activity added successfully!");
@@ -173,7 +173,7 @@ export function CRMCustomerDetail({
 
   const completeActivityMut = trpc.crm.completeActivity.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       toast.success("Activity completed!");
     },
     onError: error => {

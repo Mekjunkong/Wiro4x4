@@ -19,15 +19,15 @@ export function PostTourEmailsTab() {
 
   const sendOne = trpc.postTourEmail.send.useMutation({
     onSuccess: () => {
-      utils.postTourEmail.findEligible.invalidate();
-      utils.postTourEmail.eligibleCount.invalidate();
+      void utils.postTourEmail.findEligible.invalidate();
+      void utils.postTourEmail.eligibleCount.invalidate();
     },
   });
 
   const sendBatch = trpc.postTourEmail.sendBatch.useMutation({
     onSuccess: () => {
-      utils.postTourEmail.findEligible.invalidate();
-      utils.postTourEmail.eligibleCount.invalidate();
+      void utils.postTourEmail.findEligible.invalidate();
+      void utils.postTourEmail.eligibleCount.invalidate();
     },
   });
 

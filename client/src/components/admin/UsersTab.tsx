@@ -25,7 +25,7 @@ export function UsersTab() {
 
   const updateRoleMut = trpc.admin.updateUserRole.useMutation({
     onSuccess: () => {
-      refetchUsers();
+      void refetchUsers();
       toast.success("User role updated successfully!");
     },
     onError: error => {
@@ -36,7 +36,7 @@ export function UsersTab() {
 
   const removeUserMut = trpc.admin.removeUser.useMutation({
     onSuccess: () => {
-      refetchUsers();
+      void refetchUsers();
       toast.success("User removed successfully!");
     },
     onError: error => {
