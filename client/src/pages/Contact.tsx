@@ -170,7 +170,7 @@ export default function Contact() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <Mail className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
+            <h1 className="text-3xl md:text-5xl font-heading font-normal mb-3 drop-shadow-lg">
               {t("Contact Us", "צרו קשר")}
             </h1>
             <GoldDivider />
@@ -257,7 +257,7 @@ export default function Contact() {
         <section className="py-12 md:py-16 bg-muted/30">
           <div className="container max-w-6xl">
             <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-serif font-medium mb-3 text-foreground">
+              <h2 className="text-3xl md:text-4xl font-heading font-normal mb-3 text-foreground">
                 {t("Send Us a Message", "שלחו לנו הודעה")}
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
@@ -474,7 +474,7 @@ export default function Contact() {
         {/* Operating Hours */}
         <section className="py-12 md:py-16 bg-background">
           <div className="container max-w-3xl text-center">
-            <h2 className="text-2xl md:text-3xl font-serif font-medium mb-3 text-foreground">
+            <h2 className="text-2xl md:text-3xl font-heading font-normal mb-3 text-foreground">
               {t("Operating Hours", "שעות פעילות")}
             </h2>
             <GoldDivider />

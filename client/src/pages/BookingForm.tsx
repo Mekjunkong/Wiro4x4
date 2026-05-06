@@ -615,7 +615,7 @@ export default function BookingForm() {
         >
           <div className="absolute inset-0 bg-primary/60" />
           <div className="relative z-10 text-center px-4">
-            <h1 className="text-4xl md:text-5xl font-serif font-medium text-white mb-2">
+            <h1 className="text-4xl md:text-5xl font-heading font-normal text-white mb-2">
               {t("Book Your Adventure", "הזמינו את ההרפתקה")}
             </h1>
             <GoldDivider />

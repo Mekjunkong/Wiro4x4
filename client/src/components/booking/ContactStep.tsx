@@ -11,7 +11,7 @@ export function ContactStep({
     <>
       {/* Contact Information Section */}
       <fieldset className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-        <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
+        <legend className="text-xl md:text-2xl font-heading font-normal text-primary flex items-center gap-2 px-2">
           <User className="w-6 h-6" />
           {t("Customer Details", "פרטים אישיים")}
         </legend>
@@ -145,7 +145,7 @@ export function ContactStep({
 
       {/* Agent Section */}
       <fieldset className="bg-card rounded-2xl p-6 shadow-lg border-2 border-dashed border-secondary/50 bg-secondary/5">
-        <legend className="text-2xl font-serif font-bold text-secondary flex items-center gap-2 px-2">
+        <legend className="text-2xl font-heading font-normal text-secondary flex items-center gap-2 px-2">
           <User className="w-6 h-6" />
           {t("Agent Name", "שם סוכן")}
         </legend>
@@ -169,7 +169,7 @@ export function ContactStep({
 
       {/* Special Requests */}
       <fieldset className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-        <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
+        <legend className="text-xl md:text-2xl font-heading font-normal text-primary flex items-center gap-2 px-2">
           <MessageCircle className="w-6 h-6" />
           {t("Special Requests", "בקשות מיוחדות")}
         </legend>

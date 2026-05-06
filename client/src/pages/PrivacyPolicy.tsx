@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
       <Header />
       <main id="main-content" className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-2">
+          <h1 className="text-3xl md:text-4xl font-heading font-normal text-primary mb-2">
             {t("Privacy Policy", "מדיניות פרטיות")}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
 
             {/* Data Collected */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("1. Information We Collect", "1. מידע שאנו אוספים")}
               </h2>
               <p className="text-muted-foreground mb-2">
@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
 
             {/* How We Use Data */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t(
                   "2. How We Use Your Information",
                   "2. למה אנו משתמשים במידע"
@@ -133,7 +133,7 @@ export default function PrivacyPolicy() {
 
             {/* Third-Party Sharing */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("3. Third-Party Services", "3. שירותי צד שלישי")}
               </h2>
               <p className="text-muted-foreground mb-2">
@@ -168,7 +168,7 @@ export default function PrivacyPolicy() {
 
             {/* Data Retention */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("4. Data Retention", "4. שמירת מידע")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -195,7 +195,7 @@ export default function PrivacyPolicy() {
 
             {/* User Rights */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("5. Your Rights", "5. הזכויות שלכם")}
               </h2>
               <p className="text-muted-foreground mb-2">
@@ -237,7 +237,7 @@ export default function PrivacyPolicy() {
 
             {/* Cookies */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("6. Cookies & Local Storage", "6. עוגיות ואחסון מקומי")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -264,7 +264,7 @@ export default function PrivacyPolicy() {
 
             {/* Contact */}
             <section className="bg-muted rounded-xl p-6">
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("Contact Us", "צרו קשר")}
               </h2>
               <p className="text-muted-foreground mb-2">

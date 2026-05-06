@@ -31,7 +31,7 @@ export function PremiumSectionHeading({
       <span className="relative text-accent text-xs font-bold tracking-[0.3em] uppercase block mb-3">
         {eyebrow}
       </span>
-      <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-foreground dark:text-white tracking-tight">
+      <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-normal text-foreground dark:text-white tracking-tight">
         {heading}
       </h2>
       <div className="w-16 h-[3px] bg-accent mx-auto mt-4" />

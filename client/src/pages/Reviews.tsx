@@ -249,7 +249,7 @@ export default function Reviews() {
         <section className="bg-gradient-to-b from-primary to-primary/90 py-16 md:py-20 text-center text-primary-foreground mt-20">
           <div className="container">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 md:mb-4">
+            <h1 className="text-3xl md:text-5xl font-heading font-normal mb-3 md:mb-4">
               {t("Guest Reviews", "חוות דעת של אורחים")}
             </h1>
             <GoldDivider className="my-4" />
@@ -268,7 +268,7 @@ export default function Reviews() {
         </div>
 
         <div ref={sectionRef} className="container py-8 md:py-12">
-          <h2 className="text-2xl md:text-3xl font-serif font-medium text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-heading font-normal text-center mb-8">
             {t(
               "Guest Reviews",
               "\u05D7\u05D5\u05D5\u05EA \u05D3\u05E2\u05EA \u05E9\u05DC \u05D0\u05D5\u05E8\u05D7\u05D9\u05DD"

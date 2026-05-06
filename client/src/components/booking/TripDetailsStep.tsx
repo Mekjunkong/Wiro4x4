@@ -11,7 +11,7 @@ export function TripDetailsStep({
     <>
       {/* Trip Details Section */}
       <fieldset className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-        <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
+        <legend className="text-xl md:text-2xl font-heading font-normal text-primary flex items-center gap-2 px-2">
           <Users className="w-6 h-6" />
           {t("Trip Details", "פרטי הטיול")}
         </legend>
@@ -131,7 +131,7 @@ export function TripDetailsStep({
 
       {/* Dates & Logistics Section */}
       <fieldset className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30">
-        <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
+        <legend className="text-xl md:text-2xl font-heading font-normal text-primary flex items-center gap-2 px-2">
           <Calendar className="w-6 h-6" />
           {t("Dates & Logistics", "תאריכים ולוגיסטיקה")}
         </legend>

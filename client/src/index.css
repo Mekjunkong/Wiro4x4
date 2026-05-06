@@ -107,6 +107,10 @@
     overflow-x: hidden;
     @apply bg-background text-foreground;
     font-family: "Source Sans 3", sans-serif;
+    font-size: 1rem;
+    line-height: 1.625;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -119,6 +123,13 @@
   h6 {
     font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
     font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  p,
+  li {
+    text-wrap: pretty;
   }
   /* Hebrew text support */
   [lang="he"],
@@ -205,6 +216,72 @@
     box-shadow:
       0 24px 48px -12px rgba(0, 0, 0, 0.2),
       0 0 0 1px rgba(212, 175, 55, 0.15);
+  }
+
+  /* Typography roles — Expedition Dossier type system */
+  .type-display {
+    font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
+    font-size: clamp(2.625rem, 7vw, 5.75rem);
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .type-headline {
+    font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
+    font-size: clamp(2rem, 4.5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .type-title {
+    font-family: "Source Sans 3", sans-serif;
+    font-size: clamp(1.125rem, 2vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .type-body {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 68ch;
+  }
+
+  .type-lede {
+    font-size: clamp(1.0625rem, 1.7vw, 1.25rem);
+    line-height: 1.65;
+    max-width: 62ch;
+  }
+
+  .type-label {
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .type-caps {
+    font-family: "Source Sans 3", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .tabular-numeric {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rtl .type-label,
+  .rtl .type-caps,
+  [lang="he"] .type-label,
+  [lang="he"] .type-caps {
+    letter-spacing: 0.04em;
   }
 
   /* Gold divider — 64px gold rule used under section heads and hero subtitles */

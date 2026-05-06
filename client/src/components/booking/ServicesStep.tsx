@@ -13,7 +13,7 @@ export function ServicesStep({
       className="bg-card rounded-2xl p-4 md:p-6 shadow-lg border-2 border-dashed border-primary/30"
       aria-describedby={formErrors.services ? "error-services" : undefined}
     >
-      <legend className="text-xl md:text-2xl font-serif font-bold text-primary flex items-center gap-2 px-2">
+      <legend className="text-xl md:text-2xl font-heading font-normal text-primary flex items-center gap-2 px-2">
         <Car className="w-6 h-6" />
         {t("Required Services", "מה לכלול בטיול?")}{" "}
         <span className="text-red-500 text-base">*</span>

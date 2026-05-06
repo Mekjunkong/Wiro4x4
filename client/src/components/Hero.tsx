@@ -59,19 +59,19 @@ export function Hero() {
       {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
         {/* Brand eyebrow — small, elegant */}
-        <p className="text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-accent mb-3 md:mb-4 animate-hero-reveal [animation-delay:0.1s]">
+        <p className="type-label text-accent mb-3 md:mb-4 animate-hero-reveal [animation-delay:0.1s]">
           WIRO 4×4 &nbsp;·&nbsp;{" "}
           {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
         </p>
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+        <h1 className="type-display mb-4 max-w-3xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
           {t(
             "Kosher 4×4 Adventures in Chiang Mai",
             "טיולי 4×4 כשרים בצ'יאנג מאי"
           )}
         </h1>
 
-        <p className="text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
+        <p className="type-lede font-normal text-white/90 mb-6 md:mb-8 drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
           {t(
             "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
             "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
@@ -106,7 +106,7 @@ export function Hero() {
           </button>
         </div>
 
-        <p className="max-w-xl text-xs md:text-sm text-white/70 uppercase tracking-[0.2em] animate-hero-reveal [animation-delay:0.58s]">
+        <p className="type-caps max-w-xl text-[0.72rem] text-white/70 animate-hero-reveal [animation-delay:0.58s]">
           {t(
             "Private tours · Hebrew-speaking guide · Kosher planning",
             "טיולים פרטיים · מדריך דובר עברית · תכנון כשר"

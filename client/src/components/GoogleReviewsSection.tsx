@@ -250,7 +250,7 @@ export function GoogleReviewsSection() {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-3">
           <GoogleLogo className="w-6 h-6" />
-          <h2 className="text-2xl md:text-3xl font-serif font-medium">
+          <h2 className="text-2xl md:text-3xl font-heading font-normal">
             {t(
               "Google Reviews",
               "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05D2\u05D5\u05D2\u05DC"

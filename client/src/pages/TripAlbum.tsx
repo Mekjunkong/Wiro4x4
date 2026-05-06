@@ -234,7 +234,7 @@ export default function TripAlbum() {
         <section className="relative mt-20 bg-gradient-to-b from-primary/95 to-primary text-white py-16 md:py-24">
           <div className="container text-center">
             <Camera className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3">
+            <h1 className="text-3xl md:text-5xl font-heading font-normal mb-3">
               {album.title}
             </h1>
             <p className="text-lg md:text-xl opacity-90 mb-2">
@@ -347,7 +347,7 @@ export default function TripAlbum() {
         {/* Thank You Banner */}
         <section className="bg-primary/5 py-12 text-center">
           <div className="container max-w-lg">
-            <h2 className="text-2xl font-serif font-medium mb-3">
+            <h2 className="text-2xl font-heading font-normal mb-3">
               {t(
                 "Thank you for adventuring with us!",
                 "\u05EA\u05D5\u05D3\u05D4 \u05E9\u05D4\u05E8\u05E4\u05EA\u05E7\u05EA\u05DD \u05D0\u05D9\u05EA\u05E0\u05D5!"

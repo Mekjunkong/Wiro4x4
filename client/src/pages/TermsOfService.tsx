@@ -20,7 +20,7 @@ export default function TermsOfService() {
       <Header />
       <main id="main-content" className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-2">
+          <h1 className="text-3xl md:text-4xl font-heading font-normal text-primary mb-2">
             {t("Terms of Service", "תנאי שימוש ושירות")}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
@@ -40,7 +40,7 @@ export default function TermsOfService() {
 
             {/* Booking Terms */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("1. Booking Terms", "1. תנאי הזמנה")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -79,7 +79,7 @@ export default function TermsOfService() {
 
             {/* Cancellation Policy */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t(
                   "2. Cancellation & Refund Policy",
                   "2. מדיניות ביטול והחזרים"
@@ -121,7 +121,7 @@ export default function TermsOfService() {
 
             {/* Payment Terms */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("3. Payment Terms", "3. תנאי תשלום")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -154,7 +154,7 @@ export default function TermsOfService() {
 
             {/* Liability */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("4. Liability Limitations", "4. הגבלת אחריות")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -193,7 +193,7 @@ export default function TermsOfService() {
 
             {/* Data Usage */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("5. Data Usage & Privacy", "5. שימוש בנתונים ופרטיות")}
               </h2>
               <p className="text-muted-foreground leading-relaxed">
@@ -211,7 +211,7 @@ export default function TermsOfService() {
 
             {/* Kosher Services */}
             <section>
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("6. Kosher Services", "6. שירותי כשרות")}
               </h2>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -232,7 +232,7 @@ export default function TermsOfService() {
 
             {/* Contact */}
             <section className="bg-muted rounded-xl p-6">
-              <h2 className="text-xl font-serif font-bold text-foreground mb-3">
+              <h2 className="text-xl font-heading font-normal text-foreground mb-3">
                 {t("Questions?", "שאלות?")}
               </h2>
               <p className="text-muted-foreground mb-2">

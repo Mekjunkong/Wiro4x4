@@ -24,7 +24,7 @@ export function BookingFormSuccess({
           <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-3xl font-serif font-bold text-primary mb-4">
+          <h2 className="text-3xl font-heading font-normal text-primary mb-4">
             {t("Booking Submitted Successfully!", "ההזמנה נקלטה בהצלחה!")}
           </h2>
           {bookingRef && (

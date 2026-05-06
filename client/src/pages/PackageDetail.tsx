@@ -572,7 +572,7 @@ export default function PackageDetail() {
                   { label: t(pkg.name, pkg.nameHe) },
                 ]}
               />
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-white mt-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-normal text-white mt-2">
                 {t(pkg.name, pkg.nameHe)}
               </h1>
             </div>
@@ -605,7 +605,7 @@ export default function PackageDetail() {
 
                 {/* Day-by-Day Itinerary */}
                 <section>
-                  <h2 className="text-2xl md:text-3xl font-heading font-bold mb-6">
+                  <h2 className="text-2xl md:text-3xl font-heading font-normal mb-6">
                     {t("Day-by-Day Itinerary", "מסלול יום אחר יום")}
                   </h2>
                   <div className="space-y-4">
@@ -655,7 +655,7 @@ export default function PackageDetail() {
 
                 {/* What's Included */}
                 <section>
-                  <h2 className="text-2xl md:text-3xl font-heading font-bold mb-6">
+                  <h2 className="text-2xl md:text-3xl font-heading font-normal mb-6">
                     {t("What's Included", "מה כלול")}
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -677,7 +677,7 @@ export default function PackageDetail() {
               {/* Sticky Sidebar */}
               <div className="lg:col-span-1">
                 <div className="sticky top-28 bg-white dark:bg-card border border-accent/20 rounded-2xl p-6 shadow-lg space-y-5">
-                  <h3 className="font-heading font-bold text-xl flex items-center gap-2">
+                  <h3 className="font-heading font-normal text-xl flex items-center gap-2">
                     <Mountain className="w-5 h-5 text-accent" />
                     {t("Trip Overview", "סקירת המסע")}
                   </h3>
@@ -736,7 +736,7 @@ export default function PackageDetail() {
                     <div className="text-sm text-muted-foreground">
                       {t("Starting from", "החל מ-")}
                     </div>
-                    <div className="text-3xl font-heading font-bold text-accent">
+                    <div className="text-3xl font-heading font-normal text-accent">
                       {formatUSD(pkg.price)}
                     </div>
                     <div className="text-xs text-muted-foreground">

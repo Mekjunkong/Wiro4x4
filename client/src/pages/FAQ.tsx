@@ -243,7 +243,7 @@ export default function FAQ() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <HelpCircle className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
+            <h1 className="text-3xl md:text-5xl font-heading font-normal mb-3 drop-shadow-lg">
               {t("Frequently Asked Questions", "שאלות נפוצות")}
             </h1>
             <GoldDivider />
@@ -307,7 +307,7 @@ export default function FAQ() {
         {/* Still Have Questions CTA */}
         <section className="bg-primary/5 py-16">
           <div className="container text-center max-w-2xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4 text-foreground">
+            <h2 className="text-2xl md:text-3xl font-heading font-normal mb-4 text-foreground">
               {t("Still Have Questions?", "עדיין יש שאלות?")}
             </h2>
             <GoldDivider />

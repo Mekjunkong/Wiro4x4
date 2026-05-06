@@ -57,14 +57,14 @@ export function QuickInquiryForm() {
     >
       <div className="container max-w-2xl">
         <div className="text-center mb-8">
-          <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase block mb-3">
+          <span className="type-label text-accent block mb-3">
             {t("QUICK QUOTE", "הצעת מחיר מהירה")}
           </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-medium text-foreground">
+          <h2 className="type-headline text-foreground">
             {t("Get a Tailored Quote", "קבלו הצעה מותאמת")}
           </h2>
           <GoldDivider />
-          <p className="text-muted-foreground -mt-2">
+          <p className="type-body mx-auto text-muted-foreground -mt-2">
             {t(
               "Just a few details — we'll continue on WhatsApp.",
               "כמה פרטים קצרים — ונמשיך בוואטסאפ."

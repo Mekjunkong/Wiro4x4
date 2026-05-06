@@ -102,7 +102,7 @@ export function NewsletterPopup() {
             </div>
 
             {/* Heading */}
-            <h2 className="text-2xl md:text-[1.65rem] font-heading font-bold text-center text-foreground dark:text-white mb-3">
+            <h2 className="text-2xl md:text-[1.65rem] font-heading font-normal text-center text-foreground dark:text-white mb-3">
               {t("Love to Travel?", "אוהבים לטייל?")}
             </h2>
 

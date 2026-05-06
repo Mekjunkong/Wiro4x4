@@ -75,11 +75,11 @@ export function TrustAndKosher() {
           {/* Right: Content */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground mb-4">
+              <h2 className="type-headline text-foreground mb-4">
                 {t("Why WIRO 4×4?", "?למה WIRO 4×4")}
               </h2>
               <GoldDivider />
-              <p className="text-lg text-muted-foreground">
+              <p className="type-lede text-muted-foreground">
                 {t(
                   "A private 4x4 journey built around smooth planning, local insight, and the kind of attention that makes the day feel effortless.",
                   "טיול 4x4 פרטי שנבנה סביב תכנון חלק, היכרות מקומית ותשומת לב שהופכת את היום לקל ונעים."
@@ -98,10 +98,10 @@ export function TrustAndKosher() {
                     <point.icon className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm leading-tight">
+                    <h3 className="type-title text-[1rem]">
                       {t(point.en, point.he)}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    <p className="text-sm text-muted-foreground mt-1 leading-[1.55]">
                       {t(point.descEn, point.descHe)}
                     </p>
                   </div>
@@ -111,7 +111,7 @@ export function TrustAndKosher() {
 
             {/* Quiet reassurance */}
             <div className="rounded-xl border border-accent/30 bg-accent/5 p-5 text-sm leading-relaxed text-foreground">
-              <div className="mb-2 flex items-center gap-2 font-heading text-lg font-bold">
+              <div className="mb-2 flex items-center gap-2 font-heading text-xl font-normal leading-tight">
                 <ShieldCheck className="h-5 w-5 text-accent" />
                 {t(
                   "Logistics handled quietly in the background",
@@ -130,7 +130,7 @@ export function TrustAndKosher() {
             <div id="kosher" className="mt-8 border-t border-accent/30 pt-6">
               <button
                 onClick={() => setKosherOpen(!kosherOpen)}
-                className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold"
+                className="flex items-center gap-2 w-full text-left font-heading text-2xl font-normal leading-tight"
               >
                 <ShieldCheck className="w-6 h-6 text-accent" />
                 {t("Kosher logistics", "לוגיסטיקת כשרות")}

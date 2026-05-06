@@ -122,14 +122,14 @@ export function ProductTiers() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Premium section heading */}
         <div className="text-center mb-12 md:mb-16 relative">
-          <span className="relative text-accent text-xs font-bold tracking-[0.3em] uppercase block mb-3">
+          <span className="type-label relative text-accent block mb-3">
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
-          <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-bold mt-2 text-foreground dark:text-white tracking-tight">
+          <h2 className="type-headline relative mt-2 text-foreground dark:text-white">
             {t("Our Adventures", "ההרפתקאות שלנו")}
           </h2>
           <div className="w-16 h-[3px] bg-accent mx-auto mt-4 mb-5" />
-          <p className="relative text-muted-foreground dark:text-white/60 max-w-2xl mx-auto text-lg">
+          <p className="type-lede relative text-muted-foreground dark:text-white/60 mx-auto">
             {t(
               "Choose the route that matches your group, pace, and budget in a few seconds.",
               "בחרו את המסלול שמתאים לקבוצה, לקצב ולתקציב שלכם בתוך כמה שניות."
@@ -157,7 +157,7 @@ export function ProductTiers() {
                   {/* Badge — gold foil */}
                   {tier.badge && (
                     <span
-                      className="absolute top-4 right-4 text-[#1c1c1c] text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase shadow-lg"
+                      className="type-caps absolute top-4 right-4 text-[#1c1c1c] text-[0.68rem] px-3 py-1.5 rounded-full shadow-lg"
                       style={{
                         background:
                           "linear-gradient(135deg, #f5d76e 0%, #d4af37 40%, #b8960f 100%)",
@@ -169,14 +169,14 @@ export function ProductTiers() {
 
                   {/* Title + Price overlay on image */}
                   <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="text-xl md:text-2xl font-heading font-bold text-white mb-2">
+                    <h3 className="font-heading text-2xl md:text-3xl font-normal leading-[1.05] tracking-[-0.015em] text-white mb-2">
                       {t(tier.title, tier.titleHe)}
                     </h3>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-white/60 text-xs tracking-widest uppercase block">
+                      <span className="type-caps text-white/60 text-[0.68rem] block">
                         {t("from", "החל מ-")}
                       </span>
-                      <span className="text-white text-3xl font-bold font-heading ml-1">
+                      <span className="font-heading tabular-numeric text-white text-3xl font-normal ml-1">
                         {t(tier.startingPrice, tier.startingPriceHe)}
                       </span>
                     </div>
@@ -189,12 +189,12 @@ export function ProductTiers() {
                 {/* Content Footer */}
                 <div className="p-5 flex-1 flex flex-col relative">
                   <div className="mb-3">
-                    <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-accent">
+                    <span className="type-caps inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-[0.68rem] text-accent">
                       {t(tier.bestFor, tier.bestForHe)}
                     </span>
                   </div>
 
-                  <p className="text-muted-foreground dark:text-white/60 text-sm leading-relaxed mb-4 flex-1">
+                  <p className="text-muted-foreground dark:text-white/60 text-[0.95rem] leading-[1.65] mb-4 flex-1">
                     {t(tier.subtitle, tier.subtitleHe)}
                   </p>
 

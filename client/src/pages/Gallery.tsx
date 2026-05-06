@@ -414,7 +414,7 @@ export default function Gallery() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <Camera className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
+            <h1 className="text-3xl md:text-5xl font-heading font-normal mb-3 drop-shadow-lg">
               {t("Adventure Gallery", "גלריית הרפתקאות")}
             </h1>
             <GoldDivider />
