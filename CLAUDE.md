@@ -443,7 +443,13 @@ Both `server/routers.ts` and test files import from `shared/schemas.ts`.
 Configured in Vercel dashboard (Settings → Environment Variables):
 
 - `DATABASE_URL` - MySQL connection
-- `JWT_SECRET` - Session signing
+- `JWT_SECRET` - Session signing (required for login/session cookies)
+- `R2_ACCOUNT_ID` - Cloudflare R2 account ID
+- `R2_ACCESS_KEY_ID` - Cloudflare R2 access key
+- `R2_SECRET_ACCESS_KEY` - Cloudflare R2 secret key
+- `R2_BUCKET_NAME` - Cloudflare R2 bucket name
+- `R2_PUBLIC_URL` - Public CDN URL for uploaded assets
+- `OWNER_EMAIL` - Admin notification recipient
 - `VITE_APP_ID` - App ID
 - `RESEND_API_KEY` - Email service + newsletter (lazy — no crash if missing)
 - `ANTHROPIC_API_KEY` - AI blog generation via Claude (lazy — no crash if missing)
@@ -532,6 +538,8 @@ Vercel automatically builds and deploys the site at https://www.wiro4x4indochina
 - **Production:** Pushes to `main` → auto-deploy to production
 - **Preview:** Pushes to other branches / PRs → preview deployment URL
 - **Environment variables:** Configured in Vercel dashboard (Settings → Environment Variables)
+- **Auth/session gate:** Set `JWT_SECRET` in both Production and Preview environments before enabling `/admin`; session cookies are signed with this secret and are only marked secure behind HTTPS / `x-forwarded-proto`
+- **Storage:** Set the full R2 env set (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`) for uploads to work
 - **Build command:** `pnpm build`
 - **Output directory:** `dist/`
 - **CI:** `.github/workflows/ci.yml` — TypeScript check, lint, tests, build (pnpm version from `packageManager` in `package.json`)

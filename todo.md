@@ -668,6 +668,12 @@
 - [x] Update email in footer
 - [x] Update email in notification services
 
+## Vercel Auth/Session Rollout Prep
+
+- [x] Document required Vercel environment variables for JWT session auth and R2 storage
+- [x] Add production security headers to Vercel config (HSTS + Referrer-Policy)
+- [ ] Verify Production and Preview env vars are set in Vercel dashboard before enabling `/admin`
+
 ## GitHub Integration Updates
 
 - [x] Pull latest changes from GitHub repository
