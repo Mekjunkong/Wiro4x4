@@ -61,7 +61,6 @@ export function registerAuthRoutes(app: Express) {
       });
 
       res.json({
-        token,
         user: {
           id: userId,
           email: body.email,
@@ -105,7 +104,6 @@ export function registerAuthRoutes(app: Express) {
       });
 
       res.json({
-        token,
         user: {
           id: user.id,
           email: user.email,
@@ -154,6 +152,10 @@ export function registerAuthRoutes(app: Express) {
           const apiKey = process.env.RESEND_API_KEY;
           if (apiKey) {
             const resend = new Resend(apiKey);
+            const siteUrl =
+              process.env.SITE_URL || "https://www.wiro4x4indochina.com";
+            const resetUrl = `${siteUrl.replace(/\/$/, "")}/reset-password?token=${token}`;
+
             await resend.emails.send({
               from: "support@wiro4x4indochina.com",
               to: body.email,
@@ -161,9 +163,7 @@ export function registerAuthRoutes(app: Express) {
               html: `
                 <h2>Password Reset</h2>
                 <p>Click the link below to reset your password. This link expires in 1 hour.</p>
-                <a href="https://www.wiro4x4indochina.com/reset-password?token=${token}">
-                  Reset Password
-                </a>
+                <p><a href="${resetUrl}">Reset Password</a></p>
                 <p>If you didn't request this, ignore this email.</p>
               `,
             });
@@ -212,11 +212,9 @@ export function registerAuthRoutes(app: Express) {
         .limit(1);
 
       if (tokenRows.length === 0) {
-        res
-          .status(400)
-          .json({
-            error: "Reset failed. Please request a new password reset link.",
-          });
+        res.status(400).json({
+          error: "Reset failed. Please request a new password reset link.",
+        });
         return;
       }
 
