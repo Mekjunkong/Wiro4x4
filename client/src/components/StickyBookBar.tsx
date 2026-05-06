@@ -1,70 +1,77 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Calendar } from "lucide-react";
+import { WHATSAPP_NUMBER } from "@/const";
+import { Calendar, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
-import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 import { trackEvent } from "@/lib/analytics";
 
 export function StickyBookBar() {
-  const { t } = useLanguage();
-  const [scrolled, setScrolled] = useState(false);
-  const [consentGiven, setConsentGiven] = useState(() => {
-    try {
-      return !!localStorage.getItem(COOKIE_CONSENT_KEY);
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    const onConsent = () => setConsentGiven(true);
-    window.addEventListener(COOKIE_CONSENT_EVENT, onConsent);
-    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onConsent);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 600);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
+  const { t, language } = useLanguage();
   const [chatOpen, setChatOpen] = useState(false);
+
+  const handleWhatsAppClick = () => {
+    trackEvent("sticky_whatsapp_click", { language });
+    const message =
+      language === "he"
+        ? encodeURIComponent(
+            "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+          )
+        : encodeURIComponent(
+            "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+          );
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g, "")}?text=${message}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   useEffect(() => {
     const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
     window.addEventListener("chat-open", handler);
     return () => window.removeEventListener("chat-open", handler);
   }, []);
 
-  const visible = scrolled && consentGiven && !chatOpen;
+  if (chatOpen) return null;
 
   return (
-    <div
-      className={`fixed inset-x-0 z-[9998] transition-all duration-300 ${
-        visible
-          ? "translate-y-0 opacity-100"
-          : "translate-y-full md:-translate-y-full opacity-0 pointer-events-none"
-      } bottom-0 md:bottom-auto md:top-0 bg-card/95 backdrop-blur-sm border-t md:border-b md:border-t-0 border-accent/30 py-2 px-4`}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div>
-          <p className="text-foreground/90 text-sm font-medium">
-            {t("Chiang Mai Off-Road Tours", "טיולי שטח בצ'יאנג מאי")}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t("From $81/person", "החל מ-$81 לאדם")}
-          </p>
+    <div className="fixed inset-x-0 bottom-0 z-[9998] md:hidden border-t border-accent/30 bg-card/95 px-4 py-3 backdrop-blur-md shadow-[0_-12px_36px_rgba(15,23,42,0.16)]">
+      <div className="mx-auto max-w-7xl space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground/95">
+              {t("Chiang Mai Off-Road Tours", "טיולי שטח בצ'יאנג מאי")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("From $81/person", "החל מ-$81 לאדם")}
+            </p>
+          </div>
+          <span className="rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-medium text-accent">
+            {t("Fast response", "מענה מהיר")}
+          </span>
         </div>
-        <Link href="/book">
+
+        <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => trackEvent("sticky_book_click")}
-            className="bg-accent-cta text-primary-foreground rounded-full px-5 py-2 font-semibold text-sm flex items-center gap-2 hover:bg-accent-cta-hover transition-colors"
+            type="button"
+            onClick={handleWhatsAppClick}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#25D366]/25 bg-[#25D366]/10 px-3 py-2 text-sm font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366]/15 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+            aria-label={t("Contact us on WhatsApp", "צרו קשר בוואטסאפ")}
           >
-            <Calendar className="w-4 h-4" />
-            {t("Book Now", "הזמינו עכשיו")}
+            <MessageCircle className="h-4 w-4" />
+            {t("WhatsApp", "וואטסאפ")}
           </button>
-        </Link>
+
+          <Link
+            href="/book"
+            onClick={() => trackEvent("sticky_book_click")}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent-cta px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2"
+          >
+            <Calendar className="h-4 w-4" />
+            {t("Book Now", "הזמינו עכשיו")}
+          </Link>
+        </div>
       </div>
     </div>
   );

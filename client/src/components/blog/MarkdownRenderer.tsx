@@ -152,7 +152,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       elements.push(
         <blockquote
           key={elements.length}
-          className="border-l-4 border-primary/30 pl-4 my-4 italic text-muted-foreground"
+          className="border border-primary/20 bg-muted/30 px-4 py-3 my-4 italic text-muted-foreground rounded-sm"
         >
           {quoteLines.map((ql, j) => (
             <p key={j} className="my-1">

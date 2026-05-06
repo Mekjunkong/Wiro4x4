@@ -23,25 +23,30 @@ const LOCAL_GALLERY_IMAGES = [
 export function GalleryShowcase() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  // Always use local images — DB gallery photos may have broken/unwanted S3 URLs
+  // Always use local images; DB gallery photos may have broken/unwanted S3 URLs
   const images = LOCAL_GALLERY_IMAGES;
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-background">
       <div className="container">
-        <div className="max-w-3xl mx-auto mb-10 md:mb-14 px-4">
+        <div className="max-w-3xl mx-auto mb-10 md:mb-14 px-4 text-center">
           <PremiumSectionHeading
-            eyebrow={t("Visual Stories", "סיפורי חווייה")}
+            eyebrow={t("Visual Stories", "סיפורי חוויה")}
             heading={t("Adventure Gallery", "גלריית הרפתקאות")}
-            decorativeBgText="GALLERY"
           />
+          <p className="mt-4 text-sm md:text-base text-muted-foreground">
+            {t(
+              "Real moments from real WIRO 4x4 tours: river crossings, waterfalls, mountain views and the team that makes it all feel effortless.",
+              "רגעים אמיתיים מטיולי WIRO 4x4: חציות נהר, מפלים, נופי הרים והצוות שהופך את כל החוויה לטבעית ונינוחה."
+            )}
+          </p>
         </div>
 
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 px-4 md:px-0">
           {images.map(img => (
             <div
               key={img.src}
-              className="relative overflow-hidden rounded-lg group break-inside-avoid"
+              className="relative overflow-hidden rounded-2xl group break-inside-avoid border border-border/60 bg-card shadow-sm"
             >
               <OptimizedImage
                 src={img.src}
@@ -49,10 +54,10 @@ export function GalleryShowcase() {
                 width={800}
                 height={600}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                <span className="text-white text-sm font-medium">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary/75 via-primary/30 to-transparent p-4">
+                <span className="inline-flex max-w-full rounded-full bg-primary/45 px-3 py-1 text-white text-sm font-medium backdrop-blur-sm">
                   {img.caption}
                 </span>
               </div>

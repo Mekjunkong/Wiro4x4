@@ -501,7 +501,7 @@ export default function Packages() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8">
             <Breadcrumb
               items={[
@@ -570,7 +570,7 @@ export default function Packages() {
                       <span className="absolute top-3 right-3 bg-red-500 text-white text-sm font-bold px-2.5 py-1 rounded">
                         -{discountPct}%
                       </span>
-                      <span className="absolute top-3 left-3 bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded">
+                      <span className="absolute top-3 left-3 bg-primary/60 text-white text-xs font-medium px-2.5 py-1 rounded">
                         {pkg.days} {t("days", "ימים")}
                       </span>
                     </div>

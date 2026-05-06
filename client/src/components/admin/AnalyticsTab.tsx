@@ -511,6 +511,8 @@ export function AnalyticsTab() {
 
   const { data: overview, isLoading: loadingOverview } =
     trpc.analytics.overview.useQuery();
+  const { data: publicStats, isLoading: loadingPublicStats } =
+    trpc.stats.public.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
   const { data: revenueData, isLoading: loadingRevenue } =
     trpc.analytics.revenueByMonth.useQuery();
   const { data: bookingsData, isLoading: loadingBookings } =
@@ -524,6 +526,7 @@ export function AnalyticsTab() {
 
   const isLoading =
     loadingOverview ||
+    loadingPublicStats ||
     loadingRevenue ||
     loadingBookings ||
     loadingFunnel ||
@@ -588,6 +591,67 @@ export function AnalyticsTab() {
           iconBg="bg-purple-100"
           iconColor="text-purple-600"
         />
+      </div>
+
+      <div className="bg-card rounded-xl p-4 md:p-6 shadow-sm border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Visibility Snapshot
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Public trust + discoverability signals
+            </p>
+          </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Wiro visibility lane
+          </span>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-[11px] text-muted-foreground">Reviews</p>
+            <p className="text-xl font-bold text-foreground mt-1">
+              {overview?.totalReviews ?? publicStats?.totalReviews ?? 0}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Published public reviews
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-[11px] text-muted-foreground">Avg rating</p>
+            <p className="text-xl font-bold text-foreground mt-1">
+              {overview?.avgRating ?? 0}/5
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Trust signal on the homepage
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-[11px] text-muted-foreground">Tours listed</p>
+            <p className="text-xl font-bold text-foreground mt-1">
+              {publicStats?.totalTours ?? 0}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              SEO landing pages and offer depth
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-background/60 p-3">
+            <p className="text-[11px] text-muted-foreground">
+              Bookings captured
+            </p>
+            <p className="text-xl font-bold text-foreground mt-1">
+              {publicStats?.totalBookings ?? 0}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Demand signal and conversion volume
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground leading-6">
+          Visibility work to keep separate from Oracle: keep Google Business
+          Profile active, request more reviews, publish gallery/blog updates,
+          and point Hebrew/English traffic to the right landing pages.
+        </div>
       </div>
 
       {/* Charts Row */}

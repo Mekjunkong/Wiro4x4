@@ -339,17 +339,10 @@ export function GalleryTab() {
                 Upload Image
               </label>
               <div className="space-y-2">
-                <div
-                  className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
+                <button
+                  type="button"
+                  className="w-full border-2 border-dashed border-border rounded-2xl p-4 text-center cursor-pointer hover:border-primary transition-colors"
                   onClick={() => fileInputRef.current?.click()}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      fileInputRef.current?.click();
-                    }
-                  }}
                 >
                   {isUploading ? (
                     <div className="flex items-center justify-center gap-2">
@@ -381,7 +374,7 @@ export function GalleryTab() {
                       </p>
                     </div>
                   )}
-                </div>
+                </button>
                 <input
                   ref={fileInputRef}
                   type="file"

@@ -11,7 +11,7 @@ export function TourCardSkeleton({ count = 6 }: { count?: number }) {
       {Array.from({ length: count }, (_, i) => (
         <div
           key={i}
-          className="overflow-hidden border-l-4 border-accent/30 rounded-sm bg-card"
+          className="overflow-hidden border border-accent/30 rounded-sm bg-card"
           role="status"
           aria-label="Loading tour"
         >
@@ -53,7 +53,7 @@ export function BlogCardSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }, (_, i) => (
         <div
           key={i}
-          className="overflow-hidden border-t-2 border-accent/30 rounded-sm bg-card"
+          className="overflow-hidden border border-accent/30 rounded-sm bg-card"
           role="status"
           aria-label="Loading blog post"
         >

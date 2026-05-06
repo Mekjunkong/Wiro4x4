@@ -613,7 +613,7 @@ export default function BookingForm() {
             backgroundImage: "url('/images/optimized/hero-waterfall.jpg')",
           }}
         >
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-primary/60" />
           <div className="relative z-10 text-center px-4">
             <h1 className="text-4xl md:text-5xl font-serif font-medium text-white mb-2">
               {t("Book Your Adventure", "הזמינו את ההרפתקה")}

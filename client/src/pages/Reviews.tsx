@@ -566,7 +566,7 @@ export default function Reviews() {
                         </div>
 
                         {review.adminResponse && (
-                          <div className="mt-4 pl-4 border-l-4 border-accent bg-accent/5 rounded-r-sm p-3">
+                          <div className="mt-4 border border-accent/25 bg-accent/5 rounded-sm p-3">
                             <p className="text-sm font-semibold text-accent mb-1">
                               {t("Response from WIRO 4x4", "תגובה מ-WIRO 4x4")}
                             </p>

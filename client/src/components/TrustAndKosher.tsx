@@ -3,64 +3,52 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { Button } from "@/components/ui/button";
+import { WHATSAPP_URL } from "@/const";
 import {
-  Award,
+  ShieldCheck,
+  ChevronDown,
+  Compass,
   MessageSquare,
   Calendar,
   Users,
-  MapPin,
-  Heart,
-  ShieldCheck,
-  ChevronDown,
 } from "lucide-react";
 
 export function TrustAndKosher() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  const [kosherOpen, setKosherOpen] = useState(true);
+  const [kosherOpen, setKosherOpen] = useState(false);
 
   const trustPoints = [
     {
-      icon: Award,
-      en: "First Kosher 4x4 Company",
-      he: "חברת 4x4 כשרה ראשונה",
-      descEn: "Pioneer of kosher off-road in Chiang Mai",
-      descHe: "חלוצי טיולי השטח הכשרים בצ'יאנג מאי",
+      icon: Compass,
+      en: "A route with a point of view",
+      he: "מסלול עם כיוון ברור",
+      descEn:
+        "Scenic off-road days shaped around your pace, not a rigid timetable.",
+      descHe: "ימי שטח יפים שנבנים סביב הקצב שלכם, לא סביב לוח זמנים נוקשה.",
     },
     {
       icon: MessageSquare,
-      en: "Hebrew Speaking Guides",
-      he: "מדריכים דוברי עברית",
-      descEn: "Full Hebrew support throughout your trip",
-      descHe: "תמיכה מלאה בעברית לאורך כל הטיול",
+      en: "One conversation, start to finish",
+      he: "שיחה אחת מההתחלה ועד הסוף",
+      descEn: "Plan in English or Hebrew without having to repeat the details.",
+      descHe: "מתכננים בעברית או באנגלית בלי לחזור על אותם פרטים שוב ושוב.",
     },
     {
       icon: Calendar,
-      en: "Shabbat Friendly",
-      he: "מותאם לשבת",
-      descEn: "Scheduling that respects Shabbat",
-      descHe: "לוח זמנים המכבד את השבת",
+      en: "Timing that works in real life",
+      he: "תזמון שמתאים לחיים האמיתיים",
+      descEn: "Pickup, meals, and breaks are coordinated ahead of time.",
+      descHe: "איסוף, ארוחות והפסקות מתואמים מראש.",
     },
     {
       icon: Users,
-      en: "Private Tours",
-      he: "טיולים פרטיים",
-      descEn: "Premium 4x4 experience, just your group",
-      descHe: "חוויית 4x4 מפנקת, רק הקבוצה שלכם",
-    },
-    {
-      icon: MapPin,
-      en: "Real Off-Road",
-      he: "שטח אמיתי",
-      descEn: "Authentic trails, not tourist traps",
-      descHe: "שבילים אותנטיים, לא מלכודות תיירים",
-    },
-    {
-      icon: Heart,
-      en: "WhatsApp Support",
-      he: "תמיכה בוואטסאפ",
-      descEn: "Quick responses, always available",
-      descHe: "מענה מהיר, תמיד זמינים",
+      en: "Private, polished, personal",
+      he: "פרטי, מוקפד, אישי",
+      descEn:
+        "Designed for families, couples, and small groups who want an easy day.",
+      descHe: "מותאם למשפחות, זוגות וקבוצות קטנות שרוצות יום נוח וזורם.",
     },
   ];
 
@@ -93,27 +81,27 @@ export function TrustAndKosher() {
               <GoldDivider />
               <p className="text-lg text-muted-foreground">
                 {t(
-                  "Authentic off-road adventures with the comfort and cultural understanding Israeli travelers deserve.",
-                  "הרפתקאות שטח אמיתיות עם הנוחות וההבנה התרבותית שמגיעה למטיילים ישראלים."
+                  "A private 4x4 journey built around smooth planning, local insight, and the kind of attention that makes the day feel effortless.",
+                  "טיול 4x4 פרטי שנבנה סביב תכנון חלק, היכרות מקומית ותשומת לב שהופכת את היום לקל ונעים."
                 )}
               </p>
             </div>
 
-            {/* Trust Points — 2x3 Grid */}
+            {/* Trust Points — story-driven grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {trustPoints.map(point => (
                 <div
                   key={point.en}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+                  className="flex items-start gap-3 p-4 rounded-xl bg-background/70 border border-border/60"
                 >
                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
                     <point.icon className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm">
+                    <h3 className="font-semibold text-sm leading-tight">
                       {t(point.en, point.he)}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                       {t(point.descEn, point.descHe)}
                     </p>
                   </div>
@@ -121,31 +109,31 @@ export function TrustAndKosher() {
               ))}
             </div>
 
-            {/* Kosher proof — visible before the details accordion */}
-            <div className="rounded-xl border border-accent/40 bg-accent/10 p-4 text-sm leading-relaxed text-foreground">
+            {/* Quiet reassurance */}
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-5 text-sm leading-relaxed text-foreground">
               <div className="mb-2 flex items-center gap-2 font-heading text-lg font-bold">
                 <ShieldCheck className="h-5 w-5 text-accent" />
                 {t(
-                  "Kosher support is built into the trip",
-                  "הכשרות מובנית בתוך הטיול"
+                  "Logistics handled quietly in the background",
+                  "הלוגיסטיקה מטופלת בשקט מאחורי הקלעים"
                 )}
               </div>
               <p className="text-muted-foreground">
                 {t(
-                  "Meals are planned in advance with sealed packaging, separate handling, and route timing that can respect Shabbat needs.",
-                  "הארוחות מתוכננות מראש עם אריזות סגורות, טיפול נפרד ותזמון מסלול שיכול להתחשב בצרכי שבת."
+                  "Meals, sealed handling, and route timing are coordinated ahead of time so the trip feels polished from the first stop to the last.",
+                  "הארוחות, הטיפול הנפרד ותזמון המסלול מתואמים מראש, כך שהטיול מרגיש מוקפד מהעצירה הראשונה ועד האחרונה."
                 )}
               </p>
             </div>
 
-            {/* Kosher Accordion */}
+            {/* Kosher details */}
             <div id="kosher" className="mt-8 border-t border-accent/30 pt-6">
               <button
                 onClick={() => setKosherOpen(!kosherOpen)}
                 className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold"
               >
                 <ShieldCheck className="w-6 h-6 text-accent" />
-                {t("Kosher Standards & Logistics", "תקני כשרות ולוגיסטיקה")}
+                {t("Kosher logistics", "לוגיסטיקת כשרות")}
                 <ChevronDown
                   className={`w-5 h-5 ml-auto transition-transform ${kosherOpen ? "rotate-180" : ""}`}
                 />
@@ -154,13 +142,31 @@ export function TrustAndKosher() {
                 <div className="mt-4 text-muted-foreground leading-relaxed animate-fade-in">
                   <p>
                     {t(
-                      "Certified ingredient sourcing, dedicated kosher kitchen, sealed packaging, and strict separation. We accommodate all levels — from basic kosher to mehadrin standards. Non-kosher guests welcome too.",
-                      "חומרי גלם מוסמכים, מטבח כשר ייעודי, אריזות אטומות והפרדה מלאה. מתאימים לכל רמות הכשרות — מכשרות רגילה ועד מהדרין. גם מי שלא שומר כשרות מוזמן."
+                      "We can coordinate ingredient sourcing, dedicated preparation, sealed packaging, and timing for guests who need kosher or mehadrin-level planning. Non-kosher guests are welcome too.",
+                      "אנחנו יכולים לתאם מקורות חומרי גלם, הכנה ייעודית, אריזות אטומות ותזמון לאורחים הזקוקים לתכנון כשר או מהדרין. גם אורחים שאינם שומרי כשרות מוזמנים."
                     )}
                   </p>
                 </div>
               )}
             </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button asChild size="lg">
+                <a href="#inquiry">{t("Plan your trip", "תכננו את הטיול")}</a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+                  {t("Chat on WhatsApp", "כתבו לנו בוואטסאפ")}
+                </a>
+              </Button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {t(
+                "A short message is enough to start shaping the route.",
+                "הודעה קצרה מספיקה כדי להתחיל לעצב את המסלול."
+              )}
+            </p>
           </div>
         </div>
       </div>

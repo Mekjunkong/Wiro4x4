@@ -148,7 +148,7 @@ export default function AccessibleTours() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="container max-w-4xl">
               <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">

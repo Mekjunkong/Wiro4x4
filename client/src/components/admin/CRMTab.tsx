@@ -287,7 +287,7 @@ export function CRMTab() {
           <>
             {/* Mobile overlay backdrop */}
             <div
-              className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+              className="fixed inset-0 bg-primary/30 z-40 lg:hidden"
               onClick={handleCloseDetail}
             />
             {/* Panel */}

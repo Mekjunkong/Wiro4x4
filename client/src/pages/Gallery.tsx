@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "wouter";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
@@ -215,9 +216,9 @@ export default function Gallery() {
   const { t, language } = useLanguage();
   const isHebrew = language === "he";
   usePageMeta({
-    title: "Photo Gallery",
+    title: "Adventure Gallery",
     description:
-      "Explore adventure photos from WIRO 4x4 kosher off-road tours in Chiang Mai, Northern Thailand.",
+      "See real WIRO 4x4 tour moments: waterfalls, river crossings, mountain views and unforgettable family adventures in Chiang Mai.",
     canonicalPath: "/gallery",
   });
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -410,22 +411,47 @@ export default function Gallery() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <Camera className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
             <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
-              {t(
-                "Photo Gallery",
-                "\u05D2\u05DC\u05E8\u05D9\u05D9\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
-              )}
+              {t("Adventure Gallery", "גלריית הרפתקאות")}
             </h1>
             <GoldDivider />
             <p className="text-lg md:text-xl opacity-95 max-w-2xl mx-auto drop-shadow-md">
               {t(
-                "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
-                "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D0\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 - \u05DE\u05E9\u05D1\u05D9\u05DC\u05D9 \u05D4\u05E8\u05D9\u05DD \u05D5\u05E2\u05D3 \u05DE\u05E4\u05DC\u05D9\u05DD \u05E0\u05E1\u05EA\u05E8\u05D9\u05DD"
+                "Real moments from real tours: waterfalls, river crossings, mountain views and the kind of memories that make people book.",
+                "רגעים אמיתיים מטיולים אמיתיים: מפלים, חציות נהר, נופי הרים וזיכרונות שגורמים לאנשים להזמין."
               )}
             </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Badge className="border-white/20 bg-white/10 text-white px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+                <Check className="w-3.5 h-3.5 mr-1.5" />
+                {t("Real tour moments", "רגעים אמיתיים מהטיול")}
+              </Badge>
+              <Badge className="border-white/20 bg-white/10 text-white px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+                <Check className="w-3.5 h-3.5 mr-1.5" />
+                {t("Family-friendly adventures", "הרפתקאות שמתאימות למשפחה")}
+              </Badge>
+              <Badge className="border-white/20 bg-white/10 text-white px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+                <Check className="w-3.5 h-3.5 mr-1.5" />
+                {t("Kosher-friendly planning", "תכנון מותאם כשר")}
+              </Badge>
+            </div>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/tours"
+                className="inline-flex items-center justify-center min-h-12 rounded-full bg-white text-black px-5 py-3 text-sm font-semibold shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
+              >
+                {t("Choose your tour", "בחרו את הטיול שלכם")}
+              </Link>
+              <p className="text-sm text-white/80 max-w-md">
+                {t(
+                  "See what your trip can look like before you book.",
+                  "ראו איך הטיול שלכם יכול להיראות עוד לפני ההזמנה."
+                )}
+              </p>
+            </div>
           </div>
         </section>
 
@@ -442,7 +468,7 @@ export default function Gallery() {
               if (gridIndex >= 0) {
                 openLightbox(gridIndex);
               } else {
-                // Photo might not be in current grid filter — just open first
+                // Photo might not be in current grid filter; just open first
                 openLightbox(0);
               }
             }}
@@ -451,7 +477,7 @@ export default function Gallery() {
 
         <div className="container py-8 md:py-12">
           {/* Category Filters */}
-          <div className="flex flex-wrap gap-2 justify-center mb-8">
+          <div className="flex flex-wrap gap-2 justify-center mb-8 px-1 md:px-0">
             {CATEGORIES.map(cat => {
               const isActive = selectedCategory === cat.id;
               // Show total count for "All", no counts for individual categories
@@ -466,13 +492,13 @@ export default function Gallery() {
                     isActive
                       ? "bg-accent text-accent-foreground border-accent"
                       : "border border-accent/50 text-accent"
-                  } rounded-sm px-4 py-1.5 text-xs tracking-[0.15em] uppercase`}
+                  } min-h-11 rounded-full px-4 py-2 text-xs tracking-[0.15em] uppercase transition-colors touch-manipulation`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
                   {isHebrew ? cat.he : cat.en}
                   {showCount && (
                     <span
-                      className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-sm text-xs font-medium ml-1.5 ${
+                      className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-medium ml-1.5 ${
                         isActive
                           ? "bg-foreground/20 text-foreground"
                           : "bg-accent/10 text-accent"
@@ -490,8 +516,8 @@ export default function Gallery() {
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-sm overflow-hidden">
-                  <Skeleton className="aspect-[4/3] w-full" />
+                <div key={i} className="rounded-2xl overflow-hidden">
+                  <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
                 </div>
               ))}
             </div>
@@ -523,18 +549,11 @@ export default function Gallery() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {filteredPhotos.map((photo, index) => (
-                <div
+                <button
                   key={photo.id}
-                  className="group relative rounded-sm overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card"
+                  type="button"
+                  className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-card text-left focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
                   onClick={() => openLightbox(index)}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openLightbox(index);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
                   aria-label={`${t("View photo", "\u05E6\u05E4\u05D4 \u05D1\u05EA\u05DE\u05D5\u05E0\u05D4")}: ${photo.title}`}
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
@@ -542,7 +561,7 @@ export default function Gallery() {
                       src={photo.imageUrl}
                       alt={`${photo.title}${photo.category ? ` - ${photo.category}` : ""} | WIRO 4x4 Gallery`}
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                       onError={() =>
                         setBrokenIds(prev => {
                           const next = new Set(Array.from(prev));
@@ -551,23 +570,22 @@ export default function Gallery() {
                         })
                       }
                     />
-                    {/* Gold hover overlay */}
-                    <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <h3 className="text-white font-semibold text-lg">
-                      {photo.title}
-                    </h3>
-                    {photo.category && (
-                      <Badge variant="secondary" className="mt-1">
-                        {CATEGORIES.find(c => c.id === photo.category)?.[
-                          isHebrew ? "he" : "en"
-                        ] || photo.category}
-                      </Badge>
-                    )}
+                  <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-primary/80 via-primary/45 to-transparent">
+                    <div className="flex items-end justify-between gap-3">
+                      <h3 className="text-white font-semibold text-base md:text-lg leading-tight">
+                        {photo.title}
+                      </h3>
+                      {photo.category && (
+                        <Badge variant="secondary" className="shrink-0">
+                          {CATEGORIES.find(c => c.id === photo.category)?.[
+                            isHebrew ? "he" : "en"
+                          ] || photo.category}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </button>
               ))}
 
               {/* Infinite scroll sentinel */}
@@ -592,7 +610,7 @@ export default function Gallery() {
           onOpenChange={open => !open && closeLightbox()}
         >
           <DialogContent
-            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none"
+            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-primary/95 border-none"
             aria-label={t(
               "Photo lightbox viewer",
               "\u05EA\u05E6\u05D5\u05D2\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DE\u05D5\u05D2\u05D3\u05DC\u05EA"
@@ -605,8 +623,9 @@ export default function Gallery() {
                 onTouchEnd={handleTouchEnd}
               >
                 <button
+                  type="button"
                   onClick={closeLightbox}
-                  className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                  className="absolute top-4 right-4 z-10 inline-flex items-center justify-center min-h-12 min-w-12 text-white/80 hover:text-white rounded-full bg-primary/40 hover:bg-primary/60 transition-colors"
                   aria-label={t(
                     "Close lightbox",
                     "\u05E1\u05D2\u05D5\u05E8 \u05EA\u05E6\u05D5\u05D2\u05D4"
@@ -618,18 +637,12 @@ export default function Gallery() {
                 {filteredPhotos.length > 1 && (
                   <>
                     <button
+                      type="button"
                       onClick={e => {
                         e.stopPropagation();
                         goToPrev();
                       }}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
-                      style={{
-                        minWidth: "48px",
-                        minHeight: "48px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center min-h-12 min-w-12 text-white/80 hover:text-white rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       aria-label={t(
                         "Previous photo",
                         "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05E7\u05D5\u05D3\u05DE\u05EA"
@@ -638,18 +651,12 @@ export default function Gallery() {
                       <ChevronLeft className="w-8 h-8" />
                     </button>
                     <button
+                      type="button"
                       onClick={e => {
                         e.stopPropagation();
                         goToNext();
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
-                      style={{
-                        minWidth: "48px",
-                        minHeight: "48px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center min-h-12 min-w-12 text-white/80 hover:text-white rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       aria-label={t(
                         "Next photo",
                         "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D4\u05D1\u05D0\u05D4"
@@ -663,11 +670,11 @@ export default function Gallery() {
                 <img
                   src={filteredPhotos[lightboxIndex].imageUrl}
                   alt={filteredPhotos[lightboxIndex].title}
-                  className="max-w-full max-h-[80vh] object-contain select-none"
+                  className="max-w-full max-h-[80vh] object-contain select-none px-2"
                   draggable={false}
                 />
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent text-white">
                   <h3 className="text-xl font-semibold">
                     {filteredPhotos[lightboxIndex].title}
                   </h3>
@@ -839,7 +846,7 @@ function UserPhotoUploadSection() {
   if (submitted) {
     return (
       <section className="container py-12">
-        <div className="max-w-2xl mx-auto text-center bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-8">
+        <div className="max-w-2xl mx-auto text-center bg-green-50/90 dark:bg-green-900/20 border border-green-200/80 dark:border-green-800 rounded-2xl p-8 shadow-sm">
           <Check className="w-12 h-12 text-green-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2 text-green-800 dark:text-green-200">
             {t("Thank You!", "\u05EA\u05D5\u05D3\u05D4 \u05E8\u05D1\u05D4!")}
@@ -859,16 +866,14 @@ function UserPhotoUploadSection() {
     <section className="container py-12">
       <div className="max-w-2xl mx-auto">
         <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between bg-card border border-border rounded-lg p-4 hover:border-accent/50 transition-colors"
+          className="w-full flex items-center justify-between min-h-14 bg-card border border-border rounded-2xl p-4 hover:border-accent/50 transition-colors"
         >
           <div className="flex items-center gap-3">
             <Upload className="w-5 h-5 text-accent" />
             <span className="font-semibold">
-              {t(
-                "Share Your Photos",
-                "\u05E9\u05EA\u05E4\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05E9\u05DC\u05DB\u05DD"
-              )}
+              {t("Share Your Adventure", "שתפו את ההרפתקה שלכם")}
             </span>
           </div>
           {isOpen ? (
@@ -879,11 +884,11 @@ function UserPhotoUploadSection() {
         </button>
 
         {isOpen && (
-          <div className="mt-4 bg-card border border-border rounded-lg p-6 space-y-5">
+          <div className="mt-4 bg-card border border-border rounded-2xl p-6 space-y-5">
             <p className="text-sm text-muted-foreground">
               {t(
-                "Been on a WIRO 4x4 adventure? Share your best photos with us! Photos will be reviewed before appearing in the gallery.",
-                "\u05D4\u05D9\u05D9\u05EA\u05DD \u05D1\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05E2\u05DD WIRO 4x4? \u05E9\u05EA\u05E4\u05D5 \u05D0\u05D9\u05EA\u05E0\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05D4\u05DB\u05D9 \u05D8\u05D5\u05D1\u05D5\u05EA \u05E9\u05DC\u05DB\u05DD! \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05D9\u05D9\u05D1\u05D3\u05E7\u05D5 \u05DC\u05E4\u05E0\u05D9 \u05E4\u05E8\u05E1\u05D5\u05DD \u05D1\u05D2\u05DC\u05E8\u05D9\u05D4."
+                "Already been on a WIRO 4x4 adventure? Share your best photos with us! Photos will be reviewed before appearing in the gallery.",
+                "כבר הייתם בהרפתקה עם WIRO 4x4? שתפו אותנו בתמונות הכי טובות שלכם! התמונות ייבדקו לפני פרסום בגלריה."
               )}
             </p>
 
@@ -896,7 +901,7 @@ function UserPhotoUploadSection() {
                 type="text"
                 value={form.name}
                 onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                className="w-full min-h-11 px-3 py-2 border border-border rounded-xl text-sm bg-background"
                 placeholder={t(
                   "Your name",
                   "\u05D4\u05E9\u05DD \u05E9\u05DC\u05DA"
@@ -913,7 +918,7 @@ function UserPhotoUploadSection() {
                 type="email"
                 value={form.email}
                 onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                className="w-full min-h-11 px-3 py-2 border border-border rounded-xl text-sm bg-background"
                 placeholder="your@email.com"
               />
             </div>
@@ -927,7 +932,7 @@ function UserPhotoUploadSection() {
                 type="text"
                 value={form.title}
                 onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                className="w-full min-h-11 px-3 py-2 border border-border rounded-xl text-sm bg-background"
                 placeholder={t(
                   "Describe your photo",
                   "\u05EA\u05D0\u05E8 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4"
@@ -955,7 +960,7 @@ function UserPhotoUploadSection() {
                 onChange={e =>
                   setForm(p => ({ ...p, tourDate: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                className="w-full min-h-11 px-3 py-2 border border-border rounded-xl text-sm bg-background"
               />
             </div>
 
@@ -972,7 +977,7 @@ function UserPhotoUploadSection() {
                     category: e.target.value as UploadCategory,
                   }))
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background"
+                className="w-full min-h-11 px-3 py-2 border border-border rounded-xl text-sm bg-background"
               >
                 {CATEGORIES.filter(c => c.id !== "all").map(cat => (
                   <option key={cat.id} value={cat.id}>
@@ -992,17 +997,10 @@ function UserPhotoUploadSection() {
                 )}
                 )
               </label>
-              <div
-                className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-accent/50 transition-colors"
+              <button
+                type="button"
+                className="w-full border-2 border-dashed border-border rounded-2xl p-6 text-center cursor-pointer hover:border-accent/50 transition-colors touch-manipulation"
                 onClick={() => fileInputRef.current?.click()}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    fileInputRef.current?.click();
-                  }
-                }}
               >
                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">
@@ -1018,7 +1016,7 @@ function UserPhotoUploadSection() {
                     "\u05DE\u05E7\u05E1 10MB \u05DC\u05EA\u05DE\u05D5\u05E0\u05D4"
                   )}
                 </p>
-              </div>
+              </button>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1036,11 +1034,12 @@ function UserPhotoUploadSection() {
                       <img
                         src={url}
                         alt={`Preview ${i + 1}`}
-                        className="w-20 h-20 object-cover rounded border border-border"
+                        className="w-20 h-20 object-cover rounded-xl border border-border"
                       />
                       <button
+                        type="button"
                         onClick={() => removeFile(i)}
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 inline-flex items-center justify-center min-h-8 min-w-8 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
                         aria-label={t(
                           "Remove photo",
                           "\u05D4\u05E1\u05E8 \u05EA\u05DE\u05D5\u05E0\u05D4"
@@ -1061,7 +1060,7 @@ function UserPhotoUploadSection() {
                 id="photo-terms"
                 checked={agreedTerms}
                 onChange={e => setAgreedTerms(e.target.checked)}
-                className="w-4 h-4 mt-0.5"
+                className="w-5 h-5 mt-0.5"
               />
               <label
                 htmlFor="photo-terms"
@@ -1076,11 +1075,12 @@ function UserPhotoUploadSection() {
 
             {/* Submit */}
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={
                 isSubmitting || selectedFiles.length === 0 || !agreedTerms
               }
-              className="w-full px-4 py-3 bg-accent text-accent-foreground rounded-lg font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full min-h-12 px-4 py-3 bg-accent text-accent-foreground rounded-2xl font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

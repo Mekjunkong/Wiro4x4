@@ -297,7 +297,7 @@ export default function Blog() {
                 {filteredPosts.map(post => (
                   <Card
                     key={post.slug}
-                    className="overflow-hidden border-t-2 border-accent rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
+                    className="overflow-hidden border border-accent/35 rounded-sm hover:shadow-premium-lg transition-all duration-300 hover:-translate-y-2 group"
                   >
                     <Link href={`/blog/${post.slug}`}>
                       <div className="relative h-56 overflow-hidden cursor-pointer">

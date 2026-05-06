@@ -136,7 +136,7 @@ export function DashboardCharts({
               </PieChart>
             </ResponsiveContainer>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-700">
+              <div className="text-2xl font-bold text-accent-cta">
                 {stats.leadConversion.rate}%
               </div>
               <div className="text-xs text-gray-500">

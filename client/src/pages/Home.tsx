@@ -6,8 +6,6 @@ import { GalleryShowcase } from "@/components/GalleryShowcase";
 import { SocialProofStrip } from "@/components/SocialProofStrip";
 import { TrustAndKosher } from "@/components/TrustAndKosher";
 import { QuickInquiryForm } from "@/components/QuickInquiryForm";
-import { FAQ } from "@/components/FAQ";
-import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { StickyBookBar } from "@/components/StickyBookBar";
@@ -27,16 +25,14 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <ProductTiers />
-        <GalleryShowcase />
         <TrustAndKosher />
         <SocialProofStrip />
+        <GalleryShowcase />
         <QuickInquiryForm />
-        <FAQ />
       </main>
       <Footer />
       <FloatingActionButtons />
       <StickyBookBar />
-      <NewsletterPopup />
     </div>
   );
 }

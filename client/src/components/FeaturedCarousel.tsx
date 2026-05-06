@@ -100,7 +100,7 @@ export function FeaturedCarousel({
                     alt={photo.title}
                     className="w-full h-full object-cover rounded-sm"
                   />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-12 pb-4 px-4">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary/70 to-transparent pt-12 pb-4 px-4">
                     <p className="text-white text-sm md:text-base font-medium text-left">
                       {photo.title}
                     </p>
@@ -112,8 +112,8 @@ export function FeaturedCarousel({
 
           {!isSingle && (
             <>
-              <CarouselPrevious className="bg-black/40 hover:bg-black/60 border-none text-white left-2 md:left-4" />
-              <CarouselNext className="bg-black/40 hover:bg-black/60 border-none text-white right-2 md:right-4" />
+              <CarouselPrevious className="bg-primary/40 hover:bg-primary/60 border-none text-white left-2 md:left-4" />
+              <CarouselNext className="bg-primary/40 hover:bg-primary/60 border-none text-white right-2 md:right-4" />
             </>
           )}
         </Carousel>

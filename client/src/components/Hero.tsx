@@ -1,10 +1,10 @@
 import { useRef } from "react";
-import { ChevronDown, MessageCircle } from "lucide-react";
-import { Link } from "wouter";
+import { ChevronDown, MessageCircle, Calendar } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { trackEvent } from "@/lib/analytics";
+import { Link } from "wouter";
 
 const TRUST_ITEMS = [
   { en: "Hebrew Speaking", he: "דוברי עברית" },
@@ -54,7 +54,7 @@ export function Hero() {
       />
 
       {/* Bottom gradient overlay - stronger for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:from-black/80 md:via-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent md:from-primary/80 md:via-primary/30" />
 
       {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
@@ -79,35 +79,42 @@ export function Hero() {
           <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
+          <Link
+            href="/book"
+            onClick={() => trackHeroAction("book_now")}
+            className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+          >
+            <Calendar className="w-5 h-5" />
+            {t("Book Now", "הזמינו עכשיו")}
+          </Link>
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackHeroAction("whatsapp")}
-            className="bg-[#25D366] hover:bg-[#20BA5A] active:bg-[#1EA653] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            className="border border-white/35 bg-white/5 hover:bg-white/10 active:bg-white/15 text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
           >
             <MessageCircle className="w-5 h-5" />
             {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
           </a>
-          <Link href="/book">
-            <button
-              onClick={() => trackHeroAction("get_quote")}
-              className="bg-accent hover:bg-accent/90 active:bg-accent/80 text-[#1c1c1c] font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
-            >
-              {t("Get a Quote", "קבלו הצעת מחיר")}
-            </button>
-          </Link>
           <button
             onClick={scrollToTours}
-            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            className="text-white/80 hover:text-white text-sm tracking-wide underline-offset-4 hover:underline transition-colors w-full sm:w-auto text-center sm:text-left"
           >
-            {t("View Tours", "ראו טיולים")}
+            {t("See tours ↓", "ראו טיולים ↓")}
           </button>
         </div>
 
+        <p className="max-w-xl text-xs md:text-sm text-white/70 uppercase tracking-[0.2em] animate-hero-reveal [animation-delay:0.58s]">
+          {t(
+            "Private tours · Hebrew-speaking guide · Kosher planning",
+            "טיולים פרטיים · מדריך דובר עברית · תכנון כשר"
+          )}
+        </p>
+
         {/* Gold separator */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent mb-4 animate-hero-reveal [animation-delay:0.6s]" />
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent mb-4 mt-5 animate-hero-reveal [animation-delay:0.6s]" />
 
         <div className="flex flex-wrap gap-2 md:gap-2.5 animate-hero-reveal [animation-delay:0.7s]">
           {TRUST_ITEMS.map(item => (

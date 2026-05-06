@@ -132,79 +132,79 @@ export function ChatWidget() {
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
-          className={`fixed inset-x-0 bottom-0 md:bottom-6 md:w-80 md:inset-auto w-full md:w-auto h-[60vh] md:h-96 bg-white md:rounded-2xl shadow-2xl border-t md:border border-gray-200 flex flex-col z-[9999] overflow-hidden ${isRtl ? "md:left-4 md:right-auto" : "md:right-4 md:left-auto"}`}
+          className={`fixed inset-x-0 bottom-0 md:bottom-6 md:w-[24rem] md:inset-auto w-full md:w-auto h-[68vh] max-h-[32rem] bg-card/98 backdrop-blur-sm md:rounded-3xl shadow-2xl border-t md:border border-border/70 flex flex-col z-[9999] overflow-hidden ${isRtl ? "md:left-4 md:right-auto" : "md:right-4 md:left-auto"}`}
           dir={isRtl ? "rtl" : "ltr"}
         >
           {/* Header */}
-          <div className="h-12 bg-secondary/10 rounded-t-2xl px-3 flex items-center justify-between">
-            <span className="font-semibold text-gray-800 flex items-center gap-1.5">
+          <div className="min-h-14 bg-secondary/10 px-3 md:px-4 flex items-center justify-between border-b border-border/70">
+            <span className="font-semibold text-foreground flex items-center gap-2">
               <span className="text-lg">👨‍💼</span>
               {t("Moshe — Your Guide", "משה — המדריך שלכם")}
             </span>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={toggleLanguage}
-                className="text-xs font-medium px-2 py-1 rounded hover:bg-secondary/20 transition-colors"
+                className="inline-flex items-center justify-center min-h-11 min-w-11 text-xs font-medium px-3 rounded-full hover:bg-secondary/20 transition-colors"
                 aria-label={t("Toggle language", "החלף שפה")}
               >
                 {chatLanguage === "en" ? "עב" : "EN"}
               </button>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded hover:bg-secondary/20 transition-colors"
+                className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full hover:bg-secondary/20 transition-colors"
                 aria-label={t("Close chat", "סגור צ'אט")}
               >
-                <X className="h-4 w-4 text-gray-600" />
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
           </div>
 
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          <ul
+            className="flex-1 overflow-y-auto p-3 space-y-2"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+          >
             {messages.map((msg, idx) => (
-              <div
+              <li
                 key={idx}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <span
+                <div
                   className={`px-3 py-2 text-sm max-w-[75%] ${
                     msg.role === "user"
-                      ? "bg-secondary text-white rounded-2xl rounded-br-sm"
-                      : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm"
+                      ? "bg-secondary text-secondary-foreground rounded-2xl rounded-br-sm"
+                      : "bg-muted text-foreground rounded-2xl rounded-bl-sm"
                   }`}
                 >
                   {msg.content}
-                </span>
-              </div>
+                </div>
+              </li>
             ))}
 
             {isLoading && (
-              <div className="flex justify-start">
-                <span className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm">
-                  <span className="inline-flex gap-1">
-                    <span className="animate-bounce">.</span>
-                    <span
-                      className="animate-bounce"
-                      style={{ animationDelay: "0.1s" }}
-                    >
-                      .
-                    </span>
-                    <span
-                      className="animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    >
-                      .
-                    </span>
+              <li
+                className="flex justify-start"
+                aria-label={t("Moshe is typing", "משה כותב")}
+              >
+                <div className="bg-muted text-foreground rounded-2xl rounded-bl-sm px-3 py-2 text-sm">
+                  <span className="inline-flex gap-1 motion-safe:[&>span]:animate-pulse">
+                    <span>.</span>
+                    <span style={{ animationDelay: "0.1s" }}>.</span>
+                    <span style={{ animationDelay: "0.2s" }}>.</span>
                   </span>
-                </span>
-              </div>
+                </div>
+              </li>
             )}
 
             <div ref={messagesEndRef} />
-          </div>
+          </ul>
 
           {/* Input area */}
-          <div className="h-14 border-t flex items-center px-3 gap-2">
+          <div className="min-h-16 border-t border-border/70 flex items-center px-3 py-2 gap-2 bg-background/80">
             <input
               ref={inputRef}
               type="text"
@@ -213,13 +213,14 @@ export function ChatWidget() {
               onKeyDown={handleKeyDown}
               placeholder={t("Ask Moshe anything...", "שאלו את משה כל דבר...")}
               disabled={isLoading}
-              className="flex-1 rounded-full border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
+              className="flex-1 min-h-11 rounded-full border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
               dir={isRtl ? "rtl" : "ltr"}
             />
             <button
+              type="button"
               onClick={() => void sendMessage()}
               disabled={!input.trim() || isLoading}
-              className="rounded-full bg-secondary text-white p-1.5 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
+              className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full bg-secondary text-secondary-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
               aria-label={t("Send message", "שלח הודעה")}
             >
               <Send className="h-4 w-4" />

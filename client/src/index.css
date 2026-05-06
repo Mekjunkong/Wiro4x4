@@ -216,14 +216,9 @@
     margin: 0 auto;
   }
 
-  /* Gold shimmer text — for premium hero accents */
+  /* Solid gold text accent; avoids gradient-text AI slop. */
   .wiro-gold-shimmer {
-    background: linear-gradient(90deg, #d4af37, #f5d76e, #d4af37, #b8960f);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: wiroGoldShimmer 3s linear infinite;
+    color: #d4af37;
   }
 
   /* Smooth scroll behavior */
@@ -532,10 +527,5 @@ textarea {
   }
 }
 .gold-shimmer {
-  background: linear-gradient(90deg, #d4af37, #f5d76e, #d4af37, #b8960f);
-  background-size: 200% auto;
-  animation: gold-shimmer 3s linear infinite;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #d4af37;
 }

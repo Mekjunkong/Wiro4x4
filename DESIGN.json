@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-04T00:00:00Z",
+  "title": "Design System: WIRO 4×4",
+  "extensions": {
+    "colorMeta": {
+      "charcoal": {
+        "role": "primary",
+        "displayName": "Chiang Mai Night",
+        "canonical": "oklch(13% 0.003 60)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#1c1c1c",
+          "#2c2c2c",
+          "#404040",
+          "#585858",
+          "#767676",
+          "#9e9e9e",
+          "#c8c8c8"
+        ]
+      },
+      "charcoal-body": {
+        "role": "primary",
+        "displayName": "Trail Dark",
+        "canonical": "oklch(20% 0.003 60)",
+        "tonalRamp": [
+          "#111111",
+          "#1c1c1c",
+          "#2c2c2c",
+          "#3d3d3d",
+          "#555555",
+          "#747474",
+          "#9c9c9c",
+          "#c8c8c8"
+        ]
+      },
+      "parchment": {
+        "role": "neutral",
+        "displayName": "Rice Paper",
+        "canonical": "oklch(97% 0.008 75)",
+        "tonalRamp": [
+          "#c8c0b4",
+          "#d4ccc0",
+          "#ddd7cc",
+          "#e6e0d8",
+          "#eeebe3",
+          "#f3f0ea",
+          "#f8f5f0",
+          "#faf7f2"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Field Notes Cream",
+        "canonical": "oklch(98% 0.005 75)",
+        "tonalRamp": [
+          "#ccc4b8",
+          "#d6cfc4",
+          "#e0d9ce",
+          "#eae4da",
+          "#f0ece5",
+          "#f5f2ec",
+          "#f9f7f3",
+          "#fdfbf7"
+        ]
+      },
+      "teak-dust": {
+        "role": "neutral",
+        "displayName": "Teak Dust",
+        "canonical": "oklch(90% 0.010 65)",
+        "tonalRamp": [
+          "#8c857d",
+          "#a09890",
+          "#b2aaa3",
+          "#c4bdb6",
+          "#d4cec8",
+          "#e0d9d2",
+          "#ece6e0",
+          "#f5f2ee"
+        ]
+      },
+      "river-silt": {
+        "role": "neutral",
+        "displayName": "River Silt",
+        "canonical": "oklch(46% 0.010 55)",
+        "tonalRamp": [
+          "#2e2a27",
+          "#3f3b38",
+          "#4f4c48",
+          "#605d59",
+          "#6b6560",
+          "#857f7a",
+          "#a09b97",
+          "#c4bfbb"
+        ]
+      },
+      "temple-gold": {
+        "role": "secondary",
+        "displayName": "Temple Gold",
+        "canonical": "oklch(75% 0.14 85)",
+        "tonalRamp": [
+          "#2d2400",
+          "#564300",
+          "#806400",
+          "#a88516",
+          "#c8a320",
+          "#d4af37",
+          "#e3c868",
+          "#f2e3a8"
+        ]
+      },
+      "temple-gold-cta": {
+        "role": "secondary",
+        "displayName": "Monsoon Honey",
+        "canonical": "oklch(62% 0.14 78)",
+        "tonalRamp": [
+          "#261c00",
+          "#4a3800",
+          "#705400",
+          "#926c00",
+          "#ae8600",
+          "#b8960f",
+          "#cca932",
+          "#e2cc72"
+        ]
+      },
+      "temple-gold-cta-hover": {
+        "role": "secondary",
+        "displayName": "Deep Amber",
+        "canonical": "oklch(57% 0.13 76)",
+        "tonalRamp": [
+          "#221900",
+          "#443200",
+          "#684e00",
+          "#876600",
+          "#9c7800",
+          "#a3850e",
+          "#b99c30",
+          "#d4bc6a"
+        ]
+      },
+      "crimson": {
+        "role": "destructive",
+        "displayName": "Crimson",
+        "canonical": "oklch(40% 0.17 27)",
+        "tonalRamp": [
+          "#3b0000",
+          "#6b0000",
+          "#960000",
+          "#b40000",
+          "#b91c1c",
+          "#c94040",
+          "#d97070",
+          "#efb0b0"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines and single defining page statements. DM Serif Display only — never in Source Sans 3."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headers, tour names, blog titles. DM Serif Display."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles, subsection labels. Source Sans 3 Semi-Bold."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running prose. Source Sans 3. Max line length 65–75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Eyebrows, trust badges, navigation items, attribute tags. Always uppercase and tracked at 0.25em."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 10px 40px rgba(28, 28, 28, 0.08)",
+        "purpose": "Rare rest-state lift when tonal layering alone is insufficient. Use sparingly."
+      },
+      {
+        "name": "hover-lift",
+        "value": "0 20px 60px rgba(28, 28, 28, 0.12)",
+        "purpose": "Applied on card hover. Communicates that the element is responding to attention."
+      },
+      {
+        "name": "luxury-frame",
+        "value": "0 24px 48px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(212, 175, 55, 0.15)",
+        "purpose": "Tour cards on hover only. The 1px gold ring and deep shadow arrive together — a loupe around a field photograph."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-smooth",
+        "value": "cubic-bezier(0.33, 1, 0.68, 1)",
+        "purpose": "Hero reveal animations. Fast deceleration — confident entrance."
+      },
+      {
+        "name": "ease-standard",
+        "value": "ease-out",
+        "purpose": "Default for state transitions: nav underline, card lift, button fill."
+      },
+      {
+        "name": "ease-luxury",
+        "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Luxury card hover lift. Slightly slower deceleration for premium feel."
+      },
+      {
+        "name": "duration-fast",
+        "value": "200ms",
+        "purpose": "Focus rings, opacity transitions, small state changes."
+      },
+      {
+        "name": "duration-standard",
+        "value": "300ms",
+        "purpose": "Nav underline, button hover fill, card border."
+      },
+      {
+        "name": "duration-slow",
+        "value": "400ms",
+        "purpose": "Luxury card transform + shadow."
+      },
+      {
+        "name": "duration-hero",
+        "value": "700ms",
+        "purpose": "Hero reveal stagger. Each element staggers by 150ms."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px", "containerPadding": "24px" },
+      {
+        "name": "lg",
+        "value": "1024px",
+        "containerPadding": "32px",
+        "maxWidth": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ghost Gold Button",
+      "kind": "button",
+      "refersTo": "button-ghost-gold",
+      "description": "Standard UI button. Transparent fill with gold border — becomes gold-filled on hover. Default action in non-conversion contexts.",
+      "html": "<button class=\"ds-btn-ghost-gold\">VIEW TOURS</button>",
+      "css": ".ds-btn-ghost-gold { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; border-radius: 0; font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 24px; height: 40px; background: transparent; border: 2px solid #d4af37; color: #d4af37; cursor: pointer; transition: background 0.3s ease, color 0.3s ease; } .ds-btn-ghost-gold:hover { background: #d4af37; color: #1c1c1c; } .ds-btn-ghost-gold:focus-visible { outline: 2px solid #d4af37; outline-offset: 2px; } .ds-btn-ghost-gold:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "CTA Button",
+      "kind": "button",
+      "refersTo": "button-cta",
+      "description": "Primary conversion button. Monsoon Honey fill (darker gold, WCAG AA on white). One per section maximum. Used for Book, Inquire, WhatsApp actions.",
+      "html": "<button class=\"ds-btn-cta\">BOOK YOUR TOUR</button>",
+      "css": ".ds-btn-cta { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 0; font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 40px; height: 48px; background: #b8960f; border: none; color: #ffffff; cursor: pointer; transition: background 0.3s ease; } .ds-btn-cta:hover { background: #a3850e; } .ds-btn-cta:focus-visible { outline: 2px solid #d4af37; outline-offset: 2px; } .ds-btn-cta:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Hero Primary Button",
+      "kind": "button",
+      "refersTo": "button-hero-primary",
+      "description": "Used on dark hero overlay. White text with gold border — becomes gold-filled on hover.",
+      "html": "<button class=\"ds-btn-hero-primary\">START YOUR ADVENTURE</button>",
+      "css": ".ds-btn-hero-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 0; font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 40px; height: 48px; background: transparent; border: 2px solid #d4af37; color: #ffffff; cursor: pointer; transition: background 0.3s ease, color 0.3s ease; } .ds-btn-hero-primary:hover { background: #d4af37; color: #1c1c1c; } .ds-btn-hero-primary:focus-visible { outline: 2px solid #d4af37; outline-offset: 2px; }"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The structural fingerprint of the system. Gold eyebrow → DM Serif Display headline → 64px gold rule. Every major section uses this pattern.",
+      "html": "<div class=\"ds-section-heading\"><p class=\"ds-section-eyebrow\">OUR TOURS</p><h2 class=\"ds-section-title\">Off-Road Adventures in Chiang Mai</h2><span class=\"ds-gold-divider\"></span></div>",
+      "css": ".ds-section-heading { text-align: center; margin-bottom: 48px; } .ds-section-eyebrow { font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #d4af37; margin: 0 0 12px; } .ds-section-title { font-family: 'DM Serif Display', 'Playfair Display', Georgia, serif; font-size: clamp(1.5rem, 3.5vw, 2.25rem); font-weight: 400; line-height: 1.2; color: #1c1c1c; margin: 0 0 16px; } .ds-gold-divider { display: block; height: 1px; width: 64px; background: #d4af37; margin: 0 auto; }"
+    },
+    {
+      "name": "Gold Divider",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The 64px gold rule used as a section separator. A stamped mark, not a wall — never full-width.",
+      "html": "<span class=\"ds-gold-divider\"></span>",
+      "css": ".ds-gold-divider { display: block; height: 1px; width: 64px; background: #d4af37; margin: 0 auto; }"
+    },
+    {
+      "name": "Tour Card",
+      "kind": "card",
+      "refersTo": null,
+      "description": "The primary content card for tour listings. Sharp corners, cream background, full-perimeter border. Luxury Frame shadow + translateY on hover.",
+      "html": "<div class=\"ds-tour-card\"><div class=\"ds-tour-card__image\"><div class=\"ds-tour-card__image-placeholder\"></div><div class=\"ds-tour-card__badge\">7–8 hours</div></div><div class=\"ds-tour-card__body\"><h3 class=\"ds-tour-card__title\">Doi Inthanon — Roof of Thailand</h3><p class=\"ds-tour-card__desc\">Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm.</p><div class=\"ds-tour-card__chips\"><span class=\"ds-chip\">Kosher</span><span class=\"ds-chip\">Private</span><span class=\"ds-chip\">Shabbat</span></div></div></div>",
+      "css": ".ds-tour-card { display: flex; flex-direction: column; background: #fdfbf7; border: 1px solid #e8e2da; border-radius: 0; overflow: hidden; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease; } .ds-tour-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -12px rgba(0,0,0,0.2), 0 0 0 1px rgba(212,175,55,0.15); } .ds-tour-card__image { position: relative; aspect-ratio: 16 / 9; overflow: hidden; } .ds-tour-card__image-placeholder { width: 100%; height: 100%; background: #e8e2da; } .ds-tour-card__badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: #ffffff; font-family: 'Source Sans 3', sans-serif; font-size: 0.625rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 0; } .ds-tour-card__body { padding: 24px; display: flex; flex-direction: column; gap: 12px; } .ds-tour-card__title { font-family: 'DM Serif Display', 'Playfair Display', Georgia, serif; font-size: 1.125rem; font-weight: 400; line-height: 1.3; color: #1c1c1c; margin: 0; } .ds-tour-card__desc { font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; color: #6b6560; line-height: 1.5; margin: 0; } .ds-tour-card__chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { display: inline-flex; align-items: center; padding: 4px 12px; background: rgba(212,175,55,0.1); color: #d4af37; font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 500; border-radius: 0; }"
+    },
+    {
+      "name": "Attribute Chip",
+      "kind": "chip",
+      "refersTo": "chip-attribute",
+      "description": "Document annotations for tour attributes (Kosher, Private, Shabbat Friendly). Gold tint background, near-square corner.",
+      "html": "<span class=\"ds-chip\">Kosher Meals</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; padding: 4px 12px; background: rgba(212,175,55,0.1); color: #d4af37; font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; border-radius: 0; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Standard form input. Slightly softer radius than buttons (4px) — receptive, not assertive. Gold focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Your name\" />",
+      "css": ".ds-input { display: block; width: 100%; height: 40px; padding: 8px 12px; background: #faf7f2; border: 1px solid #e8e2da; border-radius: 4px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; color: #2c2c2c; transition: border-color 0.2s ease, box-shadow 0.2s ease; outline: none; } .ds-input:focus { border-color: #d4af37; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); } .ds-input::placeholder { color: #6b6560; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Transparent on hero, parchment/blur on scroll. Logo scales down. Nav links expand gold underline from center on hover.",
+      "html": "<header class=\"ds-nav ds-nav--scrolled\"><a href=\"/\" class=\"ds-nav__logo\">WIRO 4×4</a><nav class=\"ds-nav__links\"><a href=\"/\" class=\"ds-nav__link ds-nav__link--active\">Tours</a><a href=\"/\" class=\"ds-nav__link\">Pricing</a><a href=\"/\" class=\"ds-nav__link\">Blog</a></nav><button class=\"ds-btn-cta\" style=\"height:36px;padding:8px 20px;font-size:0.75rem\">BOOK NOW</button></header>",
+      "css": ".ds-nav { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 72px; transition: background 0.3s ease, border-color 0.3s ease; } .ds-nav--scrolled { background: rgba(250,247,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(212,175,55,0.2); } .ds-nav__logo { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.25rem; font-weight: 400; color: #1c1c1c; text-decoration: none; } .ds-nav__links { display: flex; gap: 24px; } .ds-nav__link { position: relative; font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #2c2c2c; text-decoration: none; } .ds-nav__link::after { content: ''; position: absolute; bottom: -2px; left: 50%; width: 0; height: 1px; background: #d4af37; transition: width 0.3s ease, left 0.3s ease; } .ds-nav__link:hover::after { width: 100%; left: 0; } .ds-nav__link--active::after { width: 100%; left: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Expedition Dossier",
+    "overview": "This is a well-worn travel document that proves real experience happened. DM Serif Display headlines cut sharp against parchment-toned backgrounds. Temple Gold appears as printed ink — the stamp on a field envelope, the underline in a handwritten note, the ruled margin in a jungle notebook. Photography is primary documentation, not decoration. Every screen should feel like a page you'd find tucked inside a guide's kit bag, not a brochure you'd pick up in a hotel lobby.\n\nThe system rejects the logistics-heavy corporate aesthetic of Thailand Kosher, Kesher Tours, and Koco Travel — travel agency layouts with group-bus-tour energy, dense itinerary tables, and 'traditional Jewish vacation' positioning. It equally rejects generic adventure tourism with stock photography and countdown timers, budget backpacker neon-and-clutter, and the cold distance of sterile luxury hotel design.\n\nDensity is intentional. The site breathes. Whitespace is the jungle clearing between dense canopy sections.",
+    "keyCharacteristics": [
+      "Warm parchment surfaces (#faf7f2, #fdfbf7) — never clinical white",
+      "Near-zero corner radius (0px) on action elements: printed, not rounded",
+      "Temple Gold used at trace-element concentration — dividers, borders, underlines, focus rings",
+      "DM Serif Display at confident scale; contrast with Source Sans 3's open warmth",
+      "Uppercase tracking labels as structural document markers",
+      "Bilingual Hebrew/English as a first-class constraint, not an afterthought"
+    ],
+    "rules": [
+      {
+        "name": "The Restraint Rule",
+        "body": "Temple Gold appears on ≤10% of any given screen surface. A gold element draws the eye because everything around it is not gold. Filling backgrounds, cards, or non-CTA buttons with gold destroys the signal entirely.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Surface Rule",
+        "body": "Every background surface must carry warmth. Rice Paper for pages. Field Notes Cream for cards. Teak Dust for borders. Pure white (#ffffff) is prohibited on surfaces — it breaks the dossier illusion.",
+        "section": "colors"
+      },
+      {
+        "name": "The Eyebrow Rule",
+        "body": "Every major section opens with a label-weight uppercase tracker in Temple Gold before the DM Serif Display headline. The sequence — gold eyebrow → serif headline → 64px gold rule — is the structural fingerprint. New sections that skip the eyebrow lose their chapter identity.",
+        "section": "typography"
+      },
+      {
+        "name": "The Type-Mixing Rule",
+        "body": "DM Serif Display is for headings. Source Sans 3 is for everything else. Never set body copy in DM Serif Display, and never set a headline in Source Sans without intent. Hebrew headings use Rubik; Hebrew body uses Heebo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "A surface at rest is flat. The shadow is a state — hover, focus, overlay — not a decorative property. A card with a shadow at rest and a stronger shadow on hover has lost the signal.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use Temple Gold exclusively for borders, dividers, underlines, focus rings, and the single filled CTA button. The ratio on any screen must stay below 10%.",
+      "Do use 0px radius (rounded-sm) on tour cards, buttons, and attribute chips. The sharp corner is intentional — it signals printed, not digital.",
+      "Do open every major section with a label-weight uppercase eyebrow in Temple Gold, followed by a DM Serif Display headline, followed by a 64px centered gold divider.",
+      "Do load all Hebrew content with [lang=\"he\"] or .rtl, Heebo/Rubik fonts, and dir=\"rtl\". Bilingual is a first-class contract.",
+      "Do apply the Luxury Frame shadow only on tour cards and only on hover.",
+      "Do register every new animation with the prefers-reduced-motion kill switch already in index.css.",
+      "Do keep all body copy on Rice Paper (#faf7f2) or Field Notes Cream (#fdfbf7). Warm surfaces only."
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored accent on any card, list item, callout, or alert. The tour card's current border-l-4 border-accent pattern is prohibited and must not spread.",
+      "Don't use gradient text via background-clip: text. The .wiro-gold-shimmer and .gold-shimmer utilities are prohibited for new components. Use solid color: #d4af37 instead.",
+      "Don't use pure white (#ffffff) as any background surface. Rice Paper is the minimum warmth.",
+      "Don't design new pages to look like Thailand Kosher, Kesher Tours, or Koco Travel. If it looks like a travel agency, it has failed.",
+      "Don't use countdown timers, 'X spots left' urgency badges, or stock photography of anonymous tourists.",
+      "Don't fill any large surface with Temple Gold or Monsoon Honey. Gold is a trace element.",
+      "Don't apply a drop shadow to any surface at rest. Shadows are earned by state change.",
+      "Don't ship a new page section without Hebrew copy equivalents. English-only sections do not exist in this product."
+    ]
+  }
+}
