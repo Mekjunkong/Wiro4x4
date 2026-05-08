@@ -30,12 +30,12 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-[9997] p-4 animate-fade-in-up"
+      className="fixed inset-x-0 bottom-24 z-[9997] p-3 animate-fade-in-up md:bottom-4 md:left-4 md:right-auto md:max-w-xl md:p-0"
       role="dialog"
       aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
-      <div className="container mx-auto max-w-4xl">
-        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-xl p-4 md:p-6 shadow-premium-lg flex flex-col sm:flex-row items-start sm:items-center gap-4 mr-20 sm:mr-0">
+      <div className="container mx-auto max-w-3xl px-0 md:mx-0 md:max-w-none">
+        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-lg p-3 md:p-4 shadow-premium-lg flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <p className="text-sm text-muted-foreground flex-1">
             {t(
               "We use cookies and local storage for essential site functionality, such as authentication and saving your booking draft.",

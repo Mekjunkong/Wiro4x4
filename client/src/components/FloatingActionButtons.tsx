@@ -12,6 +12,7 @@ export function FloatingActionButtons() {
 
   const [chatOpen, setChatOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasScrolledPastHero, setHasScrolledPastHero] = useState(false);
 
   useEffect(() => {
     const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
@@ -27,7 +28,23 @@ export function FloatingActionButtons() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
+  useEffect(() => {
+    const updateScrollState = () => {
+      setHasScrolledPastHero(window.scrollY > window.innerHeight * 0.55);
+    };
+
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    return () => {
+      window.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, []);
+
   const isHomePage = location === "/";
+  const hideOnHomeHero = isHomePage && !hasScrolledPastHero;
   const hideOnMobile = isMobile && isHomePage;
 
   const handleWhatsAppClick = () => {
@@ -47,7 +64,7 @@ export function FloatingActionButtons() {
     window.dispatchEvent(new CustomEvent("chat-toggle"));
   };
 
-  if (hideOnMobile || chatOpen) return null;
+  if (hideOnMobile || hideOnHomeHero || chatOpen) return null;
 
   const isRtl = language === "he";
   const bottomClass = isBookingPage ? "bottom-20 md:bottom-6" : "bottom-6";
