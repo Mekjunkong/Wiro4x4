@@ -72,7 +72,7 @@ export function QuickInquiryForm() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} method="post" className="space-y-4">
           <div>
             <label
               htmlFor="inquiry-name"
@@ -82,6 +82,7 @@ export function QuickInquiryForm() {
             </label>
             <input
               id="inquiry-name"
+              name="name"
               type="text"
               required
               aria-required="true"
@@ -111,6 +112,7 @@ export function QuickInquiryForm() {
               </label>
               <input
                 id="inquiry-dates"
+                name="travelDates"
                 type="text"
                 value={form.travelDates}
                 onChange={e =>
@@ -129,6 +131,7 @@ export function QuickInquiryForm() {
               </label>
               <input
                 id="inquiry-group-size"
+                name="groupSize"
                 type="text"
                 value={form.groupSize}
                 onChange={e =>
@@ -147,7 +150,7 @@ export function QuickInquiryForm() {
             size="lg"
           >
             <MessageCircle className="w-4 h-4" />
-            {t("Get My WhatsApp Quote", "קבלו הצעת וואטסאפ")}
+            {t("Ask Availability & Price", "בדקו זמינות ומחיר")}
           </Button>
         </form>
       </div>

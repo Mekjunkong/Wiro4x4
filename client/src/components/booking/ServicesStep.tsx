@@ -70,6 +70,7 @@ export function ServicesStep({
           >
             <input
               type="checkbox"
+              name={key}
               checked={formData[key as keyof typeof formData] as boolean}
               onChange={e =>
                 setFormData(prev => ({ ...prev, [key]: e.target.checked }))
@@ -101,6 +102,7 @@ export function ServicesStep({
           </label>
           <select
             id="shabbatHotel"
+            name="shabbatHotel"
             value={formData.shabbatHotel}
             onChange={e =>
               setFormData(prev => ({ ...prev, shabbatHotel: e.target.value }))

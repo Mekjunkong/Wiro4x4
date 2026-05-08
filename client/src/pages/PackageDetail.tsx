@@ -546,7 +546,7 @@ export default function PackageDetail() {
   if (hasFallback) {
     const pkg = fallback!;
     const whatsappMsg = encodeURIComponent(
-      `Hi! I'm interested in the ${pkg.name} package. Can you tell me more?`
+      `Hi WIRO, we'd like to check availability and price for the ${pkg.name} package. Dates/group size:`
     );
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g, "")}?text=${whatsappMsg}`;
 

@@ -154,7 +154,7 @@ export function Header() {
                 size="sm"
                 className="bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
-                {t("Book Now", "הזמינו עכשיו")}
+                {t("Ask Availability", "בדקו זמינות")}
               </Button>
             </Link>
             {switchable && toggleTheme && (
@@ -266,7 +266,7 @@ export function Header() {
                 size="lg"
                 className="w-full max-w-xs mt-6 bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
-                {t("Book Now", "הזמינו עכשיו")}
+                {t("Ask Availability", "בדקו זמינות")}
               </Button>
             </Link>
             <div className="flex items-center gap-4 mt-8">

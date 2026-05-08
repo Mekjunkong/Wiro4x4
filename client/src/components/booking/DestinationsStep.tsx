@@ -35,6 +35,7 @@ export function DestinationsStep({
           >
             <input
               type="checkbox"
+              name="suggestedDestinations"
               checked={formData.suggestedDestinations.includes(dest.id)}
               onChange={() => toggleDestination(dest.id)}
               className="w-6 h-6 md:w-5 md:h-5 rounded border-border text-primary focus:ring-primary touch-manipulation"

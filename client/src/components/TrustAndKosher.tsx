@@ -85,6 +85,26 @@ export function TrustAndKosher() {
                   "טיול 4x4 פרטי שנבנה סביב תכנון חלק, היכרות מקומית ותשומת לב שהופכת את היום לקל ונעים."
                 )}
               </p>
+              <div className="mt-5 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                <p>
+                  <span className="font-semibold text-foreground">
+                    {t("Local office:", "משרד מקומי:")}
+                  </span>{" "}
+                  {t(
+                    "Chang Klan Road, Chiang Mai",
+                    "דרך צ'אנג קלאן, צ'יאנג מאי"
+                  )}
+                </p>
+                <p>
+                  <span className="font-semibold text-foreground">
+                    {t("Before booking:", "לפני ההזמנה:")}
+                  </span>{" "}
+                  {t(
+                    "route, meals, pickup, inclusions, and price are confirmed clearly.",
+                    "מסלול, ארוחות, איסוף, מה כלול ומחיר מאושרים בצורה ברורה."
+                  )}
+                </p>
+              </div>
             </div>
 
             {/* Trust Points — story-driven grid */}

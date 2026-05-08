@@ -1495,7 +1495,7 @@ export default function Packages() {
                     </Button>
                     <Link href="/book">
                       <Button className="bg-accent-cta hover:bg-accent-cta-hover text-white">
-                        {t("Book Now", "להזמנה")}
+                        {t("Ask Availability", "בדקו זמינות")}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </Link>

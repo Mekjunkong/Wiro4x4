@@ -39,10 +39,10 @@ export function Hero() {
   const whatsappMessage =
     language === "he"
       ? encodeURIComponent(
-          "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+          "שלום, אנחנו רוצים לבדוק זמינות ומחיר לטיול 4x4 פרטי בצ'יאנג מאי. תאריכים/גודל קבוצה:"
         )
       : encodeURIComponent(
-          "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+          "Hi WIRO, we'd like to check availability and price for a private 4x4 tour in Chiang Mai. Dates/group size:"
         );
 
   const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
@@ -109,7 +109,7 @@ export function Hero() {
                 className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 rounded-sm transition-all flex min-h-12 items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
               >
                 <MessageCircle className="w-5 h-5" />
-                {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
+                {t("Ask Availability on WhatsApp", "בדקו זמינות בוואטסאפ")}
               </a>
               <a
                 href="#inquiry"
@@ -117,7 +117,7 @@ export function Hero() {
                 className="border border-white/45 bg-white/5 hover:bg-white/10 active:bg-white/15 text-white font-bold px-8 py-4 rounded-sm transition-all flex min-h-12 items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
               >
                 <Calendar className="w-5 h-5" />
-                {t("Get a Quote", "קבלו הצעה")}
+                {t("Quick Quote", "הצעה מהירה")}
               </a>
               <button
                 type="button"

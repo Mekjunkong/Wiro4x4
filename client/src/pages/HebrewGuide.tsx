@@ -141,8 +141,8 @@ export default function HebrewGuide() {
   const handleWhatsApp = () => {
     const msg = encodeURIComponent(
       t(
-        "Hi WIRO 4x4! I'm looking for a Hebrew-speaking guide in Chiang Mai. Can you tell me more?",
-        "היי WIRO 4x4! אני מחפש/ת מדריך דובר עברית בצ'יאנג מאי. אפשר לשמוע עוד?"
+        "Hi WIRO 4x4, we'd like to check availability and price for a Hebrew-speaking guide in Chiang Mai. Dates/group size:",
+        "היי WIRO 4x4, אנחנו רוצים לבדוק זמינות ומחיר למדריך דובר עברית בצ'יאנג מאי. תאריכים/גודל קבוצה:"
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");

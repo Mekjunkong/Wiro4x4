@@ -14,10 +14,10 @@ export function StickyBookBar() {
     const message =
       language === "he"
         ? encodeURIComponent(
-            "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+            "שלום, אנחנו רוצים לבדוק זמינות ומחיר לטיול 4x4 פרטי בצ'יאנג מאי. תאריכים/גודל קבוצה:"
           )
         : encodeURIComponent(
-            "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+            "Hi WIRO, we'd like to check availability and price for a private 4x4 tour in Chiang Mai. Dates/group size:"
           );
 
     window.open(
@@ -69,7 +69,7 @@ export function StickyBookBar() {
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent-cta px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2"
           >
             <Calendar className="h-4 w-4" />
-            {t("Book Now", "הזמינו עכשיו")}
+            {t("Ask Availability", "בדקו זמינות")}
           </Link>
         </div>
       </div>

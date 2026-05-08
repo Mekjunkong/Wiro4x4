@@ -36,8 +36,8 @@ export function ChatWidget() {
 
   const welcomeMessage =
     chatLanguage === "he"
-      ? "שלום! אני משה 👨‍💼 המדריך האישי שלכם ב-WIRO 4x4. שלחו לי את שאלתכם ואחזור אליכם בהקדם!"
-      : "Hi! I'm Moshe 👨‍💼 your personal guide at WIRO 4x4. Send me your question and I'll get back to you as soon as possible!";
+      ? "שלום! כאן מתכנן הטיולים של WIRO 4x4 👨‍💼 שלחו שאלה, תאריכים או גודל קבוצה ונחזור אליכם בהקדם ב-WhatsApp."
+      : "Hi! This is the WIRO 4x4 trip planner 👨‍💼 Send a question, dates, or group size and we'll reply on WhatsApp as soon as possible.";
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("chat-open", { detail: isOpen }));
@@ -93,8 +93,8 @@ export function ChatWidget() {
       const reply =
         data.reply ??
         (chatLanguage === "he"
-          ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp 📱"
-          : "Thanks! Moshe received your message and will reply via WhatsApp shortly 📱");
+          ? "תודה! WIRO קיבלו את ההודעה שלך ויחזרו אליך בהקדם דרך WhatsApp 📱"
+          : "Thanks! WIRO received your message and will reply via WhatsApp shortly 📱");
 
       setMessages(prev => [...prev, { role: "moshe", content: reply }]);
     } catch {
@@ -121,8 +121,8 @@ export function ChatWidget() {
     if (messages.length <= 1) {
       const newWelcome =
         newLang === "he"
-          ? "שלום! אני משה 👨‍💼 המדריך האישי שלכם ב-WIRO 4x4. שלחו לי את שאלתכם ואחזור אליכם בהקדם!"
-          : "Hi! I'm Moshe 👨‍💼 your personal guide at WIRO 4x4. Send me your question and I'll get back to you as soon as possible!";
+          ? "שלום! כאן מתכנן הטיולים של WIRO 4x4 👨‍💼 שלחו שאלה, תאריכים או גודל קבוצה ונחזור אליכם בהקדם ב-WhatsApp."
+          : "Hi! This is the WIRO 4x4 trip planner 👨‍💼 Send a question, dates, or group size and we'll reply on WhatsApp as soon as possible.";
       setMessages([{ role: "moshe", content: newWelcome }]);
     }
   };
@@ -139,7 +139,7 @@ export function ChatWidget() {
           <div className="min-h-14 bg-secondary/10 px-3 md:px-4 flex items-center justify-between border-b border-border/70">
             <span className="font-semibold text-foreground flex items-center gap-2">
               <span className="text-lg">👨‍💼</span>
-              {t("Moshe — Your Guide", "משה — המדריך שלכם")}
+              {t("WIRO Trip Planner", "מתכנן הטיולים של WIRO")}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -188,7 +188,7 @@ export function ChatWidget() {
             {isLoading && (
               <li
                 className="flex justify-start"
-                aria-label={t("Moshe is typing", "משה כותב")}
+                aria-label={t("WIRO is typing", "WIRO כותב")}
               >
                 <div className="bg-muted text-foreground rounded-2xl rounded-bl-sm px-3 py-2 text-sm">
                   <span className="inline-flex gap-1 motion-safe:[&>span]:animate-pulse">
@@ -211,7 +211,7 @@ export function ChatWidget() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t("Ask Moshe anything...", "שאלו את משה כל דבר...")}
+              placeholder={t("Ask WIRO anything...", "שאלו את WIRO כל דבר...")}
               disabled={isLoading}
               className="flex-1 min-h-11 rounded-full border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
               dir={isRtl ? "rtl" : "ltr"}

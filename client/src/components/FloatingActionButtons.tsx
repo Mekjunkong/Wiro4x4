@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
-import { MessageCircle, Calendar, Bot } from "lucide-react";
+import { MessageCircle, Calendar, HelpCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trackEvent } from "@/lib/analytics";
 
@@ -52,10 +52,10 @@ export function FloatingActionButtons() {
     const message =
       language === "he"
         ? encodeURIComponent(
-            "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+            "שלום, אנחנו רוצים לבדוק זמינות ומחיר לטיול 4x4 פרטי בצ'יאנג מאי. תאריכים/גודל קבוצה:"
           )
         : encodeURIComponent(
-            "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+            "Hi WIRO, we'd like to check availability and price for a private 4x4 tour in Chiang Mai. Dates/group size:"
           );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
@@ -79,29 +79,29 @@ export function FloatingActionButtons() {
       role="group"
       aria-label={t("Quick actions", "פעולות מהירות")}
     >
-      {/* Chat with Moshe */}
+      {/* Trip Planner */}
       <div className={`relative group flex items-center gap-2 ${rowDir}`}>
         <span
           className={`${tooltipOrder} opacity-0 group-hover:opacity-100 transition-opacity bg-card text-foreground text-xs font-medium px-2.5 py-1 rounded-full shadow-md border border-border/70 whitespace-nowrap`}
         >
-          {t("Chat with Moshe", "דברו עם משה")}
+          {t("Ask WIRO", "שאלו את WIRO")}
         </span>
         <button
           type="button"
           onClick={handleChatClick}
           className="inline-flex items-center justify-center min-w-12 min-h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-          aria-label={t("Chat with Moshe", "דברו עם משה")}
+          aria-label={t("Ask WIRO trip planner", "שאלו את מתכנן הטיול של WIRO")}
         >
-          <Bot className="h-5 w-5" />
+          <HelpCircle className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Book Now */}
+      {/* Ask Availability */}
       <div className={`relative group flex items-center gap-2 ${rowDir}`}>
         <span
           className={`${tooltipOrder} opacity-0 group-hover:opacity-100 transition-opacity bg-card text-foreground text-xs font-medium px-2.5 py-1 rounded-full shadow-md border border-border/70 whitespace-nowrap`}
         >
-          {t("Book Now", "הזמינו עכשיו")}
+          {t("Ask Availability", "בדקו זמינות")}
         </span>
         <Link
           href="/book"
@@ -109,7 +109,7 @@ export function FloatingActionButtons() {
             trackEvent("floating_book_click", { language, path: location })
           }
           className="inline-flex items-center justify-center min-w-12 min-h-12 border-2 border-secondary text-secondary bg-card hover:bg-secondary hover:text-secondary-foreground rounded-full shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-          aria-label={t("Book Now", "הזמינו עכשיו")}
+          aria-label={t("Ask Availability", "בדקו זמינות")}
         >
           <Calendar className="h-5 w-5" />
         </Link>

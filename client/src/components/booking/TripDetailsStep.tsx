@@ -28,6 +28,7 @@ export function TripDetailsStep({
             </label>
             <input
               id="numberOfAdults"
+              name="numberOfAdults"
               type="number"
               min="1"
               value={formData.numberOfAdults}
@@ -48,6 +49,7 @@ export function TripDetailsStep({
             <input
               type="checkbox"
               id="hasChildren"
+              name="hasChildren"
               checked={formData.hasChildren}
               onChange={e =>
                 setFormData(prev => ({
@@ -74,6 +76,7 @@ export function TripDetailsStep({
                 </label>
                 <input
                   id="numberOfChildren"
+                  name="numberOfChildren"
                   type="number"
                   min="0"
                   value={formData.numberOfChildren}
@@ -112,6 +115,7 @@ export function TripDetailsStep({
                 </label>
                 <input
                   id="childrenAges"
+                  name="childrenAges"
                   type="text"
                   placeholder={t("e.g., 5, 8, 12", "לדוגמה: 5, 8, 12")}
                   value={formData.childrenAges}
@@ -148,6 +152,7 @@ export function TripDetailsStep({
             </label>
             <input
               id="arrivalDate"
+              name="arrivalDate"
               type="date"
               min={getTodayISO()}
               value={formData.arrivalDate}
@@ -225,6 +230,7 @@ export function TripDetailsStep({
             </label>
             <input
               id="departureDate"
+              name="departureDate"
               type="date"
               min={formData.arrivalDate || getTodayISO()}
               value={formData.departureDate}

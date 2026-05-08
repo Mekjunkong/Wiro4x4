@@ -845,7 +845,7 @@ export function CostCalculator() {
               )}
             </Button>
 
-            {/* Secondary CTA: Book Now */}
+            {/* Secondary CTA: detailed availability request */}
             <Button
               variant="default"
               className="w-full py-3 text-base bg-accent hover:bg-accent-cta-hover text-white font-semibold"
@@ -854,7 +854,7 @@ export function CostCalculator() {
               }}
             >
               <BookOpen className="w-5 h-5 mr-2" />
-              {t("Book This Trip Now", "הזמינו את הטיול הזה עכשיו")}
+              {t("Ask Availability for This Trip", "בדקו זמינות לטיול הזה")}
             </Button>
 
             {/* Share Quote — Feature 4 */}

@@ -27,6 +27,7 @@ export function ContactStep({
             </label>
             <input
               id="contactName"
+              name="contactName"
               type="text"
               placeholder={t("Full Name", "שם מלא")}
               value={formData.contactName}
@@ -62,6 +63,7 @@ export function ContactStep({
             </label>
             <input
               id="contactPhone"
+              name="contactPhone"
               type="tel"
               placeholder="+972-XX-XXX-XXXX"
               value={formData.contactPhone}
@@ -96,6 +98,7 @@ export function ContactStep({
             </label>
             <input
               id="contactEmail"
+              name="contactEmail"
               type="email"
               placeholder="email@example.com"
               value={formData.contactEmail}
@@ -128,6 +131,7 @@ export function ContactStep({
             </label>
             <input
               id="contactWhatsApp"
+              name="contactWhatsApp"
               type="tel"
               placeholder="+972-XX-XXX-XXXX"
               value={formData.contactWhatsApp}
@@ -156,6 +160,7 @@ export function ContactStep({
           </label>
           <input
             id="agentName"
+            name="agentName"
             type="text"
             placeholder={t("Your Name", "השם שלך")}
             value={formData.agentName}
@@ -180,6 +185,7 @@ export function ContactStep({
           </label>
           <textarea
             id="specialRequests"
+            name="specialRequests"
             placeholder={t(
               "Add special requests, dietary restrictions, or additional notes...",
               "בקשות מיוחדות, מגבלות תזונתיות, הערות נוספות..."

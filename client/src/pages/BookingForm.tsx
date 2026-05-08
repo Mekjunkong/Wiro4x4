@@ -87,7 +87,7 @@ export default function BookingForm() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
   usePageMeta({
-    title: "Book Your Tour",
+    title: "Ask Availability & Price",
     description:
       "Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling.",
     canonicalPath: "/book",
@@ -582,6 +582,10 @@ export default function BookingForm() {
   };
 
   const stepProps = { formData, setFormData, formErrors, isHebrew, t };
+  const quickAvailabilityMessage = isHebrew
+    ? "שלום WIRO, אנחנו רוצים לבדוק זמינות ומחיר לטיול 4x4 פרטי. תאריכים/גודל קבוצה:"
+    : "Hi WIRO, we'd like to check availability and price for a private 4x4 tour. Dates/group size:";
+  const quickAvailabilityUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(quickAvailabilityMessage)}`;
 
   if (submitSuccess) {
     return (
@@ -598,10 +602,7 @@ export default function BookingForm() {
       <Breadcrumb
         items={[
           {
-            label: t(
-              "Book a Tour",
-              "\u05D4\u05D6\u05DE\u05E0\u05EA \u05D8\u05D9\u05D5\u05DC"
-            ),
+            label: t("Ask Availability", "בדיקת זמינות"),
           },
         ]}
       />
@@ -616,7 +617,7 @@ export default function BookingForm() {
           <div className="absolute inset-0 bg-primary/60" />
           <div className="relative z-10 text-center px-4">
             <h1 className="text-4xl md:text-5xl font-heading font-normal text-white mb-2">
-              {t("Book Your Adventure", "הזמינו את ההרפתקה")}
+              {t("Ask Availability & Price", "בדקו זמינות ומחיר")}
             </h1>
             <GoldDivider />
           </div>
@@ -624,6 +625,34 @@ export default function BookingForm() {
 
         {/* Form Card + Pricing Sidebar */}
         <div className="max-w-6xl mx-auto -mt-20 relative z-10 mb-24 px-4">
+          <div className="mb-6 rounded-sm border border-accent/30 bg-card/95 p-5 shadow-premium">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="type-label text-accent mb-2">
+                  {t("FASTEST OPTION", "האפשרות הכי מהירה")}
+                </p>
+                <h2 className="font-heading text-2xl font-normal text-foreground">
+                  {t(
+                    "Not sure about the full itinerary yet?",
+                    "עדיין לא בטוחים לגבי כל המסלול?"
+                  )}
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  {t(
+                    "Send dates and group size on WhatsApp first. We will confirm route, meals, pickup, inclusions, and price before anything is final.",
+                    "שלחו קודם תאריכים וגודל קבוצה ב-WhatsApp. נסגור מסלול, ארוחות, איסוף, מה כלול ומחיר לפני שהכול סופי."
+                  )}
+                </p>
+              </div>
+              <Button asChild size="lg" className="shrink-0">
+                <a href={quickAvailabilityUrl} target="_blank" rel="noreferrer">
+                  <MessageCircle className="w-5 h-5" />
+                  {t("Ask on WhatsApp", "שאלו ב-WhatsApp")}
+                </a>
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Form Column */}
             <div className="lg:col-span-2 bg-card border border-accent/30 rounded-sm shadow-premium p-6 md:p-8">
@@ -695,6 +724,7 @@ export default function BookingForm() {
 
               <form
                 onSubmit={handleSubmit}
+                method="post"
                 className="space-y-6 md:space-y-8"
                 noValidate
               >
@@ -720,6 +750,7 @@ export default function BookingForm() {
                   <input
                     type="checkbox"
                     id="consentGiven"
+                    name="consentGiven"
                     checked={consentGiven}
                     onChange={e => setConsentGiven(e.target.checked)}
                     className={`w-5 h-5 mt-0.5 rounded-sm border-border text-accent focus:ring-accent touch-manipulation shrink-0 ${formErrors.consent ? "border-red-500" : ""}`}
@@ -779,7 +810,10 @@ export default function BookingForm() {
                   ) : (
                     <>
                       <MessageCircle className="w-6 h-6" />
-                      {t("Submit & Send to WhatsApp", "שליחה דרך וואטסאפ")}
+                      {t(
+                        "Send Detailed Request to WhatsApp",
+                        "שליחת בקשה מפורטת לוואטסאפ"
+                      )}
                     </>
                   )}
                 </Button>

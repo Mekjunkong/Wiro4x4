@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Star, MessageCircle, MapPin, Clock, Users } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -133,6 +134,11 @@ export function SocialProofStrip() {
                 <a href="#inquiry">
                   {t("Open the inquiry form", "פתחו את טופס הפנייה")}
                 </a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/reviews">
+                  {t("See guest reviews", "ראו חוות דעת")}
+                </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
