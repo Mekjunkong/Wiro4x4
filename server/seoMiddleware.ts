@@ -20,16 +20,19 @@ interface PageMeta {
   ogType?: string;
   canonicalPath: string;
   lang?: string;
+  appendBrandSuffix?: boolean;
   jsonLd?: Record<string, unknown>;
 }
 
 // Static route meta data
 const STATIC_ROUTES: Record<string, PageMeta> = {
   "/": {
-    title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
+    title: "Chiang Mai Private 4x4 Tours | WIRO 4x4",
     description:
-      "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
+      "Private 4x4 adventures from Chiang Mai with Hebrew/English planning, kosher-friendly logistics, and WhatsApp route and price confirmation before booking.",
+    ogImage: `${SITE_URL}/images/single_cascade_waterfall.jpg`,
     canonicalPath: "/",
+    appendBrandSuffix: false,
   },
   "/tours": {
     title: "4x4 Off-Road Tours in Chiang Mai",
@@ -133,7 +136,8 @@ function escapeHtml(str: string): string {
 }
 
 function injectMeta(html: string, meta: PageMeta): string {
-  const fullTitle = meta.title + BRAND_SUFFIX;
+  const fullTitle =
+    meta.appendBrandSuffix === false ? meta.title : meta.title + BRAND_SUFFIX;
   const safeTitle = escapeHtml(fullTitle);
   const safeDesc = escapeHtml(meta.description);
   const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;

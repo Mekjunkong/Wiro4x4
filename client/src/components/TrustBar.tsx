@@ -2,7 +2,17 @@ import { Star, Users, MessageCircle, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useRef, useState } from "react";
 
-const TRUST_ITEMS = [
+interface TrustItem {
+  icon: typeof Star;
+  value: string;
+  en: string;
+  he: string;
+  targetNum: number | null;
+  suffix?: string;
+  isDecimal?: boolean;
+}
+
+const TRUST_ITEMS: TrustItem[] = [
   {
     icon: Star,
     value: "4.9",
@@ -13,26 +23,24 @@ const TRUST_ITEMS = [
   },
   {
     icon: Users,
-    value: "500+",
-    en: "Happy Travelers",
-    he: "מטיילים מרוצים",
-    targetNum: 500,
-    suffix: "+",
+    value: "Private",
+    en: "Your Group Only",
+    he: "רק הקבוצה שלכם",
+    targetNum: null,
   },
   {
     icon: MessageCircle,
     value: "עברית",
-    en: "Hebrew Speaking",
-    he: "דוברי עברית",
+    en: "Hebrew & English",
+    he: "עברית ואנגלית",
     targetNum: null,
   },
   {
     icon: ShieldCheck,
-    value: "100%",
-    en: "Kosher Meals",
-    he: "אוכל כשר",
-    targetNum: 100,
-    suffix: "%",
+    value: "Before",
+    en: "Price Confirmed First",
+    he: "מחיר לפני הזמנה",
+    targetNum: null,
   },
 ];
 

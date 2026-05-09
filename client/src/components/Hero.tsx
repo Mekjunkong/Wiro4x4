@@ -11,24 +11,24 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { trackEvent } from "@/lib/analytics";
 
 const TRUST_ITEMS = [
-  { en: "Hebrew Speaking", he: "דוברי עברית" },
-  { en: "Kosher Meals", he: "ארוחות כשרות" },
-  { en: "Shabbat Friendly", he: "שומרי שבת" },
-  { en: "Private Tours", he: "טיולים פרטיים" },
+  { en: "Private routes", he: "מסלולים פרטיים" },
+  { en: "Hebrew/English support", he: "עברית ואנגלית" },
+  { en: "Kosher planning available", he: "תכנון כשר אפשרי" },
+  { en: "Chiang Mai local team", he: "צוות מקומי בצ'יאנג מאי" },
 ];
 
 const PLANNING_PROOF = [
   {
-    en: "Private route before payment",
-    he: "מסלול פרטי לפני תשלום",
+    en: "Route and price confirmed first",
+    he: "מסלול ומחיר לפני תשלום",
   },
   {
-    en: "Kosher logistics confirmed early",
-    he: "תיאום כשרות מראש",
+    en: "Pickup, meals, and inclusions clarified",
+    he: "איסוף, אוכל ומה כלול ברורים מראש",
   },
   {
-    en: "Hebrew support on WhatsApp",
-    he: "ליווי בעברית בוואטסאפ",
+    en: "Hebrew or English planning on WhatsApp",
+    he: "תכנון בעברית או אנגלית בוואטסאפ",
   },
 ];
 
@@ -39,10 +39,10 @@ export function Hero() {
   const whatsappMessage =
     language === "he"
       ? encodeURIComponent(
-          "שלום, אנחנו רוצים לבדוק זמינות ומחיר לטיול 4x4 פרטי בצ'יאנג מאי. תאריכים/גודל קבוצה:"
+          "שלום WIRO, נשמח לבדוק זמינות ומחיר לטיול ג'יפים / 4x4 פרטי מצ'יאנג מאי. תאריכים: ___ / מספר מטיילים: ___ / צורך באוכל כשר: ___"
         )
       : encodeURIComponent(
-          "Hi WIRO, we'd like to check availability and price for a private 4x4 tour in Chiang Mai. Dates/group size:"
+          "Hi WIRO, can you check availability and price for a private 4x4 tour from Chiang Mai? Dates: ___ / Travelers: ___ / Route idea: ___ / Food or kosher needs: ___"
         );
 
   const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
@@ -75,11 +75,11 @@ export function Hero() {
       {/* Bottom gradient overlay - stronger for better text contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent md:from-primary/80 md:via-primary/30" />
 
-      {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
+      {/* Content: CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 px-5 pb-16 text-white md:px-12 md:pb-20 lg:px-20 lg:pb-24">
         <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px]">
           <div>
-            {/* Brand eyebrow — small, elegant */}
+            {/* Brand eyebrow: small, elegant */}
             <p className="type-label text-accent mb-3 md:mb-4 animate-hero-reveal [animation-delay:0.1s]">
               WIRO 4×4 &nbsp;·&nbsp;{" "}
               {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
@@ -87,15 +87,15 @@ export function Hero() {
 
             <h1 className="type-display mb-4 max-w-3xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
               {t(
-                "Kosher 4×4 Adventures in Chiang Mai",
-                "טיולי 4×4 כשרים בצ'יאנג מאי"
+                "Private 4×4 Adventures from Chiang Mai",
+                "טיול ג׳יפים פרטי בצפון תאילנד"
               )}
             </h1>
 
             <p className="type-lede font-normal text-white/90 mb-6 md:mb-8 drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
               {t(
-                "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
-                "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
+                "Scenic Northern Thailand routes shaped around your family or group, with Hebrew/English planning, kosher-friendly logistics, and clear WhatsApp confirmation before you book.",
+                "מסלולי 4x4 פרטיים מצ׳אנג מאי למשפחות וקבוצות, עם תכנון בעברית/אנגלית, אפשרות לתיאום כשר ואישור מסלול ומחיר בוואטסאפ לפני ההזמנה."
               )}
               <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
             </p>
@@ -109,29 +109,29 @@ export function Hero() {
                 className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 rounded-sm transition-all flex min-h-12 items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
               >
                 <MessageCircle className="w-5 h-5" />
-                {t("Ask Availability on WhatsApp", "בדקו זמינות בוואטסאפ")}
+                {t("Ask Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
               </a>
               <a
-                href="#inquiry"
-                onClick={() => trackHeroAction("quote")}
+                href="#tours"
+                onClick={() => trackHeroAction("route_ideas")}
                 className="border border-white/45 bg-white/5 hover:bg-white/10 active:bg-white/15 text-white font-bold px-8 py-4 rounded-sm transition-all flex min-h-12 items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
               >
                 <Calendar className="w-5 h-5" />
-                {t("Quick Quote", "הצעה מהירה")}
+                {t("See Route Ideas", "ראו רעיונות למסלול")}
               </a>
               <button
                 type="button"
                 onClick={scrollToTours}
                 className="min-h-12 text-white/80 hover:text-white text-sm tracking-wide underline-offset-4 hover:underline transition-colors w-full sm:w-auto text-center sm:text-left"
               >
-                {t("See tours ↓", "ראו טיולים ↓")}
+                {t("Route ideas ↓", "רעיונות למסלול ↓")}
               </button>
             </div>
 
             <p className="type-caps max-w-xl text-[0.72rem] text-white/70 animate-hero-reveal [animation-delay:0.58s]">
               {t(
-                "Private tours · Hebrew-speaking guide · Kosher planning",
-                "טיולים פרטיים · מדריך דובר עברית · תכנון כשר"
+                "Send dates + travelers. We reply with route options, pickup, meals, inclusions, and price.",
+                "שלחו תאריכים ומספר מטיילים. נחזור עם מסלול, איסוף, ארוחות ומחיר."
               )}
             </p>
 
@@ -156,8 +156,8 @@ export function Hero() {
               </p>
               <p className="mt-2 font-heading text-2xl leading-tight">
                 {t(
-                  "We confirm the route, meals, and timing first.",
-                  "קודם סוגרים מסלול, אוכל וזמנים."
+                  "Ask first. Confirm the route before you pay.",
+                  "שואלים קודם. סוגרים מסלול לפני תשלום."
                 )}
               </p>
               <ul className="mt-4 space-y-3">
@@ -183,7 +183,7 @@ export function Hero() {
         onClick={scrollToTours}
       >
         <span className="text-white/50 text-xs tracking-[0.2em] uppercase">
-          Scroll
+          {t("Scroll", "גללו")}
         </span>
         <ChevronDown className="w-6 h-6 text-accent animate-hero-chevron" />
       </div>

@@ -1,12 +1,15 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
-import { ArrowRight, MapPin, Clock, Users } from "lucide-react";
+import { ArrowRight, MapPin, Clock, Users, MessageCircle } from "lucide-react";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { COMPANY_WHATSAPP_URL } from "@/const";
 
-interface ProductTier {
+interface RouteIdea {
   slug: string;
   href: string;
   imageSrc: string;
+  eyebrow: string;
+  eyebrowHe: string;
   title: string;
   titleHe: string;
   bestFor: string;
@@ -19,100 +22,131 @@ interface ProductTier {
   locationHe: string;
   groupSize: string;
   groupSizeHe: string;
-  startingPrice: string;
-  startingPriceHe: string;
-  priceNote: string;
-  priceNoteHe: string;
+  planningNote: string;
+  planningNoteHe: string;
   badge?: string;
   badgeHe?: string;
   cta: string;
   ctaHe: string;
 }
 
-const PRODUCT_TIERS: ProductTier[] = [
+const ROUTE_IDEAS: RouteIdea[] = [
   {
-    slug: "one-day",
-    href: "/tours",
+    slug: "doi-inthanon-roof-of-thailand",
+    href: "/tours/doi-inthanon-roof-of-thailand",
     imageSrc: "4x4_water_splash",
-    title: "One-Day Adventures",
-    titleHe: "טיולי יום",
-    bestFor: "Best for first-time visitors",
-    bestForHe: "מתאים למבקרים בפעם הראשונה",
+    eyebrow: "Doi Inthanon 4x4",
+    eyebrowHe: "דוי אינתנון 4x4",
+    title: "Doi Inthanon Private Day Route",
+    titleHe: "מסלול פרטי לדוי אינתנון",
+    bestFor: "Best if you want one strong adventure day",
+    bestForHe: "מתאים ליום הרפתקה אחד חזק",
     subtitle:
-      "Explore Chiang Mai's best destinations in a single action-packed day. Choose from 6 unique off-road routes.",
+      "Thailand's highest mountain direction with viewpoints, forest roads, waterfall stops, hotel pickup, and private pacing.",
     subtitleHe:
-      "חקרו את היעדים הטובים ביותר של צ'יאנג מאי ביום אחד עמוס פעילות. בחרו מ-6 מסלולי שטח ייחודיים.",
-    duration: "Full Day",
-    durationHe: "יום שלם",
-    location: "Chiang Mai",
-    locationHe: "צ'יאנג מאי",
-    groupSize: "1–7 guests",
-    groupSizeHe: "1–7 אורחים",
-    startingPrice: "$81",
-    startingPriceHe: "₪300",
-    priceNote: "THB available on request",
-    priceNoteHe: "מחיר ב-THB לפי בקשה",
-    cta: "View day trips",
-    ctaHe: "למסלולי יום",
+      "כיוון ההר הגבוה בתאילנד עם נקודות תצפית, דרכי יער, עצירות מים, איסוף מהמלון וקצב פרטי.",
+    duration: "1 day",
+    durationHe: "יום אחד",
+    location: "Doi Inthanon",
+    locationHe: "דוי אינתנון",
+    groupSize: "Family or group",
+    groupSizeHe: "משפחה או קבוצה",
+    planningNote: "Adjusted for weather, road conditions, and group comfort.",
+    planningNoteHe: "מותאם למזג אוויר, תנאי דרך ונוחות הקבוצה.",
+    badge: "Popular day route",
+    badgeHe: "מסלול יום פופולרי",
+    cta: "Ask if Doi Inthanon fits my date",
+    ctaHe: "בדיקת דוי אינתנון לתאריך שלי",
   },
   {
-    slug: "northern-thailand-3d2n",
+    slug: "chiang-rai-golden-triangle",
     href: "/packages/northern-thailand-3d2n",
     imageSrc: "nong_khiaw_river",
-    title: "3 Days / 2 Nights",
-    titleHe: "3 ימים / 2 לילות",
-    bestFor: "Best for families who want one curated route",
-    bestForHe: "מתאים למשפחות שרוצות מסלול מתוכנן",
+    eyebrow: "Chiang Rai mountain loop",
+    eyebrowHe: "סיבוב הרים לכיוון צ׳אנג ראי",
+    title: "Northern Thailand Mountain Loop",
+    titleHe: "מסלול הרים בצפון תאילנד",
+    bestFor: "Best for 2 to 3 days with more road time",
+    bestForHe: "מתאים ל-2 עד 3 ימים עם יותר דרך",
     subtitle:
-      "Northern Thailand mountain adventure through Chiang Dao caves, Doi Ang Khang, and Chiang Rai temples. Mountain lodge stays.",
+      "A private Chiang Mai to Chiang Rai direction with mountain roads, temples, village stops, hotels, meals, and pace confirmed before booking.",
     subtitleHe:
-      "הרפתקת הרים בצפון תאילנד דרך מערות צ'יאנג דאו, דוי אנג חאנג ומקדשי צ'יאנג ראי. לינה בלודג'ים בהרים.",
-    duration: "3 Days",
-    durationHe: "3 ימים",
-    location: "Northern Thailand",
-    locationHe: "צפון תאילנד",
-    groupSize: "2–6 guests",
-    groupSizeHe: "2–6 אורחים",
-    startingPrice: "$361",
-    startingPriceHe: "₪1,336",
-    priceNote: "THB available on request",
-    priceNoteHe: "מחיר ב-THB לפי בקשה",
-    badge: "Popular",
-    badgeHe: "פופולרי",
-    cta: "See 3-day package",
-    ctaHe: "לחבילת 3 ימים",
+      "כיוון פרטי מצ׳אנג מאי לצ׳אנג ראי עם דרכי הרים, מקדשים, עצירות בכפרים, מלונות, ארוחות וקצב שמאושרים לפני הזמנה.",
+    duration: "2 to 3 days",
+    durationHe: "2 עד 3 ימים",
+    location: "Chiang Rai direction",
+    locationHe: "כיוון צ׳אנג ראי",
+    groupSize: "Small private group",
+    groupSizeHe: "קבוצה פרטית קטנה",
+    planningNote: "Route, hotel, meals, and pace are confirmed before booking.",
+    planningNoteHe: "מסלול, מלון, ארוחות וקצב נסיעה מאושרים לפני הזמנה.",
+    cta: "Ask for 2 to 3 day route options",
+    ctaHe: "בדיקת אפשרויות ל-2 עד 3 ימים",
   },
   {
-    slug: "grand-tour-laos-14d",
-    href: "/packages/grand-tour-laos-14d",
-    imageSrc: "vang_vieng_mountains",
-    title: "14-Day Grand Tour",
-    titleHe: "מסע גדול 14 ימים",
-    bestFor: "Best for the full expedition crew",
-    bestForHe: "מתאים למי שרוצה מסע מלא",
+    slug: "family-waterfall-adventure",
+    href: "/tours",
+    imageSrc: "single_cascade_waterfall",
+    eyebrow: "Jungle waterfall 4x4",
+    eyebrowHe: "מפלים וג׳יפים בצפון",
+    title: "Family Waterfall Adventure Day",
+    titleHe: "יום משפחתי עם מפלים ושטח",
+    bestFor: "Best for families comparing ATV or combo tours",
+    bestForHe: "מתאים למשפחות שמשוות ATV וטיולי קומבו",
     subtitle:
-      "The ultimate overland adventure from Chiang Mai through Northern Thailand to Laos and back. Cross borders by 4x4.",
+      "Adventure without the group-tour rush: private stops, comfort breaks, scenic 4x4 sections, and difficulty matched to your group.",
     subtitleHe:
-      "הרפתקת השטח האולטימטיבית מצ'יאנג מאי דרך צפון תאילנד ללאוס וחזרה. חציית גבולות ברכב 4x4.",
-    duration: "14 Days",
-    durationHe: "14 ימים",
-    location: "Thailand + Laos",
-    locationHe: "תאילנד + לאוס",
-    groupSize: "2–4 guests",
-    groupSizeHe: "2–4 אורחים",
-    startingPrice: "$1,677",
-    startingPriceHe: "₪6,205",
-    priceNote: "THB available on request",
-    priceNoteHe: "מחיר ב-THB לפי בקשה",
-    badge: "Grand Adventure",
-    badgeHe: "הרפתקה גדולה",
-    cta: "Plan grand tour",
-    ctaHe: "לתכנן מסע גדול",
+      "הרפתקה בלי לחץ של טיול קבוצתי: עצירות פרטיות, הפסקות נוחות, קטעי 4x4 נופיים ורמת קושי לפי הקבוצה.",
+    duration: "Flexible day",
+    durationHe: "יום גמיש",
+    location: "Waterfalls + scenic roads",
+    locationHe: "מפלים ודרכים נופיות",
+    groupSize: "Kids welcome",
+    groupSizeHe: "מתאים לילדים",
+    planningNote: "Scenic 4x4, not a reckless off-road product.",
+    planningNoteHe: "4x4 נופי, לא מוצר שטח מסוכן או פרוע.",
+    cta: "Ask for a family-friendly route",
+    ctaHe: "בקשת מסלול מתאים למשפחה",
+  },
+  {
+    slug: "custom-private-route",
+    href: "/contact",
+    imageSrc: "vang_vieng_mountains",
+    eyebrow: "Custom private route",
+    eyebrowHe: "מסלול פרטי בהתאמה",
+    title: "Custom Northern Thailand Route",
+    titleHe: "מסלול פרטי בצפון תאילנד",
+    bestFor: "Best when food, language, timing, or comfort matters",
+    bestForHe: "מתאים כשאוכל, שפה, זמנים או נוחות חשובים",
+    subtitle:
+      "Send your dates, group size, food needs, and travel style. WIRO shapes the private route before you pay.",
+    subtitleHe:
+      "שלחו תאריכים, מספר מטיילים, צרכי אוכל וסגנון טיול. WIRO מתאימה את המסלול לפני תשלום.",
+    duration: "Built around you",
+    durationHe: "נבנה סביבכם",
+    location: "Northern Thailand",
+    locationHe: "צפון תאילנד",
+    groupSize: "Private group only",
+    groupSizeHe: "קבוצה פרטית בלבד",
+    planningNote:
+      "Good for Hebrew support, kosher planning, older travelers, and multi-family groups.",
+    planningNoteHe: "מתאים לעברית, תכנון כשר, מטיילים מבוגרים וכמה משפחות יחד.",
+    cta: "Plan my private route on WhatsApp",
+    ctaHe: "תכנון מסלול פרטי בוואטסאפ",
   },
 ];
 
+function buildRouteWhatsAppUrl(route: RouteIdea, language: "en" | "he") {
+  const message =
+    language === "he"
+      ? `שלום WIRO, נשמח לבדוק זמינות ומחיר עבור ${route.titleHe}. תאריכים: ___ / מספר מטיילים: ___ / צורך באוכל כשר: ___`
+      : `Hi WIRO, can you check availability and price for ${route.title}? Dates: ___ / Travelers: ___ / Food or kosher needs: ___`;
+
+  return `${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
+}
+
 export function ProductTiers() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <section
@@ -120,111 +154,114 @@ export function ProductTiers() {
       className="py-20 md:py-28 bg-background dark:bg-background"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        {/* Premium section heading */}
         <div className="text-center mb-12 md:mb-16 relative">
           <span className="type-label relative text-accent block mb-3">
-            {t("Choose Your Journey", "בחרו את המסע שלכם")}
+            {t("Private route ideas", "רעיונות למסלול פרטי")}
           </span>
           <h2 className="type-headline relative mt-2 text-foreground dark:text-white">
-            {t("Our Adventures", "ההרפתקאות שלנו")}
+            {t(
+              "Choose the shape of your private 4x4 route",
+              "בוחרים את סגנון המסלול, ואנחנו מתאימים אותו לקבוצה שלכם"
+            )}
           </h2>
           <div className="w-16 h-[3px] bg-accent mx-auto mt-4 mb-5" />
-          <p className="type-lede relative text-muted-foreground dark:text-white/60 mx-auto">
+          <p className="type-lede relative text-muted-foreground dark:text-white/60 mx-auto max-w-3xl">
             {t(
-              "Choose the route that matches your group, pace, and budget in a few seconds.",
-              "בחרו את המסלול שמתאים לקבוצה, לקצב ולתקציב שלכם בתוך כמה שניות."
+              "Start with one of these route styles, then send your dates and group size. WIRO confirms the route, pickup, meals, inclusions, and price before you book.",
+              "התחילו מאחד מסגנונות המסלול, שלחו תאריכים ומספר מטיילים, ונחזור בוואטסאפ עם מסלול, איסוף, ארוחות ומחיר לפני הזמנה."
             )}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {PRODUCT_TIERS.map(tier => (
-            <Link key={tier.slug} href={tier.href}>
-              <article className="luxury-card group relative bg-card rounded-sm overflow-hidden cursor-pointer h-full flex flex-col border border-border">
-                {/* Cinematic Image — taller */}
-                <div className="relative h-80 md:h-96 overflow-hidden">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 lg:gap-7">
+          {ROUTE_IDEAS.map(route => (
+            <article
+              key={route.slug}
+              className="luxury-card group relative bg-card rounded-sm overflow-hidden h-full flex flex-col border border-border"
+            >
+              <Link href={route.href}>
+                <div className="relative h-72 overflow-hidden cursor-pointer">
                   <OptimizedImage
-                    src={tier.imageSrc}
-                    alt={t(tier.title, tier.titleHe)}
+                    src={route.imageSrc}
+                    alt={t(
+                      `${route.title} from Chiang Mai private 4x4 tour`,
+                      `${route.titleHe} עם WIRO 4x4`
+                    )}
                     width={800}
                     height={600}
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
-                  {/* Dark gradient — stronger on hover to reveal text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-primary/10 transition-all duration-500 group-hover:from-primary/90 group-hover:via-primary/50" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/35 to-primary/10 transition-all duration-500 group-hover:from-primary/90 group-hover:via-primary/50" />
 
-                  {/* Badge — gold foil */}
-                  {tier.badge && (
-                    <span
-                      className="type-caps absolute top-4 right-4 text-[#1c1c1c] text-[0.68rem] px-3 py-1.5 rounded-full shadow-lg"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #f5d76e 0%, #d4af37 40%, #b8960f 100%)",
-                      }}
-                    >
-                      {t(tier.badge, tier.badgeHe || tier.badge)}
+                  {route.badge && (
+                    <span className="type-caps absolute top-4 right-4 rounded-sm border border-accent/45 bg-card/95 px-3 py-1.5 text-[0.68rem] text-primary shadow-lg">
+                      {t(route.badge, route.badgeHe || route.badge)}
                     </span>
                   )}
 
-                  {/* Title + Price overlay on image */}
                   <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="font-heading text-2xl md:text-3xl font-normal leading-[1.05] tracking-[-0.015em] text-white mb-2">
-                      {t(tier.title, tier.titleHe)}
-                    </h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="type-caps text-white/60 text-[0.68rem] block">
-                        {t("from", "החל מ-")}
-                      </span>
-                      <span className="font-heading tabular-numeric text-white text-3xl font-normal ml-1">
-                        {t(tier.startingPrice, tier.startingPriceHe)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[11px] text-white/65">
-                      {t(tier.priceNote, tier.priceNoteHe)}
+                    <p className="type-caps mb-2 text-[0.68rem] text-accent">
+                      {t(route.eyebrow, route.eyebrowHe)}
                     </p>
+                    <h3 className="font-heading text-2xl md:text-3xl font-normal leading-[1.05] tracking-[-0.015em] text-white">
+                      {t(route.title, route.titleHe)}
+                    </h3>
                   </div>
                 </div>
+              </Link>
 
-                {/* Content Footer */}
-                <div className="p-5 flex-1 flex flex-col relative">
-                  <div className="mb-3">
-                    <span className="type-caps inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-[0.68rem] text-accent">
-                      {t(tier.bestFor, tier.bestForHe)}
-                    </span>
-                  </div>
-
-                  <p className="text-muted-foreground dark:text-white/60 text-[0.95rem] leading-[1.65] mb-4 flex-1">
-                    {t(tier.subtitle, tier.subtitleHe)}
-                  </p>
-
-                  {/* Meta info */}
-                  <div className="flex flex-wrap gap-3 mb-5 text-xs text-muted-foreground dark:text-white/50">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {t(tier.duration, tier.durationHe)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {t(tier.location, tier.locationHe)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      {t(tier.groupSize, tier.groupSizeHe)}
-                    </span>
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
-                    {t(tier.cta, tier.ctaHe)}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-
-                  {/* Gold bottom border that expands on hover */}
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] bg-accent w-0 group-hover:w-full transition-all duration-500 ease-out" />
+              <div className="p-5 flex-1 flex flex-col relative">
+                <div className="mb-3">
+                  <span className="type-caps inline-flex items-center rounded-sm border border-accent/25 bg-accent/10 px-3 py-1 text-[0.68rem] text-accent">
+                    {t(route.bestFor, route.bestForHe)}
+                  </span>
                 </div>
-              </article>
-            </Link>
+
+                <p className="text-muted-foreground dark:text-white/60 text-[0.95rem] leading-[1.65] mb-4 flex-1">
+                  {t(route.subtitle, route.subtitleHe)}
+                </p>
+
+                <div className="flex flex-wrap gap-3 mb-4 text-xs text-muted-foreground dark:text-white/50">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    {t(route.duration, route.durationHe)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {t(route.location, route.locationHe)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" />
+                    {t(route.groupSize, route.groupSizeHe)}
+                  </span>
+                </div>
+
+                <p className="mb-5 border border-border bg-background/70 px-3 py-2 text-sm leading-relaxed text-muted-foreground dark:text-white/60">
+                  {t(route.planningNote, route.planningNoteHe)}
+                </p>
+
+                <div className="mt-auto flex flex-col gap-3">
+                  <a
+                    href={buildRouteWhatsAppUrl(route, language)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-accent-cta px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-accent-cta-hover"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    {t(route.cta, route.ctaHe)}
+                  </a>
+                  <Link href={route.href}>
+                    <span className="inline-flex items-center justify-center gap-2 text-accent font-semibold text-sm transition-all group-hover:gap-3">
+                      {t("See route details", "פרטי המסלול")}
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </Link>
+                </div>
+
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] bg-accent w-0 group-hover:w-full transition-all duration-500 ease-out" />
+              </div>
+            </article>
           ))}
         </div>
       </div>
