@@ -150,7 +150,7 @@ export function QuickInquiryForm() {
             size="lg"
           >
             <MessageCircle className="w-4 h-4" />
-            {t("Ask Availability & Price", "בדקו זמינות ומחיר")}
+            {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
           </Button>
         </form>
       </div>

@@ -17,9 +17,9 @@ const HOMEPAGE_FAQS = [
     questionEn: "Is WIRO a private Chiang Mai 4x4 tour or a mixed group tour?",
     questionHe: "האם WIRO הוא טיול ג׳יפים פרטי או טיול קבוצתי?",
     answerEn:
-      "WIRO plans private 4x4 routes for your family or group. We confirm the route, pickup, meals, inclusions, and price on WhatsApp before you book.",
+      "WIRO plans private 4x4 routes for your family or group. WhatsApp is where we check dates, shape the route, and confirm the price before you book.",
     answerHe:
-      "WIRO מתכננת מסלולי 4x4 פרטיים למשפחה או לקבוצה שלכם. אנחנו מאשרים בוואטסאפ מסלול, איסוף, ארוחות, מה כלול ומחיר לפני הזמנה.",
+      "WIRO מתכננת מסלולי 4x4 פרטיים למשפחה או לקבוצה שלכם. בוואטסאפ בודקים תאריכים, בונים כיוון מסלול ומאשרים מחיר לפני הזמנה.",
   },
   {
     questionEn: "Can you plan a Doi Inthanon 4x4 day tour from Chiang Mai?",
@@ -86,8 +86,8 @@ function HomeConversionFAQ() {
           <div className="mx-auto mt-4 mb-8 h-[3px] w-16 bg-accent" />
           <p className="type-lede text-muted-foreground dark:text-white/60">
             {t(
-              "Most guests need the same answers first: date, route, food, pickup, price, and whether the trip fits their group. That is why WhatsApp comes before payment.",
-              "רוב האורחים צריכים קודם תשובות על תאריך, מסלול, אוכל, איסוף, מחיר והאם הטיול מתאים לקבוצה. לכן וואטסאפ מגיע לפני תשלום."
+              "Most guests want to know one thing first: will this route fit our dates, people, comfort level, and travel style? That is why WhatsApp comes before payment.",
+              "רוב האורחים רוצים לדעת קודם דבר אחד: האם המסלול מתאים לתאריכים, לאנשים, לנוחות ולסגנון הטיול שלנו? לכן וואטסאפ מגיע לפני תשלום."
             )}
           </p>
         </div>
@@ -114,12 +114,10 @@ function HomeConversionFAQ() {
 
 export default function Home() {
   usePageMeta({
-    title: "Chiang Mai Private 4x4 Tours",
+    title: "Chiang Mai Private 4x4 Tours | Hebrew and English | WIRO 4x4",
+    appendBrandSuffix: false,
     description:
-      "Plan a private 4x4 tour from Chiang Mai with WIRO. Hebrew/English support, kosher-friendly logistics, Doi Inthanon and jungle waterfall route ideas, and clear WhatsApp availability before booking.",
-    ogTitle: "Chiang Mai Private 4x4 Tours | WIRO 4x4",
-    ogDescription:
-      "Private 4x4 adventures from Chiang Mai with Hebrew/English planning, kosher-friendly logistics, and WhatsApp route and price confirmation before booking.",
+      "Private 4x4 adventures from Chiang Mai with Hebrew and English planning, kosher-friendly logistics, route ideas, and WhatsApp availability and price confirmation before booking.",
     canonicalPath: "/",
     jsonLd: HOMEPAGE_FAQ_JSON_LD,
   });
@@ -129,9 +127,9 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <TrustBar />
+        <SocialProofStrip />
         <ProductTiers />
         <TrustAndKosher />
-        <SocialProofStrip />
         <GalleryShowcase />
         <HomeConversionFAQ />
         <QuickInquiryForm />

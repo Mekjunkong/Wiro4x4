@@ -32,10 +32,15 @@ const EXPERIENCE_SIGNALS = [
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5">
+    <div
+      className="flex gap-0.5"
+      role="img"
+      aria-label={`${rating} out of 5 stars`}
+    >
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
+          aria-hidden="true"
           className={`w-4 h-4 ${i < rating ? "text-accent fill-accent" : "text-gray-300"}`}
         />
       ))}
@@ -47,8 +52,30 @@ export function SocialProofStrip() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 30, duration: 0.5 });
   const { data: reviews } = trpc.review.listPublic.useQuery();
+  const { data: googleReviews } = trpc.googleReviews.list.useQuery();
 
-  const topReviews = (reviews || []).filter(r => r.rating >= 4).slice(0, 3);
+  const siteReviewSnippets = (reviews || [])
+    .filter(r => r.rating >= 4 && r.text.trim().length > 0)
+    .map(r => ({
+      name: r.name,
+      rating: r.rating,
+      text: r.text,
+      source: t("Guest review", "חוות דעת של אורח"),
+    }));
+
+  const googleReviewSnippets = (googleReviews || [])
+    .filter(r => r.rating >= 4 && r.text.trim().length > 0)
+    .map(r => ({
+      name: r.author,
+      rating: r.rating,
+      text: r.text,
+      source: "Google",
+    }));
+
+  const topReviews = [...siteReviewSnippets, ...googleReviewSnippets].slice(
+    0,
+    3
+  );
 
   return (
     <section ref={sectionRef} className="py-16 md:py-20 bg-background">
@@ -85,6 +112,9 @@ export function SocialProofStrip() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">{review.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {review.source}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -131,19 +161,19 @@ export function SocialProofStrip() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild size="lg">
-                <a href="#inquiry">
-                  {t("Open the inquiry form", "פתחו את טופס הפנייה")}
+                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+                  {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
+                </a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <a href="#tours">
+                  {t("See Route Ideas", "ראו רעיונות למסלול")}
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href="/reviews">
                   {t("See guest reviews", "ראו חוות דעת")}
                 </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
-                  {t("WhatsApp us", "כתבו לנו בוואטסאפ")}
-                </a>
               </Button>
             </div>
           </div>

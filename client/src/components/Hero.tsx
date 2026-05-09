@@ -19,12 +19,12 @@ const TRUST_ITEMS = [
 
 const PLANNING_PROOF = [
   {
-    en: "Route and price confirmed first",
-    he: "מסלול ומחיר לפני תשלום",
+    en: "Route shaped around your group",
+    he: "מסלול שנבנה סביב הקבוצה",
   },
   {
-    en: "Pickup, meals, and inclusions clarified",
-    he: "איסוף, אוכל ומה כלול ברורים מראש",
+    en: "Weather-aware adventure planning",
+    he: "תכנון הרפתקה לפי מזג אוויר",
   },
   {
     en: "Hebrew or English planning on WhatsApp",
@@ -94,8 +94,8 @@ export function Hero() {
 
             <p className="type-lede font-normal text-white/90 mb-6 md:mb-8 drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
               {t(
-                "Scenic Northern Thailand routes shaped around your family or group, with Hebrew/English planning, kosher-friendly logistics, and clear WhatsApp confirmation before you book.",
-                "מסלולי 4x4 פרטיים מצ׳אנג מאי למשפחות וקבוצות, עם תכנון בעברית/אנגלית, אפשרות לתיאום כשר ואישור מסלול ומחיר בוואטסאפ לפני ההזמנה."
+                "Ride beyond the usual Chiang Mai day trip: mountain roads, jungle waterfalls, village stops, and private pacing, planned in Hebrew or English before you book.",
+                "צאו מעבר לטיול היום הרגיל מצ׳אנג מאי: דרכי הרים, מפלי ג׳ונגל, עצירות בכפרים וקצב פרטי, עם תכנון בעברית או באנגלית לפני הזמנה."
               )}
               <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
             </p>
@@ -109,7 +109,7 @@ export function Hero() {
                 className="bg-accent-cta hover:bg-accent-cta-hover active:bg-accent-cta-hover text-white font-bold px-8 py-4 rounded-sm transition-all flex min-h-12 items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
               >
                 <MessageCircle className="w-5 h-5" />
-                {t("Ask Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
+                {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
               </a>
               <a
                 href="#tours"
@@ -119,19 +119,12 @@ export function Hero() {
                 <Calendar className="w-5 h-5" />
                 {t("See Route Ideas", "ראו רעיונות למסלול")}
               </a>
-              <button
-                type="button"
-                onClick={scrollToTours}
-                className="min-h-12 text-white/80 hover:text-white text-sm tracking-wide underline-offset-4 hover:underline transition-colors w-full sm:w-auto text-center sm:text-left"
-              >
-                {t("Route ideas ↓", "רעיונות למסלול ↓")}
-              </button>
             </div>
 
             <p className="type-caps max-w-xl text-[0.72rem] text-white/70 animate-hero-reveal [animation-delay:0.58s]">
               {t(
-                "Send dates + travelers. We reply with route options, pickup, meals, inclusions, and price.",
-                "שלחו תאריכים ומספר מטיילים. נחזור עם מסלול, איסוף, ארוחות ומחיר."
+                "Send dates + travelers. We reply with route options, fit, and confirmed price.",
+                "שלחו תאריכים ומספר מטיילים. נחזור עם אפשרויות מסלול, התאמה ומחיר מאושר."
               )}
             </p>
 

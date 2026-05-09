@@ -6,6 +6,8 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-
 interface PageMetaOptions {
   /** Page title (will be suffixed with "| WIRO 4x4 Kosher Adventures") */
   title: string;
+  /** Set false when title already contains the full WIRO brand */
+  appendBrandSuffix?: boolean;
   /** Meta description */
   description?: string;
   /** OG title override (defaults to title) */
@@ -72,7 +74,10 @@ export function usePageMeta(
       : titleOrOptions;
 
   useEffect(() => {
-    const fullTitle = `${options.title} | WIRO 4x4 Kosher Adventures`;
+    const fullTitle =
+      options.appendBrandSuffix === false
+        ? options.title
+        : `${options.title} | WIRO 4x4 Kosher Adventures`;
     document.title = fullTitle;
 
     // Meta description
@@ -164,6 +169,7 @@ export function usePageMeta(
     };
   }, [
     options.title,
+    options.appendBrandSuffix,
     options.description,
     options.ogTitle,
     options.ogDescription,

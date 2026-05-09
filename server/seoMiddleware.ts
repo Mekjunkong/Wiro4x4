@@ -27,9 +27,9 @@ interface PageMeta {
 // Static route meta data
 const STATIC_ROUTES: Record<string, PageMeta> = {
   "/": {
-    title: "Chiang Mai Private 4x4 Tours | WIRO 4x4",
+    title: "Chiang Mai Private 4x4 Tours | Hebrew and English | WIRO 4x4",
     description:
-      "Private 4x4 adventures from Chiang Mai with Hebrew/English planning, kosher-friendly logistics, and WhatsApp route and price confirmation before booking.",
+      "Private 4x4 adventures from Chiang Mai with Hebrew and English planning, kosher-friendly logistics, route ideas, and WhatsApp availability and price confirmation before booking.",
     ogImage: `${SITE_URL}/images/single_cascade_waterfall.jpg`,
     canonicalPath: "/",
     appendBrandSuffix: false,
