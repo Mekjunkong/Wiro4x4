@@ -111,7 +111,7 @@ When asked to create a proposal for a customer:
 ## Business Details (for messages)
 
 - Company: WIRO 4x4 - Kosher Off-Road Adventures
-- Phone/WhatsApp: +66 81 961 1398
+- Phone/WhatsApp: +972 54-471-5400
 - Website: https://wiro4x4.manus.space
 - Email: wiro.adventures@gmail.com
 - Location: Chiang Mai, Thailand

@@ -465,7 +465,7 @@ Configured in Vercel dashboard (Settings → Environment Variables):
 Edit `client/src/const.ts`:
 
 ```typescript
-export const WHATSAPP_NUMBER = "+66929894495";
+export const WHATSAPP_NUMBER = "+972544715400";
 ```
 
 ### Add New Tour:
@@ -621,7 +621,7 @@ pnpm db:push  # Sync database schema
 ## Contact & Support
 
 - **GitHub:** https://github.com/Mekjunkong/Wiro4x4
-- **WhatsApp:** +66929894495
+- **WhatsApp:** +972544715400
 - **Email:** wiro.adventures@gmail.com, pasuthunjunkong@gmail.com
 
 ## Notes for Claude Code

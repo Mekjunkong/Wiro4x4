@@ -38,7 +38,7 @@ B'hatzlacha with your planning!
 
 The WIRO 4x4 Team
 Chiang Mai, Thailand
-WhatsApp: +66929894495
+WhatsApp: +972544715400
 
 ---
 
@@ -91,7 +91,7 @@ We hear this a lot: people book 2 days and wish they'd booked more. If you're on
 **Ready to plan?**
 
 - Reply to this email with your dates
-- Or WhatsApp us: +66929894495
+- Or WhatsApp us: +972544715400
 - Or use our cost estimator: [website/estimate]
 
 We'd love to show you the Chiang Mai most tourists never see.
@@ -149,7 +149,7 @@ Chiang Mai mornings can drop to 15Â°C in the mountains. Our quick guide: [Read â
 Shabbat Shalom and safe travels,
 The WIRO 4x4 Team
 
-WhatsApp: +66929894495
+WhatsApp: +972544715400
 Email: wiro.adventures@gmail.com
 
 [Unsubscribe]
@@ -203,7 +203,7 @@ Your tour is confirmed! Here's everything you need:
 We can't wait to show you the real Chiang Mai!
 
 WIRO 4x4 Team
-WhatsApp: +66929894495
+WhatsApp: +972544715400
 
 ---
 

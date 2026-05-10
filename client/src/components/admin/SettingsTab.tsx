@@ -109,7 +109,8 @@ export function SettingsTab() {
   useEffect(() => {
     if (allSettings) {
       setBusinessInfo({
-        whatsappNumber: (allSettings.whatsappNumber as string) || "66929894495",
+        whatsappNumber:
+          (allSettings.whatsappNumber as string) || "972544715400",
         businessEmail:
           (allSettings.businessEmail as string) || "wiro.adventures@gmail.com",
         businessHours:

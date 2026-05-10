@@ -197,7 +197,7 @@ Preview: {One-line value prop}
 
 📧 Questions? Reply to this email
 🌐 Visit: wiro4x4indochina.com
-📱 WhatsApp: +66929894495
+📱 WhatsApp: +972544715400
 
 Unsubscribe | Update preferences
 ```
@@ -294,7 +294,7 @@ if (process.env.ANTHROPIC_API_KEY) {
 
 ---
 
-**Ready to explore?** Contact us at +66929894495 or book online at wiro4x4indochina.com
+**Ready to explore?** Contact us at +972544715400 or book online at wiro4x4indochina.com
 ```
 
 ## Example Workflows

@@ -77,7 +77,7 @@
 ## Previously Completed Features
 
 - [x] Language switcher with flag icons
-- [x] WhatsApp number updated to +66 81 961 1398
+- [x] WhatsApp number updated to +972 54-471-5400
 - [x] Pricing page with transparent costs
 - [x] Blog with travel resources
 - [x] SEO optimization
@@ -316,7 +316,7 @@
 
 ## WhatsApp Number Update
 
-- [x] Update WhatsApp number to +66929894495 in all components (updated 8 files)
+- [x] Update WhatsApp number to +972544715400 in all components (updated 8 files)
 - [x] Update WhatsApp floating button (FloatingActionButtons.tsx)
 - [x] Update booking form WhatsApp redirect (BookingForm.tsx)
 - [x] Update any other WhatsApp references (Footer, Hero, Tours, WhatsAppButton, Pricing, BlogPost)

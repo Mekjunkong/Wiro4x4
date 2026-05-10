@@ -1,14 +1,20 @@
 var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-}) : x)(function(x) {
+var __require = /* @__PURE__ */ (x =>
+  typeof require !== "undefined"
+    ? require
+    : typeof Proxy !== "undefined"
+      ? new Proxy(x, {
+          get: (a, b) => (typeof require !== "undefined" ? require : a)[b],
+        })
+      : x)(function (x) {
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
+var __esm = (fn, res) =>
+  function __init() {
+    return (fn && (res = (0, fn[__getOwnPropNames(fn)[0]])((fn = 0))), res);
+  };
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -32,7 +38,7 @@ var init_connection = __esm({
   "server/db/connection.ts"() {
     "use strict";
     _db = null;
-  }
+  },
 });
 
 // drizzle/schema.ts
@@ -44,9 +50,37 @@ import {
   mysqlTable,
   text,
   timestamp,
-  varchar
+  varchar,
 } from "drizzle-orm/mysql-core";
-var users, passwordResetTokens, bookings, bookingDrafts, agents, leads, financialRecords, galleryPhotos, reviews, payments, tours, tourPackages, blogPosts, auditLogs, subscribers, scheduledEmails, customers, customerActivities, chatSessions, chatMessages, settings, invoices, accountingEntries, taxFilings, inventory, tourAvailability, tripPhotoAlbums, tripPhotos, whatsappMessages;
+var users,
+  passwordResetTokens,
+  bookings,
+  bookingDrafts,
+  agents,
+  leads,
+  financialRecords,
+  galleryPhotos,
+  reviews,
+  payments,
+  tours,
+  tourPackages,
+  blogPosts,
+  auditLogs,
+  subscribers,
+  scheduledEmails,
+  customers,
+  customerActivities,
+  chatSessions,
+  chatMessages,
+  settings,
+  invoices,
+  accountingEntries,
+  taxFilings,
+  inventory,
+  tourAvailability,
+  tripPhotoAlbums,
+  tripPhotos,
+  whatsappMessages;
 var init_schema = __esm({
   "drizzle/schema.ts"() {
     "use strict";
@@ -55,17 +89,19 @@ var init_schema = __esm({
       email: varchar("email", { length: 320 }).notNull().unique(),
       passwordHash: varchar("passwordHash", { length: 60 }).notNull(),
       name: text("name"),
-      role: mysqlEnum("role", ["user", "admin", "owner", "manager", "agent"]).default("user").notNull(),
+      role: mysqlEnum("role", ["user", "admin", "owner", "manager", "agent"])
+        .default("user")
+        .notNull(),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
       updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-      lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull()
+      lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
     });
     passwordResetTokens = mysqlTable("passwordResetTokens", {
       id: int("id").autoincrement().primaryKey(),
       userId: int("userId").notNull(),
       token: varchar("token", { length: 64 }).notNull().unique(),
       expiresAt: timestamp("expiresAt").notNull(),
-      createdAt: timestamp("createdAt").defaultNow().notNull()
+      createdAt: timestamp("createdAt").defaultNow().notNull(),
     });
     bookings = mysqlTable(
       "bookings",
@@ -116,8 +152,10 @@ var init_schema = __esm({
           "confirmed",
           "in_progress",
           "completed",
-          "cancelled"
-        ]).default("pending").notNull(),
+          "cancelled",
+        ])
+          .default("pending")
+          .notNull(),
         totalPrice: int("totalPrice"),
         // in THB
         depositPaid: int("depositPaid").default(0),
@@ -136,11 +174,14 @@ var init_schema = __esm({
         source: varchar("source", { length: 100 }).default("website"),
         notes: text("notes"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_bookings_assignedAgentId").on(table.assignedAgentId),
-        index("idx_bookings_status_createdAt").on(table.status, table.createdAt)
+        index("idx_bookings_status_createdAt").on(
+          table.status,
+          table.createdAt
+        ),
       ]
     );
     bookingDrafts = mysqlTable("bookingDrafts", {
@@ -152,10 +193,12 @@ var init_schema = __esm({
       // Full JSON of form state
       tourSlug: varchar("tourSlug", { length: 255 }),
       resumeToken: varchar("resumeToken", { length: 64 }).notNull().unique(),
-      status: mysqlEnum("status", ["active", "converted", "expired"]).default("active").notNull(),
+      status: mysqlEnum("status", ["active", "converted", "expired"])
+        .default("active")
+        .notNull(),
       convertedToBookingId: int("convertedToBookingId"),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     agents = mysqlTable("agents", {
       id: int("id").autoincrement().primaryKey(),
@@ -167,13 +210,15 @@ var init_schema = __esm({
       // JSON array: ["kosher tours", "adventure", "cultural"]
       languages: text("languages"),
       // JSON array: ["Hebrew", "English", "Thai"]
-      status: mysqlEnum("status", ["active", "inactive", "on_leave"]).default("active").notNull(),
+      status: mysqlEnum("status", ["active", "inactive", "on_leave"])
+        .default("active")
+        .notNull(),
       rating: int("rating").default(5),
       // 1-5 stars
       totalBookings: int("totalBookings").default(0),
       notes: text("notes"),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     leads = mysqlTable(
       "leads",
@@ -192,8 +237,10 @@ var init_schema = __esm({
           "contacted",
           "quoted",
           "converted",
-          "lost"
-        ]).default("new").notNull(),
+          "lost",
+        ])
+          .default("new")
+          .notNull(),
         convertedToBookingId: int("convertedToBookingId"),
         notes: text("notes"),
         score: int("score").default(0),
@@ -204,11 +251,11 @@ var init_schema = __esm({
         // when score was last computed
         recoveryEmailSentAt: timestamp("recovery_email_sent_at"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_leads_convertedToBookingId").on(table.convertedToBookingId),
-        index("idx_leads_status_createdAt").on(table.status, table.createdAt)
+        index("idx_leads_status_createdAt").on(table.status, table.createdAt),
       ]
     );
     financialRecords = mysqlTable(
@@ -228,9 +275,9 @@ var init_schema = __esm({
         paymentDate: timestamp("paymentDate"),
         notes: text("notes"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [index("idx_financialRecords_bookingId").on(table.bookingId)]
+      table => [index("idx_financialRecords_bookingId").on(table.bookingId)]
     );
     galleryPhotos = mysqlTable("galleryPhotos", {
       id: int("id").autoincrement().primaryKey(),
@@ -245,8 +292,10 @@ var init_schema = __esm({
         "activities",
         "food",
         "accommodation",
-        "other"
-      ]).default("other").notNull(),
+        "other",
+      ])
+        .default("other")
+        .notNull(),
       sortOrder: int("sortOrder").default(0),
       isPublished: int("isPublished").default(1).notNull(),
       // boolean as int
@@ -258,7 +307,7 @@ var init_schema = __esm({
       isUserSubmitted: int("is_user_submitted").default(0),
       tourDate: varchar("tour_date", { length: 50 }),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     reviews = mysqlTable("reviews", {
       id: int("id").autoincrement().primaryKey(),
@@ -276,27 +325,41 @@ var init_schema = __esm({
       // boolean as int
       adminResponse: text("adminResponse"),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     payments = mysqlTable(
       "payments",
       {
         id: int("id").autoincrement().primaryKey(),
         bookingId: int("bookingId").notNull(),
-        type: mysqlEnum("type", ["deposit", "balance", "full", "refund"]).notNull(),
+        type: mysqlEnum("type", [
+          "deposit",
+          "balance",
+          "full",
+          "refund",
+        ]).notNull(),
         amount: int("amount").notNull(),
         // in THB
         currency: varchar("currency", { length: 10 }).default("THB").notNull(),
-        status: mysqlEnum("status", ["pending", "completed", "failed", "refunded"]).default("pending").notNull(),
+        status: mysqlEnum("status", [
+          "pending",
+          "completed",
+          "failed",
+          "refunded",
+        ])
+          .default("pending")
+          .notNull(),
         stripeSessionId: varchar("stripeSessionId", { length: 255 }),
-        stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+        stripePaymentIntentId: varchar("stripePaymentIntentId", {
+          length: 255,
+        }),
         paymentMethod: varchar("paymentMethod", { length: 50 }),
         notes: text("notes"),
         paidAt: timestamp("paidAt"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [index("idx_payments_bookingId").on(table.bookingId)]
+      table => [index("idx_payments_bookingId").on(table.bookingId)]
     );
     tours = mysqlTable("tours", {
       id: int("id").autoincrement().primaryKey(),
@@ -307,7 +370,9 @@ var init_schema = __esm({
       descriptionHe: text("descriptionHe").notNull(),
       duration: varchar("duration", { length: 100 }).notNull(),
       // e.g., "6-8 hours"
-      difficulty: mysqlEnum("difficulty", ["easy", "moderate", "challenging"]).default("moderate").notNull(),
+      difficulty: mysqlEnum("difficulty", ["easy", "moderate", "challenging"])
+        .default("moderate")
+        .notNull(),
       price: int("price").notNull(),
       // THB
       groupMinSize: int("groupMinSize").default(1),
@@ -327,7 +392,7 @@ var init_schema = __esm({
       isActive: int("isActive").default(1).notNull(),
       sortOrder: int("sortOrder").default(0),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     tourPackages = mysqlTable("tourPackages", {
       id: int("id").autoincrement().primaryKey(),
@@ -343,7 +408,7 @@ var init_schema = __esm({
       coverImage: text("coverImage"),
       isPublished: int("isPublished").default(0).notNull(),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     blogPosts = mysqlTable(
       "blogPosts",
@@ -364,13 +429,13 @@ var init_schema = __esm({
         publishedAt: timestamp("publishedAt"),
         author: varchar("author", { length: 255 }).default("WIRO 4x4"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_blogPosts_isPublished_publishedAt").on(
           table.isPublished,
           table.publishedAt
-        )
+        ),
       ]
     );
     auditLogs = mysqlTable(
@@ -387,14 +452,14 @@ var init_schema = __esm({
         // JSON string
         newValue: text("newValue"),
         // JSON string
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_auditLogs_userId").on(table.userId),
         index("idx_auditLogs_resourceType_resourceId").on(
           table.resourceType,
           table.resourceId
-        )
+        ),
       ]
     );
     subscribers = mysqlTable("subscribers", {
@@ -403,7 +468,7 @@ var init_schema = __esm({
       name: varchar("name", { length: 255 }),
       language: varchar("language", { length: 10 }).default("en"),
       subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
-      isActive: int("isActive").default(1).notNull()
+      isActive: int("isActive").default(1).notNull(),
     });
     scheduledEmails = mysqlTable(
       "scheduledEmails",
@@ -413,16 +478,21 @@ var init_schema = __esm({
           "reminder",
           "feedback",
           "lead_alert",
-          "daily_summary"
+          "daily_summary",
         ]).notNull(),
         targetId: int("targetId"),
         // bookingId or leadId
         targetEmail: varchar("targetEmail", { length: 320 }),
         sentAt: timestamp("sentAt").defaultNow().notNull(),
-        status: mysqlEnum("status", ["sent", "failed"]).default("sent").notNull()
+        status: mysqlEnum("status", ["sent", "failed"])
+          .default("sent")
+          .notNull(),
       },
-      (table) => [
-        index("idx_scheduledEmails_type_targetId").on(table.type, table.targetId)
+      table => [
+        index("idx_scheduledEmails_type_targetId").on(
+          table.type,
+          table.targetId
+        ),
       ]
     );
     customers = mysqlTable(
@@ -439,8 +509,10 @@ var init_schema = __esm({
           "active",
           "completed",
           "vip",
-          "inactive"
-        ]).default("prospect").notNull(),
+          "inactive",
+        ])
+          .default("prospect")
+          .notNull(),
         source: varchar("source", { length: 100 }).default("website"),
         tags: text("tags"),
         // JSON array: ["VIP", "repeat", "kosher-strict"]
@@ -449,12 +521,12 @@ var init_schema = __esm({
         lastContactAt: timestamp("lastContactAt"),
         notes: text("notes"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_customers_email").on(table.email),
         index("idx_customers_phone").on(table.phone),
-        index("idx_customers_stage").on(table.stage)
+        index("idx_customers_stage").on(table.stage),
       ]
     );
     customerActivities = mysqlTable(
@@ -468,17 +540,17 @@ var init_schema = __esm({
           "whatsapp",
           "email",
           "follow_up",
-          "status_change"
+          "status_change",
         ]).notNull(),
         content: text("content").notNull(),
         dueDate: timestamp("dueDate"),
         isCompleted: int("isCompleted").default(0).notNull(),
         createdBy: varchar("createdBy", { length: 255 }),
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_customerActivities_customerId").on(table.customerId),
-        index("idx_customerActivities_dueDate").on(table.dueDate)
+        index("idx_customerActivities_dueDate").on(table.dueDate),
       ]
     );
     chatSessions = mysqlTable(
@@ -487,14 +559,16 @@ var init_schema = __esm({
         id: int("id").autoincrement().primaryKey(),
         visitorId: varchar("visitorId", { length: 64 }).notNull(),
         language: mysqlEnum("language", ["en", "he"]).default("en").notNull(),
-        mode: mysqlEnum("mode", ["ai", "human", "closed"]).default("ai").notNull(),
+        mode: mysqlEnum("mode", ["ai", "human", "closed"])
+          .default("ai")
+          .notNull(),
         summary: text("summary"),
         bookingContext: text("bookingContext"),
         // JSON string
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        closedAt: timestamp("closedAt")
+        closedAt: timestamp("closedAt"),
       },
-      (table) => [index("idx_chatSessions_visitorId").on(table.visitorId)]
+      table => [index("idx_chatSessions_visitorId").on(table.visitorId)]
     );
     chatMessages = mysqlTable(
       "chatMessages",
@@ -505,26 +579,28 @@ var init_schema = __esm({
         content: text("content").notNull(),
         metadata: text("metadata"),
         // JSON string
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [index("idx_chatMessages_sessionId").on(table.sessionId)]
+      table => [index("idx_chatMessages_sessionId").on(table.sessionId)]
     );
     settings = mysqlTable("settings", {
       id: int("id").primaryKey().autoincrement(),
       key: varchar("key", { length: 100 }).notNull().unique(),
       value: json("value").notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
     });
     invoices = mysqlTable(
       "invoices",
       {
         id: int("id").autoincrement().primaryKey(),
-        invoiceNumber: varchar("invoiceNumber", { length: 50 }).notNull().unique(),
+        invoiceNumber: varchar("invoiceNumber", { length: 50 })
+          .notNull()
+          .unique(),
         bookingId: int("bookingId"),
         type: mysqlEnum("type", [
           "tax_invoice",
           "receipt",
-          "wht_certificate"
+          "wht_certificate",
         ]).notNull(),
         customerName: varchar("customerName", { length: 255 }).notNull(),
         customerAddress: text("customerAddress"),
@@ -537,18 +613,20 @@ var init_schema = __esm({
         totalAmount: int("totalAmount").notNull(),
         fxRate: varchar("fxRate", { length: 20 }),
         thbEquivalent: int("thbEquivalent"),
-        status: mysqlEnum("status", ["unpaid", "paid", "partial", "cancelled"]).default("unpaid").notNull(),
+        status: mysqlEnum("status", ["unpaid", "paid", "partial", "cancelled"])
+          .default("unpaid")
+          .notNull(),
         paymentMethod: varchar("paymentMethod", { length: 50 }),
         paymentDate: timestamp("paymentDate"),
         lineItems: text("lineItems"),
         issuedAt: timestamp("issuedAt").defaultNow().notNull(),
         notes: text("notes"),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_invoices_bookingId").on(table.bookingId),
-        index("idx_invoices_status").on(table.status)
+        index("idx_invoices_status").on(table.status),
       ]
     );
     accountingEntries = mysqlTable(
@@ -568,12 +646,12 @@ var init_schema = __esm({
         vendorPayee: varchar("vendorPayee", { length: 255 }),
         documentRef: varchar("documentRef", { length: 100 }),
         createdBy: varchar("createdBy", { length: 100 }),
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_accountingEntries_accountCode").on(table.accountCode),
         index("idx_accountingEntries_date").on(table.date),
-        index("idx_accountingEntries_bookingId").on(table.bookingId)
+        index("idx_accountingEntries_bookingId").on(table.bookingId),
       ]
     );
     taxFilings = mysqlTable("taxFilings", {
@@ -583,7 +661,7 @@ var init_schema = __esm({
         "wht_pnd3",
         "wht_pnd53",
         "cit_pnd50",
-        "cit_pnd51"
+        "cit_pnd51",
       ]).notNull(),
       period: varchar("period", { length: 20 }).notNull(),
       dueDate: timestamp("dueDate").notNull(),
@@ -593,10 +671,12 @@ var init_schema = __esm({
       whtTotal: int("whtTotal"),
       taxableIncome: int("taxableIncome"),
       taxAmount: int("taxAmount"),
-      status: mysqlEnum("status", ["pending", "prepared", "filed", "late"]).default("pending").notNull(),
+      status: mysqlEnum("status", ["pending", "prepared", "filed", "late"])
+        .default("pending")
+        .notNull(),
       filedAt: timestamp("filedAt"),
       notes: text("notes"),
-      createdAt: timestamp("createdAt").defaultNow().notNull()
+      createdAt: timestamp("createdAt").defaultNow().notNull(),
     });
     inventory = mysqlTable("inventory", {
       id: int("id").autoincrement().primaryKey(),
@@ -604,7 +684,7 @@ var init_schema = __esm({
       category: mysqlEnum("category", [
         "vehicle",
         "equipment",
-        "supplies"
+        "supplies",
       ]).notNull(),
       description: text("description"),
       purchaseDate: timestamp("purchaseDate"),
@@ -612,14 +692,22 @@ var init_schema = __esm({
       currentValue: int("currentValue"),
       usefulLifeMonths: int("usefulLifeMonths"),
       monthlyDepreciation: int("monthlyDepreciation"),
-      condition: mysqlEnum("condition", ["new", "good", "fair", "poor", "retired"]).default("good").notNull(),
+      condition: mysqlEnum("condition", [
+        "new",
+        "good",
+        "fair",
+        "poor",
+        "retired",
+      ])
+        .default("good")
+        .notNull(),
       quantity: int("quantity").default(1),
       location: varchar("location", { length: 255 }),
       lastMaintenanceDate: timestamp("lastMaintenanceDate"),
       nextMaintenanceDate: timestamp("nextMaintenanceDate"),
       notes: text("notes"),
       createdAt: timestamp("createdAt").defaultNow().notNull(),
-      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+      updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     });
     tourAvailability = mysqlTable(
       "tourAvailability",
@@ -635,10 +723,10 @@ var init_schema = __esm({
         notes: text("notes"),
         // e.g., "Shabbat", "Holiday"
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
-        index("idx_tourAvailability_tourId_date").on(table.tourId, table.date)
+      table => [
+        index("idx_tourAvailability_tourId_date").on(table.tourId, table.date),
       ]
     );
     tripPhotoAlbums = mysqlTable(
@@ -655,11 +743,11 @@ var init_schema = __esm({
         // optional expiry
         viewCount: int("viewCount").default(0).notNull(),
         createdAt: timestamp("createdAt").defaultNow().notNull(),
-        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull()
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_tripPhotoAlbums_bookingId").on(table.bookingId),
-        index("idx_tripPhotoAlbums_accessToken").on(table.accessToken)
+        index("idx_tripPhotoAlbums_accessToken").on(table.accessToken),
       ]
     );
     tripPhotos = mysqlTable(
@@ -671,9 +759,9 @@ var init_schema = __esm({
         s3Url: varchar("s3Url", { length: 1024 }).notNull(),
         caption: varchar("caption", { length: 500 }),
         sortOrder: int("sortOrder").default(0).notNull(),
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [index("idx_tripPhotos_albumId").on(table.albumId)]
+      table => [index("idx_tripPhotos_albumId").on(table.albumId)]
     );
     whatsappMessages = mysqlTable(
       "whatsappMessages",
@@ -686,22 +774,24 @@ var init_schema = __esm({
         messageType: mysqlEnum("messageType", [
           "text",
           "template",
-          "auto-reply"
+          "auto-reply",
         ]).notNull(),
         isAutoReply: int("isAutoReply").default(0).notNull(),
-        status: mysqlEnum("status", ["sent", "delivered", "read", "failed"]).default("sent").notNull(),
+        status: mysqlEnum("status", ["sent", "delivered", "read", "failed"])
+          .default("sent")
+          .notNull(),
         whatsappMessageId: varchar("whatsappMessageId", { length: 255 }),
-        createdAt: timestamp("createdAt").defaultNow().notNull()
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
       },
-      (table) => [
+      table => [
         index("idx_whatsappMessages_phoneNumber").on(table.phoneNumber),
         index("idx_whatsappMessages_direction_createdAt").on(
           table.direction,
           table.createdAt
-        )
+        ),
       ]
     );
-  }
+  },
 });
 
 // server/db/users.ts
@@ -716,7 +806,11 @@ async function getUserById(id) {
 async function getUserByEmail(email) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function createUser(data) {
@@ -727,7 +821,7 @@ async function createUser(data) {
     passwordHash: data.passwordHash,
     name: data.name ?? null,
     role: data.role ?? "user",
-    lastSignedIn: /* @__PURE__ */ new Date()
+    lastSignedIn: /* @__PURE__ */ new Date(),
   });
   return result[0].insertId;
 }
@@ -739,12 +833,19 @@ async function updateUserPassword(userId, passwordHash) {
 async function updateLastSignedIn(userId) {
   const db = await getDb();
   if (!db) return;
-  await db.update(users).set({ lastSignedIn: /* @__PURE__ */ new Date() }).where(eq(users.id, userId));
+  await db
+    .update(users)
+    .set({ lastSignedIn: /* @__PURE__ */ new Date() })
+    .where(eq(users.id, userId));
 }
 async function getAllAdminUsers() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(users).where(inArray(users.role, ["admin", "owner", "manager", "agent"])).orderBy(desc(users.createdAt));
+  return await db
+    .select()
+    .from(users)
+    .where(inArray(users.role, ["admin", "owner", "manager", "agent"]))
+    .orderBy(desc(users.createdAt));
 }
 async function updateUserRole(userId, role) {
   const db = await getDb();
@@ -754,14 +855,17 @@ async function updateUserRole(userId, role) {
 async function removeAdminAccess(userId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(users).set({ role: "user" }).where(eq(users.id, userId));
+  return await db
+    .update(users)
+    .set({ role: "user" })
+    .where(eq(users.id, userId));
 }
 var init_users = __esm({
   "server/db/users.ts"() {
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/bookings.ts
@@ -781,7 +885,11 @@ async function getAllBookings() {
 async function getBookingById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(bookings).where(eq2(bookings.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(bookings)
+    .where(eq2(bookings.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateBooking(id, data) {
@@ -798,7 +906,12 @@ async function getAllBookingsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(bookings).orderBy(desc2(bookings.createdAt)).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(bookings)
+    .orderBy(desc2(bookings.createdAt))
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql`count(*)` }).from(bookings);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -814,14 +927,17 @@ async function getBookingsNeedingReminder() {
   const now = /* @__PURE__ */ new Date();
   const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1e3);
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1e3);
-  return await db.select().from(bookings).where(
-    and(
-      eq2(bookings.status, "confirmed"),
-      sql`${bookings.reminderSentAt} IS NULL`,
-      sql`${bookings.arrivalDate} >= ${in24h}`,
-      sql`${bookings.arrivalDate} <= ${in48h}`
-    )
-  );
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq2(bookings.status, "confirmed"),
+        sql`${bookings.reminderSentAt} IS NULL`,
+        sql`${bookings.arrivalDate} >= ${in24h}`,
+        sql`${bookings.arrivalDate} <= ${in48h}`
+      )
+    );
 }
 async function getBookingsNeedingFeedback() {
   const db = await getDb();
@@ -829,29 +945,41 @@ async function getBookingsNeedingFeedback() {
   const now = /* @__PURE__ */ new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1e3);
   const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1e3);
-  return await db.select().from(bookings).where(
-    and(
-      sql`${bookings.feedbackSentAt} IS NULL`,
-      sql`${bookings.departureDate} <= ${oneDayAgo}`,
-      sql`${bookings.departureDate} >= ${twoDaysAgo}`,
-      sql`${bookings.status} IN ('completed', 'confirmed', 'in_progress')`
-    )
-  );
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        sql`${bookings.feedbackSentAt} IS NULL`,
+        sql`${bookings.departureDate} <= ${oneDayAgo}`,
+        sql`${bookings.departureDate} >= ${twoDaysAgo}`,
+        sql`${bookings.status} IN ('completed', 'confirmed', 'in_progress')`
+      )
+    );
 }
 async function markReminderSent(bookingId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(bookings).set({ reminderSentAt: /* @__PURE__ */ new Date() }).where(eq2(bookings.id, bookingId));
+  return await db
+    .update(bookings)
+    .set({ reminderSentAt: /* @__PURE__ */ new Date() })
+    .where(eq2(bookings.id, bookingId));
 }
 async function markFeedbackSent(bookingId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(bookings).set({ feedbackSentAt: /* @__PURE__ */ new Date() }).where(eq2(bookings.id, bookingId));
+  return await db
+    .update(bookings)
+    .set({ feedbackSentAt: /* @__PURE__ */ new Date() })
+    .where(eq2(bookings.id, bookingId));
 }
 async function getPendingBookingCount() {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select({ count: sql`count(*)` }).from(bookings).where(eq2(bookings.status, "pending"));
+  const result = await db
+    .select({ count: sql`count(*)` })
+    .from(bookings)
+    .where(eq2(bookings.status, "pending"));
   return Number(result[0]?.count ?? 0);
 }
 async function getUpcomingTourCount(withinHours = 48) {
@@ -859,77 +987,102 @@ async function getUpcomingTourCount(withinHours = 48) {
   if (!db) return 0;
   const now = /* @__PURE__ */ new Date();
   const cutoff = new Date(now.getTime() + withinHours * 60 * 60 * 1e3);
-  const result = await db.select({ count: sql`count(*)` }).from(bookings).where(
-    and(
-      sql`${bookings.arrivalDate} >= ${now}`,
-      sql`${bookings.arrivalDate} <= ${cutoff}`,
-      sql`${bookings.status} IN ('confirmed', 'in_progress')`
-    )
-  );
+  const result = await db
+    .select({ count: sql`count(*)` })
+    .from(bookings)
+    .where(
+      and(
+        sql`${bookings.arrivalDate} >= ${now}`,
+        sql`${bookings.arrivalDate} <= ${cutoff}`,
+        sql`${bookings.status} IN ('confirmed', 'in_progress')`
+      )
+    );
   return Number(result[0]?.count ?? 0);
 }
 async function getBookingsByAgentId(agentId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(bookings).where(eq2(bookings.assignedAgentId, agentId)).orderBy(desc2(bookings.createdAt));
+  return await db
+    .select()
+    .from(bookings)
+    .where(eq2(bookings.assignedAgentId, agentId))
+    .orderBy(desc2(bookings.createdAt));
 }
 async function getAgentBookingsInDateRange(agentId, startDate, endDate) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(bookings).where(
-    and(
-      eq2(bookings.assignedAgentId, agentId),
-      sql`${bookings.status} IN ('confirmed', 'in_progress')`,
-      sql`${bookings.arrivalDate} <= ${endDate}`,
-      sql`${bookings.departureDate} >= ${startDate}`
-    )
-  );
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq2(bookings.assignedAgentId, agentId),
+        sql`${bookings.status} IN ('confirmed', 'in_progress')`,
+        sql`${bookings.arrivalDate} <= ${endDate}`,
+        sql`${bookings.departureDate} >= ${startDate}`
+      )
+    );
 }
 async function getEligiblePostTourBookings(limit = 10) {
   const db = await getDb();
   if (!db) return [];
   const now = /* @__PURE__ */ new Date();
   const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1e3);
-  return await db.select().from(bookings).where(
-    and(
-      eq2(bookings.status, "completed"),
-      lte(bookings.departureDate, twoDaysAgo),
-      sql`${bookings.postTourEmailSentAt} IS NULL`,
-      sql`${bookings.contactEmail} IS NOT NULL`,
-      sql`${bookings.contactEmail} != ''`
+  return await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq2(bookings.status, "completed"),
+        lte(bookings.departureDate, twoDaysAgo),
+        sql`${bookings.postTourEmailSentAt} IS NULL`,
+        sql`${bookings.contactEmail} IS NOT NULL`,
+        sql`${bookings.contactEmail} != ''`
+      )
     )
-  ).orderBy(desc2(bookings.departureDate)).limit(limit);
+    .orderBy(desc2(bookings.departureDate))
+    .limit(limit);
 }
 async function getEligiblePostTourCount() {
   const db = await getDb();
   if (!db) return 0;
   const now = /* @__PURE__ */ new Date();
   const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1e3);
-  const result = await db.select({ count: sql`count(*)` }).from(bookings).where(
-    and(
-      eq2(bookings.status, "completed"),
-      lte(bookings.departureDate, twoDaysAgo),
-      sql`${bookings.postTourEmailSentAt} IS NULL`,
-      sql`${bookings.contactEmail} IS NOT NULL`,
-      sql`${bookings.contactEmail} != ''`
-    )
-  );
+  const result = await db
+    .select({ count: sql`count(*)` })
+    .from(bookings)
+    .where(
+      and(
+        eq2(bookings.status, "completed"),
+        lte(bookings.departureDate, twoDaysAgo),
+        sql`${bookings.postTourEmailSentAt} IS NULL`,
+        sql`${bookings.contactEmail} IS NOT NULL`,
+        sql`${bookings.contactEmail} != ''`
+      )
+    );
   return Number(result[0]?.count ?? 0);
 }
 async function markPostTourEmailSent(bookingId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(bookings).set({ postTourEmailSentAt: /* @__PURE__ */ new Date() }).where(eq2(bookings.id, bookingId));
+  return await db
+    .update(bookings)
+    .set({ postTourEmailSentAt: /* @__PURE__ */ new Date() })
+    .where(eq2(bookings.id, bookingId));
 }
 async function getAlbumByBookingId(bookingId) {
   const db = await getDb();
   if (!db) return null;
-  const results = await db.select().from(tripPhotoAlbums).where(
-    and(
-      eq2(tripPhotoAlbums.bookingId, bookingId),
-      eq2(tripPhotoAlbums.isActive, 1)
+  const results = await db
+    .select()
+    .from(tripPhotoAlbums)
+    .where(
+      and(
+        eq2(tripPhotoAlbums.bookingId, bookingId),
+        eq2(tripPhotoAlbums.isActive, 1)
+      )
     )
-  ).limit(1);
+    .limit(1);
   return results[0] ?? null;
 }
 var init_bookings = __esm({
@@ -937,7 +1090,7 @@ var init_bookings = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/agents.ts
@@ -956,7 +1109,11 @@ async function getAllAgents() {
 async function getAgentById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(agents).where(eq3(agents.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(agents)
+    .where(eq3(agents.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateAgent(id, data) {
@@ -972,21 +1129,25 @@ async function deleteAgent(id) {
 async function getAgentPerformanceStats() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select({
-    id: agents.id,
-    name: agents.name,
-    status: agents.status,
-    rating: agents.rating,
-    totalBookings: sql2`COUNT(${bookings.id})`,
-    completedBookings: sql2`SUM(CASE WHEN ${bookings.status} = 'completed' THEN 1 ELSE 0 END)`,
-    activeBookings: sql2`SUM(CASE WHEN ${bookings.status} IN ('confirmed', 'in_progress') THEN 1 ELSE 0 END)`
-  }).from(agents).leftJoin(bookings, eq3(bookings.assignedAgentId, agents.id)).groupBy(agents.id, agents.name, agents.status, agents.rating);
-  return result.map((r) => ({
+  const result = await db
+    .select({
+      id: agents.id,
+      name: agents.name,
+      status: agents.status,
+      rating: agents.rating,
+      totalBookings: sql2`COUNT(${bookings.id})`,
+      completedBookings: sql2`SUM(CASE WHEN ${bookings.status} = 'completed' THEN 1 ELSE 0 END)`,
+      activeBookings: sql2`SUM(CASE WHEN ${bookings.status} IN ('confirmed', 'in_progress') THEN 1 ELSE 0 END)`,
+    })
+    .from(agents)
+    .leftJoin(bookings, eq3(bookings.assignedAgentId, agents.id))
+    .groupBy(agents.id, agents.name, agents.status, agents.rating);
+  return result.map(r => ({
     ...r,
     rating: r.rating ?? 5,
     totalBookings: Number(r.totalBookings),
     completedBookings: Number(r.completedBookings ?? 0),
-    activeBookings: Number(r.activeBookings ?? 0)
+    activeBookings: Number(r.activeBookings ?? 0),
   }));
 }
 var init_agents = __esm({
@@ -994,7 +1155,7 @@ var init_agents = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/leads.ts
@@ -1024,7 +1185,12 @@ async function getAllLeadsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(leads).orderBy(desc4(leads.createdAt)).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(leads)
+    .orderBy(desc4(leads.createdAt))
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql3`count(*)` }).from(leads);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -1038,48 +1204,71 @@ async function getNewLeadCount(withinHours = 24) {
   const db = await getDb();
   if (!db) return 0;
   const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1e3);
-  const result = await db.select({ count: sql3`count(*)` }).from(leads).where(sql3`${leads.createdAt} >= ${cutoff}`);
+  const result = await db
+    .select({ count: sql3`count(*)` })
+    .from(leads)
+    .where(sql3`${leads.createdAt} >= ${cutoff}`);
   return Number(result[0]?.count ?? 0);
 }
 async function getStaleNewLeads() {
   const db = await getDb();
   if (!db) return [];
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1e3);
-  return await db.select().from(leads).where(sql3`${leads.status} = 'new' AND ${leads.updatedAt} < ${cutoff}`);
+  return await db
+    .select()
+    .from(leads)
+    .where(sql3`${leads.status} = 'new' AND ${leads.updatedAt} < ${cutoff}`);
 }
 async function getColdContactedLeads() {
   const db = await getDb();
   if (!db) return [];
   const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1e3);
-  return await db.select().from(leads).where(
-    sql3`${leads.status} = 'contacted' AND ${leads.updatedAt} < ${cutoff}`
-  );
+  return await db
+    .select()
+    .from(leads)
+    .where(
+      sql3`${leads.status} = 'contacted' AND ${leads.updatedAt} < ${cutoff}`
+    );
 }
 async function getAbandonedLeads(hoursAgo = 24) {
   const db = await getDb();
   if (!db) return [];
   const cutoff = new Date(Date.now() - hoursAgo * 60 * 60 * 1e3);
-  return await db.select().from(leads).where(sql3`${leads.status} = 'new' AND ${leads.createdAt} < ${cutoff}`).orderBy(desc4(leads.createdAt));
+  return await db
+    .select()
+    .from(leads)
+    .where(sql3`${leads.status} = 'new' AND ${leads.createdAt} < ${cutoff}`)
+    .orderBy(desc4(leads.createdAt));
 }
 async function markRecoveryEmailSent(leadId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(leads).set({ recoveryEmailSentAt: /* @__PURE__ */ new Date() }).where(eq4(leads.id, leadId));
+  return await db
+    .update(leads)
+    .set({ recoveryEmailSentAt: /* @__PURE__ */ new Date() })
+    .where(eq4(leads.id, leadId));
 }
 async function updateLeadScore(leadId, score, scoreDetails) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(leads).set({
-    score: Math.max(0, Math.min(100, Math.round(score))),
-    ...scoreDetails !== void 0 ? { scoreDetails } : {},
-    lastScoredAt: /* @__PURE__ */ new Date()
-  }).where(eq4(leads.id, leadId));
+  return await db
+    .update(leads)
+    .set({
+      score: Math.max(0, Math.min(100, Math.round(score))),
+      ...(scoreDetails !== void 0 ? { scoreDetails } : {}),
+      lastScoredAt: /* @__PURE__ */ new Date(),
+    })
+    .where(eq4(leads.id, leadId));
 }
 async function getLeadsByScore(minScore) {
   const db = await getDb();
   if (!db) return [];
   if (minScore !== void 0 && minScore > 0) {
-    return await db.select().from(leads).where(sql3`${leads.score} >= ${minScore}`).orderBy(desc4(leads.score));
+    return await db
+      .select()
+      .from(leads)
+      .where(sql3`${leads.score} >= ${minScore}`)
+      .orderBy(desc4(leads.score));
   }
   return await db.select().from(leads).orderBy(desc4(leads.score));
 }
@@ -1087,7 +1276,12 @@ async function getAllLeadsPaginatedByScore(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(leads).orderBy(desc4(leads.score), desc4(leads.createdAt)).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(leads)
+    .orderBy(desc4(leads.score), desc4(leads.createdAt))
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql3`count(*)` }).from(leads);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -1097,7 +1291,7 @@ var init_leads = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/financial.ts
@@ -1111,17 +1305,26 @@ async function createFinancialRecord(record) {
 async function getFinancialRecordsByBookingId(bookingId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(financialRecords).where(eq5(financialRecords.bookingId, bookingId));
+  return await db
+    .select()
+    .from(financialRecords)
+    .where(eq5(financialRecords.bookingId, bookingId));
 }
 async function getAllFinancialRecords() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(financialRecords).orderBy(desc5(financialRecords.createdAt));
+  return await db
+    .select()
+    .from(financialRecords)
+    .orderBy(desc5(financialRecords.createdAt));
 }
 async function updateFinancialRecord(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(financialRecords).set(data).where(eq5(financialRecords.id, id));
+  return await db
+    .update(financialRecords)
+    .set(data)
+    .where(eq5(financialRecords.id, id));
 }
 async function deleteFinancialRecord(id) {
   const db = await getDb();
@@ -1133,22 +1336,35 @@ async function getFinancialStats() {
   if (!db)
     return { totalRevenue: 0, totalCosts: 0, totalRefunds: 0, netProfit: 0 };
   const all = await db.select().from(financialRecords);
-  const revenue = all.filter((r) => r.type === "revenue").reduce((sum3, r) => sum3 + r.amount, 0);
-  const costs = all.filter((r) => r.type === "cost").reduce((sum3, r) => sum3 + r.amount, 0);
-  const refunds = all.filter((r) => r.type === "refund").reduce((sum3, r) => sum3 + r.amount, 0);
+  const revenue = all
+    .filter(r => r.type === "revenue")
+    .reduce((sum3, r) => sum3 + r.amount, 0);
+  const costs = all
+    .filter(r => r.type === "cost")
+    .reduce((sum3, r) => sum3 + r.amount, 0);
+  const refunds = all
+    .filter(r => r.type === "refund")
+    .reduce((sum3, r) => sum3 + r.amount, 0);
   return {
     totalRevenue: revenue,
     totalCosts: costs,
     totalRefunds: refunds,
-    netProfit: revenue - costs - refunds
+    netProfit: revenue - costs - refunds,
   };
 }
 async function getAllFinancialRecordsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(financialRecords).orderBy(desc5(financialRecords.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql4`count(*)` }).from(financialRecords);
+  const items = await db
+    .select()
+    .from(financialRecords)
+    .orderBy(desc5(financialRecords.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql4`count(*)` })
+    .from(financialRecords);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -1160,9 +1376,9 @@ async function generateDefaultFinancialRecords(bookingId) {
   const existing = await getFinancialRecordsByBookingId(bookingId);
   if (existing.length > 0) return existing;
   const allRecords = await db.select().from(financialRecords);
-  const costRecords = allRecords.filter((r) => r.type === "cost");
+  const costRecords = allRecords.filter(r => r.type === "cost");
   function avgCostByCategory(category) {
-    const matching = costRecords.filter((r) => r.category === category);
+    const matching = costRecords.filter(r => r.category === category);
     if (matching.length === 0) return 0;
     return Math.round(
       matching.reduce((sum3, r) => sum3 + r.amount, 0) / matching.length
@@ -1177,7 +1393,7 @@ async function generateDefaultFinancialRecords(bookingId) {
       category: "tour_package",
       amount: booking.totalPrice,
       currency: "THB",
-      description: `Tour package for ${guests} guests`
+      description: `Tour package for ${guests} guests`,
     });
   }
   if (booking.includesGuide) {
@@ -1188,7 +1404,7 @@ async function generateDefaultFinancialRecords(bookingId) {
       category: "guide_salary",
       amount: avg || 2e3,
       currency: "THB",
-      description: "Guide salary (estimated)"
+      description: "Guide salary (estimated)",
     });
   }
   if (booking.includesHotels) {
@@ -1199,7 +1415,7 @@ async function generateDefaultFinancialRecords(bookingId) {
       category: "hotel_cost",
       amount: avg || 3e3,
       currency: "THB",
-      description: `Hotel cost for ${guests} guests (estimated)`
+      description: `Hotel cost for ${guests} guests (estimated)`,
     });
   }
   if (booking.includesFood) {
@@ -1210,7 +1426,7 @@ async function generateDefaultFinancialRecords(bookingId) {
       category: "food_cost",
       amount: avg || 1500,
       currency: "THB",
-      description: `Kosher food for ${guests} guests (estimated)`
+      description: `Kosher food for ${guests} guests (estimated)`,
     });
   }
   if (booking.includesTrip) {
@@ -1221,7 +1437,7 @@ async function generateDefaultFinancialRecords(bookingId) {
       category: "vehicle_rental",
       amount: avg || 2500,
       currency: "THB",
-      description: "4x4 vehicle rental (estimated)"
+      description: "4x4 vehicle rental (estimated)",
     });
   }
   for (const record of records) {
@@ -1232,12 +1448,15 @@ async function generateDefaultFinancialRecords(bookingId) {
 async function getFinancialStatsByTour() {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select({
-    bookingId: financialRecords.bookingId,
-    type: financialRecords.type,
-    amount: financialRecords.amount,
-    suggestedDestinations: bookings.suggestedDestinations
-  }).from(financialRecords).innerJoin(bookings, eq5(financialRecords.bookingId, bookings.id));
+  const rows = await db
+    .select({
+      bookingId: financialRecords.bookingId,
+      type: financialRecords.type,
+      amount: financialRecords.amount,
+      suggestedDestinations: bookings.suggestedDestinations,
+    })
+    .from(financialRecords)
+    .innerJoin(bookings, eq5(financialRecords.bookingId, bookings.id));
   const tourMap = /* @__PURE__ */ new Map();
   for (const row of rows) {
     let tourNames = [];
@@ -1260,7 +1479,7 @@ async function getFinancialStatsByTour() {
           totalCosts: 0,
           totalRefunds: 0,
           netProfit: 0,
-          bookingIds: /* @__PURE__ */ new Set()
+          bookingIds: /* @__PURE__ */ new Set(),
         });
       }
       const entry = tourMap.get(name);
@@ -1276,19 +1495,23 @@ async function getFinancialStatsByTour() {
     totalCosts: stats.totalCosts,
     totalRefunds: stats.totalRefunds,
     netProfit: stats.totalRevenue - stats.totalCosts - stats.totalRefunds,
-    bookingCount: stats.bookingIds.size
+    bookingCount: stats.bookingIds.size,
   }));
 }
 async function getFinancialStatsByAgent() {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select({
-    bookingId: financialRecords.bookingId,
-    type: financialRecords.type,
-    amount: financialRecords.amount,
-    assignedAgentId: bookings.assignedAgentId,
-    agentName: agents.name
-  }).from(financialRecords).innerJoin(bookings, eq5(financialRecords.bookingId, bookings.id)).leftJoin(agents, eq5(bookings.assignedAgentId, agents.id));
+  const rows = await db
+    .select({
+      bookingId: financialRecords.bookingId,
+      type: financialRecords.type,
+      amount: financialRecords.amount,
+      assignedAgentId: bookings.assignedAgentId,
+      agentName: agents.name,
+    })
+    .from(financialRecords)
+    .innerJoin(bookings, eq5(financialRecords.bookingId, bookings.id))
+    .leftJoin(agents, eq5(bookings.assignedAgentId, agents.id));
   const agentMap = /* @__PURE__ */ new Map();
   for (const row of rows) {
     const agentName = row.agentName ?? "Unassigned";
@@ -1298,7 +1521,7 @@ async function getFinancialStatsByAgent() {
         totalCosts: 0,
         totalRefunds: 0,
         netProfit: 0,
-        bookingIds: /* @__PURE__ */ new Set()
+        bookingIds: /* @__PURE__ */ new Set(),
       });
     }
     const entry = agentMap.get(agentName);
@@ -1313,7 +1536,7 @@ async function getFinancialStatsByAgent() {
     totalCosts: stats.totalCosts,
     totalRefunds: stats.totalRefunds,
     netProfit: stats.totalRevenue - stats.totalCosts - stats.totalRefunds,
-    bookingCount: stats.bookingIds.size
+    bookingCount: stats.bookingIds.size,
   }));
 }
 var init_financial = __esm({
@@ -1322,7 +1545,7 @@ var init_financial = __esm({
     init_connection();
     init_schema();
     init_bookings();
-  }
+  },
 });
 
 // server/db/gallery.ts
@@ -1336,7 +1559,11 @@ async function createGalleryPhoto(photo) {
 async function getAllPublishedPhotos(limit) {
   const db = await getDb();
   if (!db) return [];
-  const query = db.select().from(galleryPhotos).where(eq6(galleryPhotos.isPublished, 1)).orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt));
+  const query = db
+    .select()
+    .from(galleryPhotos)
+    .where(eq6(galleryPhotos.isPublished, 1))
+    .orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt));
   if (limit) {
     return await query.limit(limit);
   }
@@ -1345,19 +1572,30 @@ async function getAllPublishedPhotos(limit) {
 async function getFeaturedPhotos(limit = 8) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(galleryPhotos).where(
-    and2(eq6(galleryPhotos.isPublished, 1), eq6(galleryPhotos.isFeatured, 1))
-  ).orderBy(desc6(galleryPhotos.createdAt)).limit(limit);
+  return await db
+    .select()
+    .from(galleryPhotos)
+    .where(
+      and2(eq6(galleryPhotos.isPublished, 1), eq6(galleryPhotos.isFeatured, 1))
+    )
+    .orderBy(desc6(galleryPhotos.createdAt))
+    .limit(limit);
 }
 async function getAllGalleryPhotos() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(galleryPhotos).orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt));
+  return await db
+    .select()
+    .from(galleryPhotos)
+    .orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt));
 }
 async function updateGalleryPhoto(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(galleryPhotos).set(data).where(eq6(galleryPhotos.id, id));
+  return await db
+    .update(galleryPhotos)
+    .set(data)
+    .where(eq6(galleryPhotos.id, id));
 }
 async function deleteGalleryPhoto(id) {
   const db = await getDb();
@@ -1372,9 +1610,19 @@ async function getPublishedPhotosPaginated(page = 1, pageSize = 20, category) {
   if (category && category !== "all") {
     conditions.push(eq6(galleryPhotos.category, category));
   }
-  const whereClause = conditions.length === 1 ? conditions[0] : and2(...conditions);
-  const items = await db.select().from(galleryPhotos).where(whereClause).orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql5`count(*)` }).from(galleryPhotos).where(whereClause);
+  const whereClause =
+    conditions.length === 1 ? conditions[0] : and2(...conditions);
+  const items = await db
+    .select()
+    .from(galleryPhotos)
+    .where(whereClause)
+    .orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql5`count(*)` })
+    .from(galleryPhotos)
+    .where(whereClause);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -1382,8 +1630,15 @@ async function getAllGalleryPhotosPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(galleryPhotos).orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql5`count(*)` }).from(galleryPhotos);
+  const items = await db
+    .select()
+    .from(galleryPhotos)
+    .orderBy(galleryPhotos.sortOrder, desc6(galleryPhotos.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql5`count(*)` })
+    .from(galleryPhotos);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -1392,11 +1647,16 @@ var init_gallery = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/reviews.ts
-import { eq as eq7, and as and3, sql as sql6, inArray as inArray4 } from "drizzle-orm";
+import {
+  eq as eq7,
+  and as and3,
+  sql as sql6,
+  inArray as inArray4,
+} from "drizzle-orm";
 import { desc as desc7 } from "drizzle-orm";
 async function createReview(review) {
   const db = await getDb();
@@ -1406,7 +1666,11 @@ async function createReview(review) {
 async function getApprovedReviews() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(reviews).where(and3(eq7(reviews.isApproved, 1), eq7(reviews.isPublished, 1))).orderBy(desc7(reviews.createdAt));
+  return await db
+    .select()
+    .from(reviews)
+    .where(and3(eq7(reviews.isApproved, 1), eq7(reviews.isPublished, 1)))
+    .orderBy(desc7(reviews.createdAt));
 }
 async function getAllReviews() {
   const db = await getDb();
@@ -1416,7 +1680,11 @@ async function getAllReviews() {
 async function getReviewById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(reviews).where(eq7(reviews.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(reviews)
+    .where(eq7(reviews.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateReview(id, data) {
@@ -1433,19 +1701,27 @@ async function getReviewStats() {
   const db = await getDb();
   if (!db) return { totalReviews: 0, averageRating: 0, approvedCount: 0 };
   const all = await db.select().from(reviews);
-  const approved = all.filter((r) => r.isApproved === 1);
-  const avgRating = all.length > 0 ? all.reduce((sum3, r) => sum3 + r.rating, 0) / all.length : 0;
+  const approved = all.filter(r => r.isApproved === 1);
+  const avgRating =
+    all.length > 0
+      ? all.reduce((sum3, r) => sum3 + r.rating, 0) / all.length
+      : 0;
   return {
     totalReviews: all.length,
     averageRating: Math.round(avgRating * 10) / 10,
-    approvedCount: approved.length
+    approvedCount: approved.length,
   };
 }
 async function getAllReviewsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(reviews).orderBy(desc7(reviews.createdAt)).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(reviews)
+    .orderBy(desc7(reviews.createdAt))
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql6`count(*)` }).from(reviews);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -1453,12 +1729,18 @@ async function getAllReviewsPaginated(page = 1, pageSize = 20) {
 async function bulkApproveReviews(ids) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(reviews).set({ isApproved: 1, isPublished: 1 }).where(inArray4(reviews.id, ids));
+  return await db
+    .update(reviews)
+    .set({ isApproved: 1, isPublished: 1 })
+    .where(inArray4(reviews.id, ids));
 }
 async function getPendingReviewCount() {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select({ count: sql6`count(*)` }).from(reviews).where(eq7(reviews.isApproved, 0));
+  const result = await db
+    .select({ count: sql6`count(*)` })
+    .from(reviews)
+    .where(eq7(reviews.isApproved, 0));
   return Number(result[0]?.count ?? 0);
 }
 async function bulkDeleteReviews(ids) {
@@ -1471,7 +1753,7 @@ var init_reviews = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/payments.ts
@@ -1485,7 +1767,11 @@ async function createPayment(payment) {
 async function getPaymentsByBookingId(bookingId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(payments).where(eq8(payments.bookingId, bookingId)).orderBy(desc8(payments.createdAt));
+  return await db
+    .select()
+    .from(payments)
+    .where(eq8(payments.bookingId, bookingId))
+    .orderBy(desc8(payments.createdAt));
 }
 async function getAllPayments() {
   const db = await getDb();
@@ -1496,29 +1782,41 @@ async function getPaymentStats() {
   const db = await getDb();
   if (!db) return { totalPayments: 0, totalAmount: 0, completedAmount: 0 };
   const all = await db.select().from(payments);
-  const completed = all.filter((p) => p.status === "completed");
+  const completed = all.filter(p => p.status === "completed");
   return {
     totalPayments: all.length,
     totalAmount: all.reduce((sum3, p) => sum3 + p.amount, 0),
-    completedAmount: completed.reduce((sum3, p) => sum3 + p.amount, 0)
+    completedAmount: completed.reduce((sum3, p) => sum3 + p.amount, 0),
   };
 }
 async function getPaymentById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(payments).where(eq8(payments.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq8(payments.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getPaymentBySessionId(sessionId) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(payments).where(eq8(payments.stripeSessionId, sessionId)).limit(1);
+  const result = await db
+    .select()
+    .from(payments)
+    .where(eq8(payments.stripeSessionId, sessionId))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getAllPendingPayments() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(payments).where(eq8(payments.status, "pending")).orderBy(payments.createdAt);
+  return await db
+    .select()
+    .from(payments)
+    .where(eq8(payments.status, "pending"))
+    .orderBy(payments.createdAt);
 }
 async function updatePayment(id, data) {
   const db = await getDb();
@@ -1528,9 +1826,15 @@ async function updatePayment(id, data) {
 async function getBookingTotalPaid(bookingId) {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select({ total: sql7`COALESCE(SUM(${payments.amount}), 0)` }).from(payments).where(
-    and4(eq8(payments.bookingId, bookingId), eq8(payments.status, "completed"))
-  );
+  const result = await db
+    .select({ total: sql7`COALESCE(SUM(${payments.amount}), 0)` })
+    .from(payments)
+    .where(
+      and4(
+        eq8(payments.bookingId, bookingId),
+        eq8(payments.status, "completed")
+      )
+    );
   return Number(result[0]?.total ?? 0);
 }
 var init_payments = __esm({
@@ -1538,7 +1842,7 @@ var init_payments = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/tours.ts
@@ -1552,23 +1856,38 @@ async function createTour(tour) {
 async function getAllActiveTours() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tours).where(eq9(tours.isActive, 1)).orderBy(tours.sortOrder, desc9(tours.createdAt));
+  return await db
+    .select()
+    .from(tours)
+    .where(eq9(tours.isActive, 1))
+    .orderBy(tours.sortOrder, desc9(tours.createdAt));
 }
 async function getAllTours() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tours).orderBy(tours.sortOrder, desc9(tours.createdAt));
+  return await db
+    .select()
+    .from(tours)
+    .orderBy(tours.sortOrder, desc9(tours.createdAt));
 }
 async function getTourById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(tours).where(eq9(tours.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(tours)
+    .where(eq9(tours.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getTourBySlug(slug) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(tours).where(eq9(tours.slug, slug)).limit(1);
+  const result = await db
+    .select()
+    .from(tours)
+    .where(eq9(tours.slug, slug))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateTour(id, data) {
@@ -1585,7 +1904,12 @@ async function getAllToursPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(tours).orderBy(tours.sortOrder, desc9(tours.createdAt)).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(tours)
+    .orderBy(tours.sortOrder, desc9(tours.createdAt))
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql8`count(*)` }).from(tours);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -1595,7 +1919,7 @@ var init_tours = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/packages.ts
@@ -1608,23 +1932,37 @@ async function createTourPackage(pkg) {
 async function getPublishedTourPackages() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tourPackages).where(eq10(tourPackages.isPublished, 1)).orderBy(desc10(tourPackages.createdAt));
+  return await db
+    .select()
+    .from(tourPackages)
+    .where(eq10(tourPackages.isPublished, 1))
+    .orderBy(desc10(tourPackages.createdAt));
 }
 async function getAllTourPackages() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tourPackages).orderBy(desc10(tourPackages.createdAt));
+  return await db
+    .select()
+    .from(tourPackages)
+    .orderBy(desc10(tourPackages.createdAt));
 }
 async function getTourPackageBySlug(slug) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(tourPackages).where(eq10(tourPackages.slug, slug)).limit(1);
+  const result = await db
+    .select()
+    .from(tourPackages)
+    .where(eq10(tourPackages.slug, slug))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateTourPackage(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(tourPackages).set(data).where(eq10(tourPackages.id, id));
+  return await db
+    .update(tourPackages)
+    .set(data)
+    .where(eq10(tourPackages.id, id));
 }
 async function deleteTourPackage(id) {
   const db = await getDb();
@@ -1636,7 +1974,7 @@ var init_packages = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/blog.ts
@@ -1650,9 +1988,16 @@ async function createBlogPost(post) {
 async function getAllPublishedBlogPosts() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(blogPosts).where(
-    and5(eq11(blogPosts.isPublished, 1), lte2(blogPosts.publishedAt, sql9`NOW()`))
-  ).orderBy(desc11(blogPosts.publishedAt), desc11(blogPosts.createdAt));
+  return await db
+    .select()
+    .from(blogPosts)
+    .where(
+      and5(
+        eq11(blogPosts.isPublished, 1),
+        lte2(blogPosts.publishedAt, sql9`NOW()`)
+      )
+    )
+    .orderBy(desc11(blogPosts.publishedAt), desc11(blogPosts.createdAt));
 }
 async function getAllBlogPosts() {
   const db = await getDb();
@@ -1662,25 +2007,37 @@ async function getAllBlogPosts() {
 async function getBlogPostById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(blogPosts).where(eq11(blogPosts.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq11(blogPosts.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getBlogPostBySlug(slug) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(blogPosts).where(eq11(blogPosts.slug, slug)).limit(1);
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(eq11(blogPosts.slug, slug))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getPublishedBlogPostBySlug(slug) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(blogPosts).where(
-    and5(
-      eq11(blogPosts.slug, slug),
-      eq11(blogPosts.isPublished, 1),
-      lte2(blogPosts.publishedAt, sql9`NOW()`)
+  const result = await db
+    .select()
+    .from(blogPosts)
+    .where(
+      and5(
+        eq11(blogPosts.slug, slug),
+        eq11(blogPosts.isPublished, 1),
+        lte2(blogPosts.publishedAt, sql9`NOW()`)
+      )
     )
-  ).limit(1);
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateBlogPost(id, data) {
@@ -1697,8 +2054,15 @@ async function getAllBlogPostsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(blogPosts).orderBy(desc11(blogPosts.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql9`count(*)` }).from(blogPosts);
+  const items = await db
+    .select()
+    .from(blogPosts)
+    .orderBy(desc11(blogPosts.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql9`count(*)` })
+    .from(blogPosts);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -1707,7 +2071,7 @@ var init_blog = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/subscribers.ts
@@ -1721,30 +2085,44 @@ async function createSubscriber(sub) {
 async function getSubscriberByEmail(email) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(subscribers).where(eq12(subscribers.email, email)).limit(1);
+  const result = await db
+    .select()
+    .from(subscribers)
+    .where(eq12(subscribers.email, email))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getAllActiveSubscribers() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(subscribers).where(eq12(subscribers.isActive, 1)).orderBy(desc12(subscribers.subscribedAt));
+  return await db
+    .select()
+    .from(subscribers)
+    .where(eq12(subscribers.isActive, 1))
+    .orderBy(desc12(subscribers.subscribedAt));
 }
 async function getAllSubscribers() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(subscribers).orderBy(desc12(subscribers.subscribedAt));
+  return await db
+    .select()
+    .from(subscribers)
+    .orderBy(desc12(subscribers.subscribedAt));
 }
 async function deactivateSubscriber(email) {
   const db = await getDb();
   if (!db) return;
-  await db.update(subscribers).set({ isActive: 0 }).where(eq12(subscribers.email, email));
+  await db
+    .update(subscribers)
+    .set({ isActive: 0 })
+    .where(eq12(subscribers.email, email));
 }
 var init_subscribers = __esm({
   "server/db/subscribers.ts"() {
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/chat.ts
@@ -1753,62 +2131,96 @@ import { desc as desc13 } from "drizzle-orm";
 async function createChatSession(data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(chatSessions).values({ visitorId: data.visitorId, language: data.language }).$returningId();
+  const [result] = await db
+    .insert(chatSessions)
+    .values({ visitorId: data.visitorId, language: data.language })
+    .$returningId();
   return result.id;
 }
 async function getChatSessionByVisitorId(visitorId) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(chatSessions).where(
-    and6(
-      eq13(chatSessions.visitorId, visitorId),
-      sql10`${chatSessions.mode} != 'closed'`
+  const result = await db
+    .select()
+    .from(chatSessions)
+    .where(
+      and6(
+        eq13(chatSessions.visitorId, visitorId),
+        sql10`${chatSessions.mode} != 'closed'`
+      )
     )
-  ).orderBy(desc13(chatSessions.createdAt)).limit(1);
+    .orderBy(desc13(chatSessions.createdAt))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 async function getChatMessagesBySessionId(sessionId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(chatMessages).where(eq13(chatMessages.sessionId, sessionId)).orderBy(chatMessages.createdAt);
+  return await db
+    .select()
+    .from(chatMessages)
+    .where(eq13(chatMessages.sessionId, sessionId))
+    .orderBy(chatMessages.createdAt);
 }
 async function addChatMessage(data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(chatMessages).values({
-    sessionId: data.sessionId,
-    role: data.role,
-    content: data.content,
-    metadata: data.metadata ?? null
-  }).$returningId();
+  const [result] = await db
+    .insert(chatMessages)
+    .values({
+      sessionId: data.sessionId,
+      role: data.role,
+      content: data.content,
+      metadata: data.metadata ?? null,
+    })
+    .$returningId();
   return result.id;
 }
 async function updateChatSessionMode(id, mode) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(chatSessions).set({ mode }).where(eq13(chatSessions.id, id));
+  return await db
+    .update(chatSessions)
+    .set({ mode })
+    .where(eq13(chatSessions.id, id));
 }
 async function updateChatSessionSummary(id, summary) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(chatSessions).set({ summary }).where(eq13(chatSessions.id, id));
+  return await db
+    .update(chatSessions)
+    .set({ summary })
+    .where(eq13(chatSessions.id, id));
 }
 async function updateChatSessionBookingContext(id, bookingContext) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(chatSessions).set({ bookingContext }).where(eq13(chatSessions.id, id));
+  return await db
+    .update(chatSessions)
+    .set({ bookingContext })
+    .where(eq13(chatSessions.id, id));
 }
 async function closeChatSession(id) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(chatSessions).set({ mode: "closed", closedAt: /* @__PURE__ */ new Date() }).where(eq13(chatSessions.id, id));
+  return await db
+    .update(chatSessions)
+    .set({ mode: "closed", closedAt: /* @__PURE__ */ new Date() })
+    .where(eq13(chatSessions.id, id));
 }
 async function getAllChatSessionsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(chatSessions).orderBy(desc13(chatSessions.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql10`count(*)` }).from(chatSessions);
+  const items = await db
+    .select()
+    .from(chatSessions)
+    .orderBy(desc13(chatSessions.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql10`count(*)` })
+    .from(chatSessions);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -1817,7 +2229,7 @@ var init_chat = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/customers.ts
@@ -1838,27 +2250,46 @@ async function getAllCustomersPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(customers).orderBy(desc14(customers.updatedAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql11`count(*)` }).from(customers);
+  const items = await db
+    .select()
+    .from(customers)
+    .orderBy(desc14(customers.updatedAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql11`count(*)` })
+    .from(customers);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
 async function getCustomerById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(customers).where(eq14(customers.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq14(customers.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getCustomerByEmail(email) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(customers).where(eq14(customers.email, email)).limit(1);
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq14(customers.email, email))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function getCustomerByPhone(phone) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(customers).where(eq14(customers.phone, phone)).limit(1);
+  const result = await db
+    .select()
+    .from(customers)
+    .where(eq14(customers.phone, phone))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateCustomer(id, data) {
@@ -1869,13 +2300,19 @@ async function updateCustomer(id, data) {
 async function deleteCustomer(id) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(customerActivities).where(eq14(customerActivities.customerId, id));
+  await db
+    .delete(customerActivities)
+    .where(eq14(customerActivities.customerId, id));
   return await db.delete(customers).where(eq14(customers.id, id));
 }
 async function getCustomersByStage(stage) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(customers).where(eq14(customers.stage, stage)).orderBy(desc14(customers.updatedAt));
+  return await db
+    .select()
+    .from(customers)
+    .where(eq14(customers.stage, stage))
+    .orderBy(desc14(customers.updatedAt));
 }
 async function createCustomerActivity(activity) {
   const db = await getDb();
@@ -1885,36 +2322,50 @@ async function createCustomerActivity(activity) {
 async function getActivitiesByCustomerId(customerId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(customerActivities).where(eq14(customerActivities.customerId, customerId)).orderBy(desc14(customerActivities.createdAt));
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(eq14(customerActivities.customerId, customerId))
+    .orderBy(desc14(customerActivities.createdAt));
 }
 async function completeActivity(activityId) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(customerActivities).set({ isCompleted: 1 }).where(eq14(customerActivities.id, activityId));
+  return await db
+    .update(customerActivities)
+    .set({ isCompleted: 1 })
+    .where(eq14(customerActivities.id, activityId));
 }
 async function getPendingFollowUps() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(customerActivities).where(eq14(customerActivities.type, "follow_up")).orderBy(customerActivities.dueDate);
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(eq14(customerActivities.type, "follow_up"))
+    .orderBy(customerActivities.dueDate);
 }
 async function getOverdueTasks() {
   const db = await getDb();
   if (!db) return [];
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1e3);
-  return await db.select().from(customerActivities).where(
-    sql11`${customerActivities.dueDate} IS NOT NULL AND ${customerActivities.dueDate} <= ${tomorrow} AND ${customerActivities.isCompleted} = 0`
-  );
+  return await db
+    .select()
+    .from(customerActivities)
+    .where(
+      sql11`${customerActivities.dueDate} IS NOT NULL AND ${customerActivities.dueDate} <= ${tomorrow} AND ${customerActivities.isCompleted} = 0`
+    );
 }
 async function getCustomerPipelineStats() {
   const db = await getDb();
   if (!db) return { prospect: 0, active: 0, completed: 0, vip: 0, inactive: 0 };
   const all = await db.select().from(customers);
   return {
-    prospect: all.filter((c) => c.stage === "prospect").length,
-    active: all.filter((c) => c.stage === "active").length,
-    completed: all.filter((c) => c.stage === "completed").length,
-    vip: all.filter((c) => c.stage === "vip").length,
-    inactive: all.filter((c) => c.stage === "inactive").length
+    prospect: all.filter(c => c.stage === "prospect").length,
+    active: all.filter(c => c.stage === "active").length,
+    completed: all.filter(c => c.stage === "completed").length,
+    vip: all.filter(c => c.stage === "vip").length,
+    inactive: all.filter(c => c.stage === "inactive").length,
   };
 }
 async function getCustomerTimeline(email, phone) {
@@ -1923,7 +2374,10 @@ async function getCustomerTimeline(email, phone) {
   const timeline = [];
   const seenIds = /* @__PURE__ */ new Set();
   if (email) {
-    const matchedLeads = await db.select().from(leads).where(eq14(leads.email, email));
+    const matchedLeads = await db
+      .select()
+      .from(leads)
+      .where(eq14(leads.email, email));
     for (const lead of matchedLeads) {
       const key = `lead-${lead.id}`;
       if (!seenIds.has(key)) {
@@ -1933,13 +2387,16 @@ async function getCustomerTimeline(email, phone) {
           type: "lead",
           title: `Lead created (${lead.source})`,
           detail: lead.message ?? "",
-          source: "leads"
+          source: "leads",
         });
       }
     }
   }
   if (phone) {
-    const phoneLeads = await db.select().from(leads).where(eq14(leads.phone, phone));
+    const phoneLeads = await db
+      .select()
+      .from(leads)
+      .where(eq14(leads.phone, phone));
     for (const lead of phoneLeads) {
       const key = `lead-${lead.id}`;
       if (!seenIds.has(key)) {
@@ -1949,13 +2406,16 @@ async function getCustomerTimeline(email, phone) {
           type: "lead",
           title: `Lead created (${lead.source})`,
           detail: lead.message ?? "",
-          source: "leads"
+          source: "leads",
         });
       }
     }
   }
   if (email) {
-    const matchedBookings = await db.select().from(bookings).where(eq14(bookings.contactEmail, email));
+    const matchedBookings = await db
+      .select()
+      .from(bookings)
+      .where(eq14(bookings.contactEmail, email));
     for (const booking of matchedBookings) {
       const key = `booking-${booking.id}`;
       if (!seenIds.has(key)) {
@@ -1965,13 +2425,16 @@ async function getCustomerTimeline(email, phone) {
           type: "booking",
           title: `Booking #${booking.id} \u2014 ${booking.status}`,
           detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
-          source: "bookings"
+          source: "bookings",
         });
       }
     }
   }
   if (phone) {
-    const phoneBookings = await db.select().from(bookings).where(eq14(bookings.contactPhone, phone));
+    const phoneBookings = await db
+      .select()
+      .from(bookings)
+      .where(eq14(bookings.contactPhone, phone));
     for (const booking of phoneBookings) {
       const key = `booking-${booking.id}`;
       if (!seenIds.has(key)) {
@@ -1981,20 +2444,23 @@ async function getCustomerTimeline(email, phone) {
           type: "booking",
           title: `Booking #${booking.id} \u2014 ${booking.status}`,
           detail: `${booking.numberOfAdults} adults, ${booking.arrivalDate.toLocaleDateString()} - ${booking.departureDate.toLocaleDateString()}`,
-          source: "bookings"
+          source: "bookings",
         });
       }
     }
   }
   if (email) {
-    const matchedReviews = await db.select().from(reviews).where(eq14(reviews.email, email));
+    const matchedReviews = await db
+      .select()
+      .from(reviews)
+      .where(eq14(reviews.email, email));
     for (const review of matchedReviews) {
       timeline.push({
         date: review.createdAt,
         type: "review",
         title: `Review \u2014 ${review.rating}/5 stars`,
         detail: review.text.substring(0, 100),
-        source: "reviews"
+        source: "reviews",
       });
     }
   }
@@ -2018,7 +2484,7 @@ async function findOrCreateCustomer(data) {
       email: data.email ?? null,
       phone: data.phone ?? null,
       source: data.source ?? "website",
-      stage: "prospect"
+      stage: "prospect",
     });
     const insertId = result[0]?.insertId;
     return insertId ?? null;
@@ -2039,7 +2505,7 @@ var init_customers = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/audit.ts
@@ -2061,13 +2527,17 @@ async function createScheduledEmail(record) {
 async function hasScheduledEmailBeenSent(type, targetId) {
   const db = await getDb();
   if (!db) return false;
-  const result = await db.select().from(scheduledEmails).where(
-    and7(
-      eq15(scheduledEmails.type, type),
-      eq15(scheduledEmails.targetId, targetId),
-      eq15(scheduledEmails.status, "sent")
+  const result = await db
+    .select()
+    .from(scheduledEmails)
+    .where(
+      and7(
+        eq15(scheduledEmails.type, type),
+        eq15(scheduledEmails.targetId, targetId),
+        eq15(scheduledEmails.status, "sent")
+      )
     )
-  ).limit(1);
+    .limit(1);
   return result.length > 0;
 }
 var init_audit = __esm({
@@ -2075,7 +2545,7 @@ var init_audit = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/settings.ts
@@ -2111,38 +2581,59 @@ var init_settings = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/stats.ts
-import { eq as eq17, and as and8, sql as sql12, desc as desc15, gte } from "drizzle-orm";
+import {
+  eq as eq17,
+  and as and8,
+  sql as sql12,
+  desc as desc15,
+  gte,
+} from "drizzle-orm";
 import { count } from "drizzle-orm";
 async function getPublicStats() {
   const db = await getDb();
   if (!db) return { totalBookings: 0, totalReviews: 0, totalTours: 0 };
-  const [bookingCount] = await db.select({ value: count() }).from(bookings).where(sql12`${bookings.status} IN ('confirmed', 'completed')`);
-  const [reviewCount] = await db.select({ value: count() }).from(reviews).where(and8(eq17(reviews.isApproved, 1), gte(reviews.rating, 4)));
-  const [tourCount] = await db.select({ value: count() }).from(tours).where(eq17(tours.isActive, 1));
+  const [bookingCount] = await db
+    .select({ value: count() })
+    .from(bookings)
+    .where(sql12`${bookings.status} IN ('confirmed', 'completed')`);
+  const [reviewCount] = await db
+    .select({ value: count() })
+    .from(reviews)
+    .where(and8(eq17(reviews.isApproved, 1), gte(reviews.rating, 4)));
+  const [tourCount] = await db
+    .select({ value: count() })
+    .from(tours)
+    .where(eq17(tours.isActive, 1));
   return {
     totalBookings: bookingCount?.value ?? 0,
     totalReviews: reviewCount?.value ?? 0,
-    totalTours: tourCount?.value ?? 0
+    totalTours: tourCount?.value ?? 0,
   };
 }
 async function getRecentBookings(limit = 5) {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select({
-    contactName: bookings.contactName,
-    tourName: sql12`COALESCE(${bookings.suggestedDestinations}, 'Off-Road Adventure')`.as(
-      "tourName"
-    ),
-    createdAt: bookings.createdAt
-  }).from(bookings).where(sql12`${bookings.status} IN ('confirmed', 'completed')`).orderBy(desc15(bookings.createdAt)).limit(limit);
-  return rows.map((r) => ({
+  const rows = await db
+    .select({
+      contactName: bookings.contactName,
+      tourName:
+        sql12`COALESCE(${bookings.suggestedDestinations}, 'Off-Road Adventure')`.as(
+          "tourName"
+        ),
+      createdAt: bookings.createdAt,
+    })
+    .from(bookings)
+    .where(sql12`${bookings.status} IN ('confirmed', 'completed')`)
+    .orderBy(desc15(bookings.createdAt))
+    .limit(limit);
+  return rows.map(r => ({
     firstName: r.contactName.split(" ")[0],
     tourName: r.tourName,
-    createdAt: r.createdAt
+    createdAt: r.createdAt,
   }));
 }
 var init_stats = __esm({
@@ -2150,7 +2641,7 @@ var init_stats = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/bookingDrafts.ts
@@ -2165,29 +2656,47 @@ async function createBookingDraft(data) {
 async function getBookingDraftByToken(token) {
   const db = await getDb();
   if (!db) return null;
-  const [draft] = await db.select().from(bookingDrafts).where(eq18(bookingDrafts.resumeToken, token)).limit(1);
+  const [draft] = await db
+    .select()
+    .from(bookingDrafts)
+    .where(eq18(bookingDrafts.resumeToken, token))
+    .limit(1);
   return draft ?? null;
 }
 async function listActiveBookingDrafts() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(bookingDrafts).where(eq18(bookingDrafts.status, "active")).orderBy(desc16(bookingDrafts.createdAt));
+  return await db
+    .select()
+    .from(bookingDrafts)
+    .where(eq18(bookingDrafts.status, "active"))
+    .orderBy(desc16(bookingDrafts.createdAt));
 }
 async function updateBookingDraftStatus(id, status, convertedToBookingId) {
   const db = await getDb();
   if (!db) return;
-  await db.update(bookingDrafts).set({ status, ...convertedToBookingId ? { convertedToBookingId } : {} }).where(eq18(bookingDrafts.id, id));
+  await db
+    .update(bookingDrafts)
+    .set({ status, ...(convertedToBookingId ? { convertedToBookingId } : {}) })
+    .where(eq18(bookingDrafts.id, id));
 }
 var init_bookingDrafts = __esm({
   "server/db/bookingDrafts.ts"() {
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/accounting.ts
-import { eq as eq19, desc as desc17, and as and9, gte as gte2, lte as lte3, sql as sql13 } from "drizzle-orm";
+import {
+  eq as eq19,
+  desc as desc17,
+  and as and9,
+  gte as gte2,
+  lte as lte3,
+  sql as sql13,
+} from "drizzle-orm";
 async function createInvoice(data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -2197,15 +2706,26 @@ async function getAllInvoicesPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(invoices).orderBy(desc17(invoices.issuedAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql13`count(*)` }).from(invoices);
+  const items = await db
+    .select()
+    .from(invoices)
+    .orderBy(desc17(invoices.issuedAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql13`count(*)` })
+    .from(invoices);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
 async function getInvoiceById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(invoices).where(eq19(invoices.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(invoices)
+    .where(eq19(invoices.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateInvoiceStatus(id, status, paymentDate, paymentMethod) {
@@ -2220,7 +2740,10 @@ async function getNextInvoiceSequence(prefix, yearMonth) {
   const db = await getDb();
   if (!db) return 1;
   const pattern = `${prefix}-${yearMonth}-%`;
-  const result = await db.select({ count: sql13`count(*)` }).from(invoices).where(sql13`${invoices.invoiceNumber} LIKE ${pattern}`);
+  const result = await db
+    .select({ count: sql13`count(*)` })
+    .from(invoices)
+    .where(sql13`${invoices.invoiceNumber} LIKE ${pattern}`);
   return Number(result[0]?.count ?? 0) + 1;
 }
 async function createAccountingEntry(data) {
@@ -2243,21 +2766,35 @@ async function getAccountingEntriesPaginated(page = 1, pageSize = 20, filters) {
     conditions.push(lte3(accountingEntries.date, new Date(filters.endDate)));
   }
   const whereClause = conditions.length > 0 ? and9(...conditions) : void 0;
-  const itemsQuery = db.select().from(accountingEntries).orderBy(desc17(accountingEntries.date)).limit(pageSize).offset(offset);
-  const countQuery = db.select({ count: sql13`count(*)` }).from(accountingEntries);
-  const items = whereClause ? await itemsQuery.where(whereClause) : await itemsQuery;
-  const countResult = whereClause ? await countQuery.where(whereClause) : await countQuery;
+  const itemsQuery = db
+    .select()
+    .from(accountingEntries)
+    .orderBy(desc17(accountingEntries.date))
+    .limit(pageSize)
+    .offset(offset);
+  const countQuery = db
+    .select({ count: sql13`count(*)` })
+    .from(accountingEntries);
+  const items = whereClause
+    ? await itemsQuery.where(whereClause)
+    : await itemsQuery;
+  const countResult = whereClause
+    ? await countQuery.where(whereClause)
+    : await countQuery;
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
 async function getTrialBalance() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select({
-    accountCode: accountingEntries.accountCode,
-    totalDebit: sql13`SUM(${accountingEntries.debit})`,
-    totalCredit: sql13`SUM(${accountingEntries.credit})`
-  }).from(accountingEntries).groupBy(accountingEntries.accountCode);
+  const result = await db
+    .select({
+      accountCode: accountingEntries.accountCode,
+      totalDebit: sql13`SUM(${accountingEntries.debit})`,
+      totalCredit: sql13`SUM(${accountingEntries.credit})`,
+    })
+    .from(accountingEntries)
+    .groupBy(accountingEntries.accountCode);
   return result;
 }
 async function createTaxFiling(data) {
@@ -2269,8 +2806,15 @@ async function getAllTaxFilingsPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(taxFilings).orderBy(desc17(taxFilings.dueDate)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql13`count(*)` }).from(taxFilings);
+  const items = await db
+    .select()
+    .from(taxFilings)
+    .orderBy(desc17(taxFilings.dueDate))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql13`count(*)` })
+    .from(taxFilings);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -2279,21 +2823,31 @@ async function updateTaxFilingStatus(id, status, filedAt) {
   if (!db) throw new Error("Database not available");
   const updateData = { status };
   if (filedAt) updateData.filedAt = filedAt;
-  return await db.update(taxFilings).set(updateData).where(eq19(taxFilings.id, id));
+  return await db
+    .update(taxFilings)
+    .set(updateData)
+    .where(eq19(taxFilings.id, id));
 }
 async function getUpcomingFilings() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(taxFilings).where(
-    and9(eq19(taxFilings.status, "pending"), gte2(taxFilings.dueDate, /* @__PURE__ */ new Date()))
-  ).orderBy(taxFilings.dueDate);
+  return await db
+    .select()
+    .from(taxFilings)
+    .where(
+      and9(
+        eq19(taxFilings.status, "pending"),
+        gte2(taxFilings.dueDate, /* @__PURE__ */ new Date())
+      )
+    )
+    .orderBy(taxFilings.dueDate);
 }
 var init_accounting = __esm({
   "server/db/accounting.ts"() {
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/inventory.ts
@@ -2307,15 +2861,26 @@ async function getAllInventoryPaginated(page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const items = await db.select().from(inventory).orderBy(desc18(inventory.createdAt)).limit(pageSize).offset(offset);
-  const countResult = await db.select({ count: sql14`count(*)` }).from(inventory);
+  const items = await db
+    .select()
+    .from(inventory)
+    .orderBy(desc18(inventory.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countResult = await db
+    .select({ count: sql14`count(*)` })
+    .from(inventory);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
 async function getInventoryById(id) {
   const db = await getDb();
   if (!db) return void 0;
-  const result = await db.select().from(inventory).where(eq20(inventory.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(inventory)
+    .where(eq20(inventory.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateInventoryItem(id, data) {
@@ -2332,19 +2897,25 @@ async function getInventoryNeedingMaintenance(withinDays = 7) {
   const db = await getDb();
   if (!db) return [];
   const cutoff = new Date(Date.now() + withinDays * 24 * 60 * 60 * 1e3);
-  return await db.select().from(inventory).where(
-    sql14`${inventory.nextMaintenanceDate} IS NOT NULL AND ${inventory.nextMaintenanceDate} <= ${cutoff} AND ${inventory.condition} != 'retired'`
-  );
+  return await db
+    .select()
+    .from(inventory)
+    .where(
+      sql14`${inventory.nextMaintenanceDate} IS NOT NULL AND ${inventory.nextMaintenanceDate} <= ${cutoff} AND ${inventory.condition} != 'retired'`
+    );
 }
 async function getInventorySummary() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select({
-    category: inventory.category,
-    count: sql14`COUNT(*)`,
-    totalCurrentValue: sql14`SUM(${inventory.currentValue})`,
-    totalPurchaseCost: sql14`SUM(${inventory.purchaseCost})`
-  }).from(inventory).groupBy(inventory.category);
+  const result = await db
+    .select({
+      category: inventory.category,
+      count: sql14`COUNT(*)`,
+      totalCurrentValue: sql14`SUM(${inventory.currentValue})`,
+      totalPurchaseCost: sql14`SUM(${inventory.purchaseCost})`,
+    })
+    .from(inventory)
+    .groupBy(inventory.category);
   return result;
 }
 var init_inventory = __esm({
@@ -2352,30 +2923,49 @@ var init_inventory = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/availability.ts
-import { eq as eq21, and as and10, gte as gte3, lte as lte4 } from "drizzle-orm";
+import {
+  eq as eq21,
+  and as and10,
+  gte as gte3,
+  lte as lte4,
+} from "drizzle-orm";
 async function getTourAvailabilityByRange(tourId, startDate, endDate) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tourAvailability).where(
-    and10(
-      eq21(tourAvailability.tourId, tourId),
-      gte3(tourAvailability.date, startDate),
-      lte4(tourAvailability.date, endDate)
+  return await db
+    .select()
+    .from(tourAvailability)
+    .where(
+      and10(
+        eq21(tourAvailability.tourId, tourId),
+        gte3(tourAvailability.date, startDate),
+        lte4(tourAvailability.date, endDate)
+      )
     )
-  ).orderBy(tourAvailability.date);
+    .orderBy(tourAvailability.date);
 }
 async function upsertTourAvailability(tourId, date, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const existing = await db.select().from(tourAvailability).where(
-    and10(eq21(tourAvailability.tourId, tourId), eq21(tourAvailability.date, date))
-  ).limit(1);
+  const existing = await db
+    .select()
+    .from(tourAvailability)
+    .where(
+      and10(
+        eq21(tourAvailability.tourId, tourId),
+        eq21(tourAvailability.date, date)
+      )
+    )
+    .limit(1);
   if (existing.length > 0) {
-    return await db.update(tourAvailability).set(data).where(eq21(tourAvailability.id, existing[0].id));
+    return await db
+      .update(tourAvailability)
+      .set(data)
+      .where(eq21(tourAvailability.id, existing[0].id));
   } else {
     return await db.insert(tourAvailability).values({
       tourId,
@@ -2383,7 +2973,7 @@ async function upsertTourAvailability(tourId, date, data) {
       maxSlots: data.maxSlots ?? 10,
       bookedSlots: data.bookedSlots ?? 0,
       isBlocked: data.isBlocked ?? 0,
-      notes: data.notes ?? null
+      notes: data.notes ?? null,
     });
   }
 }
@@ -2402,7 +2992,7 @@ var init_availability = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/tripPhotos.ts
@@ -2415,38 +3005,60 @@ async function createTripPhotoAlbum(album) {
 async function getTripPhotoAlbumsByBookingId(bookingId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tripPhotoAlbums).where(eq22(tripPhotoAlbums.bookingId, bookingId)).orderBy(desc19(tripPhotoAlbums.createdAt));
+  return await db
+    .select()
+    .from(tripPhotoAlbums)
+    .where(eq22(tripPhotoAlbums.bookingId, bookingId))
+    .orderBy(desc19(tripPhotoAlbums.createdAt));
 }
 async function getTripPhotoAlbumByToken(token) {
   const db = await getDb();
   if (!db) return null;
-  const results = await db.select().from(tripPhotoAlbums).where(eq22(tripPhotoAlbums.accessToken, token)).limit(1);
+  const results = await db
+    .select()
+    .from(tripPhotoAlbums)
+    .where(eq22(tripPhotoAlbums.accessToken, token))
+    .limit(1);
   return results[0] ?? null;
 }
 async function getTripPhotoAlbumById(id) {
   const db = await getDb();
   if (!db) return null;
-  const results = await db.select().from(tripPhotoAlbums).where(eq22(tripPhotoAlbums.id, id)).limit(1);
+  const results = await db
+    .select()
+    .from(tripPhotoAlbums)
+    .where(eq22(tripPhotoAlbums.id, id))
+    .limit(1);
   return results[0] ?? null;
 }
 async function getAllTripPhotoAlbums() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select({
-    album: tripPhotoAlbums,
-    bookingContactName: bookings.contactName,
-    bookingContactEmail: bookings.contactEmail
-  }).from(tripPhotoAlbums).leftJoin(bookings, eq22(tripPhotoAlbums.bookingId, bookings.id)).orderBy(desc19(tripPhotoAlbums.createdAt));
+  return await db
+    .select({
+      album: tripPhotoAlbums,
+      bookingContactName: bookings.contactName,
+      bookingContactEmail: bookings.contactEmail,
+    })
+    .from(tripPhotoAlbums)
+    .leftJoin(bookings, eq22(tripPhotoAlbums.bookingId, bookings.id))
+    .orderBy(desc19(tripPhotoAlbums.createdAt));
 }
 async function updateTripPhotoAlbum(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(tripPhotoAlbums).set(data).where(eq22(tripPhotoAlbums.id, id));
+  return await db
+    .update(tripPhotoAlbums)
+    .set(data)
+    .where(eq22(tripPhotoAlbums.id, id));
 }
 async function incrementAlbumViewCount(id) {
   const db = await getDb();
   if (!db) return;
-  await db.update(tripPhotoAlbums).set({ viewCount: sql15`${tripPhotoAlbums.viewCount} + 1` }).where(eq22(tripPhotoAlbums.id, id));
+  await db
+    .update(tripPhotoAlbums)
+    .set({ viewCount: sql15`${tripPhotoAlbums.viewCount} + 1` })
+    .where(eq22(tripPhotoAlbums.id, id));
 }
 async function deleteTripPhotoAlbum(id) {
   const db = await getDb();
@@ -2462,7 +3074,11 @@ async function createTripPhoto(photo) {
 async function getTripPhotosByAlbumId(albumId) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(tripPhotos).where(eq22(tripPhotos.albumId, albumId)).orderBy(tripPhotos.sortOrder, desc19(tripPhotos.createdAt));
+  return await db
+    .select()
+    .from(tripPhotos)
+    .where(eq22(tripPhotos.albumId, albumId))
+    .orderBy(tripPhotos.sortOrder, desc19(tripPhotos.createdAt));
 }
 async function deleteTripPhoto(id) {
   const db = await getDb();
@@ -2472,13 +3088,20 @@ async function deleteTripPhoto(id) {
 async function getTripPhotoById(id) {
   const db = await getDb();
   if (!db) return null;
-  const results = await db.select().from(tripPhotos).where(eq22(tripPhotos.id, id)).limit(1);
+  const results = await db
+    .select()
+    .from(tripPhotos)
+    .where(eq22(tripPhotos.id, id))
+    .limit(1);
   return results[0] ?? null;
 }
 async function getAlbumPhotoCount(albumId) {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select({ count: sql15`count(*)` }).from(tripPhotos).where(eq22(tripPhotos.albumId, albumId));
+  const result = await db
+    .select({ count: sql15`count(*)` })
+    .from(tripPhotos)
+    .where(eq22(tripPhotos.albumId, albumId));
   return result[0]?.count ?? 0;
 }
 var init_tripPhotos = __esm({
@@ -2486,24 +3109,47 @@ var init_tripPhotos = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/whatsapp.ts
-import { eq as eq23, desc as desc20, sql as sql16, and as and11, gte as gte4 } from "drizzle-orm";
+import {
+  eq as eq23,
+  desc as desc20,
+  sql as sql16,
+  and as and11,
+  gte as gte4,
+} from "drizzle-orm";
 async function createWhatsAppMessage(msg) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const [result] = await db.insert(whatsappMessages).values(msg).$returningId();
   return result.id;
 }
-async function getAllWhatsAppMessagesPaginated(page = 1, pageSize = 20, phoneFilter) {
+async function getAllWhatsAppMessagesPaginated(
+  page = 1,
+  pageSize = 20,
+  phoneFilter
+) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
-  const conditions = phoneFilter ? eq23(whatsappMessages.phoneNumber, phoneFilter) : void 0;
-  const items = await db.select().from(whatsappMessages).where(conditions).orderBy(desc20(whatsappMessages.createdAt)).limit(pageSize).offset(offset);
-  const countQuery = phoneFilter ? db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(eq23(whatsappMessages.phoneNumber, phoneFilter)) : db.select({ count: sql16`count(*)` }).from(whatsappMessages);
+  const conditions = phoneFilter
+    ? eq23(whatsappMessages.phoneNumber, phoneFilter)
+    : void 0;
+  const items = await db
+    .select()
+    .from(whatsappMessages)
+    .where(conditions)
+    .orderBy(desc20(whatsappMessages.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+  const countQuery = phoneFilter
+    ? db
+        .select({ count: sql16`count(*)` })
+        .from(whatsappMessages)
+        .where(eq23(whatsappMessages.phoneNumber, phoneFilter))
+    : db.select({ count: sql16`count(*)` }).from(whatsappMessages);
   const countResult = await countQuery;
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -2518,25 +3164,44 @@ async function getWhatsAppMessageStats() {
       autoReplies: 0,
       uniqueContacts: 0,
       messagesToday: 0,
-      autoRepliesToday: 0
+      autoRepliesToday: 0,
     };
   }
   const todayStart = /* @__PURE__ */ new Date();
   todayStart.setHours(0, 0, 0, 0);
-  const [totalResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages);
-  const [incomingResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(eq23(whatsappMessages.direction, "incoming"));
-  const [outgoingResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(eq23(whatsappMessages.direction, "outgoing"));
-  const [autoReplyResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(eq23(whatsappMessages.isAutoReply, 1));
-  const [uniqueContactsResult] = await db.select({
-    count: sql16`count(distinct ${whatsappMessages.phoneNumber})`
-  }).from(whatsappMessages);
-  const [todayResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(gte4(whatsappMessages.createdAt, todayStart));
-  const [autoReplyTodayResult] = await db.select({ count: sql16`count(*)` }).from(whatsappMessages).where(
-    and11(
-      eq23(whatsappMessages.isAutoReply, 1),
-      gte4(whatsappMessages.createdAt, todayStart)
-    )
-  );
+  const [totalResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages);
+  const [incomingResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages)
+    .where(eq23(whatsappMessages.direction, "incoming"));
+  const [outgoingResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages)
+    .where(eq23(whatsappMessages.direction, "outgoing"));
+  const [autoReplyResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages)
+    .where(eq23(whatsappMessages.isAutoReply, 1));
+  const [uniqueContactsResult] = await db
+    .select({
+      count: sql16`count(distinct ${whatsappMessages.phoneNumber})`,
+    })
+    .from(whatsappMessages);
+  const [todayResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages)
+    .where(gte4(whatsappMessages.createdAt, todayStart));
+  const [autoReplyTodayResult] = await db
+    .select({ count: sql16`count(*)` })
+    .from(whatsappMessages)
+    .where(
+      and11(
+        eq23(whatsappMessages.isAutoReply, 1),
+        gte4(whatsappMessages.createdAt, todayStart)
+      )
+    );
   return {
     totalMessages: Number(totalResult?.count ?? 0),
     incomingMessages: Number(incomingResult?.count ?? 0),
@@ -2544,24 +3209,35 @@ async function getWhatsAppMessageStats() {
     autoReplies: Number(autoReplyResult?.count ?? 0),
     uniqueContacts: Number(uniqueContactsResult?.count ?? 0),
     messagesToday: Number(todayResult?.count ?? 0),
-    autoRepliesToday: Number(autoReplyTodayResult?.count ?? 0)
+    autoRepliesToday: Number(autoReplyTodayResult?.count ?? 0),
   };
 }
 async function updateWhatsAppMessageStatus(whatsappMessageId, status) {
   const db = await getDb();
   if (!db) return;
-  await db.update(whatsappMessages).set({ status }).where(eq23(whatsappMessages.whatsappMessageId, whatsappMessageId));
+  await db
+    .update(whatsappMessages)
+    .set({ status })
+    .where(eq23(whatsappMessages.whatsappMessageId, whatsappMessageId));
 }
 var init_whatsapp = __esm({
   "server/db/whatsapp.ts"() {
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/analytics.ts
-import { sql as sql17, eq as eq24, count as count2, sum, desc as desc21, gte as gte5, and as and12 } from "drizzle-orm";
+import {
+  sql as sql17,
+  eq as eq24,
+  count as count2,
+  sum,
+  desc as desc21,
+  gte as gte5,
+  and as and12,
+} from "drizzle-orm";
 async function getAnalyticsOverview() {
   const db = await getDb();
   if (!db)
@@ -2575,28 +3251,51 @@ async function getAnalyticsOverview() {
       convertedLeads: 0,
       activeSubscribers: 0,
       avgRating: 0,
-      totalReviews: 0
+      totalReviews: 0,
     };
   const now = /* @__PURE__ */ new Date();
   const firstOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const firstOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const [revenueRow] = await db.select({ total: sum(financialRecords.amount) }).from(financialRecords).where(eq24(financialRecords.type, "revenue"));
-  const [totalBookingsRow] = await db.select({ value: count2() }).from(bookings);
-  const [bookingsThisMonthRow] = await db.select({ value: count2() }).from(bookings).where(gte5(bookings.createdAt, firstOfThisMonth));
-  const [bookingsLastMonthRow] = await db.select({ value: count2() }).from(bookings).where(
-    and12(
-      gte5(bookings.createdAt, firstOfLastMonth),
-      sql17`${bookings.createdAt} < ${firstOfThisMonth}`
-    )
-  );
+  const [revenueRow] = await db
+    .select({ total: sum(financialRecords.amount) })
+    .from(financialRecords)
+    .where(eq24(financialRecords.type, "revenue"));
+  const [totalBookingsRow] = await db
+    .select({ value: count2() })
+    .from(bookings);
+  const [bookingsThisMonthRow] = await db
+    .select({ value: count2() })
+    .from(bookings)
+    .where(gte5(bookings.createdAt, firstOfThisMonth));
+  const [bookingsLastMonthRow] = await db
+    .select({ value: count2() })
+    .from(bookings)
+    .where(
+      and12(
+        gte5(bookings.createdAt, firstOfLastMonth),
+        sql17`${bookings.createdAt} < ${firstOfThisMonth}`
+      )
+    );
   const [totalLeadsRow] = await db.select({ value: count2() }).from(leads);
-  const [leadsThisMonthRow] = await db.select({ value: count2() }).from(leads).where(gte5(leads.createdAt, firstOfThisMonth));
-  const [convertedLeadsRow] = await db.select({ value: count2() }).from(leads).where(eq24(leads.status, "converted"));
-  const [subsRow] = await db.select({ value: count2() }).from(subscribers).where(eq24(subscribers.isActive, 1));
-  const [ratingRow] = await db.select({
-    avg: sql17`COALESCE(AVG(${reviews.rating}), 0)`.as("avg"),
-    total: count2()
-  }).from(reviews).where(eq24(reviews.isApproved, 1));
+  const [leadsThisMonthRow] = await db
+    .select({ value: count2() })
+    .from(leads)
+    .where(gte5(leads.createdAt, firstOfThisMonth));
+  const [convertedLeadsRow] = await db
+    .select({ value: count2() })
+    .from(leads)
+    .where(eq24(leads.status, "converted"));
+  const [subsRow] = await db
+    .select({ value: count2() })
+    .from(subscribers)
+    .where(eq24(subscribers.isActive, 1));
+  const [ratingRow] = await db
+    .select({
+      avg: sql17`COALESCE(AVG(${reviews.rating}), 0)`.as("avg"),
+      total: count2(),
+    })
+    .from(reviews)
+    .where(eq24(reviews.isApproved, 1));
   return {
     totalRevenue: Number(revenueRow?.total ?? 0),
     totalBookings: totalBookingsRow?.value ?? 0,
@@ -2606,8 +3305,9 @@ async function getAnalyticsOverview() {
     leadsThisMonth: leadsThisMonthRow?.value ?? 0,
     convertedLeads: convertedLeadsRow?.value ?? 0,
     activeSubscribers: subsRow?.value ?? 0,
-    avgRating: Math.round((Number(ratingRow?.avg ?? 0) + Number.EPSILON) * 10) / 10,
-    totalReviews: ratingRow?.total ?? 0
+    avgRating:
+      Math.round((Number(ratingRow?.avg ?? 0) + Number.EPSILON) * 10) / 10,
+    totalReviews: ratingRow?.total ?? 0,
   };
 }
 async function getRevenueByMonth() {
@@ -2617,23 +3317,28 @@ async function getRevenueByMonth() {
   twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
   twelveMonthsAgo.setDate(1);
   twelveMonthsAgo.setHours(0, 0, 0, 0);
-  const rows = await db.select({
-    month: sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`.as(
-      "month"
-    ),
-    total: sum(financialRecords.amount)
-  }).from(financialRecords).where(
-    and12(
-      eq24(financialRecords.type, "revenue"),
-      gte5(financialRecords.createdAt, twelveMonthsAgo)
+  const rows = await db
+    .select({
+      month: sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`.as(
+        "month"
+      ),
+      total: sum(financialRecords.amount),
+    })
+    .from(financialRecords)
+    .where(
+      and12(
+        eq24(financialRecords.type, "revenue"),
+        gte5(financialRecords.createdAt, twelveMonthsAgo)
+      )
     )
-  ).groupBy(sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`).orderBy(sql17`month`);
+    .groupBy(sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`)
+    .orderBy(sql17`month`);
   const result = [];
   const now = /* @__PURE__ */ new Date();
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const found = rows.find((r) => r.month === key);
+    const found = rows.find(r => r.month === key);
     result.push({ month: key, total: Number(found?.total ?? 0) });
   }
   return result;
@@ -2645,18 +3350,21 @@ async function getBookingsByMonth() {
   twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
   twelveMonthsAgo.setDate(1);
   twelveMonthsAgo.setHours(0, 0, 0, 0);
-  const rows = await db.select({
-    month: sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`.as(
-      "month"
-    ),
-    total: count2()
-  }).from(bookings).where(gte5(bookings.createdAt, twelveMonthsAgo)).groupBy(sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`).orderBy(sql17`month`);
+  const rows = await db
+    .select({
+      month: sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`.as("month"),
+      total: count2(),
+    })
+    .from(bookings)
+    .where(gte5(bookings.createdAt, twelveMonthsAgo))
+    .groupBy(sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`)
+    .orderBy(sql17`month`);
   const result = [];
   const now = /* @__PURE__ */ new Date();
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const found = rows.find((r) => r.month === key);
+    const found = rows.find(r => r.month === key);
     result.push({ month: key, total: found?.total ?? 0 });
   }
   return result;
@@ -2664,16 +3372,19 @@ async function getBookingsByMonth() {
 async function getLeadFunnel() {
   const db = await getDb();
   if (!db) return { new: 0, contacted: 0, quoted: 0, converted: 0, lost: 0 };
-  const rows = await db.select({
-    status: leads.status,
-    total: count2()
-  }).from(leads).groupBy(leads.status);
+  const rows = await db
+    .select({
+      status: leads.status,
+      total: count2(),
+    })
+    .from(leads)
+    .groupBy(leads.status);
   const funnel = {
     new: 0,
     contacted: 0,
     quoted: 0,
     converted: 0,
-    lost: 0
+    lost: 0,
   };
   for (const row of rows) {
     if (row.status in funnel) {
@@ -2685,41 +3396,56 @@ async function getLeadFunnel() {
 async function getTopTours(limit = 5) {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.select({
-    tourName: sql17`COALESCE(${bookings.suggestedDestinations}, 'General Tour')`.as(
-      "tourName"
-    ),
-    bookingCount: count2(),
-    revenue: sql17`COALESCE(SUM(${bookings.totalPrice}), 0)`.as(
-      "revenue"
-    )
-  }).from(bookings).groupBy(sql17`tourName`).orderBy(desc21(count2())).limit(limit);
-  return rows.map((r) => ({
+  const rows = await db
+    .select({
+      tourName:
+        sql17`COALESCE(${bookings.suggestedDestinations}, 'General Tour')`.as(
+          "tourName"
+        ),
+      bookingCount: count2(),
+      revenue: sql17`COALESCE(SUM(${bookings.totalPrice}), 0)`.as("revenue"),
+    })
+    .from(bookings)
+    .groupBy(sql17`tourName`)
+    .orderBy(desc21(count2()))
+    .limit(limit);
+  return rows.map(r => ({
     tourName: r.tourName,
     bookingCount: r.bookingCount,
-    revenue: Number(r.revenue)
+    revenue: Number(r.revenue),
   }));
 }
 async function getRecentActivity(limit = 10) {
   const db = await getDb();
   if (!db) return [];
-  const recentBookings = await db.select({
-    id: bookings.id,
-    name: bookings.contactName,
-    type: sql17`'booking'`.as("type"),
-    status: bookings.status,
-    createdAt: bookings.createdAt
-  }).from(bookings).orderBy(desc21(bookings.createdAt)).limit(limit);
-  const recentLeads = await db.select({
-    id: leads.id,
-    name: leads.name,
-    type: sql17`'lead'`.as("type"),
-    status: leads.status,
-    createdAt: leads.createdAt
-  }).from(leads).orderBy(desc21(leads.createdAt)).limit(limit);
-  const combined = [...recentBookings, ...recentLeads].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  ).slice(0, limit);
+  const recentBookings = await db
+    .select({
+      id: bookings.id,
+      name: bookings.contactName,
+      type: sql17`'booking'`.as("type"),
+      status: bookings.status,
+      createdAt: bookings.createdAt,
+    })
+    .from(bookings)
+    .orderBy(desc21(bookings.createdAt))
+    .limit(limit);
+  const recentLeads = await db
+    .select({
+      id: leads.id,
+      name: leads.name,
+      type: sql17`'lead'`.as("type"),
+      status: leads.status,
+      createdAt: leads.createdAt,
+    })
+    .from(leads)
+    .orderBy(desc21(leads.createdAt))
+    .limit(limit);
+  const combined = [...recentBookings, ...recentLeads]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    .slice(0, limit);
   return combined;
 }
 var init_analytics = __esm({
@@ -2727,7 +3453,7 @@ var init_analytics = __esm({
     "use strict";
     init_connection();
     init_schema();
-  }
+  },
 });
 
 // server/db/pagination.ts
@@ -2737,7 +3463,12 @@ async function paginatedQuery(table, orderBy, page = 1, pageSize = 20) {
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
   const orderByArr = Array.isArray(orderBy) ? orderBy : [orderBy];
-  const items = await db.select().from(table).orderBy(...orderByArr).limit(pageSize).offset(offset);
+  const items = await db
+    .select()
+    .from(table)
+    .orderBy(...orderByArr)
+    .limit(pageSize)
+    .offset(offset);
   const countResult = await db.select({ count: sql18`count(*)` }).from(table);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -2746,7 +3477,7 @@ var init_pagination = __esm({
   "server/db/pagination.ts"() {
     "use strict";
     init_connection();
-  }
+  },
 });
 
 // server/db/index.ts
@@ -2950,7 +3681,7 @@ __export(db_exports, {
   updateUserRole: () => updateUserRole,
   updateWhatsAppMessageStatus: () => updateWhatsAppMessageStatus,
   upsertSetting: () => upsertSetting,
-  upsertTourAvailability: () => upsertTourAvailability
+  upsertTourAvailability: () => upsertTourAvailability,
 });
 var init_db = __esm({
   "server/db/index.ts"() {
@@ -2981,13 +3712,13 @@ var init_db = __esm({
     init_whatsapp();
     init_analytics();
     init_pagination();
-  }
+  },
 });
 
 // server/_core/llm.ts
 var llm_exports = {};
 __export(llm_exports, {
-  invokeLLM: () => invokeLLM
+  invokeLLM: () => invokeLLM,
 });
 import OpenAI from "openai";
 function getOpenAIClient() {
@@ -3009,17 +3740,17 @@ async function invokeLLM(params) {
       model: "gpt-4o-mini",
       messages: messages.map(normalizeMessage),
       tools: tools?.length ? tools : void 0,
-      max_tokens: resolvedMaxTokens
+      max_tokens: resolvedMaxTokens,
     });
     return response;
   } catch (error) {
     if (error.status === 429) {
-      await new Promise((resolve) => setTimeout(resolve, 2e3));
+      await new Promise(resolve => setTimeout(resolve, 2e3));
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: messages.map(normalizeMessage),
         tools: tools?.length ? tools : void 0,
-        max_tokens: resolvedMaxTokens
+        max_tokens: resolvedMaxTokens,
       });
       return response;
     } else if (error.status === 401) {
@@ -3037,8 +3768,8 @@ var ensureArray, normalizeContentPart, normalizeMessage, openaiClient;
 var init_llm = __esm({
   "server/_core/llm.ts"() {
     "use strict";
-    ensureArray = (value) => Array.isArray(value) ? value : [value];
-    normalizeContentPart = (part) => {
+    ensureArray = value => (Array.isArray(value) ? value : [value]);
+    normalizeContentPart = part => {
       if (typeof part === "string") {
         return { type: "text", text: part };
       }
@@ -3053,33 +3784,37 @@ var init_llm = __esm({
       }
       throw new Error("Unsupported message content part");
     };
-    normalizeMessage = (message) => {
+    normalizeMessage = message => {
       const { role, name, tool_call_id } = message;
       if (role === "tool" || role === "function") {
-        const content = ensureArray(message.content).map((part) => typeof part === "string" ? part : JSON.stringify(part)).join("\n");
+        const content = ensureArray(message.content)
+          .map(part => (typeof part === "string" ? part : JSON.stringify(part)))
+          .join("\n");
         return {
           role,
           name,
           tool_call_id,
-          content
+          content,
         };
       }
-      const contentParts = ensureArray(message.content).map(normalizeContentPart);
+      const contentParts = ensureArray(message.content).map(
+        normalizeContentPart
+      );
       if (contentParts.length === 1 && contentParts[0].type === "text") {
         return {
           role,
           name,
-          content: contentParts[0].text
+          content: contentParts[0].text,
         };
       }
       return {
         role,
         name,
-        content: contentParts
+        content: contentParts,
       };
     };
     openaiClient = null;
-  }
+  },
 });
 
 // server/eliNotify.ts
@@ -3093,26 +3828,36 @@ __export(eliNotify_exports, {
   notifyNewReview: () => notifyNewReview,
   notifyUpsellSent: () => notifyUpsellSent,
   notifyWhatsAppMessage: () => notifyWhatsAppMessage,
-  sendDailyBrief: () => sendDailyBrief
+  sendDailyBrief: () => sendDailyBrief,
 });
 async function sendTelegram(text2) {
   try {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: CHAT_ID, text: text2, parse_mode: "Markdown" })
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: text2,
+        parse_mode: "Markdown",
+      }),
     });
   } catch (e) {
     console.error("[EliNotify] Telegram failed:", e);
   }
 }
 async function notifyNewLead(lead) {
-  const tours2 = lead.interestedTours ? `
-\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}` : "";
-  const phone = lead.phone ? `
-\u{1F4F1} Phone: ${lead.phone}` : "";
-  const msg = lead.message ? `
-\u{1F4AC} "${lead.message.slice(0, 100)}"` : "";
+  const tours2 = lead.interestedTours
+    ? `
+\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}`
+    : "";
+  const phone = lead.phone
+    ? `
+\u{1F4F1} Phone: ${lead.phone}`
+    : "";
+  const msg = lead.message
+    ? `
+\u{1F4AC} "${lead.message.slice(0, 100)}"`
+    : "";
   const src = lead.source ? ` (via ${lead.source})` : "";
   await sendTelegram(
     `\u{1F514} *New Inquiry!*${src}
@@ -3131,8 +3876,12 @@ async function notifyBookingConfirmed(booking) {
 \u{1F5FA}\uFE0F ${booking.tourName ?? "Tour"}
 \u{1F4C5} ${booking.date ?? "TBD"}
 \u{1F465} ${booking.pax ?? "?"} pax
-` + (booking.totalAmount ? `\u{1F4B0} \u0E3F${booking.totalAmount.toLocaleString()}
-` : "") + `
+` +
+      (booking.totalAmount
+        ? `\u{1F4B0} \u0E3F${booking.totalAmount.toLocaleString()}
+`
+        : "") +
+      `
 \u{1F4CB} View: https://wiro4x4indochina.com/admin`
   );
 }
@@ -3150,8 +3899,8 @@ async function notifyChatMessage(msg) {
     "\u0E27\u0E48\u0E32\u0E07",
     "\u05DB\u05DE\u05D4",
     "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
-    "\u05D6\u05DE\u05D9\u05DF"
-  ].some((k) => intent.includes(k));
+    "\u05D6\u05DE\u05D9\u05DF",
+  ].some(k => intent.includes(k));
   if (!isBooking) return;
   await sendTelegram(
     `\u{1F4AC} *Chat \u2014 Booking Intent*
@@ -3179,7 +3928,7 @@ async function notifyBookingReminder(wa) {
     day: "numeric",
     month: "short",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
   await sendTelegram(
     `\u23F0 *Pre-Tour Reminder \u2014 Departure in ~24h*
@@ -3192,8 +3941,10 @@ async function notifyBookingReminder(wa) {
   );
 }
 async function notifyUpsellSent(wa) {
-  const emailLine = wa.customerEmail ? `
-\u{1F4E7} ${wa.customerEmail}` : "";
+  const emailLine = wa.customerEmail
+    ? `
+\u{1F4E7} ${wa.customerEmail}`
+    : "";
   await sendTelegram(
     `\u{1F4E7} *Post-Tour Upsell Sent*
 
@@ -3212,9 +3963,11 @@ async function notifyWhatsAppMessage(wa) {
   const langLabel = {
     he: "\u{1F1EE}\u{1F1F1} Hebrew",
     en: "\u{1F1EC}\u{1F1E7} English",
-    th: "\u{1F1F9}\u{1F1ED} Thai"
+    th: "\u{1F1F9}\u{1F1ED} Thai",
   };
-  const displayName = wa.name ? `${wa.name} (+${wa.phoneNumber})` : `+${wa.phoneNumber}`;
+  const displayName = wa.name
+    ? `${wa.name} (+${wa.phoneNumber})`
+    : `+${wa.phoneNumber}`;
   await sendTelegram(
     `\u{1F4F1} *WhatsApp from* ${displayName}
 \u{1F310} Language: ${langLabel[wa.language] ?? wa.language}
@@ -3228,11 +3981,11 @@ ${wa.draftReply.slice(0, 500)}
   );
 }
 async function sendDailyBrief(stats) {
-  const today = (/* @__PURE__ */ new Date()).toLocaleDateString("en-GB", {
+  const today = /* @__PURE__ */ new Date().toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
-    timeZone: "Asia/Bangkok"
+    timeZone: "Asia/Bangkok",
   });
   await sendTelegram(
     `\u2600\uFE0F *Good morning, Mek!*
@@ -3241,8 +3994,12 @@ async function sendDailyBrief(stats) {
 \u{1F4CB} Pending inquiries: *${stats.pendingLeads}*
 \u{1F3AB} Bookings this month: *${stats.bookingsThisMonth}*
 \u{1F4B0} Revenue MTD: *\u0E3F${stats.revenue.toLocaleString()}*
-` + (stats.weather ? `\u{1F324}\uFE0F ${stats.weather}
-` : "") + `
+` +
+      (stats.weather
+        ? `\u{1F324}\uFE0F ${stats.weather}
+`
+        : "") +
+      `
 ${stats.pendingLeads > 0 ? `\u26A0\uFE0F *${stats.pendingLeads} inquiry(s) waiting!*` : "\u2705 All caught up!"}
 
 \u{1F5A5}\uFE0F Dashboard: https://monitoring-dashboard-iota.vercel.app`
@@ -3252,16 +4009,18 @@ var BOT_TOKEN, CHAT_ID;
 var init_eliNotify = __esm({
   "server/eliNotify.ts"() {
     "use strict";
-    BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
+    BOT_TOKEN =
+      process.env.TELEGRAM_BOT_TOKEN ??
+      "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
     CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
-  }
+  },
 });
 
 // server/bookingReminder.ts
 var bookingReminder_exports = {};
 __export(bookingReminder_exports, {
   processReminders: () => processReminders,
-  scheduleBookingReminder: () => scheduleBookingReminder
+  scheduleBookingReminder: () => scheduleBookingReminder,
 });
 import fs from "fs/promises";
 async function readReminders() {
@@ -3276,7 +4035,8 @@ async function writeReminders(entries) {
   await fs.writeFile(REMINDER_FILE, JSON.stringify(entries, null, 2), "utf-8");
 }
 async function scheduleBookingReminder(bookingId, departureDate) {
-  const departure = typeof departureDate === "string" ? new Date(departureDate) : departureDate;
+  const departure =
+    typeof departureDate === "string" ? new Date(departureDate) : departureDate;
   const reminderTime = new Date(departure.getTime() - 24 * 60 * 60 * 1e3);
   const now = /* @__PURE__ */ new Date();
   if (reminderTime <= now) {
@@ -3286,12 +4046,12 @@ async function scheduleBookingReminder(bookingId, departureDate) {
     return;
   }
   const reminders = await readReminders();
-  const filtered = reminders.filter((r) => r.bookingId !== bookingId);
+  const filtered = reminders.filter(r => r.bookingId !== bookingId);
   filtered.push({
     bookingId,
     reminderTime: reminderTime.toISOString(),
     sent: false,
-    createdAt: now.toISOString()
+    createdAt: now.toISOString(),
   });
   await writeReminders(filtered);
   console.log(
@@ -3325,15 +4085,16 @@ async function processReminders() {
   }
   await writeReminders(updated);
   console.log(
-    `[BookingReminder] Processed reminders: ${sentCount} sent, ${updated.filter((r) => !r.sent).length} pending`
+    `[BookingReminder] Processed reminders: ${sentCount} sent, ${updated.filter(r => !r.sent).length} pending`
   );
   return sentCount;
 }
 async function sendReminderTelegram(bookingId, reminderTime) {
-  const { notifyBookingReminder: notifyBookingReminder2 } = await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+  const { notifyBookingReminder: notifyBookingReminder2 } =
+    await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
   await notifyBookingReminder2({
     bookingId,
-    reminderTime: reminderTime.toISOString()
+    reminderTime: reminderTime.toISOString(),
   });
 }
 var REMINDER_FILE;
@@ -3341,14 +4102,14 @@ var init_bookingReminder = __esm({
   "server/bookingReminder.ts"() {
     "use strict";
     REMINDER_FILE = "/tmp/wiro_reminders.json";
-  }
+  },
 });
 
 // server/upsellService.ts
 var upsellService_exports = {};
 __export(upsellService_exports, {
   processUpsells: () => processUpsells,
-  scheduleUpsell: () => scheduleUpsell
+  scheduleUpsell: () => scheduleUpsell,
 });
 import fs2 from "fs/promises";
 async function readUpsells() {
@@ -3363,18 +4124,21 @@ async function writeUpsells(entries) {
   await fs2.writeFile(UPSELL_FILE, JSON.stringify(entries, null, 2), "utf-8");
 }
 async function scheduleUpsell(params) {
-  const completed = typeof params.completedAt === "string" ? new Date(params.completedAt) : params.completedAt;
+  const completed =
+    typeof params.completedAt === "string"
+      ? new Date(params.completedAt)
+      : params.completedAt;
   const sendTime = new Date(completed.getTime() + 3 * 24 * 60 * 60 * 1e3);
   const now = /* @__PURE__ */ new Date();
   const upsells = await readUpsells();
-  const filtered = upsells.filter((u) => u.bookingId !== params.bookingId);
+  const filtered = upsells.filter(u => u.bookingId !== params.bookingId);
   filtered.push({
     bookingId: params.bookingId,
     customerName: params.customerName,
     customerEmail: params.customerEmail ?? null,
     sendTime: sendTime.toISOString(),
     sent: false,
-    createdAt: now.toISOString()
+    createdAt: now.toISOString(),
   });
   await writeUpsells(filtered);
   console.log(
@@ -3409,7 +4173,7 @@ async function processUpsells() {
   }
   await writeUpsells(updated);
   console.log(
-    `[Upsell] Processed upsells: ${sentCount} sent, ${updated.filter((u) => !u.sent).length} pending`
+    `[Upsell] Processed upsells: ${sentCount} sent, ${updated.filter(u => !u.sent).length} pending`
   );
   return sentCount;
 }
@@ -3426,8 +4190,9 @@ async function sendUpsellEmail(entry) {
   await resend.emails.send({
     from: "WIRO 4x4 <wiro.adventures@gmail.com>",
     to: entry.customerEmail,
-    subject: "How was your WIRO 4x4 adventure? \u{1F3CE}\uFE0F We'd love to hear from you!",
-    html
+    subject:
+      "How was your WIRO 4x4 adventure? \u{1F3CE}\uFE0F We'd love to hear from you!",
+    html,
   });
   console.log(`[Upsell] Email sent to ${entry.customerEmail}`);
 }
@@ -3459,11 +4224,12 @@ function buildUpsellHtml(customerName) {
 }
 async function sendUpsellTelegram(entry) {
   try {
-    const { notifyUpsellSent: notifyUpsellSent2 } = await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    const { notifyUpsellSent: notifyUpsellSent2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
     await notifyUpsellSent2({
       bookingId: entry.bookingId,
       customerName: entry.customerName,
-      customerEmail: entry.customerEmail ?? void 0
+      customerEmail: entry.customerEmail ?? void 0,
     });
   } catch (err) {
     console.error("[Upsell] Telegram notify failed:", err);
@@ -3474,20 +4240,21 @@ var init_upsellService = __esm({
   "server/upsellService.ts"() {
     "use strict";
     UPSELL_FILE = "/tmp/wiro_upsells.json";
-  }
+  },
 });
 
 // server/competitorMonitor.ts
 var competitorMonitor_exports = {};
 __export(competitorMonitor_exports, {
-  checkCompetitors: () => checkCompetitors
+  checkCompetitors: () => checkCompetitors,
 });
 async function fetchViatorPrices() {
   try {
     const response = await fetch(VIATOR_URL, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-      }
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      },
     });
     if (!response.ok) {
       console.warn(
@@ -3496,13 +4263,18 @@ async function fetchViatorPrices() {
       return [];
     }
     const html = await response.text();
-    const pricePattern = /\$[\d,]+(?:\.\d{2})?|฿[\d,]+(?:\.\d{2})?|€[\d,]+(?:\.\d{2})?/g;
-    const tourNamePattern = /class="(?:card|tour|title)"[^>]*>([^<]+)<\/(?:div|h|span)/gi;
+    const pricePattern =
+      /\$[\d,]+(?:\.\d{2})?|฿[\d,]+(?:\.\d{2})?|€[\d,]+(?:\.\d{2})?/g;
+    const tourNamePattern =
+      /class="(?:card|tour|title)"[^>]*>([^<]+)<\/(?:div|h|span)/gi;
     const prices = html.match(pricePattern) || [];
     const tourNames = html.match(tourNamePattern) || [];
     const result = [];
     for (let i = 0; i < Math.min(tourNames.length, prices.length); i++) {
-      const name = tourNames[i]?.replace(/class="[^"]*">/i, "").replace(/<\/[^>]+>/, "").trim();
+      const name = tourNames[i]
+        ?.replace(/class="[^"]*">/i, "")
+        .replace(/<\/[^>]+>/, "")
+        .trim();
       const priceStr = prices[i];
       if (!name || !priceStr) continue;
       let price = 0;
@@ -3535,12 +4307,16 @@ function buildReport(viatorTours, wiroPrices) {
   if (viatorTours.length === 0) {
     findings.push("\u26A0\uFE0F  Could not fetch Viator pricing data");
   } else {
-    const avgViatorPrice = viatorTours.reduce((sum3, t2) => sum3 + (t2.price ?? 0), 0) / viatorTours.length;
-    const avgWiroPrice = Object.values(wiroPrices).reduce((a, b) => a + b, 0) / Object.keys(wiroPrices).length;
+    const avgViatorPrice =
+      viatorTours.reduce((sum3, t2) => sum3 + (t2.price ?? 0), 0) /
+      viatorTours.length;
+    const avgWiroPrice =
+      Object.values(wiroPrices).reduce((a, b) => a + b, 0) /
+      Object.keys(wiroPrices).length;
     findings.push(`Average Viator price: $${avgViatorPrice.toFixed(0)}`);
     findings.push(`Average WIRO price: \u0E3F${avgWiroPrice.toFixed(0)}`);
     const viatorInTHB = avgViatorPrice * 33;
-    const diff = (avgWiroPrice - viatorInTHB) / viatorInTHB * 100;
+    const diff = ((avgWiroPrice - viatorInTHB) / viatorInTHB) * 100;
     if (diff > 10) {
       findings.push(
         `\u{1F4C8} WIRO prices are ${diff.toFixed(0)}% higher than Viator`
@@ -3554,10 +4330,10 @@ function buildReport(viatorTours, wiroPrices) {
     }
   }
   return {
-    timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+    timestamp: /* @__PURE__ */ new Date().toISOString(),
     viatorTours,
     wiroPrices,
-    findings
+    findings,
   };
 }
 async function checkCompetitors() {
@@ -3568,12 +4344,15 @@ async function checkCompetitors() {
     "Mae Wang": 3500,
     "Mae Kampong": 2500,
     "Sticky Waterfalls": 3e3,
-    "Samoeng Loop": 3200
+    "Samoeng Loop": 3200,
   };
   const report = buildReport(viatorTours, wiroPrices);
   try {
-    const { notifyCompetitorReport: notifyCompetitorReport2 } = await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
-    const reportText = report.findings.join("\n") + `
+    const { notifyCompetitorReport: notifyCompetitorReport2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    const reportText =
+      report.findings.join("\n") +
+      `
 
 \u{1F4CA} Data: ${viatorTours.length} Viator tours analyzed`;
     await notifyCompetitorReport2(reportText);
@@ -3587,7 +4366,7 @@ var init_competitorMonitor = __esm({
   "server/competitorMonitor.ts"() {
     "use strict";
     VIATOR_URL = "https://www.viator.com/Chiang-Mai/d343-ttd";
-  }
+  },
 });
 
 // server/vercel-entry.ts
@@ -3607,9 +4386,9 @@ var COOKIE_NAME = "app_session_id";
 var ONE_YEAR_MS = 1e3 * 60 * 60 * 24 * 365;
 var UNAUTHED_ERR_MSG = "Please login (10001)";
 var NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
-var COMPANY_WHATSAPP = "66929894495";
+var COMPANY_WHATSAPP = "972544715400";
 var COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
-var COMPANY_PHONE = "+66 92-989-4495";
+var COMPANY_PHONE = "+972 54-471-5400";
 var COMPANY_EMAIL = "wiro.adventures@gmail.com";
 var COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 var COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
@@ -3617,7 +4396,7 @@ var COMPANY_WEBSITE = "https://www.wiro4x4indochina.com";
 var EMAIL_SENDERS = {
   bookings: "bookings@wiro4x4indochina.com",
   updates: "updates@wiro4x4indochina.com",
-  support: "support@wiro4x4indochina.com"
+  support: "support@wiro4x4indochina.com",
 };
 
 // server/_core/cookies.ts
@@ -3625,15 +4404,17 @@ function isSecureRequest(req) {
   if (req.protocol === "https") return true;
   const forwardedProto = req.headers["x-forwarded-proto"];
   if (!forwardedProto) return false;
-  const protoList = Array.isArray(forwardedProto) ? forwardedProto : forwardedProto.split(",");
-  return protoList.some((proto) => proto.trim().toLowerCase() === "https");
+  const protoList = Array.isArray(forwardedProto)
+    ? forwardedProto
+    : forwardedProto.split(",");
+  return protoList.some(proto => proto.trim().toLowerCase() === "https");
 }
 function getSessionCookieOptions(req) {
   return {
     httpOnly: true,
     path: "/",
     sameSite: "none",
-    secure: isSecureRequest(req)
+    secure: isSecureRequest(req),
   };
 }
 
@@ -3654,7 +4435,11 @@ async function verifyPassword(password, hash) {
   return bcrypt.compare(password, hash);
 }
 async function createSession(userId, email, role) {
-  return new SignJWT({ userId, email, role }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("7d").sign(getJwtSecret());
+  return new SignJWT({ userId, email, role })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(getJwtSecret());
 }
 async function verifySession(token) {
   try {
@@ -3677,18 +4462,18 @@ var THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1e3;
 var registerInput = z.object({
   email: z.string().email().max(320),
   password: z.string().min(8).max(128),
-  name: z.string().min(1).max(255).optional()
+  name: z.string().min(1).max(255).optional(),
 });
 var loginInput = z.object({
   email: z.string().email(),
-  password: z.string()
+  password: z.string(),
 });
 var forgotPasswordInput = z.object({
-  email: z.string().email()
+  email: z.string().email(),
 });
 var resetPasswordInput = z.object({
   token: z.string().length(64),
-  newPassword: z.string().min(8).max(128)
+  newPassword: z.string().min(8).max(128),
 });
 function registerAuthRoutes(app2) {
   app2.post("/api/auth/register", async (req, res) => {
@@ -3703,13 +4488,13 @@ function registerAuthRoutes(app2) {
       const userId = await createUser({
         email: body.email,
         passwordHash,
-        name: body.name
+        name: body.name,
       });
       const token = await createSession(userId, body.email, "user");
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, token, {
         ...cookieOptions,
-        maxAge: THIRTY_DAYS_MS
+        maxAge: THIRTY_DAYS_MS,
       });
       res.json({
         token,
@@ -3717,8 +4502,8 @@ function registerAuthRoutes(app2) {
           id: userId,
           email: body.email,
           name: body.name ?? null,
-          role: "user"
-        }
+          role: "user",
+        },
       });
     } catch (error) {
       if (error.name === "ZodError") {
@@ -3747,7 +4532,7 @@ function registerAuthRoutes(app2) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, token, {
         ...cookieOptions,
-        maxAge: THIRTY_DAYS_MS
+        maxAge: THIRTY_DAYS_MS,
       });
       res.json({
         token,
@@ -3755,8 +4540,8 @@ function registerAuthRoutes(app2) {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role
-        }
+          role: user.role,
+        },
       });
     } catch (error) {
       if (error.name === "ZodError") {
@@ -3784,7 +4569,7 @@ function registerAuthRoutes(app2) {
           await dbConn.insert(passwordResetTokens).values({
             userId: user.id,
             token,
-            expiresAt
+            expiresAt,
           });
         }
         try {
@@ -3803,7 +4588,7 @@ function registerAuthRoutes(app2) {
                   Reset Password
                 </a>
                 <p>If you didn't request this, ignore this email.</p>
-              `
+              `,
             });
           } else {
             console.warn(
@@ -3828,33 +4613,45 @@ function registerAuthRoutes(app2) {
       const body = resetPasswordInput.parse(req.body);
       const dbConn = await getDb();
       if (!dbConn) {
-        res.status(500).json({ error: "An error occurred. Please try again later." });
+        res
+          .status(500)
+          .json({ error: "An error occurred. Please try again later." });
         return;
       }
-      const tokenRows = await dbConn.select().from(passwordResetTokens).where(
-        and13(
-          eq25(passwordResetTokens.token, body.token),
-          gt(passwordResetTokens.expiresAt, /* @__PURE__ */ new Date())
+      const tokenRows = await dbConn
+        .select()
+        .from(passwordResetTokens)
+        .where(
+          and13(
+            eq25(passwordResetTokens.token, body.token),
+            gt(passwordResetTokens.expiresAt, /* @__PURE__ */ new Date())
+          )
         )
-      ).limit(1);
+        .limit(1);
       if (tokenRows.length === 0) {
         res.status(400).json({
-          error: "Reset failed. Please request a new password reset link."
+          error: "Reset failed. Please request a new password reset link.",
         });
         return;
       }
       const resetRecord = tokenRows[0];
       const newHash = await hashPassword(body.newPassword);
       await updateUserPassword(resetRecord.userId, newHash);
-      await dbConn.delete(passwordResetTokens).where(eq25(passwordResetTokens.id, resetRecord.id));
+      await dbConn
+        .delete(passwordResetTokens)
+        .where(eq25(passwordResetTokens.id, resetRecord.id));
       res.json({ success: true });
     } catch (error) {
       if (error.name === "ZodError") {
-        res.status(400).json({ error: "Password must be at least 8 characters" });
+        res
+          .status(400)
+          .json({ error: "Password must be at least 8 characters" });
         return;
       }
       console.error("[Auth] Reset password error:", error);
-      res.status(500).json({ error: "An error occurred. Please try again later." });
+      res
+        .status(500)
+        .json({ error: "An error occurred. Please try again later." });
     }
   });
 }
@@ -3863,11 +4660,17 @@ function registerAuthRoutes(app2) {
 init_db();
 import compression from "compression";
 function escapeXml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 function generateRssFeed(posts, siteUrl) {
-  const items = posts.map(
-    (post) => `    <item>
+  const items = posts
+    .map(
+      post => `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${siteUrl}/blog/${escapeXml(post.slug)}</link>
       <description>${escapeXml(post.excerpt || "")}</description>
@@ -3875,7 +4678,8 @@ function generateRssFeed(posts, siteUrl) {
       <guid>${siteUrl}/blog/${escapeXml(post.slug)}</guid>
       <author>${escapeXml(post.author || "WIRO 4x4")}</author>
     </item>`
-  ).join("\n");
+    )
+    .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -3893,7 +4697,8 @@ function registerRssRoute(app2) {
   app2.get("/api/rss", async (_req, res) => {
     try {
       const posts = await getAllPublishedBlogPosts();
-      const siteUrl = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
+      const siteUrl =
+        process.env.SITE_URL || "https://www.wiro4x4indochina.com";
       const xml = generateRssFeed(posts, siteUrl);
       res.set("Content-Type", "application/rss+xml; charset=utf-8");
       res.send(xml);
@@ -3907,7 +4712,12 @@ function registerRssRoute(app2) {
 // server/routes/sitemap.ts
 init_db();
 function escapeXml2(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 var STATIC_PAGES = [
   { path: "/", priority: "1.0", changefreq: "daily" },
@@ -3916,12 +4726,12 @@ var STATIC_PAGES = [
   {
     path: "/packages/northern-thailand-3d2n",
     priority: "0.9",
-    changefreq: "monthly"
+    changefreq: "monthly",
   },
   {
     path: "/packages/grand-tour-laos-14d",
     priority: "0.9",
-    changefreq: "monthly"
+    changefreq: "monthly",
   },
   { path: "/pricing", priority: "0.9", changefreq: "monthly" },
   { path: "/estimate", priority: "0.9", changefreq: "monthly" },
@@ -3935,7 +4745,7 @@ var STATIC_PAGES = [
   { path: "/faq", priority: "0.8", changefreq: "monthly" },
   { path: "/contact", priority: "0.8", changefreq: "monthly" },
   { path: "/terms", priority: "0.3", changefreq: "yearly" },
-  { path: "/privacy", priority: "0.3", changefreq: "yearly" }
+  { path: "/privacy", priority: "0.3", changefreq: "yearly" },
 ];
 function formatDate(date) {
   if (!date) return null;
@@ -3949,7 +4759,7 @@ function buildHreflangLinks(siteUrl, path2) {
   return [
     `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapedPath}"/>`,
     `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapedPath}?lang=he"/>`,
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`,
   ].join("\n");
 }
 function buildUrlEntry(siteUrl, path2, lastmod, changefreq, priority) {
@@ -3962,40 +4772,46 @@ ${buildHreflangLinks(siteUrl, path2)}
   </url>`;
 }
 function generateSitemap(tours2, blogs, packages, siteUrl) {
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const staticUrls = STATIC_PAGES.map(
-    (p) => buildUrlEntry(siteUrl, p.path, today, p.changefreq, p.priority)
+  const today = /* @__PURE__ */ new Date().toISOString().split("T")[0];
+  const staticUrls = STATIC_PAGES.map(p =>
+    buildUrlEntry(siteUrl, p.path, today, p.changefreq, p.priority)
   ).join("\n");
-  const tourUrls = tours2.map((t2) => {
-    const lastmod = formatDate(t2.updatedAt) || today;
-    return buildUrlEntry(
-      siteUrl,
-      `/tours/${t2.slug}`,
-      lastmod,
-      "weekly",
-      "0.85"
-    );
-  }).join("\n");
-  const packageUrls = packages.map((p) => {
-    const lastmod = formatDate(p.updatedAt) || today;
-    return buildUrlEntry(
-      siteUrl,
-      `/packages/${p.slug}`,
-      lastmod,
-      "monthly",
-      "0.8"
-    );
-  }).join("\n");
-  const blogUrls = blogs.map((b) => {
-    const lastmod = formatDate(b.publishedAt) || today;
-    return buildUrlEntry(
-      siteUrl,
-      `/blog/${b.slug}`,
-      lastmod,
-      "monthly",
-      "0.6"
-    );
-  }).join("\n");
+  const tourUrls = tours2
+    .map(t2 => {
+      const lastmod = formatDate(t2.updatedAt) || today;
+      return buildUrlEntry(
+        siteUrl,
+        `/tours/${t2.slug}`,
+        lastmod,
+        "weekly",
+        "0.85"
+      );
+    })
+    .join("\n");
+  const packageUrls = packages
+    .map(p => {
+      const lastmod = formatDate(p.updatedAt) || today;
+      return buildUrlEntry(
+        siteUrl,
+        `/packages/${p.slug}`,
+        lastmod,
+        "monthly",
+        "0.8"
+      );
+    })
+    .join("\n");
+  const blogUrls = blogs
+    .map(b => {
+      const lastmod = formatDate(b.publishedAt) || today;
+      return buildUrlEntry(
+        siteUrl,
+        `/blog/${b.slug}`,
+        lastmod,
+        "monthly",
+        "0.6"
+      );
+    })
+    .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -4011,21 +4827,22 @@ function registerSitemapRoute(app2) {
       const [tours2, blogs, packages] = await Promise.all([
         getAllActiveTours(),
         getAllPublishedBlogPosts(),
-        getPublishedTourPackages()
+        getPublishedTourPackages(),
       ]);
-      const siteUrl = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
+      const siteUrl =
+        process.env.SITE_URL || "https://www.wiro4x4indochina.com";
       const xml = generateSitemap(
-        tours2.map((t2) => ({
+        tours2.map(t2 => ({
           slug: t2.slug,
-          updatedAt: t2.updatedAt
+          updatedAt: t2.updatedAt,
         })),
-        blogs.map((b) => ({
+        blogs.map(b => ({
           slug: b.slug,
-          publishedAt: b.publishedAt
+          publishedAt: b.publishedAt,
         })),
-        packages.map((p) => ({
+        packages.map(p => ({
           slug: p.slug,
-          updatedAt: p.updatedAt
+          updatedAt: p.updatedAt,
         })),
         siteUrl
       );
@@ -4071,14 +4888,14 @@ async function sendWhatsAppMessage(to, text2) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           messaging_product: "whatsapp",
           to,
           type: "text",
-          text: { body: text2 }
-        })
+          text: { body: text2 },
+        }),
       }
     );
     if (!response.ok) {
@@ -4103,14 +4920,14 @@ var AUTO_REPLY_RULES = [
       "how much",
       "\u05DE\u05D7\u05D9\u05E8",
       "\u05E2\u05DC\u05D5\u05EA",
-      "\u05DB\u05DE\u05D4 \u05E2\u05D5\u05DC\u05D4"
+      "\u05DB\u05DE\u05D4 \u05E2\u05D5\u05DC\u05D4",
     ],
     replyEn: `Our tour prices start from 3,500 THB per person. Check our full pricing and trip cost estimator here:
 ${SITE_URL}/pricing
 ${SITE_URL}/estimate`,
     replyHe: `\u05DE\u05D7\u05D9\u05E8\u05D9 \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05EA\u05D7\u05D9\u05DC\u05D9\u05DD \u05DE-3,500 \u05D1\u05D8 \u05DC\u05D0\u05D3\u05DD. \u05D1\u05D3\u05E7\u05D5 \u05D0\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05D4\u05DE\u05DC\u05D0 \u05D5\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05D4\u05E2\u05DC\u05D5\u05D9\u05D5\u05EA \u05DB\u05D0\u05DF:
 ${SITE_URL}/pricing
-${SITE_URL}/estimate`
+${SITE_URL}/estimate`,
   },
   {
     keywords: [
@@ -4120,7 +4937,7 @@ ${SITE_URL}/estimate`
       "reservation",
       "\u05D4\u05D6\u05DE\u05E0\u05D4",
       "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
-      "\u05D4\u05D6\u05DE\u05DF"
+      "\u05D4\u05D6\u05DE\u05DF",
     ],
     replyEn: `Ready to book your adventure? Fill out our booking form here:
 ${SITE_URL}/booking
@@ -4129,16 +4946,22 @@ Or tell us your preferred dates and group size and we'll prepare a custom quote!
     replyHe: `\u05DE\u05D5\u05DB\u05E0\u05D9\u05DD \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05E9\u05DC\u05DB\u05DD? \u05DE\u05DC\u05D0\u05D5 \u05D0\u05EA \u05D8\u05D5\u05E4\u05E1 \u05D4\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DB\u05D0\u05DF:
 ${SITE_URL}/booking
 
-\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D5 \u05DC\u05E0\u05D5 \u05E2\u05DC \u05D4\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD \u05D4\u05DE\u05D5\u05E2\u05D3\u05E4\u05D9\u05DD \u05D5\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D5\u05E0\u05DB\u05D9\u05DF \u05DC\u05DB\u05DD \u05D4\u05E6\u05E2\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DE\u05D5\u05EA\u05D0\u05DE\u05EA!`
+\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D5 \u05DC\u05E0\u05D5 \u05E2\u05DC \u05D4\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD \u05D4\u05DE\u05D5\u05E2\u05D3\u05E4\u05D9\u05DD \u05D5\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D5\u05E0\u05DB\u05D9\u05DF \u05DC\u05DB\u05DD \u05D4\u05E6\u05E2\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DE\u05D5\u05EA\u05D0\u05DE\u05EA!`,
   },
   {
-    keywords: ["kosher", "\u05DB\u05E9\u05E8", "\u05DB\u05E9\u05E8\u05D5\u05EA", "kosher food", "kosher meal"],
+    keywords: [
+      "kosher",
+      "\u05DB\u05E9\u05E8",
+      "\u05DB\u05E9\u05E8\u05D5\u05EA",
+      "kosher food",
+      "kosher meal",
+    ],
     replyEn: `All our tours offer kosher meal options! We work with certified kosher restaurants and can arrange Shabbat-friendly accommodations.
 
 Learn more: ${SITE_URL}/kosher-tours`,
     replyHe: `\u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05E6\u05D9\u05E2\u05D9\u05DD \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D0\u05D5\u05DB\u05DC \u05DB\u05E9\u05E8! \u05D0\u05E0\u05D7\u05E0\u05D5 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05E2\u05DD \u05DE\u05E1\u05E2\u05D3\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA \u05DE\u05D5\u05E1\u05DE\u05DB\u05D5\u05EA \u05D5\u05D9\u05DB\u05D5\u05DC\u05D9\u05DD \u05DC\u05D0\u05E8\u05D2\u05DF \u05DC\u05D9\u05E0\u05D4 \u05D9\u05D3\u05D9\u05D3\u05D5\u05EA\u05D9\u05EA \u05DC\u05E9\u05D1\u05EA.
 
-\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3: ${SITE_URL}/kosher-tours`
+\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3: ${SITE_URL}/kosher-tours`,
   },
   {
     keywords: [
@@ -4149,7 +4972,7 @@ Learn more: ${SITE_URL}/kosher-tours`,
       "excursion",
       "\u05D8\u05D9\u05D5\u05DC",
       "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD",
-      "\u05E1\u05D9\u05D5\u05E8"
+      "\u05E1\u05D9\u05D5\u05E8",
     ],
     replyEn: `We offer 6 amazing off-road tours in Chiang Mai:
 
@@ -4170,7 +4993,7 @@ Explore all tours: ${SITE_URL}/#tours`,
 \u2022 \u05DE\u05D0\u05D9 \u05D5\u05D5\u05D0\u05E0\u05D2 \u2014 \u05D2'\u05D5\u05E0\u05D2\u05DC \u05E4\u05E8\u05D0\u05D9
 \u2022 \u05DC\u05D5\u05DC\u05D0\u05EA \u05E1\u05DE\u05D5\u05D0\u05E0\u05D2 \u2014 \u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05E8\u05D9\u05DD
 
-\u05D2\u05DC\u05D5 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD: ${SITE_URL}/#tours`
+\u05D2\u05DC\u05D5 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD: ${SITE_URL}/#tours`,
   },
   {
     keywords: [
@@ -4181,7 +5004,7 @@ Explore all tours: ${SITE_URL}/#tours`,
       "information",
       "\u05E2\u05D6\u05E8\u05D4",
       "\u05EA\u05E4\u05E8\u05D9\u05D8",
-      "\u05DE\u05D9\u05D3\u05E2"
+      "\u05DE\u05D9\u05D3\u05E2",
     ],
     replyEn: `Welcome to WIRO 4x4! How can we help?
 
@@ -4200,8 +5023,8 @@ Or visit our website: ${SITE_URL}`,
 \u2022 "\u05D4\u05D6\u05DE\u05E0\u05D4" \u2014 \u05D4\u05EA\u05D7\u05D9\u05DC\u05D5 \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF
 \u2022 "\u05DB\u05E9\u05E8" \u2014 \u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05DB\u05E9\u05E8\u05D5\u05EA
 
-\u05D0\u05D5 \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5: ${SITE_URL}`
-  }
+\u05D0\u05D5 \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5: ${SITE_URL}`,
+  },
 ];
 var DEFAULT_REPLY_EN = `Thanks for reaching out to WIRO 4x4! \u{1F697}
 
@@ -4223,14 +5046,14 @@ function getAutoReply(messageText) {
       if (normalizedText.includes(keyword.toLowerCase())) {
         return {
           reply: lang === "he" ? rule.replyHe : rule.replyEn,
-          isAutoReply: true
+          isAutoReply: true,
         };
       }
     }
   }
   return {
     reply: lang === "he" ? DEFAULT_REPLY_HE : DEFAULT_REPLY_EN,
-    isAutoReply: true
+    isAutoReply: true,
   };
 }
 async function handleIncomingMessage(message) {
@@ -4244,14 +5067,20 @@ async function handleIncomingMessage(message) {
       messageType: "text",
       isAutoReply: 0,
       status: "delivered",
-      whatsappMessageId: messageId ?? null
+      whatsappMessageId: messageId ?? null,
     });
   } catch (err) {
     console.error("[WhatsApp] Failed to log incoming message:", err);
   }
-  const { getSetting: getSetting2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+  const { getSetting: getSetting2 } = await Promise.resolve().then(
+    () => (init_db(), db_exports)
+  );
   const autoReplyEnabled = await getSetting2("whatsapp_auto_reply_enabled");
-  if (autoReplyEnabled === false || autoReplyEnabled === "false" || autoReplyEnabled === 0) {
+  if (
+    autoReplyEnabled === false ||
+    autoReplyEnabled === "false" ||
+    autoReplyEnabled === 0
+  ) {
     return;
   }
   const { reply, isAutoReply } = getAutoReply(text2);
@@ -4265,12 +5094,12 @@ async function handleIncomingMessage(message) {
       messageType: "auto-reply",
       isAutoReply: isAutoReply ? 1 : 0,
       status: sentMessageId ? "sent" : "failed",
-      whatsappMessageId: sentMessageId ?? null
+      whatsappMessageId: sentMessageId ?? null,
     });
   } catch (err) {
     console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
   }
-  draftAndNotifyEli(from, name, text2).catch((err) => {
+  draftAndNotifyEli(from, name, text2).catch(err => {
     console.error("[WhatsApp] Eli draft/notify failed:", err);
   });
 }
@@ -4289,19 +5118,27 @@ Tour prices:
 - Mae Wang: \u0E3F3,500/person
 - Multi-day packages from \u0E3F7,500
 
-Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 92-989-4495.`;
-  let draft = "Hi! Thanks for reaching out. A team member will get back to you soon.";
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +972 54-471-5400.`;
+  let draft =
+    "Hi! Thanks for reaching out. A team member will get back to you soon.";
   try {
-    const { invokeLLM: invokeLLM2 } = await Promise.resolve().then(() => (init_llm(), llm_exports));
+    const { invokeLLM: invokeLLM2 } = await Promise.resolve().then(
+      () => (init_llm(), llm_exports)
+    );
     const result = await invokeLLM2({
       messages: [
         { role: "system", content: SYSTEM_PROMPT2 },
-        { role: "user", content: message }
+        { role: "user", content: message },
       ],
-      maxTokens: 200
+      maxTokens: 200,
     });
     const raw = result.choices[0]?.message?.content;
-    const text2 = typeof raw === "string" ? raw : Array.isArray(raw) ? raw.find((p) => p.type === "text")?.text ?? "" : "";
+    const text2 =
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? (raw.find(p => p.type === "text")?.text ?? "")
+          : "";
     if (text2.trim().length > 0) {
       draft = text2.trim();
     }
@@ -4309,13 +5146,14 @@ Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences)
     console.warn("[WhatsApp] LLM draft failed, using fallback:", err);
   }
   try {
-    const { notifyWhatsAppMessage: notifyWhatsAppMessage2 } = await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    const { notifyWhatsAppMessage: notifyWhatsAppMessage2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
     await notifyWhatsAppMessage2({
       phoneNumber,
       name,
       language: lang,
       message,
-      draftReply: draft
+      draftReply: draft,
     });
   } catch (err) {
     console.error("[WhatsApp] notifyWhatsAppMessage failed:", err);
@@ -4332,7 +5170,7 @@ async function sendManualMessage(to, text2) {
       messageType: "text",
       isAutoReply: 0,
       status: sentMessageId ? "sent" : "failed",
-      whatsappMessageId: sentMessageId ?? null
+      whatsappMessageId: sentMessageId ?? null,
     });
   } catch (err) {
     console.error("[WhatsApp] Failed to log manual message:", err);
@@ -4348,14 +5186,17 @@ init_db();
 
 // server/rateLimit.ts
 var memoryStore = /* @__PURE__ */ new Map();
-var cleanupTimer = setInterval(() => {
-  const now = Date.now();
-  memoryStore.forEach((entry, key) => {
-    if (entry.resetAt <= now) {
-      memoryStore.delete(key);
-    }
-  });
-}, 5 * 60 * 1e3);
+var cleanupTimer = setInterval(
+  () => {
+    const now = Date.now();
+    memoryStore.forEach((entry, key) => {
+      if (entry.resetAt <= now) {
+        memoryStore.delete(key);
+      }
+    });
+  },
+  5 * 60 * 1e3
+);
 if (typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
   cleanupTimer.unref();
 }
@@ -4373,33 +5214,43 @@ async function getRedis() {
       maxRetriesPerRequest: 1,
       connectTimeout: 3e3,
       lazyConnect: true,
-      enableOfflineQueue: false
+      enableOfflineQueue: false,
     });
     await redisClient.connect();
     redisAvailable = true;
     console.log("[RateLimit] Redis connected successfully");
     return redisClient;
   } catch (err) {
-    console.warn("[RateLimit] Redis unavailable, using in-memory fallback:", err);
+    console.warn(
+      "[RateLimit] Redis unavailable, using in-memory fallback:",
+      err
+    );
     redisClient = null;
     redisAvailable = false;
     return null;
   }
 }
-getRedis().catch(() => {
-});
+getRedis().catch(() => {});
 function checkRateLimitMemory(key, maxRequests, windowMs) {
   const now = Date.now();
   const entry = memoryStore.get(key);
   if (!entry || entry.resetAt <= now) {
     memoryStore.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, remaining: maxRequests - 1, resetAt: now + windowMs };
+    return {
+      allowed: true,
+      remaining: maxRequests - 1,
+      resetAt: now + windowMs,
+    };
   }
   if (entry.count >= maxRequests) {
     return { allowed: false, remaining: 0, resetAt: entry.resetAt };
   }
   entry.count++;
-  return { allowed: true, remaining: maxRequests - entry.count, resetAt: entry.resetAt };
+  return {
+    allowed: true,
+    remaining: maxRequests - entry.count,
+    resetAt: entry.resetAt,
+  };
 }
 async function checkRateLimitRedis(redis, key, maxRequests, windowMs) {
   const now = Date.now();
@@ -4426,8 +5277,7 @@ function checkRateLimit(key, maxRequests = 10, windowMs = 6e4) {
     return checkRateLimitMemory(key, maxRequests, windowMs);
   }
   const memResult = checkRateLimitMemory(key, maxRequests, windowMs);
-  checkRateLimitRedis(redisClient, key, maxRequests, windowMs).catch(() => {
-  });
+  checkRateLimitRedis(redisClient, key, maxRequests, windowMs).catch(() => {});
   return memResult;
 }
 
@@ -4441,7 +5291,9 @@ function verifyWebhookSignature(rawBody, signature) {
     console.warn("[WhatsApp] Missing X-Hub-Signature-256 header");
     return false;
   }
-  const expectedSig = "sha256=" + crypto.createHmac("sha256", appSecret).update(rawBody).digest("hex");
+  const expectedSig =
+    "sha256=" +
+    crypto.createHmac("sha256", appSecret).update(rawBody).digest("hex");
   if (expectedSig.length !== signature.length) return false;
   let mismatch = 0;
   for (let i = 0; i < expectedSig.length; i++) {
@@ -4458,13 +5310,16 @@ function registerWhatsAppWebhookRoute(app2) {
       console.log("[WhatsApp] Webhook verified successfully");
       res.status(200).send(challenge || "OK");
     } else {
-      console.warn("[WhatsApp] Webhook verification failed \u2014 token mismatch");
+      console.warn(
+        "[WhatsApp] Webhook verification failed \u2014 token mismatch"
+      );
       res.sendStatus(403);
     }
   });
   app2.post("/api/whatsapp/webhook", async (req, res) => {
     const signature = req.headers["x-hub-signature-256"];
-    const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    const rawBody =
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body);
     if (!verifyWebhookSignature(rawBody, signature)) {
       console.warn("[WhatsApp] Invalid webhook signature \u2014 rejecting");
       res.sendStatus(403);
@@ -4490,12 +5345,13 @@ function registerWhatsAppWebhookRoute(app2) {
             for (const status of statuses) {
               const waMessageId = status.id;
               const statusValue = status.status;
-              if (waMessageId && statusValue && ["sent", "delivered", "read", "failed"].includes(statusValue)) {
+              if (
+                waMessageId &&
+                statusValue &&
+                ["sent", "delivered", "read", "failed"].includes(statusValue)
+              ) {
                 try {
-                  await updateWhatsAppMessageStatus(
-                    waMessageId,
-                    statusValue
-                  );
+                  await updateWhatsAppMessageStatus(waMessageId, statusValue);
                 } catch (err) {
                   console.error("[WhatsApp] Status update error:", err);
                 }
@@ -4511,22 +5367,20 @@ function registerWhatsAppWebhookRoute(app2) {
             const text2 = msg.text?.body;
             const messageId = msg.id;
             if (!from || !text2) continue;
-            const { allowed } = checkRateLimit(
-              `wa:${from}`,
-              30,
-              60 * 60 * 1e3
-            );
+            const { allowed } = checkRateLimit(`wa:${from}`, 30, 60 * 60 * 1e3);
             if (!allowed) {
               console.warn(`[WhatsApp] Rate limited auto-reply for ${from}`);
               continue;
             }
-            const contact = Array.isArray(contacts) ? contacts.find((c) => c.wa_id === from) : void 0;
+            const contact = Array.isArray(contacts)
+              ? contacts.find(c => c.wa_id === from)
+              : void 0;
             const contactName = contact?.profile?.name;
             await handleIncomingMessage({
               from,
               name: contactName,
               text: text2,
-              messageId
+              messageId,
             });
           }
         }
@@ -4549,7 +5403,12 @@ init_db();
 init_analytics();
 init_schema();
 import { Router } from "express";
-import { eq as eq26, desc as desc22, and as and14, gte as gte6 } from "drizzle-orm";
+import {
+  eq as eq26,
+  desc as desc22,
+  and as and14,
+  gte as gte6,
+} from "drizzle-orm";
 var agentApi = Router();
 agentApi.use((req, res, next) => {
   const key = req.headers["x-agent-key"];
@@ -4588,7 +5447,12 @@ agentApi.get("/bookings/pending", async (_req, res) => {
       res.json({ count: 0, pending: [] });
       return;
     }
-    const pending = await db.select().from(bookings).where(eq26(bookings.status, "pending")).orderBy(desc22(bookings.createdAt)).limit(20);
+    const pending = await db
+      .select()
+      .from(bookings)
+      .where(eq26(bookings.status, "pending"))
+      .orderBy(desc22(bookings.createdAt))
+      .limit(20);
     res.json({ count: pending.length, pending });
   } catch (_e) {
     res.status(500).json({ error: "Failed to fetch bookings" });
@@ -4608,7 +5472,9 @@ agentApi.get("/finance/summary", async (_req, res) => {
     res.json({ revenue });
   } catch (_e) {
     const msg = _e instanceof Error ? _e.message : "Unknown error";
-    res.status(500).json({ error: "Failed to fetch finance data", detail: msg });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch finance data", detail: msg });
   }
 });
 agentApi.get("/activity/recent", async (_req, res) => {
@@ -4628,16 +5494,23 @@ agentApi.get("/whatsapp/recent", async (req, res) => {
     }
     const hours = parseInt(req.query.hours) || 24;
     const since = new Date(Date.now() - hours * 60 * 60 * 1e3);
-    const messages = await db.select().from(whatsappMessages).where(
-      and14(
-        eq26(whatsappMessages.direction, "incoming"),
-        gte6(whatsappMessages.createdAt, since)
+    const messages = await db
+      .select()
+      .from(whatsappMessages)
+      .where(
+        and14(
+          eq26(whatsappMessages.direction, "incoming"),
+          gte6(whatsappMessages.createdAt, since)
+        )
       )
-    ).orderBy(desc22(whatsappMessages.createdAt)).limit(20);
+      .orderBy(desc22(whatsappMessages.createdAt))
+      .limit(20);
     res.json({ count: messages.length, messages });
   } catch (_e) {
     const msg = _e instanceof Error ? _e.message : "Unknown error";
-    res.status(500).json({ error: "Failed to fetch WhatsApp messages", detail: msg });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch WhatsApp messages", detail: msg });
   }
 });
 agentApi.post("/eli/dispatch", async (req, res) => {
@@ -4651,22 +5524,33 @@ agentApi.post("/eli/dispatch", async (req, res) => {
 });
 agentApi.get("/chat/context", async (_req, res) => {
   try {
-    const { getAllActiveTours: getAllActiveTours2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+    const { getAllActiveTours: getAllActiveTours2 } =
+      await Promise.resolve().then(() => (init_db(), db_exports));
     const tours2 = await getAllActiveTours2();
-    const tourList = tours2.slice(0, 10).map((t2) => ({
+    const tourList = tours2.slice(0, 10).map(t2 => ({
       name: t2.name,
       price: t2.price,
       duration: t2.duration,
-      description: typeof t2.description === "string" ? t2.description.slice(0, 100) : ""
+      description:
+        typeof t2.description === "string" ? t2.description.slice(0, 100) : "",
     }));
-    res.json({ tours: tourList, updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+    res.json({
+      tours: tourList,
+      updatedAt: /* @__PURE__ */ new Date().toISOString(),
+    });
   } catch (_e) {
-    res.json({ tours: [], updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+    res.json({
+      tours: [],
+      updatedAt: /* @__PURE__ */ new Date().toISOString(),
+    });
   }
 });
 agentApi.get("/reminders/process", async (_req, res) => {
   try {
-    const { processReminders: processReminders3 } = await Promise.resolve().then(() => (init_bookingReminder(), bookingReminder_exports));
+    const { processReminders: processReminders3 } =
+      await Promise.resolve().then(
+        () => (init_bookingReminder(), bookingReminder_exports)
+      );
     const sent = await processReminders3();
     res.json({ success: true, remindersSent: sent });
   } catch (_e) {
@@ -4676,7 +5560,9 @@ agentApi.get("/reminders/process", async (_req, res) => {
 });
 agentApi.get("/upsells/process", async (_req, res) => {
   try {
-    const { processUpsells: processUpsells2 } = await Promise.resolve().then(() => (init_upsellService(), upsellService_exports));
+    const { processUpsells: processUpsells2 } = await Promise.resolve().then(
+      () => (init_upsellService(), upsellService_exports)
+    );
     const sent = await processUpsells2();
     res.json({ success: true, upsellsSent: sent });
   } catch (_e) {
@@ -4686,7 +5572,10 @@ agentApi.get("/upsells/process", async (_req, res) => {
 });
 agentApi.get("/competitor/check", async (_req, res) => {
   try {
-    const { checkCompetitors: checkCompetitors2 } = await Promise.resolve().then(() => (init_competitorMonitor(), competitorMonitor_exports));
+    const { checkCompetitors: checkCompetitors2 } =
+      await Promise.resolve().then(
+        () => (init_competitorMonitor(), competitorMonitor_exports)
+      );
     const report = await checkCompetitors2();
     res.json({ ok: true, report });
   } catch (_e) {
@@ -4711,17 +5600,22 @@ async function checkAvailability(dateStr) {
   if (!db) return [];
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return [];
   try {
-    const { getAllActiveTours: getAllActiveTours2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+    const { getAllActiveTours: getAllActiveTours2 } =
+      await Promise.resolve().then(() => (init_db(), db_exports));
     const tours2 = await getAllActiveTours2();
     const results = [];
     for (const tour of tours2) {
       const tourId = tour.id;
-      const records = await db.select().from(tourAvailability).where(
-        and15(
-          eq27(tourAvailability.tourId, tourId),
-          eq27(tourAvailability.date, dateStr)
+      const records = await db
+        .select()
+        .from(tourAvailability)
+        .where(
+          and15(
+            eq27(tourAvailability.tourId, tourId),
+            eq27(tourAvailability.date, dateStr)
+          )
         )
-      ).limit(1);
+        .limit(1);
       const record = records[0];
       if (!record) {
         results.push({
@@ -4729,7 +5623,7 @@ async function checkAvailability(dateStr) {
           tourId,
           tourName: tour.name ?? "Unknown Tour",
           available: 10,
-          isBlocked: false
+          isBlocked: false,
         });
       } else if (record.isBlocked) {
         results.push({
@@ -4737,7 +5631,7 @@ async function checkAvailability(dateStr) {
           tourId,
           tourName: tour.name ?? "Unknown Tour",
           available: 0,
-          isBlocked: true
+          isBlocked: true,
         });
       } else {
         results.push({
@@ -4745,7 +5639,7 @@ async function checkAvailability(dateStr) {
           tourId,
           tourName: tour.name ?? "Unknown Tour",
           available: record.maxSlots - record.bookedSlots,
-          isBlocked: false
+          isBlocked: false,
         });
       }
     }
@@ -4786,7 +5680,7 @@ function extractDateFromMessage(message) {
     sep: 9,
     oct: 10,
     nov: 11,
-    dec: 12
+    dec: 12,
   };
   const monthNameMatch = message.match(
     /\b(\d{1,2})\s+(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i
@@ -4794,7 +5688,7 @@ function extractDateFromMessage(message) {
   if (monthNameMatch) {
     const day = parseInt(monthNameMatch[1]);
     const monthNum = thaiMonths[monthNameMatch[2].toLowerCase()];
-    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const year = /* @__PURE__ */ new Date().getFullYear();
     return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
   const nameDateMatch = message.match(
@@ -4803,7 +5697,7 @@ function extractDateFromMessage(message) {
   if (nameDateMatch) {
     const monthNum = thaiMonths[nameDateMatch[1].toLowerCase()];
     const day = parseInt(nameDateMatch[2]);
-    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const year = /* @__PURE__ */ new Date().getFullYear();
     return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
   return null;
@@ -4863,7 +5757,7 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 - Can arrange kosher accommodation recommendations
 
 ## Contact:
-- WhatsApp: +66 92-989-4495
+- WhatsApp: +972 54-471-5400
 - Website: www.wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -4884,18 +5778,20 @@ When the user:
 - Requests custom tour arrangements
 - Mentions payment or deposits
 
-\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +66 92-989-4495" and the response should indicate escalation.
+\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +972 54-471-5400" and the response should indicate escalation.
 `;
 var LANGUAGE_INSTRUCTIONS = {
   en: "Respond in English. Be friendly and professional.",
   he: "Respond in Hebrew (\u05E2\u05D1\u05E8\u05D9\u05EA). Use natural Hebrew, not machine-translated. Israeli travelers appreciate a warm, direct communication style.",
-  th: "Respond in Thai (\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22). Use polite Thai with appropriate particles (\u0E04\u0E23\u0E31\u0E1A/\u0E04\u0E48\u0E30). Be helpful and respectful."
+  th: "Respond in Thai (\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22). Use polite Thai with appropriate particles (\u0E04\u0E23\u0E31\u0E1A/\u0E04\u0E48\u0E30). Be helpful and respectful.",
 };
 function buildSystemPrompt(language, availabilityInfo) {
-  const avail = availabilityInfo ? `
+  const avail = availabilityInfo
+    ? `
 
 ## Live Availability:
-${availabilityInfo}` : "";
+${availabilityInfo}`
+    : "";
   return `${WIRO_CONTEXT}${avail}
 
 ## Language Instruction:
@@ -4939,11 +5835,11 @@ function shouldEscalate(content, userMessage) {
     "custom tour",
     "special request",
     "\u05D1\u05D4\u05EA\u05D0\u05DE\u05D4",
-    "\u0E1E\u0E34\u0E40\u0E28\u0E29"
+    "\u0E1E\u0E34\u0E40\u0E28\u0E29",
   ];
   const combined = (content + " " + userMessage).toLowerCase();
-  return escalationKeywords.some(
-    (keyword) => combined.includes(keyword.toLowerCase())
+  return escalationKeywords.some(keyword =>
+    combined.includes(keyword.toLowerCase())
   );
 }
 function detectLanguage2(message, declaredLanguage) {
@@ -4957,7 +5853,11 @@ function isValidLanguage(lang) {
 function isValidHistory(history) {
   if (!Array.isArray(history)) return false;
   return history.every(
-    (msg) => typeof msg === "object" && msg !== null && (msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string"
+    msg =>
+      typeof msg === "object" &&
+      msg !== null &&
+      (msg.role === "user" || msg.role === "assistant") &&
+      typeof msg.content === "string"
   );
 }
 function registerChatApiRoute(app2) {
@@ -4968,15 +5868,21 @@ function registerChatApiRoute(app2) {
         return res.status(400).json({ error: "Message is required" });
       }
       if (body.message.length > 2e3) {
-        return res.status(400).json({ error: "Message too long (max 2000 characters)" });
+        return res
+          .status(400)
+          .json({ error: "Message too long (max 2000 characters)" });
       }
       const language = isValidLanguage(body.language) ? body.language : "en";
       const history = isValidHistory(body.history) ? body.history : [];
-      const ip = req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || req.ip || "unknown";
+      const ip =
+        req.headers["x-forwarded-for"] ||
+        req.headers["x-real-ip"] ||
+        req.ip ||
+        "unknown";
       const { allowed } = checkRateLimit(`chat:${ip}`, 20, 6e4);
       if (!allowed) {
         return res.status(429).json({
-          error: "Too many chat messages. Please try again in a minute."
+          error: "Too many chat messages. Please try again in a minute.",
         });
       }
       const detectedLanguage = detectLanguage2(body.message, language);
@@ -4985,62 +5891,68 @@ function registerChatApiRoute(app2) {
         "\u0E27\u0E48\u0E32\u0E07",
         "\u05E4\u05E0\u05D5\u05D9",
         "open on",
-        " \u0441\u0432\u043E\u0431\u043E\u0434\u0435\u043D"
+        " \u0441\u0432\u043E\u0431\u043E\u0434\u0435\u043D",
       ];
       const messageLower = body.message.toLowerCase();
-      const looksLikeAvailability = availKeywords.some((k) => messageLower.includes(k)) || /\d{4}-\d{2}-\d{2}/.test(body.message) || /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(body.message);
+      const looksLikeAvailability =
+        availKeywords.some(k => messageLower.includes(k)) ||
+        /\d{4}-\d{2}-\d{2}/.test(body.message) ||
+        /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(body.message);
       let availabilityInfo;
       if (looksLikeAvailability) {
         const dateStr = extractDateFromMessage(body.message);
         if (dateStr) {
           const avail = await checkAvailability(dateStr);
           if (avail.length > 0) {
-            availabilityInfo = avail.map(
-              (a) => `- ${a.tourName}: ${a.isBlocked ? "\u274C Unavailable" : `\u2705 ${a.available} slots`}`
-            ).join("\n");
+            availabilityInfo = avail
+              .map(
+                a =>
+                  `- ${a.tourName}: ${a.isBlocked ? "\u274C Unavailable" : `\u2705 ${a.available} slots`}`
+              )
+              .join("\n");
           }
         }
       }
       try {
         const client = getClient();
-        const conversationMessages = history.slice(-10).map((msg) => ({
+        const conversationMessages = history.slice(-10).map(msg => ({
           role: msg.role,
-          content: msg.content
+          content: msg.content,
         }));
         conversationMessages.push({
           role: "user",
-          content: body.message
+          content: body.message,
         });
         const response = await client.messages.create({
           model: "claude-sonnet-4-5-20250929",
           max_tokens: 1024,
           system: buildSystemPrompt(detectedLanguage, availabilityInfo),
-          messages: conversationMessages
+          messages: conversationMessages,
         });
-        const replyText = response.content[0]?.type === "text" ? response.content[0].text : "";
+        const replyText =
+          response.content[0]?.type === "text" ? response.content[0].text : "";
         const escalate = shouldEscalate(replyText, body.message);
         notifyChatMessage({
           userMessage: body.message,
-          language: detectedLanguage
-        }).catch(() => {
-        });
+          language: detectedLanguage,
+        }).catch(() => {});
         const chatResponse = {
           reply: replyText,
           language: detectedLanguage,
-          escalate
+          escalate,
         };
         return res.json(chatResponse);
       } catch (apiError) {
         console.error("[Chat] API error:", apiError);
         const fallbackMessages = {
-          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +66 92-989-4495 for immediate assistance!",
-          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
-          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +66 92-989-4495 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!"
+          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +972 54-471-5400 for immediate assistance!",
+          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
+          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +972 54-471-5400 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
         };
         const chatResponse = {
           reply: fallbackMessages[detectedLanguage],
           language: detectedLanguage,
-          escalate: true
+          escalate: true,
         };
         return res.json(chatResponse);
       }
@@ -5055,9 +5967,15 @@ function registerChatApiRoute(app2) {
 import OpenAI2 from "openai";
 init_eliNotify();
 function buildEliPrompt(language, tours2, availability) {
-  const tourList = tours2.length > 0 ? tours2.map(
-    (t2) => `- **${t2.name}**: ${t2.duration ?? "Full day"} \xB7 \u0E3F${t2.basePrice?.toLocaleString() ?? "ask"}/person${t2.description ? ` \u2014 ${t2.description.slice(0, 80)}` : ""}`
-  ).join("\n") : `- Doi Inthanon (Roof of Thailand): \u0E3F3,500/pp \u2014 Full day
+  const tourList =
+    tours2.length > 0
+      ? tours2
+          .map(
+            t2 =>
+              `- **${t2.name}**: ${t2.duration ?? "Full day"} \xB7 \u0E3F${t2.basePrice?.toLocaleString() ?? "ask"}/person${t2.description ? ` \u2014 ${t2.description.slice(0, 80)}` : ""}`
+          )
+          .join("\n")
+      : `- Doi Inthanon (Roof of Thailand): \u0E3F3,500/pp \u2014 Full day
 - Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day  
 - Mae Kampong Village: \u0E3F2,500/pp \u2014 Half/full day
 - Maerim Sticky Waterfalls: \u0E3F3,000/pp \u2014 Full day
@@ -5066,12 +5984,14 @@ function buildEliPrompt(language, tours2, availability) {
 - 2-Day Adventure Package: \u0E3F7,500/pp
 - 3-Day Explorer Package: \u0E3F12,000/pp
 - 5-Day Ultimate Package: \u0E3F22,000/pp`;
-  const availNote = availability.nextAvailable ? `
-Next available date: ${availability.nextAvailable}` : "";
+  const availNote = availability.nextAvailable
+    ? `
+Next available date: ${availability.nextAvailable}`
+    : "";
   const langInstructions = {
     en: "Respond in English. Be direct and warm \u2014 no filler phrases.",
     he: "\u05E2\u05E0\u05D4 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA \u05D8\u05D1\u05E2\u05D9\u05EA. \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D9\u05E9\u05D9\u05E8\u05D4 \u05D5\u05D7\u05DE\u05D4. \u05D0\u05DC \u05EA\u05E9\u05EA\u05DE\u05E9 \u05D1\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05DB\u05D0\u05E0\u05D9.",
-    th: "\u0E15\u0E2D\u0E1A\u0E40\u0E1B\u0E47\u0E19\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E43\u0E0A\u0E49\u0E20\u0E32\u0E29\u0E32\u0E17\u0E35\u0E48\u0E40\u0E1B\u0E47\u0E19\u0E18\u0E23\u0E23\u0E21\u0E0A\u0E32\u0E15\u0E34 \u0E2A\u0E38\u0E20\u0E32\u0E1E \u0E01\u0E23\u0E30\u0E0A\u0E31\u0E1A"
+    th: "\u0E15\u0E2D\u0E1A\u0E40\u0E1B\u0E47\u0E19\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E43\u0E0A\u0E49\u0E20\u0E32\u0E29\u0E32\u0E17\u0E35\u0E48\u0E40\u0E1B\u0E47\u0E19\u0E18\u0E23\u0E23\u0E21\u0E0A\u0E32\u0E15\u0E34 \u0E2A\u0E38\u0E20\u0E32\u0E1E \u0E01\u0E23\u0E30\u0E0A\u0E31\u0E1A",
   };
   return `You are Eli, the AI assistant for WIRO 4x4 \u2014 a kosher off-road adventure company in Chiang Mai, Thailand.
 
@@ -5092,7 +6012,7 @@ ${tourList}${availNote}
 - This is a specialty \u2014 we're experienced with Israeli/Jewish travelers
 
 ## Contact
-- WhatsApp: +66 92-989-4495
+- WhatsApp: +972 54-471-5400
 - Website: wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -5101,7 +6021,7 @@ ${tourList}${availNote}
 - If asked for specific group pricing / exact dates / custom routes \u2192 say you'll connect them to WhatsApp for a personal quote
 - Suggest the best tour for their situation (family? adventure? short time?)
 - Be concise: bullet points work great
-- For booking/payment: "Message us on WhatsApp +66 92-989-4495 for an instant quote"
+- For booking/payment: "Message us on WhatsApp +972 54-471-5400 for an instant quote"
 
 ## Language
 ${langInstructions[language]}`;
@@ -5132,20 +6052,26 @@ function isBookingIntent(msg) {
     "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
     "\u05D6\u05DE\u05D9\u05DF",
     "\u05DE\u05D7\u05D9\u05E8",
-    "\u05EA\u05D0\u05E8\u05D9\u05DA"
+    "\u05EA\u05D0\u05E8\u05D9\u05DA",
   ];
   const lower = msg.toLowerCase();
-  return kw.some((k) => lower.includes(k));
+  return kw.some(k => lower.includes(k));
 }
 async function fetchRealTours() {
   try {
-    const { getAllActiveTours: getAllActiveTours2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+    const { getAllActiveTours: getAllActiveTours2 } =
+      await Promise.resolve().then(() => (init_db(), db_exports));
     const tours2 = await getAllActiveTours2();
-    return tours2.slice(0, 12).map((t2) => ({
+    return tours2.slice(0, 12).map(t2 => ({
       name: String(t2.name ?? ""),
       duration: t2.duration ? String(t2.duration) : null,
-      basePrice: typeof t2.basePrice === "number" ? t2.basePrice : typeof t2.price === "number" ? t2.price : null,
-      description: t2.description ? String(t2.description).slice(0, 100) : null
+      basePrice:
+        typeof t2.basePrice === "number"
+          ? t2.basePrice
+          : typeof t2.price === "number"
+            ? t2.price
+            : null,
+      description: t2.description ? String(t2.description).slice(0, 100) : null,
     }));
   } catch {
     return [];
@@ -5154,16 +6080,20 @@ async function fetchRealTours() {
 async function callGemini(model, systemPrompt, messages, maxTokens = 512) {
   const apiKey = process.env.Gemini_API_Key;
   if (!apiKey) throw new Error("Gemini_API_Key missing");
-  const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  const url =
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
   const body = {
     model,
     max_tokens: maxTokens,
-    messages: [{ role: "system", content: systemPrompt }, ...messages]
+    messages: [{ role: "system", content: systemPrompt }, ...messages],
   };
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify(body)
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const err = await res.text();
@@ -5179,7 +6109,7 @@ function getOpenRouterClient() {
     if (!apiKey) throw new Error("OPENROUTER_API_KEY missing");
     _openRouterClient = new OpenAI2({
       apiKey,
-      baseURL: "https://openrouter.ai/api/v1"
+      baseURL: "https://openrouter.ai/api/v1",
     });
   }
   return _openRouterClient;
@@ -5189,17 +6119,26 @@ function registerEliChatRoute(app2) {
     try {
       const apiKey = process.env.Gemini_API_Key;
       if (!apiKey) {
-        return res.json({ error: "Gemini_API_Key not set", keys: Object.keys(process.env).filter((k) => k.includes("KEY")) });
+        return res.json({
+          error: "Gemini_API_Key not set",
+          keys: Object.keys(process.env).filter(k => k.includes("KEY")),
+        });
       }
-      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: "gemini-2.5-flash",
-          max_tokens: 20,
-          messages: [{ role: "user", content: "hi" }]
-        })
-      });
+      const r = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gemini-2.5-flash",
+            max_tokens: 20,
+            messages: [{ role: "user", content: "hi" }],
+          }),
+        }
+      );
       const data = await r.json();
       return res.json({ ok: r.ok, status: r.status, data });
     } catch (e) {
@@ -5222,7 +6161,9 @@ function registerEliChatRoute(app2) {
         return res.status(400).json({ error: "Message too long" });
       }
       const language = detectLanguage3(body.message, body.language);
-      const history = Array.isArray(body.history) ? body.history.slice(-10) : [];
+      const history = Array.isArray(body.history)
+        ? body.history.slice(-10)
+        : [];
       const [tours2] = await Promise.all([fetchRealTours()]);
       const availability = {};
       const systemPrompt = buildEliPrompt(language, tours2, availability);
@@ -5231,10 +6172,12 @@ function registerEliChatRoute(app2) {
         reply = await callGemini(
           "gemini-2.5-flash",
           systemPrompt,
-          history.map((m) => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.content
-          })).concat([{ role: "user", content: body.message }])
+          history
+            .map(m => ({
+              role: m.role === "user" ? "user" : "assistant",
+              content: m.content,
+            }))
+            .concat([{ role: "user", content: body.message }])
         );
       } catch (err2) {
         try {
@@ -5244,12 +6187,12 @@ function registerEliChatRoute(app2) {
             max_tokens: 512,
             messages: [
               { role: "system", content: systemPrompt },
-              ...history.map((m) => ({
+              ...history.map(m => ({
                 role: m.role === "user" ? "user" : "assistant",
-                content: m.content
+                content: m.content,
               })),
-              { role: "user", content: body.message }
-            ]
+              { role: "user", content: body.message },
+            ],
           });
           reply = orResponse.choices[0]?.message?.content ?? "";
         } catch (err3) {
@@ -5261,34 +6204,30 @@ function registerEliChatRoute(app2) {
         notifyChatMessage({
           userMessage: body.message,
           language,
-          sessionId: body.sessionId
-        }).catch(() => {
-        });
+          sessionId: body.sessionId,
+        }).catch(() => {});
       }
       return res.json({
         reply,
         language,
         agent: "eli",
         escalate: isBookingIntent(body.message),
-        sessionId: null
+        sessionId: null,
       });
     } catch (err) {
       console.error("[EliChat] Error:", err);
       const fallback = {
-        en: "I'm having a moment \u2014 please WhatsApp us at +66 92-989-4495 for immediate help!",
-        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495",
-        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +66 92-989-4495"
+        en: "I'm having a moment \u2014 please WhatsApp us at +972 54-471-5400 for immediate help!",
+        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400",
+        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +972 54-471-5400",
       };
-      const lang = detectLanguage3(
-        req.body?.message ?? "",
-        req.body?.language
-      );
+      const lang = detectLanguage3(req.body?.message ?? "", req.body?.language);
       return res.json({
         reply: fallback[lang],
         language: lang,
         agent: "eli",
         escalate: true,
-        sessionId: null
+        sessionId: null,
       });
     }
   });
@@ -5296,7 +6235,9 @@ function registerEliChatRoute(app2) {
 
 // server/routes/eliRelay.ts
 init_eliNotify();
-var BOT_TOKEN2 = process.env.TELEGRAM_BOT_TOKEN ?? "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
+var BOT_TOKEN2 =
+  process.env.TELEGRAM_BOT_TOKEN ??
+  "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
 var ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "-1003893672464";
 var sessions = /* @__PURE__ */ new Map();
 var pendingReplies = /* @__PURE__ */ new Map();
@@ -5306,7 +6247,7 @@ async function telegramPost(method, body) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     }
   );
   return res.json();
@@ -5321,7 +6262,12 @@ async function telegramGet(method, params = {}) {
   return res.json();
 }
 async function sendToEli(sessionId, visitorName, message, language) {
-  const langLabel = language === "he" ? "\u{1F1EE}\u{1F1F1} Hebrew" : language === "th" ? "\u{1F1F9}\u{1F1ED} Thai" : "\u{1F1EC}\u{1F1E7} English";
+  const langLabel =
+    language === "he"
+      ? "\u{1F1EE}\u{1F1F1} Hebrew"
+      : language === "th"
+        ? "\u{1F1F9}\u{1F1ED} Thai"
+        : "\u{1F1EC}\u{1F1E7} English";
   const text2 = `\u{1F4AC} *WIRO Website Chat* [${langLabel}]
 \u{1F464} Visitor: ${visitorName}
 \u{1F194} Session: \`${sessionId.slice(0, 8)}\`
@@ -5330,7 +6276,7 @@ ${message}`;
   await telegramPost("sendMessage", {
     chat_id: ELI_CHAT_ID,
     text: text2,
-    parse_mode: "Markdown"
+    parse_mode: "Markdown",
   });
 }
 var lastUpdateId = 0;
@@ -5339,7 +6285,7 @@ async function pollEliReplies() {
     const data = await telegramGet("getUpdates", {
       offset: lastUpdateId + 1,
       limit: 10,
-      timeout: 0
+      timeout: 0,
     });
     if (!data.ok || !data.result?.length) return;
     for (const update of data.result) {
@@ -5362,18 +6308,25 @@ async function pollEliReplies() {
 function registerEliRelayRoute(app2) {
   app2.get("/api/eli/gateway-health", async (_req, res) => {
     try {
-      const gwUrl = process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789";
-      const gwToken = process.env.OPENCLAW_GATEWAY_TOKEN ?? "51732cbbbcc9d9e1a9a2db8cd1e6062351615c2c44102e76";
+      const gwUrl =
+        process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789";
+      const gwToken =
+        process.env.OPENCLAW_GATEWAY_TOKEN ??
+        "51732cbbbcc9d9e1a9a2db8cd1e6062351615c2c44102e76";
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 3e3);
       const result = await fetch(`${gwUrl}/health`, {
         signal: controller.signal,
-        headers: { Authorization: `Bearer ${gwToken}` }
+        headers: { Authorization: `Bearer ${gwToken}` },
       });
       clearTimeout(id);
-      res.status(result.ok ? 200 : 503).json({ ok: result.ok, gateway: "openclaw" });
+      res
+        .status(result.ok ? 200 : 503)
+        .json({ ok: result.ok, gateway: "openclaw" });
     } catch {
-      res.status(503).json({ ok: false, gateway: "openclaw", reason: "unreachable" });
+      res
+        .status(503)
+        .json({ ok: false, gateway: "openclaw", reason: "unreachable" });
     }
   });
   app2.post("/api/eli/relay", async (req, res) => {
@@ -5385,7 +6338,9 @@ function registerEliRelayRoute(app2) {
       }
       const { message, sessionId, language, visitorName } = req.body;
       if (!message || !sessionId) {
-        return res.status(400).json({ error: "message and sessionId required" });
+        return res
+          .status(400)
+          .json({ error: "message and sessionId required" });
       }
       const lang = language ?? "en";
       const name = visitorName ?? "Anonymous";
@@ -5394,17 +6349,17 @@ function registerEliRelayRoute(app2) {
       notifyChatMessage({
         userMessage: message,
         language: lang,
-        sessionId
-      }).catch(() => {
-      });
+        sessionId,
+      }).catch(() => {});
       sessions.set(shortSession, {
         chatId: ELI_CHAT_ID,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       });
       return res.json({
         ok: true,
         sessionId: shortSession,
-        message: "Message sent to Eli. Use /api/eli/relay/poll to get response."
+        message:
+          "Message sent to Eli. Use /api/eli/relay/poll to get response.",
       });
     } catch (e) {
       console.error("[EliRelay] Send error:", e);
@@ -5460,7 +6415,7 @@ About WIRO 4x4:
 - All tours are kosher-friendly with kosher meal options
 - Shabbat hotel options available
 - Self-driving 4x4 rental available ($100-150 USD)
-- WhatsApp: +66929894495
+- WhatsApp: +972544715400
 - Email: wiro.adventures@gmail.com
 - Booking: https://www.wiro4x4indochina.com/book
 
@@ -5476,14 +6431,20 @@ chatRouter.post("/message", async (req, res) => {
       return res.status(400).json({ error: "message is required" });
     }
     if (message.length > 2e3) {
-      return res.status(400).json({ error: "Message too long (max 2000 characters)" });
+      return res
+        .status(400)
+        .json({ error: "Message too long (max 2000 characters)" });
     }
     const lang = language === "he" ? "he" : "en";
-    const ip = req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || req.ip || "unknown";
+    const ip =
+      req.headers["x-forwarded-for"] ||
+      req.headers["x-real-ip"] ||
+      req.ip ||
+      "unknown";
     const { allowed } = checkRateLimit(`chat:${ip}`, 20, 6e4);
     if (!allowed) {
       return res.status(429).json({
-        error: "Too many chat messages. Please try again in a minute."
+        error: "Too many chat messages. Please try again in a minute.",
       });
     }
     const session = await getChatSessionByVisitorId(visitorId);
@@ -5498,15 +6459,15 @@ chatRouter.post("/message", async (req, res) => {
     await addChatMessage({
       sessionId,
       role: "visitor",
-      content: message
+      content: message,
     });
-    const claudeMessages = recentHistory.map((msg) => ({
+    const claudeMessages = recentHistory.map(msg => ({
       role: msg.role === "visitor" ? "user" : "assistant",
-      content: msg.content
+      content: msg.content,
     }));
     claudeMessages.push({
       role: "user",
-      content: message
+      content: message,
     });
     let reply;
     try {
@@ -5515,17 +6476,21 @@ chatRouter.post("/message", async (req, res) => {
         model: "claude-sonnet-4-5-20250929",
         max_tokens: 300,
         system: SYSTEM_PROMPT,
-        messages: claudeMessages
+        messages: claudeMessages,
       });
-      reply = response.content[0]?.type === "text" ? response.content[0].text : "";
+      reply =
+        response.content[0]?.type === "text" ? response.content[0].text : "";
     } catch (apiError) {
       console.error("[Chat] Claude API error:", apiError);
-      reply = lang === "he" ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66929894495" : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +66929894495";
+      reply =
+        lang === "he"
+          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972544715400"
+          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +972544715400";
     }
     await addChatMessage({
       sessionId,
       role: "ai",
-      content: reply
+      content: reply,
     });
     return res.json({ reply, sessionId });
   } catch (error) {
@@ -5575,7 +6540,7 @@ async function notifyOwner(payload) {
   if (!title?.trim() || !content?.trim()) {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Notification title and content are required."
+      message: "Notification title and content are required.",
     });
   }
   const ownerEmail = process.env.OWNER_EMAIL;
@@ -5597,7 +6562,7 @@ async function notifyOwner(payload) {
         <p style="color: #666; font-size: 12px;">
           Sent from Wiro 4x4 Notification System
         </p>
-      `
+      `,
     });
     return true;
   } catch (error) {
@@ -5610,11 +6575,11 @@ async function notifyOwner(payload) {
 import { initTRPC, TRPCError as TRPCError2 } from "@trpc/server";
 import superjson from "superjson";
 var t = initTRPC.context().create({
-  transformer: superjson
+  transformer: superjson,
 });
 var router = t.router;
 var publicProcedure = t.procedure;
-var requireUser = t.middleware(async (opts) => {
+var requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
   if (!ctx.user) {
     throw new TRPCError2({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
@@ -5622,13 +6587,13 @@ var requireUser = t.middleware(async (opts) => {
   return next({
     ctx: {
       ...ctx,
-      user: ctx.user
-    }
+      user: ctx.user,
+    },
   });
 });
 var protectedProcedure = t.procedure.use(requireUser);
 var adminProcedure = t.procedure.use(
-  t.middleware(async (opts) => {
+  t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || ctx.user.role !== "admin") {
       throw new TRPCError2({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
@@ -5636,8 +6601,8 @@ var adminProcedure = t.procedure.use(
     return next({
       ctx: {
         ...ctx,
-        user: ctx.user
-      }
+        user: ctx.user,
+      },
     });
   })
 );
@@ -5645,36 +6610,36 @@ var OWNER_ROLES = ["admin", "owner"];
 var MANAGER_ROLES = ["admin", "owner", "manager"];
 var AGENT_ROLES = ["admin", "owner", "manager", "agent"];
 var ownerProcedure = t.procedure.use(
-  t.middleware(async (opts) => {
+  t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !OWNER_ROLES.includes(ctx.user.role)) {
       throw new TRPCError2({
         code: "FORBIDDEN",
-        message: "Owner access required"
+        message: "Owner access required",
       });
     }
     return next({ ctx: { ...ctx, user: ctx.user } });
   })
 );
 var managerProcedure = t.procedure.use(
-  t.middleware(async (opts) => {
+  t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !MANAGER_ROLES.includes(ctx.user.role)) {
       throw new TRPCError2({
         code: "FORBIDDEN",
-        message: "Manager access required"
+        message: "Manager access required",
       });
     }
     return next({ ctx: { ...ctx, user: ctx.user } });
   })
 );
 var agentProcedure = t.procedure.use(
-  t.middleware(async (opts) => {
+  t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !AGENT_ROLES.includes(ctx.user.role)) {
       throw new TRPCError2({
         code: "FORBIDDEN",
-        message: "Agent access required"
+        message: "Agent access required",
       });
     }
     return next({ ctx: { ...ctx, user: ctx.user } });
@@ -5683,24 +6648,28 @@ var agentProcedure = t.procedure.use(
 
 // server/_core/systemRouter.ts
 var systemRouter = router({
-  health: publicProcedure.input(
-    z2.object({
-      timestamp: z2.number().min(0, "timestamp cannot be negative")
-    })
-  ).query(() => ({
-    ok: true
-  })),
-  notifyOwner: adminProcedure.input(
-    z2.object({
-      title: z2.string().min(1, "title is required"),
-      content: z2.string().min(1, "content is required")
-    })
-  ).mutation(async ({ input }) => {
-    const delivered = await notifyOwner(input);
-    return {
-      success: delivered
-    };
-  })
+  health: publicProcedure
+    .input(
+      z2.object({
+        timestamp: z2.number().min(0, "timestamp cannot be negative"),
+      })
+    )
+    .query(() => ({
+      ok: true,
+    })),
+  notifyOwner: adminProcedure
+    .input(
+      z2.object({
+        title: z2.string().min(1, "title is required"),
+        content: z2.string().min(1, "content is required"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const delivered = await notifyOwner(input);
+      return {
+        success: delivered,
+      };
+    }),
 });
 
 // server/routes/_helpers.ts
@@ -5712,7 +6681,8 @@ var SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-XSS-Protection": "0",
-  "Permissions-Policy": "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+  "Permissions-Policy":
+    "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
   // Note: Strict-Transport-Security should be set at reverse proxy level
   // (nginx, Cloudflare, etc.) rather than application level.
 };
@@ -5733,7 +6703,9 @@ function initSentry() {
   _sentryInitialized = true;
   const dsn = process.env.SENTRY_DSN;
   if (!dsn) {
-    console.warn("[Sentry] SENTRY_DSN not set \u2014 error monitoring disabled");
+    console.warn(
+      "[Sentry] SENTRY_DSN not set \u2014 error monitoring disabled"
+    );
     return null;
   }
   try {
@@ -5741,7 +6713,7 @@ function initSentry() {
     Sentry.init({
       dsn,
       environment: process.env.NODE_ENV || "development",
-      tracesSampleRate: 0.1
+      tracesSampleRate: 0.1,
     });
     _sentryModule = Sentry;
     console.log("[Sentry] Initialized successfully");
@@ -5760,55 +6732,45 @@ function captureException(error) {
 }
 
 // server/routes/_helpers.ts
-var securePublicProcedure = publicProcedure.use(
-  async ({ ctx, next }) => {
-    setSecurityHeaders(ctx.res);
-    return next();
-  }
-);
-var secureProtectedProcedure = protectedProcedure.use(
-  async ({ ctx, next }) => {
-    setSecurityHeaders(ctx.res);
-    return next();
-  }
-);
-var secureOwnerProcedure = ownerProcedure.use(
-  async ({ ctx, next }) => {
-    setSecurityHeaders(ctx.res);
-    return next();
-  }
-);
-var secureManagerProcedure = managerProcedure.use(
-  async ({ ctx, next }) => {
-    setSecurityHeaders(ctx.res);
-    return next();
-  }
-);
-var secureAgentProcedure = agentProcedure.use(
-  async ({ ctx, next }) => {
-    setSecurityHeaders(ctx.res);
-    return next();
-  }
-);
+var securePublicProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureProtectedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureOwnerProcedure = ownerProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureManagerProcedure = managerProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureAgentProcedure = agentProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
 function checkAdminRateLimit(ctx) {
   const userId = ctx.user?.id ?? "unknown";
   const { allowed } = checkRateLimit(`admin:${userId}`, 100, 5 * 6e4);
   if (!allowed) {
     throw new TRPCError3({
       code: "TOO_MANY_REQUESTS",
-      message: "Too many admin operations. Please try again later."
+      message: "Too many admin operations. Please try again later.",
     });
   }
 }
 
 // server/routes/auth.ts
 var authRouter = router({
-  me: securePublicProcedure.query((opts) => opts.ctx.user),
+  me: securePublicProcedure.query(opts => opts.ctx.user),
   logout: securePublicProcedure.mutation(({ ctx }) => {
     const cookieOptions = getSessionCookieOptions(ctx.req);
     ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
     return { success: true };
-  })
+  }),
 });
 
 // server/routes/booking.ts
@@ -5821,7 +6783,7 @@ function formatDate2(date) {
     weekday: "long",
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
   });
 }
 function formatServices(data) {
@@ -5857,8 +6819,12 @@ ${formatServices(data)}
 - Dropoff: ${data.dropoffPoint}
 ${data.suggestedDestinations ? `- Destinations: ${data.suggestedDestinations}` : ""}
 
-${data.specialRequests ? `**Special Requests:**
-${data.specialRequests}` : ""}
+${
+  data.specialRequests
+    ? `**Special Requests:**
+${data.specialRequests}`
+    : ""
+}
 
 ---
 Please respond to this inquiry within 24 hours.
@@ -5866,7 +6832,9 @@ Please respond to this inquiry within 24 hours.
   try {
     const result = await notifyOwner({ title, content });
     if (result) {
-      console.log(`[Email] New booking notification sent for ${data.contactName}`);
+      console.log(
+        `[Email] New booking notification sent for ${data.contactName}`
+      );
     }
     return result;
   } catch (error) {
@@ -5881,7 +6849,12 @@ import { Resend } from "resend";
 // shared/escapeHtml.ts
 function escapeHtml(str) {
   if (!str) return "";
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // server/resendEmailService.ts
@@ -5894,7 +6867,7 @@ function getResend() {
 }
 var NOTIFICATION_RECIPIENTS = [
   "wiro.adventures@gmail.com",
-  "pasuthunjunkong@gmail.com"
+  "pasuthunjunkong@gmail.com",
 ];
 var SENDER_EMAIL = "WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>";
 function formatDate3(date) {
@@ -5902,13 +6875,14 @@ function formatDate3(date) {
     weekday: "long",
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
   });
 }
 function formatServices2(data) {
   const services = [];
   if (data.includesHotels) services.push("\u{1F3E8} Hotels");
-  if (data.includesGuide) services.push("\u{1F5E3}\uFE0F Hebrew-speaking Guide");
+  if (data.includesGuide)
+    services.push("\u{1F5E3}\uFE0F Hebrew-speaking Guide");
   if (data.includesTrip) services.push("\u{1F699} 4x4 Trip");
   if (data.includesFood) services.push("\u{1F37D}\uFE0F Kosher Meals");
   if (data.needsShabbatHotel) services.push("\u2721\uFE0F Shabbat Hotel");
@@ -5975,19 +6949,27 @@ async function sendNewBookingEmail(data) {
             <td style="padding: 8px 0; color: #666;">Dropoff:</td>
             <td style="padding: 8px 0;">${data.dropoffPoint}</td>
           </tr>
-          ${data.suggestedDestinations ? `
+          ${
+            data.suggestedDestinations
+              ? `
           <tr>
             <td style="padding: 8px 0; color: #666;">Destinations:</td>
             <td style="padding: 8px 0;">${data.suggestedDestinations}</td>
           </tr>
-          ` : ""}
+          `
+              : ""
+          }
         </table>
         
-        ${data.specialRequests ? `
+        ${
+          data.specialRequests
+            ? `
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <h2 style="color: #1a4d2e;">\u{1F4AC} Special Requests</h2>
         <p style="background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #d4af37;">${data.specialRequests}</p>
-        ` : ""}
+        `
+            : ""
+        }
         
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <p style="color: #888; font-size: 12px; text-align: center;">
@@ -6011,7 +6993,7 @@ async function sendNewBookingEmail(data) {
       from: SENDER_EMAIL,
       to: NOTIFICATION_RECIPIENTS,
       subject,
-      html: htmlContent
+      html: htmlContent,
     });
     if (error) {
       console.error("[Resend] Failed to send new booking email:", error);
@@ -6049,7 +7031,9 @@ function generateCalendarEvent(booking) {
     startDate.setHours(hours, minutes, 0, 0);
     const endDate = new Date(startDate);
     endDate.setHours(startDate.getHours() + 8);
-    const locationText = booking.pickupLocation ? `${booking.pickupLocation}, Chiang Mai, Thailand` : "Chiang Mai, Thailand";
+    const locationText = booking.pickupLocation
+      ? `${booking.pickupLocation}, Chiang Mai, Thailand`
+      : "Chiang Mai, Thailand";
     const descriptionLines = [
       `Your ${booking.tourType} adventure with WIRO 4x4!`,
       ``,
@@ -6063,7 +7047,9 @@ function generateCalendarEvent(booking) {
       `Your hotel lobby (pickup included) or Chiang Mai Old City area.`,
       `Google Maps: https://maps.google.com/?q=Chiang+Mai+Thailand`,
       ``,
-      ...booking.specialRequests ? [`Special Requests: ${booking.specialRequests}`, ``] : [],
+      ...(booking.specialRequests
+        ? [`Special Requests: ${booking.specialRequests}`, ``]
+        : []),
       `--- What to Bring ---`,
       `- Comfortable clothing and closed-toe shoes`,
       `- Sunscreen and insect repellent`,
@@ -6078,9 +7064,9 @@ function generateCalendarEvent(booking) {
       `Email: ${COMPANY_EMAIL}`,
       `Website: ${COMPANY_WEBSITE}`,
       ``,
-      `Questions? WhatsApp us anytime: +66929894495`,
+      `Questions? WhatsApp us anytime: +972544715400`,
       ``,
-      `We look forward to your adventure with us!`
+      `We look forward to your adventure with us!`,
     ];
     const event = {
       start: [
@@ -6088,14 +7074,14 @@ function generateCalendarEvent(booking) {
         startDate.getMonth() + 1,
         startDate.getDate(),
         startDate.getHours(),
-        startDate.getMinutes()
+        startDate.getMinutes(),
       ],
       end: [
         endDate.getFullYear(),
         endDate.getMonth() + 1,
         endDate.getDate(),
         endDate.getHours(),
-        endDate.getMinutes()
+        endDate.getMinutes(),
       ],
       title: `${booking.tourType} - WIRO 4x4`,
       description: descriptionLines.join("\n"),
@@ -6112,21 +7098,21 @@ function generateCalendarEvent(booking) {
         {
           name: booking.customerName,
           email: booking.customerEmail,
-          rsvp: true
-        }
+          rsvp: true,
+        },
       ],
       alarms: [
         {
           action: "display",
           description: `Reminder: Your ${booking.tourType} with WIRO 4x4 is tomorrow! Don't forget to pack: comfortable clothes, sunscreen, insect repellent, camera, water bottle.`,
-          trigger: { days: 1, before: true }
+          trigger: { days: 1, before: true },
         },
         {
           action: "display",
-          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66929894495`,
-          trigger: { hours: 2, before: true }
-        }
-      ]
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +972544715400`,
+          trigger: { hours: 2, before: true },
+        },
+      ],
     };
     const { error, value } = createEvents([event]);
     if (error) {
@@ -6199,14 +7185,20 @@ async function sendCustomerConfirmation(booking) {
         <div class="detail-row">
           <span class="detail-label">Pickup Time:</span> ${booking.pickupTime || "08:00 AM"}
         </div>
-        ${booking.specialRequests ? `
+        ${
+          booking.specialRequests
+            ? `
         <div class="detail-row">
           <span class="detail-label">Special Requests:</span> ${escapeHtml(booking.specialRequests)}
         </div>
-        ` : ""}
+        `
+            : ""
+        }
       </div>
       
-      ${icsContent ? `
+      ${
+        icsContent
+          ? `
       <div style="text-align: center; margin: 30px 0;">
         <p style="font-size: 16px; margin-bottom: 15px;"><strong>\u{1F4C5} Add this tour to your calendar:</strong></p>
         <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Click the button below or use the attached calendar file</p>
@@ -6215,7 +7207,9 @@ async function sendCustomerConfirmation(booking) {
         </a>
         <p style="font-size: 12px; color: #999; margin-top: 10px;">Works with Google Calendar, Apple Calendar, Outlook, and more</p>
       </div>
-      ` : ""}
+      `
+          : ""
+      }
       
       <div class="info-box" style="background: #e3f2fd; border-left-color: #1976d2;">
         <h3 style="margin-top: 0; color: #1976d2;">\u{1F4CD} Meeting Point & Location</h3>
@@ -6278,14 +7272,14 @@ async function sendCustomerConfirmation(booking) {
       from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
       to: [booking.customerEmail],
       subject: `\u2705 Booking Confirmed - ${booking.tourType} on ${new Date(booking.tourDate).toLocaleDateString()}`,
-      html: emailHtml
+      html: emailHtml,
     };
     if (icsContent) {
       emailData.attachments = [
         {
           filename: "wiro-4x4-tour.ics",
-          content: Buffer.from(icsContent).toString("base64")
-        }
+          content: Buffer.from(icsContent).toString("base64"),
+        },
       ];
     }
     const resend = getResend2();
@@ -6325,7 +7319,7 @@ async function sendBookingReminder(booking) {
       weekday: "long",
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
     });
     const emailHtml = `
 <!DOCTYPE html>
@@ -6384,7 +7378,7 @@ async function sendBookingReminder(booking) {
       from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
       to: [booking.customerEmail],
       subject: `Reminder: Your ${booking.tourType} is tomorrow! - WIRO 4x4`,
-      html: emailHtml
+      html: emailHtml,
     });
     if (error) {
       console.error("[Customer Email] Error sending reminder:", error);
@@ -6404,14 +7398,14 @@ async function sendPaymentConfirmationEmail({
   customerEmail,
   amount,
   type,
-  bookingId
+  bookingId,
 }) {
   try {
     const typeLabels = {
       deposit: "Deposit",
       balance: "Balance",
       full: "Full Payment",
-      refund: "Refund"
+      refund: "Refund",
     };
     const typeLabel = typeLabels[type] || type;
     const formattedAmount = amount.toLocaleString("en-US");
@@ -6509,7 +7503,7 @@ async function sendPaymentConfirmationEmail({
       from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
       to: [customerEmail],
       subject: `Payment Confirmed - ${typeLabel} of ${formattedAmount} THB - Booking #${bookingId}`,
-      html: emailHtml
+      html: emailHtml,
     });
     if (error) {
       console.error(
@@ -6581,7 +7575,7 @@ async function sendPostTourFeedback(booking) {
       from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
       to: [booking.customerEmail],
       subject: `How was your ${booking.tourType}? Share your experience! - WIRO 4x4`,
-      html: emailHtml
+      html: emailHtml,
     });
     if (error) {
       console.error("[Customer Email] Error sending feedback request:", error);
@@ -6598,12 +7592,7 @@ async function sendPostTourFeedback(booking) {
     return false;
   }
 }
-async function sendBulkEmailToCustomer({
-  to,
-  subject,
-  message,
-  customerName
-}) {
+async function sendBulkEmailToCustomer({ to, subject, message, customerName }) {
   try {
     const resend = getResend2();
     if (!resend) {
@@ -6633,7 +7622,10 @@ async function sendBulkEmailToCustomer({
     </div>
     <div class="content">
       <p>Dear ${escapeHtml(customerName)},</p>
-      ${message.split("\n").map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
+      ${message
+        .split("\n")
+        .map(line => `<p>${escapeHtml(line)}</p>`)
+        .join("")}
       <p style="margin-top: 30px;">
         <strong>The WIRO 4x4 Team</strong><br>
         <em>Kosher Off-Road Adventures in Chiang Mai</em>
@@ -6649,7 +7641,7 @@ async function sendBulkEmailToCustomer({
       from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
       to: [to],
       subject,
-      html: emailHtml
+      html: emailHtml,
     });
     if (error) {
       console.error("[Customer Email] Error sending bulk email:", error);
@@ -6667,15 +7659,23 @@ async function sendBulkEmailToCustomer({
 
 // shared/schemas.ts
 import { z as z3 } from "zod";
-var noHtml = (val) => !/<[^>]*>/g.test(val);
+var noHtml = val => !/<[^>]*>/g.test(val);
 var bookingInputSchema = z3.object({
-  contactName: z3.string().min(1, "Name is required").max(200).refine(noHtml, "HTML tags are not allowed"),
-  contactEmail: z3.string().email("Invalid email").optional().or(z3.literal("")),
+  contactName: z3
+    .string()
+    .min(1, "Name is required")
+    .max(200)
+    .refine(noHtml, "HTML tags are not allowed"),
+  contactEmail: z3
+    .string()
+    .email("Invalid email")
+    .optional()
+    .or(z3.literal("")),
   contactPhone: z3.string().min(1, "Phone is required"),
   contactWhatsApp: z3.string().optional(),
   agentName: z3.string().max(200).optional(),
-  arrivalDate: z3.string().transform((s) => new Date(s)),
-  departureDate: z3.string().transform((s) => new Date(s)),
+  arrivalDate: z3.string().transform(s => new Date(s)),
+  departureDate: z3.string().transform(s => new Date(s)),
   numberOfAdults: z3.number().min(1).default(1),
   hasChildren: z3.boolean().default(false),
   numberOfChildren: z3.number().optional(),
@@ -6709,7 +7709,7 @@ var bookingInputSchema = z3.object({
   source: z3.string().default("website"),
   utmSource: z3.string().optional(),
   utmMedium: z3.string().optional(),
-  utmCampaign: z3.string().optional()
+  utmCampaign: z3.string().optional(),
 });
 var agentInputSchema = z3.object({
   name: z3.string().min(1, "Name is required"),
@@ -6719,7 +7719,7 @@ var agentInputSchema = z3.object({
   specialties: z3.string().optional(),
   languages: z3.string().optional(),
   status: z3.enum(["active", "inactive", "on_leave"]).default("active"),
-  notes: z3.string().max(500).optional()
+  notes: z3.string().max(500).optional(),
 });
 var leadInputSchema = z3.object({
   name: z3.string().min(1, "Name is required"),
@@ -6729,7 +7729,7 @@ var leadInputSchema = z3.object({
   interestedTours: z3.string().optional(),
   message: z3.optional(
     z3.string().max(1e3).refine(noHtml, "HTML tags are not allowed")
-  )
+  ),
 });
 var financialRecordInputSchema = z3.object({
   bookingId: z3.number(),
@@ -6739,8 +7739,11 @@ var financialRecordInputSchema = z3.object({
   currency: z3.string().default("THB"),
   description: z3.string().optional(),
   paymentMethod: z3.string().optional(),
-  paymentDate: z3.string().optional().transform((s) => s ? new Date(s) : void 0),
-  notes: z3.string().optional()
+  paymentDate: z3
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : void 0)),
+  notes: z3.string().optional(),
 });
 var tourInputSchema = z3.object({
   name: z3.string().min(1, "Name is required"),
@@ -6762,14 +7765,18 @@ var tourInputSchema = z3.object({
   isPrivate: z3.boolean().default(true),
   isShabbatOk: z3.boolean().default(true),
   isActive: z3.boolean().default(true),
-  sortOrder: z3.number().default(0)
+  sortOrder: z3.number().default(0),
 });
 var reviewInputSchema = z3.object({
   name: z3.string().min(1, "Name is required"),
   email: z3.string().email("Invalid email"),
   rating: z3.number().min(1).max(5),
-  text: z3.string().min(1, "Review text is required").max(2e3).refine(noHtml, "HTML tags are not allowed"),
-  tourType: z3.string().optional()
+  text: z3
+    .string()
+    .min(1, "Review text is required")
+    .max(2e3)
+    .refine(noHtml, "HTML tags are not allowed"),
+  tourType: z3.string().optional(),
 });
 var blogPostInputSchema = z3.object({
   title: z3.string().min(1),
@@ -6785,7 +7792,7 @@ var blogPostInputSchema = z3.object({
   isPublished: z3.boolean().optional(),
   scheduledAt: z3.string().optional(),
   // ISO datetime string for scheduled publishing
-  author: z3.string().optional()
+  author: z3.string().optional(),
 });
 var tourPackageInputSchema = z3.object({
   name: z3.string().min(1, "Name is required").max(255),
@@ -6793,27 +7800,30 @@ var tourPackageInputSchema = z3.object({
   slug: z3.string().optional(),
   description: z3.string().optional(),
   descriptionHe: z3.string().optional(),
-  tourSlugs: z3.array(z3.string().min(1)).min(2, "At least 2 tours required").max(5, "Maximum 5 tours"),
+  tourSlugs: z3
+    .array(z3.string().min(1))
+    .min(2, "At least 2 tours required")
+    .max(5, "Maximum 5 tours"),
   discountPercent: z3.number().min(0).max(50).nullable().optional(),
   coverImage: z3.string().optional(),
-  isPublished: z3.boolean().optional()
+  isPublished: z3.boolean().optional(),
 });
 var createCheckoutSchema = z3.object({
   bookingId: z3.number(),
   amount: z3.number().positive(),
-  type: z3.enum(["deposit", "balance", "full"])
+  type: z3.enum(["deposit", "balance", "full"]),
 });
 var refundSchema = z3.object({
   paymentId: z3.number(),
   amount: z3.number().positive().optional(),
-  reason: z3.string().optional()
+  reason: z3.string().optional(),
 });
 var verifySessionSchema = z3.object({
-  sessionId: z3.string()
+  sessionId: z3.string(),
 });
 var paginationInput = z3.object({
   page: z3.number().min(1).default(1),
-  pageSize: z3.number().min(1).max(100).default(20)
+  pageSize: z3.number().min(1).max(100).default(20),
 });
 var customerInputSchema = z3.object({
   name: z3.string().min(1, "Name is required").max(255),
@@ -6821,11 +7831,13 @@ var customerInputSchema = z3.object({
   phone: z3.string().max(50).optional(),
   whatsapp: z3.string().max(50).optional(),
   language: z3.enum(["en", "he"]).default("en"),
-  stage: z3.enum(["prospect", "active", "completed", "vip", "inactive"]).default("prospect"),
+  stage: z3
+    .enum(["prospect", "active", "completed", "vip", "inactive"])
+    .default("prospect"),
   source: z3.string().max(100).default("website"),
   tags: z3.string().optional(),
   // JSON array string
-  notes: z3.string().max(2e3).optional()
+  notes: z3.string().max(2e3).optional(),
 });
 var customerActivityInputSchema = z3.object({
   customerId: z3.number(),
@@ -6835,19 +7847,22 @@ var customerActivityInputSchema = z3.object({
     "whatsapp",
     "email",
     "follow_up",
-    "status_change"
+    "status_change",
   ]),
   content: z3.string().min(1, "Content is required").max(2e3),
-  dueDate: z3.string().optional().transform((s) => s ? new Date(s) : void 0),
-  createdBy: z3.string().optional()
+  dueDate: z3
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : void 0)),
+  createdBy: z3.string().optional(),
 });
 var updateUserRoleSchema = z3.object({
   userId: z3.number(),
-  role: z3.enum(["user", "admin", "owner", "manager", "agent"])
+  role: z3.enum(["user", "admin", "owner", "manager", "agent"]),
 });
 var settingsUpdateSchema = z3.object({
   key: z3.string().min(1).max(100),
-  value: z3.unknown()
+  value: z3.unknown(),
 });
 var bookingDraftInputSchema = z3.object({
   contactName: z3.string().optional(),
@@ -6855,7 +7870,7 @@ var bookingDraftInputSchema = z3.object({
   contactPhone: z3.string().optional(),
   formData: z3.string(),
   // JSON string
-  tourSlug: z3.string().optional()
+  tourSlug: z3.string().optional(),
 });
 var invoiceInputSchema = z3.object({
   bookingId: z3.number().optional(),
@@ -6873,10 +7888,10 @@ var invoiceInputSchema = z3.object({
   thbEquivalent: z3.number().optional(),
   paymentMethod: z3.string().max(50).optional(),
   lineItems: z3.string().optional(),
-  notes: z3.string().max(2e3).optional()
+  notes: z3.string().max(2e3).optional(),
 });
 var accountingEntryInputSchema = z3.object({
-  date: z3.string().transform((s) => new Date(s)),
+  date: z3.string().transform(s => new Date(s)),
   accountCode: z3.string().min(5).max(10),
   description: z3.string().min(1, "Description is required").max(500),
   debit: z3.number().min(0).default(0),
@@ -6887,32 +7902,43 @@ var accountingEntryInputSchema = z3.object({
   bookingId: z3.number().optional(),
   invoiceId: z3.number().optional(),
   vendorPayee: z3.string().max(255).optional(),
-  documentRef: z3.string().max(100).optional()
+  documentRef: z3.string().max(100).optional(),
 });
 var taxFilingInputSchema = z3.object({
-  type: z3.enum(["vat_pp30", "wht_pnd3", "wht_pnd53", "cit_pnd50", "cit_pnd51"]),
+  type: z3.enum([
+    "vat_pp30",
+    "wht_pnd3",
+    "wht_pnd53",
+    "cit_pnd50",
+    "cit_pnd51",
+  ]),
   period: z3.string().min(4).max(20),
-  dueDate: z3.string().transform((s) => new Date(s)),
+  dueDate: z3.string().transform(s => new Date(s)),
   outputVat: z3.number().optional(),
   inputVat: z3.number().optional(),
   netVat: z3.number().optional(),
   whtTotal: z3.number().optional(),
   taxableIncome: z3.number().optional(),
   taxAmount: z3.number().optional(),
-  notes: z3.string().max(2e3).optional()
+  notes: z3.string().max(2e3).optional(),
 });
 var inventoryInputSchema = z3.object({
   name: z3.string().min(1, "Name is required").max(255),
   category: z3.enum(["vehicle", "equipment", "supplies"]),
   description: z3.string().max(1e3).optional(),
-  purchaseDate: z3.string().optional().transform((s) => s ? new Date(s) : void 0),
+  purchaseDate: z3
+    .string()
+    .optional()
+    .transform(s => (s ? new Date(s) : void 0)),
   purchaseCost: z3.number().min(0).optional(),
   currentValue: z3.number().min(0).optional(),
   usefulLifeMonths: z3.number().min(1).optional(),
-  condition: z3.enum(["new", "good", "fair", "poor", "retired"]).default("good"),
+  condition: z3
+    .enum(["new", "good", "fair", "poor", "retired"])
+    .default("good"),
   quantity: z3.number().min(0).default(1),
   location: z3.string().max(255).optional(),
-  notes: z3.string().max(2e3).optional()
+  notes: z3.string().max(2e3).optional(),
 });
 var manualPaymentInputSchema = z3.object({
   bookingId: z3.number(),
@@ -6924,9 +7950,9 @@ var manualPaymentInputSchema = z3.object({
     "cash",
     "bit",
     "wire",
-    "other"
+    "other",
   ]),
-  notes: z3.string().optional()
+  notes: z3.string().optional(),
 });
 var estimateEmailInputSchema = z3.object({
   email: z3.string().email("Valid email required"),
@@ -6935,7 +7961,7 @@ var estimateEmailInputSchema = z3.object({
       slug: z3.string(),
       nameEn: z3.string(),
       nameHe: z3.string(),
-      basePrice: z3.number()
+      basePrice: z3.number(),
     })
   ),
   adults: z3.number().min(1),
@@ -6948,22 +7974,32 @@ var estimateEmailInputSchema = z3.object({
   attractionCount: z3.number().min(1),
   needsShabbatHotel: z3.boolean(),
   total: z3.number(),
-  language: z3.enum(["en", "he"])
+  language: z3.enum(["en", "he"]),
 });
 var userPhotoSubmissionSchema = z3.object({
-  name: z3.string().min(1, "Name is required").max(255).refine(noHtml, "HTML tags are not allowed"),
+  name: z3
+    .string()
+    .min(1, "Name is required")
+    .max(255)
+    .refine(noHtml, "HTML tags are not allowed"),
   email: z3.string().email("Invalid email"),
-  title: z3.string().min(1, "Caption is required").max(255).refine(noHtml, "HTML tags are not allowed"),
-  category: z3.enum([
-    "tours",
-    "vehicles",
-    "destinations",
-    "activities",
-    "food",
-    "accommodation",
-    "other"
-  ]).default("other"),
-  tourDate: z3.string().max(50).optional()
+  title: z3
+    .string()
+    .min(1, "Caption is required")
+    .max(255)
+    .refine(noHtml, "HTML tags are not allowed"),
+  category: z3
+    .enum([
+      "tours",
+      "vehicles",
+      "destinations",
+      "activities",
+      "food",
+      "accommodation",
+      "other",
+    ])
+    .default("other"),
+  tourDate: z3.string().max(50).optional(),
 });
 
 // server/routes/booking.ts
@@ -6971,433 +8007,494 @@ init_eliNotify();
 init_bookingReminder();
 init_upsellService();
 var bookingRouter = router({
-  create: securePublicProcedure.input(bookingInputSchema).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`booking:${ip}`, 10, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many booking requests. Please try again in a minute."
-      });
-    }
-    const bookingData = {
-      ...input,
-      hasChildren: input.hasChildren ? 1 : 0,
-      includesHotels: input.includesHotels ? 1 : 0,
-      includesGuide: input.includesGuide ? 1 : 0,
-      includesTrip: input.includesTrip ? 1 : 0,
-      includesAttractions: input.includesAttractions ? 1 : 0,
-      includesFood: input.includesFood ? 1 : 0,
-      needsShabbatHotel: input.needsShabbatHotel ? 1 : 0
-    };
-    const result = await createBooking(bookingData);
-    const bookingId = result[0]?.insertId ?? 0;
-    findOrCreateCustomer({
-      name: input.contactName,
-      email: input.contactEmail || void 0,
-      phone: input.contactPhone,
-      source: "booking"
-    }).then(async (customerId) => {
-      if (customerId) {
-        const customer = await getCustomerById(customerId);
-        if (customer && customer.stage === "prospect") {
-          await updateCustomer(customerId, { stage: "active" });
-        }
+  create: securePublicProcedure
+    .input(bookingInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`booking:${ip}`, 10, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many booking requests. Please try again in a minute.",
+        });
       }
-    }).catch(console.error);
-    await sendNewBookingNotification({
-      contactName: input.contactName,
-      contactEmail: input.contactEmail || "",
-      contactPhone: input.contactPhone,
-      arrivalDate: input.arrivalDate,
-      departureDate: input.departureDate,
-      numberOfAdults: input.numberOfAdults,
-      numberOfChildren: input.numberOfChildren,
-      includesHotels: input.includesHotels,
-      includesGuide: input.includesGuide,
-      includesTrip: input.includesTrip,
-      includesFood: input.includesFood,
-      needsShabbatHotel: input.needsShabbatHotel,
-      pickupPoint: input.pickupPoint,
-      dropoffPoint: input.dropoffPoint,
-      suggestedDestinations: input.suggestedDestinations,
-      specialRequests: input.specialRequests
-    }).catch((err) => {
-      console.error("[Booking] Failed to send Manus notification:", err);
-      captureException(err);
-    });
-    await sendNewBookingEmail({
-      contactName: input.contactName,
-      contactEmail: input.contactEmail || "",
-      contactPhone: input.contactPhone,
-      arrivalDate: input.arrivalDate,
-      departureDate: input.departureDate,
-      numberOfAdults: input.numberOfAdults,
-      numberOfChildren: input.numberOfChildren,
-      includesHotels: input.includesHotels,
-      includesGuide: input.includesGuide,
-      includesTrip: input.includesTrip,
-      includesFood: input.includesFood,
-      needsShabbatHotel: input.needsShabbatHotel,
-      pickupPoint: input.pickupPoint,
-      dropoffPoint: input.dropoffPoint,
-      suggestedDestinations: input.suggestedDestinations,
-      specialRequests: input.specialRequests
-    }).catch((err) => {
-      console.error("[Booking] Failed to send Resend email:", err);
-      captureException(err);
-    });
-    const tourType = input.includesTrip ? "Custom Tour" : "Tour Package";
-    const pickupLocation = input.pickupPoint === "custom" ? input.customPickupLocation : input.pickupPoint;
-    const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
-    if (input.contactEmail)
-      sendCustomerConfirmation({
-        customerName: input.contactName,
-        customerEmail: input.contactEmail,
-        tourDate: input.arrivalDate.toISOString(),
-        tourType,
-        groupSize: totalGuests,
-        pickupLocation,
-        pickupTime: "08:00",
+      const bookingData = {
+        ...input,
+        hasChildren: input.hasChildren ? 1 : 0,
+        includesHotels: input.includesHotels ? 1 : 0,
+        includesGuide: input.includesGuide ? 1 : 0,
+        includesTrip: input.includesTrip ? 1 : 0,
+        includesAttractions: input.includesAttractions ? 1 : 0,
+        includesFood: input.includesFood ? 1 : 0,
+        needsShabbatHotel: input.needsShabbatHotel ? 1 : 0,
+      };
+      const result = await createBooking(bookingData);
+      const bookingId = result[0]?.insertId ?? 0;
+      findOrCreateCustomer({
+        name: input.contactName,
+        email: input.contactEmail || void 0,
+        phone: input.contactPhone,
+        source: "booking",
+      })
+        .then(async customerId => {
+          if (customerId) {
+            const customer = await getCustomerById(customerId);
+            if (customer && customer.stage === "prospect") {
+              await updateCustomer(customerId, { stage: "active" });
+            }
+          }
+        })
+        .catch(console.error);
+      await sendNewBookingNotification({
+        contactName: input.contactName,
+        contactEmail: input.contactEmail || "",
+        contactPhone: input.contactPhone,
+        arrivalDate: input.arrivalDate,
+        departureDate: input.departureDate,
+        numberOfAdults: input.numberOfAdults,
+        numberOfChildren: input.numberOfChildren,
+        includesHotels: input.includesHotels,
+        includesGuide: input.includesGuide,
+        includesTrip: input.includesTrip,
+        includesFood: input.includesFood,
+        needsShabbatHotel: input.needsShabbatHotel,
+        pickupPoint: input.pickupPoint,
+        dropoffPoint: input.dropoffPoint,
+        suggestedDestinations: input.suggestedDestinations,
         specialRequests: input.specialRequests,
-        bookingId: `WIRO-${bookingId}`
-      }).catch((err) => {
-        console.error("[Booking] Failed to send customer confirmation:", err);
+      }).catch(err => {
+        console.error("[Booking] Failed to send Manus notification:", err);
         captureException(err);
       });
-    notifyBookingConfirmed({
-      name: input.contactName,
-      date: input.arrivalDate.toISOString().split("T")[0],
-      pax: totalGuests
-    }).catch((err) => {
-      console.error("[Booking] Failed to notify Eli:", err);
-    });
-    if (input.departureDate) {
-      scheduleBookingReminder(bookingId, input.departureDate).catch((err) => {
-        console.error("[Booking] Failed to schedule reminder:", err);
+      await sendNewBookingEmail({
+        contactName: input.contactName,
+        contactEmail: input.contactEmail || "",
+        contactPhone: input.contactPhone,
+        arrivalDate: input.arrivalDate,
+        departureDate: input.departureDate,
+        numberOfAdults: input.numberOfAdults,
+        numberOfChildren: input.numberOfChildren,
+        includesHotels: input.includesHotels,
+        includesGuide: input.includesGuide,
+        includesTrip: input.includesTrip,
+        includesFood: input.includesFood,
+        needsShabbatHotel: input.needsShabbatHotel,
+        pickupPoint: input.pickupPoint,
+        dropoffPoint: input.dropoffPoint,
+        suggestedDestinations: input.suggestedDestinations,
+        specialRequests: input.specialRequests,
+      }).catch(err => {
+        console.error("[Booking] Failed to send Resend email:", err);
+        captureException(err);
       });
-    }
-    return {
-      success: true,
-      message: "Booking created successfully",
-      bookingId
-    };
-  }),
+      const tourType = input.includesTrip ? "Custom Tour" : "Tour Package";
+      const pickupLocation =
+        input.pickupPoint === "custom"
+          ? input.customPickupLocation
+          : input.pickupPoint;
+      const totalGuests = input.numberOfAdults + (input.numberOfChildren || 0);
+      if (input.contactEmail)
+        sendCustomerConfirmation({
+          customerName: input.contactName,
+          customerEmail: input.contactEmail,
+          tourDate: input.arrivalDate.toISOString(),
+          tourType,
+          groupSize: totalGuests,
+          pickupLocation,
+          pickupTime: "08:00",
+          specialRequests: input.specialRequests,
+          bookingId: `WIRO-${bookingId}`,
+        }).catch(err => {
+          console.error("[Booking] Failed to send customer confirmation:", err);
+          captureException(err);
+        });
+      notifyBookingConfirmed({
+        name: input.contactName,
+        date: input.arrivalDate.toISOString().split("T")[0],
+        pax: totalGuests,
+      }).catch(err => {
+        console.error("[Booking] Failed to notify Eli:", err);
+      });
+      if (input.departureDate) {
+        scheduleBookingReminder(bookingId, input.departureDate).catch(err => {
+          console.error("[Booking] Failed to schedule reminder:", err);
+        });
+      }
+      return {
+        success: true,
+        message: "Booking created successfully",
+        bookingId,
+      };
+    }),
   list: secureProtectedProcedure.query(async () => {
     return await getAllBookings();
   }),
-  listPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllBookingsPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  getById: secureProtectedProcedure.input(z4.object({ id: z4.number() })).query(async ({ input }) => {
-    return await getBookingById(input.id);
-  }),
-  update: secureProtectedProcedure.input(
-    z4.object({
-      id: z4.number(),
-      data: z4.object({
-        status: z4.enum([
-          "pending",
-          "confirmed",
-          "in_progress",
-          "completed",
-          "cancelled"
-        ]).optional(),
-        totalPrice: z4.number().optional(),
-        depositPaid: z4.number().optional(),
-        balancePaid: z4.number().optional(),
-        assignedAgentId: z4.number().optional(),
-        notes: z4.string().optional()
+  listPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllBookingsPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  getById: secureProtectedProcedure
+    .input(z4.object({ id: z4.number() }))
+    .query(async ({ input }) => {
+      return await getBookingById(input.id);
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z4.object({
+        id: z4.number(),
+        data: z4.object({
+          status: z4
+            .enum([
+              "pending",
+              "confirmed",
+              "in_progress",
+              "completed",
+              "cancelled",
+            ])
+            .optional(),
+          totalPrice: z4.number().optional(),
+          depositPaid: z4.number().optional(),
+          balancePaid: z4.number().optional(),
+          assignedAgentId: z4.number().optional(),
+          notes: z4.string().optional(),
+        }),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const oldBooking = await getBookingById(input.id);
-    const oldStatus = oldBooking?.status;
-    await updateBooking(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "booking",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    if (input.data.status && oldStatus && input.data.status !== oldStatus) {
-      const name = oldBooking?.contactName ?? `#${input.id}`;
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const oldBooking = await getBookingById(input.id);
+      const oldStatus = oldBooking?.status;
+      await updateBooking(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "booking",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      if (input.data.status && oldStatus && input.data.status !== oldStatus) {
+        const name = oldBooking?.contactName ?? `#${input.id}`;
+        if (input.data.status === "confirmed") {
+          console.log(
+            `[BookingStatus] Booking for ${name} confirmed (was: ${oldStatus}) \u2014 notification pending`
+          );
+        } else if (input.data.status === "cancelled") {
+          console.log(
+            `[BookingStatus] Booking for ${name} cancelled (was: ${oldStatus}) \u2014 notification pending`
+          );
+        } else {
+          console.log(
+            `[BookingStatus] Booking for ${name} status changed: ${oldStatus} -> ${input.data.status}`
+          );
+        }
+        if (input.data.status === "completed") {
+          scheduleUpsell({
+            bookingId: input.id,
+            customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
+            customerEmail: oldBooking?.contactEmail,
+            completedAt: /* @__PURE__ */ new Date(),
+          }).catch(err => {
+            console.error("[Booking] Failed to schedule upsell:", err);
+          });
+        }
+      }
       if (input.data.status === "confirmed") {
-        console.log(
-          `[BookingStatus] Booking for ${name} confirmed (was: ${oldStatus}) \u2014 notification pending`
-        );
-      } else if (input.data.status === "cancelled") {
-        console.log(
-          `[BookingStatus] Booking for ${name} cancelled (was: ${oldStatus}) \u2014 notification pending`
-        );
-      } else {
-        console.log(
-          `[BookingStatus] Booking for ${name} status changed: ${oldStatus} -> ${input.data.status}`
+        generateDefaultFinancialRecords(input.id).catch(err =>
+          console.error(
+            "[Booking] Failed to auto-generate financial records:",
+            err
+          )
         );
       }
-      if (input.data.status === "completed") {
-        scheduleUpsell({
-          bookingId: input.id,
-          customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
-          customerEmail: oldBooking?.contactEmail,
-          completedAt: /* @__PURE__ */ new Date()
-        }).catch((err) => {
-          console.error("[Booking] Failed to schedule upsell:", err);
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z4.object({ id: z4.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteBooking(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "booking",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  bulkDelete: secureProtectedProcedure
+    .input(z4.object({ ids: z4.array(z4.number()).min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await bulkDeleteBookings(input.ids);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "booking",
+        newValue: JSON.stringify({ ids: input.ids }),
+      });
+      return { success: true, deleted: input.ids.length };
+    }),
+  sendReminder: secureProtectedProcedure
+    .input(z4.object({ id: z4.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.id);
+      if (!booking)
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      await sendBookingReminder({
+        customerName: booking.contactName,
+        customerEmail: booking.contactEmail ?? "",
+        tourDate: booking.arrivalDate?.toISOString() ?? "",
+        tourType: "Custom Tour",
+        groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
+        pickupLocation: booking.pickupPoint,
+        pickupTime: "08:00",
+        specialRequests: booking.specialRequests ?? void 0,
+        bookingId: `WIRO-${booking.id}`,
+      });
+      return { success: true };
+    }),
+  suggestAgent: secureProtectedProcedure
+    .input(z4.object({ bookingId: z4.number() }))
+    .query(async ({ input }) => {
+      const booking = await getBookingById(input.bookingId);
+      if (!booking)
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      const allAgents = await getAllAgents();
+      const activeAgents = allAgents.filter(a => a.status === "active");
+      const agentStats = await getAgentPerformanceStats();
+      const suggestions = [];
+      for (const agent of activeAgents) {
+        let score = 0;
+        const overlapping =
+          booking.arrivalDate && booking.departureDate
+            ? await getAgentBookingsInDateRange(
+                agent.id,
+                booking.arrivalDate,
+                booking.departureDate
+              )
+            : [];
+        if (overlapping.length === 0) score += 40;
+        else score += Math.max(0, 40 - overlapping.length * 20);
+        if (agent.specialties) {
+          try {
+            const specs = JSON.parse(agent.specialties);
+            let matchCount = 0;
+            if (
+              booking.includesFood &&
+              specs.some(s => s.toLowerCase().includes("kosher"))
+            )
+              matchCount++;
+            if (
+              booking.includesGuide &&
+              specs.some(s => s.toLowerCase().includes("guide"))
+            )
+              matchCount++;
+            if (
+              booking.includesTrip &&
+              specs.some(
+                s =>
+                  s.toLowerCase().includes("adventure") ||
+                  s.toLowerCase().includes("4x4")
+              )
+            )
+              matchCount++;
+            score += Math.min(25, matchCount * 10);
+          } catch {}
+        }
+        score += ((agent.rating ?? 5) / 5) * 20;
+        const stats = agentStats.find(s => s.id === agent.id);
+        const activeBookings = stats?.activeBookings ?? 0;
+        score += Math.max(0, 15 - activeBookings * 5);
+        suggestions.push({
+          agentId: agent.id,
+          agentName: agent.name,
+          score: Math.round(score),
+          available: overlapping.length === 0,
+          activeBookings,
+          rating: agent.rating ?? 5,
         });
       }
-    }
-    if (input.data.status === "confirmed") {
-      generateDefaultFinancialRecords(input.id).catch(
-        (err) => console.error(
-          "[Booking] Failed to auto-generate financial records:",
-          err
-        )
-      );
-    }
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z4.object({ id: z4.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteBooking(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "booking",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  bulkDelete: secureProtectedProcedure.input(z4.object({ ids: z4.array(z4.number()).min(1) })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await bulkDeleteBookings(input.ids);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "booking",
-      newValue: JSON.stringify({ ids: input.ids })
-    });
-    return { success: true, deleted: input.ids.length };
-  }),
-  sendReminder: secureProtectedProcedure.input(z4.object({ id: z4.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.id);
-    if (!booking)
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
-      });
-    await sendBookingReminder({
-      customerName: booking.contactName,
-      customerEmail: booking.contactEmail ?? "",
-      tourDate: booking.arrivalDate?.toISOString() ?? "",
-      tourType: "Custom Tour",
-      groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
-      pickupLocation: booking.pickupPoint,
-      pickupTime: "08:00",
-      specialRequests: booking.specialRequests ?? void 0,
-      bookingId: `WIRO-${booking.id}`
-    });
-    return { success: true };
-  }),
-  suggestAgent: secureProtectedProcedure.input(z4.object({ bookingId: z4.number() })).query(async ({ input }) => {
-    const booking = await getBookingById(input.bookingId);
-    if (!booking)
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
-      });
-    const allAgents = await getAllAgents();
-    const activeAgents = allAgents.filter((a) => a.status === "active");
-    const agentStats = await getAgentPerformanceStats();
-    const suggestions = [];
-    for (const agent of activeAgents) {
-      let score = 0;
-      const overlapping = booking.arrivalDate && booking.departureDate ? await getAgentBookingsInDateRange(
-        agent.id,
-        booking.arrivalDate,
-        booking.departureDate
-      ) : [];
-      if (overlapping.length === 0) score += 40;
-      else score += Math.max(0, 40 - overlapping.length * 20);
-      if (agent.specialties) {
-        try {
-          const specs = JSON.parse(agent.specialties);
-          let matchCount = 0;
-          if (booking.includesFood && specs.some((s) => s.toLowerCase().includes("kosher")))
-            matchCount++;
-          if (booking.includesGuide && specs.some((s) => s.toLowerCase().includes("guide")))
-            matchCount++;
-          if (booking.includesTrip && specs.some(
-            (s) => s.toLowerCase().includes("adventure") || s.toLowerCase().includes("4x4")
-          ))
-            matchCount++;
-          score += Math.min(25, matchCount * 10);
-        } catch {
-        }
-      }
-      score += (agent.rating ?? 5) / 5 * 20;
-      const stats = agentStats.find((s) => s.id === agent.id);
-      const activeBookings = stats?.activeBookings ?? 0;
-      score += Math.max(0, 15 - activeBookings * 5);
-      suggestions.push({
-        agentId: agent.id,
-        agentName: agent.name,
-        score: Math.round(score),
-        available: overlapping.length === 0,
-        activeBookings,
-        rating: agent.rating ?? 5
-      });
-    }
-    suggestions.sort((a, b) => b.score - a.score);
-    return suggestions;
-  }),
-  updateDate: secureProtectedProcedure.input(
-    z4.object({
-      id: z4.number(),
-      arrivalDate: z4.string().or(z4.date()).transform((v) => new Date(v)),
-      departureDate: z4.string().or(z4.date()).transform((v) => new Date(v))
-    })
-  ).mutation(async ({ ctx, input }) => {
-    checkAdminRateLimit(ctx);
-    await updateBooking(input.id, {
-      arrivalDate: input.arrivalDate,
-      departureDate: input.departureDate
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "reschedule",
-      resourceType: "booking",
-      resourceId: input.id,
-      newValue: JSON.stringify({
+      suggestions.sort((a, b) => b.score - a.score);
+      return suggestions;
+    }),
+  updateDate: secureProtectedProcedure
+    .input(
+      z4.object({
+        id: z4.number(),
+        arrivalDate: z4
+          .string()
+          .or(z4.date())
+          .transform(v => new Date(v)),
+        departureDate: z4
+          .string()
+          .or(z4.date())
+          .transform(v => new Date(v)),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      await updateBooking(input.id, {
         arrivalDate: input.arrivalDate,
-        departureDate: input.departureDate
+        departureDate: input.departureDate,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "reschedule",
+        resourceType: "booking",
+        resourceId: input.id,
+        newValue: JSON.stringify({
+          arrivalDate: input.arrivalDate,
+          departureDate: input.departureDate,
+        }),
+      });
+      return { success: true };
+    }),
+  bulkEmail: secureProtectedProcedure
+    .input(
+      z4.object({
+        bookingIds: z4.array(z4.number()).min(1),
+        subject: z4.string().min(1).max(200),
+        message: z4.string().min(1).max(5e3),
       })
-    });
-    return { success: true };
-  }),
-  bulkEmail: secureProtectedProcedure.input(
-    z4.object({
-      bookingIds: z4.array(z4.number()).min(1),
-      subject: z4.string().min(1).max(200),
-      message: z4.string().min(1).max(5e3)
-    })
-  ).mutation(async ({ ctx, input }) => {
-    checkAdminRateLimit(ctx);
-    let sent = 0;
-    let failed = 0;
-    for (const id of input.bookingIds) {
-      const booking = await getBookingById(id);
-      if (booking?.contactEmail) {
-        try {
-          await sendBulkEmailToCustomer({
-            to: booking.contactEmail,
-            subject: input.subject,
-            message: input.message,
-            customerName: booking.contactName
-          });
-          sent++;
-        } catch {
-          failed++;
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      let sent = 0;
+      let failed = 0;
+      for (const id of input.bookingIds) {
+        const booking = await getBookingById(id);
+        if (booking?.contactEmail) {
+          try {
+            await sendBulkEmailToCustomer({
+              to: booking.contactEmail,
+              subject: input.subject,
+              message: input.message,
+              customerName: booking.contactName,
+            });
+            sent++;
+          } catch {
+            failed++;
+          }
         }
       }
-    }
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "bulk_email",
-      resourceType: "booking",
-      newValue: JSON.stringify({
-        bookingIds: input.bookingIds,
-        subject: input.subject,
-        sent,
-        failed
-      })
-    });
-    return { sent, failed };
-  })
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "bulk_email",
+        resourceType: "booking",
+        newValue: JSON.stringify({
+          bookingIds: input.bookingIds,
+          subject: input.subject,
+          sent,
+          failed,
+        }),
+      });
+      return { sent, failed };
+    }),
 });
 
 // server/routes/agent.ts
 import { z as z5 } from "zod";
 init_db();
 var agentRouter = router({
-  create: secureProtectedProcedure.input(agentInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await createAgent(input);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "agent",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true, message: "Agent created successfully" };
-  }),
+  create: secureProtectedProcedure
+    .input(agentInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await createAgent(input);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "agent",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true, message: "Agent created successfully" };
+    }),
   list: secureProtectedProcedure.query(async () => {
     return await getAllAgents();
   }),
-  getById: secureProtectedProcedure.input(z5.object({ id: z5.number() })).query(async ({ input }) => {
-    return await getAgentById(input.id);
-  }),
-  update: secureProtectedProcedure.input(
-    z5.object({
-      id: z5.number(),
-      data: agentInputSchema.partial()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateAgent(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "agent",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z5.object({ id: z5.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteAgent(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "agent",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  bookings: secureProtectedProcedure.input(z5.object({ agentId: z5.number() })).query(async ({ input }) => {
-    return await getBookingsByAgentId(input.agentId);
-  }),
+  getById: secureProtectedProcedure
+    .input(z5.object({ id: z5.number() }))
+    .query(async ({ input }) => {
+      return await getAgentById(input.id);
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z5.object({
+        id: z5.number(),
+        data: agentInputSchema.partial(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateAgent(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "agent",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z5.object({ id: z5.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteAgent(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "agent",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  bookings: secureProtectedProcedure
+    .input(z5.object({ agentId: z5.number() }))
+    .query(async ({ input }) => {
+      return await getBookingsByAgentId(input.agentId);
+    }),
   stats: secureProtectedProcedure.query(async () => {
     return await getAgentPerformanceStats();
   }),
-  updateAvailability: secureProtectedProcedure.input(
-    z5.object({
-      id: z5.number(),
-      status: z5.enum(["active", "inactive", "on_leave"])
-    })
-  ).mutation(async ({ ctx, input }) => {
-    checkAdminRateLimit(ctx);
-    await updateAgent(input.id, { status: input.status });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update_availability",
-      resourceType: "agent",
-      resourceId: input.id,
-      newValue: JSON.stringify({ status: input.status })
-    });
-    return { success: true };
-  })
+  updateAvailability: secureProtectedProcedure
+    .input(
+      z5.object({
+        id: z5.number(),
+        status: z5.enum(["active", "inactive", "on_leave"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      await updateAgent(input.id, { status: input.status });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update_availability",
+        resourceType: "agent",
+        resourceId: input.id,
+        newValue: JSON.stringify({ status: input.status }),
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/lead.ts
@@ -7426,9 +8523,12 @@ async function sendAutoResponse(lead) {
       return false;
     }
     const activeTours = await getAllActiveTours();
-    const tourList = activeTours.map(
-      (t2) => `- ${t2.name}: ${t2.description?.substring(0, 100)}... (${t2.duration}, \u0E3F${t2.price})`
-    ).join("\n");
+    const tourList = activeTours
+      .map(
+        t2 =>
+          `- ${t2.name}: ${t2.description?.substring(0, 100)}... (${t2.duration}, \u0E3F${t2.price})`
+      )
+      .join("\n");
     const prompt = `You are a friendly tour operator for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Thailand.
 Write a warm, personalized email response to a new inquiry.
 
@@ -7454,12 +8554,16 @@ Requirements:
       messages: [
         {
           role: "system",
-          content: "You write warm, professional emails for a kosher tour operator. Be concise and helpful."
+          content:
+            "You write warm, professional emails for a kosher tour operator. Be concise and helpful.",
         },
-        { role: "user", content: prompt }
-      ]
+        { role: "user", content: prompt },
+      ],
     });
-    const responseText = typeof result.choices[0]?.message?.content === "string" ? result.choices[0].message.content : "";
+    const responseText =
+      typeof result.choices[0]?.message?.content === "string"
+        ? result.choices[0].message.content
+        : "";
     if (!responseText) {
       console.error("[AutoResponse] LLM returned empty response");
       return false;
@@ -7486,7 +8590,10 @@ Requirements:
       <p style="margin:5px 0 0 0;opacity:0.9;">Kosher Off-Road Adventures in Chiang Mai</p>
     </div>
     <div class="content">
-      ${responseText.split("\n").map((line) => line.trim() ? `<p>${line}</p>` : "").join("")}
+      ${responseText
+        .split("\n")
+        .map(line => (line.trim() ? `<p>${line}</p>` : ""))
+        .join("")}
       <div style="text-align:center;margin:20px 0;">
         <a href="https://wa.me/${COMPANY_WHATSAPP}" class="whatsapp-btn">Chat on WhatsApp</a>
       </div>
@@ -7498,7 +8605,7 @@ Requirements:
     </div>
   </div>
 </body>
-</html>`
+</html>`,
     });
     if (error) {
       console.error("[AutoResponse] Failed to send:", error);
@@ -7531,7 +8638,7 @@ function calculateLeadScore(lead, allLeadEmails) {
     messageQuality: { points: 0, max: 20, reason: "" },
     recency: { points: 0, max: 20, reason: "" },
     engagementSignals: { points: 0, max: 15, reason: "" },
-    statusBonus: { points: 0, max: 10, reason: "" }
+    statusBonus: { points: 0, max: 10, reason: "" },
   };
   const source = (lead.source ?? "other").toLowerCase();
   const sourceMap = {
@@ -7542,7 +8649,7 @@ function calculateLeadScore(lead, allLeadEmails) {
     referral: 20,
     website: 10,
     instagram: 10,
-    facebook: 10
+    facebook: 10,
   };
   details.sourceQuality.points = sourceMap[source] ?? 5;
   details.sourceQuality.reason = `Source: ${source} (${details.sourceQuality.points}pts)`;
@@ -7561,7 +8668,8 @@ function calculateLeadScore(lead, allLeadEmails) {
     contactReasons.push("phone (+10)");
   }
   details.contactCompleteness.points = Math.min(15, contactPts);
-  details.contactCompleteness.reason = contactReasons.length > 0 ? contactReasons.join(", ") : "No contact info";
+  details.contactCompleteness.reason =
+    contactReasons.length > 0 ? contactReasons.join(", ") : "No contact info";
   let messagePts = 0;
   const messageReasons = [];
   const msg = lead.message ?? "";
@@ -7572,13 +8680,18 @@ function calculateLeadScore(lead, allLeadEmails) {
     messagePts += 5;
     messageReasons.push("short message (+5)");
   }
-  if (/\b\d{1,2}[\/-]\d{1,2}\b|\bjan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec\b|\bdate\b/i.test(
-    msg
-  )) {
+  if (
+    /\b\d{1,2}[\/-]\d{1,2}\b|\bjan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec\b|\bdate\b/i.test(
+      msg
+    )
+  ) {
     messagePts += 5;
     messageReasons.push("mentions dates (+5)");
   }
-  if (/\b\d+\s*(people|person|pax|adult|kid|child|group)\b/i.test(msg) || /group\s*size/i.test(msg)) {
+  if (
+    /\b\d+\s*(people|person|pax|adult|kid|child|group)\b/i.test(msg) ||
+    /group\s*size/i.test(msg)
+  ) {
     messagePts += 5;
     messageReasons.push("mentions group size (+5)");
   }
@@ -7587,7 +8700,8 @@ function calculateLeadScore(lead, allLeadEmails) {
     messageReasons.push("mentions kosher/shabbat (+5)");
   }
   details.messageQuality.points = Math.min(20, messagePts);
-  details.messageQuality.reason = messageReasons.length > 0 ? messageReasons.join(", ") : "No message";
+  details.messageQuality.reason =
+    messageReasons.length > 0 ? messageReasons.join(", ") : "No message";
   const now = /* @__PURE__ */ new Date();
   const ageMs = now.getTime() - new Date(lead.createdAt).getTime();
   const ageDays = ageMs / (1e3 * 60 * 60 * 24);
@@ -7615,7 +8729,7 @@ function calculateLeadScore(lead, allLeadEmails) {
   }
   if (allLeadEmails) {
     const sameEmailCount = allLeadEmails.filter(
-      (e) => e.toLowerCase() === lead.email.toLowerCase()
+      e => e.toLowerCase() === lead.email.toLowerCase()
     ).length;
     if (sameEmailCount > 1) {
       engagementPts += 10;
@@ -7637,7 +8751,10 @@ function calculateLeadScore(lead, allLeadEmails) {
     }
   }
   details.engagementSignals.points = Math.min(15, engagementPts);
-  details.engagementSignals.reason = engagementReasons.length > 0 ? engagementReasons.join(", ") : "No engagement signals";
+  details.engagementSignals.reason =
+    engagementReasons.length > 0
+      ? engagementReasons.join(", ")
+      : "No engagement signals";
   if (lead.status === "quoted") {
     details.statusBonus.points = 10;
     details.statusBonus.reason = "Status: quoted (+10)";
@@ -7652,23 +8769,28 @@ function calculateLeadScore(lead, allLeadEmails) {
     0,
     Math.min(
       100,
-      details.sourceQuality.points + details.contactCompleteness.points + details.messageQuality.points + details.recency.points + details.engagementSignals.points + details.statusBonus.points
+      details.sourceQuality.points +
+        details.contactCompleteness.points +
+        details.messageQuality.points +
+        details.recency.points +
+        details.engagementSignals.points +
+        details.statusBonus.points
     )
   );
   return {
     score,
     tier: getScoreTier(score),
-    details
+    details,
   };
 }
 async function recalculateAllLeadScores() {
   const db = await getDb();
   if (!db) return { updated: 0, total: 0 };
   const allLeads = await db.select().from(leads);
-  const activeLeads = allLeads.filter(
-    (l) => ["new", "contacted", "quoted"].includes(l.status)
+  const activeLeads = allLeads.filter(l =>
+    ["new", "contacted", "quoted"].includes(l.status)
   );
-  const allEmails = allLeads.map((l) => l.email);
+  const allEmails = allLeads.map(l => l.email);
   let updated = 0;
   for (const lead of activeLeads) {
     const result = calculateLeadScore(lead, allEmails);
@@ -7689,188 +8811,216 @@ async function recalculateAllLeadScores() {
 
 // server/routes/lead.ts
 var leadRouter = router({
-  create: securePublicProcedure.input(leadInputSchema).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`lead:${ip}`, 10, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many requests. Please try again in a minute."
-      });
-    }
-    await createLead(input);
-    findOrCreateCustomer({
-      name: input.name,
-      email: input.email,
-      phone: input.phone || void 0,
-      source: input.source || "website"
-    }).catch(console.error);
-    const allLeads = await getAllLeads();
-    const newLead = allLeads[0];
-    if (newLead) {
-      const allEmails = allLeads.map((l) => l.email);
-      const result = calculateLeadScore(newLead, allEmails);
-      updateLeadScore(
-        newLead.id,
-        result.score,
-        JSON.stringify(result.details)
-      ).catch(
-        (err) => console.error("[Lead] Failed to update lead score:", err)
+  create: securePublicProcedure
+    .input(leadInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`lead:${ip}`, 10, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please try again in a minute.",
+        });
+      }
+      await createLead(input);
+      findOrCreateCustomer({
+        name: input.name,
+        email: input.email,
+        phone: input.phone || void 0,
+        source: input.source || "website",
+      }).catch(console.error);
+      const allLeads = await getAllLeads();
+      const newLead = allLeads[0];
+      if (newLead) {
+        const allEmails = allLeads.map(l => l.email);
+        const result = calculateLeadScore(newLead, allEmails);
+        updateLeadScore(
+          newLead.id,
+          result.score,
+          JSON.stringify(result.details)
+        ).catch(err =>
+          console.error("[Lead] Failed to update lead score:", err)
+        );
+      }
+      notifyNewLead({
+        name: input.name,
+        email: input.email,
+        phone: input.phone ?? void 0,
+        source: input.source ?? void 0,
+        interestedTours: input.interestedTours ?? void 0,
+        message: input.message ?? void 0,
+      }).catch(err => console.error("[Lead] Eli notify failed:", err));
+      sendAutoResponse({
+        name: input.name,
+        email: input.email,
+        phone: input.phone ?? void 0,
+        source: input.source ?? void 0,
+        interestedTours: input.interestedTours ?? void 0,
+        message: input.message ?? void 0,
+      }).catch(err =>
+        console.error("[Lead] Failed to send auto-response:", err)
       );
-    }
-    notifyNewLead({
-      name: input.name,
-      email: input.email,
-      phone: input.phone ?? void 0,
-      source: input.source ?? void 0,
-      interestedTours: input.interestedTours ?? void 0,
-      message: input.message ?? void 0
-    }).catch((err) => console.error("[Lead] Eli notify failed:", err));
-    sendAutoResponse({
-      name: input.name,
-      email: input.email,
-      phone: input.phone ?? void 0,
-      source: input.source ?? void 0,
-      interestedTours: input.interestedTours ?? void 0,
-      message: input.message ?? void 0
-    }).catch(
-      (err) => console.error("[Lead] Failed to send auto-response:", err)
-    );
-    return { success: true, message: "Lead captured successfully" };
-  }),
+      return { success: true, message: "Lead captured successfully" };
+    }),
   list: secureProtectedProcedure.query(async () => {
     return await getAllLeads();
   }),
-  listPaginated: secureProtectedProcedure.input(
-    paginationInput.extend({
-      sortBy: z6.enum(["score", "date"]).default("score")
-    })
-  ).query(async ({ input }) => {
-    const { page, pageSize, sortBy } = input;
-    const { items, total } = sortBy === "score" ? await getAllLeadsPaginatedByScore(page, pageSize) : await getAllLeadsPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  update: secureProtectedProcedure.input(
-    z6.object({
-      id: z6.number(),
-      data: z6.object({
-        status: z6.enum(["new", "contacted", "quoted", "converted", "lost"]).optional(),
-        convertedToBookingId: z6.number().optional(),
-        notes: z6.string().optional()
+  listPaginated: secureProtectedProcedure
+    .input(
+      paginationInput.extend({
+        sortBy: z6.enum(["score", "date"]).default("score"),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateLead(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "lead",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z6.object({ id: z6.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteLead(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "lead",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  bulkDelete: secureProtectedProcedure.input(z6.object({ ids: z6.array(z6.number()).min(1) })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await bulkDeleteLeads(input.ids);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "lead",
-      newValue: JSON.stringify({ ids: input.ids })
-    });
-    return { success: true, deleted: input.ids.length };
-  })
+    )
+    .query(async ({ input }) => {
+      const { page, pageSize, sortBy } = input;
+      const { items, total } =
+        sortBy === "score"
+          ? await getAllLeadsPaginatedByScore(page, pageSize)
+          : await getAllLeadsPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z6.object({
+        id: z6.number(),
+        data: z6.object({
+          status: z6
+            .enum(["new", "contacted", "quoted", "converted", "lost"])
+            .optional(),
+          convertedToBookingId: z6.number().optional(),
+          notes: z6.string().optional(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateLead(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "lead",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z6.object({ id: z6.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteLead(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "lead",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  bulkDelete: secureProtectedProcedure
+    .input(z6.object({ ids: z6.array(z6.number()).min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await bulkDeleteLeads(input.ids);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "lead",
+        newValue: JSON.stringify({ ids: input.ids }),
+      });
+      return { success: true, deleted: input.ids.length };
+    }),
 });
 
 // server/routes/financial.ts
 import { z as z7 } from "zod";
 init_db();
 var financialRouter = router({
-  create: secureProtectedProcedure.input(financialRecordInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await createFinancialRecord(input);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "financial",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
-  listByBooking: secureProtectedProcedure.input(z7.object({ bookingId: z7.number() })).query(async ({ input }) => {
-    return await getFinancialRecordsByBookingId(input.bookingId);
-  }),
+  create: secureProtectedProcedure
+    .input(financialRecordInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await createFinancialRecord(input);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "financial",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
+  listByBooking: secureProtectedProcedure
+    .input(z7.object({ bookingId: z7.number() }))
+    .query(async ({ input }) => {
+      return await getFinancialRecordsByBookingId(input.bookingId);
+    }),
   listAll: secureProtectedProcedure.query(async () => {
     return await getAllFinancialRecords();
   }),
-  listAllPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllFinancialRecordsPaginated(
-      page,
-      pageSize
-    );
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  update: secureProtectedProcedure.input(
-    z7.object({
-      id: z7.number(),
-      data: z7.object({
-        type: z7.enum(["revenue", "cost", "refund"]).optional(),
-        category: z7.string().optional(),
-        amount: z7.number().optional(),
-        description: z7.string().optional(),
-        paymentMethod: z7.string().optional(),
-        notes: z7.string().optional()
+  listAllPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllFinancialRecordsPaginated(
+        page,
+        pageSize
+      );
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z7.object({
+        id: z7.number(),
+        data: z7.object({
+          type: z7.enum(["revenue", "cost", "refund"]).optional(),
+          category: z7.string().optional(),
+          amount: z7.number().optional(),
+          description: z7.string().optional(),
+          paymentMethod: z7.string().optional(),
+          notes: z7.string().optional(),
+        }),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateFinancialRecord(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "financial",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z7.object({ id: z7.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteFinancialRecord(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "financial",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateFinancialRecord(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "financial",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z7.object({ id: z7.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteFinancialRecord(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "financial",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
   stats: secureProtectedProcedure.query(async () => {
     return await getFinancialStats();
   }),
@@ -7879,7 +9029,7 @@ var financialRouter = router({
   }),
   statsByAgent: secureProtectedProcedure.query(async () => {
     return await getFinancialStatsByAgent();
-  })
+  }),
 });
 
 // server/routes/gallery.ts
@@ -7899,9 +9049,10 @@ var REQUIRED_VARS = [
   "R2_SECRET_ACCESS_KEY",
   "R2_BUCKET_NAME",
   "R2_PUBLIC_URL",
-  "OWNER_EMAIL"
+  "OWNER_EMAIL",
 ];
-var isTestEnv = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+var isTestEnv =
+  process.env.NODE_ENV === "test" || process.env.VITEST === "true";
 if (!isTestEnv) {
   for (const varName of REQUIRED_VARS) {
     if (!process.env[varName]) {
@@ -7922,7 +9073,7 @@ var ENV = {
   // Lazy-init services (optional)
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? ""
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
 };
 
 // server/storage.ts
@@ -7934,8 +9085,8 @@ function getS3Client() {
       endpoint: `https://${ENV.r2AccountId}.r2.cloudflarestorage.com`,
       credentials: {
         accessKeyId: ENV.r2AccessKeyId,
-        secretAccessKey: ENV.r2SecretAccessKey
-      }
+        secretAccessKey: ENV.r2SecretAccessKey,
+      },
     });
   }
   return _s3Client;
@@ -7943,14 +9094,18 @@ function getS3Client() {
 function normalizeKey(relKey) {
   return relKey.replace(/^\/+/, "");
 }
-async function storagePut(relKey, data, contentType = "application/octet-stream") {
+async function storagePut(
+  relKey,
+  data,
+  contentType = "application/octet-stream"
+) {
   const key = normalizeKey(relKey);
   await getS3Client().send(
     new PutObjectCommand({
       Bucket: ENV.r2BucketName,
       Key: key,
       Body: typeof data === "string" ? Buffer.from(data) : data,
-      ContentType: contentType
+      ContentType: contentType,
     })
   );
   const url = `${ENV.r2PublicUrl}/${key}`;
@@ -7959,388 +9114,444 @@ async function storagePut(relKey, data, contentType = "application/octet-stream"
 
 // server/routes/gallery.ts
 var galleryRouter = router({
-  list: securePublicProcedure.input(
-    z8.object({
-      limit: z8.number().min(1).max(200).optional()
-    }).optional()
-  ).query(async ({ input }) => {
-    const photos = await getAllPublishedPhotos(input?.limit);
-    return photos.map((p) => ({ ...p, imageUrl: p.s3Url }));
-  }),
+  list: securePublicProcedure
+    .input(
+      z8
+        .object({
+          limit: z8.number().min(1).max(200).optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const photos = await getAllPublishedPhotos(input?.limit);
+      return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
+    }),
   listFeatured: securePublicProcedure.query(async () => {
     const photos = await getFeaturedPhotos();
-    return photos.map((p) => ({ ...p, imageUrl: p.s3Url }));
+    return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
   }),
-  listPaginated: securePublicProcedure.input(
-    paginationInput.extend({
-      category: z8.string().optional()
-    })
-  ).query(async ({ input }) => {
-    const { page, pageSize, category } = input;
-    const { items, total } = await getPublishedPhotosPaginated(
-      page,
-      pageSize,
-      category
-    );
-    return {
-      items: items.map((p) => ({ ...p, imageUrl: p.s3Url })),
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
+  listPaginated: securePublicProcedure
+    .input(
+      paginationInput.extend({
+        category: z8.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { page, pageSize, category } = input;
+      const { items, total } = await getPublishedPhotosPaginated(
+        page,
+        pageSize,
+        category
+      );
+      return {
+        items: items.map(p => ({ ...p, imageUrl: p.s3Url })),
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
   listAll: secureProtectedProcedure.query(async () => {
     const photos = await getAllGalleryPhotos();
-    return photos.map((p) => ({ ...p, imageUrl: p.s3Url }));
+    return photos.map(p => ({ ...p, imageUrl: p.s3Url }));
   }),
-  listAllPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllGalleryPhotosPaginated(
-      page,
-      pageSize
-    );
-    return {
-      items: items.map((p) => ({ ...p, imageUrl: p.s3Url })),
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  create: secureProtectedProcedure.input(
-    z8.object({
-      title: z8.string().min(1),
-      imageUrl: z8.string().min(1),
-      description: z8.string().optional(),
-      category: z8.enum([
-        "tours",
-        "vehicles",
-        "destinations",
-        "activities",
-        "food",
-        "accommodation",
-        "other"
-      ]).default("other"),
-      sortOrder: z8.number().default(0),
-      isPublished: z8.boolean().default(true)
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const url = new URL(input.imageUrl, "https://placeholder.local");
-    await createGalleryPhoto({
-      title: input.title,
-      s3Key: url.pathname,
-      s3Url: input.imageUrl,
-      description: input.description,
-      category: input.category,
-      sortOrder: input.sortOrder,
-      isPublished: input.isPublished ? 1 : 0
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "gallery",
-      newValue: JSON.stringify({
-        title: input.title,
-        category: input.category
-      })
-    });
-    return { success: true };
-  }),
-  update: secureProtectedProcedure.input(
-    z8.object({
-      id: z8.number(),
-      data: z8.object({
-        title: z8.string().optional(),
-        imageUrl: z8.string().optional(),
+  listAllPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllGalleryPhotosPaginated(
+        page,
+        pageSize
+      );
+      return {
+        items: items.map(p => ({ ...p, imageUrl: p.s3Url })),
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  create: secureProtectedProcedure
+    .input(
+      z8.object({
+        title: z8.string().min(1),
+        imageUrl: z8.string().min(1),
         description: z8.string().optional(),
-        category: z8.enum([
-          "tours",
-          "vehicles",
-          "destinations",
-          "activities",
-          "food",
-          "accommodation",
-          "other"
-        ]).optional(),
-        sortOrder: z8.number().optional(),
-        isPublished: z8.boolean().optional(),
-        isFeatured: z8.boolean().optional()
+        category: z8
+          .enum([
+            "tours",
+            "vehicles",
+            "destinations",
+            "activities",
+            "food",
+            "accommodation",
+            "other",
+          ])
+          .default("other"),
+        sortOrder: z8.number().default(0),
+        isPublished: z8.boolean().default(true),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    if (input.data.title !== void 0) updateData.title = input.data.title;
-    if (input.data.imageUrl !== void 0) {
-      updateData.s3Url = input.data.imageUrl;
-      const url = new URL(input.data.imageUrl, "https://placeholder.local");
-      updateData.s3Key = url.pathname;
-    }
-    if (input.data.description !== void 0)
-      updateData.description = input.data.description;
-    if (input.data.category !== void 0)
-      updateData.category = input.data.category;
-    if (input.data.sortOrder !== void 0)
-      updateData.sortOrder = input.data.sortOrder;
-    if (input.data.isPublished !== void 0)
-      updateData.isPublished = input.data.isPublished ? 1 : 0;
-    if (input.data.isFeatured !== void 0)
-      updateData.isFeatured = input.data.isFeatured ? 1 : 0;
-    await updateGalleryPhoto(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "gallery",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z8.object({ id: z8.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteGalleryPhoto(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "gallery",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  upload: secureProtectedProcedure.input(
-    z8.object({
-      filename: z8.string(),
-      contentType: z8.string(),
-      base64Data: z8.string()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const ALLOWED_TYPES = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif"
-    ];
-    if (!ALLOWED_TYPES.includes(input.contentType)) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF"
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const url = new URL(input.imageUrl, "https://placeholder.local");
+      await createGalleryPhoto({
+        title: input.title,
+        s3Key: url.pathname,
+        s3Url: input.imageUrl,
+        description: input.description,
+        category: input.category,
+        sortOrder: input.sortOrder,
+        isPublished: input.isPublished ? 1 : 0,
       });
-    }
-    const fileSize = Buffer.byteLength(input.base64Data, "base64");
-    if (fileSize > 10 * 1024 * 1024) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "File too large. Maximum size is 10MB."
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "gallery",
+        newValue: JSON.stringify({
+          title: input.title,
+          category: input.category,
+        }),
       });
-    }
-    const ext = input.contentType.split("/")[1] === "jpeg" ? "jpg" : input.contentType.split("/")[1];
-    const safeFilename = `${randomUUID()}.${ext}`;
-    const key = `gallery/${safeFilename}`;
-    const buffer = Buffer.from(input.base64Data, "base64");
-    let result;
-    try {
-      result = await storagePut(key, buffer, input.contentType);
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to upload file to storage",
-        cause: err
+      return { success: true };
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z8.object({
+        id: z8.number(),
+        data: z8.object({
+          title: z8.string().optional(),
+          imageUrl: z8.string().optional(),
+          description: z8.string().optional(),
+          category: z8
+            .enum([
+              "tours",
+              "vehicles",
+              "destinations",
+              "activities",
+              "food",
+              "accommodation",
+              "other",
+            ])
+            .optional(),
+          sortOrder: z8.number().optional(),
+          isPublished: z8.boolean().optional(),
+          isFeatured: z8.boolean().optional(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      if (input.data.title !== void 0) updateData.title = input.data.title;
+      if (input.data.imageUrl !== void 0) {
+        updateData.s3Url = input.data.imageUrl;
+        const url = new URL(input.data.imageUrl, "https://placeholder.local");
+        updateData.s3Key = url.pathname;
+      }
+      if (input.data.description !== void 0)
+        updateData.description = input.data.description;
+      if (input.data.category !== void 0)
+        updateData.category = input.data.category;
+      if (input.data.sortOrder !== void 0)
+        updateData.sortOrder = input.data.sortOrder;
+      if (input.data.isPublished !== void 0)
+        updateData.isPublished = input.data.isPublished ? 1 : 0;
+      if (input.data.isFeatured !== void 0)
+        updateData.isFeatured = input.data.isFeatured ? 1 : 0;
+      await updateGalleryPhoto(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "gallery",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
       });
-    }
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "gallery_upload",
-      newValue: JSON.stringify({ key: result.key })
-    });
-    return { url: result.url, key: result.key };
-  }),
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z8.object({ id: z8.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteGalleryPhoto(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "gallery",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  upload: secureProtectedProcedure
+    .input(
+      z8.object({
+        filename: z8.string(),
+        contentType: z8.string(),
+        base64Data: z8.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const ALLOWED_TYPES = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+      if (!ALLOWED_TYPES.includes(input.contentType)) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF",
+        });
+      }
+      const fileSize = Buffer.byteLength(input.base64Data, "base64");
+      if (fileSize > 10 * 1024 * 1024) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "File too large. Maximum size is 10MB.",
+        });
+      }
+      const ext =
+        input.contentType.split("/")[1] === "jpeg"
+          ? "jpg"
+          : input.contentType.split("/")[1];
+      const safeFilename = `${randomUUID()}.${ext}`;
+      const key = `gallery/${safeFilename}`;
+      const buffer = Buffer.from(input.base64Data, "base64");
+      let result;
+      try {
+        result = await storagePut(key, buffer, input.contentType);
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to upload file to storage",
+          cause: err,
+        });
+      }
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "gallery_upload",
+        newValue: JSON.stringify({ key: result.key }),
+      });
+      return { url: result.url, key: result.key };
+    }),
   // Public: user-submitted photo upload
-  submitUserPhoto: securePublicProcedure.input(
-    z8.object({
-      metadata: userPhotoSubmissionSchema,
-      filename: z8.string(),
-      contentType: z8.string(),
-      base64Data: z8.string()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req?.headers?.["x-forwarded-for"]?.toString().split(",")[0] || ctx.req?.socket?.remoteAddress || "unknown";
-    const { allowed } = checkRateLimit(`user_photo:${ip}`, 5, 60 * 60 * 1e3);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many photo uploads. Please try again later."
+  submitUserPhoto: securePublicProcedure
+    .input(
+      z8.object({
+        metadata: userPhotoSubmissionSchema,
+        filename: z8.string(),
+        contentType: z8.string(),
+        base64Data: z8.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req?.headers?.["x-forwarded-for"]?.toString().split(",")[0] ||
+        ctx.req?.socket?.remoteAddress ||
+        "unknown";
+      const { allowed } = checkRateLimit(`user_photo:${ip}`, 5, 60 * 60 * 1e3);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many photo uploads. Please try again later.",
+        });
+      }
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+      if (!ALLOWED_TYPES.includes(input.contentType)) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Invalid file type. Allowed: JPG, PNG, WebP",
+        });
+      }
+      const fileSize = Buffer.byteLength(input.base64Data, "base64");
+      if (fileSize > 10 * 1024 * 1024) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "File too large. Maximum size is 10MB.",
+        });
+      }
+      const ext =
+        input.contentType.split("/")[1] === "jpeg"
+          ? "jpg"
+          : input.contentType.split("/")[1];
+      const safeFilename = `${randomUUID()}.${ext}`;
+      const key = `gallery/user-submissions/${safeFilename}`;
+      const buffer = Buffer.from(input.base64Data, "base64");
+      let result;
+      try {
+        result = await storagePut(key, buffer, input.contentType);
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to upload photo. Please try again.",
+          cause: err,
+        });
+      }
+      await createGalleryPhoto({
+        title: input.metadata.title,
+        s3Key: result.key,
+        s3Url: result.url,
+        category: input.metadata.category,
+        isPublished: 0,
+        isUserSubmitted: 1,
+        uploadedBy: input.metadata.name,
+        uploadedByEmail: input.metadata.email,
+        tourDate: input.metadata.tourDate || null,
       });
-    }
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-    if (!ALLOWED_TYPES.includes(input.contentType)) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Invalid file type. Allowed: JPG, PNG, WebP"
-      });
-    }
-    const fileSize = Buffer.byteLength(input.base64Data, "base64");
-    if (fileSize > 10 * 1024 * 1024) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "File too large. Maximum size is 10MB."
-      });
-    }
-    const ext = input.contentType.split("/")[1] === "jpeg" ? "jpg" : input.contentType.split("/")[1];
-    const safeFilename = `${randomUUID()}.${ext}`;
-    const key = `gallery/user-submissions/${safeFilename}`;
-    const buffer = Buffer.from(input.base64Data, "base64");
-    let result;
-    try {
-      result = await storagePut(key, buffer, input.contentType);
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to upload photo. Please try again.",
-        cause: err
-      });
-    }
-    await createGalleryPhoto({
-      title: input.metadata.title,
-      s3Key: result.key,
-      s3Url: result.url,
-      category: input.metadata.category,
-      isPublished: 0,
-      isUserSubmitted: 1,
-      uploadedBy: input.metadata.name,
-      uploadedByEmail: input.metadata.email,
-      tourDate: input.metadata.tourDate || null
-    });
-    return { success: true };
-  })
+      return { success: true };
+    }),
 });
 
 // server/routes/review.ts
 import { z as z9 } from "zod";
 init_db();
 var reviewRouter = router({
-  create: securePublicProcedure.input(
-    z9.object({
-      name: z9.string().min(1, "Name is required"),
-      email: z9.string().email("Invalid email"),
-      rating: z9.number().min(1).max(5),
-      text: z9.string().min(1, "Review text is required"),
-      tourType: z9.string().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`review:${ip}`, 5, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many review submissions. Please try again in a minute."
+  create: securePublicProcedure
+    .input(
+      z9.object({
+        name: z9.string().min(1, "Name is required"),
+        email: z9.string().email("Invalid email"),
+        rating: z9.number().min(1).max(5),
+        text: z9.string().min(1, "Review text is required"),
+        tourType: z9.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`review:${ip}`, 5, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many review submissions. Please try again in a minute.",
+        });
+      }
+      await createReview({
+        ...input,
+        isApproved: 0,
+        isPublished: 0,
       });
-    }
-    await createReview({
-      ...input,
-      isApproved: 0,
-      isPublished: 0
-    });
-    return { success: true, message: "Review submitted for approval" };
-  }),
+      return { success: true, message: "Review submitted for approval" };
+    }),
   listPublic: securePublicProcedure.query(async () => {
     return await getApprovedReviews();
   }),
   listAll: secureProtectedProcedure.query(async () => {
     const all = await getAllReviews();
-    return all.map((r) => ({
+    return all.map(r => ({
       ...r,
-      status: r.isApproved === 1 ? "approved" : r.isPublished === 0 && r.isApproved === 0 ? "pending" : "rejected"
+      status:
+        r.isApproved === 1
+          ? "approved"
+          : r.isPublished === 0 && r.isApproved === 0
+            ? "pending"
+            : "rejected",
     }));
   }),
-  listAllPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllReviewsPaginated(page, pageSize);
-    return {
-      items: items.map((r) => ({
-        ...r,
-        status: r.isApproved === 1 ? "approved" : r.isPublished === 0 && r.isApproved === 0 ? "pending" : "rejected"
-      })),
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
+  listAllPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllReviewsPaginated(page, pageSize);
+      return {
+        items: items.map(r => ({
+          ...r,
+          status:
+            r.isApproved === 1
+              ? "approved"
+              : r.isPublished === 0 && r.isApproved === 0
+                ? "pending"
+                : "rejected",
+        })),
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
   stats: secureProtectedProcedure.query(async () => {
     return await getReviewStats();
   }),
-  update: secureProtectedProcedure.input(
-    z9.object({
-      id: z9.number(),
-      data: z9.object({
-        status: z9.enum(["pending", "approved", "rejected"]).optional(),
-        adminResponse: z9.string().optional()
+  update: secureProtectedProcedure
+    .input(
+      z9.object({
+        id: z9.number(),
+        data: z9.object({
+          status: z9.enum(["pending", "approved", "rejected"]).optional(),
+          adminResponse: z9.string().optional(),
+        }),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    if (input.data.adminResponse !== void 0)
-      updateData.adminResponse = input.data.adminResponse;
-    if (input.data.status === "approved") {
-      updateData.isApproved = 1;
-      updateData.isPublished = 1;
-    } else if (input.data.status === "rejected") {
-      updateData.isApproved = 0;
-      updateData.isPublished = 0;
-    } else if (input.data.status === "pending") {
-      updateData.isApproved = 0;
-      updateData.isPublished = 0;
-    }
-    await updateReview(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "review",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z9.object({ id: z9.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteReview(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "review",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  bulkApprove: secureProtectedProcedure.input(z9.object({ ids: z9.array(z9.number()).min(1) })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await bulkApproveReviews(input.ids);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "review",
-      newValue: JSON.stringify({ ids: input.ids, action: "bulk_approve" })
-    });
-    return { success: true, approved: input.ids.length };
-  }),
-  bulkDelete: secureProtectedProcedure.input(z9.object({ ids: z9.array(z9.number()).min(1) })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await bulkDeleteReviews(input.ids);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "review",
-      newValue: JSON.stringify({ ids: input.ids })
-    });
-    return { success: true, deleted: input.ids.length };
-  })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      if (input.data.adminResponse !== void 0)
+        updateData.adminResponse = input.data.adminResponse;
+      if (input.data.status === "approved") {
+        updateData.isApproved = 1;
+        updateData.isPublished = 1;
+      } else if (input.data.status === "rejected") {
+        updateData.isApproved = 0;
+        updateData.isPublished = 0;
+      } else if (input.data.status === "pending") {
+        updateData.isApproved = 0;
+        updateData.isPublished = 0;
+      }
+      await updateReview(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "review",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z9.object({ id: z9.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteReview(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "review",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  bulkApprove: secureProtectedProcedure
+    .input(z9.object({ ids: z9.array(z9.number()).min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await bulkApproveReviews(input.ids);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "review",
+        newValue: JSON.stringify({ ids: input.ids, action: "bulk_approve" }),
+      });
+      return { success: true, approved: input.ids.length };
+    }),
+  bulkDelete: secureProtectedProcedure
+    .input(z9.object({ ids: z9.array(z9.number()).min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await bulkDeleteReviews(input.ids);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "review",
+        newValue: JSON.stringify({ ids: input.ids }),
+      });
+      return { success: true, deleted: input.ids.length };
+    }),
 });
 
 // server/routes/payment.ts
@@ -8355,13 +9566,16 @@ function getStripeClient() {
   _stripeInitAttempted = true;
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    console.warn("[Stripe] STRIPE_SECRET_KEY not set \u2014 payment features disabled");
+    console.warn(
+      "[Stripe] STRIPE_SECRET_KEY not set \u2014 payment features disabled"
+    );
     return null;
   }
   try {
-    const StripeConstructor = __require("stripe").default ?? __require("stripe");
+    const StripeConstructor =
+      __require("stripe").default ?? __require("stripe");
     _stripe = new StripeConstructor(secretKey, {
-      apiVersion: "2024-12-18.acacia"
+      apiVersion: "2024-12-18.acacia",
     });
     console.log("[Stripe] Client initialized successfully");
     return _stripe;
@@ -8371,7 +9585,10 @@ function getStripeClient() {
     return null;
   }
 }
-var APP_URL = process.env.APP_URL || process.env.VITE_APP_URL || "https://wiro4x4.manus.space";
+var APP_URL =
+  process.env.APP_URL ||
+  process.env.VITE_APP_URL ||
+  "https://wiro4x4.manus.space";
 function ensureStripe() {
   const stripe = getStripeClient();
   if (!stripe) {
@@ -8386,7 +9603,7 @@ async function createCheckoutSession(bookingId, amount, type, customerEmail) {
   const typeLabels = {
     deposit: "Deposit",
     balance: "Balance",
-    full: "Full Payment"
+    full: "Full Payment",
   };
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -8396,14 +9613,14 @@ async function createCheckoutSession(bookingId, amount, type, customerEmail) {
           currency: "thb",
           product_data: {
             name: `WIRO 4x4 Tour - ${typeLabels[type]}`,
-            description: `Booking #${bookingId} \u2014 ${typeLabels[type]} payment`
+            description: `Booking #${bookingId} \u2014 ${typeLabels[type]} payment`,
           },
           // Stripe expects the smallest currency unit.
           // For THB the smallest unit is satang (1 THB = 100 satang).
-          unit_amount: amount * 100
+          unit_amount: amount * 100,
         },
-        quantity: 1
-      }
+        quantity: 1,
+      },
     ],
     mode: "payment",
     success_url: `${APP_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -8412,8 +9629,8 @@ async function createCheckoutSession(bookingId, amount, type, customerEmail) {
     metadata: {
       bookingId: String(bookingId),
       type,
-      amount: String(amount)
-    }
+      amount: String(amount),
+    },
   });
   if (!session.url) {
     throw new Error("Stripe did not return a checkout URL");
@@ -8428,20 +9645,22 @@ async function getSessionStatus(sessionId) {
     paymentStatus: session.payment_status,
     amountPaid: session.amount_total ? session.amount_total / 100 : void 0,
     customerEmail: session.customer_email ?? void 0,
-    bookingId: session.metadata?.bookingId ? Number(session.metadata.bookingId) : void 0
+    bookingId: session.metadata?.bookingId
+      ? Number(session.metadata.bookingId)
+      : void 0,
   };
 }
 async function createRefund(paymentIntentId, amount) {
   const stripe = ensureStripe();
   const refund = await stripe.refunds.create({
     payment_intent: paymentIntentId,
-    amount: amount ? amount * 100 : void 0
+    amount: amount ? amount * 100 : void 0,
     // full refund if no amount
   });
   return {
     refundId: refund.id,
     status: refund.status ?? "unknown",
-    amount: refund.amount / 100
+    amount: refund.amount / 100,
   };
 }
 
@@ -8454,7 +9673,7 @@ async function initiateCheckout(bookingId, amount, type, customerEmail) {
   }
   const existingPayments = await getPaymentsByBookingId(bookingId);
   const hasPendingDuplicate = existingPayments.some(
-    (p) => p.type === type && p.status === "pending"
+    p => p.type === type && p.status === "pending"
   );
   if (hasPendingDuplicate) {
     throw new Error(
@@ -8473,7 +9692,7 @@ async function initiateCheckout(bookingId, amount, type, customerEmail) {
     amount,
     stripeSessionId: sessionId,
     status: "pending",
-    paymentMethod: "card"
+    paymentMethod: "card",
   });
   return { url, sessionId };
 }
@@ -8485,22 +9704,25 @@ async function verifyAndCompleteSession(sessionId) {
       paymentStatus: "paid",
       amountPaid: existingPayment.amount,
       bookingId: existingPayment.bookingId,
-      alreadyCompleted: true
+      alreadyCompleted: true,
     };
   }
   const session = await getSessionStatus(sessionId);
   if (session.paymentStatus === "paid" && existingPayment) {
     await updatePayment(existingPayment.id, {
       status: "completed",
-      paidAt: /* @__PURE__ */ new Date()
+      paidAt: /* @__PURE__ */ new Date(),
     });
     if (existingPayment.type === "deposit") {
       await updateBooking(existingPayment.bookingId, {
-        depositPaid: 1
+        depositPaid: 1,
       });
-    } else if (existingPayment.type === "balance" || existingPayment.type === "full") {
+    } else if (
+      existingPayment.type === "balance" ||
+      existingPayment.type === "full"
+    ) {
       await updateBooking(existingPayment.bookingId, {
-        balancePaid: 1
+        balancePaid: 1,
       });
     }
     const booking = await getBookingById(existingPayment.bookingId);
@@ -8510,8 +9732,8 @@ async function verifyAndCompleteSession(sessionId) {
         customerEmail: booking.contactEmail ?? "",
         amount: existingPayment.amount,
         type: existingPayment.type,
-        bookingId: existingPayment.bookingId
-      }).catch((err) => {
+        bookingId: existingPayment.bookingId,
+      }).catch(err => {
         console.error(
           "[StripeService] Failed to send confirmation email:",
           err
@@ -8524,7 +9746,7 @@ async function verifyAndCompleteSession(sessionId) {
     paymentStatus: session.paymentStatus,
     amountPaid: session.amountPaid,
     bookingId: session.bookingId,
-    alreadyCompleted: false
+    alreadyCompleted: false,
   };
 }
 async function processRefund(paymentId, amount, reason) {
@@ -8555,19 +9777,21 @@ async function processRefund(paymentId, amount, reason) {
     stripePaymentIntentId: refundResult.refundId,
     paymentMethod: "card",
     notes: reason || void 0,
-    paidAt: /* @__PURE__ */ new Date()
+    paidAt: /* @__PURE__ */ new Date(),
   });
   await updatePayment(paymentId, {
-    status: "refunded"
+    status: "refunded",
   });
   return refundResult;
 }
 
 // server/routes/payment.ts
 var paymentRouter = router({
-  listByBooking: secureProtectedProcedure.input(z10.object({ bookingId: z10.number() })).query(async ({ input }) => {
-    return await getPaymentsByBookingId(input.bookingId);
-  }),
+  listByBooking: secureProtectedProcedure
+    .input(z10.object({ bookingId: z10.number() }))
+    .query(async ({ input }) => {
+      return await getPaymentsByBookingId(input.bookingId);
+    }),
   listAll: secureProtectedProcedure.query(async () => {
     return await getAllPayments();
   }),
@@ -8577,280 +9801,302 @@ var paymentRouter = router({
   isConfigured: secureProtectedProcedure.query(async () => {
     return { configured: !!process.env.STRIPE_SECRET_KEY };
   }),
-  createCheckout: secureProtectedProcedure.input(createCheckoutSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
+  createCheckout: secureProtectedProcedure
+    .input(createCheckoutSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+      try {
+        const result = await initiateCheckout(
+          input.bookingId,
+          input.amount,
+          input.type,
+          booking.contactEmail ?? void 0
+        );
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "payment",
+          resourceId: input.bookingId,
+          newValue: JSON.stringify({
+            type: input.type,
+            amount: input.amount,
+            sessionId: result.sessionId,
+          }),
+        });
+        return { url: result.url, sessionId: result.sessionId };
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err.message || "Failed to create checkout session",
+        });
+      }
+    }),
+  verifySession: securePublicProcedure
+    .input(verifySessionSchema)
+    .query(async ({ input }) => {
+      try {
+        const result = await verifyAndCompleteSession(input.sessionId);
+        return {
+          success: result.paymentStatus === "paid",
+          bookingId: result.bookingId,
+          status: result.status,
+          paymentStatus: result.paymentStatus,
+          amountPaid: result.amountPaid,
+          alreadyCompleted: result.alreadyCompleted,
+        };
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err.message || "Failed to verify session",
+        });
+      }
+    }),
+  createPaymentLink: secureProtectedProcedure
+    .input(createCheckoutSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+      try {
+        const result = await initiateCheckout(
+          input.bookingId,
+          input.amount,
+          input.type,
+          booking.contactEmail ?? void 0
+        );
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "payment_link",
+          resourceId: input.bookingId,
+          newValue: JSON.stringify({
+            type: input.type,
+            amount: input.amount,
+            url: result.url,
+          }),
+        });
+        return { url: result.url, sessionId: result.sessionId };
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err.message || "Failed to create payment link",
+        });
+      }
+    }),
+  refund: secureProtectedProcedure
+    .input(refundSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      try {
+        const result = await processRefund(
+          input.paymentId,
+          input.amount,
+          input.reason
+        );
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "refund",
+          resourceId: input.paymentId,
+          newValue: JSON.stringify({
+            refundId: result.refundId,
+            amount: result.amount,
+            reason: input.reason,
+          }),
+        });
+        return { success: true, ...result };
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err.message || "Failed to process refund",
+        });
+      }
+    }),
+  recordManual: secureProtectedProcedure
+    .input(manualPaymentInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+      const totalPrice = booking.totalPrice ?? 0;
+      const alreadyPaid = await getBookingTotalPaid(input.bookingId);
+      const remainingAfterPayment = totalPrice - alreadyPaid - input.amount;
+      const paymentType = remainingAfterPayment > 0 ? "deposit" : "full";
+      await createPayment({
+        bookingId: input.bookingId,
+        type: paymentType,
+        amount: input.amount,
+        currency: input.currency,
+        status: "completed",
+        paymentMethod: input.paymentMethod,
+        notes: input.notes,
+        paidAt: /* @__PURE__ */ new Date(),
       });
-    }
-    try {
-      const result = await initiateCheckout(
-        input.bookingId,
-        input.amount,
-        input.type,
-        booking.contactEmail ?? void 0
-      );
+      await createFinancialRecord({
+        bookingId: input.bookingId,
+        type: "revenue",
+        category: "manual_payment",
+        amount: input.amount,
+        currency: input.currency,
+        description: `Manual ${input.paymentMethod} payment`,
+        paymentMethod: input.paymentMethod,
+        paymentDate: /* @__PURE__ */ new Date(),
+        notes: input.notes,
+      });
       await logAdminAction({
         userId: ctx.user?.id,
         action: "create",
         resourceType: "payment",
         resourceId: input.bookingId,
         newValue: JSON.stringify({
-          type: input.type,
+          type: paymentType,
           amount: input.amount,
-          sessionId: result.sessionId
-        })
+          paymentMethod: input.paymentMethod,
+          currency: input.currency,
+        }),
       });
-      return { url: result.url, sessionId: result.sessionId };
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: err.message || "Failed to create checkout session"
-      });
-    }
-  }),
-  verifySession: securePublicProcedure.input(verifySessionSchema).query(async ({ input }) => {
-    try {
-      const result = await verifyAndCompleteSession(input.sessionId);
-      return {
-        success: result.paymentStatus === "paid",
-        bookingId: result.bookingId,
-        status: result.status,
-        paymentStatus: result.paymentStatus,
-        amountPaid: result.amountPaid,
-        alreadyCompleted: result.alreadyCompleted
-      };
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: err.message || "Failed to verify session"
-      });
-    }
-  }),
-  createPaymentLink: secureProtectedProcedure.input(createCheckoutSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
-      });
-    }
-    try {
-      const result = await initiateCheckout(
-        input.bookingId,
-        input.amount,
-        input.type,
-        booking.contactEmail ?? void 0
-      );
-      await logAdminAction({
-        userId: ctx.user?.id,
-        action: "create",
-        resourceType: "payment_link",
-        resourceId: input.bookingId,
-        newValue: JSON.stringify({
-          type: input.type,
-          amount: input.amount,
-          url: result.url
-        })
-      });
-      return { url: result.url, sessionId: result.sessionId };
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: err.message || "Failed to create payment link"
-      });
-    }
-  }),
-  refund: secureProtectedProcedure.input(refundSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    try {
-      const result = await processRefund(
-        input.paymentId,
-        input.amount,
-        input.reason
-      );
-      await logAdminAction({
-        userId: ctx.user?.id,
-        action: "create",
-        resourceType: "refund",
-        resourceId: input.paymentId,
-        newValue: JSON.stringify({
-          refundId: result.refundId,
-          amount: result.amount,
-          reason: input.reason
-        })
-      });
-      return { success: true, ...result };
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: err.message || "Failed to process refund"
-      });
-    }
-  }),
-  recordManual: secureProtectedProcedure.input(manualPaymentInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
-      });
-    }
-    const totalPrice = booking.totalPrice ?? 0;
-    const alreadyPaid = await getBookingTotalPaid(input.bookingId);
-    const remainingAfterPayment = totalPrice - alreadyPaid - input.amount;
-    const paymentType = remainingAfterPayment > 0 ? "deposit" : "full";
-    await createPayment({
-      bookingId: input.bookingId,
-      type: paymentType,
-      amount: input.amount,
-      currency: input.currency,
-      status: "completed",
-      paymentMethod: input.paymentMethod,
-      notes: input.notes,
-      paidAt: /* @__PURE__ */ new Date()
-    });
-    await createFinancialRecord({
-      bookingId: input.bookingId,
-      type: "revenue",
-      category: "manual_payment",
-      amount: input.amount,
-      currency: input.currency,
-      description: `Manual ${input.paymentMethod} payment`,
-      paymentMethod: input.paymentMethod,
-      paymentDate: /* @__PURE__ */ new Date(),
-      notes: input.notes
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "payment",
-      resourceId: input.bookingId,
-      newValue: JSON.stringify({
-        type: paymentType,
-        amount: input.amount,
-        paymentMethod: input.paymentMethod,
-        currency: input.currency
-      })
-    });
-    return { success: true, paymentType };
-  })
+      return { success: true, paymentType };
+    }),
 });
 
 // server/routes/tour.ts
 import { z as z11 } from "zod";
 init_db();
 function generateSlug(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 var tourRouter = router({
   list: securePublicProcedure.query(async () => {
     return await getAllActiveTours();
   }),
-  getBySlug: securePublicProcedure.input(z11.object({ slug: z11.string() })).query(async ({ input }) => {
-    return await getTourBySlug(input.slug);
-  }),
+  getBySlug: securePublicProcedure
+    .input(z11.object({ slug: z11.string() }))
+    .query(async ({ input }) => {
+      return await getTourBySlug(input.slug);
+    }),
   listAll: secureProtectedProcedure.query(async () => {
     return await getAllTours();
   }),
-  listAllPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllToursPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  create: secureProtectedProcedure.input(tourInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const slug = input.slug || generateSlug(input.name);
-    await createTour({
-      ...input,
-      slug,
-      isKosher: input.isKosher ? 1 : 0,
-      isPrivate: input.isPrivate ? 1 : 0,
-      isShabbatOk: input.isShabbatOk ? 1 : 0,
-      isActive: input.isActive ? 1 : 0
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "tour",
-      newValue: JSON.stringify({ name: input.name })
-    });
-    return { success: true, message: "Tour created successfully" };
-  }),
-  update: secureProtectedProcedure.input(
-    z11.object({
-      id: z11.number(),
-      data: tourInputSchema.partial()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    const fields = [
-      "name",
-      "nameHe",
-      "slug",
-      "description",
-      "descriptionHe",
-      "duration",
-      "difficulty",
-      "price",
-      "groupMinSize",
-      "groupMaxSize",
-      "imageUrl",
-      "highlights",
-      "highlightsHe",
-      "includedItems",
-      "itinerary",
-      "sortOrder"
-    ];
-    for (const field of fields) {
-      if (input.data[field] !== void 0)
-        updateData[field] = input.data[field];
-    }
-    if (input.data.isKosher !== void 0)
-      updateData.isKosher = input.data.isKosher ? 1 : 0;
-    if (input.data.isPrivate !== void 0)
-      updateData.isPrivate = input.data.isPrivate ? 1 : 0;
-    if (input.data.isShabbatOk !== void 0)
-      updateData.isShabbatOk = input.data.isShabbatOk ? 1 : 0;
-    if (input.data.isActive !== void 0)
-      updateData.isActive = input.data.isActive ? 1 : 0;
-    await updateTour(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "tour",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z11.object({ id: z11.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteTour(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "tour",
-      resourceId: input.id
-    });
-    return { success: true };
-  })
+  listAllPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllToursPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  create: secureProtectedProcedure
+    .input(tourInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const slug = input.slug || generateSlug(input.name);
+      await createTour({
+        ...input,
+        slug,
+        isKosher: input.isKosher ? 1 : 0,
+        isPrivate: input.isPrivate ? 1 : 0,
+        isShabbatOk: input.isShabbatOk ? 1 : 0,
+        isActive: input.isActive ? 1 : 0,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "tour",
+        newValue: JSON.stringify({ name: input.name }),
+      });
+      return { success: true, message: "Tour created successfully" };
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z11.object({
+        id: z11.number(),
+        data: tourInputSchema.partial(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      const fields = [
+        "name",
+        "nameHe",
+        "slug",
+        "description",
+        "descriptionHe",
+        "duration",
+        "difficulty",
+        "price",
+        "groupMinSize",
+        "groupMaxSize",
+        "imageUrl",
+        "highlights",
+        "highlightsHe",
+        "includedItems",
+        "itinerary",
+        "sortOrder",
+      ];
+      for (const field of fields) {
+        if (input.data[field] !== void 0) updateData[field] = input.data[field];
+      }
+      if (input.data.isKosher !== void 0)
+        updateData.isKosher = input.data.isKosher ? 1 : 0;
+      if (input.data.isPrivate !== void 0)
+        updateData.isPrivate = input.data.isPrivate ? 1 : 0;
+      if (input.data.isShabbatOk !== void 0)
+        updateData.isShabbatOk = input.data.isShabbatOk ? 1 : 0;
+      if (input.data.isActive !== void 0)
+        updateData.isActive = input.data.isActive ? 1 : 0;
+      await updateTour(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "tour",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z11.object({ id: z11.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteTour(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "tour",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/blog.ts
@@ -8873,9 +10119,15 @@ function getClient3() {
   return _client3;
 }
 function buildSystemPrompt2(tourData) {
-  const tourList = tourData.length > 0 ? tourData.map(
-    (t2) => `- ${t2.name} (${t2.nameHe}): ${t2.duration}, ${t2.price}THB \u2014 /tours/${t2.slug}`
-  ).join("\n") : "No tour data available.";
+  const tourList =
+    tourData.length > 0
+      ? tourData
+          .map(
+            t2 =>
+              `- ${t2.name} (${t2.nameHe}): ${t2.duration}, ${t2.price}THB \u2014 /tours/${t2.slug}`
+          )
+          .join("\n")
+      : "No tour data available.";
   return `You are a content writer for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Northern Thailand.
 
 Brand voice: adventurous yet professional, warm and welcoming to Israeli travelers. You are experts in Northern Thailand, kosher dining, and off-road 4x4 adventures.
@@ -8912,23 +10164,25 @@ async function generateBlogDraft(options) {
     messages: [
       {
         role: "user",
-        content: `Write a ${options.length}-word ${options.tone} blog article about: "${options.topic}"`
-      }
-    ]
+        content: `Write a ${options.length}-word ${options.tone} blog article about: "${options.topic}"`,
+      },
+    ],
   });
-  const text2 = response.content[0]?.type === "text" ? response.content[0].text : "";
+  const text2 =
+    response.content[0]?.type === "text" ? response.content[0].text : "";
   try {
     const parsed = JSON.parse(text2);
     return {
       title: parsed.title || options.topic,
       titleHe: parsed.titleHe || "",
-      slug: parsed.slug || options.topic.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      slug:
+        parsed.slug || options.topic.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       excerpt: parsed.excerpt || "",
       excerptHe: parsed.excerptHe || "",
       content: parsed.content || "",
       contentHe: parsed.contentHe || "",
       category: parsed.category || "Travel Tips",
-      tags: parsed.tags || ""
+      tags: parsed.tags || "",
     };
   } catch {
     return {
@@ -8940,7 +10194,7 @@ async function generateBlogDraft(options) {
       content: text2,
       contentHe: "",
       category: "Travel Tips",
-      tags: ""
+      tags: "",
     };
   }
 }
@@ -8964,7 +10218,7 @@ async function optimizeUploadedImage(inputBuffer, options = {}) {
     maxWidth = 1920,
     maxHeight = 1080,
     quality = 80,
-    format = "webp"
+    format = "webp",
   } = options;
   const originalSize = inputBuffer.length;
   const sharp = await getSharp();
@@ -8974,13 +10228,13 @@ async function optimizeUploadedImage(inputBuffer, options = {}) {
       contentType: "image/jpeg",
       extension: "jpg",
       originalSize,
-      optimizedSize: originalSize
+      optimizedSize: originalSize,
     };
   }
   try {
     let pipeline = sharp(inputBuffer).resize(maxWidth, maxHeight, {
       fit: "inside",
-      withoutEnlargement: true
+      withoutEnlargement: true,
     });
     let contentType;
     let extension;
@@ -8999,7 +10253,7 @@ async function optimizeUploadedImage(inputBuffer, options = {}) {
       contentType,
       extension,
       originalSize,
-      optimizedSize: buffer.length
+      optimizedSize: buffer.length,
     };
   } catch (err) {
     console.error(
@@ -9011,7 +10265,7 @@ async function optimizeUploadedImage(inputBuffer, options = {}) {
       contentType: "image/jpeg",
       extension: "jpg",
       originalSize,
-      optimizedSize: originalSize
+      optimizedSize: originalSize,
     };
   }
 }
@@ -9021,153 +10275,172 @@ var blogRouter = router({
   list: securePublicProcedure.query(async () => {
     return await getAllPublishedBlogPosts();
   }),
-  getBySlug: securePublicProcedure.input(z12.object({ slug: z12.string() })).query(async ({ input }) => {
-    return await getPublishedBlogPostBySlug(input.slug);
-  }),
+  getBySlug: securePublicProcedure
+    .input(z12.object({ slug: z12.string() }))
+    .query(async ({ input }) => {
+      return await getPublishedBlogPostBySlug(input.slug);
+    }),
   listAll: secureProtectedProcedure.query(async () => {
     return await getAllBlogPosts();
   }),
-  listAllPaginated: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllBlogPostsPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  create: secureProtectedProcedure.input(blogPostInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const { scheduledAt, ...rest } = input;
-    let publishedAt;
-    if (input.isPublished) {
-      publishedAt = scheduledAt ? new Date(scheduledAt) : /* @__PURE__ */ new Date();
-    }
-    await createBlogPost({
-      ...rest,
-      isPublished: input.isPublished ? 1 : 0,
-      publishedAt
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "blog",
-      newValue: JSON.stringify({ title: input.title, slug: input.slug })
-    });
-    return { success: true, message: "Blog post created successfully" };
-  }),
-  update: secureProtectedProcedure.input(
-    z12.object({
-      id: z12.number(),
-      data: blogPostInputSchema.partial()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    const fields = [
-      "title",
-      "titleHe",
-      "slug",
-      "excerpt",
-      "excerptHe",
-      "content",
-      "contentHe",
-      "coverImage",
-      "category",
-      "tags",
-      "author"
-    ];
-    for (const field of fields) {
-      if (input.data[field] !== void 0)
-        updateData[field] = input.data[field];
-    }
-    if (input.data.isPublished !== void 0) {
-      updateData.isPublished = input.data.isPublished ? 1 : 0;
-      if (input.data.isPublished) {
-        updateData.publishedAt = input.data.scheduledAt ? new Date(input.data.scheduledAt) : /* @__PURE__ */ new Date();
+  listAllPaginated: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllBlogPostsPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  create: secureProtectedProcedure
+    .input(blogPostInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const { scheduledAt, ...rest } = input;
+      let publishedAt;
+      if (input.isPublished) {
+        publishedAt = scheduledAt
+          ? new Date(scheduledAt)
+          : /* @__PURE__ */ new Date();
       }
-    } else if (input.data.scheduledAt !== void 0) {
-      updateData.publishedAt = new Date(input.data.scheduledAt);
-    }
-    await updateBlogPost(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "blog",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z12.object({ id: z12.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteBlogPost(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "blog",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  uploadImage: secureProtectedProcedure.input(
-    z12.object({
-      fileName: z12.string().min(1),
-      fileData: z12.string().min(1),
-      // base64
-      contentType: z12.string().default("image/jpeg")
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const rawBuffer = Buffer.from(input.fileData, "base64");
-    const {
-      buffer,
-      contentType: optimizedType,
-      extension
-    } = await optimizeUploadedImage(rawBuffer, {
-      maxWidth: 1920,
-      maxHeight: 1080,
-      quality: 80
-    });
-    const baseName = input.fileName.replace(/\.[^.]+$/, "");
-    const key = `blog/${Date.now()}-${baseName}.${extension}`;
-    const { url } = await storagePut(key, buffer, optimizedType);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "upload_image",
-      resourceType: "blog",
-      newValue: JSON.stringify({ fileName: input.fileName, url })
-    });
-    return { url };
-  }),
-  generateDraft: secureProtectedProcedure.input(
-    z12.object({
-      topic: z12.string().min(1),
-      tone: z12.enum(["informative", "adventurous", "practical"]).default("informative"),
-      length: z12.number().min(300).max(3e3).default(1e3)
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const tours2 = await getAllActiveTours();
-    const tourData = tours2.map((t2) => ({
-      name: t2.name,
-      nameHe: t2.nameHe,
-      slug: t2.slug,
-      description: t2.description,
-      price: t2.price,
-      duration: t2.duration
-    }));
-    const draft = await generateBlogDraft({ ...input, tourData });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "generate_draft",
-      resourceType: "blog",
-      newValue: JSON.stringify({ topic: input.topic })
-    });
-    return draft;
-  })
+      await createBlogPost({
+        ...rest,
+        isPublished: input.isPublished ? 1 : 0,
+        publishedAt,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "blog",
+        newValue: JSON.stringify({ title: input.title, slug: input.slug }),
+      });
+      return { success: true, message: "Blog post created successfully" };
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z12.object({
+        id: z12.number(),
+        data: blogPostInputSchema.partial(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      const fields = [
+        "title",
+        "titleHe",
+        "slug",
+        "excerpt",
+        "excerptHe",
+        "content",
+        "contentHe",
+        "coverImage",
+        "category",
+        "tags",
+        "author",
+      ];
+      for (const field of fields) {
+        if (input.data[field] !== void 0) updateData[field] = input.data[field];
+      }
+      if (input.data.isPublished !== void 0) {
+        updateData.isPublished = input.data.isPublished ? 1 : 0;
+        if (input.data.isPublished) {
+          updateData.publishedAt = input.data.scheduledAt
+            ? new Date(input.data.scheduledAt)
+            : /* @__PURE__ */ new Date();
+        }
+      } else if (input.data.scheduledAt !== void 0) {
+        updateData.publishedAt = new Date(input.data.scheduledAt);
+      }
+      await updateBlogPost(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "blog",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z12.object({ id: z12.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteBlogPost(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "blog",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  uploadImage: secureProtectedProcedure
+    .input(
+      z12.object({
+        fileName: z12.string().min(1),
+        fileData: z12.string().min(1),
+        // base64
+        contentType: z12.string().default("image/jpeg"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const rawBuffer = Buffer.from(input.fileData, "base64");
+      const {
+        buffer,
+        contentType: optimizedType,
+        extension,
+      } = await optimizeUploadedImage(rawBuffer, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 80,
+      });
+      const baseName = input.fileName.replace(/\.[^.]+$/, "");
+      const key = `blog/${Date.now()}-${baseName}.${extension}`;
+      const { url } = await storagePut(key, buffer, optimizedType);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "upload_image",
+        resourceType: "blog",
+        newValue: JSON.stringify({ fileName: input.fileName, url }),
+      });
+      return { url };
+    }),
+  generateDraft: secureProtectedProcedure
+    .input(
+      z12.object({
+        topic: z12.string().min(1),
+        tone: z12
+          .enum(["informative", "adventurous", "practical"])
+          .default("informative"),
+        length: z12.number().min(300).max(3e3).default(1e3),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const tours2 = await getAllActiveTours();
+      const tourData = tours2.map(t2 => ({
+        name: t2.name,
+        nameHe: t2.nameHe,
+        slug: t2.slug,
+        description: t2.description,
+        price: t2.price,
+        duration: t2.duration,
+      }));
+      const draft = await generateBlogDraft({ ...input, tourData });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "generate_draft",
+        resourceType: "blog",
+        newValue: JSON.stringify({ topic: input.topic }),
+      });
+      return draft;
+    }),
 });
 
 // server/routes/newsletter.ts
@@ -9181,7 +10454,9 @@ function getResend4() {
   if (!_resend4) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      console.warn("[Newsletter] No RESEND_API_KEY \u2014 emails will not be sent");
+      console.warn(
+        "[Newsletter] No RESEND_API_KEY \u2014 emails will not be sent"
+      );
       return null;
     }
     const { Resend: Resend8 } = __require("resend");
@@ -9208,7 +10483,8 @@ async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
     try {
       const isHe = sub.language === "he";
       const title = isHe && post.titleHe ? post.titleHe : post.title;
-      const excerpt = isHe && post.excerptHe ? post.excerptHe : post.excerpt || "";
+      const excerpt =
+        isHe && post.excerptHe ? post.excerptHe : post.excerpt || "";
       const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(sub.email)}`;
       await resend.emails.send({
         from: "WIRO 4x4 <updates@wiro4x4indochina.com>",
@@ -9227,7 +10503,7 @@ async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
               <a href="${unsubscribeUrl}" style="color:#999;">${isHe ? "\u05D1\u05D9\u05D8\u05D5\u05DC \u05D4\u05E8\u05E9\u05DE\u05D4" : "Unsubscribe"}</a>
             </p>
           </div>
-        `
+        `,
       });
       sent++;
     } catch (err) {
@@ -9239,62 +10515,71 @@ async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
 
 // server/routes/newsletter.ts
 var newsletterRouter = router({
-  subscribe: securePublicProcedure.input(
-    z13.object({
-      email: z13.string().email(),
-      name: z13.string().optional(),
-      language: z13.string().default("en")
-    })
-  ).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`newsletter:${ip}`, 5, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many requests. Please try again later."
-      });
-    }
-    const existing = await getSubscriberByEmail(input.email);
-    if (existing) {
-      return { success: true, message: "Already subscribed" };
-    }
-    await createSubscriber(input);
-    return { success: true, message: "Successfully subscribed!" };
-  }),
-  unsubscribe: securePublicProcedure.input(z13.object({ email: z13.string().email() })).mutation(async ({ input }) => {
-    await deactivateSubscriber(input.email);
-    return { success: true, message: "Unsubscribed successfully" };
-  }),
+  subscribe: securePublicProcedure
+    .input(
+      z13.object({
+        email: z13.string().email(),
+        name: z13.string().optional(),
+        language: z13.string().default("en"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`newsletter:${ip}`, 5, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please try again later.",
+        });
+      }
+      const existing = await getSubscriberByEmail(input.email);
+      if (existing) {
+        return { success: true, message: "Already subscribed" };
+      }
+      await createSubscriber(input);
+      return { success: true, message: "Successfully subscribed!" };
+    }),
+  unsubscribe: securePublicProcedure
+    .input(z13.object({ email: z13.string().email() }))
+    .mutation(async ({ input }) => {
+      await deactivateSubscriber(input.email);
+      return { success: true, message: "Unsubscribed successfully" };
+    }),
   list: secureProtectedProcedure.query(async () => {
     return await getAllSubscribers();
   }),
-  send: secureProtectedProcedure.input(
-    z13.object({
-      blogPostId: z13.number(),
-      subject: z13.string().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const subscribers2 = await getAllActiveSubscribers();
-    if (subscribers2.length === 0) {
-      return { success: true, sent: 0, message: "No active subscribers" };
-    }
-    const sent = await sendNewsletterEmail(
-      input.blogPostId,
-      subscribers2,
-      input.subject
-    );
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "send_newsletter",
-      resourceType: "newsletter",
-      newValue: JSON.stringify({
-        blogPostId: input.blogPostId,
-        recipientCount: sent
+  send: secureProtectedProcedure
+    .input(
+      z13.object({
+        blogPostId: z13.number(),
+        subject: z13.string().optional(),
       })
-    });
-    return { success: true, sent, message: `Sent to ${sent} subscribers` };
-  })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const subscribers2 = await getAllActiveSubscribers();
+      if (subscribers2.length === 0) {
+        return { success: true, sent: 0, message: "No active subscribers" };
+      }
+      const sent = await sendNewsletterEmail(
+        input.blogPostId,
+        subscribers2,
+        input.subject
+      );
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "send_newsletter",
+        resourceType: "newsletter",
+        newValue: JSON.stringify({
+          blogPostId: input.blogPostId,
+          recipientCount: sent,
+        }),
+      });
+      return { success: true, sent, message: `Sent to ${sent} subscribers` };
+    }),
 });
 
 // server/routes/health.ts
@@ -9306,7 +10591,7 @@ var healthRouter = router({
     if (!db) {
       throw new TRPCError3({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Database not available"
+        message: "Database not available",
       });
     }
     try {
@@ -9316,111 +10601,134 @@ var healthRouter = router({
       captureException(err);
       throw new TRPCError3({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Database check failed"
+        message: "Database check failed",
       });
     }
   }),
   liveness: securePublicProcedure.query(() => {
-    return { status: "alive", timestamp: (/* @__PURE__ */ new Date()).toISOString() };
-  })
+    return {
+      status: "alive",
+      timestamp: /* @__PURE__ */ new Date().toISOString(),
+    };
+  }),
 });
 
 // server/routes/crm.ts
 import { z as z14 } from "zod";
 init_db();
 var crmRouter = router({
-  listCustomers: secureManagerProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllCustomersPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  getCustomer: secureManagerProcedure.input(z14.object({ id: z14.number() })).query(async ({ input }) => {
-    const customer = await getCustomerById(input.id);
-    if (!customer) return null;
-    const activities = await getActivitiesByCustomerId(input.id);
-    const timeline = await getCustomerTimeline(
-      customer.email ?? void 0,
-      customer.phone ?? void 0
-    );
-    return { customer, activities, timeline };
-  }),
-  createCustomer: secureManagerProcedure.input(customerInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await createCustomer(input);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "customer",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
-  updateCustomer: secureManagerProcedure.input(z14.object({ id: z14.number(), data: customerInputSchema.partial() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateCustomer(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "customer",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  deleteCustomer: secureOwnerProcedure.input(z14.object({ id: z14.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteCustomer(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "customer",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
-  addActivity: secureAgentProcedure.input(customerActivityInputSchema).mutation(async ({ input, ctx }) => {
-    await createCustomerActivity({
-      ...input,
-      createdBy: ctx.user?.name ?? ctx.user?.email ?? "unknown"
-    });
-    await updateCustomer(input.customerId, { lastContactAt: /* @__PURE__ */ new Date() });
-    return { success: true };
-  }),
-  completeActivity: secureAgentProcedure.input(z14.object({ id: z14.number() })).mutation(async ({ input }) => {
-    await completeActivity(input.id);
-    return { success: true };
-  }),
+  listCustomers: secureManagerProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllCustomersPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  getCustomer: secureManagerProcedure
+    .input(z14.object({ id: z14.number() }))
+    .query(async ({ input }) => {
+      const customer = await getCustomerById(input.id);
+      if (!customer) return null;
+      const activities = await getActivitiesByCustomerId(input.id);
+      const timeline = await getCustomerTimeline(
+        customer.email ?? void 0,
+        customer.phone ?? void 0
+      );
+      return { customer, activities, timeline };
+    }),
+  createCustomer: secureManagerProcedure
+    .input(customerInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await createCustomer(input);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "customer",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
+  updateCustomer: secureManagerProcedure
+    .input(
+      z14.object({ id: z14.number(), data: customerInputSchema.partial() })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateCustomer(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "customer",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  deleteCustomer: secureOwnerProcedure
+    .input(z14.object({ id: z14.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteCustomer(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "customer",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
+  addActivity: secureAgentProcedure
+    .input(customerActivityInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      await createCustomerActivity({
+        ...input,
+        createdBy: ctx.user?.name ?? ctx.user?.email ?? "unknown",
+      });
+      await updateCustomer(input.customerId, {
+        lastContactAt: /* @__PURE__ */ new Date(),
+      });
+      return { success: true };
+    }),
+  completeActivity: secureAgentProcedure
+    .input(z14.object({ id: z14.number() }))
+    .mutation(async ({ input }) => {
+      await completeActivity(input.id);
+      return { success: true };
+    }),
   getPipelineStats: secureManagerProcedure.query(async () => {
     return await getCustomerPipelineStats();
   }),
-  movePipeline: secureManagerProcedure.input(
-    z14.object({
-      customerId: z14.number(),
-      stage: z14.enum(["prospect", "active", "completed", "vip", "inactive"])
-    })
-  ).mutation(async ({ input, ctx }) => {
-    await updateCustomer(input.customerId, { stage: input.stage });
-    await createCustomerActivity({
-      customerId: input.customerId,
-      type: "status_change",
-      content: `Stage changed to ${input.stage}`,
-      createdBy: ctx.user?.name ?? "unknown"
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "customer",
-      resourceId: input.customerId,
-      newValue: JSON.stringify({ stage: input.stage })
-    });
-    return { success: true };
-  })
+  movePipeline: secureManagerProcedure
+    .input(
+      z14.object({
+        customerId: z14.number(),
+        stage: z14.enum(["prospect", "active", "completed", "vip", "inactive"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await updateCustomer(input.customerId, { stage: input.stage });
+      await createCustomerActivity({
+        customerId: input.customerId,
+        type: "status_change",
+        content: `Stage changed to ${input.stage}`,
+        createdBy: ctx.user?.name ?? "unknown",
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "customer",
+        resourceId: input.customerId,
+        newValue: JSON.stringify({ stage: input.stage }),
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/admin.ts
@@ -9430,41 +10738,45 @@ var adminRouter = router({
   listUsers: secureOwnerProcedure.query(async () => {
     return await getAllAdminUsers();
   }),
-  updateUserRole: secureOwnerProcedure.input(updateUserRoleSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    if (input.userId === ctx.user?.id) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Cannot change your own role"
+  updateUserRole: secureOwnerProcedure
+    .input(updateUserRoleSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      if (input.userId === ctx.user?.id) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Cannot change your own role",
+        });
+      }
+      await updateUserRole(input.userId, input.role);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "user",
+        resourceId: input.userId,
+        newValue: JSON.stringify({ role: input.role }),
       });
-    }
-    await updateUserRole(input.userId, input.role);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "user",
-      resourceId: input.userId,
-      newValue: JSON.stringify({ role: input.role })
-    });
-    return { success: true };
-  }),
-  removeUser: secureOwnerProcedure.input(z15.object({ userId: z15.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    if (input.userId === ctx.user?.id) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Cannot remove your own admin access"
+      return { success: true };
+    }),
+  removeUser: secureOwnerProcedure
+    .input(z15.object({ userId: z15.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      if (input.userId === ctx.user?.id) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Cannot remove your own admin access",
+        });
+      }
+      await removeAdminAccess(input.userId);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "user",
+        resourceId: input.userId,
       });
-    }
-    await removeAdminAccess(input.userId);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "user",
-      resourceId: input.userId
-    });
-    return { success: true };
-  })
+      return { success: true };
+    }),
 });
 
 // server/routes/settings.ts
@@ -9479,24 +10791,36 @@ var settingsRouter = router({
     }
     return map;
   }),
-  get: secureProtectedProcedure.input(z16.object({ key: z16.string() })).query(async ({ input }) => {
-    return getSetting(input.key);
-  }),
-  update: secureProtectedProcedure.input(settingsUpdateSchema).mutation(async ({ ctx, input }) => {
-    checkAdminRateLimit(ctx);
-    await upsertSetting(input.key, input.value);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update_setting",
-      resourceType: "settings",
-      newValue: JSON.stringify({ key: input.key, value: input.value })
-    });
-    return { success: true };
-  })
+  get: secureProtectedProcedure
+    .input(z16.object({ key: z16.string() }))
+    .query(async ({ input }) => {
+      return getSetting(input.key);
+    }),
+  update: secureProtectedProcedure
+    .input(settingsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      checkAdminRateLimit(ctx);
+      await upsertSetting(input.key, input.value);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update_setting",
+        resourceType: "settings",
+        newValue: JSON.stringify({ key: input.key, value: input.value }),
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/dashboard.ts
-import { sql as sql20, eq as eq28, and as and16, gte as gte7, lte as lte5, count as count3, sum as sum2 } from "drizzle-orm";
+import {
+  sql as sql20,
+  eq as eq28,
+  and as and16,
+  gte as gte7,
+  lte as lte5,
+  count as count3,
+  sum as sum2,
+} from "drizzle-orm";
 init_db();
 init_schema();
 var dashboardRouter = router({
@@ -9509,59 +10833,86 @@ var dashboardRouter = router({
         leadConversion: { total: 0, converted: 0, rate: 0 },
         upcomingTours: [],
         pendingBookings: 0,
-        newLeads: 0
+        newLeads: 0,
       };
     }
     const now = /* @__PURE__ */ new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1e3);
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1e3);
-    const bookingsByDay = await db.select({
-      date: sql20`DATE(${bookings.createdAt})`.as("date"),
-      count: count3().as("count")
-    }).from(bookings).where(gte7(bookings.createdAt, thirtyDaysAgo)).groupBy(sql20`DATE(${bookings.createdAt})`).orderBy(sql20`DATE(${bookings.createdAt})`);
-    const revenueByDay = await db.select({
-      date: sql20`DATE(${financialRecords.createdAt})`.as("date"),
-      total: sum2(financialRecords.amount).as("total")
-    }).from(financialRecords).where(
-      and16(
-        eq28(financialRecords.type, "revenue"),
-        gte7(financialRecords.createdAt, thirtyDaysAgo)
+    const bookingsByDay = await db
+      .select({
+        date: sql20`DATE(${bookings.createdAt})`.as("date"),
+        count: count3().as("count"),
+      })
+      .from(bookings)
+      .where(gte7(bookings.createdAt, thirtyDaysAgo))
+      .groupBy(sql20`DATE(${bookings.createdAt})`)
+      .orderBy(sql20`DATE(${bookings.createdAt})`);
+    const revenueByDay = await db
+      .select({
+        date: sql20`DATE(${financialRecords.createdAt})`.as("date"),
+        total: sum2(financialRecords.amount).as("total"),
+      })
+      .from(financialRecords)
+      .where(
+        and16(
+          eq28(financialRecords.type, "revenue"),
+          gte7(financialRecords.createdAt, thirtyDaysAgo)
+        )
       )
-    ).groupBy(sql20`DATE(${financialRecords.createdAt})`).orderBy(sql20`DATE(${financialRecords.createdAt})`);
-    const [leadStats] = await db.select({
-      total: count3().as("total"),
-      converted: sql20`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
-        "converted"
+      .groupBy(sql20`DATE(${financialRecords.createdAt})`)
+      .orderBy(sql20`DATE(${financialRecords.createdAt})`);
+    const [leadStats] = await db
+      .select({
+        total: count3().as("total"),
+        converted:
+          sql20`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
+            "converted"
+          ),
+      })
+      .from(leads);
+    const upcomingTours = await db
+      .select()
+      .from(bookings)
+      .where(
+        and16(
+          gte7(bookings.arrivalDate, sql20`CURDATE()`),
+          lte5(bookings.arrivalDate, sevenDaysFromNow),
+          sql20`${bookings.status} IN ('confirmed', 'in_progress')`
+        )
       )
-    }).from(leads);
-    const upcomingTours = await db.select().from(bookings).where(
-      and16(
-        gte7(bookings.arrivalDate, sql20`CURDATE()`),
-        lte5(bookings.arrivalDate, sevenDaysFromNow),
-        sql20`${bookings.status} IN ('confirmed', 'in_progress')`
-      )
-    ).orderBy(bookings.arrivalDate).limit(10);
-    const [pendingCount] = await db.select({ count: count3().as("count") }).from(bookings).where(eq28(bookings.status, "pending"));
-    const [newLeadsCount] = await db.select({ count: count3().as("count") }).from(leads).where(eq28(leads.status, "new"));
+      .orderBy(bookings.arrivalDate)
+      .limit(10);
+    const [pendingCount] = await db
+      .select({ count: count3().as("count") })
+      .from(bookings)
+      .where(eq28(bookings.status, "pending"));
+    const [newLeadsCount] = await db
+      .select({ count: count3().as("count") })
+      .from(leads)
+      .where(eq28(leads.status, "new"));
     return {
-      bookingsByDay: bookingsByDay.map((r) => ({
+      bookingsByDay: bookingsByDay.map(r => ({
         date: r.date,
-        count: Number(r.count)
+        count: Number(r.count),
       })),
-      revenueByDay: revenueByDay.map((r) => ({
+      revenueByDay: revenueByDay.map(r => ({
         date: r.date,
-        total: Number(r.total) || 0
+        total: Number(r.total) || 0,
       })),
       leadConversion: {
         total: Number(leadStats?.total) || 0,
         converted: Number(leadStats?.converted) || 0,
-        rate: leadStats?.total && Number(leadStats.total) > 0 ? Math.round(
-          Number(leadStats.converted) / Number(leadStats.total) * 100
-        ) : 0
+        rate:
+          leadStats?.total && Number(leadStats.total) > 0
+            ? Math.round(
+                (Number(leadStats.converted) / Number(leadStats.total)) * 100
+              )
+            : 0,
       },
       upcomingTours,
       pendingBookings: Number(pendingCount?.count) || 0,
-      newLeads: Number(newLeadsCount?.count) || 0
+      newLeads: Number(newLeadsCount?.count) || 0,
     };
   }),
   badgeCounts: secureProtectedProcedure.query(async () => {
@@ -9573,33 +10924,51 @@ var dashboardRouter = router({
         calendar: 0,
         leads: 0,
         reviews: 0,
-        blog: 0
+        blog: 0,
       };
     }
     const now = /* @__PURE__ */ new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
     const tomorrow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1e3);
-    const [pendingBookings] = await db.select({ count: count3() }).from(bookings).where(eq28(bookings.status, "pending"));
-    const [newLeads] = await db.select({ count: count3() }).from(leads).where(eq28(leads.status, "new"));
-    const [pendingReviews] = await db.select({ count: count3() }).from(reviews).where(eq28(reviews.isApproved, 0));
-    const [draftPosts] = await db.select({ count: count3() }).from(blogPosts).where(eq28(blogPosts.isPublished, 0));
-    const [newCustomers] = await db.select({ count: count3() }).from(customers).where(gte7(customers.createdAt, weekAgo));
-    const [todayTours] = await db.select({ count: count3() }).from(bookings).where(
-      and16(
-        gte7(bookings.arrivalDate, sql20`CURDATE()`),
-        lte5(bookings.arrivalDate, tomorrow),
-        sql20`${bookings.status} IN ('confirmed', 'in_progress')`
-      )
-    );
+    const [pendingBookings] = await db
+      .select({ count: count3() })
+      .from(bookings)
+      .where(eq28(bookings.status, "pending"));
+    const [newLeads] = await db
+      .select({ count: count3() })
+      .from(leads)
+      .where(eq28(leads.status, "new"));
+    const [pendingReviews] = await db
+      .select({ count: count3() })
+      .from(reviews)
+      .where(eq28(reviews.isApproved, 0));
+    const [draftPosts] = await db
+      .select({ count: count3() })
+      .from(blogPosts)
+      .where(eq28(blogPosts.isPublished, 0));
+    const [newCustomers] = await db
+      .select({ count: count3() })
+      .from(customers)
+      .where(gte7(customers.createdAt, weekAgo));
+    const [todayTours] = await db
+      .select({ count: count3() })
+      .from(bookings)
+      .where(
+        and16(
+          gte7(bookings.arrivalDate, sql20`CURDATE()`),
+          lte5(bookings.arrivalDate, tomorrow),
+          sql20`${bookings.status} IN ('confirmed', 'in_progress')`
+        )
+      );
     return {
       crm: Number(newCustomers?.count) || 0,
       bookings: Number(pendingBookings?.count) || 0,
       calendar: Number(todayTours?.count) || 0,
       leads: Number(newLeads?.count) || 0,
       reviews: Number(pendingReviews?.count) || 0,
-      blog: Number(draftPosts?.count) || 0
+      blog: Number(draftPosts?.count) || 0,
     };
-  })
+  }),
 });
 
 // server/routes/stats.ts
@@ -9611,12 +10980,12 @@ var statsRouter = router({
   }),
   recentBookings: securePublicProcedure.query(async () => {
     const rows = await getRecentBookings(5);
-    return rows.map((r) => ({
+    return rows.map(r => ({
       firstName: r.firstName,
       tourName: r.tourName,
-      timeAgo: formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })
+      timeAgo: formatDistanceToNow(new Date(r.createdAt), { addSuffix: true }),
     }));
-  })
+  }),
 });
 
 // server/routes/bookingDraft.ts
@@ -9660,7 +11029,7 @@ async function sendBookingRecoveryEmail(email, name, resumeToken) {
           <p>Or reply to this email if you have any questions.</p>
           <p>\u2014 WIRO 4x4 Team</p>
         </div>
-      `
+      `,
     });
     if (error) {
       console.error("[AbandonedBooking] Failed to send recovery email:", error);
@@ -9678,62 +11047,74 @@ async function sendBookingRecoveryEmail(email, name, resumeToken) {
 
 // server/routes/bookingDraft.ts
 var bookingDraftRouter = router({
-  save: securePublicProcedure.input(bookingDraftInputSchema).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`bookingDraft:${ip}`, 10, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many draft save requests. Please try again in a minute."
+  save: securePublicProcedure
+    .input(bookingDraftInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`bookingDraft:${ip}`, 10, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message:
+            "Too many draft save requests. Please try again in a minute.",
+        });
+      }
+      const resumeToken = crypto2.randomBytes(32).toString("hex");
+      const id = await createBookingDraft({
+        ...input,
+        resumeToken,
       });
-    }
-    const resumeToken = crypto2.randomBytes(32).toString("hex");
-    const id = await createBookingDraft({
-      ...input,
-      resumeToken
-    });
-    return { id, resumeToken };
-  }),
-  getByToken: securePublicProcedure.input(z17.object({ token: z17.string().min(1) })).query(async ({ input }) => {
-    const draft = await getBookingDraftByToken(input.token);
-    if (!draft || draft.status !== "active") return null;
-    return draft;
-  }),
+      return { id, resumeToken };
+    }),
+  getByToken: securePublicProcedure
+    .input(z17.object({ token: z17.string().min(1) }))
+    .query(async ({ input }) => {
+      const draft = await getBookingDraftByToken(input.token);
+      if (!draft || draft.status !== "active") return null;
+      return draft;
+    }),
   listActive: secureProtectedProcedure.query(async () => {
     return await listActiveBookingDrafts();
   }),
-  updateStatus: secureProtectedProcedure.input(
-    z17.object({
-      id: z17.number(),
-      status: z17.enum(["active", "converted", "expired"]),
-      convertedToBookingId: z17.number().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateBookingDraftStatus(
-      input.id,
-      input.status,
-      input.convertedToBookingId
-    );
-    return { success: true };
-  }),
-  sendRecoveryEmail: secureProtectedProcedure.input(z17.object({ draftId: z17.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const drafts = await listActiveBookingDrafts();
-    const draft = drafts.find((d) => d.id === input.draftId);
-    if (!draft?.contactEmail) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "No email for this draft"
-      });
-    }
-    const sent = await sendBookingRecoveryEmail(
-      draft.contactEmail,
-      draft.contactName || "",
-      draft.resumeToken
-    );
-    return { sent };
-  })
+  updateStatus: secureProtectedProcedure
+    .input(
+      z17.object({
+        id: z17.number(),
+        status: z17.enum(["active", "converted", "expired"]),
+        convertedToBookingId: z17.number().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateBookingDraftStatus(
+        input.id,
+        input.status,
+        input.convertedToBookingId
+      );
+      return { success: true };
+    }),
+  sendRecoveryEmail: secureProtectedProcedure
+    .input(z17.object({ draftId: z17.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const drafts = await listActiveBookingDrafts();
+      const draft = drafts.find(d => d.id === input.draftId);
+      if (!draft?.contactEmail) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "No email for this draft",
+        });
+      }
+      const sent = await sendBookingRecoveryEmail(
+        draft.contactEmail,
+        draft.contactName || "",
+        draft.resumeToken
+      );
+      return { sent };
+    }),
 });
 
 // server/routes/analytics.ts
@@ -9747,8 +11128,14 @@ var analyticsRouter = router({
     const db = await getDb();
     if (!db) return { steps: [], conversionRate: 0 };
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1e3);
-    const [completedResult] = await db.select({ count: count4() }).from(bookings).where(gte8(bookings.createdAt, thirtyDaysAgo));
-    const [draftsResult] = await db.select({ count: count4() }).from(bookingDrafts).where(gte8(bookingDrafts.createdAt, thirtyDaysAgo));
+    const [completedResult] = await db
+      .select({ count: count4() })
+      .from(bookings)
+      .where(gte8(bookings.createdAt, thirtyDaysAgo));
+    const [draftsResult] = await db
+      .select({ count: count4() })
+      .from(bookingDrafts)
+      .where(gte8(bookingDrafts.createdAt, thirtyDaysAgo));
     const completed = completedResult?.count ?? 0;
     const abandoned = draftsResult?.count ?? 0;
     const started = completed + abandoned;
@@ -9756,21 +11143,22 @@ var analyticsRouter = router({
       steps: [
         {
           name: "Bookings Started",
-          nameHe: "\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA \u05D4\u05EA\u05D7\u05D9\u05DC\u05D5",
-          count: started
+          nameHe:
+            "\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA \u05D4\u05EA\u05D7\u05D9\u05DC\u05D5",
+          count: started,
         },
         {
           name: "Completed",
           nameHe: "\u05D4\u05D5\u05E9\u05DC\u05DE\u05D5",
-          count: completed
+          count: completed,
         },
         {
           name: "Abandoned",
           nameHe: "\u05E0\u05E0\u05D8\u05E9\u05D5",
-          count: abandoned
-        }
+          count: abandoned,
+        },
       ],
-      conversionRate: started > 0 ? Math.round(completed / started * 100) : 0
+      conversionRate: started > 0 ? Math.round((completed / started) * 100) : 0,
     };
   }),
   /** KPI overview for the analytics dashboard. */
@@ -9796,7 +11184,7 @@ var analyticsRouter = router({
   /** Last 10 bookings + leads combined, sorted by date. */
   recentActivity: secureProtectedProcedure.query(async () => {
     return await getRecentActivity();
-  })
+  }),
 });
 
 // server/routes/package.ts
@@ -9808,10 +11196,13 @@ var PACKAGE_DISCOUNTS = {
   2: 0.1,
   3: 0.15,
   4: 0.2,
-  5: 0.25
+  5: 0.25,
 };
 function calculatePackageDiscount(tourCount, tourTotal, overridePercent) {
-  const decimalDiscount = overridePercent != null ? overridePercent / 100 : PACKAGE_DISCOUNTS[tourCount] ?? 0;
+  const decimalDiscount =
+    overridePercent != null
+      ? overridePercent / 100
+      : (PACKAGE_DISCOUNTS[tourCount] ?? 0);
   const discountPercent = Math.round(decimalDiscount * 100);
   const savings = Math.round(tourTotal * decimalDiscount);
   const discountedPrice = tourTotal - savings;
@@ -9820,17 +11211,23 @@ function calculatePackageDiscount(tourCount, tourTotal, overridePercent) {
 
 // server/routes/package.ts
 function generateSlug2(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 function resolvePackage(pkg, toursMap) {
   const tourSlugs = JSON.parse(pkg.tourSlugs);
-  const resolvedTours = tourSlugs.map((slug) => toursMap.get(slug)).filter((t2) => t2 != null);
+  const resolvedTours = tourSlugs
+    .map(slug => toursMap.get(slug))
+    .filter(t2 => t2 != null);
   const originalPrice = resolvedTours.reduce((sum3, t2) => sum3 + t2.price, 0);
-  const { discountedPrice, savings, discountPercent } = calculatePackageDiscount(
-    resolvedTours.length,
-    originalPrice,
-    pkg.discountPercent ?? void 0
-  );
+  const { discountedPrice, savings, discountPercent } =
+    calculatePackageDiscount(
+      resolvedTours.length,
+      originalPrice,
+      pkg.discountPercent ?? void 0
+    );
   return {
     ...pkg,
     tourSlugs,
@@ -9838,7 +11235,7 @@ function resolvePackage(pkg, toursMap) {
     originalPrice,
     discountedPrice,
     savings,
-    discountPercent
+    discountPercent,
   };
 }
 var packageRouter = router({
@@ -9846,100 +11243,107 @@ var packageRouter = router({
   list: securePublicProcedure.query(async () => {
     const [packages, tours2] = await Promise.all([
       getPublishedTourPackages(),
-      getAllActiveTours()
+      getAllActiveTours(),
     ]);
-    const toursMap = new Map(tours2.map((t2) => [t2.slug, t2]));
-    return packages.map((pkg) => resolvePackage(pkg, toursMap));
+    const toursMap = new Map(tours2.map(t2 => [t2.slug, t2]));
+    return packages.map(pkg => resolvePackage(pkg, toursMap));
   }),
   /** Public: single package by slug */
-  getBySlug: securePublicProcedure.input(z18.object({ slug: z18.string() })).query(async ({ input }) => {
-    const pkg = await getTourPackageBySlug(input.slug);
-    if (!pkg) return void 0;
-    const tours2 = await getAllActiveTours();
-    const toursMap = new Map(tours2.map((t2) => [t2.slug, t2]));
-    return resolvePackage(pkg, toursMap);
-  }),
+  getBySlug: securePublicProcedure
+    .input(z18.object({ slug: z18.string() }))
+    .query(async ({ input }) => {
+      const pkg = await getTourPackageBySlug(input.slug);
+      if (!pkg) return void 0;
+      const tours2 = await getAllActiveTours();
+      const toursMap = new Map(tours2.map(t2 => [t2.slug, t2]));
+      return resolvePackage(pkg, toursMap);
+    }),
   /** Admin: list all packages including unpublished */
   listAll: secureProtectedProcedure.query(async () => {
     const [packages, tours2] = await Promise.all([
       getAllTourPackages(),
-      getAllActiveTours()
+      getAllActiveTours(),
     ]);
-    const toursMap = new Map(tours2.map((t2) => [t2.slug, t2]));
-    return packages.map((pkg) => resolvePackage(pkg, toursMap));
+    const toursMap = new Map(tours2.map(t2 => [t2.slug, t2]));
+    return packages.map(pkg => resolvePackage(pkg, toursMap));
   }),
   /** Admin: create a package */
-  create: secureProtectedProcedure.input(tourPackageInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const slug = input.slug || generateSlug2(input.name);
-    await createTourPackage({
-      name: input.name,
-      nameHe: input.nameHe,
-      slug,
-      description: input.description ?? null,
-      descriptionHe: input.descriptionHe ?? null,
-      tourSlugs: JSON.stringify(input.tourSlugs),
-      discountPercent: input.discountPercent ?? null,
-      coverImage: input.coverImage ?? null,
-      isPublished: input.isPublished ? 1 : 0
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "tourPackage",
-      newValue: JSON.stringify({ name: input.name })
-    });
-    return { success: true, message: "Package created successfully" };
-  }),
+  create: secureProtectedProcedure
+    .input(tourPackageInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const slug = input.slug || generateSlug2(input.name);
+      await createTourPackage({
+        name: input.name,
+        nameHe: input.nameHe,
+        slug,
+        description: input.description ?? null,
+        descriptionHe: input.descriptionHe ?? null,
+        tourSlugs: JSON.stringify(input.tourSlugs),
+        discountPercent: input.discountPercent ?? null,
+        coverImage: input.coverImage ?? null,
+        isPublished: input.isPublished ? 1 : 0,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "tourPackage",
+        newValue: JSON.stringify({ name: input.name }),
+      });
+      return { success: true, message: "Package created successfully" };
+    }),
   /** Admin: update a package */
-  update: secureProtectedProcedure.input(
-    z18.object({
-      id: z18.number(),
-      data: tourPackageInputSchema.partial()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    const fields = [
-      "name",
-      "nameHe",
-      "slug",
-      "description",
-      "descriptionHe",
-      "coverImage"
-    ];
-    for (const field of fields) {
-      if (input.data[field] !== void 0)
-        updateData[field] = input.data[field];
-    }
-    if (input.data.tourSlugs !== void 0)
-      updateData.tourSlugs = JSON.stringify(input.data.tourSlugs);
-    if (input.data.discountPercent !== void 0)
-      updateData.discountPercent = input.data.discountPercent;
-    if (input.data.isPublished !== void 0)
-      updateData.isPublished = input.data.isPublished ? 1 : 0;
-    await updateTourPackage(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "tourPackage",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
+  update: secureProtectedProcedure
+    .input(
+      z18.object({
+        id: z18.number(),
+        data: tourPackageInputSchema.partial(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      const fields = [
+        "name",
+        "nameHe",
+        "slug",
+        "description",
+        "descriptionHe",
+        "coverImage",
+      ];
+      for (const field of fields) {
+        if (input.data[field] !== void 0) updateData[field] = input.data[field];
+      }
+      if (input.data.tourSlugs !== void 0)
+        updateData.tourSlugs = JSON.stringify(input.data.tourSlugs);
+      if (input.data.discountPercent !== void 0)
+        updateData.discountPercent = input.data.discountPercent;
+      if (input.data.isPublished !== void 0)
+        updateData.isPublished = input.data.isPublished ? 1 : 0;
+      await updateTourPackage(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "tourPackage",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
   /** Admin: delete a package */
-  delete: secureProtectedProcedure.input(z18.object({ id: z18.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteTourPackage(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "tourPackage",
-      resourceId: input.id
-    });
-    return { success: true };
-  })
+  delete: secureProtectedProcedure
+    .input(z18.object({ id: z18.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteTourPackage(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "tourPackage",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/accounting.ts
@@ -9961,7 +11365,7 @@ function calculateDepreciation(purchaseCost, usefulLifeMonths, opts) {
   return {
     monthlyAmount,
     annualAmount: monthlyAmount * 12,
-    currentValue
+    currentValue,
   };
 }
 
@@ -9969,224 +11373,255 @@ function calculateDepreciation(purchaseCost, usefulLifeMonths, opts) {
 var INVOICE_PREFIX = {
   tax_invoice: "INV",
   receipt: "RCP",
-  wht_certificate: "WHT"
+  wht_certificate: "WHT",
 };
 var accountingRouter = router({
   // ── Invoices ────────────────────────────────────────────────
-  createInvoice: secureProtectedProcedure.input(invoiceInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const prefix = INVOICE_PREFIX[input.type];
-    const now = /* @__PURE__ */ new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const yearMonth = `${yyyy}${mm}`;
-    const sequence = await getNextInvoiceSequence(prefix, yearMonth);
-    const invoiceNumber = generateInvoiceNumber(prefix, now, sequence);
-    await createInvoice({ ...input, invoiceNumber });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "invoice",
-      newValue: JSON.stringify({ ...input, invoiceNumber })
-    });
-    return { success: true, invoiceNumber };
-  }),
-  listInvoices: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllInvoicesPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  getInvoice: secureProtectedProcedure.input(z19.object({ id: z19.number() })).query(async ({ input }) => {
-    return await getInvoiceById(input.id);
-  }),
-  updateInvoiceStatus: secureProtectedProcedure.input(
-    z19.object({
-      id: z19.number(),
-      status: z19.enum(["unpaid", "paid", "partial", "cancelled"]),
-      paymentDate: z19.string().optional(),
-      paymentMethod: z19.string().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const paymentDate = input.paymentDate ? new Date(input.paymentDate) : void 0;
-    await updateInvoiceStatus(
-      input.id,
-      input.status,
-      paymentDate,
-      input.paymentMethod
-    );
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "invoice",
-      resourceId: input.id,
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
+  createInvoice: secureProtectedProcedure
+    .input(invoiceInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const prefix = INVOICE_PREFIX[input.type];
+      const now = /* @__PURE__ */ new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yearMonth = `${yyyy}${mm}`;
+      const sequence = await getNextInvoiceSequence(prefix, yearMonth);
+      const invoiceNumber = generateInvoiceNumber(prefix, now, sequence);
+      await createInvoice({ ...input, invoiceNumber });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "invoice",
+        newValue: JSON.stringify({ ...input, invoiceNumber }),
+      });
+      return { success: true, invoiceNumber };
+    }),
+  listInvoices: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllInvoicesPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  getInvoice: secureProtectedProcedure
+    .input(z19.object({ id: z19.number() }))
+    .query(async ({ input }) => {
+      return await getInvoiceById(input.id);
+    }),
+  updateInvoiceStatus: secureProtectedProcedure
+    .input(
+      z19.object({
+        id: z19.number(),
+        status: z19.enum(["unpaid", "paid", "partial", "cancelled"]),
+        paymentDate: z19.string().optional(),
+        paymentMethod: z19.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const paymentDate = input.paymentDate
+        ? new Date(input.paymentDate)
+        : void 0;
+      await updateInvoiceStatus(
+        input.id,
+        input.status,
+        paymentDate,
+        input.paymentMethod
+      );
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "invoice",
+        resourceId: input.id,
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
   // ── Journal Entries ─────────────────────────────────────────
-  recordEntry: secureProtectedProcedure.input(accountingEntryInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const createdBy = ctx.user?.email ?? "system";
-    await createAccountingEntry({ ...input, createdBy });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "accounting_entry",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
-  listEntries: secureProtectedProcedure.input(
-    paginationInput.extend({
-      accountCode: z19.string().optional(),
-      startDate: z19.string().optional(),
-      endDate: z19.string().optional()
-    })
-  ).query(async ({ input }) => {
-    const { page, pageSize, accountCode, startDate, endDate } = input;
-    const { items, total } = await getAccountingEntriesPaginated(
-      page,
-      pageSize,
-      { accountCode, startDate, endDate }
-    );
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
+  recordEntry: secureProtectedProcedure
+    .input(accountingEntryInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const createdBy = ctx.user?.email ?? "system";
+      await createAccountingEntry({ ...input, createdBy });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "accounting_entry",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
+  listEntries: secureProtectedProcedure
+    .input(
+      paginationInput.extend({
+        accountCode: z19.string().optional(),
+        startDate: z19.string().optional(),
+        endDate: z19.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { page, pageSize, accountCode, startDate, endDate } = input;
+      const { items, total } = await getAccountingEntriesPaginated(
+        page,
+        pageSize,
+        { accountCode, startDate, endDate }
+      );
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
   trialBalance: secureProtectedProcedure.query(async () => {
     return await getTrialBalance();
   }),
   // ── Tax Filings ─────────────────────────────────────────────
-  createFiling: secureProtectedProcedure.input(taxFilingInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await createTaxFiling(input);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "tax_filing",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
-  listFilings: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllTaxFilingsPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  markFiled: secureProtectedProcedure.input(
-    z19.object({
-      id: z19.number(),
-      status: z19.enum(["pending", "prepared", "filed", "late"])
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const filedAt = input.status === "filed" ? /* @__PURE__ */ new Date() : void 0;
-    await updateTaxFilingStatus(input.id, input.status, filedAt);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "tax_filing",
-      resourceId: input.id,
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
+  createFiling: secureProtectedProcedure
+    .input(taxFilingInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await createTaxFiling(input);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "tax_filing",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
+  listFilings: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllTaxFilingsPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  markFiled: secureProtectedProcedure
+    .input(
+      z19.object({
+        id: z19.number(),
+        status: z19.enum(["pending", "prepared", "filed", "late"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const filedAt =
+        input.status === "filed" ? /* @__PURE__ */ new Date() : void 0;
+      await updateTaxFilingStatus(input.id, input.status, filedAt);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "tax_filing",
+        resourceId: input.id,
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
   upcomingDeadlines: secureProtectedProcedure.query(async () => {
     return await getUpcomingFilings();
-  })
+  }),
 });
 
 // server/routes/inventory.ts
 import { z as z20 } from "zod";
 init_db();
 var inventoryRouter = router({
-  create: secureProtectedProcedure.input(inventoryInputSchema).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    let monthlyDepreciation;
-    let currentValue;
-    if (input.purchaseCost && input.usefulLifeMonths) {
-      const dep = calculateDepreciation(
-        input.purchaseCost,
-        input.usefulLifeMonths
-      );
-      monthlyDepreciation = dep.monthlyAmount;
-      currentValue = input.currentValue ?? dep.currentValue;
-    }
-    await createInventoryItem({
-      ...input,
-      monthlyDepreciation,
-      currentValue
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "inventory",
-      newValue: JSON.stringify(input)
-    });
-    return { success: true };
-  }),
-  list: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllInventoryPaginated(page, pageSize);
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  }),
-  get: secureProtectedProcedure.input(z20.object({ id: z20.number() })).query(async ({ input }) => {
-    return await getInventoryById(input.id);
-  }),
-  update: secureProtectedProcedure.input(
-    z20.object({
-      id: z20.number(),
-      data: inventoryInputSchema.partial()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await updateInventoryItem(input.id, input.data);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "inventory",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
-  delete: secureProtectedProcedure.input(z20.object({ id: z20.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteInventoryItem(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "inventory",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
+  create: secureProtectedProcedure
+    .input(inventoryInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      let monthlyDepreciation;
+      let currentValue;
+      if (input.purchaseCost && input.usefulLifeMonths) {
+        const dep = calculateDepreciation(
+          input.purchaseCost,
+          input.usefulLifeMonths
+        );
+        monthlyDepreciation = dep.monthlyAmount;
+        currentValue = input.currentValue ?? dep.currentValue;
+      }
+      await createInventoryItem({
+        ...input,
+        monthlyDepreciation,
+        currentValue,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "inventory",
+        newValue: JSON.stringify(input),
+      });
+      return { success: true };
+    }),
+  list: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllInventoryPaginated(page, pageSize);
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
+  get: secureProtectedProcedure
+    .input(z20.object({ id: z20.number() }))
+    .query(async ({ input }) => {
+      return await getInventoryById(input.id);
+    }),
+  update: secureProtectedProcedure
+    .input(
+      z20.object({
+        id: z20.number(),
+        data: inventoryInputSchema.partial(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await updateInventoryItem(input.id, input.data);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "inventory",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
+  delete: secureProtectedProcedure
+    .input(z20.object({ id: z20.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteInventoryItem(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "inventory",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
   summary: secureProtectedProcedure.query(async () => {
     return await getInventorySummary();
-  })
+  }),
 });
 
 // server/estimateEmailService.ts
@@ -10198,10 +11633,7 @@ function getResendClient2() {
   }
   return resendClient2;
 }
-async function sendEstimateEmail({
-  toEmail,
-  estimateData
-}) {
+async function sendEstimateEmail({ toEmail, estimateData }) {
   const client = getResendClient2();
   if (!client) {
     console.warn(
@@ -10216,24 +11648,37 @@ async function sendEstimateEmail({
     arrivalDate,
     departureDate,
     total,
-    language
+    language,
   } = estimateData;
   const isHebrew = language === "he";
-  const tourList = selectedTours.map(
-    (t2) => `  - ${isHebrew ? t2.nameHe : t2.nameEn} (\u0E3F${t2.basePrice.toLocaleString()})`
-  ).join("\n");
+  const tourList = selectedTours
+    .map(
+      t2 =>
+        `  - ${isHebrew ? t2.nameHe : t2.nameEn} (\u0E3F${t2.basePrice.toLocaleString()})`
+    )
+    .join("\n");
   const services = [];
   if (estimateData.includesHotels)
     services.push(isHebrew ? "\u05DE\u05DC\u05D5\u05E0\u05D5\u05EA" : "Hotels");
   if (estimateData.includesFood)
-    services.push(isHebrew ? "\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA" : "Kosher Meals");
+    services.push(
+      isHebrew
+        ? "\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA"
+        : "Kosher Meals"
+    );
   if (estimateData.includesAttractions)
     services.push(
-      isHebrew ? `${estimateData.attractionCount} \u05D0\u05D8\u05E8\u05E7\u05E6\u05D9\u05D5\u05EA` : `${estimateData.attractionCount} Attractions`
+      isHebrew
+        ? `${estimateData.attractionCount} \u05D0\u05D8\u05E8\u05E7\u05E6\u05D9\u05D5\u05EA`
+        : `${estimateData.attractionCount} Attractions`
     );
   if (estimateData.needsShabbatHotel)
-    services.push(isHebrew ? "\u05DE\u05DC\u05D5\u05DF \u05E9\u05D1\u05EA" : "Shabbat Hotel");
-  const subject = isHebrew ? `\u05D4\u05E2\u05E8\u05DB\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DC\u05D8\u05D9\u05D5\u05DC - WIRO 4x4` : `Your Trip Estimate - WIRO 4x4`;
+    services.push(
+      isHebrew ? "\u05DE\u05DC\u05D5\u05DF \u05E9\u05D1\u05EA" : "Shabbat Hotel"
+    );
+  const subject = isHebrew
+    ? `\u05D4\u05E2\u05E8\u05DB\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DC\u05D8\u05D9\u05D5\u05DC - WIRO 4x4`
+    : `Your Trip Estimate - WIRO 4x4`;
   const htmlContent = `
     <html>
       <head>
@@ -10289,14 +11734,18 @@ async function sendEstimateEmail({
               </div>
             </div>
 
-            ${services.length > 0 ? `
+            ${
+              services.length > 0
+                ? `
               <div class="section">
                 <h2>${isHebrew ? "\u05E9\u05D9\u05E8\u05D5\u05EA\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD" : "Additional Services"}</h2>
                 <ul>
-                  ${services.map((s) => `<li>${s}</li>`).join("")}
+                  ${services.map(s => `<li>${s}</li>`).join("")}
                 </ul>
               </div>
-            ` : ""}
+            `
+                : ""
+            }
 
             <div class="total">
               <div>${isHebrew ? "\u05E1\u05D4\u05F4\u05DB \u05DE\u05E9\u05D5\u05E2\u05E8" : "Estimated Total"}</div>
@@ -10304,9 +11753,11 @@ async function sendEstimateEmail({
             </div>
 
             <div style="text-align: center;">
-              <a href="https://wa.me/66929894495?text=${encodeURIComponent(
-    isHebrew ? `\u05E9\u05DC\u05D5\u05DD! \u05E7\u05D9\u05D1\u05DC\u05EA\u05D9 \u05D0\u05EA \u05D4\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8 \u05DC-${total.toLocaleString()} \u05D1\u05D0\u05D8. \u05D0\u05E9\u05DE\u05D7 \u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.` : `Hello! I received the estimate for \u0E3F${total.toLocaleString()}. I'd like more details.`
-  )}" class="cta">
+              <a href="https://wa.me/972544715400?text=${encodeURIComponent(
+                isHebrew
+                  ? `\u05E9\u05DC\u05D5\u05DD! \u05E7\u05D9\u05D1\u05DC\u05EA\u05D9 \u05D0\u05EA \u05D4\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8 \u05DC-${total.toLocaleString()} \u05D1\u05D0\u05D8. \u05D0\u05E9\u05DE\u05D7 \u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.`
+                  : `Hello! I received the estimate for \u0E3F${total.toLocaleString()}. I'd like more details.`
+              )}" class="cta">
                 ${isHebrew ? "\u{1F4F1} \u05E6\u05D5\u05E8 \u05E7\u05E9\u05E8 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4F1} Contact Us on WhatsApp"}
               </a>
             </div>
@@ -10318,7 +11769,7 @@ async function sendEstimateEmail({
 
           <div class="footer">
             <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
-            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +66 92-989-4495</p>
+            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +972 54-471-5400</p>
             <p>${isHebrew ? "\u{1F4E7} \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC" : "\u{1F4E7} Email"}: ${COMPANY_SENDER_EMAIL}</p>
             <p style="margin-top: 15px; font-size: 12px;">
               ${isHebrew ? "\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9, \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 | www.wiro4x4indochina.com" : "Chiang Mai, Thailand | www.wiro4x4indochina.com"}
@@ -10333,7 +11784,7 @@ async function sendEstimateEmail({
       from: `WIRO 4x4 <${COMPANY_SENDER_EMAIL}>`,
       to: toEmail,
       subject,
-      html: htmlContent
+      html: htmlContent,
     });
     console.log(`[Estimate Email] Sent estimate to ${toEmail} (${language})`);
   } catch (error) {
@@ -10345,21 +11796,26 @@ async function sendEstimateEmail({
 
 // server/routes/estimate.ts
 var estimateRouter = router({
-  sendEmail: securePublicProcedure.input(estimateEmailInputSchema).mutation(async ({ input, ctx }) => {
-    const ip = ctx.req.headers["x-forwarded-for"] || ctx.req.headers["x-real-ip"] || "unknown";
-    const { allowed } = checkRateLimit(`estimate-email:${ip}`, 3, 6e4);
-    if (!allowed) {
-      throw new TRPCError3({
-        code: "TOO_MANY_REQUESTS",
-        message: "Too many requests. Please try again later."
+  sendEmail: securePublicProcedure
+    .input(estimateEmailInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      const ip =
+        ctx.req.headers["x-forwarded-for"] ||
+        ctx.req.headers["x-real-ip"] ||
+        "unknown";
+      const { allowed } = checkRateLimit(`estimate-email:${ip}`, 3, 6e4);
+      if (!allowed) {
+        throw new TRPCError3({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please try again later.",
+        });
+      }
+      await sendEstimateEmail({
+        toEmail: input.email,
+        estimateData: input,
       });
-    }
-    await sendEstimateEmail({
-      toEmail: input.email,
-      estimateData: input
-    });
-    return { success: true };
-  })
+      return { success: true };
+    }),
 });
 
 // server/routes/abandoned.ts
@@ -10385,7 +11841,10 @@ function getResend6() {
 var SENDER = `${COMPANY_NAME} <${EMAIL_SENDERS.updates}>`;
 function buildRecoveryEmailHtml(lead) {
   const name = escapeHtml(lead.name) || "Traveler";
-  const inquiryNote = lead.message || lead.notes ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${escapeHtml(lead.message || lead.notes)}"</p>` : "";
+  const inquiryNote =
+    lead.message || lead.notes
+      ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${escapeHtml(lead.message || lead.notes)}"</p>`
+      : "";
   return `
 <!DOCTYPE html>
 <html>
@@ -10517,8 +11976,9 @@ async function sendAbandonedBookingEmail(lead) {
     const { data, error } = await resend.emails.send({
       from: SENDER,
       to: [lead.email],
-      subject: "Still planning your Chiang Mai adventure? \u{1F699} | \u05E2\u05D3\u05D9\u05D9\u05DF \u05DE\u05EA\u05DB\u05E0\u05E0\u05D9\u05DD \u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9?",
-      html
+      subject:
+        "Still planning your Chiang Mai adventure? \u{1F699} | \u05E2\u05D3\u05D9\u05D9\u05DF \u05DE\u05EA\u05DB\u05E0\u05E0\u05D9\u05DD \u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9?",
+      html,
     });
     if (error) {
       console.error(
@@ -10545,83 +12005,93 @@ var abandonedRouter = router({
    * List abandoned leads: status='new', created >24h ago, recovery email not yet sent.
    * Optionally include already-emailed leads with `includeEmailed`.
    */
-  list: secureProtectedProcedure.input(
-    z21.object({
-      includeEmailed: z21.boolean().optional()
-    }).optional()
-  ).query(async ({ input }) => {
-    const leads2 = await getAbandonedLeads(24);
-    if (input?.includeEmailed) {
-      return leads2;
-    }
-    return leads2.filter((l) => !l.recoveryEmailSentAt);
-  }),
+  list: secureProtectedProcedure
+    .input(
+      z21
+        .object({
+          includeEmailed: z21.boolean().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const leads2 = await getAbandonedLeads(24);
+      if (input?.includeEmailed) {
+        return leads2;
+      }
+      return leads2.filter(l => !l.recoveryEmailSentAt);
+    }),
   /**
    * Count of abandoned leads that haven't received a recovery email yet.
    */
   count: secureProtectedProcedure.query(async () => {
     const leads2 = await getAbandonedLeads(24);
-    const unsent = leads2.filter((l) => !l.recoveryEmailSentAt);
+    const unsent = leads2.filter(l => !l.recoveryEmailSentAt);
     return { total: leads2.length, unsent: unsent.length };
   }),
   /**
    * Send a recovery email to a single lead (admin-triggered).
    */
-  sendRecoveryEmail: secureProtectedProcedure.input(z21.object({ leadId: z21.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const leads2 = await getAbandonedLeads(24);
-    const lead = leads2.find((l) => l.id === input.leadId);
-    if (!lead) {
-      const allLeads = await getAbandonedLeads(24 * 365);
-      const foundLead = allLeads.find((l) => l.id === input.leadId);
-      if (!foundLead) {
-        return { success: false, message: "Lead not found or not abandoned" };
+  sendRecoveryEmail: secureProtectedProcedure
+    .input(z21.object({ leadId: z21.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const leads2 = await getAbandonedLeads(24);
+      const lead = leads2.find(l => l.id === input.leadId);
+      if (!lead) {
+        const allLeads = await getAbandonedLeads(24 * 365);
+        const foundLead = allLeads.find(l => l.id === input.leadId);
+        if (!foundLead) {
+          return { success: false, message: "Lead not found or not abandoned" };
+        }
+        const sent2 = await sendAbandonedBookingEmail(foundLead);
+        if (sent2) {
+          await markRecoveryEmailSent(foundLead.id);
+          await logAdminAction({
+            userId: ctx.user?.id,
+            action: "update",
+            resourceType: "lead",
+            resourceId: foundLead.id,
+            newValue: JSON.stringify({ recoveryEmailSent: true }),
+          });
+        }
+        return {
+          success: sent2,
+          message: sent2
+            ? "Recovery email sent successfully"
+            : "Failed to send recovery email",
+        };
       }
-      const sent2 = await sendAbandonedBookingEmail(foundLead);
-      if (sent2) {
-        await markRecoveryEmailSent(foundLead.id);
+      if (lead.recoveryEmailSentAt) {
+        return {
+          success: false,
+          message: "Recovery email already sent to this lead",
+        };
+      }
+      const sent = await sendAbandonedBookingEmail(lead);
+      if (sent) {
+        await markRecoveryEmailSent(lead.id);
         await logAdminAction({
           userId: ctx.user?.id,
           action: "update",
           resourceType: "lead",
-          resourceId: foundLead.id,
-          newValue: JSON.stringify({ recoveryEmailSent: true })
+          resourceId: lead.id,
+          newValue: JSON.stringify({ recoveryEmailSent: true }),
         });
       }
       return {
-        success: sent2,
-        message: sent2 ? "Recovery email sent successfully" : "Failed to send recovery email"
+        success: sent,
+        message: sent
+          ? "Recovery email sent successfully"
+          : "Failed to send recovery email",
       };
-    }
-    if (lead.recoveryEmailSentAt) {
-      return {
-        success: false,
-        message: "Recovery email already sent to this lead"
-      };
-    }
-    const sent = await sendAbandonedBookingEmail(lead);
-    if (sent) {
-      await markRecoveryEmailSent(lead.id);
-      await logAdminAction({
-        userId: ctx.user?.id,
-        action: "update",
-        resourceType: "lead",
-        resourceId: lead.id,
-        newValue: JSON.stringify({ recoveryEmailSent: true })
-      });
-    }
-    return {
-      success: sent,
-      message: sent ? "Recovery email sent successfully" : "Failed to send recovery email"
-    };
-  }),
+    }),
   /**
    * Send recovery emails to all unsent abandoned leads (max 10 per batch).
    */
   sendBatchRecovery: secureProtectedProcedure.mutation(async ({ ctx }) => {
     checkAdminRateLimit(ctx);
     const leads2 = await getAbandonedLeads(24);
-    const unsent = leads2.filter((l) => !l.recoveryEmailSentAt && l.email);
+    const unsent = leads2.filter(l => !l.recoveryEmailSentAt && l.email);
     const batch = unsent.slice(0, 10);
     let sentCount = 0;
     let failedCount = 0;
@@ -10640,17 +12110,17 @@ var abandonedRouter = router({
         action: "update",
         resourceType: "lead",
         newValue: JSON.stringify({
-          batchRecoveryEmails: { sent: sentCount, failed: failedCount }
-        })
+          batchRecoveryEmails: { sent: sentCount, failed: failedCount },
+        }),
       });
     }
     return {
       success: true,
       sent: sentCount,
       failed: failedCount,
-      remaining: Math.max(0, unsent.length - batch.length)
+      remaining: Math.max(0, unsent.length - batch.length),
     };
-  })
+  }),
 });
 
 // server/routes/availability.ts
@@ -10662,112 +12132,123 @@ var availabilityRouter = router({
    * Returns array of { date, available, isBlocked, notes }.
    * Dates without records are considered fully available (default 10 slots).
    */
-  getByTour: securePublicProcedure.input(
-    z22.object({
-      tourId: z22.number(),
-      year: z22.number().min(2024).max(2030),
-      month: z22.number().min(1).max(12)
-    })
-  ).query(async ({ input }) => {
-    const { tourId, year, month } = input;
-    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-    const records = await getTourAvailabilityByRange(
-      tourId,
-      startDate,
-      endDate
-    );
-    const recordMap = new Map(records.map((r) => [r.date, r]));
-    const tour = await getTourById(tourId);
-    const defaultSlots = tour?.groupMaxSize ?? 10;
-    const result = [];
-    for (let day = 1; day <= lastDay; day++) {
-      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const record = recordMap.get(dateStr);
-      if (record) {
-        result.push({
-          date: dateStr,
-          available: record.isBlocked ? 0 : record.maxSlots - record.bookedSlots,
-          isBlocked: record.isBlocked === 1,
-          notes: record.notes,
-          maxSlots: record.maxSlots,
-          bookedSlots: record.bookedSlots
-        });
-      } else {
-        result.push({
-          date: dateStr,
-          available: defaultSlots,
-          isBlocked: false,
-          notes: null,
-          maxSlots: defaultSlots,
-          bookedSlots: 0
-        });
+  getByTour: securePublicProcedure
+    .input(
+      z22.object({
+        tourId: z22.number(),
+        year: z22.number().min(2024).max(2030),
+        month: z22.number().min(1).max(12),
+      })
+    )
+    .query(async ({ input }) => {
+      const { tourId, year, month } = input;
+      const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+      const records = await getTourAvailabilityByRange(
+        tourId,
+        startDate,
+        endDate
+      );
+      const recordMap = new Map(records.map(r => [r.date, r]));
+      const tour = await getTourById(tourId);
+      const defaultSlots = tour?.groupMaxSize ?? 10;
+      const result = [];
+      for (let day = 1; day <= lastDay; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const record = recordMap.get(dateStr);
+        if (record) {
+          result.push({
+            date: dateStr,
+            available: record.isBlocked
+              ? 0
+              : record.maxSlots - record.bookedSlots,
+            isBlocked: record.isBlocked === 1,
+            notes: record.notes,
+            maxSlots: record.maxSlots,
+            bookedSlots: record.bookedSlots,
+          });
+        } else {
+          result.push({
+            date: dateStr,
+            available: defaultSlots,
+            isBlocked: false,
+            notes: null,
+            maxSlots: defaultSlots,
+            bookedSlots: 0,
+          });
+        }
       }
-    }
-    return result;
-  }),
+      return result;
+    }),
   /**
    * Admin: Update availability for a specific tour+date.
    */
-  update: secureProtectedProcedure.input(
-    z22.object({
-      tourId: z22.number(),
-      date: z22.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      maxSlots: z22.number().min(0).max(100).optional(),
-      isBlocked: z22.boolean().optional(),
-      notes: z22.string().max(500).nullable().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const { tourId, date, maxSlots, isBlocked, notes } = input;
-    await upsertTourAvailability(tourId, date, {
-      maxSlots,
-      isBlocked: isBlocked !== void 0 ? isBlocked ? 1 : 0 : void 0,
-      notes
-    });
-    void logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "tourAvailability",
-      resourceId: tourId,
-      newValue: JSON.stringify({ tourId, date, maxSlots, isBlocked, notes })
-    });
-    return { success: true };
-  }),
+  update: secureProtectedProcedure
+    .input(
+      z22.object({
+        tourId: z22.number(),
+        date: z22.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        maxSlots: z22.number().min(0).max(100).optional(),
+        isBlocked: z22.boolean().optional(),
+        notes: z22.string().max(500).nullable().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const { tourId, date, maxSlots, isBlocked, notes } = input;
+      await upsertTourAvailability(tourId, date, {
+        maxSlots,
+        isBlocked: isBlocked !== void 0 ? (isBlocked ? 1 : 0) : void 0,
+        notes,
+      });
+      void logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "tourAvailability",
+        resourceId: tourId,
+        newValue: JSON.stringify({ tourId, date, maxSlots, isBlocked, notes }),
+      });
+      return { success: true };
+    }),
   /**
    * Admin: Bulk update a range of dates (block/unblock).
    */
-  bulkUpdate: secureProtectedProcedure.input(
-    z22.object({
-      tourId: z22.number(),
-      dates: z22.array(z22.string().regex(/^\d{4}-\d{2}-\d{2}$/)).min(1).max(90),
-      maxSlots: z22.number().min(0).max(100).optional(),
-      isBlocked: z22.boolean().optional(),
-      notes: z22.string().max(500).nullable().optional()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const { tourId, dates, maxSlots, isBlocked, notes } = input;
-    await bulkUpdateTourAvailability(tourId, dates, {
-      maxSlots,
-      isBlocked: isBlocked !== void 0 ? isBlocked ? 1 : 0 : void 0,
-      notes
-    });
-    void logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "tourAvailability",
-      resourceId: tourId,
-      newValue: JSON.stringify({
-        tourId,
-        dateCount: dates.length,
-        isBlocked,
-        notes
+  bulkUpdate: secureProtectedProcedure
+    .input(
+      z22.object({
+        tourId: z22.number(),
+        dates: z22
+          .array(z22.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+          .min(1)
+          .max(90),
+        maxSlots: z22.number().min(0).max(100).optional(),
+        isBlocked: z22.boolean().optional(),
+        notes: z22.string().max(500).nullable().optional(),
       })
-    });
-    return { success: true };
-  })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const { tourId, dates, maxSlots, isBlocked, notes } = input;
+      await bulkUpdateTourAvailability(tourId, dates, {
+        maxSlots,
+        isBlocked: isBlocked !== void 0 ? (isBlocked ? 1 : 0) : void 0,
+        notes,
+      });
+      void logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "tourAvailability",
+        resourceId: tourId,
+        newValue: JSON.stringify({
+          tourId,
+          dateCount: dates.length,
+          isBlocked,
+          notes,
+        }),
+      });
+      return { success: true };
+    }),
 });
 
 // server/routes/tripPhotos.ts
@@ -10787,7 +12268,8 @@ function getResend7() {
 var SENDER_EMAIL4 = "WIRO 4x4 Photos <bookings@wiro4x4indochina.com>";
 async function sendTripPhotoAlbumEmail(data) {
   const subject = `\u{1F4F8} Your Adventure Photos Are Ready! - ${data.albumTitle}`;
-  const previewSection = data.firstPhotoUrl ? `
+  const previewSection = data.firstPhotoUrl
+    ? `
         <div style="margin: 20px 0; text-align: center;">
           <img
             src="${data.firstPhotoUrl}"
@@ -10797,12 +12279,15 @@ async function sendTripPhotoAlbumEmail(data) {
           <p style="color: #888; font-size: 13px; margin-top: 8px;">
             ${data.photoCount} photo${data.photoCount !== 1 ? "s" : ""} from your adventure
           </p>
-        </div>` : "";
-  const personalMessageSection = data.personalMessage ? `
+        </div>`
+    : "";
+  const personalMessageSection = data.personalMessage
+    ? `
         <div style="background: #f0f7f4; border-left: 4px solid #d4af37; padding: 15px 20px; border-radius: 0 8px 8px 0; margin: 20px 0;">
           <p style="color: #666; font-size: 13px; margin: 0 0 5px 0; font-style: italic;">A personal note from your guide:</p>
           <p style="color: #333; margin: 0; line-height: 1.6;">${escapeHtml(data.personalMessage)}</p>
-        </div>` : "";
+        </div>`
+    : "";
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -10872,7 +12357,7 @@ async function sendTripPhotoAlbumEmail(data) {
       from: SENDER_EMAIL4,
       to: data.customerEmail,
       subject,
-      html: htmlContent
+      html: htmlContent,
     });
     if (error) {
       console.error("[Resend] Failed to send trip photo email:", error);
@@ -10893,272 +12378,297 @@ async function sendTripPhotoAlbumEmail(data) {
 // server/routes/tripPhotos.ts
 var tripPhotosRouter = router({
   // ── Admin: Create album for a booking ────────────────────────────
-  createAlbum: secureProtectedProcedure.input(
-    z23.object({
-      bookingId: z23.number(),
-      title: z23.string().min(1).max(255),
-      message: z23.string().max(2e3).optional(),
-      expiresAt: z23.string().optional()
-      // ISO date string
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const accessToken = randomUUID2().replace(/-/g, "") + randomUUID2().replace(/-/g, "").slice(0, 32);
-    await createTripPhotoAlbum({
-      bookingId: input.bookingId,
-      accessToken,
-      title: input.title,
-      message: input.message ?? null,
-      isActive: 1,
-      viewCount: 0,
-      expiresAt: input.expiresAt ? new Date(input.expiresAt) : null
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "trip_photo_album",
-      newValue: JSON.stringify({
+  createAlbum: secureProtectedProcedure
+    .input(
+      z23.object({
+        bookingId: z23.number(),
+        title: z23.string().min(1).max(255),
+        message: z23.string().max(2e3).optional(),
+        expiresAt: z23.string().optional(),
+        // ISO date string
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const accessToken =
+        randomUUID2().replace(/-/g, "") +
+        randomUUID2().replace(/-/g, "").slice(0, 32);
+      await createTripPhotoAlbum({
         bookingId: input.bookingId,
-        title: input.title
-      })
-    });
-    return { success: true, accessToken };
-  }),
+        accessToken,
+        title: input.title,
+        message: input.message ?? null,
+        isActive: 1,
+        viewCount: 0,
+        expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "trip_photo_album",
+        newValue: JSON.stringify({
+          bookingId: input.bookingId,
+          title: input.title,
+        }),
+      });
+      return { success: true, accessToken };
+    }),
   // ── Admin: Upload photo to an album ──────────────────────────────
-  uploadPhoto: secureProtectedProcedure.input(
-    z23.object({
-      albumId: z23.number(),
-      filename: z23.string(),
-      contentType: z23.string(),
-      base64Data: z23.string(),
-      caption: z23.string().max(500).optional(),
-      sortOrder: z23.number().default(0)
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const ALLOWED_TYPES = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif"
-    ];
-    if (!ALLOWED_TYPES.includes(input.contentType)) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF"
-      });
-    }
-    const fileSize = Buffer.byteLength(input.base64Data, "base64");
-    if (fileSize > 15 * 1024 * 1024) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "File too large. Maximum size is 15MB."
-      });
-    }
-    const album = await getTripPhotoAlbumById(input.albumId);
-    if (!album) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Album not found"
-      });
-    }
-    const ext = input.contentType.split("/")[1] === "jpeg" ? "jpg" : input.contentType.split("/")[1];
-    const safeFilename = `${randomUUID2()}.${ext}`;
-    const key = `trip-photos/${album.accessToken}/${safeFilename}`;
-    const buffer = Buffer.from(input.base64Data, "base64");
-    let result;
-    try {
-      result = await storagePut(key, buffer, input.contentType);
-    } catch (err) {
-      captureException(err);
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to upload file to storage",
-        cause: err
-      });
-    }
-    await createTripPhoto({
-      albumId: input.albumId,
-      s3Key: result.key,
-      s3Url: result.url,
-      caption: input.caption ?? null,
-      sortOrder: input.sortOrder
-    });
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "trip_photo",
-      newValue: JSON.stringify({
-        albumId: input.albumId,
-        key: result.key
+  uploadPhoto: secureProtectedProcedure
+    .input(
+      z23.object({
+        albumId: z23.number(),
+        filename: z23.string(),
+        contentType: z23.string(),
+        base64Data: z23.string(),
+        caption: z23.string().max(500).optional(),
+        sortOrder: z23.number().default(0),
       })
-    });
-    return { url: result.url, key: result.key };
-  }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const ALLOWED_TYPES = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+      if (!ALLOWED_TYPES.includes(input.contentType)) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF",
+        });
+      }
+      const fileSize = Buffer.byteLength(input.base64Data, "base64");
+      if (fileSize > 15 * 1024 * 1024) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "File too large. Maximum size is 15MB.",
+        });
+      }
+      const album = await getTripPhotoAlbumById(input.albumId);
+      if (!album) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Album not found",
+        });
+      }
+      const ext =
+        input.contentType.split("/")[1] === "jpeg"
+          ? "jpg"
+          : input.contentType.split("/")[1];
+      const safeFilename = `${randomUUID2()}.${ext}`;
+      const key = `trip-photos/${album.accessToken}/${safeFilename}`;
+      const buffer = Buffer.from(input.base64Data, "base64");
+      let result;
+      try {
+        result = await storagePut(key, buffer, input.contentType);
+      } catch (err) {
+        captureException(err);
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to upload file to storage",
+          cause: err,
+        });
+      }
+      await createTripPhoto({
+        albumId: input.albumId,
+        s3Key: result.key,
+        s3Url: result.url,
+        caption: input.caption ?? null,
+        sortOrder: input.sortOrder,
+      });
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "trip_photo",
+        newValue: JSON.stringify({
+          albumId: input.albumId,
+          key: result.key,
+        }),
+      });
+      return { url: result.url, key: result.key };
+    }),
   // ── Admin: Delete photo from album ───────────────────────────────
-  deletePhoto: secureProtectedProcedure.input(z23.object({ id: z23.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteTripPhoto(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "trip_photo",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
+  deletePhoto: secureProtectedProcedure
+    .input(z23.object({ id: z23.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteTripPhoto(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "trip_photo",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
   // ── Admin: List all albums with booking info ─────────────────────
   listAlbums: secureProtectedProcedure.query(async () => {
     const albums = await getAllTripPhotoAlbums();
     const albumsWithCounts = await Promise.all(
-      albums.map(async (a) => {
+      albums.map(async a => {
         const photoCount = await getAlbumPhotoCount(a.album.id);
         return {
           ...a.album,
           bookingContactName: a.bookingContactName,
           bookingContactEmail: a.bookingContactEmail,
-          photoCount
+          photoCount,
         };
       })
     );
     return albumsWithCounts;
   }),
   // ── Admin: Get album photos ──────────────────────────────────────
-  getAlbumPhotos: secureProtectedProcedure.input(z23.object({ albumId: z23.number() })).query(async ({ input }) => {
-    return await getTripPhotosByAlbumId(input.albumId);
-  }),
+  getAlbumPhotos: secureProtectedProcedure
+    .input(z23.object({ albumId: z23.number() }))
+    .query(async ({ input }) => {
+      return await getTripPhotosByAlbumId(input.albumId);
+    }),
   // ── Admin: Update album ──────────────────────────────────────────
-  updateAlbum: secureProtectedProcedure.input(
-    z23.object({
-      id: z23.number(),
-      data: z23.object({
-        title: z23.string().min(1).max(255).optional(),
-        message: z23.string().max(2e3).nullable().optional(),
-        isActive: z23.boolean().optional(),
-        expiresAt: z23.string().nullable().optional()
+  updateAlbum: secureProtectedProcedure
+    .input(
+      z23.object({
+        id: z23.number(),
+        data: z23.object({
+          title: z23.string().min(1).max(255).optional(),
+          message: z23.string().max(2e3).nullable().optional(),
+          isActive: z23.boolean().optional(),
+          expiresAt: z23.string().nullable().optional(),
+        }),
       })
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const updateData = {};
-    if (input.data.title !== void 0) updateData.title = input.data.title;
-    if (input.data.message !== void 0)
-      updateData.message = input.data.message;
-    if (input.data.isActive !== void 0)
-      updateData.isActive = input.data.isActive ? 1 : 0;
-    if (input.data.expiresAt !== void 0)
-      updateData.expiresAt = input.data.expiresAt ? new Date(input.data.expiresAt) : null;
-    await updateTripPhotoAlbum(input.id, updateData);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "update",
-      resourceType: "trip_photo_album",
-      resourceId: input.id,
-      newValue: JSON.stringify(input.data)
-    });
-    return { success: true };
-  }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updateData = {};
+      if (input.data.title !== void 0) updateData.title = input.data.title;
+      if (input.data.message !== void 0)
+        updateData.message = input.data.message;
+      if (input.data.isActive !== void 0)
+        updateData.isActive = input.data.isActive ? 1 : 0;
+      if (input.data.expiresAt !== void 0)
+        updateData.expiresAt = input.data.expiresAt
+          ? new Date(input.data.expiresAt)
+          : null;
+      await updateTripPhotoAlbum(input.id, updateData);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "trip_photo_album",
+        resourceId: input.id,
+        newValue: JSON.stringify(input.data),
+      });
+      return { success: true };
+    }),
   // ── Admin: Delete album ──────────────────────────────────────────
-  deleteAlbum: secureProtectedProcedure.input(z23.object({ id: z23.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await deleteTripPhotoAlbum(input.id);
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "delete",
-      resourceType: "trip_photo_album",
-      resourceId: input.id
-    });
-    return { success: true };
-  }),
+  deleteAlbum: secureProtectedProcedure
+    .input(z23.object({ id: z23.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await deleteTripPhotoAlbum(input.id);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "delete",
+        resourceType: "trip_photo_album",
+        resourceId: input.id,
+      });
+      return { success: true };
+    }),
   // ── Admin: Send album email to customer ──────────────────────────
-  sendAlbumEmail: secureProtectedProcedure.input(z23.object({ albumId: z23.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const album = await getTripPhotoAlbumById(input.albumId);
-    if (!album) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Album not found"
+  sendAlbumEmail: secureProtectedProcedure
+    .input(z23.object({ albumId: z23.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const album = await getTripPhotoAlbumById(input.albumId);
+      if (!album) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Album not found",
+        });
+      }
+      const booking = await getBookingById(album.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found for this album",
+        });
+      }
+      if (!booking.contactEmail) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "No email address found for this booking",
+        });
+      }
+      const photos = await getTripPhotosByAlbumId(album.id);
+      const albumUrl = `${COMPANY_WEBSITE}/album/${album.accessToken}`;
+      const success = await sendTripPhotoAlbumEmail({
+        customerName: booking.contactName,
+        customerEmail: booking.contactEmail,
+        albumTitle: album.title,
+        albumUrl,
+        personalMessage: album.message,
+        photoCount: photos.length,
+        firstPhotoUrl: photos[0]?.s3Url ?? null,
       });
-    }
-    const booking = await getBookingById(album.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found for this album"
+      if (!success) {
+        throw new TRPCError3({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send email. Check email configuration.",
+        });
+      }
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "trip_photo_email",
+        newValue: JSON.stringify({
+          albumId: album.id,
+          sentTo: booking.contactEmail,
+        }),
       });
-    }
-    if (!booking.contactEmail) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "No email address found for this booking"
-      });
-    }
-    const photos = await getTripPhotosByAlbumId(album.id);
-    const albumUrl = `${COMPANY_WEBSITE}/album/${album.accessToken}`;
-    const success = await sendTripPhotoAlbumEmail({
-      customerName: booking.contactName,
-      customerEmail: booking.contactEmail,
-      albumTitle: album.title,
-      albumUrl,
-      personalMessage: album.message,
-      photoCount: photos.length,
-      firstPhotoUrl: photos[0]?.s3Url ?? null
-    });
-    if (!success) {
-      throw new TRPCError3({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to send email. Check email configuration."
-      });
-    }
-    await logAdminAction({
-      userId: ctx.user?.id,
-      action: "create",
-      resourceType: "trip_photo_email",
-      newValue: JSON.stringify({
-        albumId: album.id,
-        sentTo: booking.contactEmail
-      })
-    });
-    return { success: true };
-  }),
+      return { success: true };
+    }),
   // ── Public: Get album by access token ────────────────────────────
-  getAlbum: securePublicProcedure.input(z23.object({ token: z23.string().min(1) })).query(async ({ input }) => {
-    const album = await getTripPhotoAlbumByToken(input.token);
-    if (!album) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Album not found"
-      });
-    }
-    if (!album.isActive) {
-      throw new TRPCError3({
-        code: "FORBIDDEN",
-        message: "This album is no longer available"
-      });
-    }
-    if (album.expiresAt && new Date(album.expiresAt) < /* @__PURE__ */ new Date()) {
-      throw new TRPCError3({
-        code: "FORBIDDEN",
-        message: "This album has expired"
-      });
-    }
-    incrementAlbumViewCount(album.id).catch(() => {
-    });
-    const photos = await getTripPhotosByAlbumId(album.id);
-    const booking = await getBookingById(album.bookingId);
-    return {
-      title: album.title,
-      message: album.message,
-      createdAt: album.createdAt,
-      customerName: booking?.contactName ?? "Guest",
-      photos: photos.map((p) => ({
-        id: p.id,
-        url: p.s3Url,
-        caption: p.caption,
-        sortOrder: p.sortOrder
-      }))
-    };
-  })
+  getAlbum: securePublicProcedure
+    .input(z23.object({ token: z23.string().min(1) }))
+    .query(async ({ input }) => {
+      const album = await getTripPhotoAlbumByToken(input.token);
+      if (!album) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Album not found",
+        });
+      }
+      if (!album.isActive) {
+        throw new TRPCError3({
+          code: "FORBIDDEN",
+          message: "This album is no longer available",
+        });
+      }
+      if (
+        album.expiresAt &&
+        new Date(album.expiresAt) < /* @__PURE__ */ new Date()
+      ) {
+        throw new TRPCError3({
+          code: "FORBIDDEN",
+          message: "This album has expired",
+        });
+      }
+      incrementAlbumViewCount(album.id).catch(() => {});
+      const photos = await getTripPhotosByAlbumId(album.id);
+      const booking = await getBookingById(album.bookingId);
+      return {
+        title: album.title,
+        message: album.message,
+        createdAt: album.createdAt,
+        customerName: booking?.contactName ?? "Guest",
+        photos: photos.map(p => ({
+          id: p.id,
+          url: p.s3Url,
+          caption: p.caption,
+          sortOrder: p.sortOrder,
+        })),
+      };
+    }),
 });
 
 // server/googleReviewsService.ts
@@ -11181,7 +12691,7 @@ function getCacheStatus() {
   return {
     configured,
     cacheAge: Date.now() - cache.fetchedAt,
-    reviewCount: cache.reviews.length
+    reviewCount: cache.reviews.length,
   };
 }
 async function fetchGoogleReviews(forceRefresh = false) {
@@ -11196,8 +12706,8 @@ async function fetchGoogleReviews(forceRefresh = false) {
       method: "GET",
       headers: {
         "X-Goog-Api-Key": config.apiKey,
-        "X-Goog-FieldMask": "reviews,displayName"
-      }
+        "X-Goog-FieldMask": "reviews,displayName",
+      },
     });
     if (!response.ok) {
       const errText = await response.text().catch(() => "Unknown error");
@@ -11207,16 +12717,14 @@ async function fetchGoogleReviews(forceRefresh = false) {
       return cache?.reviews ?? [];
     }
     const data = await response.json();
-    const reviews2 = (data.reviews ?? []).map(
-      (r) => ({
-        author: r.authorAttribution?.displayName ?? "Anonymous",
-        rating: r.rating ?? 5,
-        text: r.text?.text ?? r.originalText?.text ?? "",
-        relativeTime: r.relativePublishTimeDescription ?? "",
-        profilePhoto: r.authorAttribution?.photoUri ?? null,
-        googleReviewUrl: r.googleMapsUri ?? null
-      })
-    );
+    const reviews2 = (data.reviews ?? []).map(r => ({
+      author: r.authorAttribution?.displayName ?? "Anonymous",
+      rating: r.rating ?? 5,
+      text: r.text?.text ?? r.originalText?.text ?? "",
+      relativeTime: r.relativePublishTimeDescription ?? "",
+      profilePhoto: r.authorAttribution?.photoUri ?? null,
+      googleReviewUrl: r.googleMapsUri ?? null,
+    }));
     cache = { reviews: reviews2, fetchedAt: Date.now() };
     return reviews2;
   } catch (err) {
@@ -11244,7 +12752,7 @@ var googleReviewsRouter = router({
   /** Admin: return API configuration status and cache info. */
   getStatus: secureProtectedProcedure.query(async () => {
     return getCacheStatus();
-  })
+  }),
 });
 
 // server/routes/whatsappAdmin.ts
@@ -11253,54 +12761,59 @@ init_db();
 init_db();
 var whatsappAdminRouter = router({
   /** List WhatsApp messages with pagination and optional phone filter */
-  listMessages: secureProtectedProcedure.input(
-    z24.object({
-      page: z24.number().min(1).default(1),
-      pageSize: z24.number().min(1).max(100).default(20),
-      phoneFilter: z24.string().optional()
-    })
-  ).query(async ({ input }) => {
-    const { page, pageSize, phoneFilter } = input;
-    const result = await getAllWhatsAppMessagesPaginated(
-      page,
-      pageSize,
-      phoneFilter
-    );
-    return {
-      ...result,
-      page,
-      pageSize,
-      totalPages: Math.ceil(result.total / pageSize)
-    };
-  }),
-  /** Send a manual WhatsApp message to a phone number */
-  sendMessage: secureProtectedProcedure.input(
-    z24.object({
-      to: z24.string().min(1),
-      text: z24.string().min(1).max(4096)
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    if (!isWhatsAppConfigured()) {
-      return {
-        success: false,
-        messageId: null,
-        error: "WhatsApp API not configured. Set WHATSAPP_API_TOKEN and WHATSAPP_PHONE_NUMBER_ID environment variables."
-      };
-    }
-    const result = await sendManualMessage(input.to, input.text);
-    await logAdminAction({
-      userId: ctx.user?.id ?? 0,
-      action: "create",
-      resourceType: "whatsappMessage",
-      newValue: JSON.stringify({
-        to: input.to,
-        textLength: input.text.length,
-        success: result.success
+  listMessages: secureProtectedProcedure
+    .input(
+      z24.object({
+        page: z24.number().min(1).default(1),
+        pageSize: z24.number().min(1).max(100).default(20),
+        phoneFilter: z24.string().optional(),
       })
-    });
-    return { ...result, error: null };
-  }),
+    )
+    .query(async ({ input }) => {
+      const { page, pageSize, phoneFilter } = input;
+      const result = await getAllWhatsAppMessagesPaginated(
+        page,
+        pageSize,
+        phoneFilter
+      );
+      return {
+        ...result,
+        page,
+        pageSize,
+        totalPages: Math.ceil(result.total / pageSize),
+      };
+    }),
+  /** Send a manual WhatsApp message to a phone number */
+  sendMessage: secureProtectedProcedure
+    .input(
+      z24.object({
+        to: z24.string().min(1),
+        text: z24.string().min(1).max(4096),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      if (!isWhatsAppConfigured()) {
+        return {
+          success: false,
+          messageId: null,
+          error:
+            "WhatsApp API not configured. Set WHATSAPP_API_TOKEN and WHATSAPP_PHONE_NUMBER_ID environment variables.",
+        };
+      }
+      const result = await sendManualMessage(input.to, input.text);
+      await logAdminAction({
+        userId: ctx.user?.id ?? 0,
+        action: "create",
+        resourceType: "whatsappMessage",
+        newValue: JSON.stringify({
+          to: input.to,
+          textLength: input.text.length,
+          success: result.success,
+        }),
+      });
+      return { ...result, error: null };
+    }),
   /** Get WhatsApp messaging stats */
   getStats: secureProtectedProcedure.query(async () => {
     const stats = await getWhatsAppMessageStats();
@@ -11309,25 +12822,27 @@ var whatsappAdminRouter = router({
     return {
       ...stats,
       isConfigured: configured,
-      autoReplyEnabled: autoReplyEnabled !== false
+      autoReplyEnabled: autoReplyEnabled !== false,
     };
   }),
   /** Update auto-reply settings */
-  updateAutoReply: secureProtectedProcedure.input(
-    z24.object({
-      enabled: z24.boolean()
-    })
-  ).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    await upsertSetting("whatsapp_auto_reply_enabled", input.enabled);
-    await logAdminAction({
-      userId: ctx.user?.id ?? 0,
-      action: "update",
-      resourceType: "whatsappSettings",
-      newValue: JSON.stringify({ autoReplyEnabled: input.enabled })
-    });
-    return { success: true, autoReplyEnabled: input.enabled };
-  })
+  updateAutoReply: secureProtectedProcedure
+    .input(
+      z24.object({
+        enabled: z24.boolean(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      await upsertSetting("whatsapp_auto_reply_enabled", input.enabled);
+      await logAdminAction({
+        userId: ctx.user?.id ?? 0,
+        action: "update",
+        resourceType: "whatsappSettings",
+        newValue: JSON.stringify({ autoReplyEnabled: input.enabled }),
+      });
+      return { success: true, autoReplyEnabled: input.enabled };
+    }),
 });
 
 // server/routes/leadScoring.ts
@@ -11343,63 +12858,69 @@ var leadScoringRouter = router({
     return {
       success: true,
       message: `Rescored ${result.updated} of ${result.total} active leads`,
-      ...result
+      ...result,
     };
   }),
   /**
    * Score a single lead by ID.
    */
-  scoreLead: secureProtectedProcedure.input(z25.object({ id: z25.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const allLeads = await getAllLeads();
-    const lead = allLeads.find((l) => l.id === input.id);
-    if (!lead) {
-      return { success: false, message: "Lead not found", score: 0 };
-    }
-    const allEmails = allLeads.map((l) => l.email);
-    const result = calculateLeadScore(lead, allEmails);
-    await updateLeadScore(
-      lead.id,
-      result.score,
-      JSON.stringify(result.details)
-    );
-    return {
-      success: true,
-      message: `Lead scored: ${result.score} (${result.tier})`,
-      score: result.score,
-      tier: result.tier,
-      details: result.details
-    };
-  }),
+  scoreLead: secureProtectedProcedure
+    .input(z25.object({ id: z25.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const allLeads = await getAllLeads();
+      const lead = allLeads.find(l => l.id === input.id);
+      if (!lead) {
+        return { success: false, message: "Lead not found", score: 0 };
+      }
+      const allEmails = allLeads.map(l => l.email);
+      const result = calculateLeadScore(lead, allEmails);
+      await updateLeadScore(
+        lead.id,
+        result.score,
+        JSON.stringify(result.details)
+      );
+      return {
+        success: true,
+        message: `Lead scored: ${result.score} (${result.tier})`,
+        score: result.score,
+        tier: result.tier,
+        details: result.details,
+      };
+    }),
   /**
    * Get top leads sorted by score (leaderboard).
    */
-  getLeaderboard: secureProtectedProcedure.input(
-    z25.object({
-      minScore: z25.number().min(0).max(100).optional(),
-      limit: z25.number().min(1).max(100).default(20)
-    })
-  ).query(async ({ input }) => {
-    const leads2 = await getLeadsByScore(input.minScore);
-    return leads2.slice(0, input.limit);
-  }),
+  getLeaderboard: secureProtectedProcedure
+    .input(
+      z25.object({
+        minScore: z25.number().min(0).max(100).optional(),
+        limit: z25.number().min(1).max(100).default(20),
+      })
+    )
+    .query(async ({ input }) => {
+      const leads2 = await getLeadsByScore(input.minScore);
+      return leads2.slice(0, input.limit);
+    }),
   /**
    * Get leads paginated, sorted by score (highest first).
    */
-  listByScore: secureProtectedProcedure.input(paginationInput).query(async ({ input }) => {
-    const { page, pageSize } = input;
-    const { items, total } = await getAllLeadsPaginatedByScore(
-      page,
-      pageSize
-    );
-    return {
-      items,
-      total,
-      page,
-      pageSize,
-      totalPages: Math.ceil(total / pageSize)
-    };
-  })
+  listByScore: secureProtectedProcedure
+    .input(paginationInput)
+    .query(async ({ input }) => {
+      const { page, pageSize } = input;
+      const { items, total } = await getAllLeadsPaginatedByScore(
+        page,
+        pageSize
+      );
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
 });
 
 // server/routes/postTourEmail.ts
@@ -11417,30 +12938,35 @@ function getResend8() {
   return _resend8;
 }
 var SENDER_EMAIL5 = COMPANY_SENDER_EMAIL;
-function generatePostTourEmailHtml({
-  booking,
-  albumToken
-}) {
+function generatePostTourEmailHtml({ booking, albumToken }) {
   const customerName = escapeHtml(booking.contactName);
-  const tourDate = booking.departureDate ? new Date(booking.departureDate).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  }) : "";
-  const tourDateHe = booking.departureDate ? new Date(booking.departureDate).toLocaleDateString("he-IL", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  }) : "";
+  const tourDate = booking.departureDate
+    ? new Date(booking.departureDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
+  const tourDateHe = booking.departureDate
+    ? new Date(booking.departureDate).toLocaleDateString("he-IL", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
   const reviewUrl = `${COMPANY_WEBSITE}/reviews`;
   const albumUrl = albumToken ? `${COMPANY_WEBSITE}/album/${albumToken}` : null;
   const bookNextUrl = `${COMPANY_WEBSITE}/packages`;
   const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent("Hi WIRO 4x4! I just completed my tour and wanted to share feedback.")}`;
   const googleReviewUrl = `https://search.google.com/local/writereview?placeid=ChIJByjTCcj1dDAR_WIRO4x4`;
-  const starRating = [1, 2, 3, 4, 5].map(
-    (n) => `<a href="${reviewUrl}" style="text-decoration:none;font-size:32px;color:#f5a623;" title="${n} stars">&#9733;</a>`
-  ).join("");
-  const albumSection = albumUrl ? `
+  const starRating = [1, 2, 3, 4, 5]
+    .map(
+      n =>
+        `<a href="${reviewUrl}" style="text-decoration:none;font-size:32px;color:#f5a623;" title="${n} stars">&#9733;</a>`
+    )
+    .join("");
+  const albumSection = albumUrl
+    ? `
       <div style="background:#e3f2fd;padding:20px;border-radius:8px;margin:25px 0;border-left:4px solid #1976d2;text-align:center;">
         <h3 style="margin-top:0;color:#1976d2;">\u{1F4F8} Your Adventure Photos Are Ready!</h3>
         <p style="color:#333;">We've curated the best moments from your trip. View and download your personal photo album:</p>
@@ -11451,7 +12977,8 @@ function generatePostTourEmailHtml({
         <p style="color:#333;">\u05D0\u05E1\u05E4\u05E0\u05D5 \u05D0\u05EA \u05D4\u05E8\u05D2\u05E2\u05D9\u05DD \u05D4\u05D8\u05D5\u05D1\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u05DE\u05D4\u05D8\u05D9\u05D5\u05DC \u05E9\u05DC\u05DB\u05DD. \u05E6\u05E4\u05D5 \u05D5\u05D4\u05D5\u05E8\u05D9\u05D3\u05D5 \u05D0\u05EA \u05D0\u05DC\u05D1\u05D5\u05DD \u05D4\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05D4\u05D0\u05D9\u05E9\u05D9:</p>
         <a href="${albumUrl}" style="display:inline-block;background:#1976d2;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;margin:10px 0;">\u05E6\u05E4\u05D5 \u05D1\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA</a>
       </div>
-    ` : "";
+    `
+    : "";
   return `
 <!DOCTYPE html>
 <html>
@@ -11601,7 +13128,7 @@ async function sendPostTourEmail(booking, albumToken) {
       from: `${COMPANY_NAME} <${SENDER_EMAIL5}>`,
       to: [booking.contactEmail],
       subject: `How was your adventure? We'd love your feedback! | ?\u05D0\u05D9\u05DA \u05D4\u05D9\u05D4 \u05D4\u05D8\u05D9\u05D5\u05DC`,
-      html
+      html,
     });
     if (error) {
       console.error(
@@ -11669,7 +13196,7 @@ var postTourEmailRouter = router({
     const bookings2 = await getEligiblePostTourBookings(50);
     const total = await getEligiblePostTourCount();
     const results = await Promise.all(
-      bookings2.map(async (booking) => {
+      bookings2.map(async booking => {
         const album = await getAlbumByBookingId(booking.id);
         return {
           id: booking.id,
@@ -11679,7 +13206,7 @@ var postTourEmailRouter = router({
           status: booking.status,
           postTourEmailSentAt: booking.postTourEmailSentAt,
           hasAlbum: !!album,
-          albumToken: album?.accessToken ?? null
+          albumToken: album?.accessToken ?? null,
         };
       })
     );
@@ -11688,47 +13215,49 @@ var postTourEmailRouter = router({
   /**
    * Send post-tour email to a specific booking.
    */
-  send: secureProtectedProcedure.input(z26.object({ bookingId: z26.number() })).mutation(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
-      });
-    }
-    if (!booking.contactEmail) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Booking has no contact email"
-      });
-    }
-    if (booking.postTourEmailSentAt) {
-      throw new TRPCError3({
-        code: "BAD_REQUEST",
-        message: "Post-tour email already sent for this booking"
-      });
-    }
-    const album = await getAlbumByBookingId(booking.id);
-    const success = await sendPostTourEmail(
-      booking,
-      album?.accessToken ?? null
-    );
-    if (success) {
-      await markPostTourEmailSent(booking.id);
-      await logAdminAction({
-        userId: ctx.user?.id,
-        action: "create",
-        resourceType: "postTourEmail",
-        resourceId: booking.id,
-        newValue: JSON.stringify({
-          to: booking.contactEmail,
-          hasAlbum: !!album
-        })
-      });
-    }
-    return { success };
-  }),
+  send: secureProtectedProcedure
+    .input(z26.object({ bookingId: z26.number() }))
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+      if (!booking.contactEmail) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Booking has no contact email",
+        });
+      }
+      if (booking.postTourEmailSentAt) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: "Post-tour email already sent for this booking",
+        });
+      }
+      const album = await getAlbumByBookingId(booking.id);
+      const success = await sendPostTourEmail(
+        booking,
+        album?.accessToken ?? null
+      );
+      if (success) {
+        await markPostTourEmailSent(booking.id);
+        await logAdminAction({
+          userId: ctx.user?.id,
+          action: "create",
+          resourceType: "postTourEmail",
+          resourceId: booking.id,
+          newValue: JSON.stringify({
+            to: booking.contactEmail,
+            hasAlbum: !!album,
+          }),
+        });
+      }
+      return { success };
+    }),
   /**
    * Send post-tour emails to all eligible bookings (batch, max 10).
    */
@@ -11740,40 +13269,42 @@ var postTourEmailRouter = router({
       action: "create",
       resourceType: "postTourEmail",
       resourceId: null,
-      newValue: JSON.stringify(results)
+      newValue: JSON.stringify(results),
     });
     return results;
   }),
   /**
    * Preview the email HTML for a booking (does not send).
    */
-  preview: secureProtectedProcedure.input(z26.object({ bookingId: z26.number() })).query(async ({ input, ctx }) => {
-    checkAdminRateLimit(ctx);
-    const booking = await getBookingById(input.bookingId);
-    if (!booking) {
-      throw new TRPCError3({
-        code: "NOT_FOUND",
-        message: "Booking not found"
+  preview: secureProtectedProcedure
+    .input(z26.object({ bookingId: z26.number() }))
+    .query(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const booking = await getBookingById(input.bookingId);
+      if (!booking) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: "Booking not found",
+        });
+      }
+      const album = await getAlbumByBookingId(booking.id);
+      const html = generatePostTourEmailHtml({
+        booking,
+        albumToken: album?.accessToken ?? null,
       });
-    }
-    const album = await getAlbumByBookingId(booking.id);
-    const html = generatePostTourEmailHtml({
-      booking,
-      albumToken: album?.accessToken ?? null
-    });
-    return {
-      html,
-      to: booking.contactEmail,
-      hasAlbum: !!album
-    };
-  }),
+      return {
+        html,
+        to: booking.contactEmail,
+        hasAlbum: !!album,
+      };
+    }),
   /**
    * Get count of eligible bookings (for badge display).
    */
   eligibleCount: secureProtectedProcedure.query(async ({ ctx }) => {
     checkAdminRateLimit(ctx);
     return await getEligiblePostTourCount();
-  })
+  }),
 });
 
 // server/routes/search.ts
@@ -11792,64 +13323,83 @@ async function globalSearch(query) {
     return { bookings: [], leads: [], reviews: [], tours: [] };
   }
   const pattern = `%${escapeLike(query)}%`;
-  const [bookingResults, leadResults, reviewResults, tourResults] = await Promise.all([
-    db.select({
-      id: bookings.id,
-      contactName: bookings.contactName,
-      contactEmail: bookings.contactEmail,
-      status: bookings.status,
-      createdAt: bookings.createdAt
-    }).from(bookings).where(
-      sql21`(${bookings.contactName} LIKE ${pattern} OR ${bookings.contactEmail} LIKE ${pattern})`
-    ).limit(5),
-    db.select({
-      id: leads.id,
-      name: leads.name,
-      email: leads.email,
-      phone: leads.phone,
-      status: leads.status,
-      score: leads.score,
-      createdAt: leads.createdAt
-    }).from(leads).where(
-      sql21`(${leads.name} LIKE ${pattern} OR ${leads.email} LIKE ${pattern} OR ${leads.phone} LIKE ${pattern})`
-    ).limit(5),
-    db.select({
-      id: reviews.id,
-      name: reviews.name,
-      rating: reviews.rating,
-      text: reviews.text,
-      isApproved: reviews.isApproved,
-      createdAt: reviews.createdAt
-    }).from(reviews).where(
-      sql21`(${reviews.name} LIKE ${pattern} OR ${reviews.text} LIKE ${pattern})`
-    ).limit(5),
-    db.select({
-      id: tours.id,
-      name: tours.name,
-      slug: tours.slug,
-      price: tours.price,
-      isActive: tours.isActive
-    }).from(tours).where(
-      sql21`(${tours.name} LIKE ${pattern} OR ${tours.slug} LIKE ${pattern})`
-    ).limit(5)
-  ]);
+  const [bookingResults, leadResults, reviewResults, tourResults] =
+    await Promise.all([
+      db
+        .select({
+          id: bookings.id,
+          contactName: bookings.contactName,
+          contactEmail: bookings.contactEmail,
+          status: bookings.status,
+          createdAt: bookings.createdAt,
+        })
+        .from(bookings)
+        .where(
+          sql21`(${bookings.contactName} LIKE ${pattern} OR ${bookings.contactEmail} LIKE ${pattern})`
+        )
+        .limit(5),
+      db
+        .select({
+          id: leads.id,
+          name: leads.name,
+          email: leads.email,
+          phone: leads.phone,
+          status: leads.status,
+          score: leads.score,
+          createdAt: leads.createdAt,
+        })
+        .from(leads)
+        .where(
+          sql21`(${leads.name} LIKE ${pattern} OR ${leads.email} LIKE ${pattern} OR ${leads.phone} LIKE ${pattern})`
+        )
+        .limit(5),
+      db
+        .select({
+          id: reviews.id,
+          name: reviews.name,
+          rating: reviews.rating,
+          text: reviews.text,
+          isApproved: reviews.isApproved,
+          createdAt: reviews.createdAt,
+        })
+        .from(reviews)
+        .where(
+          sql21`(${reviews.name} LIKE ${pattern} OR ${reviews.text} LIKE ${pattern})`
+        )
+        .limit(5),
+      db
+        .select({
+          id: tours.id,
+          name: tours.name,
+          slug: tours.slug,
+          price: tours.price,
+          isActive: tours.isActive,
+        })
+        .from(tours)
+        .where(
+          sql21`(${tours.name} LIKE ${pattern} OR ${tours.slug} LIKE ${pattern})`
+        )
+        .limit(5),
+    ]);
   return {
     bookings: bookingResults,
     leads: leadResults,
     reviews: reviewResults,
-    tours: tourResults
+    tours: tourResults,
   };
 }
 
 // server/routes/search.ts
 var searchRouter = router({
-  global: secureProtectedProcedure.input(
-    z27.object({
-      query: z27.string().min(2).max(200)
-    })
-  ).query(async ({ input }) => {
-    return await globalSearch(input.query);
-  })
+  global: secureProtectedProcedure
+    .input(
+      z27.object({
+        query: z27.string().min(2).max(200),
+      })
+    )
+    .query(async ({ input }) => {
+      return await globalSearch(input.query);
+    }),
 });
 
 // server/stripeSessionChecker.ts
@@ -11873,7 +13423,7 @@ function startSessionChecker(intervalMs = 3e5) {
     try {
       const pendingPayments = await getAllPendingPayments();
       const now = Date.now();
-      const eligiblePayments = pendingPayments.filter((p) => {
+      const eligiblePayments = pendingPayments.filter(p => {
         if (!p.createdAt) return false;
         const createdTime = new Date(p.createdAt).getTime();
         return now - createdTime > FIVE_MINUTES_MS;
@@ -11947,7 +13497,9 @@ async function checkMaintenanceAlerts() {
   try {
     const items = await getInventoryNeedingMaintenance(7);
     for (const item of items) {
-      const dateStr = item.nextMaintenanceDate ? item.nextMaintenanceDate.toISOString().split("T")[0] : "unknown";
+      const dateStr = item.nextMaintenanceDate
+        ? item.nextMaintenanceDate.toISOString().split("T")[0]
+        : "unknown";
       console.warn(
         `[Maintenance] ${item.name} due for maintenance on ${dateStr}`
       );
@@ -11963,7 +13515,9 @@ async function checkOverdueTasks() {
   try {
     const tasks = await getOverdueTasks();
     for (const task of tasks) {
-      const dueStr = task.dueDate ? task.dueDate.toISOString().split("T")[0] : "no date";
+      const dueStr = task.dueDate
+        ? task.dueDate.toISOString().split("T")[0]
+        : "no date";
       console.warn(
         `[CRM] Overdue task: ${task.type} for customer ${task.customerId}, due ${dueStr}`
       );
@@ -11977,17 +13531,18 @@ async function checkOverdueTasks() {
 }
 var _lastDailySummaryDate = null;
 async function generateDailySummary() {
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  const today = /* @__PURE__ */ new Date().toISOString().split("T")[0];
   if (_lastDailySummaryDate === today) return;
-  const currentHour = (/* @__PURE__ */ new Date()).getUTCHours();
+  const currentHour = /* @__PURE__ */ new Date().getUTCHours();
   if (currentHour !== 7 && _lastDailySummaryDate !== null) return;
   try {
-    const [pendingBookings, newLeads, upcomingTours, pendingReviews] = await Promise.all([
-      getPendingBookingCount(),
-      getNewLeadCount(24),
-      getUpcomingTourCount(48),
-      getPendingReviewCount()
-    ]);
+    const [pendingBookings, newLeads, upcomingTours, pendingReviews] =
+      await Promise.all([
+        getPendingBookingCount(),
+        getNewLeadCount(24),
+        getUpcomingTourCount(48),
+        getPendingReviewCount(),
+      ]);
     console.log(
       `[DailySummary] Pending bookings: ${pendingBookings}, New leads: ${newLeads}, Upcoming tours: ${upcomingTours}, Pending reviews: ${pendingReviews}`
     );
@@ -12015,7 +13570,7 @@ async function processReminders2() {
           pickupLocation: booking.pickupPoint,
           pickupTime: "08:00",
           specialRequests: booking.specialRequests ?? void 0,
-          bookingId: `WIRO-${booking.id}`
+          bookingId: `WIRO-${booking.id}`,
         });
         if (success) {
           await markReminderSent(booking.id);
@@ -12042,7 +13597,7 @@ async function processReminders2() {
           pickupLocation: booking.pickupPoint,
           pickupTime: "08:00",
           specialRequests: booking.specialRequests ?? void 0,
-          bookingId: `WIRO-${booking.id}`
+          bookingId: `WIRO-${booking.id}`,
         });
         if (success) {
           await markFeedbackSent(booking.id);
@@ -12082,13 +13637,13 @@ function startReminderScheduler() {
   if (_schedulerTimer) return;
   console.log("[Reminder Scheduler] Starting (runs every hour)");
   setTimeout(() => {
-    hourlyTick().catch((err) => {
+    hourlyTick().catch(err => {
       console.error("[Reminder Scheduler] Initial run failed:", err);
       captureException(err);
     });
   }, 1e4);
   _schedulerTimer = setInterval(() => {
-    hourlyTick().catch((err) => {
+    hourlyTick().catch(err => {
       console.error("[Reminder Scheduler] Scheduled run failed:", err);
       captureException(err);
     });
@@ -12132,7 +13687,7 @@ var appRouter = router({
   whatsapp: whatsappAdminRouter,
   leadScoring: leadScoringRouter,
   postTourEmail: postTourEmailRouter,
-  search: searchRouter
+  search: searchRouter,
 });
 
 // server/_core/context.ts
@@ -12141,7 +13696,9 @@ init_db();
 async function createContext(opts) {
   let user = null;
   try {
-    const cookies = opts.req.headers.cookie ? parseCookieHeader(opts.req.headers.cookie) : {};
+    const cookies = opts.req.headers.cookie
+      ? parseCookieHeader(opts.req.headers.cookie)
+      : {};
     const sessionCookie = cookies[COOKIE_NAME];
     if (sessionCookie) {
       const payload = await verifySession(sessionCookie);
@@ -12159,7 +13716,7 @@ async function createContext(opts) {
   return {
     req: opts.req,
     res: opts.res,
-    user
+    user,
   };
 }
 
@@ -12171,10 +13728,12 @@ function createApp() {
       origin: [
         "https://wiro4x4indochina.com",
         "https://www.wiro4x4indochina.com",
-        ...process.env.NODE_ENV === "development" ? ["http://localhost:3000", "http://localhost:5173"] : []
+        ...(process.env.NODE_ENV === "development"
+          ? ["http://localhost:3000", "http://localhost:5173"]
+          : []),
       ],
       credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     })
   );
   app2.use(express.json({ limit: "50mb" }));
@@ -12192,7 +13751,7 @@ function createApp() {
     "/api/trpc",
     createExpressMiddleware({
       router: appRouter,
-      createContext
+      createContext,
     })
   );
   return app2;
@@ -12209,87 +13768,107 @@ var BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 var STATIC_ROUTES = {
   "/": {
     title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
-    description: "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
-    canonicalPath: "/"
+    description:
+      "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
+    canonicalPath: "/",
   },
   "/tours": {
     title: "Our Tours",
-    description: "Browse our collection of 4x4 off-road tours in Chiang Mai and Northern Thailand. Day trips and multi-day adventures with kosher meal options.",
-    canonicalPath: "/tours"
+    description:
+      "Browse our collection of 4x4 off-road tours in Chiang Mai and Northern Thailand. Day trips and multi-day adventures with kosher meal options.",
+    canonicalPath: "/tours",
   },
   "/pricing": {
     title: "Pricing",
-    description: "Transparent pricing for WIRO 4x4 tours in Chiang Mai. Private tours, group rates, and kosher meal packages available.",
-    canonicalPath: "/pricing"
+    description:
+      "Transparent pricing for WIRO 4x4 tours in Chiang Mai. Private tours, group rates, and kosher meal packages available.",
+    canonicalPath: "/pricing",
   },
   "/estimate": {
     title: "Trip Cost Estimator",
-    description: "Get an instant price estimate for your Chiang Mai 4x4 tour. Select tours, group size, and add-ons to see your total.",
-    canonicalPath: "/estimate"
+    description:
+      "Get an instant price estimate for your Chiang Mai 4x4 tour. Select tours, group size, and add-ons to see your total.",
+    canonicalPath: "/estimate",
   },
   "/blog": {
     title: "Blog",
-    description: "Travel tips, destination guides, and stories from Northern Thailand. Kosher travel advice and Chiang Mai insider knowledge.",
-    canonicalPath: "/blog"
+    description:
+      "Travel tips, destination guides, and stories from Northern Thailand. Kosher travel advice and Chiang Mai insider knowledge.",
+    canonicalPath: "/blog",
   },
   "/gallery": {
     title: "Photo Gallery",
-    description: "Photos from WIRO 4x4 off-road adventures in Chiang Mai. Waterfalls, jungle trails, mountain views, and happy travelers.",
-    canonicalPath: "/gallery"
+    description:
+      "Photos from WIRO 4x4 off-road adventures in Chiang Mai. Waterfalls, jungle trails, mountain views, and happy travelers.",
+    canonicalPath: "/gallery",
   },
   "/reviews": {
     title: "Customer Reviews",
-    description: "Read what our guests say about their WIRO 4x4 experience. Verified reviews from Israeli travelers and international visitors.",
-    canonicalPath: "/reviews"
+    description:
+      "Read what our guests say about their WIRO 4x4 experience. Verified reviews from Israeli travelers and international visitors.",
+    canonicalPath: "/reviews",
   },
   "/book": {
     title: "Book a Tour",
-    description: "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy booking with WhatsApp confirmation.",
-    canonicalPath: "/book"
+    description:
+      "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy booking with WhatsApp confirmation.",
+    canonicalPath: "/book",
   },
   "/kosher-tours": {
     title: "Kosher Tours in Thailand",
-    description: "Fully kosher off-road tours in Chiang Mai with certified kosher meals, Shabbat accommodation, and Hebrew-speaking guides.",
-    canonicalPath: "/kosher-tours"
+    description:
+      "Fully kosher off-road tours in Chiang Mai with certified kosher meals, Shabbat accommodation, and Hebrew-speaking guides.",
+    canonicalPath: "/kosher-tours",
   },
   "/hebrew-guide": {
     title: "Hebrew-Speaking Guide in Chiang Mai",
-    description: "Tour Chiang Mai and Northern Thailand with an experienced Hebrew-speaking guide. Custom private tours for Israeli travelers.",
-    canonicalPath: "/hebrew-guide"
+    description:
+      "Tour Chiang Mai and Northern Thailand with an experienced Hebrew-speaking guide. Custom private tours for Israeli travelers.",
+    canonicalPath: "/hebrew-guide",
   },
   "/accessible-tours": {
     title: "Accessible & Family-Friendly Tours",
-    description: "Family-friendly and accessible 4x4 tours in Chiang Mai. Safe adventures for children, seniors, and travelers with special needs.",
-    canonicalPath: "/accessible-tours"
+    description:
+      "Family-friendly and accessible 4x4 tours in Chiang Mai. Safe adventures for children, seniors, and travelers with special needs.",
+    canonicalPath: "/accessible-tours",
   },
   "/faq": {
     title: "FAQ",
-    description: "Frequently asked questions about WIRO 4x4 tours, kosher meals, booking, cancellation, and traveling in Northern Thailand.",
-    canonicalPath: "/faq"
+    description:
+      "Frequently asked questions about WIRO 4x4 tours, kosher meals, booking, cancellation, and traveling in Northern Thailand.",
+    canonicalPath: "/faq",
   },
   "/contact": {
     title: "Contact Us",
-    description: "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
-    canonicalPath: "/contact"
+    description:
+      "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
+    canonicalPath: "/contact",
   },
   "/packages": {
     title: "Tour Packages",
-    description: "Multi-day tour packages in Northern Thailand and Indochina. All-inclusive 4x4 adventures with accommodation and kosher meals.",
-    canonicalPath: "/packages"
+    description:
+      "Multi-day tour packages in Northern Thailand and Indochina. All-inclusive 4x4 adventures with accommodation and kosher meals.",
+    canonicalPath: "/packages",
   },
   "/terms": {
     title: "Terms of Service",
-    description: "Terms and conditions for WIRO 4x4 tour bookings and services.",
-    canonicalPath: "/terms"
+    description:
+      "Terms and conditions for WIRO 4x4 tour bookings and services.",
+    canonicalPath: "/terms",
   },
   "/privacy": {
     title: "Privacy Policy",
-    description: "How WIRO 4x4 collects, uses, and protects your personal data.",
-    canonicalPath: "/privacy"
-  }
+    description:
+      "How WIRO 4x4 collects, uses, and protects your personal data.",
+    canonicalPath: "/privacy",
+  },
 };
 function escapeHtml2(str) {
-  return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 function injectMeta(html, meta) {
   const fullTitle = meta.title + BRAND_SUFFIX;
@@ -12336,8 +13915,11 @@ function injectMeta(html, meta) {
   );
   if (meta.jsonLd) {
     const jsonLdScript = `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`;
-    html = html.replace("</head>", `${jsonLdScript}
-</head>`);
+    html = html.replace(
+      "</head>",
+      `${jsonLdScript}
+</head>`
+    );
   }
   return html;
 }
@@ -12348,7 +13930,9 @@ async function getDynamicMeta(urlPath) {
     if (tour) {
       return {
         title: tour.name,
-        description: tour.description?.slice(0, 155) || `${tour.name} \u2014 off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+        description:
+          tour.description?.slice(0, 155) ||
+          `${tour.name} \u2014 off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
         ogImage: tour.imageUrl || void 0,
         canonicalPath: `/tours/${tour.slug}`,
         jsonLd: {
@@ -12359,9 +13943,9 @@ async function getDynamicMeta(urlPath) {
           provider: {
             "@type": "TravelAgency",
             name: "WIRO 4x4",
-            url: SITE_URL3
-          }
-        }
+            url: SITE_URL3,
+          },
+        },
       };
     }
   }
@@ -12371,7 +13955,10 @@ async function getDynamicMeta(urlPath) {
     if (post) {
       return {
         title: post.title,
-        description: post.excerpt?.slice(0, 155) || post.content?.slice(0, 155) || `${post.title} \u2014 WIRO 4x4 blog.`,
+        description:
+          post.excerpt?.slice(0, 155) ||
+          post.content?.slice(0, 155) ||
+          `${post.title} \u2014 WIRO 4x4 blog.`,
         ogImage: post.coverImage || void 0,
         canonicalPath: `/blog/${post.slug}`,
         jsonLd: {
@@ -12382,18 +13969,20 @@ async function getDynamicMeta(urlPath) {
           image: post.coverImage || DEFAULT_OG_IMAGE,
           author: {
             "@type": "Organization",
-            name: "WIRO 4x4"
+            name: "WIRO 4x4",
           },
           publisher: {
             "@type": "Organization",
             name: "WIRO 4x4",
             logo: {
               "@type": "ImageObject",
-              url: `${SITE_URL3}/images/logo.png`
-            }
+              url: `${SITE_URL3}/images/logo.png`,
+            },
           },
-          datePublished: post.publishedAt ? new Date(post.publishedAt).toISOString() : void 0
-        }
+          datePublished: post.publishedAt
+            ? new Date(post.publishedAt).toISOString()
+            : void 0,
+        },
       };
     }
   }
@@ -12402,7 +13991,10 @@ async function getDynamicMeta(urlPath) {
 var cachedHtml = null;
 function getIndexHtml() {
   if (cachedHtml) return cachedHtml;
-  const distPath = process.env.NODE_ENV === "production" ? path.resolve(import.meta.dirname, "public", "index.html") : path.resolve(import.meta.dirname, "..", "dist", "public", "index.html");
+  const distPath =
+    process.env.NODE_ENV === "production"
+      ? path.resolve(import.meta.dirname, "public", "index.html")
+      : path.resolve(import.meta.dirname, "..", "dist", "public", "index.html");
   try {
     cachedHtml = fs3.readFileSync(distPath, "utf-8");
     return cachedHtml;
@@ -12413,7 +14005,13 @@ function getIndexHtml() {
 function seoMiddleware() {
   return async (req, res, next) => {
     const urlPath = req.path;
-    if (req.method !== "GET" || urlPath.startsWith("/api/") || urlPath.startsWith("/assets/") || urlPath.startsWith("/images/") || urlPath.match(/\.\w{2,5}$/)) {
+    if (
+      req.method !== "GET" ||
+      urlPath.startsWith("/api/") ||
+      urlPath.startsWith("/assets/") ||
+      urlPath.startsWith("/images/") ||
+      urlPath.match(/\.\w{2,5}$/)
+    ) {
       next();
       return;
     }
@@ -12426,15 +14024,17 @@ function seoMiddleware() {
     if (!meta) {
       try {
         meta = await getDynamicMeta(urlPath);
-      } catch {
-      }
+      } catch {}
     }
     if (!meta) {
       next();
       return;
     }
     const injectedHtml = injectMeta(html, meta);
-    res.status(200).set("Content-Type", "text/html; charset=utf-8").send(injectedHtml);
+    res
+      .status(200)
+      .set("Content-Type", "text/html; charset=utf-8")
+      .send(injectedHtml);
   };
 }
 
@@ -12453,15 +14053,13 @@ app.use(
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
-        formAction: ["'self'"]
-      }
+        formAction: ["'self'"],
+      },
     },
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
     // Allow embedded images from S3/CDN
   })
 );
 app.use(seoMiddleware());
 var vercel_entry_default = app;
-export {
-  vercel_entry_default as default
-};
+export { vercel_entry_default as default };

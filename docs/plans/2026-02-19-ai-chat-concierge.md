@@ -519,7 +519,7 @@ If the visitor asks for a human, or you encounter a question you cannot answer, 
 - Be warm, helpful, and concise (2-4 sentences per response)
 - Never make up information — only reference the tours and data provided
 - Do not discuss competitors or other tour companies
-- WhatsApp contact: +66929894495`;
+- WhatsApp contact: +972544715400`;
 }
 
 export async function generateChatResponse(
@@ -862,8 +862,8 @@ export async function handleChatMessage(
       console.error("[Chat] AI response error:", err);
       const fallback =
         language === "he"
-          ? "מצטער, נתקלתי בבעיה. אפשר לפנות אלינו ישירות בוואטסאפ: +66929894495"
-          : "Sorry, I encountered an issue. You can reach us on WhatsApp: +66929894495";
+          ? "מצטער, נתקלתי בבעיה. אפשר לפנות אלינו ישירות בוואטסאפ: +972544715400"
+          : "Sorry, I encountered an issue. You can reach us on WhatsApp: +972544715400";
       await addChatMessage({ sessionId, role: "ai", content: fallback });
       send(
         JSON.stringify({ type: "ai_response", sessionId, content: fallback })
@@ -1222,7 +1222,7 @@ export function ChatWidget() {
             )
           );
           window.open(
-            `https://wa.me/66929894495?text=${whatsappMsg}`,
+            `https://wa.me/972544715400?text=${whatsappMsg}`,
             "_blank"
           );
           break;

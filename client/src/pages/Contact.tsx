@@ -53,7 +53,7 @@ export default function Contact() {
       description:
         "Kosher off-road tour operator in Chiang Mai, Northern Thailand. Hebrew-speaking guide, kosher food options, and customized 4x4 adventure tours.",
       url: "https://www.wiro4x4indochina.com",
-      telephone: "+66929894495",
+      telephone: "+972544715400",
       email: "wiro.adventures@gmail.com",
       address: {
         "@type": "PostalAddress",

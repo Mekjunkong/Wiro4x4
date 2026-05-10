@@ -301,7 +301,7 @@ Mirror the English quote with all labels in Hebrew:
   - Attractions: [amount]
 
 50% deposit to confirm
-Questions? WhatsApp: +66929894495
+Questions? WhatsApp: +972544715400
 ```
 
 ### WhatsApp-Ready Format (Hebrew)
@@ -321,7 +321,7 @@ Questions? WhatsApp: +66929894495
   - אטרקציות: [amount]
 
 מקדמה 50% לאישור ההזמנה
-שאלות? וואטסאפ: +66929894495
+שאלות? וואטסאפ: +972544715400
 ```
 
 ## Shabbat Detection Logic
@@ -387,7 +387,7 @@ When total days match a package option, show both:
 ## Business Details (for quotes)
 
 - Company: WIRO 4x4 - Kosher Off-Road Adventures
-- Phone/WhatsApp: +66929894495
+- Phone/WhatsApp: +972544715400
 - Website: https://wiro4x4.manus.space
 - Email: wiro.adventures@gmail.com
 - Location: Chiang Mai, Thailand
