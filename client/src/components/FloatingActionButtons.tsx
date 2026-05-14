@@ -71,7 +71,12 @@ export function FloatingActionButtons() {
   if (hideOnMobile || chatOpen) return null;
 
   const isRtl = language === "he";
-  const bottomClass = isBookingPage ? "bottom-20 md:bottom-6" : "bottom-6";
+  const bottomClass =
+    isMobile && !consentGiven
+      ? "bottom-36 md:bottom-6"
+      : isBookingPage
+        ? "bottom-20 md:bottom-6"
+        : "bottom-6";
   const sideClass = isRtl ? "left-4 md:left-6" : "right-4 md:right-6";
   // In RTL: button is on the left, so tooltip appears to the right
   const tooltipOrder = isRtl ? "order-last" : "";

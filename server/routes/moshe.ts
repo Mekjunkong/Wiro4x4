@@ -1,4 +1,7 @@
 import type { Express } from "express";
+import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+import { checkRateLimit } from "../rateLimit";
 
 const WHATSAPP_NUMBER = "66929894495";
 
@@ -71,12 +74,116 @@ interface ChatMessage {
   content: string;
 }
 
-async function getGeminiReply(messages: ChatMessage[]): Promise<string | null> {
+type ProviderName = "anthropic" | "openai" | "gemini";
+type ProviderMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+let anthropicClient: Anthropic | null = null;
+let openaiClient: OpenAI | null = null;
+
+function getAnthropicClient(): Anthropic | null {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+  anthropicClient ??= new Anthropic({ apiKey });
+  return anthropicClient;
+}
+
+function getOpenAiClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  openaiClient ??= new OpenAI({ apiKey });
+  return openaiClient;
+}
+
+function normalizeMessages(
+  messages: ChatMessage[],
+  latestMessage: string
+): ProviderMessage[] {
+  const normalized = messages
+    .filter(
+      msg => typeof msg.content === "string" && msg.content.trim().length > 0
+    )
+    .map(msg => ({
+      role: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+      content: msg.content.trim().slice(0, 2000),
+    }));
+
+  const firstUserIdx = normalized.findIndex(msg => msg.role === "user");
+  const conversation = firstUserIdx >= 0 ? normalized.slice(firstUserIdx) : [];
+
+  if (
+    conversation.length === 0 ||
+    conversation[conversation.length - 1]?.role !== "user" ||
+    conversation[conversation.length - 1]?.content !== latestMessage
+  ) {
+    conversation.push({ role: "user", content: latestMessage });
+  }
+
+  return conversation.slice(-12);
+}
+
+function getPreferredProviders(): ProviderName[] {
+  const preferred = process.env.MOSHE_AI_PROVIDER?.toLowerCase();
+  const defaults: ProviderName[] = ["openai", "anthropic", "gemini"];
+
+  if (
+    preferred === "anthropic" ||
+    preferred === "openai" ||
+    preferred === "gemini"
+  ) {
+    return [preferred, ...defaults.filter(provider => provider !== preferred)];
+  }
+
+  return defaults;
+}
+
+async function getAnthropicReply(
+  messages: ProviderMessage[]
+): Promise<string | null> {
+  const client = getAnthropicClient();
+  if (!client) return null;
+
+  const response = await client.messages.create({
+    model: process.env.ANTHROPIC_CHAT_MODEL ?? "claude-sonnet-4-5-20250929",
+    max_tokens: 500,
+    system: MOSHE_SYSTEM_PROMPT,
+    messages,
+  });
+
+  return response.content[0]?.type === "text"
+    ? response.content[0].text.trim()
+    : null;
+}
+
+async function getOpenAiReply(
+  messages: ProviderMessage[]
+): Promise<string | null> {
+  const client = getOpenAiClient();
+  if (!client) return null;
+
+  const response = await client.chat.completions.create({
+    model: process.env.OPENAI_CHAT_MODEL ?? "gpt-4.1-mini",
+    max_tokens: 500,
+    messages: [
+      { role: "system", content: MOSHE_SYSTEM_PROMPT },
+      ...messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+    ],
+  });
+
+  return response.choices[0]?.message?.content?.trim() ?? null;
+}
+
+async function getGeminiReply(
+  messages: ProviderMessage[]
+): Promise<string | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  // Convert to Gemini format. Gemini requires contents to start with "user"
-  // and strictly alternate user/model, so we slice from the first user turn.
   const allContents = messages.map(m => ({
     role: m.role === "user" ? ("user" as const) : ("model" as const),
     parts: [{ text: m.content }],
@@ -120,6 +227,77 @@ async function getGeminiReply(messages: ChatMessage[]): Promise<string | null> {
   }
 }
 
+function logProviderError(provider: ProviderName, err: unknown) {
+  const status =
+    typeof err === "object" && err !== null && "status" in err
+      ? ` status=${String(err.status)}`
+      : "";
+  const code =
+    typeof err === "object" && err !== null && "code" in err
+      ? ` code=${String(err.code)}`
+      : "";
+  const message = err instanceof Error ? err.message : String(err);
+
+  console.error(
+    `[Moshe] ${provider} request failed${status}${code}: ${message}`
+  );
+}
+
+async function getAiReply(messages: ProviderMessage[]): Promise<{
+  provider: ProviderName | "fallback";
+  reply: string | null;
+}> {
+  for (const provider of getPreferredProviders()) {
+    try {
+      const reply =
+        provider === "anthropic"
+          ? await getAnthropicReply(messages)
+          : provider === "openai"
+            ? await getOpenAiReply(messages)
+            : await getGeminiReply(messages);
+
+      if (reply) return { provider, reply };
+    } catch (err) {
+      logProviderError(provider, err);
+    }
+  }
+
+  return { provider: "fallback", reply: null };
+}
+
+function shouldEscalate(message: string): boolean {
+  const lower = message.toLowerCase();
+  return [
+    "book",
+    "booking",
+    "reserve",
+    "available",
+    "availability",
+    "price",
+    "cost",
+    "quote",
+    "deposit",
+    "payment",
+    "whatsapp",
+    "להזמין",
+    "הזמנה",
+    "פנוי",
+    "זמין",
+    "מחיר",
+    "עלות",
+    "תשלום",
+  ].some(keyword => lower.includes(keyword));
+}
+
+function buildWhatsAppUrl(language: string | undefined, message: string) {
+  const text =
+    language === "he"
+      ? `שלום, דיברתי עם משה באתר WIRO 4x4. אשמח לעזרה עם: ${message}`
+      : `Hi, I chatted with Moshe on the WIRO 4x4 website. I would like help with: ${message}`;
+
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
 export function registerMosheRoute(app: Express) {
   app.post("/api/moshe/message", async (req, res) => {
     const { message, messages, language, visitorId } = req.body as {
@@ -133,6 +311,24 @@ export function registerMosheRoute(app: Express) {
 
     if (!latestMessage) {
       res.status(400).json({ error: "Message is required" });
+      return;
+    }
+
+    if (latestMessage.length > 2000) {
+      res.status(400).json({ error: "Message is too long" });
+      return;
+    }
+
+    const ip =
+      (req.headers["x-forwarded-for"] as string) ||
+      (req.headers["x-real-ip"] as string) ||
+      req.ip ||
+      "unknown";
+    const { allowed } = checkRateLimit(`moshe:${ip}`, 20, 60_000);
+    if (!allowed) {
+      res.status(429).json({
+        error: "Too many chat messages. Please try again in a minute.",
+      });
       return;
     }
 
@@ -178,11 +374,14 @@ export function registerMosheRoute(app: Express) {
       messages && messages.length > 0
         ? messages
         : [{ role: "user", content: latestMessage }];
+    const providerMessages = normalizeMessages(chatHistory, latestMessage);
 
-    const reply = await getGeminiReply(chatHistory);
+    const { provider, reply } = await getAiReply(providerMessages);
+    const escalate = shouldEscalate(latestMessage);
+    const whatsappUrl = buildWhatsAppUrl(language, latestMessage);
 
     if (reply) {
-      res.json({ success: true, reply });
+      res.json({ success: true, reply, provider, escalate, whatsappUrl });
       return;
     }
 
@@ -191,6 +390,12 @@ export function registerMosheRoute(app: Express) {
       language === "he"
         ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp 📱"
         : "Thanks! Moshe received your message and will reply via WhatsApp shortly 📱";
-    res.json({ success: true, reply: fallback });
+    res.json({
+      success: true,
+      reply: fallback,
+      provider,
+      escalate: true,
+      whatsappUrl,
+    });
   });
 }
