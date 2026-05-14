@@ -139,7 +139,7 @@ export function ProductTiers() {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
                   {/* Dark gradient — stronger on hover to reveal text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 transition-all duration-500 group-hover:from-black/90 group-hover:via-black/50" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-primary/10 transition-all duration-500 group-hover:from-primary/90 group-hover:via-primary/50" />
 
                   {/* Badge — gold foil */}
                   {tier.badge && (

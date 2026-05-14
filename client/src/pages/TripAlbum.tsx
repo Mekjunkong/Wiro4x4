@@ -323,7 +323,7 @@ export default function TripAlbum() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading={index < 6 ? "eager" : "lazy"}
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors duration-300" />
                   </div>
 
                   {/* Caption & Download */}
@@ -396,7 +396,7 @@ export default function TripAlbum() {
           onOpenChange={open => !open && closeLightbox()}
         >
           <DialogContent
-            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none"
+            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-primary/95 border-none"
             aria-label={t(
               "Photo lightbox viewer",
               "\u05EA\u05E6\u05D5\u05D2\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DE\u05D5\u05D2\u05D3\u05DC\u05EA"
@@ -410,7 +410,7 @@ export default function TripAlbum() {
               >
                 <button
                   onClick={closeLightbox}
-                  className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                  className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors"
                   aria-label={t("Close", "\u05E1\u05D2\u05D5\u05E8")}
                 >
                   <X className="w-6 h-6" />
@@ -423,7 +423,7 @@ export default function TripAlbum() {
                         e.stopPropagation();
                         goToPrev();
                       }}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       style={{
                         minWidth: "48px",
                         minHeight: "48px",
@@ -443,7 +443,7 @@ export default function TripAlbum() {
                         e.stopPropagation();
                         goToNext();
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       style={{
                         minWidth: "48px",
                         minHeight: "48px",
@@ -471,7 +471,7 @@ export default function TripAlbum() {
                   draggable={false}
                 />
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent text-white">
                   <div className="flex items-center justify-between">
                     <div>
                       {photos[lightboxIndex].caption && (
@@ -490,7 +490,7 @@ export default function TripAlbum() {
                           lightboxIndex!
                         )
                       }
-                      className="p-3 text-white/80 hover:text-white bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+                      className="p-3 text-white/80 hover:text-white bg-primary/40 hover:bg-primary/60 rounded-full transition-colors"
                       aria-label={t(
                         "Download photo",
                         "\u05D4\u05D5\u05E8\u05D3 \u05EA\u05DE\u05D5\u05E0\u05D4"

@@ -410,7 +410,7 @@ export default function Gallery() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
             <Camera className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
             <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
@@ -554,7 +554,7 @@ export default function Gallery() {
                     {/* Gold hover overlay */}
                     <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <h3 className="text-white font-semibold text-lg">
                       {photo.title}
@@ -592,7 +592,7 @@ export default function Gallery() {
           onOpenChange={open => !open && closeLightbox()}
         >
           <DialogContent
-            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-black/95 border-none"
+            className="max-w-[95vw] max-h-[95vh] sm:max-w-[90vw] p-0 bg-primary/95 border-none"
             aria-label={t(
               "Photo lightbox viewer",
               "\u05EA\u05E6\u05D5\u05D2\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DE\u05D5\u05D2\u05D3\u05DC\u05EA"
@@ -606,7 +606,7 @@ export default function Gallery() {
               >
                 <button
                   onClick={closeLightbox}
-                  className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                  className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors"
                   aria-label={t(
                     "Close lightbox",
                     "\u05E1\u05D2\u05D5\u05E8 \u05EA\u05E6\u05D5\u05D2\u05D4"
@@ -622,7 +622,7 @@ export default function Gallery() {
                         e.stopPropagation();
                         goToPrev();
                       }}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       style={{
                         minWidth: "48px",
                         minHeight: "48px",
@@ -642,7 +642,7 @@ export default function Gallery() {
                         e.stopPropagation();
                         goToNext();
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors touch-manipulation"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-white/80 hover:text-white p-3 md:p-2 rounded-full bg-primary/40 hover:bg-primary/60 transition-colors touch-manipulation"
                       style={{
                         minWidth: "48px",
                         minHeight: "48px",
@@ -667,7 +667,7 @@ export default function Gallery() {
                   draggable={false}
                 />
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/80 to-transparent text-white">
                   <h3 className="text-xl font-semibold">
                     {filteredPhotos[lightboxIndex].title}
                   </h3>

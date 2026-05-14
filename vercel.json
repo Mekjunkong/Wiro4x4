@@ -10,6 +10,82 @@
       "destination": "/api"
     },
     {
+      "source": "/sitemap.xml",
+      "destination": "/api"
+    },
+    {
+      "source": "/",
+      "destination": "/api"
+    },
+    {
+      "source": "/tours",
+      "destination": "/api"
+    },
+    {
+      "source": "/tours/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/api"
+    },
+    {
+      "source": "/estimate",
+      "destination": "/api"
+    },
+    {
+      "source": "/blog",
+      "destination": "/api"
+    },
+    {
+      "source": "/blog/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/gallery",
+      "destination": "/api"
+    },
+    {
+      "source": "/reviews",
+      "destination": "/api"
+    },
+    {
+      "source": "/book",
+      "destination": "/api"
+    },
+    {
+      "source": "/kosher-tours",
+      "destination": "/api"
+    },
+    {
+      "source": "/hebrew-guide",
+      "destination": "/api"
+    },
+    {
+      "source": "/accessible-tours",
+      "destination": "/api"
+    },
+    {
+      "source": "/faq",
+      "destination": "/api"
+    },
+    {
+      "source": "/contact",
+      "destination": "/api"
+    },
+    {
+      "source": "/packages",
+      "destination": "/api"
+    },
+    {
+      "source": "/terms",
+      "destination": "/api"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/api"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

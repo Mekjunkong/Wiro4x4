@@ -130,13 +130,13 @@ export function DashboardCharts({
                   startAngle={90}
                   endAngle={-270}
                 >
-                  <Cell fill="#7c3aed" />
-                  <Cell fill="#e5e7eb" />
+                  <Cell fill="#d4af37" />
+                  <Cell fill="#e8e2da" />
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-700">
+              <div className="text-2xl font-bold text-accent">
                 {stats.leadConversion.rate}%
               </div>
               <div className="text-xs text-gray-500">

@@ -67,7 +67,16 @@ Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above
 5. When recommending a tour, name it specifically and explain why it fits their situation (kids, budget, interests, time of year)
 6. If they ask about price, give the USD group price and mention the estimate page for a custom breakdown
 7. CRITICAL: Always reply in the EXACT same language as the customer. Hebrew → Hebrew. English → English.
-8. You are a real human guide — never say you are AI or a bot`;
+8. You are a real human guide — never say you are AI or a bot
+
+## Booking Workflow
+When a visitor says they want to book, do NOT just send them away. First collect the minimum details needed for WIRO to quote and confirm:
+- preferred tour or route idea
+- preferred date or date range
+- group size, including adults and children
+- hotel or pickup area in Chiang Mai
+- kosher meal needs, Shabbat constraints, or Hebrew guide preference
+Ask for these details in one concise message. If they already gave some details, acknowledge them and ask only for the missing ones. Then invite them to continue on WhatsApp for fast confirmation.`;
 
 interface ChatMessage {
   role: "user" | "moshe";
@@ -282,20 +291,227 @@ function shouldEscalate(message: string): boolean {
     "להזמין",
     "הזמנה",
     "פנוי",
+    "פנויה",
     "זמין",
+    "זמינה",
+    "זמינות",
     "מחיר",
     "עלות",
+    "הצעת מחיר",
     "תשלום",
   ].some(keyword => lower.includes(keyword));
 }
 
-function buildWhatsAppUrl(language: string | undefined, message: string) {
+type BookingLanguage = "en" | "he";
+type BookingFieldKey = "tour" | "date" | "group" | "pickup" | "kosher";
+
+type BookingFields = Record<`has${Capitalize<BookingFieldKey>}`, boolean>;
+
+const BOOKING_FIELD_LABELS: Record<
+  BookingLanguage,
+  Record<BookingFieldKey, string>
+> = {
+  en: {
+    tour: "tour or route idea",
+    date: "preferred date/date range",
+    group: "group size, adults, children and kids ages if any",
+    pickup: "hotel or pickup area in Chiang Mai",
+    kosher: "kosher/Shabbat/Hebrew guide needs",
+  },
+  he: {
+    tour: "מסלול או רעיון לטיול",
+    date: "תאריך או טווח תאריכים מועדף",
+    group: "גודל הקבוצה, מבוגרים, ילדים וגילאים אם יש",
+    pickup: "מלון או אזור איסוף בצ׳יאנג מאי",
+    kosher: "צרכי כשרות, שבת או מדריך בעברית",
+  },
+};
+
+function normalizeBookingLanguage(
+  language: string | undefined
+): BookingLanguage {
+  return language === "he" ? "he" : "en";
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getConversationBookingText(
+  messages: ChatMessage[],
+  latestMessage: string
+): string {
+  const userMessages = messages
+    .filter(msg => msg.role === "user" && typeof msg.content === "string")
+    .map(msg => msg.content.trim())
+    .filter(Boolean);
+
+  if (!userMessages.includes(latestMessage)) userMessages.push(latestMessage);
+
+  return userMessages.join("\n");
+}
+
+export function getBookingFields(message: string): BookingFields {
+  const lower = message.toLowerCase();
+  const hasDate =
+    /\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/.test(message) ||
+    /\b(?:today|tomorrow|tonight|next week|this week|next month|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(
+      message
+    ) ||
+    /(?:היום|מחר|הלילה|השבוע|שבוע הבא|חודש הבא|תאריך|ינואר|פברואר|מרץ|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר|ראשון|שני|שלישי|רביעי|חמישי|שישי)/.test(
+      message
+    );
+  const hasGroup =
+    /\b\d+\s*(?:pax|people|persons|adults|adult|kids|children|child|guests|travelers|travellers)\b/i.test(
+      message
+    ) ||
+    /(?:couple|family|families|group|solo|alone)/i.test(message) ||
+    /\d+\s*(?:אנשים|איש|מטיילים|מבוגרים|ילדים|ילד|נפשות)/.test(message) ||
+    /(?:זוג|משפחה|קבוצה|לבד)/.test(message);
+  const hasTour = [
+    "inthanon",
+    "doi suthep",
+    "mae kampong",
+    "sticky",
+    "mae wang",
+    "samoeng",
+    "pai",
+    "chiang rai",
+    "golden triangle",
+    "waterfall",
+    "jungle",
+    "elephant",
+    "off-road",
+    "off road",
+    "4x4",
+    "טיול",
+    "מסלול",
+    "ג׳יפים",
+    "ג'יפים",
+    "צאנג",
+    "צ'אנג",
+    "מפלים",
+    "דוי",
+    "פאי",
+  ].some(keyword => lower.includes(keyword.toLowerCase()));
+  const hasPickup =
+    /\b(?:hotel|pickup|pick up|pick-up|old city|nimman|airport|chiang mai gate|night bazaar|chang klan|mae rim|hang dong|san sai)\b/i.test(
+      message
+    ) ||
+    /(?:מלון|איסוף|אזור|שדה התעופה|עיר העתיקה|ניממן|צ׳יאנג מאי|צ'יאנג מאי)/.test(
+      message
+    );
+  const hasKosher =
+    /\b(?:kosher|shabbat|sabbath|hebrew guide|hebrew-speaking|hebrew speaking|jewish|israeli)\b/i.test(
+      message
+    ) || /(?:כשר|כשרות|שבת|עברית|מדריך בעברית|ישראלים|יהודים)/.test(message);
+
+  return { hasTour, hasDate, hasGroup, hasPickup, hasKosher };
+}
+
+export function getMissingBookingFields(
+  message: string,
+  language?: string
+): string[] {
+  const labels = BOOKING_FIELD_LABELS[normalizeBookingLanguage(language)];
+  const fields = getBookingFields(message);
+  const missing: string[] = [];
+  if (!fields.hasTour) missing.push(labels.tour);
+  if (!fields.hasDate) missing.push(labels.date);
+  if (!fields.hasGroup) missing.push(labels.group);
+  if (!fields.hasPickup) missing.push(labels.pickup);
+  if (!fields.hasKosher) missing.push(labels.kosher);
+  return missing;
+}
+
+function buildBookingQualificationReply(
+  language: string | undefined,
+  missing: string[]
+): string {
+  if (normalizeBookingLanguage(language) === "he") {
+    return `בשמחה — כדי להכין הצעה מדויקת ולבדוק זמינות, שלחו בבקשה: ${missing.join(", ")}. אפשר גם להמשיך כאן או ב-WhatsApp לאישור מהיר 📱`;
+  }
+
+  return `Happy to help — to prepare an accurate quote and check availability, please send: ${missing.join(", ")}. You can continue here or on WhatsApp for fast confirmation 📱`;
+}
+
+function buildFallbackReply(
+  language: string | undefined,
+  escalate: boolean
+): string {
+  if (normalizeBookingLanguage(language) === "he") {
+    return escalate
+      ? "תודה! משה קיבל את ההודעה שלך. כדי להכין הצעה מדויקת, שלחו בבקשה תאריך, מספר אנשים, מסלול שמעניין אתכם, אזור איסוף, וצרכי כשרות או שבת. אפשר להמשיך ב-WhatsApp 📱"
+      : "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם. אפשר גם להמשיך ב-WhatsApp 📱";
+  }
+
+  return escalate
+    ? "Thanks! Moshe received your message. To prepare the right quote, please send your preferred date, group size, tour or route idea, pickup area, and any kosher or Shabbat needs. You can continue on WhatsApp 📱"
+    : "Thanks! Moshe received your message and will reply shortly. You can also continue on WhatsApp 📱";
+}
+
+export function buildWhatsAppUrl(
+  language: string | undefined,
+  message: string,
+  missingFields?: string[]
+) {
+  const lang = normalizeBookingLanguage(language);
+  const missing = missingFields ?? getMissingBookingFields(message, language);
+  const missingLine = missing.length
+    ? lang === "he"
+      ? `\nפרטים חסרים: ${missing.join(", ")}`
+      : `\nMissing details: ${missing.join(", ")}`
+    : "";
   const text =
-    language === "he"
-      ? `שלום, דיברתי עם משה באתר WIRO 4x4. אשמח לעזרה עם: ${message}`
-      : `Hi, I chatted with Moshe on the WIRO 4x4 website. I would like help with: ${message}`;
+    lang === "he"
+      ? `שלום, דיברתי עם משה באתר WIRO 4x4. אשמח לעזרה עם הזמנה.\nההודעה שלי: ${message}${missingLine}`
+      : `Hi, I chatted with Moshe on the WIRO 4x4 website. I would like help booking a tour.\nMy message: ${message}${missingLine}`;
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+function buildTelegramLeadAlert(args: {
+  latestMessage: string;
+  bookingContext: string;
+  language?: string;
+  visitorId?: string;
+  reply: string;
+  whatsappUrl: string;
+}) {
+  const lang = args.language === "he" ? "🇮🇱 Hebrew" : "🇬🇧 English";
+  const missing = getMissingBookingFields(args.bookingContext, args.language);
+  const urgency = shouldEscalate(args.bookingContext)
+    ? "🔥 Booking / quote intent"
+    : "💬 General chat";
+
+  return [
+    `💬 <b>New Customer Message — WIRO 4x4</b>`,
+    ``,
+    `${urgency}`,
+    `🌐 Language: ${lang}`,
+    args.visitorId
+      ? `🔑 Visitor: ${escapeHtml(String(args.visitorId).slice(0, 14))}`
+      : null,
+    ``,
+    `📝 <b>Customer message:</b>`,
+    escapeHtml(args.latestMessage),
+    ``,
+    missing.length
+      ? `📋 <b>Missing booking details:</b> ${escapeHtml(missing.join(", "))}`
+      : `✅ <b>Booking details:</b> enough info to follow up`,
+    ``,
+    `💬 <b>Reply shown to visitor:</b>`,
+    escapeHtml(args.reply.slice(0, 700)),
+    ``,
+    `📱 <a href="${escapeHtml(args.whatsappUrl)}">Open customer WhatsApp handoff text</a>`,
+    `🖥️ Admin: https://wiro4x4indochina.com/admin`,
+  ]
+    .filter(line => line !== null)
+    .join("\n");
 }
 
 export function registerMosheRoute(app: Express) {
@@ -332,25 +548,48 @@ export function registerMosheRoute(app: Express) {
       return;
     }
 
-    // Send Telegram notification (fire-and-forget)
+    // Build conversation history for AI — use full messages array if provided,
+    // otherwise fall back to a single-turn exchange.
+    const chatHistory: ChatMessage[] =
+      messages && messages.length > 0
+        ? messages
+        : [{ role: "user", content: latestMessage }];
+    const providerMessages = normalizeMessages(chatHistory, latestMessage);
+
+    const bookingContext = getConversationBookingText(
+      chatHistory,
+      latestMessage
+    );
+    const missingBookingFields = getMissingBookingFields(
+      bookingContext,
+      language
+    );
+    const { provider, reply } = await getAiReply(providerMessages);
+    const bookingIntent = shouldEscalate(bookingContext);
+    const whatsappUrl = buildWhatsAppUrl(
+      language,
+      latestMessage,
+      missingBookingFields
+    );
+    const finalReply =
+      bookingIntent && missingBookingFields.length > 0
+        ? buildBookingQualificationReply(language, missingBookingFields)
+        : (reply ?? buildFallbackReply(language, bookingIntent));
+
+    // Send Telegram notification after the AI reply is ready, so Mike gets context,
+    // missing booking details, and the exact reply the visitor saw.
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (token && chatId) {
-      const lang = language === "he" ? "🇮🇱 Hebrew" : "🇬🇧 English";
-      const text = [
-        `💬 <b>New Customer Message — WIRO 4x4</b>`,
-        ``,
-        `🌐 Language: ${lang}`,
-        visitorId ? `🔑 Visitor: ${String(visitorId).slice(0, 14)}` : null,
-        ``,
-        `📝 <b>Message:</b>`,
+      const text = buildTelegramLeadAlert({
         latestMessage,
-        ``,
-        `📱 <a href="https://wa.me/${WHATSAPP_NUMBER}">Reply via WhatsApp</a>`,
-      ]
-        .filter(l => l !== null)
-        .join("\n");
+        bookingContext,
+        language,
+        visitorId,
+        reply: finalReply,
+        whatsappUrl,
+      });
 
       fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
@@ -368,33 +607,11 @@ export function registerMosheRoute(app: Express) {
       );
     }
 
-    // Build conversation history for AI — use full messages array if provided,
-    // otherwise fall back to a single-turn exchange.
-    const chatHistory: ChatMessage[] =
-      messages && messages.length > 0
-        ? messages
-        : [{ role: "user", content: latestMessage }];
-    const providerMessages = normalizeMessages(chatHistory, latestMessage);
-
-    const { provider, reply } = await getAiReply(providerMessages);
-    const escalate = shouldEscalate(latestMessage);
-    const whatsappUrl = buildWhatsAppUrl(language, latestMessage);
-
-    if (reply) {
-      res.json({ success: true, reply, provider, escalate, whatsappUrl });
-      return;
-    }
-
-    // Fallback when API key not configured
-    const fallback =
-      language === "he"
-        ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp 📱"
-        : "Thanks! Moshe received your message and will reply via WhatsApp shortly 📱";
     res.json({
       success: true,
-      reply: fallback,
+      reply: finalReply,
       provider,
-      escalate: true,
+      escalate: bookingIntent,
       whatsappUrl,
     });
   });

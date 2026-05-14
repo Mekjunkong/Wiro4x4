@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Bot,
   ExternalLink,
   Languages,
   LoaderCircle,
@@ -56,8 +55,25 @@ export function ChatWidget() {
 
   const welcomeMessage =
     chatLanguage === "he"
-      ? "שלום, אני משה מ-WIRO 4x4. אפשר לשאול אותי על מסלולים, כשרות, שבת, מחירים או התאמה למשפחה."
-      : "Hi, I'm Moshe from WIRO 4x4. Ask me about tours, kosher meals, Shabbat planning, prices, or what fits your group.";
+      ? "שלום, אני משה מ-WIRO 4x4. אפשר לשלוח מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לבדוק התאמה לפני WhatsApp."
+      : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
+
+  const bookingChecklist =
+    chatLanguage === "he"
+      ? [
+          "מסלול או רעיון לטיול",
+          "תאריך או טווח תאריכים",
+          "מספר מטיילים וגילאי ילדים",
+          "מלון או אזור איסוף בצ׳אנג מאי",
+          "כשרות, שבת או צורך במדריך בעברית",
+        ]
+      : [
+          "Tour or route idea",
+          "Date or date range",
+          "Group size and kids' ages",
+          "Hotel or pickup area in Chiang Mai",
+          "Kosher, Shabbat, or Hebrew-guide needs",
+        ];
 
   const quickPrompts =
     chatLanguage === "he"
@@ -169,8 +185,8 @@ export function ChatWidget() {
     if (messages.length <= 1) {
       const newWelcome =
         newLang === "he"
-          ? "שלום, אני משה מ-WIRO 4x4. אפשר לשאול אותי על מסלולים, כשרות, שבת, מחירים או התאמה למשפחה."
-          : "Hi, I'm Moshe from WIRO 4x4. Ask me about tours, kosher meals, Shabbat planning, prices, or what fits your group.";
+          ? "שלום, אני משה מ-WIRO 4x4. אפשר לשלוח מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לבדוק התאמה לפני WhatsApp."
+          : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
       setMessages([{ role: "moshe", content: newWelcome }]);
     }
   };
@@ -186,76 +202,119 @@ export function ChatWidget() {
           {/* Header */}
           <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <span className="h-9 w-9 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center">
-                <Bot className="h-5 w-5" />
+              <span className="h-11 w-11 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center">
+                <Sparkles className="h-5 w-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
                 <p className="font-semibold leading-tight truncate">
-                  {chatText("Moshe — WIRO Guide", "משה — מדריך WIRO")}
+                  {chatText("Moshe, WIRO Guide", "משה, מדריך WIRO")}
                 </p>
-                <p className="text-xs text-primary-foreground/70">
-                  {chatText("Usually replies instantly", "בדרך כלל עונה מיד")}
+                <p className="text-xs text-primary-foreground/75">
+                  {chatText(
+                    "Route, date, pickup, then fast WhatsApp confirmation",
+                    "מסלול, תאריך ואיסוף, ואז אישור מהיר ב-WhatsApp"
+                  )}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={toggleLanguage}
-                className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center"
+                className="h-11 w-11 rounded-full hover:bg-primary-foreground/10 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-primary"
                 aria-label={chatText("Toggle language", "החלף שפה")}
               >
-                <Languages className="h-4 w-4" />
+                <Languages className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center"
+                className="h-11 w-11 rounded-full hover:bg-primary-foreground/10 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-primary"
                 aria-label={chatText("Close chat", "סגור צ'אט")}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
           </div>
 
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-background/70">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <span
-                  className={`px-3.5 py-2.5 text-sm leading-relaxed max-w-[82%] shadow-sm ${
-                    msg.role === "user"
-                      ? "bg-secondary text-secondary-foreground rounded-2xl rounded-br-sm"
-                      : "bg-card text-card-foreground border border-border rounded-2xl rounded-bl-sm"
-                  }`}
+            <ul
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions text"
+              aria-label={chatText("Chat conversation", "שיחת צ'אט")}
+              className="space-y-3"
+            >
+              {messages.map((msg, idx) => (
+                <li
+                  key={idx}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {msg.content}
-                </span>
+                  <span
+                    className={`px-3.5 py-2.5 text-sm leading-relaxed max-w-[82%] shadow-sm ${
+                      msg.role === "user"
+                        ? "bg-secondary text-secondary-foreground rounded-2xl rounded-br-sm"
+                        : "bg-card text-card-foreground border border-border rounded-2xl rounded-bl-sm"
+                    }`}
+                    dir="auto"
+                  >
+                    {msg.content}
+                  </span>
+                </li>
+              ))}
+
+              {isLoading && (
+                <li className="flex justify-start">
+                  <span className="bg-card text-muted-foreground border border-border rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm inline-flex items-center gap-2">
+                    <LoaderCircle
+                      className="h-4 w-4 animate-spin text-secondary"
+                      aria-hidden="true"
+                    />
+                    {chatText("Moshe is checking...", "משה בודק...")}
+                  </span>
+                </li>
+              )}
+            </ul>
+
+            {messages.length <= 1 && (
+              <div className="rounded-xl border border-secondary/30 bg-card p-3 shadow-sm">
+                <p className="text-sm font-semibold text-card-foreground">
+                  {chatText(
+                    "For a useful quote, send these details:",
+                    "כדי לקבל תשובה מדויקת, שלחו את הפרטים האלה:"
+                  )}
+                </p>
+                <ul className="mt-2 grid gap-1.5 text-sm text-muted-foreground">
+                  {bookingChecklist.map(item => (
+                    <li key={item} className="flex items-start gap-2">
+                      <span
+                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
+                        aria-hidden="true"
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
+            )}
 
             {messages.length <= 1 && (
               <div className="grid gap-2 pt-1">
                 {quickPrompts.map(prompt => (
                   <button
                     key={prompt}
+                    type="button"
                     onClick={() => void sendMessage(prompt)}
-                    className="text-start rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:border-secondary hover:bg-secondary/10 transition-colors"
+                    className="min-h-11 text-start rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:border-secondary hover:bg-secondary/10 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
                   >
-                    <Sparkles className="inline-block h-3.5 w-3.5 me-2 text-secondary" />
+                    <Sparkles
+                      className="inline-block h-3.5 w-3.5 me-2 text-secondary"
+                      aria-hidden="true"
+                    />
                     {prompt}
                   </button>
                 ))}
-              </div>
-            )}
-
-            {isLoading && (
-              <div className="flex justify-start">
-                <span className="bg-card text-muted-foreground border border-border rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm inline-flex items-center gap-2">
-                  <LoaderCircle className="h-4 w-4 animate-spin text-secondary" />
-                  {chatText("Moshe is checking...", "משה בודק...")}
-                </span>
               </div>
             )}
 
@@ -268,10 +327,13 @@ export function ChatWidget() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#20BA5A] transition-colors"
+                className="min-h-11 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-[#f9fff9] hover:bg-[#20BA5A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
               >
-                {chatText("Continue on WhatsApp", "המשיכו ב-WhatsApp")}
-                <ExternalLink className="h-4 w-4" />
+                {chatText(
+                  "Ask availability on WhatsApp",
+                  "בדיקת זמינות ב-WhatsApp"
+                )}
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </a>
             </div>
           )}
@@ -284,21 +346,22 @@ export function ChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={chatText(
-                "Ask Moshe anything...",
-                "שאלו את משה כל דבר..."
+                "Route, date, group size, pickup area...",
+                "מסלול, תאריך, מספר מטיילים ואזור איסוף..."
               )}
               disabled={isLoading}
               rows={1}
-              className="min-h-10 max-h-24 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
+              className="min-h-11 max-h-24 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
               dir={isRtl ? "rtl" : "ltr"}
             />
             <button
+              type="button"
               onClick={() => void sendMessage()}
               disabled={!input.trim() || isLoading}
-              className="h-10 w-10 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
+              className="h-11 w-11 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
               aria-label={chatText("Send message", "שלח הודעה")}
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>

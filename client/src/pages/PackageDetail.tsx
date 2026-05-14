@@ -561,7 +561,7 @@ export default function PackageDetail() {
               alt={t(pkg.name, pkg.nameHe)}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/30 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8">
               <Breadcrumb
                 items={[
@@ -802,7 +802,7 @@ export default function PackageDetail() {
             sizes="100vw"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-6">
             <Breadcrumb
               items={[

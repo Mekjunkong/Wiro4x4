@@ -17,7 +17,6 @@ import {
   Map,
   Heart,
   Shield,
-  Star,
 } from "lucide-react";
 
 const GUIDE_BENEFITS = [
@@ -100,8 +99,38 @@ const SAMPLE_ITINERARY = [
     time: "16:30",
     title: ["Return to Chiang Mai", "חזרה לצ'יאנג מאי"],
     desc: [
-      "Scenic drive back with recommendations for evening dining, Chabad services, and more.",
-      'נסיעה נופית חזרה עם המלצות לארוחת ערב, שירותי חב"ד ועוד.',
+      "Scenic drive back with practical recommendations for dinner, Shabbat timing, and your next Chiang Mai plans.",
+      "נסיעה נופית חזרה עם המלצות פרקטיות לארוחת ערב, זמני שבת והמשך התכנון בצ׳אנג מאי.",
+    ],
+  },
+];
+
+const HEBREW_TRAVEL_INTENTS = [
+  {
+    title: ["Private 4x4 trips from Chiang Mai", "טיול ג׳יפים פרטי בצ׳אנג מאי"],
+    desc: [
+      "For Israeli families, couples, and small groups who want a flexible 4x4 day in Northern Thailand with Hebrew or English planning support.",
+      "למשפחות, זוגות וקבוצות קטנות מישראל שמחפשות טיול ג׳יפים בצ׳אנג מאי בקצב פרטי, עם תכנון בעברית או באנגלית.",
+    ],
+  },
+  {
+    title: [
+      "Hebrew support for route decisions",
+      "מדריך דובר עברית בצ׳יאנג מאי לתכנון המסלול",
+    ],
+    desc: [
+      "Compare Doi Inthanon, Mae Kampong, Sticky Waterfalls, Mae Rim, and other route ideas before you decide what fits your dates and group.",
+      "אפשר להשוות בין דוי אינתנון, מאה קמפונג, מפלים דביקים, מאה רים ועוד לפני שבוחרים מה מתאים לתאריכים ולקבוצה שלכם.",
+    ],
+  },
+  {
+    title: [
+      "Kosher-friendly logistics when needed",
+      "לוגיסטיקה ידידותית לכשרות לפי הצורך",
+    ],
+    desc: [
+      "If your group needs kosher-friendly food planning, tell us in advance and we will explain realistic options before confirming the itinerary.",
+      "אם הקבוצה צריכה תכנון אוכל ידידותי לכשרות, כתבו לנו מראש ונציג אפשרויות ריאליות לפני סגירת המסלול.",
     ],
   },
 ];
@@ -167,7 +196,7 @@ export default function HebrewGuide() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="container max-w-4xl">
               <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
@@ -237,8 +266,42 @@ export default function HebrewGuide() {
           </div>
         </section>
 
-        {/* Sample Day Itinerary */}
+        {/* Israeli traveler search intent */}
         <section className="py-16 md:py-24 bg-muted/30">
+          <div className="container max-w-5xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-medium mb-3">
+                {t(
+                  "What Israeli Travelers Search For",
+                  "מה ישראלים מחפשים בצפון תאילנד"
+                )}
+              </h2>
+              <GoldDivider />
+              <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+                {t(
+                  "Whether you spell it Chiang Mai, צ׳יאנג מאי, צ׳אנג מאי, or צאנג מאי, the question is usually the same: how to build a private, safe, flexible 4x4 trip that fits your family or group.",
+                  "בין אם כותבים צ׳יאנג מאי, צ׳אנג מאי או צאנג מאי, השאלה בדרך כלל דומה: איך בונים טיול 4x4 פרטי, בטוח וגמיש שמתאים למשפחה או לקבוצה שלכם."
+                )}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {HEBREW_TRAVEL_INTENTS.map((intent, idx) => (
+                <Card key={idx} className="p-6 rounded-sm border-border">
+                  <h3 className="text-lg font-semibold mb-3">
+                    {t(intent.title[0], intent.title[1])}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t(intent.desc[0], intent.desc[1])}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Sample Day Itinerary */}
+        <section className="py-16 md:py-24">
           <div className="container max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-medium mb-3">
@@ -272,47 +335,45 @@ export default function HebrewGuide() {
           </div>
         </section>
 
-        {/* What Israeli Travelers Say */}
-        <section className="py-16 md:py-24">
+        {/* FAQ for Israeli travelers */}
+        <section className="py-16 md:py-24 bg-muted/30">
           <div className="container max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-medium mb-3">
-                {t("What Israeli Travelers Say", "מה מטיילים ישראלים אומרים")}
+                {t("Hebrew Guide FAQ", "שאלות נפוצות על מדריך בעברית")}
               </h2>
               <GoldDivider />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
               {[
                 {
-                  quote: [
-                    "Having a Hebrew guide changed everything. Our kids understood the stories, we could ask real questions, and it felt like traveling with a friend.",
-                    "מדריך בעברית שינה הכל. הילדים הבינו את הסיפורים, יכולנו לשאול שאלות אמיתיות, והרגשנו כמו שמטיילים עם חבר.",
+                  question: [
+                    "Can we book a Hebrew-speaking guide in Chiang Mai for a private group?",
+                    "אפשר להזמין מדריך דובר עברית בצ׳אנג מאי לקבוצה פרטית?",
                   ],
-                  name: ["Yael & Dror, Tel Aviv", "יעל ודרור, תל אביב"],
+                  answer: [
+                    "Yes. Send your dates, group size, pickup area, preferred language, and route ideas on WhatsApp so we can check the right guide and vehicle for you.",
+                    "כן. שלחו בוואטסאפ תאריכים, גודל קבוצה, אזור איסוף, שפה מועדפת ורעיונות למסלול כדי שנבדוק מדריך ורכב מתאימים.",
+                  ],
                 },
                 {
-                  quote: [
-                    "We tried an English tour before and missed so much. With WIRO's Hebrew guide, we got the real Thailand experience without any language gaps.",
-                    "ניסינו טיול באנגלית לפני כן והפסדנו המון. עם המדריך העברי של WIRO קיבלנו את חוויית תאילנד האמיתית בלי פערי שפה.",
+                  question: [
+                    "Is this a jeep tour in Chiang Mai or a regular city tour?",
+                    "זה טיול ג׳יפים בצ׳אנג מאי או טיול עירוני רגיל?",
                   ],
-                  name: ["The Levi Family, Haifa", "משפחת לוי, חיפה"],
+                  answer: [
+                    "WIRO focuses on private 4x4 route ideas around Chiang Mai and Northern Thailand — mountain roads, viewpoints, villages, waterfalls, and flexible stops.",
+                    "WIRO מתמחה ברעיונות למסלולי 4x4 פרטיים סביב צ׳אנג מאי וצפון תאילנד — דרכי הרים, תצפיות, כפרים, מפלים ועצירות גמישות.",
+                  ],
                 },
-              ].map((testimonial, idx) => (
+              ].map((item, idx) => (
                 <Card key={idx} className="p-6 rounded-sm">
-                  <div className="flex gap-1 mb-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 text-accent fill-accent"
-                      />
-                    ))}
-                  </div>
-                  <blockquote className="text-sm italic text-muted-foreground mb-3 leading-relaxed">
-                    {t(testimonial.quote[0], testimonial.quote[1])}
-                  </blockquote>
-                  <p className="text-sm font-medium">
-                    {t(testimonial.name[0], testimonial.name[1])}
+                  <h3 className="font-semibold mb-2">
+                    {t(item.question[0], item.question[1])}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t(item.answer[0], item.answer[1])}
                   </p>
                 </Card>
               ))}

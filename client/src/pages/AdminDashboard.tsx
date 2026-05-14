@@ -669,7 +669,7 @@ export default function AdminDashboard() {
       <div className="flex">
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+            className="fixed inset-0 bg-primary/40 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
             aria-hidden="true"
           />

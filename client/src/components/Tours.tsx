@@ -318,7 +318,7 @@ export function Tours() {
                 href={`/tours/${tour.slug}`}
                 className="block group"
               >
-                <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 hover:-translate-y-1 h-full border-l-4 border-accent rounded-sm bg-card">
+                <Card className="overflow-hidden hover:shadow-luxury transition-all duration-500 hover:-translate-y-1 h-full border border-accent/30 rounded-sm bg-card">
                   <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                     <OptimizedImage
                       src={tour.image}
@@ -331,7 +331,7 @@ export function Tours() {
                       }`}
                     />
                     {TOUR_BADGES[tour.slug] && (
-                      <div className="absolute top-3 left-3 bg-black/65 backdrop-blur-sm text-white text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 rounded-sm">
+                      <div className="absolute top-3 left-3 bg-primary/65 backdrop-blur-sm text-white text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 rounded-sm">
                         {t(
                           TOUR_BADGES[tour.slug].en,
                           TOUR_BADGES[tour.slug].he

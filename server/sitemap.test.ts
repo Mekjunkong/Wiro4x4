@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { generateSitemap } from "./routes/sitemap";
 
 describe("sitemap", () => {
@@ -8,8 +9,14 @@ describe("sitemap", () => {
     expect(xml).toContain("<urlset");
     expect(xml).toContain("https://www.wiro4x4indochina.com/");
     expect(xml).toContain("https://www.wiro4x4indochina.com/pricing");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/gallery");
     expect(xml).toContain("https://www.wiro4x4indochina.com/packages");
     expect(xml).toContain("https://www.wiro4x4indochina.com/blog");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/kosher-tours");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/hebrew-guide");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/accessible-tours");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/faq");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/contact");
   });
 
   it("includes tour, package, and blog slugs", () => {
@@ -37,5 +44,22 @@ describe("sitemap", () => {
     );
     expect(xml).toContain("tour-with-&amp;-ampersand");
     expect(xml).not.toContain("tour-with-&-ampersand</loc>");
+  });
+
+  it("routes /sitemap.xml to the server function before the SPA catch-all on Vercel", () => {
+    const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
+      rewrites: Array<{ source: string; destination: string }>;
+    };
+
+    const sitemapRewriteIndex = vercelConfig.rewrites.findIndex(
+      rewrite => rewrite.source === "/sitemap.xml"
+    );
+    const catchAllRewriteIndex = vercelConfig.rewrites.findIndex(
+      rewrite => rewrite.source === "/(.*)"
+    );
+
+    expect(sitemapRewriteIndex).toBeGreaterThanOrEqual(0);
+    expect(vercelConfig.rewrites[sitemapRewriteIndex].destination).toBe("/api");
+    expect(catchAllRewriteIndex).toBeGreaterThan(sitemapRewriteIndex);
   });
 });

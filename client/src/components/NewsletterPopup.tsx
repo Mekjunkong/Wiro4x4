@@ -76,7 +76,7 @@ export function NewsletterPopup() {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10002] animate-in fade-in duration-300"
+        className="fixed inset-0 bg-primary/50 backdrop-blur-sm z-[10002] animate-in fade-in duration-300"
         onClick={() => dismiss()}
       />
 

@@ -20,7 +20,55 @@ interface PageMeta {
   ogType?: string;
   canonicalPath: string;
   lang?: string;
+  dir?: "ltr" | "rtl";
+  appendBrandSuffix?: boolean;
   jsonLd?: Record<string, unknown>;
+}
+
+function pageJsonLd(meta: {
+  name: string;
+  description: string;
+  path: string;
+  inLanguage?: string | string[];
+  pageType?: string;
+}): Record<string, unknown> {
+  const url = `${SITE_URL}${meta.path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": meta.pageType || "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: meta.name,
+    description: meta.description,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: meta.inLanguage || "en",
+  };
+}
+
+function serviceJsonLd(meta: {
+  name: string;
+  description: string;
+  path: string;
+  audienceType: string;
+  inLanguage?: string[];
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${SITE_URL}${meta.path}#service`,
+    name: meta.name,
+    description: meta.description,
+    serviceType: "Private 4x4 tour operator",
+    areaServed: { "@type": "City", name: "Chiang Mai" },
+    audience: {
+      "@type": "Audience",
+      audienceType: meta.audienceType,
+    },
+    provider: { "@id": `${SITE_URL}/#organization` },
+    url: `${SITE_URL}${meta.path}`,
+    inLanguage: meta.inLanguage || ["en", "he"],
+  };
 }
 
 // Static route meta data
@@ -54,6 +102,14 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     description:
       "Guides, insider tips, and stories for Israeli travelers in Northern Thailand. Kosher dining, Shabbat travel, off-road adventures, and Chiang Mai destination guides.",
     canonicalPath: "/blog",
+    jsonLd: pageJsonLd({
+      name: "Chiang Mai Travel Blog & Kosher Travel Tips",
+      description:
+        "Guides, insider tips, and stories for Israeli travelers in Northern Thailand. Kosher dining, Shabbat travel, off-road adventures, and Chiang Mai destination guides.",
+      path: "/blog",
+      pageType: "CollectionPage",
+      inLanguage: ["en", "he"],
+    }),
   },
   "/gallery": {
     title: "Chiang Mai Off-Road Tour Photos — WIRO 4x4",
@@ -74,23 +130,48 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     canonicalPath: "/book",
   },
   "/kosher-tours": {
-    title: "Kosher Tours in Chiang Mai, Thailand",
+    title: "Kosher Tours Chiang Mai — Private 4x4 for Jewish Travelers",
     description:
-      "Fully kosher off-road tours in Chiang Mai with certified kosher meals, Shabbat accommodation, and Hebrew-speaking guides. Designed for observant Jewish travelers.",
+      "Kosher tours in Chiang Mai with private 4x4 routes, kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support for Jewish travelers.",
     canonicalPath: "/kosher-tours",
+    jsonLd: serviceJsonLd({
+      name: "Kosher Tours Chiang Mai",
+      description:
+        "Private kosher-friendly 4x4 tours in Chiang Mai with kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support.",
+      path: "/kosher-tours",
+      audienceType:
+        "Jewish travelers, kosher travelers, Israeli travelers, observant families",
+    }),
   },
   "/hebrew-guide": {
-    title: "Hebrew-Speaking Guide — Chiang Mai Tours",
+    title: "מדריך דובר עברית בצ׳אנג מאי — Hebrew Guide Chiang Mai",
     description:
-      "Tour Chiang Mai and Northern Thailand with an experienced Hebrew-speaking guide. Custom private 4x4 tours for Israeli travelers and families.",
+      "מדריך דובר עברית בצ׳אנג מאי לטיול ג׳יפים פרטי בצפון תאילנד. Hebrew-speaking Chiang Mai guide for Israeli families, couples, and groups.",
     canonicalPath: "/hebrew-guide",
     lang: "he",
+    dir: "rtl",
+    jsonLd: serviceJsonLd({
+      name: "Hebrew-Speaking Guide in Chiang Mai",
+      description:
+        "Private 4x4 tours in Chiang Mai and Northern Thailand with Hebrew-speaking guide support for Israeli travelers.",
+      path: "/hebrew-guide",
+      audienceType: "Israeli travelers, Hebrew-speaking travelers, families",
+      inLanguage: ["he", "en"],
+    }),
   },
   "/accessible-tours": {
     title: "Family-Friendly & Accessible Tours Chiang Mai",
     description:
       "Family-friendly and accessible 4x4 tours in Chiang Mai. Safe adventures for children, seniors, and travelers with mobility needs.",
     canonicalPath: "/accessible-tours",
+    jsonLd: serviceJsonLd({
+      name: "Family-Friendly & Accessible 4x4 Tours Chiang Mai",
+      description:
+        "Private 4x4 tours in Chiang Mai adapted for children, seniors, and travelers with mobility needs.",
+      path: "/accessible-tours",
+      audienceType:
+        "Families, seniors, wheelchair users, travelers with mobility needs",
+    }),
   },
   "/faq": {
     title: "FAQ — Kosher Tours & Off-Road Adventures Chiang Mai",
@@ -133,7 +214,10 @@ function escapeHtml(str: string): string {
 }
 
 function injectMeta(html: string, meta: PageMeta): string {
-  const fullTitle = meta.title + BRAND_SUFFIX;
+  const fullTitle =
+    meta.appendBrandSuffix === false || meta.title.includes("WIRO 4x4")
+      ? meta.title
+      : meta.title + BRAND_SUFFIX;
   const safeTitle = escapeHtml(fullTitle);
   const safeDesc = escapeHtml(meta.description);
   const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
@@ -197,6 +281,18 @@ function injectMeta(html: string, meta: PageMeta): string {
       /(<html\b[^>]*)\blang="[^"]*"/,
       `$1 lang="${meta.lang}"`
     );
+  }
+
+  // Override text direction for Hebrew crawler-visible HTML
+  if (meta.dir) {
+    if (/<html\b[^>]*\sdir="[^"]*"/.test(html)) {
+      html = html.replace(
+        /(<html\b[^>]*)\bdir="[^"]*"/,
+        `$1 dir="${meta.dir}"`
+      );
+    } else {
+      html = html.replace(/<html\b([^>]*)>/, `<html$1 dir="${meta.dir}">`);
+    }
   }
 
   // Inject page-specific JSON-LD before closing </head>
@@ -300,17 +396,41 @@ let cachedHtml: string | null = null;
 function getIndexHtml(): string | null {
   if (cachedHtml) return cachedHtml;
 
-  const distPath =
+  const candidatePaths =
     process.env.NODE_ENV === "production"
-      ? path.resolve(import.meta.dirname, "public", "index.html")
-      : path.resolve(import.meta.dirname, "..", "dist", "public", "index.html");
+      ? [
+          // Vercel serverless bundle: copied by build:frontend for API rewrites.
+          path.resolve(import.meta.dirname, "public", "index.html"),
+          // Local production fallbacks when running from repository/build output.
+          path.resolve(
+            import.meta.dirname,
+            "..",
+            "dist",
+            "public",
+            "index.html"
+          ),
+          path.resolve(import.meta.dirname, "dist", "public", "index.html"),
+        ]
+      : [
+          path.resolve(
+            import.meta.dirname,
+            "..",
+            "dist",
+            "public",
+            "index.html"
+          ),
+        ];
 
-  try {
-    cachedHtml = fs.readFileSync(distPath, "utf-8");
-    return cachedHtml;
-  } catch {
-    return null;
+  for (const distPath of candidatePaths) {
+    try {
+      cachedHtml = fs.readFileSync(distPath, "utf-8");
+      return cachedHtml;
+    } catch {
+      // Try next candidate path.
+    }
   }
+
+  return null;
 }
 
 /**

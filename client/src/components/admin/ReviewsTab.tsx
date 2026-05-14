@@ -364,7 +364,7 @@ export function ReviewsTab() {
               <p className="text-sm text-foreground mb-3 ml-7">{review.text}</p>
 
               {review.adminResponse && (
-                <div className="mb-3 ml-7 pl-3 border-l-4 border-primary bg-primary/5 rounded-r p-2">
+                <div className="mb-3 ml-7 p-3 border border-primary/15 bg-primary/5 rounded-sm">
                   <p className="text-xs font-semibold text-primary">
                     Admin Response:
                   </p>

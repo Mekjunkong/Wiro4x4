@@ -34,7 +34,7 @@ function buildEliPrompt(
       ? tours
           .map(
             t =>
-              `- **${t.name}**: ${t.duration ?? "Full day"} \n  ฿${t.basePrice?.toLocaleString() ?? "ask"}/person${t.description ? ` — ${t.description.slice(0, 80)}` : ""}`
+              `- **${t.name}**: ${t.duration ?? "Full day"}\n  ฿${t.basePrice?.toLocaleString() ?? "ask"}/person${t.description ? ` — ${t.description.slice(0, 80)}` : ""}`
           )
           .join("\n")
       : `- Doi Inthanon (Roof of Thailand): ฿3,500/pp — Full day

@@ -1,17 +1,9 @@
 import { useRef } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
-import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { trackEvent } from "@/lib/analytics";
-
-const TRUST_ITEMS = [
-  { en: "Hebrew Speaking", he: "דוברי עברית" },
-  { en: "Kosher Meals", he: "ארוחות כשרות" },
-  { en: "Shabbat Friendly", he: "שומרי שבת" },
-  { en: "Private Tours", he: "טיולים פרטיים" },
-];
 
 export function Hero() {
   const { t, language } = useLanguage();
@@ -54,7 +46,7 @@ export function Hero() {
       />
 
       {/* Bottom gradient overlay - stronger for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:from-black/80 md:via-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent md:from-primary/80 md:via-primary/30" />
 
       {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
       <div className="absolute bottom-0 left-0 right-0 pb-20 px-5 md:pb-24 md:px-12 lg:px-20 text-white">
@@ -79,7 +71,7 @@ export function Hero() {
           <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-hero-reveal [animation-delay:0.5s] mt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 md:mb-6 animate-hero-reveal [animation-delay:0.5s] mt-4">
           <a
             href={whatsappUrl}
             target="_blank"
@@ -90,35 +82,20 @@ export function Hero() {
             <MessageCircle className="w-5 h-5" />
             {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
           </a>
-          <Link href="/book">
-            <button
-              onClick={() => trackHeroAction("get_quote")}
-              className="bg-accent hover:bg-accent/90 active:bg-accent/80 text-[#1c1c1c] font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
-            >
-              {t("Get a Quote", "קבלו הצעת מחיר")}
-            </button>
-          </Link>
           <button
             onClick={scrollToTours}
-            className="border-2 border-white hover:bg-white/20 active:bg-white/30 text-white font-bold px-8 py-4 rounded-lg transition-all shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            className="text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8"
           >
             {t("View Tours", "ראו טיולים")}
           </button>
         </div>
 
-        {/* Gold separator */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent mb-4 animate-hero-reveal [animation-delay:0.6s]" />
-
-        <div className="flex flex-wrap gap-2 md:gap-2.5 animate-hero-reveal [animation-delay:0.7s]">
-          {TRUST_ITEMS.map(item => (
-            <span
-              key={item.en}
-              className="bg-white/10 backdrop-blur-md text-white text-sm font-medium px-4 py-2 md:text-sm md:px-4 md:py-1.5 rounded-full border border-white/20 shadow-lg"
-            >
-              {t(item.en, item.he)}
-            </span>
-          ))}
-        </div>
+        <p className="text-sm md:text-base text-white/75 animate-hero-reveal [animation-delay:0.65s]">
+          {t(
+            "Fast replies in English or Hebrew.",
+            "מענה מהיר בעברית או באנגלית."
+          )}
+        </p>
       </div>
 
       {/* Animated scroll chevron */}
