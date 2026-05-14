@@ -113,13 +113,13 @@ export function ProductTiers() {
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
           <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-bold mt-2 text-foreground dark:text-white tracking-tight">
-            {t("Our Adventures", "ההרפתקאות שלנו")}
+            {t("WIRO 4x4 Trips", "טיולי WIRO 4x4")}
           </h2>
           <div className="w-16 h-[3px] bg-accent mx-auto mt-4 mb-5" />
           <p className="relative text-muted-foreground dark:text-white/60 max-w-2xl mx-auto text-lg">
             {t(
-              "From single-day excursions to multi-week expeditions — find the perfect off-road adventure for your group.",
-              "מטיולי יום ועד מסעות של מספר שבועות — מצאו את הרפתקת השטח המושלמת לקבוצה שלכם."
+              "Start with your time, group size, and route appetite. We will plan the pickup, food, and timing around your trip.",
+              "התחילו מזמן, גודל קבוצה וסגנון מסלול. אנחנו נתכנן את האיסוף, האוכל והזמנים סביב הטיול שלכם."
             )}
           </p>
         </div>
@@ -127,7 +127,7 @@ export function ProductTiers() {
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {PRODUCT_TIERS.map(tier => (
             <Link key={tier.slug} href={tier.href}>
-              <article className="luxury-card group relative bg-white dark:bg-card rounded-2xl overflow-hidden shadow-md cursor-pointer h-full flex flex-col border border-border/50 dark:border-border">
+              <article className="luxury-card group relative bg-card rounded-sm overflow-hidden shadow-md cursor-pointer h-full flex flex-col border border-border/50">
                 {/* Cinematic Image — taller */}
                 <div className="relative h-80 md:h-96 overflow-hidden">
                   <OptimizedImage

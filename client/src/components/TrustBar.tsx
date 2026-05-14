@@ -28,11 +28,10 @@ const TRUST_ITEMS = [
   },
   {
     icon: ShieldCheck,
-    value: "100%",
-    en: "Kosher Meals",
-    he: "אוכל כשר",
-    targetNum: 100,
-    suffix: "%",
+    value: "Kosher",
+    en: "Meal Planning",
+    he: "תכנון ארוחות",
+    targetNum: null,
   },
 ];
 

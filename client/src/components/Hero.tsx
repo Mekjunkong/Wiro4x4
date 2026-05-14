@@ -12,10 +12,10 @@ export function Hero() {
   const whatsappMessage =
     language === "he"
       ? encodeURIComponent(
-          "שלום, אני מעוניין/ת בטיול שטח בצ'יאנג מאי. אשמח לפרטים נוספים!"
+          "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
         )
       : encodeURIComponent(
-          "Hi! I'm interested in an off-road tour in Chiang Mai. Can you tell me more?"
+          "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __"
         );
 
   const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
@@ -56,14 +56,14 @@ export function Hero() {
           {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
         </p>
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight mb-3 md:mb-4 max-w-2xl drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+        <h1 className="text-2xl min-[380px]:text-[1.75rem] md:text-4xl lg:text-5xl leading-[1.12] mb-3 md:mb-4 max-w-[20rem] sm:max-w-2xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
           {t(
             "Kosher 4×4 Adventures in Chiang Mai",
             "טיולי 4×4 כשרים בצ'יאנג מאי"
           )}
         </h1>
 
-        <p className="text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
+        <p className="text-sm min-[380px]:text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-[21rem] sm:max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
           {t(
             "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
             "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
@@ -86,14 +86,14 @@ export function Hero() {
             onClick={scrollToTours}
             className="text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8"
           >
-            {t("View Tours", "ראו טיולים")}
+            {t("Compare Routes", "השוואת מסלולים")}
           </button>
         </div>
 
-        <p className="text-sm md:text-base text-white/75 animate-hero-reveal [animation-delay:0.65s]">
+        <p className="max-w-[21rem] sm:max-w-xl text-sm md:text-base leading-relaxed text-white/75 animate-hero-reveal [animation-delay:0.65s]">
           {t(
-            "Fast replies in English or Hebrew.",
-            "מענה מהיר בעברית או באנגלית."
+            "Send dates, group size, pickup area, and kosher or Shabbat needs. Replies in English or Hebrew.",
+            "שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי כשרות או שבת. מענה בעברית או באנגלית."
           )}
         </p>
       </div>
