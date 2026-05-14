@@ -2,7 +2,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, Moon, Sun } from "lucide-react";
+import { Menu, X, Shield, Moon, Sun, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { APP_LOGO } from "@/const";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
@@ -20,6 +26,9 @@ export function Header() {
 
   const isActive = (path: string) => currentPath === path;
   const isHomePage = currentPath === "/";
+  const isExploreActive = ["/gallery", "/blog", "/faq"].some(path =>
+    currentPath.startsWith(path)
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,36 +117,28 @@ export function Header() {
                 {t("Pricing", "מחירים")}
               </span>
             </Link>
-            <Link href="/gallery">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/gallery") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/gallery")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Gallery", "גלריה")}
-              </span>
-            </Link>
-            <Link href="/blog">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/blog") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/blog")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Blog", "בלוג")}
-              </span>
-            </Link>
-            <Link href="/faq">
-              <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/faq") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/faq")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("FAQ", "שאלות נפוצות")}
-              </span>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer inline-flex items-center gap-1 ${isExploreActive ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                  aria-label={t("Explore more pages", "עמודי מידע נוספים")}
+                >
+                  {t("Explore", "עוד")}
+                  <ChevronDown className="h-3 w-3" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem asChild>
+                  <Link href="/gallery">{t("Gallery", "גלריה")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/faq">{t("FAQ", "שאלות נפוצות")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/blog">{t("Blog", "בלוג")}</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/contact">
               <span
                 className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/contact") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}

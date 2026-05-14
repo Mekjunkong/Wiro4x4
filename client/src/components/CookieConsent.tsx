@@ -30,16 +30,16 @@ export function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-3 inset-x-0 z-[9997] px-4 animate-fade-in-up"
+      className="fixed bottom-2 inset-x-3 z-[9997] animate-fade-in-up sm:inset-x-0 sm:px-4"
       role="region"
       aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
-      <div className="mx-auto max-w-3xl">
-        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-lg px-4 py-3 md:px-5 shadow-premium flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <p className="text-sm text-muted-foreground flex-1">
+      <div className="mx-auto max-w-xl sm:max-w-2xl">
+        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-md px-3 py-2.5 md:px-4 shadow-premium flex items-center gap-3">
+          <p className="text-xs sm:text-sm text-muted-foreground flex-1 leading-snug">
             {t(
-              "We use cookies for essential site features, including booking drafts.",
-              "האתר משתמש בעוגיות לתפקוד בסיסי, כולל שמירת טיוטת הזמנה."
+              "Essential cookies save booking drafts.",
+              "עוגיות חיוניות שומרות טיוטת הזמנה."
             )}{" "}
             <a
               href="/privacy"
@@ -50,7 +50,7 @@ export function CookieConsent() {
           </p>
           <button
             onClick={handleAccept}
-            className="px-5 py-2 bg-primary text-primary-foreground rounded-md text-sm font-semibold hover:bg-primary/90 transition-colors whitespace-nowrap"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-sm text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors whitespace-nowrap"
           >
             {t("Accept", "אישור")}
           </button>

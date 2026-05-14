@@ -69,11 +69,14 @@ export function FloatingActionButtons() {
     >
       <button
         onClick={handleChatClick}
-        className="h-12 rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg flex items-center justify-center gap-2 px-3 sm:px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+        className="h-12 rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg flex items-center justify-center gap-2 px-3.5 sm:px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
         aria-label={t("Ask Moshe", "שאלו את משה")}
       >
         <Bot className="h-5 w-5" />
-        <span className="hidden sm:inline text-sm font-semibold">
+        <span className="text-sm font-semibold sm:hidden">
+          {t("Moshe", "משה")}
+        </span>
+        <span className="hidden text-sm font-semibold sm:inline">
           {t("Ask Moshe", "שאלו את משה")}
         </span>
       </button>
