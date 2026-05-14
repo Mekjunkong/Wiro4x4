@@ -39,8 +39,14 @@ describe("Moshe booking qualification helpers", () => {
     const decoded = decodeURIComponent(url);
 
     expect(missing).toContain("מסלול או רעיון לטיול");
+    expect(missing).toContain(
+      "מספר משתתפים, מבוגרים, ילדים וגילאי הילדים אם יש"
+    );
     expect(decoded).toContain("ההודעה שלי: אני רוצה להזמין");
     expect(decoded).toContain("פרטים חסרים: מסלול או רעיון לטיול");
+    expect(decoded).toContain(
+      "מספר משתתפים, מבוגרים, ילדים וגילאי הילדים אם יש"
+    );
   });
 
   it("builds an escaped Telegram alert with missing fields and exact visitor reply", () => {

@@ -6609,10 +6609,10 @@ var MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WI
 
 ## Tours & Pricing (per group of 1\u20134 people)
 
-**Doi Inthanon \u2014 Roof of Thailand** \xB7 $140/group \xB7 7\u20138 hours
+**Doi Inthanon - Roof of Thailand** \xB7 $140/group \xB7 7\u20138 hours
 Best for: nature lovers, families, first-timers
 Highlights: Thailand's highest peak (2,565m), twin royal pagodas, Wachirathan waterfall, Karen hill tribe village, misty cloud forest
-Tip: Bring a jacket \u2014 cold at the summit even in summer
+Tip: Bring a jacket - cold at the summit even in summer
 
 **Mae Kampong Hidden Village** \xB7 $98/group \xB7 5\u20137 hours
 Best for: culture lovers, off-the-beaten-path explorers
@@ -6621,25 +6621,25 @@ Very popular with Israeli families wanting authentic Thai culture
 
 **Maerim & Sticky Waterfalls** \xB7 $126/group \xB7 7\u20138 hours
 Best for: adventurous families with children
-Highlights: Unique limestone Bua Tong waterfalls you can climb barefoot \u2014 no slipping! Sky-high canopy walkway, fun for all ages
+Highlights: Unique limestone Bua Tong waterfalls you can climb barefoot - no slipping! Sky-high canopy walkway, fun for all ages
 Can be combined with ethical elephant experience
 
-**Doi Suthep-Pui \u2014 Beyond the Temple** \xB7 $98/group \xB7 5\u20137 hours
+**Doi Suthep-Pui - Beyond the Temple** \xB7 $98/group \xB7 5\u20137 hours
 Best for: temple + nature combo, those wanting history and views
 Highlights: Ancient Monk's Trail hike, Doi Suthep temple, Hmong village, hidden coffee farm, panoramic Chiang Mai city viewpoints
 
-**Mae Wang \u2014 Jungle & River Wilderness** \xB7 $154/group \xB7 8\u20139 hours
+**Mae Wang - Jungle & River Wilderness** \xB7 $154/group \xB7 8\u20139 hours
 Best for: serious off-road adventure seekers
 Highlights: Deep jungle 4x4 trails, Pha Chor canyon, river crossings, ethical elephants, bamboo rafting, hidden waterfalls
-Note: Full-day adventure \u2014 not Shabbat-compatible
+Note: Full-day adventure - not Shabbat-compatible
 
-**Samoeng Loop \u2014 The Mountain Circuit** \xB7 $140/group \xB7 8\u201310 hours
+**Samoeng Loop - The Mountain Circuit** \xB7 $140/group \xB7 8\u201310 hours
 Best for: mountain immersion, scenic drives, photography lovers
 Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, lakeside sunset
 
 **Multi-day packages:**
 - 2-day: $280 (save 10%), 3-day: $392 (save 13%), 5-day: $588 (save 20%)
-- Indochina: Laos, Myanmar, Cambodia \u2014 contact via WhatsApp for custom planning
+- Indochina: Laos, Myanmar, Cambodia - contact via WhatsApp for custom planning
 
 ## Pricing Details
 - Base prices above are per group (1\u20134 people). Groups of 5\u20136: +20%. 7+: custom quote.
@@ -6648,20 +6648,20 @@ Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above
 - Children under 3: free. Ages 3\u201310: 50% surcharge. Ages 11+: full price.
 
 ## Shabbat & Kosher
-- Full Shabbat support: Moshe arranges everything \u2014 hotel near the tour area, candles, grape juice, havdalah items
+- Full Shabbat support: Moshe arranges everything - hotel near the tour area, candles, grape juice, havdalah items
 - No travel on Shabbat: all tours are planned to end before Shabbat begins Friday evening (~18:00\u201318:30 Chiang Mai time)
 - Kosher meals: pre-arranged picnic lunches; certified kosher options available in Chiang Mai
-- WIRO accommodates strictly observant, traditional, and secular Jewish travelers \u2014 just let us know your needs
+- WIRO accommodates strictly observant, traditional, and secular Jewish travelers - just let us know your needs
 
 ## How to Respond
-1. ALWAYS answer the question first \u2014 give real, specific, useful information before anything else
-2. Be like a knowledgeable friend, not a salesperson \u2014 share genuine tips and what makes each tour special
+1. ALWAYS answer the question first - give real, specific, useful information before anything else
+2. Be like a knowledgeable friend, not a salesperson - share genuine tips and what makes each tour special
 3. Only mention WhatsApp or booking when the customer is clearly ready (they ask about availability, payment, or say they want to confirm)
-4. Keep replies conversational \u2014 3\u20135 sentences is ideal; don't overwhelm with a list
+4. Keep replies conversational - 3\u20135 sentences is ideal; don't overwhelm with a list
 5. When recommending a tour, name it specifically and explain why it fits their situation (kids, budget, interests, time of year)
 6. If they ask about price, give the USD group price and mention the estimate page for a custom breakdown
 7. CRITICAL: Always reply in the EXACT same language as the customer. Hebrew \u2192 Hebrew. English \u2192 English.
-8. You are a real human guide \u2014 never say you are AI or a bot
+8. Present yourself only as Moshe, a WIRO guide, and keep the conversation human and direct
 
 ## Booking Workflow
 When a visitor says they want to book, do NOT just send them away. First collect the minimum details needed for WIRO to quote and confirm:
@@ -6853,7 +6853,7 @@ var BOOKING_FIELD_LABELS = {
     tour: "\u05DE\u05E1\u05DC\u05D5\u05DC \u05D0\u05D5 \u05E8\u05E2\u05D9\u05D5\u05DF \u05DC\u05D8\u05D9\u05D5\u05DC",
     date: "\u05EA\u05D0\u05E8\u05D9\u05DA \u05D0\u05D5 \u05D8\u05D5\u05D5\u05D7 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD \u05DE\u05D5\u05E2\u05D3\u05E3",
     group:
-      "\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4, \u05DE\u05D1\u05D5\u05D2\u05E8\u05D9\u05DD, \u05D9\u05DC\u05D3\u05D9\u05DD \u05D5\u05D2\u05D9\u05DC\u05D0\u05D9\u05DD \u05D0\u05DD \u05D9\u05E9",
+      "\u05DE\u05E1\u05E4\u05E8 \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD, \u05DE\u05D1\u05D5\u05D2\u05E8\u05D9\u05DD, \u05D9\u05DC\u05D3\u05D9\u05DD \u05D5\u05D2\u05D9\u05DC\u05D0\u05D9 \u05D4\u05D9\u05DC\u05D3\u05D9\u05DD \u05D0\u05DD \u05D9\u05E9",
     pickup:
       "\u05DE\u05DC\u05D5\u05DF \u05D0\u05D5 \u05D0\u05D6\u05D5\u05E8 \u05D0\u05D9\u05E1\u05D5\u05E3 \u05D1\u05E6\u05F3\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9",
     kosher:
@@ -6948,14 +6948,14 @@ function getMissingBookingFields(message, language) {
 }
 function buildBookingQualificationReply(language, missing) {
   if (normalizeBookingLanguage(language) === "he") {
-    return `\u05D1\u05E9\u05DE\u05D7\u05D4 \u2014 \u05DB\u05D3\u05D9 \u05DC\u05D4\u05DB\u05D9\u05DF \u05D4\u05E6\u05E2\u05D4 \u05DE\u05D3\u05D5\u05D9\u05E7\u05EA \u05D5\u05DC\u05D1\u05D3\u05D5\u05E7 \u05D6\u05DE\u05D9\u05E0\u05D5\u05EA, \u05E9\u05DC\u05D7\u05D5 \u05D1\u05D1\u05E7\u05E9\u05D4: ${missing.join(", ")}. \u05D0\u05E4\u05E9\u05E8 \u05D2\u05DD \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05DB\u05D0\u05DF \u05D0\u05D5 \u05D1-WhatsApp \u05DC\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05D4\u05D9\u05E8 \u{1F4F1}`;
+    return `\u05D1\u05E9\u05DE\u05D7\u05D4. \u05DB\u05D3\u05D9 \u05DC\u05D4\u05DB\u05D9\u05DF \u05D4\u05E6\u05E2\u05D4 \u05DE\u05D3\u05D5\u05D9\u05E7\u05EA \u05D5\u05DC\u05D1\u05D3\u05D5\u05E7 \u05D6\u05DE\u05D9\u05E0\u05D5\u05EA, \u05E9\u05DC\u05D7\u05D5 \u05D1\u05D1\u05E7\u05E9\u05D4: ${missing.join(", ")}. \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05DB\u05D0\u05DF \u05D0\u05D5 \u05DC\u05E2\u05D1\u05D5\u05E8 \u05DC-WhatsApp \u05DC\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05D4\u05D9\u05E8 \u{1F4F1}`;
   }
-  return `Happy to help \u2014 to prepare an accurate quote and check availability, please send: ${missing.join(", ")}. You can continue here or on WhatsApp for fast confirmation \u{1F4F1}`;
+  return `Happy to help. To prepare an accurate quote and check availability, please send: ${missing.join(", ")}. You can continue here or on WhatsApp for fast confirmation \u{1F4F1}`;
 }
 function buildFallbackReply(language, escalate) {
   if (normalizeBookingLanguage(language) === "he") {
     return escalate
-      ? "\u05EA\u05D5\u05D3\u05D4! \u05DE\u05E9\u05D4 \u05E7\u05D9\u05D1\u05DC \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DC\u05DA. \u05DB\u05D3\u05D9 \u05DC\u05D4\u05DB\u05D9\u05DF \u05D4\u05E6\u05E2\u05D4 \u05DE\u05D3\u05D5\u05D9\u05E7\u05EA, \u05E9\u05DC\u05D7\u05D5 \u05D1\u05D1\u05E7\u05E9\u05D4 \u05EA\u05D0\u05E8\u05D9\u05DA, \u05DE\u05E1\u05E4\u05E8 \u05D0\u05E0\u05E9\u05D9\u05DD, \u05DE\u05E1\u05DC\u05D5\u05DC \u05E9\u05DE\u05E2\u05E0\u05D9\u05D9\u05DF \u05D0\u05EA\u05DB\u05DD, \u05D0\u05D6\u05D5\u05E8 \u05D0\u05D9\u05E1\u05D5\u05E3, \u05D5\u05E6\u05E8\u05DB\u05D9 \u05DB\u05E9\u05E8\u05D5\u05EA \u05D0\u05D5 \u05E9\u05D1\u05EA. \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05D1-WhatsApp \u{1F4F1}"
+      ? "\u05EA\u05D5\u05D3\u05D4! \u05DE\u05E9\u05D4 \u05E7\u05D9\u05D1\u05DC \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DC\u05DA. \u05DB\u05D3\u05D9 \u05DC\u05D4\u05DB\u05D9\u05DF \u05D4\u05E6\u05E2\u05D4 \u05DE\u05D3\u05D5\u05D9\u05E7\u05EA, \u05E9\u05DC\u05D7\u05D5 \u05D1\u05D1\u05E7\u05E9\u05D4 \u05EA\u05D0\u05E8\u05D9\u05DA, \u05DE\u05E1\u05E4\u05E8 \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD, \u05DE\u05E1\u05DC\u05D5\u05DC \u05E9\u05DE\u05E2\u05E0\u05D9\u05D9\u05DF \u05D0\u05EA\u05DB\u05DD, \u05D0\u05D6\u05D5\u05E8 \u05D0\u05D9\u05E1\u05D5\u05E3, \u05D5\u05E6\u05E8\u05DB\u05D9 \u05DB\u05E9\u05E8\u05D5\u05EA \u05D0\u05D5 \u05E9\u05D1\u05EA. \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05D1-WhatsApp \u{1F4F1}"
       : "\u05EA\u05D5\u05D3\u05D4! \u05DE\u05E9\u05D4 \u05E7\u05D9\u05D1\u05DC \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DC\u05DA \u05D5\u05D9\u05D7\u05D6\u05D5\u05E8 \u05D0\u05DC\u05D9\u05DA \u05D1\u05D4\u05E7\u05D3\u05DD. \u05D0\u05E4\u05E9\u05E8 \u05D2\u05DD \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05D1-WhatsApp \u{1F4F1}";
   }
   return escalate
@@ -6990,7 +6990,7 @@ function buildTelegramLeadAlert(args) {
     ? "\u{1F525} Booking / quote intent"
     : "\u{1F4AC} General chat";
   return [
-    `\u{1F4AC} <b>New Customer Message \u2014 WIRO 4x4</b>`,
+    `\u{1F4AC} <b>New Customer Message - WIRO 4x4</b>`,
     ``,
     `${urgency}`,
     `\u{1F310} Language: ${lang}`,

@@ -55,7 +55,7 @@ export function ChatWidget() {
 
   const welcomeMessage =
     chatLanguage === "he"
-      ? "שלום, אני משה מ-WIRO 4x4. אפשר לשלוח מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לבדוק התאמה לפני WhatsApp."
+      ? "שלום, אני משה מ-WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
       : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
 
   const bookingChecklist =
@@ -185,7 +185,7 @@ export function ChatWidget() {
     if (messages.length <= 1) {
       const newWelcome =
         newLang === "he"
-          ? "שלום, אני משה מ-WIRO 4x4. אפשר לשלוח מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לבדוק התאמה לפני WhatsApp."
+          ? "שלום, אני משה מ-WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
           : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
       setMessages([{ role: "moshe", content: newWelcome }]);
     }

@@ -15,10 +15,10 @@ const MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at 
 
 ## Tours & Pricing (per group of 1–4 people)
 
-**Doi Inthanon — Roof of Thailand** · $140/group · 7–8 hours
+**Doi Inthanon - Roof of Thailand** · $140/group · 7–8 hours
 Best for: nature lovers, families, first-timers
 Highlights: Thailand's highest peak (2,565m), twin royal pagodas, Wachirathan waterfall, Karen hill tribe village, misty cloud forest
-Tip: Bring a jacket — cold at the summit even in summer
+Tip: Bring a jacket - cold at the summit even in summer
 
 **Mae Kampong Hidden Village** · $98/group · 5–7 hours
 Best for: culture lovers, off-the-beaten-path explorers
@@ -27,25 +27,25 @@ Very popular with Israeli families wanting authentic Thai culture
 
 **Maerim & Sticky Waterfalls** · $126/group · 7–8 hours
 Best for: adventurous families with children
-Highlights: Unique limestone Bua Tong waterfalls you can climb barefoot — no slipping! Sky-high canopy walkway, fun for all ages
+Highlights: Unique limestone Bua Tong waterfalls you can climb barefoot - no slipping! Sky-high canopy walkway, fun for all ages
 Can be combined with ethical elephant experience
 
-**Doi Suthep-Pui — Beyond the Temple** · $98/group · 5–7 hours
+**Doi Suthep-Pui - Beyond the Temple** · $98/group · 5–7 hours
 Best for: temple + nature combo, those wanting history and views
 Highlights: Ancient Monk's Trail hike, Doi Suthep temple, Hmong village, hidden coffee farm, panoramic Chiang Mai city viewpoints
 
-**Mae Wang — Jungle & River Wilderness** · $154/group · 8–9 hours
+**Mae Wang - Jungle & River Wilderness** · $154/group · 8–9 hours
 Best for: serious off-road adventure seekers
 Highlights: Deep jungle 4x4 trails, Pha Chor canyon, river crossings, ethical elephants, bamboo rafting, hidden waterfalls
-Note: Full-day adventure — not Shabbat-compatible
+Note: Full-day adventure - not Shabbat-compatible
 
-**Samoeng Loop — The Mountain Circuit** · $140/group · 8–10 hours
+**Samoeng Loop - The Mountain Circuit** · $140/group · 8–10 hours
 Best for: mountain immersion, scenic drives, photography lovers
 Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, lakeside sunset
 
 **Multi-day packages:**
 - 2-day: $280 (save 10%), 3-day: $392 (save 13%), 5-day: $588 (save 20%)
-- Indochina: Laos, Myanmar, Cambodia — contact via WhatsApp for custom planning
+- Indochina: Laos, Myanmar, Cambodia - contact via WhatsApp for custom planning
 
 ## Pricing Details
 - Base prices above are per group (1–4 people). Groups of 5–6: +20%. 7+: custom quote.
@@ -54,20 +54,20 @@ Highlights: 100km mountain circuit, rare wooden Lanna temple, hilltop farm above
 - Children under 3: free. Ages 3–10: 50% surcharge. Ages 11+: full price.
 
 ## Shabbat & Kosher
-- Full Shabbat support: Moshe arranges everything — hotel near the tour area, candles, grape juice, havdalah items
+- Full Shabbat support: Moshe arranges everything - hotel near the tour area, candles, grape juice, havdalah items
 - No travel on Shabbat: all tours are planned to end before Shabbat begins Friday evening (~18:00–18:30 Chiang Mai time)
 - Kosher meals: pre-arranged picnic lunches; certified kosher options available in Chiang Mai
-- WIRO accommodates strictly observant, traditional, and secular Jewish travelers — just let us know your needs
+- WIRO accommodates strictly observant, traditional, and secular Jewish travelers - just let us know your needs
 
 ## How to Respond
-1. ALWAYS answer the question first — give real, specific, useful information before anything else
-2. Be like a knowledgeable friend, not a salesperson — share genuine tips and what makes each tour special
+1. ALWAYS answer the question first - give real, specific, useful information before anything else
+2. Be like a knowledgeable friend, not a salesperson - share genuine tips and what makes each tour special
 3. Only mention WhatsApp or booking when the customer is clearly ready (they ask about availability, payment, or say they want to confirm)
-4. Keep replies conversational — 3–5 sentences is ideal; don't overwhelm with a list
+4. Keep replies conversational - 3–5 sentences is ideal; don't overwhelm with a list
 5. When recommending a tour, name it specifically and explain why it fits their situation (kids, budget, interests, time of year)
 6. If they ask about price, give the USD group price and mention the estimate page for a custom breakdown
 7. CRITICAL: Always reply in the EXACT same language as the customer. Hebrew → Hebrew. English → English.
-8. You are a real human guide — never say you are AI or a bot
+8. Present yourself only as Moshe, a WIRO guide, and keep the conversation human and direct
 
 ## Booking Workflow
 When a visitor says they want to book, do NOT just send them away. First collect the minimum details needed for WIRO to quote and confirm:
@@ -321,7 +321,7 @@ const BOOKING_FIELD_LABELS: Record<
   he: {
     tour: "מסלול או רעיון לטיול",
     date: "תאריך או טווח תאריכים מועדף",
-    group: "גודל הקבוצה, מבוגרים, ילדים וגילאים אם יש",
+    group: "מספר משתתפים, מבוגרים, ילדים וגילאי הילדים אם יש",
     pickup: "מלון או אזור איסוף בצ׳יאנג מאי",
     kosher: "צרכי כשרות, שבת או מדריך בעברית",
   },
@@ -434,10 +434,10 @@ function buildBookingQualificationReply(
   missing: string[]
 ): string {
   if (normalizeBookingLanguage(language) === "he") {
-    return `בשמחה — כדי להכין הצעה מדויקת ולבדוק זמינות, שלחו בבקשה: ${missing.join(", ")}. אפשר גם להמשיך כאן או ב-WhatsApp לאישור מהיר 📱`;
+    return `בשמחה. כדי להכין הצעה מדויקת ולבדוק זמינות, שלחו בבקשה: ${missing.join(", ")}. אפשר להמשיך כאן או לעבור ל-WhatsApp לאישור מהיר 📱`;
   }
 
-  return `Happy to help — to prepare an accurate quote and check availability, please send: ${missing.join(", ")}. You can continue here or on WhatsApp for fast confirmation 📱`;
+  return `Happy to help. To prepare an accurate quote and check availability, please send: ${missing.join(", ")}. You can continue here or on WhatsApp for fast confirmation 📱`;
 }
 
 function buildFallbackReply(
@@ -446,7 +446,7 @@ function buildFallbackReply(
 ): string {
   if (normalizeBookingLanguage(language) === "he") {
     return escalate
-      ? "תודה! משה קיבל את ההודעה שלך. כדי להכין הצעה מדויקת, שלחו בבקשה תאריך, מספר אנשים, מסלול שמעניין אתכם, אזור איסוף, וצרכי כשרות או שבת. אפשר להמשיך ב-WhatsApp 📱"
+      ? "תודה! משה קיבל את ההודעה שלך. כדי להכין הצעה מדויקת, שלחו בבקשה תאריך, מספר משתתפים, מסלול שמעניין אתכם, אזור איסוף, וצרכי כשרות או שבת. אפשר להמשיך ב-WhatsApp 📱"
       : "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם. אפשר גם להמשיך ב-WhatsApp 📱";
   }
 
@@ -490,7 +490,7 @@ export function buildTelegramLeadAlert(args: {
     : "💬 General chat";
 
   return [
-    `💬 <b>New Customer Message — WIRO 4x4</b>`,
+    `💬 <b>New Customer Message - WIRO 4x4</b>`,
     ``,
     `${urgency}`,
     `🌐 Language: ${lang}`,
@@ -549,7 +549,7 @@ export function registerMosheRoute(app: Express) {
       return;
     }
 
-    // Build conversation history for AI — use full messages array if provided,
+    // Build conversation history for the provider - use full messages array if provided,
     // otherwise fall back to a single-turn exchange.
     const chatHistory: ChatMessage[] =
       messages && messages.length > 0
@@ -577,7 +577,7 @@ export function registerMosheRoute(app: Express) {
         ? buildBookingQualificationReply(language, missingBookingFields)
         : (reply ?? buildFallbackReply(language, bookingIntent));
 
-    // Send Telegram notification after the AI reply is ready, so Mike gets context,
+    // Send Telegram notification after the visitor reply is ready, so Mike gets context,
     // missing booking details, and the exact reply the visitor saw.
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
