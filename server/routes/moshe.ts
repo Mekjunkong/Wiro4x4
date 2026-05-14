@@ -330,7 +330,7 @@ const BOOKING_FIELD_LABELS: Record<
 function normalizeBookingLanguage(
   language: string | undefined
 ): BookingLanguage {
-  return language === "he" ? "he" : "en";
+  return language?.toLowerCase().startsWith("he") ? "he" : "en";
 }
 
 function escapeHtml(value: string): string {
@@ -338,7 +338,8 @@ function escapeHtml(value: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function getConversationBookingText(
@@ -474,7 +475,7 @@ export function buildWhatsAppUrl(
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-function buildTelegramLeadAlert(args: {
+export function buildTelegramLeadAlert(args: {
   latestMessage: string;
   bookingContext: string;
   language?: string;
