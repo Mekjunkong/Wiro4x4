@@ -8,9 +8,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
+import { getTourPackageBySlug } from "./db/packages";
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
+const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 
 interface PageMeta {
@@ -22,6 +24,7 @@ interface PageMeta {
   lang?: string;
   dir?: "ltr" | "rtl";
   appendBrandSuffix?: boolean;
+  alternateLanguages?: Partial<Record<"en" | "he" | "x-default", string>>;
   jsonLd?: Record<string, unknown>;
 }
 
@@ -150,6 +153,10 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     canonicalPath: "/hebrew-guide",
     lang: "he",
     dir: "rtl",
+    alternateLanguages: {
+      he: `${SITE_URL}/hebrew-guide`,
+      "x-default": `${SITE_URL}/hebrew-guide`,
+    },
     jsonLd: serviceJsonLd({
       name: "Hebrew-Speaking Guide in Chiang Mai",
       description:
@@ -205,12 +212,68 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
   },
 };
 
+const PACKAGE_META: Record<
+  string,
+  {
+    name: string;
+    description: string;
+    coverImage: string;
+    price: number;
+  }
+> = {
+  "northern-thailand-3d2n": {
+    name: "3 Days / 2 Nights — Northern Thailand Mountain Loop",
+    description:
+      "A private 3-day 4x4 adventure through Chiang Dao, Doi Ang Khang, Mae Salong, and Chiang Rai with kosher support and Hebrew-speaking guide service.",
+    coverImage: "/images/optimized/nong_khiaw_river.jpg",
+    price: 12900,
+  },
+  "grand-tour-laos-14d": {
+    name: "14-Day Grand Tour: Thailand to Laos by 4x4",
+    description:
+      "A private 14-day overland 4x4 expedition from Chiang Mai through Northern Thailand and Laos with kosher support and Hebrew-speaking guide service.",
+    coverImage: "/images/optimized/vang_vieng_mountains.jpg",
+    price: 59900,
+  },
+};
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function absoluteUrl(url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+function defaultAlternateLanguages(meta: PageMeta, canonicalUrl: string) {
+  if (meta.alternateLanguages) return meta.alternateLanguages;
+  if (meta.lang === "he") {
+    return {
+      he: canonicalUrl,
+      "x-default": canonicalUrl,
+    };
+  }
+  return {
+    en: canonicalUrl,
+    "x-default": canonicalUrl,
+  };
+}
+
+function buildAlternateTags(meta: PageMeta, canonicalUrl: string): string {
+  return Object.entries(defaultAlternateLanguages(meta, canonicalUrl))
+    .filter((entry): entry is [string, string] => Boolean(entry[1]))
+    .map(
+      ([hreflang, href]) =>
+        `<link rel="alternate" hreflang="${hreflang}" href="${escapeHtml(
+          href
+        )}" />`
+    )
+    .join("\n");
 }
 
 function injectMeta(html: string, meta: PageMeta): string {
@@ -270,9 +333,14 @@ function injectMeta(html: string, meta: PageMeta): string {
   );
 
   // Replace canonical URL
+  const alternateTags = buildAlternateTags(meta, canonicalUrl);
+  html = html.replace(
+    /\s*<link\s+rel="alternate"\s+hreflang="[^"]+"\s+href="[^"]*"\s*\/?>/g,
+    ""
+  );
   html = html.replace(
     /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
-    `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`
+    `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />\n${alternateTags}`
   );
 
   // Override lang attribute for non-English pages
@@ -339,6 +407,50 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
     }
   }
 
+  // /packages/:slug
+  const packageMatch = urlPath.match(/^\/packages\/([a-z0-9-]+)$/);
+  if (packageMatch) {
+    const slug = packageMatch[1];
+    const dbPkg = await getTourPackageBySlug(slug);
+    const pkg = dbPkg?.isPublished === 1 ? dbPkg : undefined;
+    const fallback = PACKAGE_META[slug];
+    const name = pkg?.name || fallback?.name;
+    const description = pkg?.description || fallback?.description;
+    const coverImage = pkg?.coverImage || fallback?.coverImage;
+    const price = fallback?.price;
+
+    if (name && (pkg || fallback)) {
+      return {
+        title: `${name} — Private 4x4 Package`,
+        description:
+          description?.slice(0, 155) ||
+          `${name} — private multi-day 4x4 tour package with WIRO 4x4.`,
+        ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
+        canonicalPath: `/packages/${slug}`,
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "TouristTrip",
+          name,
+          description,
+          image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
+          provider: {
+            "@type": "TravelAgency",
+            name: "WIRO 4x4",
+            url: SITE_URL,
+          },
+          offers: price
+            ? {
+                "@type": "Offer",
+                price: String(price),
+                priceCurrency: "THB",
+                availability: "https://schema.org/InStock",
+              }
+            : undefined,
+        },
+      };
+    }
+  }
+
   // /blog/:slug
   const blogMatch = urlPath.match(/^\/blog\/([a-z0-9-]+)$/);
   if (blogMatch) {
@@ -376,7 +488,7 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
             name: "WIRO 4x4",
             logo: {
               "@type": "ImageObject",
-              url: `${SITE_URL}/images/logo.png`,
+              url: BRAND_LOGO,
             },
           },
           datePublished: publishedIso,

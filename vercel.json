@@ -78,6 +78,10 @@
       "destination": "/api"
     },
     {
+      "source": "/packages/(.*)",
+      "destination": "/api"
+    },
+    {
       "source": "/terms",
       "destination": "/api"
     },

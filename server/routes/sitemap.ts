@@ -136,10 +136,18 @@ function formatDate(date: Date | string | null | undefined): string | null {
 function buildHreflangLinks(siteUrl: string, path: string): string {
   const escaped = escapeXml(siteUrl);
   const escapedPath = escapeXml(path);
-  return [
+  const links = [
     `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapedPath}"/>`,
     `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`,
-  ].join("\n");
+  ];
+
+  if (path === "/hebrew-guide") {
+    links.unshift(
+      `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapedPath}"/>`
+    );
+  }
+
+  return links.join("\n");
 }
 
 function buildUrlEntry(

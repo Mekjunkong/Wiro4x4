@@ -62,6 +62,12 @@ function setHreflangLink(hreflang: string, href: string) {
   el.setAttribute("href", href);
 }
 
+function removeHreflangLink(hreflang: string) {
+  document
+    .querySelectorAll(`link[rel="alternate"][hreflang="${hreflang}"]`)
+    .forEach(el => el.remove());
+}
+
 export function usePageMeta(
   titleOrOptions: string | PageMetaOptions,
   description?: string
@@ -125,9 +131,14 @@ export function usePageMeta(
       setMetaTag('meta[property="og:url"]', "content", canonicalUrl);
 
       // Dynamic hreflang links per page
-      setHreflangLink("en", canonicalUrl);
-      setHreflangLink("he", canonicalUrl);
+      removeHreflangLink("en");
+      removeHreflangLink("he");
       setHreflangLink("x-default", canonicalUrl);
+      if (options.canonicalPath === "/hebrew-guide") {
+        setHreflangLink("he", canonicalUrl);
+      } else {
+        setHreflangLink("en", canonicalUrl);
+      }
     }
 
     // JSON-LD injection

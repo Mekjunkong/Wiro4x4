@@ -34,6 +34,16 @@ describe("sitemap", () => {
     expect(xml).toContain("/blog/kosher-guide");
   });
 
+  it("marks the Hebrew guide as the Hebrew page without making every URL Hebrew", () => {
+    const xml = generateSitemap([], [], [], "https://www.wiro4x4indochina.com");
+    expect(xml).toContain(
+      '<xhtml:link rel="alternate" hreflang="he" href="https://www.wiro4x4indochina.com/hebrew-guide"/>'
+    );
+    expect(xml).not.toContain(
+      '<xhtml:link rel="alternate" hreflang="he" href="https://www.wiro4x4indochina.com/tours"/>'
+    );
+  });
+
   it("escapes XML special characters in slugs", () => {
     const tours = [{ slug: "tour-with-&-ampersand" }];
     const xml = generateSitemap(
@@ -61,5 +71,24 @@ describe("sitemap", () => {
     expect(sitemapRewriteIndex).toBeGreaterThanOrEqual(0);
     expect(vercelConfig.rewrites[sitemapRewriteIndex].destination).toBe("/api");
     expect(catchAllRewriteIndex).toBeGreaterThan(sitemapRewriteIndex);
+  });
+
+  it("routes package detail pages to the server function before the SPA catch-all on Vercel", () => {
+    const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
+      rewrites: Array<{ source: string; destination: string }>;
+    };
+
+    const packageDetailRewriteIndex = vercelConfig.rewrites.findIndex(
+      rewrite => rewrite.source === "/packages/(.*)"
+    );
+    const catchAllRewriteIndex = vercelConfig.rewrites.findIndex(
+      rewrite => rewrite.source === "/(.*)"
+    );
+
+    expect(packageDetailRewriteIndex).toBeGreaterThanOrEqual(0);
+    expect(vercelConfig.rewrites[packageDetailRewriteIndex].destination).toBe(
+      "/api"
+    );
+    expect(catchAllRewriteIndex).toBeGreaterThan(packageDetailRewriteIndex);
   });
 });
