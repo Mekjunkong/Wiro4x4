@@ -1721,9 +1721,20 @@ export default function TourDetail() {
 
                   <div className="space-y-3 pt-2">
                     <Button
-                      onClick={handleBookWhatsApp}
+                      asChild
                       className="w-full gap-2"
                       variant="default"
+                      size="lg"
+                    >
+                      <Link href={`/book?tour=${slug}`}>
+                        <Calendar className="w-5 h-5" />
+                        {t("Book Now", "הזמינו עכשיו")}
+                      </Link>
+                    </Button>
+                    <Button
+                      onClick={handleBookWhatsApp}
+                      className="w-full gap-2"
+                      variant="outline"
                       size="lg"
                     >
                       <MessageCircle className="w-5 h-5" />

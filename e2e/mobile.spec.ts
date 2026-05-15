@@ -87,6 +87,7 @@ test.describe("Mobile Responsiveness", () => {
   test("should display floating action buttons on mobile", async ({ page }) => {
     await preparePage(page);
     await page.goto("/");
+    await page.evaluate(() => window.scrollTo(0, 720));
 
     // FAB group should be visible
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');
@@ -134,16 +135,22 @@ test.describe("Mobile Responsiveness", () => {
     await preparePage(page);
     await page.goto("/");
 
-    // Check that body text is at least 14px
-    const paragraphs = page.locator("p");
-    const count = await paragraphs.count();
+    const proseFontSizes = await page.locator("p").evaluateAll(elements =>
+      elements
+        .filter(el => {
+          const text = el.textContent?.trim() || "";
+          return (
+            text.length >= 40 &&
+            !el.classList.contains("text-xs") &&
+            el.getBoundingClientRect().height > 0
+          );
+        })
+        .map(el => parseFloat(window.getComputedStyle(el).fontSize))
+    );
 
-    if (count > 0) {
-      const fontSize = await paragraphs
-        .first()
-        .evaluate(el => window.getComputedStyle(el).fontSize);
-      const fontSizeNum = parseFloat(fontSize);
-      expect(fontSizeNum).toBeGreaterThanOrEqual(14);
+    expect(proseFontSizes.length).toBeGreaterThan(0);
+    for (const fontSize of proseFontSizes) {
+      expect(fontSize).toBeGreaterThanOrEqual(14);
     }
   });
 

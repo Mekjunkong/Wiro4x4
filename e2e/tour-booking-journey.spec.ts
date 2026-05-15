@@ -133,9 +133,11 @@ test.describe("Tour Discovery to Booking", () => {
     await page.goto("/tours/doi-inthanon-roof-of-thailand");
     await page.waitForLoadState("networkidle");
 
-    // Click the Book Now button
-    const bookButton = page.getByRole("link", { name: /book|הזמ/i }).first();
+    const bookButton = page
+      .locator(`a[href="/book?tour=doi-inthanon-roof-of-thailand"]`)
+      .first();
     if (await bookButton.isVisible().catch(() => false)) {
+      await bookButton.scrollIntoViewIfNeeded();
       await bookButton.click();
       await expect(page).toHaveURL(/\/book/);
 

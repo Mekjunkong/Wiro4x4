@@ -47,10 +47,9 @@ test.describe("Blog Reading Journey", () => {
       await expect(mobileNav).toBeVisible({ timeout: 5000 });
       await mobileNav.getByText("Blog").click();
     } else {
-      await page
-        .locator('nav[aria-label="Main navigation"]')
-        .getByText("Blog")
-        .click();
+      const nav = page.locator('nav[aria-label="Main navigation"]');
+      await nav.getByRole("button", { name: /explore/i }).click();
+      await page.getByRole("menuitem", { name: /blog/i }).click();
     }
 
     await expect(page).toHaveURL(/\/blog/);

@@ -1,4 +1,25 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function prepareQuickActions(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem("cookie-consent-accepted", "true");
+    localStorage.setItem(
+      "wiro_newsletter_dismissed",
+      String(Date.now() + 86400000)
+    );
+  });
+}
+
+async function showHomeQuickActions(page: Page) {
+  await prepareQuickActions(page);
+  await page.goto("/");
+  await page.evaluate(() => window.scrollTo(0, 720));
+}
+
+async function openExploreMenu(page: Page) {
+  const nav = page.locator('nav[aria-label="Main navigation"]');
+  await nav.getByRole("button", { name: /explore/i }).click();
+}
 
 test.describe("Homepage", () => {
   test("should load and display the hero section with WIRO 4x4 heading", async ({
@@ -51,7 +72,7 @@ test.describe("Homepage", () => {
   test("should have floating action buttons (WhatsApp and Book Now)", async ({
     page,
   }) => {
-    await page.goto("/");
+    await showHomeQuickActions(page);
 
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');
     await expect(fabGroup).toBeVisible();
@@ -71,9 +92,14 @@ test.describe("Homepage Desktop Navigation", () => {
     const nav = page.locator('nav[aria-label="Main navigation"]');
     await expect(nav.getByText("Tours")).toBeVisible();
     await expect(nav.getByText("Pricing")).toBeVisible();
-    await expect(nav.getByText("Gallery")).toBeVisible();
-    await expect(nav.getByText("Blog")).toBeVisible();
+    await expect(nav.getByRole("button", { name: /explore/i })).toBeVisible();
     await expect(nav.getByText("Contact")).toBeVisible();
+
+    await openExploreMenu(page);
+    await expect(
+      page.getByRole("menuitem", { name: /gallery/i })
+    ).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /blog/i })).toBeVisible();
   });
 
   test("should display the Book Now button in header", async ({ page }) => {
@@ -112,20 +138,16 @@ test.describe("Homepage Desktop Navigation", () => {
   test("should navigate to gallery page", async ({ page }) => {
     await page.goto("/");
 
-    await page
-      .locator('nav[aria-label="Main navigation"]')
-      .getByText("Gallery")
-      .click();
+    await openExploreMenu(page);
+    await page.getByRole("menuitem", { name: /gallery/i }).click();
     await expect(page).toHaveURL(/\/gallery/);
   });
 
   test("should navigate to blog page", async ({ page }) => {
     await page.goto("/");
 
-    await page
-      .locator('nav[aria-label="Main navigation"]')
-      .getByText("Blog")
-      .click();
+    await openExploreMenu(page);
+    await page.getByRole("menuitem", { name: /blog/i }).click();
     await expect(page).toHaveURL(/\/blog/);
   });
 

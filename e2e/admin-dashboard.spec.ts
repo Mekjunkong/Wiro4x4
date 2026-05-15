@@ -110,7 +110,15 @@ test.describe("Accessibility Basics", () => {
   });
 
   test("should have aria labels on interactive elements", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("cookie-consent-accepted", "true");
+      localStorage.setItem(
+        "wiro_newsletter_dismissed",
+        String(Date.now() + 86400000)
+      );
+    });
     await page.goto("/");
+    await page.evaluate(() => window.scrollTo(0, 720));
 
     // Floating action buttons should have aria-labels
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');
