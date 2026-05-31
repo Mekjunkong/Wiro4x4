@@ -5,7 +5,7 @@ description: |
   and schedules reminder notifications.
 
 variables:
-  whatsapp_number: "+66929894495"
+  whatsapp_number: "+972544715400"
   business_email: "wiro.adventures@gmail.com"
   base_url: "${VITE_OAUTH_PORTAL_URL}"
   booking_id: "${BOOKING_ID}"

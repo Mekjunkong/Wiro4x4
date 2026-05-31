@@ -56,7 +56,7 @@ describe("Moshe booking qualification helpers", () => {
       language: "en",
       visitorId: `visitor<&"'>1234567890`,
       reply: `Happy to help <friend> & "confirm" 'soon'`,
-      whatsappUrl: `https://wa.me/66929894495?text=<book>&q="yes"'`,
+      whatsappUrl: `https://wa.me/972544715400?text=<book>&q="yes"'`,
     });
 
     expect(alert).toContain("🔥 Booking / quote intent");
@@ -71,7 +71,7 @@ describe("Moshe booking qualification helpers", () => {
       `Happy to help &lt;friend&gt; &amp; &quot;confirm&quot; &#39;soon&#39;`
     );
     expect(alert).toContain(
-      `href="https://wa.me/66929894495?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
+      `href="https://wa.me/972544715400?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
     );
   });
 });

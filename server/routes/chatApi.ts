@@ -83,7 +83,7 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 - Can arrange kosher accommodation recommendations
 
 ## Contact:
-- WhatsApp: +66 92-989-4495
+- WhatsApp: +972 54-471-5400
 - Website: www.wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -104,7 +104,7 @@ When the user:
 - Requests custom tour arrangements
 - Mentions payment or deposits
 
-→ Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +66 92-989-4495" and the response should indicate escalation.
+→ Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +972 54-471-5400" and the response should indicate escalation.
 `;
 
 const LANGUAGE_INSTRUCTIONS: Record<ChatLanguage, string> = {
@@ -313,9 +313,9 @@ export function registerChatApiRoute(app: Express) {
 
         // Fallback response if API fails
         const fallbackMessages: Record<ChatLanguage, string> = {
-          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +66 92-989-4495 for immediate assistance!",
-          he: "מצטער, יש לי בעיה כרגע. אנא צרו קשר ישירות בוואטסאפ: +66 92-989-4495 לקבלת עזרה מיידית!",
-          th: "ขออภัยครับ ตอนนี้มีปัญหาทางเทคนิค กรุณาติดต่อเราโดยตรงทาง WhatsApp: +66 92-989-4495 เพื่อรับความช่วยเหลือทันที!",
+          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +972 54-471-5400 for immediate assistance!",
+          he: "מצטער, יש לי בעיה כרגע. אנא צרו קשר ישירות בוואטסאפ: +972 54-471-5400 לקבלת עזרה מיידית!",
+          th: "ขออภัยครับ ตอนนี้มีปัญหาทางเทคนิค กรุณาติดต่อเราโดยตรงทาง WhatsApp: +972 54-471-5400 เพื่อรับความช่วยเหลือทันที!",
         };
 
         const chatResponse: ChatResponse = {

@@ -316,7 +316,7 @@
 
 ## WhatsApp Number Update
 
-- [x] Update WhatsApp number to +66929894495 in all components (updated 8 files)
+- [x] Update WhatsApp number to +972544715400 in all components (updated 8 files)
 - [x] Update WhatsApp floating button (FloatingActionButtons.tsx)
 - [x] Update booking form WhatsApp redirect (BookingForm.tsx)
 - [x] Update any other WhatsApp references (Footer, Hero, Tours, WhatsAppButton, Pricing, BlogPost)
