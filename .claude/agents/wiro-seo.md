@@ -24,7 +24,7 @@ You optimize search visibility for a kosher off-road tour company in Chiang Mai,
 - **Target audience**: Israeli travelers, kosher-observant tourists
 - **Languages**: English (primary), Hebrew (secondary)
 - **Domain**: wiro-4x4.manus.space (Manus platform)
-- **WhatsApp**: +66929894495
+- **WhatsApp**: +972544715400
 - **Email**: wiro.adventures@gmail.com, info@wiro4x4.com
 - **Services**: 4x4 off-road tours, kosher meals, Shabbat-friendly tours, private tours
 
@@ -47,11 +47,11 @@ You optimize search visibility for a kosher off-road tour company in Chiang Mai,
 
 ## Key Pages to Optimize
 
-| Page | Target Keywords |
-|------|----------------|
-| Home `/` | kosher tours chiang mai, jewish tours thailand, 4x4 adventures thailand |
-| Pricing `/pricing` | chiang mai tour prices, private tour cost thailand |
-| Gallery `/gallery` | chiang mai tour photos, thailand adventure photos |
-| Reviews `/reviews` | wiro 4x4 reviews, chiang mai tour reviews |
-| Blog `/blog` | kosher food chiang mai, israeli travel tips thailand |
-| Booking `/book` | book tour chiang mai, reserve kosher tour |
+| Page               | Target Keywords                                                         |
+| ------------------ | ----------------------------------------------------------------------- |
+| Home `/`           | kosher tours chiang mai, jewish tours thailand, 4x4 adventures thailand |
+| Pricing `/pricing` | chiang mai tour prices, private tour cost thailand                      |
+| Gallery `/gallery` | chiang mai tour photos, thailand adventure photos                       |
+| Reviews `/reviews` | wiro 4x4 reviews, chiang mai tour reviews                               |
+| Blog `/blog`       | kosher food chiang mai, israeli travel tips thailand                    |
+| Booking `/book`    | book tour chiang mai, reserve kosher tour                               |

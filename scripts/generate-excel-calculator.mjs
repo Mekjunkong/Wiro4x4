@@ -531,7 +531,7 @@ function buildInstructionsSheet() {
     ["      Dinner (regular) ฿250    |  Dinner (kosher) ฿450"],
     ["  • USD conversion uses rate ×0.028 (≈ 36 THB/USD)"],
     [],
-    ["WIRO 4x4 | WhatsApp +66929894495 | www.wiro4x4indochina.com"],
+    ["WIRO 4x4 | WhatsApp +972544715400 | www.wiro4x4indochina.com"],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);

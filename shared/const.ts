@@ -5,10 +5,10 @@ export const NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
 
 // ── Company Contact Info (single source of truth) ──────────────────
 // When you get your new WhatsApp Business number, change ONLY here.
-export const COMPANY_WHATSAPP = "66929894495";
+export const COMPANY_WHATSAPP = "972544715400";
 export const COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
-export const COMPANY_WHATSAPP_DISPLAY = "+66 92-989-4495";
-export const COMPANY_PHONE = "+66 92-989-4495";
+export const COMPANY_WHATSAPP_DISPLAY = "+972 54-471-5400";
+export const COMPANY_PHONE = "+972 54-471-5400";
 export const COMPANY_EMAIL = "wiro.adventures@gmail.com";
 export const COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 export const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";

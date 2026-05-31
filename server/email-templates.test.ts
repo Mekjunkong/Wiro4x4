@@ -70,7 +70,7 @@ describe("Email Templates", () => {
       meetingPointMapUrl: "https://maps.google.com/?q=18.7883,98.9853",
       pickupTime: "08:00 AM",
       includesKosherMeals: true,
-      emergencyPhone: "+66 92-989-4495",
+      emergencyPhone: "+972 54-471-5400",
       language: "en",
     };
 
