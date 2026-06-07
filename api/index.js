@@ -68,6 +68,7 @@ var users,
   auditLogs,
   subscribers,
   scheduledEmails,
+  postTourReviewRequests,
   customers,
   customerActivities,
   chatSessions,
@@ -80,7 +81,8 @@ var users,
   tourAvailability,
   tripPhotoAlbums,
   tripPhotos,
-  whatsappMessages;
+  whatsappMessages,
+  postTourReviewEvents;
 var init_schema = __esm({
   "drizzle/schema.ts"() {
     "use strict";
@@ -311,12 +313,15 @@ var init_schema = __esm({
     });
     reviews = mysqlTable("reviews", {
       id: int("id").autoincrement().primaryKey(),
+      bookingId: int("bookingId"),
+      reviewRequestId: int("reviewRequestId"),
       name: varchar("name", { length: 255 }).notNull(),
       email: varchar("email", { length: 320 }),
       rating: int("rating").notNull(),
       // 1-5
       title: varchar("title", { length: 255 }),
       text: text("text").notNull(),
+      source: varchar("source", { length: 50 }).default("website"),
       tourType: varchar("tourType", { length: 100 }),
       travelDate: timestamp("travelDate"),
       isApproved: int("isApproved").default(0).notNull(),
@@ -492,6 +497,49 @@ var init_schema = __esm({
         index("idx_scheduledEmails_type_targetId").on(
           table.type,
           table.targetId
+        ),
+      ]
+    );
+    postTourReviewRequests = mysqlTable(
+      "postTourReviewRequests",
+      {
+        id: int("id").autoincrement().primaryKey(),
+        bookingId: int("bookingId").notNull(),
+        phoneNumber: varchar("phoneNumber", { length: 50 }).notNull(),
+        customerName: varchar("customerName", { length: 255 }),
+        language: mysqlEnum("language", ["en", "he"]).default("en").notNull(),
+        status: mysqlEnum("status", [
+          "scheduled",
+          "sent",
+          "opened",
+          "clicked",
+          "reviewed",
+          "failed",
+        ])
+          .default("scheduled")
+          .notNull(),
+        scheduledAt: timestamp("scheduledAt").notNull(),
+        sentAt: timestamp("sentAt"),
+        openedAt: timestamp("openedAt"),
+        clickedAt: timestamp("clickedAt"),
+        reviewedAt: timestamp("reviewedAt"),
+        rating: int("rating"),
+        comments: text("comments"),
+        whatsappMessageId: varchar("whatsappMessageId", { length: 255 }),
+        reviewUrl: varchar("reviewUrl", { length: 1024 }),
+        opsFollowUpUrl: varchar("opsFollowUpUrl", { length: 1024 }),
+        escalatedAt: timestamp("escalatedAt"),
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
+        updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+      },
+      table => [
+        index("idx_postTourReview_bookingId").on(table.bookingId),
+        index("idx_postTourReview_status_scheduledAt").on(
+          table.status,
+          table.scheduledAt
+        ),
+        index("idx_postTourReview_whatsappMessageId").on(
+          table.whatsappMessageId
         ),
       ]
     );
@@ -788,6 +836,40 @@ var init_schema = __esm({
         index("idx_whatsappMessages_direction_createdAt").on(
           table.direction,
           table.createdAt
+        ),
+      ]
+    );
+    postTourReviewEvents = mysqlTable(
+      "postTourReviewEvents",
+      {
+        id: int("id").autoincrement().primaryKey(),
+        bookingId: int("bookingId"),
+        channel: mysqlEnum("channel", ["whatsapp"])
+          .notNull()
+          .default("whatsapp"),
+        state: mysqlEnum("state", [
+          "request_sent",
+          "response_received",
+          "follow_up_sent",
+        ]).notNull(),
+        guestReference: varchar("guestReference", { length: 255 }).notNull(),
+        guestPhone: varchar("guestPhone", { length: 50 }),
+        guestName: varchar("guestName", { length: 255 }),
+        externalMessageId: varchar("externalMessageId", { length: 255 }),
+        dedupeKey: varchar("dedupeKey", { length: 255 }).notNull().unique(),
+        metadata: json("metadata"),
+        createdAt: timestamp("createdAt").defaultNow().notNull(),
+      },
+      table => [
+        index("idx_postTourReviewEvents_bookingId_state").on(
+          table.bookingId,
+          table.state
+        ),
+        index("idx_postTourReviewEvents_guestReference").on(
+          table.guestReference
+        ),
+        index("idx_postTourReviewEvents_externalMessageId").on(
+          table.externalMessageId
         ),
       ]
     );
@@ -1171,6 +1253,16 @@ async function getAllLeads() {
   if (!db) return [];
   return await db.select().from(leads).orderBy(desc4(leads.createdAt));
 }
+async function getLeadById(id) {
+  const db = await getDb();
+  if (!db) return void 0;
+  const result = await db
+    .select()
+    .from(leads)
+    .where(eq4(leads.id, id))
+    .limit(1);
+  return result.length > 0 ? result[0] : void 0;
+}
 async function updateLead(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1219,6 +1311,16 @@ async function getStaleNewLeads() {
     .from(leads)
     .where(sql3`${leads.status} = 'new' AND ${leads.updatedAt} < ${cutoff}`);
 }
+async function getLeadSlaBreaches(slaMinutes = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - slaMinutes * 60 * 1e3);
+  return await db
+    .select()
+    .from(leads)
+    .where(sql3`${leads.status} = 'new' AND ${leads.createdAt} < ${cutoff}`)
+    .orderBy(desc4(leads.createdAt));
+}
 async function getColdContactedLeads() {
   const db = await getDb();
   if (!db) return [];
@@ -1227,8 +1329,9 @@ async function getColdContactedLeads() {
     .select()
     .from(leads)
     .where(
-      sql3`${leads.status} = 'contacted' AND ${leads.updatedAt} < ${cutoff}`
-    );
+      sql3`${leads.status} IN ('contacted', 'quoted') AND ${leads.updatedAt} < ${cutoff}`
+    )
+    .orderBy(desc4(leads.updatedAt));
 }
 async function getAbandonedLeads(hoursAgo = 24) {
   const db = await getDb();
@@ -2509,7 +2612,7 @@ var init_customers = __esm({
 });
 
 // server/db/audit.ts
-import { eq as eq15, and as and7 } from "drizzle-orm";
+import { eq as eq15, and as and7, gte, sql as sql12 } from "drizzle-orm";
 async function logAdminAction(log) {
   const db = await getDb();
   if (!db) return;
@@ -2518,6 +2621,27 @@ async function logAdminAction(log) {
   } catch (err) {
     console.error("[Audit] Failed to log action:", err);
   }
+}
+async function hasRecentAuditLog(input) {
+  const db = await getDb();
+  if (!db) return false;
+  const resourceCondition =
+    input.resourceId == null
+      ? sql12`${auditLogs.resourceId} IS NULL`
+      : eq15(auditLogs.resourceId, input.resourceId);
+  const result = await db
+    .select({ id: auditLogs.id })
+    .from(auditLogs)
+    .where(
+      and7(
+        eq15(auditLogs.action, input.action),
+        eq15(auditLogs.resourceType, input.resourceType),
+        resourceCondition,
+        gte(auditLogs.createdAt, input.since)
+      )
+    )
+    .limit(1);
+  return result.length > 0;
 }
 async function createScheduledEmail(record) {
   const db = await getDb();
@@ -2548,12 +2672,241 @@ var init_audit = __esm({
   },
 });
 
+// server/db/postTourReviewRequests.ts
+import {
+  and as and8,
+  desc as desc15,
+  eq as eq16,
+  gte as gte2,
+  lte as lte3,
+  sql as sql13,
+} from "drizzle-orm";
+async function getPostTourReviewRequestByBookingId(bookingId) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(eq16(postTourReviewRequests.bookingId, bookingId))
+    .limit(1);
+  return result[0] ?? null;
+}
+async function createPostTourReviewRequest(request) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [result] = await db
+    .insert(postTourReviewRequests)
+    .values(request)
+    .$returningId();
+  return result.id;
+}
+async function getDuePostTourReviewRequests(limit = 25) {
+  const db = await getDb();
+  if (!db) return [];
+  const now = /* @__PURE__ */ new Date();
+  return await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(
+      and8(
+        eq16(postTourReviewRequests.status, "scheduled"),
+        lte3(postTourReviewRequests.scheduledAt, now)
+      )
+    )
+    .orderBy(postTourReviewRequests.scheduledAt)
+    .limit(limit);
+}
+async function getRecentPostTourReviewRequests(limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(postTourReviewRequests)
+    .orderBy(desc15(postTourReviewRequests.updatedAt))
+    .limit(limit);
+}
+async function markPostTourReviewRequestSent(
+  requestId,
+  whatsappMessageId,
+  reviewUrl
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(postTourReviewRequests)
+    .set({
+      status: "sent",
+      sentAt: /* @__PURE__ */ new Date(),
+      whatsappMessageId,
+      reviewUrl,
+    })
+    .where(eq16(postTourReviewRequests.id, requestId));
+}
+async function markPostTourReviewRequestFailed(requestId) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(postTourReviewRequests)
+    .set({ status: "failed" })
+    .where(eq16(postTourReviewRequests.id, requestId));
+}
+async function markPostTourReviewOpenedByMessageId(whatsappMessageId) {
+  const db = await getDb();
+  if (!db) return;
+  const rows = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(eq16(postTourReviewRequests.whatsappMessageId, whatsappMessageId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return;
+  await db
+    .update(postTourReviewRequests)
+    .set({
+      openedAt: row.openedAt ?? /* @__PURE__ */ new Date(),
+      status:
+        row.status === "reviewed" || row.status === "clicked"
+          ? row.status
+          : "opened",
+    })
+    .where(eq16(postTourReviewRequests.id, row.id));
+}
+async function markPostTourReviewClicked(requestId) {
+  const db = await getDb();
+  if (!db) return;
+  const rows = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(eq16(postTourReviewRequests.id, requestId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return;
+  await db
+    .update(postTourReviewRequests)
+    .set({
+      clickedAt: row.clickedAt ?? /* @__PURE__ */ new Date(),
+      status: row.status === "reviewed" ? "reviewed" : "clicked",
+    })
+    .where(eq16(postTourReviewRequests.id, row.id));
+}
+async function markPostTourReviewReviewed(input) {
+  const db = await getDb();
+  if (!db) return null;
+  let row = null;
+  if (input.requestId) {
+    const rows = await db
+      .select()
+      .from(postTourReviewRequests)
+      .where(eq16(postTourReviewRequests.id, input.requestId))
+      .limit(1);
+    row = rows[0] ?? null;
+  }
+  if (!row && input.bookingId) {
+    row = await getPostTourReviewRequestByBookingId(input.bookingId);
+  }
+  if (!row) return null;
+  const isLowRating = input.rating <= 4;
+  const followUpUrl = `https://www.wiro4x4indochina.com/admin?tab=reviews&reviewRequestId=${row.id}`;
+  await db
+    .update(postTourReviewRequests)
+    .set({
+      status: "reviewed",
+      reviewedAt: row.reviewedAt ?? /* @__PURE__ */ new Date(),
+      rating: input.rating,
+      comments: input.comments,
+      opsFollowUpUrl: isLowRating ? followUpUrl : row.opsFollowUpUrl,
+      escalatedAt: isLowRating
+        ? (row.escalatedAt ?? /* @__PURE__ */ new Date())
+        : row.escalatedAt,
+    })
+    .where(eq16(postTourReviewRequests.id, row.id));
+  return {
+    id: row.id,
+    bookingId: row.bookingId,
+    isLowRating,
+    followUpUrl,
+  };
+}
+async function getWeeklyPostTourReviewMetrics() {
+  const db = await getDb();
+  const now = /* @__PURE__ */ new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+  if (!db) {
+    return {
+      windowStart: weekAgo.toISOString(),
+      windowEnd: now.toISOString(),
+      volume: 0,
+      completedTours: 0,
+      reviewed: 0,
+      completionRate: 0,
+      lowRatingExceptions: 0,
+    };
+  }
+  const baseWhere = and8(
+    eq16(bookings.status, "completed"),
+    gte2(bookings.departureDate, weekAgo),
+    lte3(bookings.departureDate, now)
+  );
+  const [completedRow] = await db
+    .select({ count: sql13`count(*)` })
+    .from(bookings)
+    .where(baseWhere);
+  const joinWhere = and8(
+    baseWhere,
+    eq16(postTourReviewRequests.bookingId, bookings.id)
+  );
+  const [sentRow] = await db
+    .select({ count: sql13`count(*)` })
+    .from(postTourReviewRequests)
+    .innerJoin(bookings, eq16(postTourReviewRequests.bookingId, bookings.id))
+    .where(
+      and8(joinWhere, sql13`${postTourReviewRequests.sentAt} IS NOT NULL`)
+    );
+  const [reviewedRow] = await db
+    .select({ count: sql13`count(*)` })
+    .from(postTourReviewRequests)
+    .innerJoin(bookings, eq16(postTourReviewRequests.bookingId, bookings.id))
+    .where(
+      and8(joinWhere, sql13`${postTourReviewRequests.reviewedAt} IS NOT NULL`)
+    );
+  const [lowRatingRow] = await db
+    .select({ count: sql13`count(*)` })
+    .from(postTourReviewRequests)
+    .innerJoin(bookings, eq16(postTourReviewRequests.bookingId, bookings.id))
+    .where(
+      and8(
+        joinWhere,
+        sql13`${postTourReviewRequests.reviewedAt} IS NOT NULL`,
+        sql13`${postTourReviewRequests.rating} <= 4`
+      )
+    );
+  const completedTours = Number(completedRow?.count ?? 0);
+  const reviewed = Number(reviewedRow?.count ?? 0);
+  return {
+    windowStart: weekAgo.toISOString(),
+    windowEnd: now.toISOString(),
+    volume: Number(sentRow?.count ?? 0),
+    completedTours,
+    reviewed,
+    completionRate:
+      completedTours > 0 ? Math.round((reviewed / completedTours) * 100) : 0,
+    lowRatingExceptions: Number(lowRatingRow?.count ?? 0),
+  };
+}
+var init_postTourReviewRequests = __esm({
+  "server/db/postTourReviewRequests.ts"() {
+    "use strict";
+    init_connection();
+    init_schema();
+  },
+});
+
 // server/db/settings.ts
-import { eq as eq16 } from "drizzle-orm";
+import { eq as eq17 } from "drizzle-orm";
 async function getSetting(key) {
   const db = await getDb();
   if (!db) return null;
-  const [row] = await db.select().from(settings).where(eq16(settings.key, key));
+  const [row] = await db.select().from(settings).where(eq17(settings.key, key));
   return row?.value ?? null;
 }
 async function getAllSettings() {
@@ -2566,7 +2919,7 @@ async function upsertSetting(key, value) {
   if (!db) throw new Error("Database not available");
   const existing = await getSetting(key);
   if (existing !== null) {
-    await db.update(settings).set({ value }).where(eq16(settings.key, key));
+    await db.update(settings).set({ value }).where(eq17(settings.key, key));
   } else {
     await db.insert(settings).values({ key, value });
   }
@@ -2574,7 +2927,7 @@ async function upsertSetting(key, value) {
 async function deleteSetting(key) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(settings).where(eq16(settings.key, key));
+  await db.delete(settings).where(eq17(settings.key, key));
 }
 var init_settings = __esm({
   "server/db/settings.ts"() {
@@ -2586,11 +2939,11 @@ var init_settings = __esm({
 
 // server/db/stats.ts
 import {
-  eq as eq17,
-  and as and8,
-  sql as sql12,
-  desc as desc15,
-  gte,
+  eq as eq18,
+  and as and9,
+  sql as sql14,
+  desc as desc16,
+  gte as gte3,
 } from "drizzle-orm";
 import { count } from "drizzle-orm";
 async function getPublicStats() {
@@ -2599,15 +2952,15 @@ async function getPublicStats() {
   const [bookingCount] = await db
     .select({ value: count() })
     .from(bookings)
-    .where(sql12`${bookings.status} IN ('confirmed', 'completed')`);
+    .where(sql14`${bookings.status} IN ('confirmed', 'completed')`);
   const [reviewCount] = await db
     .select({ value: count() })
     .from(reviews)
-    .where(and8(eq17(reviews.isApproved, 1), gte(reviews.rating, 4)));
+    .where(and9(eq18(reviews.isApproved, 1), gte3(reviews.rating, 4)));
   const [tourCount] = await db
     .select({ value: count() })
     .from(tours)
-    .where(eq17(tours.isActive, 1));
+    .where(eq18(tours.isActive, 1));
   return {
     totalBookings: bookingCount?.value ?? 0,
     totalReviews: reviewCount?.value ?? 0,
@@ -2621,14 +2974,14 @@ async function getRecentBookings(limit = 5) {
     .select({
       contactName: bookings.contactName,
       tourName:
-        sql12`COALESCE(${bookings.suggestedDestinations}, 'Off-Road Adventure')`.as(
+        sql14`COALESCE(${bookings.suggestedDestinations}, 'Off-Road Adventure')`.as(
           "tourName"
         ),
       createdAt: bookings.createdAt,
     })
     .from(bookings)
-    .where(sql12`${bookings.status} IN ('confirmed', 'completed')`)
-    .orderBy(desc15(bookings.createdAt))
+    .where(sql14`${bookings.status} IN ('confirmed', 'completed')`)
+    .orderBy(desc16(bookings.createdAt))
     .limit(limit);
   return rows.map(r => ({
     firstName: r.contactName.split(" ")[0],
@@ -2645,8 +2998,8 @@ var init_stats = __esm({
 });
 
 // server/db/bookingDrafts.ts
-import { eq as eq18 } from "drizzle-orm";
-import { desc as desc16 } from "drizzle-orm";
+import { eq as eq19 } from "drizzle-orm";
+import { desc as desc17 } from "drizzle-orm";
 async function createBookingDraft(data) {
   const db = await getDb();
   if (!db) return null;
@@ -2659,7 +3012,7 @@ async function getBookingDraftByToken(token) {
   const [draft] = await db
     .select()
     .from(bookingDrafts)
-    .where(eq18(bookingDrafts.resumeToken, token))
+    .where(eq19(bookingDrafts.resumeToken, token))
     .limit(1);
   return draft ?? null;
 }
@@ -2669,8 +3022,8 @@ async function listActiveBookingDrafts() {
   return await db
     .select()
     .from(bookingDrafts)
-    .where(eq18(bookingDrafts.status, "active"))
-    .orderBy(desc16(bookingDrafts.createdAt));
+    .where(eq19(bookingDrafts.status, "active"))
+    .orderBy(desc17(bookingDrafts.createdAt));
 }
 async function updateBookingDraftStatus(id, status, convertedToBookingId) {
   const db = await getDb();
@@ -2678,7 +3031,7 @@ async function updateBookingDraftStatus(id, status, convertedToBookingId) {
   await db
     .update(bookingDrafts)
     .set({ status, ...(convertedToBookingId ? { convertedToBookingId } : {}) })
-    .where(eq18(bookingDrafts.id, id));
+    .where(eq19(bookingDrafts.id, id));
 }
 var init_bookingDrafts = __esm({
   "server/db/bookingDrafts.ts"() {
@@ -2690,12 +3043,12 @@ var init_bookingDrafts = __esm({
 
 // server/db/accounting.ts
 import {
-  eq as eq19,
-  desc as desc17,
-  and as and9,
-  gte as gte2,
-  lte as lte3,
-  sql as sql13,
+  eq as eq20,
+  desc as desc18,
+  and as and10,
+  gte as gte4,
+  lte as lte4,
+  sql as sql15,
 } from "drizzle-orm";
 async function createInvoice(data) {
   const db = await getDb();
@@ -2709,11 +3062,11 @@ async function getAllInvoicesPaginated(page = 1, pageSize = 20) {
   const items = await db
     .select()
     .from(invoices)
-    .orderBy(desc17(invoices.issuedAt))
+    .orderBy(desc18(invoices.issuedAt))
     .limit(pageSize)
     .offset(offset);
   const countResult = await db
-    .select({ count: sql13`count(*)` })
+    .select({ count: sql15`count(*)` })
     .from(invoices);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -2724,7 +3077,7 @@ async function getInvoiceById(id) {
   const result = await db
     .select()
     .from(invoices)
-    .where(eq19(invoices.id, id))
+    .where(eq20(invoices.id, id))
     .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
@@ -2734,16 +3087,16 @@ async function updateInvoiceStatus(id, status, paymentDate, paymentMethod) {
   const updateData = { status };
   if (paymentDate) updateData.paymentDate = paymentDate;
   if (paymentMethod) updateData.paymentMethod = paymentMethod;
-  return await db.update(invoices).set(updateData).where(eq19(invoices.id, id));
+  return await db.update(invoices).set(updateData).where(eq20(invoices.id, id));
 }
 async function getNextInvoiceSequence(prefix, yearMonth) {
   const db = await getDb();
   if (!db) return 1;
   const pattern = `${prefix}-${yearMonth}-%`;
   const result = await db
-    .select({ count: sql13`count(*)` })
+    .select({ count: sql15`count(*)` })
     .from(invoices)
-    .where(sql13`${invoices.invoiceNumber} LIKE ${pattern}`);
+    .where(sql15`${invoices.invoiceNumber} LIKE ${pattern}`);
   return Number(result[0]?.count ?? 0) + 1;
 }
 async function createAccountingEntry(data) {
@@ -2757,23 +3110,23 @@ async function getAccountingEntriesPaginated(page = 1, pageSize = 20, filters) {
   const offset = (page - 1) * pageSize;
   const conditions = [];
   if (filters?.accountCode) {
-    conditions.push(eq19(accountingEntries.accountCode, filters.accountCode));
+    conditions.push(eq20(accountingEntries.accountCode, filters.accountCode));
   }
   if (filters?.startDate) {
-    conditions.push(gte2(accountingEntries.date, new Date(filters.startDate)));
+    conditions.push(gte4(accountingEntries.date, new Date(filters.startDate)));
   }
   if (filters?.endDate) {
-    conditions.push(lte3(accountingEntries.date, new Date(filters.endDate)));
+    conditions.push(lte4(accountingEntries.date, new Date(filters.endDate)));
   }
-  const whereClause = conditions.length > 0 ? and9(...conditions) : void 0;
+  const whereClause = conditions.length > 0 ? and10(...conditions) : void 0;
   const itemsQuery = db
     .select()
     .from(accountingEntries)
-    .orderBy(desc17(accountingEntries.date))
+    .orderBy(desc18(accountingEntries.date))
     .limit(pageSize)
     .offset(offset);
   const countQuery = db
-    .select({ count: sql13`count(*)` })
+    .select({ count: sql15`count(*)` })
     .from(accountingEntries);
   const items = whereClause
     ? await itemsQuery.where(whereClause)
@@ -2790,8 +3143,8 @@ async function getTrialBalance() {
   const result = await db
     .select({
       accountCode: accountingEntries.accountCode,
-      totalDebit: sql13`SUM(${accountingEntries.debit})`,
-      totalCredit: sql13`SUM(${accountingEntries.credit})`,
+      totalDebit: sql15`SUM(${accountingEntries.debit})`,
+      totalCredit: sql15`SUM(${accountingEntries.credit})`,
     })
     .from(accountingEntries)
     .groupBy(accountingEntries.accountCode);
@@ -2809,11 +3162,11 @@ async function getAllTaxFilingsPaginated(page = 1, pageSize = 20) {
   const items = await db
     .select()
     .from(taxFilings)
-    .orderBy(desc17(taxFilings.dueDate))
+    .orderBy(desc18(taxFilings.dueDate))
     .limit(pageSize)
     .offset(offset);
   const countResult = await db
-    .select({ count: sql13`count(*)` })
+    .select({ count: sql15`count(*)` })
     .from(taxFilings);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -2826,7 +3179,7 @@ async function updateTaxFilingStatus(id, status, filedAt) {
   return await db
     .update(taxFilings)
     .set(updateData)
-    .where(eq19(taxFilings.id, id));
+    .where(eq20(taxFilings.id, id));
 }
 async function getUpcomingFilings() {
   const db = await getDb();
@@ -2835,9 +3188,9 @@ async function getUpcomingFilings() {
     .select()
     .from(taxFilings)
     .where(
-      and9(
-        eq19(taxFilings.status, "pending"),
-        gte2(taxFilings.dueDate, /* @__PURE__ */ new Date())
+      and10(
+        eq20(taxFilings.status, "pending"),
+        gte4(taxFilings.dueDate, /* @__PURE__ */ new Date())
       )
     )
     .orderBy(taxFilings.dueDate);
@@ -2851,7 +3204,7 @@ var init_accounting = __esm({
 });
 
 // server/db/inventory.ts
-import { eq as eq20, desc as desc18, sql as sql14 } from "drizzle-orm";
+import { eq as eq21, desc as desc19, sql as sql16 } from "drizzle-orm";
 async function createInventoryItem(data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -2864,11 +3217,11 @@ async function getAllInventoryPaginated(page = 1, pageSize = 20) {
   const items = await db
     .select()
     .from(inventory)
-    .orderBy(desc18(inventory.createdAt))
+    .orderBy(desc19(inventory.createdAt))
     .limit(pageSize)
     .offset(offset);
   const countResult = await db
-    .select({ count: sql14`count(*)` })
+    .select({ count: sql16`count(*)` })
     .from(inventory);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -2879,19 +3232,19 @@ async function getInventoryById(id) {
   const result = await db
     .select()
     .from(inventory)
-    .where(eq20(inventory.id, id))
+    .where(eq21(inventory.id, id))
     .limit(1);
   return result.length > 0 ? result[0] : void 0;
 }
 async function updateInventoryItem(id, data) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.update(inventory).set(data).where(eq20(inventory.id, id));
+  return await db.update(inventory).set(data).where(eq21(inventory.id, id));
 }
 async function deleteInventoryItem(id) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.delete(inventory).where(eq20(inventory.id, id));
+  return await db.delete(inventory).where(eq21(inventory.id, id));
 }
 async function getInventoryNeedingMaintenance(withinDays = 7) {
   const db = await getDb();
@@ -2901,7 +3254,7 @@ async function getInventoryNeedingMaintenance(withinDays = 7) {
     .select()
     .from(inventory)
     .where(
-      sql14`${inventory.nextMaintenanceDate} IS NOT NULL AND ${inventory.nextMaintenanceDate} <= ${cutoff} AND ${inventory.condition} != 'retired'`
+      sql16`${inventory.nextMaintenanceDate} IS NOT NULL AND ${inventory.nextMaintenanceDate} <= ${cutoff} AND ${inventory.condition} != 'retired'`
     );
 }
 async function getInventorySummary() {
@@ -2910,9 +3263,9 @@ async function getInventorySummary() {
   const result = await db
     .select({
       category: inventory.category,
-      count: sql14`COUNT(*)`,
-      totalCurrentValue: sql14`SUM(${inventory.currentValue})`,
-      totalPurchaseCost: sql14`SUM(${inventory.purchaseCost})`,
+      count: sql16`COUNT(*)`,
+      totalCurrentValue: sql16`SUM(${inventory.currentValue})`,
+      totalPurchaseCost: sql16`SUM(${inventory.purchaseCost})`,
     })
     .from(inventory)
     .groupBy(inventory.category);
@@ -2928,10 +3281,10 @@ var init_inventory = __esm({
 
 // server/db/availability.ts
 import {
-  eq as eq21,
-  and as and10,
-  gte as gte3,
-  lte as lte4,
+  eq as eq22,
+  and as and11,
+  gte as gte5,
+  lte as lte5,
 } from "drizzle-orm";
 async function getTourAvailabilityByRange(tourId, startDate, endDate) {
   const db = await getDb();
@@ -2940,10 +3293,10 @@ async function getTourAvailabilityByRange(tourId, startDate, endDate) {
     .select()
     .from(tourAvailability)
     .where(
-      and10(
-        eq21(tourAvailability.tourId, tourId),
-        gte3(tourAvailability.date, startDate),
-        lte4(tourAvailability.date, endDate)
+      and11(
+        eq22(tourAvailability.tourId, tourId),
+        gte5(tourAvailability.date, startDate),
+        lte5(tourAvailability.date, endDate)
       )
     )
     .orderBy(tourAvailability.date);
@@ -2955,9 +3308,9 @@ async function upsertTourAvailability(tourId, date, data) {
     .select()
     .from(tourAvailability)
     .where(
-      and10(
-        eq21(tourAvailability.tourId, tourId),
-        eq21(tourAvailability.date, date)
+      and11(
+        eq22(tourAvailability.tourId, tourId),
+        eq22(tourAvailability.date, date)
       )
     )
     .limit(1);
@@ -2965,7 +3318,7 @@ async function upsertTourAvailability(tourId, date, data) {
     return await db
       .update(tourAvailability)
       .set(data)
-      .where(eq21(tourAvailability.id, existing[0].id));
+      .where(eq22(tourAvailability.id, existing[0].id));
   } else {
     return await db.insert(tourAvailability).values({
       tourId,
@@ -2996,7 +3349,7 @@ var init_availability = __esm({
 });
 
 // server/db/tripPhotos.ts
-import { eq as eq22, sql as sql15, desc as desc19 } from "drizzle-orm";
+import { eq as eq23, sql as sql17, desc as desc20 } from "drizzle-orm";
 async function createTripPhotoAlbum(album) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -3008,8 +3361,8 @@ async function getTripPhotoAlbumsByBookingId(bookingId) {
   return await db
     .select()
     .from(tripPhotoAlbums)
-    .where(eq22(tripPhotoAlbums.bookingId, bookingId))
-    .orderBy(desc19(tripPhotoAlbums.createdAt));
+    .where(eq23(tripPhotoAlbums.bookingId, bookingId))
+    .orderBy(desc20(tripPhotoAlbums.createdAt));
 }
 async function getTripPhotoAlbumByToken(token) {
   const db = await getDb();
@@ -3017,7 +3370,7 @@ async function getTripPhotoAlbumByToken(token) {
   const results = await db
     .select()
     .from(tripPhotoAlbums)
-    .where(eq22(tripPhotoAlbums.accessToken, token))
+    .where(eq23(tripPhotoAlbums.accessToken, token))
     .limit(1);
   return results[0] ?? null;
 }
@@ -3027,7 +3380,7 @@ async function getTripPhotoAlbumById(id) {
   const results = await db
     .select()
     .from(tripPhotoAlbums)
-    .where(eq22(tripPhotoAlbums.id, id))
+    .where(eq23(tripPhotoAlbums.id, id))
     .limit(1);
   return results[0] ?? null;
 }
@@ -3041,8 +3394,8 @@ async function getAllTripPhotoAlbums() {
       bookingContactEmail: bookings.contactEmail,
     })
     .from(tripPhotoAlbums)
-    .leftJoin(bookings, eq22(tripPhotoAlbums.bookingId, bookings.id))
-    .orderBy(desc19(tripPhotoAlbums.createdAt));
+    .leftJoin(bookings, eq23(tripPhotoAlbums.bookingId, bookings.id))
+    .orderBy(desc20(tripPhotoAlbums.createdAt));
 }
 async function updateTripPhotoAlbum(id, data) {
   const db = await getDb();
@@ -3050,21 +3403,21 @@ async function updateTripPhotoAlbum(id, data) {
   return await db
     .update(tripPhotoAlbums)
     .set(data)
-    .where(eq22(tripPhotoAlbums.id, id));
+    .where(eq23(tripPhotoAlbums.id, id));
 }
 async function incrementAlbumViewCount(id) {
   const db = await getDb();
   if (!db) return;
   await db
     .update(tripPhotoAlbums)
-    .set({ viewCount: sql15`${tripPhotoAlbums.viewCount} + 1` })
-    .where(eq22(tripPhotoAlbums.id, id));
+    .set({ viewCount: sql17`${tripPhotoAlbums.viewCount} + 1` })
+    .where(eq23(tripPhotoAlbums.id, id));
 }
 async function deleteTripPhotoAlbum(id) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(tripPhotos).where(eq22(tripPhotos.albumId, id));
-  return await db.delete(tripPhotoAlbums).where(eq22(tripPhotoAlbums.id, id));
+  await db.delete(tripPhotos).where(eq23(tripPhotos.albumId, id));
+  return await db.delete(tripPhotoAlbums).where(eq23(tripPhotoAlbums.id, id));
 }
 async function createTripPhoto(photo) {
   const db = await getDb();
@@ -3077,13 +3430,13 @@ async function getTripPhotosByAlbumId(albumId) {
   return await db
     .select()
     .from(tripPhotos)
-    .where(eq22(tripPhotos.albumId, albumId))
-    .orderBy(tripPhotos.sortOrder, desc19(tripPhotos.createdAt));
+    .where(eq23(tripPhotos.albumId, albumId))
+    .orderBy(tripPhotos.sortOrder, desc20(tripPhotos.createdAt));
 }
 async function deleteTripPhoto(id) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.delete(tripPhotos).where(eq22(tripPhotos.id, id));
+  return await db.delete(tripPhotos).where(eq23(tripPhotos.id, id));
 }
 async function getTripPhotoById(id) {
   const db = await getDb();
@@ -3091,7 +3444,7 @@ async function getTripPhotoById(id) {
   const results = await db
     .select()
     .from(tripPhotos)
-    .where(eq22(tripPhotos.id, id))
+    .where(eq23(tripPhotos.id, id))
     .limit(1);
   return results[0] ?? null;
 }
@@ -3099,9 +3452,9 @@ async function getAlbumPhotoCount(albumId) {
   const db = await getDb();
   if (!db) return 0;
   const result = await db
-    .select({ count: sql15`count(*)` })
+    .select({ count: sql17`count(*)` })
     .from(tripPhotos)
-    .where(eq22(tripPhotos.albumId, albumId));
+    .where(eq23(tripPhotos.albumId, albumId));
   return result[0]?.count ?? 0;
 }
 var init_tripPhotos = __esm({
@@ -3114,11 +3467,11 @@ var init_tripPhotos = __esm({
 
 // server/db/whatsapp.ts
 import {
-  eq as eq23,
-  desc as desc20,
-  sql as sql16,
-  and as and11,
-  gte as gte4,
+  eq as eq24,
+  desc as desc21,
+  sql as sql18,
+  and as and12,
+  gte as gte6,
 } from "drizzle-orm";
 async function createWhatsAppMessage(msg) {
   const db = await getDb();
@@ -3135,21 +3488,21 @@ async function getAllWhatsAppMessagesPaginated(
   if (!db) return { items: [], total: 0 };
   const offset = (page - 1) * pageSize;
   const conditions = phoneFilter
-    ? eq23(whatsappMessages.phoneNumber, phoneFilter)
+    ? eq24(whatsappMessages.phoneNumber, phoneFilter)
     : void 0;
   const items = await db
     .select()
     .from(whatsappMessages)
     .where(conditions)
-    .orderBy(desc20(whatsappMessages.createdAt))
+    .orderBy(desc21(whatsappMessages.createdAt))
     .limit(pageSize)
     .offset(offset);
   const countQuery = phoneFilter
     ? db
-        .select({ count: sql16`count(*)` })
+        .select({ count: sql18`count(*)` })
         .from(whatsappMessages)
-        .where(eq23(whatsappMessages.phoneNumber, phoneFilter))
-    : db.select({ count: sql16`count(*)` }).from(whatsappMessages);
+        .where(eq24(whatsappMessages.phoneNumber, phoneFilter))
+    : db.select({ count: sql18`count(*)` }).from(whatsappMessages);
   const countResult = await countQuery;
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
@@ -3170,36 +3523,36 @@ async function getWhatsAppMessageStats() {
   const todayStart = /* @__PURE__ */ new Date();
   todayStart.setHours(0, 0, 0, 0);
   const [totalResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages);
   const [incomingResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages)
-    .where(eq23(whatsappMessages.direction, "incoming"));
+    .where(eq24(whatsappMessages.direction, "incoming"));
   const [outgoingResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages)
-    .where(eq23(whatsappMessages.direction, "outgoing"));
+    .where(eq24(whatsappMessages.direction, "outgoing"));
   const [autoReplyResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages)
-    .where(eq23(whatsappMessages.isAutoReply, 1));
+    .where(eq24(whatsappMessages.isAutoReply, 1));
   const [uniqueContactsResult] = await db
     .select({
-      count: sql16`count(distinct ${whatsappMessages.phoneNumber})`,
+      count: sql18`count(distinct ${whatsappMessages.phoneNumber})`,
     })
     .from(whatsappMessages);
   const [todayResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages)
-    .where(gte4(whatsappMessages.createdAt, todayStart));
+    .where(gte6(whatsappMessages.createdAt, todayStart));
   const [autoReplyTodayResult] = await db
-    .select({ count: sql16`count(*)` })
+    .select({ count: sql18`count(*)` })
     .from(whatsappMessages)
     .where(
-      and11(
-        eq23(whatsappMessages.isAutoReply, 1),
-        gte4(whatsappMessages.createdAt, todayStart)
+      and12(
+        eq24(whatsappMessages.isAutoReply, 1),
+        gte6(whatsappMessages.createdAt, todayStart)
       )
     );
   return {
@@ -3212,13 +3565,29 @@ async function getWhatsAppMessageStats() {
     autoRepliesToday: Number(autoReplyTodayResult?.count ?? 0),
   };
 }
+async function getRecentFailedWhatsAppMessages(withinHours = 24) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1e3);
+  return await db
+    .select()
+    .from(whatsappMessages)
+    .where(
+      and12(
+        eq24(whatsappMessages.status, "failed"),
+        gte6(whatsappMessages.createdAt, cutoff)
+      )
+    )
+    .orderBy(desc21(whatsappMessages.createdAt))
+    .limit(20);
+}
 async function updateWhatsAppMessageStatus(whatsappMessageId, status) {
   const db = await getDb();
   if (!db) return;
   await db
     .update(whatsappMessages)
     .set({ status })
-    .where(eq23(whatsappMessages.whatsappMessageId, whatsappMessageId));
+    .where(eq24(whatsappMessages.whatsappMessageId, whatsappMessageId));
 }
 var init_whatsapp = __esm({
   "server/db/whatsapp.ts"() {
@@ -3228,15 +3597,85 @@ var init_whatsapp = __esm({
   },
 });
 
+// server/db/postTourReviewEvents.ts
+import { and as and13, desc as desc22, eq as eq25 } from "drizzle-orm";
+function isDuplicateKeyError(error) {
+  const e = error;
+  return (
+    e?.code === "ER_DUP_ENTRY" ||
+    e?.errno === 1062 ||
+    (typeof e?.message === "string" && e.message.includes("Duplicate entry"))
+  );
+}
+function normalizePhone(phone) {
+  if (!phone) return null;
+  const normalized = phone.replace(/[^0-9+]/g, "").trim();
+  return normalized.length > 0 ? normalized : null;
+}
+function buildPostTourReviewDedupeKey(input) {
+  const { state, bookingId, guestReference, externalMessageId } = input;
+  if (externalMessageId) return `${state}:wa:${externalMessageId}`;
+  if (state === "request_sent" && bookingId)
+    return `${state}:booking:${bookingId}`;
+  return `${state}:guest:${guestReference}`;
+}
+function buildGuestReference(input) {
+  if (input.bookingId) return `booking:${input.bookingId}`;
+  const phone = normalizePhone(input.phone);
+  return phone ? `phone:${phone}` : "unknown";
+}
+async function createPostTourReviewEvent(event) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    const [result] = await db
+      .insert(postTourReviewEvents)
+      .values(event)
+      .$returningId();
+    return { created: true, id: result?.id ?? null };
+  } catch (error) {
+    if (isDuplicateKeyError(error)) {
+      return { created: false, id: null };
+    }
+    throw error;
+  }
+}
+async function getLatestPostTourRequestEventByPhone(phone) {
+  const db = await getDb();
+  if (!db) return null;
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) return null;
+  const rows = await db
+    .select()
+    .from(postTourReviewEvents)
+    .where(
+      and13(
+        eq25(postTourReviewEvents.channel, "whatsapp"),
+        eq25(postTourReviewEvents.state, "request_sent"),
+        eq25(postTourReviewEvents.guestPhone, normalizedPhone)
+      )
+    )
+    .orderBy(desc22(postTourReviewEvents.createdAt))
+    .limit(1);
+  return rows[0] ?? null;
+}
+var init_postTourReviewEvents = __esm({
+  "server/db/postTourReviewEvents.ts"() {
+    "use strict";
+    init_schema();
+    init_connection();
+  },
+});
+
 // server/db/analytics.ts
 import {
-  sql as sql17,
-  eq as eq24,
+  sql as sql19,
+  eq as eq26,
   count as count2,
   sum,
-  desc as desc21,
-  gte as gte5,
-  and as and12,
+  desc as desc23,
+  gte as gte7,
+  and as and14,
 } from "drizzle-orm";
 async function getAnalyticsOverview() {
   const db = await getDb();
@@ -3259,43 +3698,43 @@ async function getAnalyticsOverview() {
   const [revenueRow] = await db
     .select({ total: sum(financialRecords.amount) })
     .from(financialRecords)
-    .where(eq24(financialRecords.type, "revenue"));
+    .where(eq26(financialRecords.type, "revenue"));
   const [totalBookingsRow] = await db
     .select({ value: count2() })
     .from(bookings);
   const [bookingsThisMonthRow] = await db
     .select({ value: count2() })
     .from(bookings)
-    .where(gte5(bookings.createdAt, firstOfThisMonth));
+    .where(gte7(bookings.createdAt, firstOfThisMonth));
   const [bookingsLastMonthRow] = await db
     .select({ value: count2() })
     .from(bookings)
     .where(
-      and12(
-        gte5(bookings.createdAt, firstOfLastMonth),
-        sql17`${bookings.createdAt} < ${firstOfThisMonth}`
+      and14(
+        gte7(bookings.createdAt, firstOfLastMonth),
+        sql19`${bookings.createdAt} < ${firstOfThisMonth}`
       )
     );
   const [totalLeadsRow] = await db.select({ value: count2() }).from(leads);
   const [leadsThisMonthRow] = await db
     .select({ value: count2() })
     .from(leads)
-    .where(gte5(leads.createdAt, firstOfThisMonth));
+    .where(gte7(leads.createdAt, firstOfThisMonth));
   const [convertedLeadsRow] = await db
     .select({ value: count2() })
     .from(leads)
-    .where(eq24(leads.status, "converted"));
+    .where(eq26(leads.status, "converted"));
   const [subsRow] = await db
     .select({ value: count2() })
     .from(subscribers)
-    .where(eq24(subscribers.isActive, 1));
+    .where(eq26(subscribers.isActive, 1));
   const [ratingRow] = await db
     .select({
-      avg: sql17`COALESCE(AVG(${reviews.rating}), 0)`.as("avg"),
+      avg: sql19`COALESCE(AVG(${reviews.rating}), 0)`.as("avg"),
       total: count2(),
     })
     .from(reviews)
-    .where(eq24(reviews.isApproved, 1));
+    .where(eq26(reviews.isApproved, 1));
   return {
     totalRevenue: Number(revenueRow?.total ?? 0),
     totalBookings: totalBookingsRow?.value ?? 0,
@@ -3319,20 +3758,20 @@ async function getRevenueByMonth() {
   twelveMonthsAgo.setHours(0, 0, 0, 0);
   const rows = await db
     .select({
-      month: sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`.as(
+      month: sql19`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`.as(
         "month"
       ),
       total: sum(financialRecords.amount),
     })
     .from(financialRecords)
     .where(
-      and12(
-        eq24(financialRecords.type, "revenue"),
-        gte5(financialRecords.createdAt, twelveMonthsAgo)
+      and14(
+        eq26(financialRecords.type, "revenue"),
+        gte7(financialRecords.createdAt, twelveMonthsAgo)
       )
     )
-    .groupBy(sql17`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`)
-    .orderBy(sql17`month`);
+    .groupBy(sql19`DATE_FORMAT(${financialRecords.createdAt}, '%Y-%m')`)
+    .orderBy(sql19`month`);
   const result = [];
   const now = /* @__PURE__ */ new Date();
   for (let i = 11; i >= 0; i--) {
@@ -3352,13 +3791,13 @@ async function getBookingsByMonth() {
   twelveMonthsAgo.setHours(0, 0, 0, 0);
   const rows = await db
     .select({
-      month: sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`.as("month"),
+      month: sql19`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`.as("month"),
       total: count2(),
     })
     .from(bookings)
-    .where(gte5(bookings.createdAt, twelveMonthsAgo))
-    .groupBy(sql17`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`)
-    .orderBy(sql17`month`);
+    .where(gte7(bookings.createdAt, twelveMonthsAgo))
+    .groupBy(sql19`DATE_FORMAT(${bookings.createdAt}, '%Y-%m')`)
+    .orderBy(sql19`month`);
   const result = [];
   const now = /* @__PURE__ */ new Date();
   for (let i = 11; i >= 0; i--) {
@@ -3399,15 +3838,15 @@ async function getTopTours(limit = 5) {
   const rows = await db
     .select({
       tourName:
-        sql17`COALESCE(${bookings.suggestedDestinations}, 'General Tour')`.as(
+        sql19`COALESCE(${bookings.suggestedDestinations}, 'General Tour')`.as(
           "tourName"
         ),
       bookingCount: count2(),
-      revenue: sql17`COALESCE(SUM(${bookings.totalPrice}), 0)`.as("revenue"),
+      revenue: sql19`COALESCE(SUM(${bookings.totalPrice}), 0)`.as("revenue"),
     })
     .from(bookings)
-    .groupBy(sql17`tourName`)
-    .orderBy(desc21(count2()))
+    .groupBy(sql19`tourName`)
+    .orderBy(desc23(count2()))
     .limit(limit);
   return rows.map(r => ({
     tourName: r.tourName,
@@ -3422,23 +3861,23 @@ async function getRecentActivity(limit = 10) {
     .select({
       id: bookings.id,
       name: bookings.contactName,
-      type: sql17`'booking'`.as("type"),
+      type: sql19`'booking'`.as("type"),
       status: bookings.status,
       createdAt: bookings.createdAt,
     })
     .from(bookings)
-    .orderBy(desc21(bookings.createdAt))
+    .orderBy(desc23(bookings.createdAt))
     .limit(limit);
   const recentLeads = await db
     .select({
       id: leads.id,
       name: leads.name,
-      type: sql17`'lead'`.as("type"),
+      type: sql19`'lead'`.as("type"),
       status: leads.status,
       createdAt: leads.createdAt,
     })
     .from(leads)
-    .orderBy(desc21(leads.createdAt))
+    .orderBy(desc23(leads.createdAt))
     .limit(limit);
   const combined = [...recentBookings, ...recentLeads]
     .sort(
@@ -3457,7 +3896,7 @@ var init_analytics = __esm({
 });
 
 // server/db/pagination.ts
-import { sql as sql18 } from "drizzle-orm";
+import { sql as sql20 } from "drizzle-orm";
 async function paginatedQuery(table, orderBy, page = 1, pageSize = 20) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
@@ -3469,7 +3908,7 @@ async function paginatedQuery(table, orderBy, page = 1, pageSize = 20) {
     .orderBy(...orderByArr)
     .limit(pageSize)
     .offset(offset);
-  const countResult = await db.select({ count: sql18`count(*)` }).from(table);
+  const countResult = await db.select({ count: sql20`count(*)` }).from(table);
   const total = Number(countResult[0]?.count ?? 0);
   return { items, total };
 }
@@ -3484,6 +3923,8 @@ var init_pagination = __esm({
 var db_exports = {};
 __export(db_exports, {
   addChatMessage: () => addChatMessage,
+  buildGuestReference: () => buildGuestReference,
+  buildPostTourReviewDedupeKey: () => buildPostTourReviewDedupeKey,
   bulkApproveReviews: () => bulkApproveReviews,
   bulkDeleteBookings: () => bulkDeleteBookings,
   bulkDeleteLeads: () => bulkDeleteLeads,
@@ -3505,6 +3946,8 @@ __export(db_exports, {
   createInvoice: () => createInvoice,
   createLead: () => createLead,
   createPayment: () => createPayment,
+  createPostTourReviewEvent: () => createPostTourReviewEvent,
+  createPostTourReviewRequest: () => createPostTourReviewRequest,
   createReview: () => createReview,
   createScheduledEmail: () => createScheduledEmail,
   createSubscriber: () => createSubscriber,
@@ -3595,6 +4038,7 @@ __export(db_exports, {
   getCustomerTimeline: () => getCustomerTimeline,
   getCustomersByStage: () => getCustomersByStage,
   getDb: () => getDb,
+  getDuePostTourReviewRequests: () => getDuePostTourReviewRequests,
   getEligiblePostTourBookings: () => getEligiblePostTourBookings,
   getEligiblePostTourCount: () => getEligiblePostTourCount,
   getFeaturedPhotos: () => getFeaturedPhotos,
@@ -3606,7 +4050,11 @@ __export(db_exports, {
   getInventoryNeedingMaintenance: () => getInventoryNeedingMaintenance,
   getInventorySummary: () => getInventorySummary,
   getInvoiceById: () => getInvoiceById,
+  getLatestPostTourRequestEventByPhone: () =>
+    getLatestPostTourRequestEventByPhone,
+  getLeadById: () => getLeadById,
   getLeadFunnel: () => getLeadFunnel,
+  getLeadSlaBreaches: () => getLeadSlaBreaches,
   getLeadsByScore: () => getLeadsByScore,
   getNewLeadCount: () => getNewLeadCount,
   getNextInvoiceSequence: () => getNextInvoiceSequence,
@@ -3618,12 +4066,15 @@ __export(db_exports, {
   getPendingBookingCount: () => getPendingBookingCount,
   getPendingFollowUps: () => getPendingFollowUps,
   getPendingReviewCount: () => getPendingReviewCount,
+  getPostTourReviewRequestByBookingId: () =>
+    getPostTourReviewRequestByBookingId,
   getPublicStats: () => getPublicStats,
   getPublishedBlogPostBySlug: () => getPublishedBlogPostBySlug,
   getPublishedPhotosPaginated: () => getPublishedPhotosPaginated,
   getPublishedTourPackages: () => getPublishedTourPackages,
   getRecentActivity: () => getRecentActivity,
   getRecentBookings: () => getRecentBookings,
+  getRecentFailedWhatsAppMessages: () => getRecentFailedWhatsAppMessages,
   getRevenueByMonth: () => getRevenueByMonth,
   getReviewById: () => getReviewById,
   getReviewStats: () => getReviewStats,
@@ -3645,13 +4096,21 @@ __export(db_exports, {
   getUpcomingTourCount: () => getUpcomingTourCount,
   getUserByEmail: () => getUserByEmail,
   getUserById: () => getUserById,
+  getWeeklyPostTourReviewMetrics: () => getWeeklyPostTourReviewMetrics,
   getWhatsAppMessageStats: () => getWhatsAppMessageStats,
+  hasRecentAuditLog: () => hasRecentAuditLog,
   hasScheduledEmailBeenSent: () => hasScheduledEmailBeenSent,
   incrementAlbumViewCount: () => incrementAlbumViewCount,
   listActiveBookingDrafts: () => listActiveBookingDrafts,
   logAdminAction: () => logAdminAction,
   markFeedbackSent: () => markFeedbackSent,
   markPostTourEmailSent: () => markPostTourEmailSent,
+  markPostTourReviewClicked: () => markPostTourReviewClicked,
+  markPostTourReviewOpenedByMessageId: () =>
+    markPostTourReviewOpenedByMessageId,
+  markPostTourReviewRequestFailed: () => markPostTourReviewRequestFailed,
+  markPostTourReviewRequestSent: () => markPostTourReviewRequestSent,
+  markPostTourReviewReviewed: () => markPostTourReviewReviewed,
   markRecoveryEmailSent: () => markRecoveryEmailSent,
   markReminderSent: () => markReminderSent,
   paginatedQuery: () => paginatedQuery,
@@ -3702,6 +4161,7 @@ var init_db = __esm({
     init_chat();
     init_customers();
     init_audit();
+    init_postTourReviewRequests();
     init_settings();
     init_stats();
     init_bookingDrafts();
@@ -3710,8 +4170,623 @@ var init_db = __esm({
     init_availability();
     init_tripPhotos();
     init_whatsapp();
+    init_postTourReviewEvents();
     init_analytics();
     init_pagination();
+  },
+});
+
+// server/eliNotify.ts
+var eliNotify_exports = {};
+__export(eliNotify_exports, {
+  notifyBookingConfirmed: () => notifyBookingConfirmed,
+  notifyBookingReminder: () => notifyBookingReminder,
+  notifyChatMessage: () => notifyChatMessage,
+  notifyCompetitorReport: () => notifyCompetitorReport,
+  notifyLowRatingReviewEscalation: () => notifyLowRatingReviewEscalation,
+  notifyNewLead: () => notifyNewLead,
+  notifyNewReview: () => notifyNewReview,
+  notifyUpsellSent: () => notifyUpsellSent,
+  notifyWhatsAppMessage: () => notifyWhatsAppMessage,
+  sendDailyBrief: () => sendDailyBrief,
+});
+async function sendTelegram(text2) {
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: text2,
+        parse_mode: "Markdown",
+      }),
+    });
+  } catch (e) {
+    console.error("[EliNotify] Telegram failed:", e);
+  }
+}
+async function notifyNewLead(lead) {
+  const tours2 = lead.interestedTours
+    ? `
+\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}`
+    : "";
+  const phone = lead.phone
+    ? `
+\u{1F4F1} Phone: ${lead.phone}`
+    : "";
+  const msg = lead.message
+    ? `
+\u{1F4AC} "${lead.message.slice(0, 100)}"`
+    : "";
+  const src = lead.source ? ` (via ${lead.source})` : "";
+  await sendTelegram(
+    `\u{1F514} *New Inquiry!*${src}
+
+\u{1F464} *${lead.name}*
+\u{1F4E7} ${lead.email}${phone}${tours2}${msg}
+
+\u26A1 Reply now: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyBookingConfirmed(booking) {
+  await sendTelegram(
+    `\u2705 *Booking Confirmed!*
+
+\u{1F464} ${booking.name}
+\u{1F5FA}\uFE0F ${booking.tourName ?? "Tour"}
+\u{1F4C5} ${booking.date ?? "TBD"}
+\u{1F465} ${booking.pax ?? "?"} pax
+` +
+      (booking.totalAmount
+        ? `\u{1F4B0} \u0E3F${booking.totalAmount.toLocaleString()}
+`
+        : "") +
+      `
+\u{1F4CB} View: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyChatMessage(msg) {
+  const intent = msg.userMessage.toLowerCase();
+  const isBooking = [
+    "book",
+    "price",
+    "cost",
+    "available",
+    "reserve",
+    "tour",
+    "\u0E23\u0E32\u0E04\u0E32",
+    "\u0E08\u0E2D\u0E07",
+    "\u0E27\u0E48\u0E32\u0E07",
+    "\u05DB\u05DE\u05D4",
+    "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
+    "\u05D6\u05DE\u05D9\u05DF",
+  ].some(k => intent.includes(k));
+  if (!isBooking) return;
+  await sendTelegram(
+    `\u{1F4AC} *Chat \u2014 Booking Intent*
+
+\u{1F310} Language: ${msg.language ?? "EN"}
+\u{1F4AD} "${msg.userMessage.slice(0, 120)}"
+
+\u{1F440} Live chat: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyNewReview(review) {
+  const stars = "\u2B50".repeat(Math.min(review.rating, 5));
+  await sendTelegram(
+    `${stars} *New Review \u2014 ${review.platform ?? "Google"}*
+
+\u{1F464} ${review.author}
+${review.text ? `\u{1F4AC} "${review.text.slice(0, 100)}"` : ""}
+
+Reply: https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyLowRatingReviewEscalation(input) {
+  await sendTelegram(
+    `\u{1F6A8} *Low Rating Review Escalation*
+
+\u{1F3AB} Booking #${input.bookingId}
+\u{1F9FE} Request #${input.reviewRequestId}
+\u{1F464} ${input.reviewerName}
+\u2B50 Rating: ${input.rating}/5
+\u{1F4AC} "${input.text.slice(0, 220)}"
+
+\u{1F517} Follow-up: ${input.followUpUrl}`
+  );
+}
+async function notifyBookingReminder(wa) {
+  const time = new Date(wa.reminderTime).toLocaleString("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  await sendTelegram(
+    `\u23F0 *Pre-Tour Reminder \u2014 Departure in ~24h*
+
+\u{1F3AB} Booking #${wa.bookingId}
+\u{1F550} Reminder time: ${time} BKK
+
+\u{1F4CB} Action: Confirm vehicle, guide & guest readiness
+\u{1F517} https://wiro4x4indochina.com/admin`
+  );
+}
+async function notifyUpsellSent(wa) {
+  const emailLine = wa.customerEmail
+    ? `
+\u{1F4E7} ${wa.customerEmail}`
+    : "";
+  await sendTelegram(
+    `\u{1F4E7} *Post-Tour Upsell Sent*
+
+\u{1F3AB} Booking #${wa.bookingId}
+\u{1F464} ${wa.customerName}${emailLine}
+
+\u2705 Upsell email delivered 3 days after completion`
+  );
+}
+async function notifyCompetitorReport(report) {
+  await sendTelegram(`\u{1F3C1} *Competitor Monitor*
+
+${report.slice(0, 4e3)}`);
+}
+async function notifyWhatsAppMessage(wa) {
+  const langLabel = {
+    he: "\u{1F1EE}\u{1F1F1} Hebrew",
+    en: "\u{1F1EC}\u{1F1E7} English",
+    th: "\u{1F1F9}\u{1F1ED} Thai",
+  };
+  const displayName = wa.name
+    ? `${wa.name} (+${wa.phoneNumber})`
+    : `+${wa.phoneNumber}`;
+  await sendTelegram(
+    `\u{1F4F1} *WhatsApp from* ${displayName}
+\u{1F310} Language: ${langLabel[wa.language] ?? wa.language}
+
+\u{1F4AC} "${wa.message.slice(0, 200)}"
+
+\u{1F4DD} *Draft reply:*
+${wa.draftReply.slice(0, 500)}
+
+\u2705 Send: https://wiro4x4indochina.com/admin/whatsapp`
+  );
+}
+async function sendDailyBrief(stats) {
+  const today = /* @__PURE__ */ new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Bangkok",
+  });
+  await sendTelegram(
+    `\u2600\uFE0F *Good morning, Mek!*
+\u{1F4C5} ${today}
+
+\u{1F4CB} Pending inquiries: *${stats.pendingLeads}*
+\u{1F3AB} Bookings this month: *${stats.bookingsThisMonth}*
+\u{1F4B0} Revenue MTD: *\u0E3F${stats.revenue.toLocaleString()}*
+` +
+      (stats.weather
+        ? `\u{1F324}\uFE0F ${stats.weather}
+`
+        : "") +
+      `
+${stats.pendingLeads > 0 ? `\u26A0\uFE0F *${stats.pendingLeads} inquiry(s) waiting!*` : "\u2705 All caught up!"}
+
+\u{1F5A5}\uFE0F Dashboard: https://monitoring-dashboard-iota.vercel.app`
+  );
+}
+var BOT_TOKEN, CHAT_ID;
+var init_eliNotify = __esm({
+  "server/eliNotify.ts"() {
+    "use strict";
+    BOT_TOKEN =
+      process.env.TELEGRAM_BOT_TOKEN ??
+      "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
+    CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
+  },
+});
+
+// server/postTourReviewService.ts
+var postTourReviewService_exports = {};
+__export(postTourReviewService_exports, {
+  getConfiguredPostTourReviewDelayMinutes: () =>
+    getConfiguredPostTourReviewDelayMinutes,
+  getPostTourReviewEntry: () => getPostTourReviewEntry,
+  getRecentPostTourReviewEntries: () => getRecentPostTourReviewEntries,
+  getWeeklyPostTourReviewMetric: () => getWeeklyPostTourReviewMetric,
+  handlePostTourReviewReply: () => handlePostTourReviewReply,
+  processDuePostTourReviewRequests: () => processDuePostTourReviewRequests,
+  processPendingPostTourReviewRequests: () =>
+    processPendingPostTourReviewRequests,
+  recordPostTourReviewClickByToken: () => recordPostTourReviewClickByToken,
+  recordPostTourReviewEvent: () => recordPostTourReviewEvent,
+  recordPostTourReviewOpenedByMessageId: () =>
+    recordPostTourReviewOpenedByMessageId,
+  schedulePostTourReviewForBooking: () => schedulePostTourReviewForBooking,
+  schedulePostTourReviewRequest: () => schedulePostTourReviewRequest,
+  trackPostTourReviewLinkClick: () => trackPostTourReviewLinkClick,
+  trackPostTourReviewMessageOpened: () => trackPostTourReviewMessageOpened,
+  trackPostTourReviewSubmission: () => trackPostTourReviewSubmission,
+  updatePostTourReviewDelayMinutes: () => updatePostTourReviewDelayMinutes,
+});
+import {
+  and as and16,
+  desc as desc24,
+  eq as eq28,
+  gte as gte8,
+  lte as lte6,
+  sql as sql21,
+} from "drizzle-orm";
+function toEntry(row) {
+  return {
+    id: row.id,
+    bookingId: row.bookingId,
+    customerName: row.customerName,
+    contactWhatsApp: row.phoneNumber,
+    contactEmail: null,
+    language: row.language,
+    scheduledAt: row.scheduledAt.toISOString(),
+    sentAt: row.sentAt ? row.sentAt.toISOString() : null,
+    openedAt: row.openedAt ? row.openedAt.toISOString() : null,
+    clickedAt: row.clickedAt ? row.clickedAt.toISOString() : null,
+    reviewedAt: row.reviewedAt ? row.reviewedAt.toISOString() : null,
+    rating: row.rating ?? null,
+    comments: row.comments ?? null,
+    escalatedAt: row.escalatedAt ? row.escalatedAt.toISOString() : null,
+    opsFollowUpUrl: row.opsFollowUpUrl ?? null,
+    followUpPath: row.opsFollowUpUrl ?? null,
+    whatsappMessageId: row.whatsappMessageId ?? null,
+    reviewToken: String(row.id),
+    source: row.sentAt ? "whatsapp" : "fallback_log",
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+function clampDelayMinutes(delay) {
+  return Math.max(MIN_DELAY_MINUTES, Math.min(MAX_DELAY_MINUTES, delay));
+}
+function normalizeWhatsApp(raw) {
+  if (!raw) return null;
+  const digits = raw.replace(/[^\d]/g, "");
+  return digits.length > 0 ? digits : null;
+}
+function detectLanguage(text2) {
+  return text2 && HEBREW_REGEX.test(text2) ? "he" : "en";
+}
+function buildReviewMessage(entry) {
+  const reviewUrl = `https://www.wiro4x4indochina.com/reviews?reviewRequestId=${entry.id}&bookingId=${entry.bookingId}&src=whatsapp_post_tour`;
+  const hebrew = [
+    `\u05E9\u05DC\u05D5\u05DD ${entry.customerName ?? "\u05D7\u05D1\u05E8\u05D9\u05DD"}, \u05EA\u05D5\u05D3\u05D4 \u05E9\u05D8\u05D9\u05D9\u05DC\u05EA\u05DD \u05D0\u05D9\u05EA\u05E0\u05D5 \u05D1-WIRO 4x4!`,
+    `\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05D9\u05E8\u05D5\u05D2 \u05E7\u05E6\u05E8 (\u05D3\u05E7\u05D4): ${reviewUrl}`,
+    `\u05D0\u05DD \u05DE\u05E9\u05D4\u05D5 \u05D4\u05D9\u05D4 \u05E4\u05D7\u05D5\u05EA \u05DE\u05DE\u05D5\u05E9\u05DC\u05DD, \u05D4\u05E9\u05D9\u05D1\u05D5 \u05DB\u05D0\u05DF \u05D5\u05E0\u05D7\u05D6\u05D5\u05E8 \u05D0\u05DC\u05D9\u05DB\u05DD \u05D0\u05D9\u05E9\u05D9\u05EA.`,
+  ].join("\n");
+  const english = [
+    `Hi ${entry.customerName ?? "there"}, thanks for touring with WIRO 4x4!`,
+    `We'd love your quick 1-minute review: ${reviewUrl}`,
+    `If anything was less than perfect, reply here and we'll follow up personally.`,
+  ].join("\n");
+  return entry.language === "he"
+    ? `${hebrew}
+
+English:
+${english}`
+    : english;
+}
+function parseReviewReply(text2) {
+  const trimmed = text2.trim();
+  if (!trimmed) return { rating: null, comments: null };
+  const stars = (trimmed.match(/⭐/g) ?? []).length;
+  if (stars >= 1 && stars <= 5) {
+    const comments2 = trimmed.replace(/⭐+/g, "").trim();
+    return { rating: stars, comments: comments2 || null };
+  }
+  const ratingMatch = trimmed.match(/\b([1-5])(?:\s*\/\s*5)?\b/);
+  if (!ratingMatch) return { rating: null, comments: null };
+  const rating = Number(ratingMatch[1]);
+  const comments = trimmed
+    .replace(ratingMatch[0], "")
+    .replace(/^[-:,.\s]+/, "")
+    .trim();
+  return { rating, comments: comments || null };
+}
+async function getConfiguredPostTourReviewDelayMinutes() {
+  const raw = await getSetting(REVIEW_DELAY_SETTING_KEY);
+  const value = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(value)) return DEFAULT_DELAY_MINUTES;
+  return clampDelayMinutes(Math.round(value));
+}
+async function updatePostTourReviewDelayMinutes(delayMinutes) {
+  const clamped = clampDelayMinutes(Math.round(delayMinutes));
+  await upsertSetting(REVIEW_DELAY_SETTING_KEY, clamped);
+  return clamped;
+}
+async function schedulePostTourReviewRequest(params) {
+  const existing = await getPostTourReviewRequestByBookingId(params.bookingId);
+  if (existing) return toEntry(existing);
+  const phone = normalizeWhatsApp(params.contactWhatsApp);
+  if (!phone) {
+    throw new Error(
+      `Booking #${params.bookingId} has no WhatsApp/phone; cannot schedule review`
+    );
+  }
+  const completedAt =
+    typeof params.completedAt === "string"
+      ? new Date(params.completedAt)
+      : params.completedAt;
+  const delayMinutes =
+    params.delayMinutes !== void 0
+      ? clampDelayMinutes(params.delayMinutes)
+      : await getConfiguredPostTourReviewDelayMinutes();
+  const scheduledAt = new Date(completedAt.getTime() + delayMinutes * 6e4);
+  await createPostTourReviewRequest({
+    bookingId: params.bookingId,
+    phoneNumber: phone,
+    customerName: params.customerName,
+    language: detectLanguage(params.customerName),
+    scheduledAt,
+    status: "scheduled",
+  });
+  const created = await getPostTourReviewRequestByBookingId(params.bookingId);
+  if (!created) {
+    throw new Error("Post-tour review request scheduling failed");
+  }
+  return toEntry(created);
+}
+async function schedulePostTourReviewForBooking(params) {
+  const booking = await getBookingById(params.bookingId);
+  if (!booking) {
+    throw new Error(`Booking #${params.bookingId} not found`);
+  }
+  return await schedulePostTourReviewRequest({
+    bookingId: booking.id,
+    customerName: booking.contactName,
+    contactWhatsApp: booking.contactWhatsApp ?? booking.contactPhone,
+    contactEmail: booking.contactEmail,
+    completedAt: params.completedAt ?? /* @__PURE__ */ new Date(),
+    delayMinutes: params.delayMinutes,
+  });
+}
+async function processDuePostTourReviewRequests() {
+  const due = await getDuePostTourReviewRequests(50);
+  let sent = 0;
+  for (const row of due) {
+    const entry = toEntry(row);
+    const message = buildReviewMessage(entry);
+    const guestReference = buildGuestReference({
+      bookingId: entry.bookingId,
+      phone: entry.contactWhatsApp,
+    });
+    if (!isWhatsAppConfigured()) {
+      await markPostTourReviewRequestFailed(entry.id);
+      continue;
+    }
+    const messageId = await sendWhatsAppMessage(entry.contactWhatsApp, message);
+    try {
+      await createWhatsAppMessage({
+        direction: "outgoing",
+        phoneNumber: entry.contactWhatsApp,
+        customerName: entry.customerName,
+        messageText: message,
+        messageType: "text",
+        isAutoReply: 0,
+        status: messageId ? "sent" : "failed",
+        whatsappMessageId: messageId,
+      });
+    } catch (err) {
+      console.error("[PostTourReview] Failed to log outgoing WhatsApp:", err);
+    }
+    if (messageId) {
+      const reviewUrl = `https://www.wiro4x4indochina.com/reviews?reviewRequestId=${entry.id}&bookingId=${entry.bookingId}&src=whatsapp_post_tour`;
+      await markPostTourReviewRequestSent(entry.id, messageId, reviewUrl);
+      sent += 1;
+      await createPostTourReviewEvent({
+        bookingId: entry.bookingId,
+        channel: "whatsapp",
+        state: "request_sent",
+        guestReference,
+        guestPhone: entry.contactWhatsApp,
+        guestName: entry.customerName,
+        externalMessageId: messageId,
+        dedupeKey: buildPostTourReviewDedupeKey({
+          state: "request_sent",
+          bookingId: entry.bookingId,
+          guestReference,
+          externalMessageId: messageId,
+        }),
+        metadata: { reviewUrl },
+      });
+    } else {
+      await markPostTourReviewRequestFailed(entry.id);
+    }
+  }
+  const pending = (await getDuePostTourReviewRequests(1e3)).length;
+  return {
+    processed: due.length,
+    sent,
+    pending,
+  };
+}
+async function recordPostTourReviewOpenedByMessageId(whatsappMessageId) {
+  await markPostTourReviewOpenedByMessageId(whatsappMessageId);
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(eq28(postTourReviewRequests.whatsappMessageId, whatsappMessageId))
+    .limit(1);
+  return rows[0] ? toEntry(rows[0]) : null;
+}
+async function trackPostTourReviewMessageOpened(whatsappMessageId) {
+  return await recordPostTourReviewOpenedByMessageId(whatsappMessageId);
+}
+async function recordPostTourReviewClickByToken(token) {
+  const id = Number(token);
+  if (!Number.isFinite(id) || id <= 0) return null;
+  await markPostTourReviewClicked(id);
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(eq28(postTourReviewRequests.id, id))
+    .limit(1);
+  return rows[0] ? toEntry(rows[0]) : null;
+}
+async function trackPostTourReviewLinkClick(reviewRequestId) {
+  await markPostTourReviewClicked(reviewRequestId);
+}
+async function trackPostTourReviewSubmission(input) {
+  const result = await markPostTourReviewReviewed({
+    requestId: input.reviewRequestId,
+    bookingId: input.bookingId,
+    rating: input.rating,
+    comments: input.text,
+  });
+  if (!result || !result.isLowRating) return;
+  await notifyLowRatingReviewEscalation({
+    reviewRequestId: result.id,
+    bookingId: result.bookingId,
+    reviewerName: input.reviewerName,
+    rating: input.rating,
+    text: input.text,
+    followUpUrl: result.followUpUrl,
+  });
+}
+async function recordPostTourReviewEvent(input) {
+  const existing = await getPostTourReviewRequestByBookingId(input.bookingId);
+  if (!existing) return null;
+  if (input.event === "opened") {
+    if (!existing.whatsappMessageId) return toEntry(existing);
+    return await recordPostTourReviewOpenedByMessageId(
+      existing.whatsappMessageId
+    );
+  }
+  if (input.event === "clicked") {
+    await markPostTourReviewClicked(existing.id);
+    const latest2 = await getPostTourReviewRequestByBookingId(input.bookingId);
+    return latest2 ? toEntry(latest2) : null;
+  }
+  await trackPostTourReviewSubmission({
+    reviewRequestId: existing.id,
+    bookingId: input.bookingId,
+    rating: input.rating ?? 5,
+    text: input.comments ?? "",
+    reviewerName: existing.customerName ?? "Guest",
+  });
+  const latest = await getPostTourReviewRequestByBookingId(input.bookingId);
+  return latest ? toEntry(latest) : null;
+}
+async function handlePostTourReviewReply(input) {
+  const phone = normalizeWhatsApp(input.from);
+  if (!phone) return { handled: false };
+  const parsed = parseReviewReply(input.text);
+  if (parsed.rating === null) return { handled: false };
+  const db = await getDb();
+  if (!db) return { handled: false };
+  const rows = await db
+    .select()
+    .from(postTourReviewRequests)
+    .where(
+      and16(
+        eq28(postTourReviewRequests.phoneNumber, phone),
+        sql21`${postTourReviewRequests.sentAt} IS NOT NULL`
+      )
+    )
+    .orderBy(desc24(postTourReviewRequests.updatedAt))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return { handled: false };
+  await trackPostTourReviewSubmission({
+    reviewRequestId: row.id,
+    bookingId: row.bookingId,
+    rating: parsed.rating,
+    text: parsed.comments ?? "",
+    reviewerName: row.customerName ?? "Guest",
+  });
+  const latest = await getPostTourReviewRequestByBookingId(row.bookingId);
+  if (!latest) return { handled: true };
+  const replyText =
+    detectLanguage(input.text) === "he"
+      ? "\u05EA\u05D5\u05D3\u05D4 \u05E8\u05D1\u05D4 \u05E2\u05DC \u05D4\u05DE\u05E9\u05D5\u05D1! \u05E7\u05D9\u05D1\u05DC\u05E0\u05D5 \u05D0\u05EA \u05D4\u05D3\u05D9\u05E8\u05D5\u05D2 \u05D5\u05E0\u05DE\u05E9\u05D9\u05DA \u05DC\u05D4\u05E9\u05EA\u05E4\u05E8."
+      : "Thank you for the feedback. We received your rating and appreciate it.";
+  return { handled: true, replyText, entry: toEntry(latest) };
+}
+async function getPostTourReviewEntry(bookingId) {
+  const row = await getPostTourReviewRequestByBookingId(bookingId);
+  return row ? toEntry(row) : null;
+}
+async function getRecentPostTourReviewEntries(limit = 20) {
+  const rows = await getRecentPostTourReviewRequests(limit);
+  return rows.map(toEntry);
+}
+async function getWeeklyPostTourReviewMetric(referenceDate) {
+  const stats = await getWeeklyPostTourReviewMetrics();
+  const weekStart = referenceDate
+    ? new Date(referenceDate.getTime() - 6 * 24 * 60 * 60 * 1e3).toISOString()
+    : stats.windowStart;
+  const weekEnd = referenceDate
+    ? new Date(referenceDate).toISOString()
+    : stats.windowEnd;
+  const db = await getDb();
+  let lowRatingExceptions = [];
+  if (db) {
+    const rows = await db
+      .select()
+      .from(postTourReviewRequests)
+      .where(
+        and16(
+          sql21`${postTourReviewRequests.reviewedAt} IS NOT NULL`,
+          sql21`${postTourReviewRequests.rating} <= 4`,
+          gte8(postTourReviewRequests.reviewedAt, new Date(stats.windowStart)),
+          lte6(postTourReviewRequests.reviewedAt, new Date(stats.windowEnd))
+        )
+      )
+      .orderBy(desc24(postTourReviewRequests.reviewedAt));
+    lowRatingExceptions = rows.map(row => ({
+      bookingId: row.bookingId,
+      customerName: row.customerName ?? "Guest",
+      rating: row.rating ?? 0,
+      comments: row.comments ?? null,
+      reviewedAt: row.reviewedAt ? row.reviewedAt.toISOString() : null,
+      followUpPath: row.opsFollowUpUrl ?? null,
+    }));
+  }
+  return {
+    weekStart,
+    weekEnd,
+    toursCompleted: stats.completedTours,
+    requestsSent: stats.volume,
+    reviewed: stats.reviewed,
+    completionRate: stats.completionRate,
+    lowRatingCount: stats.lowRatingExceptions,
+    lowRatingExceptions,
+  };
+}
+var HEBREW_REGEX,
+  REVIEW_DELAY_SETTING_KEY,
+  MIN_DELAY_MINUTES,
+  MAX_DELAY_MINUTES,
+  DEFAULT_DELAY_MINUTES,
+  processPendingPostTourReviewRequests;
+var init_postTourReviewService = __esm({
+  "server/postTourReviewService.ts"() {
+    "use strict";
+    init_schema();
+    init_db();
+    init_postTourReviewRequests();
+    init_whatsapp();
+    init_eliNotify();
+    init_whatsappService();
+    HEBREW_REGEX = /[\u0590-\u05FF]/;
+    REVIEW_DELAY_SETTING_KEY = "post_tour_review_delay_minutes";
+    MIN_DELAY_MINUTES = 30;
+    MAX_DELAY_MINUTES = 60;
+    DEFAULT_DELAY_MINUTES = 45;
+    processPendingPostTourReviewRequests = processDuePostTourReviewRequests;
   },
 });
 
@@ -3817,202 +4892,432 @@ var init_llm = __esm({
   },
 });
 
-// server/eliNotify.ts
-var eliNotify_exports = {};
-__export(eliNotify_exports, {
-  notifyBookingConfirmed: () => notifyBookingConfirmed,
-  notifyBookingReminder: () => notifyBookingReminder,
-  notifyChatMessage: () => notifyChatMessage,
-  notifyCompetitorReport: () => notifyCompetitorReport,
-  notifyNewLead: () => notifyNewLead,
-  notifyNewReview: () => notifyNewReview,
-  notifyUpsellSent: () => notifyUpsellSent,
-  notifyWhatsAppMessage: () => notifyWhatsAppMessage,
-  sendDailyBrief: () => sendDailyBrief,
-});
-async function sendTelegram(text2) {
+// server/whatsappService.ts
+function getConfig() {
+  const token = process.env.WHATSAPP_API_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || "";
+  return { token, phoneNumberId, verifyToken };
+}
+function isWhatsAppConfigured() {
+  const { token, phoneNumberId } = getConfig();
+  return !!(token && phoneNumberId);
+}
+function detectLanguage2(text2) {
+  return HEBREW_REGEX2.test(text2) ? "he" : "en";
+}
+async function sendWhatsAppMessage(to, text2) {
+  const { token, phoneNumberId } = getConfig();
+  if (!token || !phoneNumberId) {
+    console.warn("[WhatsApp] API not configured \u2014 skipping sendMessage");
+    return null;
+  }
   try {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: text2,
-        parse_mode: "Markdown",
-      }),
-    });
-  } catch (e) {
-    console.error("[EliNotify] Telegram failed:", e);
+    const response = await fetch(
+      `${WHATSAPP_API_BASE}/${phoneNumberId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to,
+          type: "text",
+          text: { body: text2 },
+        }),
+      }
+    );
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("[WhatsApp] Send failed:", response.status, errBody);
+      return null;
+    }
+    const data = await response.json();
+    return data.messages?.[0]?.id ?? null;
+  } catch (err) {
+    console.error("[WhatsApp] Send error:", err);
+    return null;
   }
 }
-async function notifyNewLead(lead) {
-  const tours2 = lead.interestedTours
-    ? `
-\u{1F5FA}\uFE0F Tour: ${lead.interestedTours}`
-    : "";
-  const phone = lead.phone
-    ? `
-\u{1F4F1} Phone: ${lead.phone}`
-    : "";
-  const msg = lead.message
-    ? `
-\u{1F4AC} "${lead.message.slice(0, 100)}"`
-    : "";
-  const src = lead.source ? ` (via ${lead.source})` : "";
-  await sendTelegram(
-    `\u{1F514} *New Inquiry!*${src}
-
-\u{1F464} *${lead.name}*
-\u{1F4E7} ${lead.email}${phone}${tours2}${msg}
-
-\u26A1 Reply now: https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyBookingConfirmed(booking) {
-  await sendTelegram(
-    `\u2705 *Booking Confirmed!*
-
-\u{1F464} ${booking.name}
-\u{1F5FA}\uFE0F ${booking.tourName ?? "Tour"}
-\u{1F4C5} ${booking.date ?? "TBD"}
-\u{1F465} ${booking.pax ?? "?"} pax
-` +
-      (booking.totalAmount
-        ? `\u{1F4B0} \u0E3F${booking.totalAmount.toLocaleString()}
-`
-        : "") +
-      `
-\u{1F4CB} View: https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyChatMessage(msg) {
-  const intent = msg.userMessage.toLowerCase();
-  const isBooking = [
-    "book",
-    "price",
-    "cost",
-    "available",
-    "reserve",
-    "tour",
-    "\u0E23\u0E32\u0E04\u0E32",
-    "\u0E08\u0E2D\u0E07",
-    "\u0E27\u0E48\u0E32\u0E07",
-    "\u05DB\u05DE\u05D4",
-    "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
-    "\u05D6\u05DE\u05D9\u05DF",
-  ].some(k => intent.includes(k));
-  if (!isBooking) return;
-  await sendTelegram(
-    `\u{1F4AC} *Chat \u2014 Booking Intent*
-
-\u{1F310} Language: ${msg.language ?? "EN"}
-\u{1F4AD} "${msg.userMessage.slice(0, 120)}"
-
-\u{1F440} Live chat: https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyNewReview(review) {
-  const stars = "\u2B50".repeat(Math.min(review.rating, 5));
-  await sendTelegram(
-    `${stars} *New Review \u2014 ${review.platform ?? "Google"}*
-
-\u{1F464} ${review.author}
-${review.text ? `\u{1F4AC} "${review.text.slice(0, 100)}"` : ""}
-
-Reply: https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyBookingReminder(wa) {
-  const time = new Date(wa.reminderTime).toLocaleString("en-GB", {
-    timeZone: "Asia/Bangkok",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  await sendTelegram(
-    `\u23F0 *Pre-Tour Reminder \u2014 Departure in ~24h*
-
-\u{1F3AB} Booking #${wa.bookingId}
-\u{1F550} Reminder time: ${time} BKK
-
-\u{1F4CB} Action: Confirm vehicle, guide & guest readiness
-\u{1F517} https://wiro4x4indochina.com/admin`
-  );
-}
-async function notifyUpsellSent(wa) {
-  const emailLine = wa.customerEmail
-    ? `
-\u{1F4E7} ${wa.customerEmail}`
-    : "";
-  await sendTelegram(
-    `\u{1F4E7} *Post-Tour Upsell Sent*
-
-\u{1F3AB} Booking #${wa.bookingId}
-\u{1F464} ${wa.customerName}${emailLine}
-
-\u2705 Upsell email delivered 3 days after completion`
-  );
-}
-async function notifyCompetitorReport(report) {
-  await sendTelegram(`\u{1F3C1} *Competitor Monitor*
-
-${report.slice(0, 4e3)}`);
-}
-async function notifyWhatsAppMessage(wa) {
-  const langLabel = {
-    he: "\u{1F1EE}\u{1F1F1} Hebrew",
-    en: "\u{1F1EC}\u{1F1E7} English",
-    th: "\u{1F1F9}\u{1F1ED} Thai",
+function getAutoReply(messageText) {
+  const normalizedText = messageText.toLowerCase().trim();
+  const lang = detectLanguage2(messageText);
+  for (const rule of AUTO_REPLY_RULES) {
+    for (const keyword of rule.keywords) {
+      if (normalizedText.includes(keyword.toLowerCase())) {
+        return {
+          reply: lang === "he" ? rule.replyHe : rule.replyEn,
+          isAutoReply: true,
+        };
+      }
+    }
+  }
+  return {
+    reply: lang === "he" ? DEFAULT_REPLY_HE : DEFAULT_REPLY_EN,
+    isAutoReply: true,
   };
-  const displayName = wa.name
-    ? `${wa.name} (+${wa.phoneNumber})`
-    : `+${wa.phoneNumber}`;
-  await sendTelegram(
-    `\u{1F4F1} *WhatsApp from* ${displayName}
-\u{1F310} Language: ${langLabel[wa.language] ?? wa.language}
-
-\u{1F4AC} "${wa.message.slice(0, 200)}"
-
-\u{1F4DD} *Draft reply:*
-${wa.draftReply.slice(0, 500)}
-
-\u2705 Send: https://wiro4x4indochina.com/admin/whatsapp`
-  );
 }
-async function sendDailyBrief(stats) {
-  const today = /* @__PURE__ */ new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Asia/Bangkok",
+async function handleIncomingMessage(message) {
+  const { from, name, text: text2, messageId } = message;
+  let matchedPostTourBookingId = null;
+  let guestReference = buildGuestReference({ phone: from });
+  try {
+    const latestRequest = await getLatestPostTourRequestEventByPhone(from);
+    if (latestRequest?.bookingId) {
+      matchedPostTourBookingId = latestRequest.bookingId;
+      guestReference = buildGuestReference({
+        bookingId: latestRequest.bookingId,
+        phone: from,
+      });
+    }
+    await createPostTourReviewEvent({
+      bookingId: matchedPostTourBookingId,
+      channel: "whatsapp",
+      state: "response_received",
+      guestReference,
+      guestPhone: from,
+      guestName: name ?? null,
+      externalMessageId: messageId ?? null,
+      dedupeKey: buildPostTourReviewDedupeKey({
+        state: "response_received",
+        bookingId: matchedPostTourBookingId,
+        guestReference,
+        externalMessageId: messageId ?? null,
+      }),
+      metadata: {
+        inboundTextPreview: text2.slice(0, 240),
+      },
+    });
+  } catch (err) {
+    console.error("[WhatsApp] Failed to track post-tour response event:", err);
+  }
+  try {
+    await createWhatsAppMessage({
+      direction: "incoming",
+      phoneNumber: from,
+      customerName: name ?? null,
+      messageText: text2,
+      messageType: "text",
+      isAutoReply: 0,
+      status: "delivered",
+      whatsappMessageId: messageId ?? null,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] Failed to log incoming message:", err);
+  }
+  try {
+    const { handlePostTourReviewReply: handlePostTourReviewReply2 } =
+      await Promise.resolve().then(
+        () => (init_postTourReviewService(), postTourReviewService_exports)
+      );
+    const reviewReply = await handlePostTourReviewReply2({ from, text: text2 });
+    if (reviewReply.handled) {
+      if (reviewReply.replyText) {
+        const sentMessageId2 = await sendWhatsAppMessage(
+          from,
+          reviewReply.replyText
+        );
+        try {
+          await createWhatsAppMessage({
+            direction: "outgoing",
+            phoneNumber: from,
+            customerName: name ?? null,
+            messageText: reviewReply.replyText,
+            messageType: "text",
+            isAutoReply: 0,
+            status: sentMessageId2 ? "sent" : "failed",
+            whatsappMessageId: sentMessageId2 ?? null,
+          });
+        } catch (err) {
+          console.error(
+            "[WhatsApp] Failed to log post-tour review reply:",
+            err
+          );
+        }
+      }
+      return;
+    }
+  } catch (err) {
+    console.error("[WhatsApp] Post-tour review processing failed:", err);
+  }
+  const { getSetting: getSetting2 } = await Promise.resolve().then(
+    () => (init_db(), db_exports)
+  );
+  const autoReplyEnabled = await getSetting2("whatsapp_auto_reply_enabled");
+  if (
+    autoReplyEnabled === false ||
+    autoReplyEnabled === "false" ||
+    autoReplyEnabled === 0
+  ) {
+    return;
+  }
+  const { reply, isAutoReply } = getAutoReply(text2);
+  const sentMessageId = await sendWhatsAppMessage(from, reply);
+  try {
+    await createWhatsAppMessage({
+      direction: "outgoing",
+      phoneNumber: from,
+      customerName: name ?? null,
+      messageText: reply,
+      messageType: "auto-reply",
+      isAutoReply: isAutoReply ? 1 : 0,
+      status: sentMessageId ? "sent" : "failed",
+      whatsappMessageId: sentMessageId ?? null,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
+  }
+  if (sentMessageId) {
+    try {
+      await createPostTourReviewEvent({
+        bookingId: matchedPostTourBookingId,
+        channel: "whatsapp",
+        state: "follow_up_sent",
+        guestReference,
+        guestPhone: from,
+        guestName: name ?? null,
+        externalMessageId: sentMessageId,
+        dedupeKey: buildPostTourReviewDedupeKey({
+          state: "follow_up_sent",
+          bookingId: matchedPostTourBookingId,
+          guestReference,
+          externalMessageId: sentMessageId,
+        }),
+        metadata: {
+          autoReply: true,
+          replyLength: reply.length,
+        },
+      });
+    } catch (err) {
+      console.error(
+        "[WhatsApp] Failed to track post-tour follow-up event:",
+        err
+      );
+    }
+  }
+  draftAndNotifyEli(from, name, text2).catch(err => {
+    console.error("[WhatsApp] Eli draft/notify failed:", err);
   });
-  await sendTelegram(
-    `\u2600\uFE0F *Good morning, Mek!*
-\u{1F4C5} ${today}
-
-\u{1F4CB} Pending inquiries: *${stats.pendingLeads}*
-\u{1F3AB} Bookings this month: *${stats.bookingsThisMonth}*
-\u{1F4B0} Revenue MTD: *\u0E3F${stats.revenue.toLocaleString()}*
-` +
-      (stats.weather
-        ? `\u{1F324}\uFE0F ${stats.weather}
-`
-        : "") +
-      `
-${stats.pendingLeads > 0 ? `\u26A0\uFE0F *${stats.pendingLeads} inquiry(s) waiting!*` : "\u2705 All caught up!"}
-
-\u{1F5A5}\uFE0F Dashboard: https://monitoring-dashboard-iota.vercel.app`
-  );
 }
-var BOT_TOKEN, CHAT_ID;
-var init_eliNotify = __esm({
-  "server/eliNotify.ts"() {
+function detectWsLanguage(text2) {
+  if (HEBREW_REGEX2.test(text2)) return "he";
+  if (/[\u0E00-\u0E7F]/.test(text2)) return "th";
+  return "en";
+}
+async function draftAndNotifyEli(phoneNumber, name, message) {
+  const lang = detectWsLanguage(message);
+  const SYSTEM_PROMPT2 = `You are a helpful assistant for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Thailand.
+
+Tour prices:
+- Doi Inthanon: \u0E3F3,500/person
+- Doi Suthep: \u0E3F2,000/person
+- Mae Wang: \u0E3F3,500/person
+- Multi-day packages from \u0E3F7,500
+
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 92-989-4495.`;
+  let draft =
+    "Hi! Thanks for reaching out. A team member will get back to you soon.";
+  try {
+    const { invokeLLM: invokeLLM2 } = await Promise.resolve().then(
+      () => (init_llm(), llm_exports)
+    );
+    const result = await invokeLLM2({
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT2 },
+        { role: "user", content: message },
+      ],
+      maxTokens: 200,
+    });
+    const raw = result.choices[0]?.message?.content;
+    const text2 =
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? (raw.find(p => p.type === "text")?.text ?? "")
+          : "";
+    if (text2.trim().length > 0) {
+      draft = text2.trim();
+    }
+  } catch (err) {
+    console.warn("[WhatsApp] LLM draft failed, using fallback:", err);
+  }
+  try {
+    const { notifyWhatsAppMessage: notifyWhatsAppMessage2 } =
+      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
+    await notifyWhatsAppMessage2({
+      phoneNumber,
+      name,
+      language: lang,
+      message,
+      draftReply: draft,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] notifyWhatsAppMessage failed:", err);
+  }
+}
+async function sendManualMessage(to, text2) {
+  const sentMessageId = await sendWhatsAppMessage(to, text2);
+  try {
+    await createWhatsAppMessage({
+      direction: "outgoing",
+      phoneNumber: to,
+      customerName: null,
+      messageText: text2,
+      messageType: "text",
+      isAutoReply: 0,
+      status: sentMessageId ? "sent" : "failed",
+      whatsappMessageId: sentMessageId ?? null,
+    });
+  } catch (err) {
+    console.error("[WhatsApp] Failed to log manual message:", err);
+  }
+  return { success: !!sentMessageId, messageId: sentMessageId };
+}
+function getVerifyToken() {
+  return getConfig().verifyToken;
+}
+var HEBREW_REGEX2,
+  WHATSAPP_API_BASE,
+  SITE_URL,
+  AUTO_REPLY_RULES,
+  DEFAULT_REPLY_EN,
+  DEFAULT_REPLY_HE;
+var init_whatsappService = __esm({
+  "server/whatsappService.ts"() {
     "use strict";
-    BOT_TOKEN =
-      process.env.TELEGRAM_BOT_TOKEN ??
-      "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
-    CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
+    init_db();
+    HEBREW_REGEX2 = /[\u0590-\u05FF]/;
+    WHATSAPP_API_BASE = "https://graph.facebook.com/v19.0";
+    SITE_URL = "https://www.wiro4x4indochina.com";
+    AUTO_REPLY_RULES = [
+      {
+        keywords: [
+          "price",
+          "pricing",
+          "cost",
+          "how much",
+          "\u05DE\u05D7\u05D9\u05E8",
+          "\u05E2\u05DC\u05D5\u05EA",
+          "\u05DB\u05DE\u05D4 \u05E2\u05D5\u05DC\u05D4",
+        ],
+        replyEn: `Our tour prices start from 3,500 THB per person. Check our full pricing and trip cost estimator here:
+${SITE_URL}/pricing
+${SITE_URL}/estimate`,
+        replyHe: `\u05DE\u05D7\u05D9\u05E8\u05D9 \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05EA\u05D7\u05D9\u05DC\u05D9\u05DD \u05DE-3,500 \u05D1\u05D8 \u05DC\u05D0\u05D3\u05DD. \u05D1\u05D3\u05E7\u05D5 \u05D0\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05D4\u05DE\u05DC\u05D0 \u05D5\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05D4\u05E2\u05DC\u05D5\u05D9\u05D5\u05EA \u05DB\u05D0\u05DF:
+${SITE_URL}/pricing
+${SITE_URL}/estimate`,
+      },
+      {
+        keywords: [
+          "book",
+          "booking",
+          "reserve",
+          "reservation",
+          "\u05D4\u05D6\u05DE\u05E0\u05D4",
+          "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
+          "\u05D4\u05D6\u05DE\u05DF",
+        ],
+        replyEn: `Ready to book your adventure? Fill out our booking form here:
+${SITE_URL}/booking
+
+Or tell us your preferred dates and group size and we'll prepare a custom quote!`,
+        replyHe: `\u05DE\u05D5\u05DB\u05E0\u05D9\u05DD \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05E9\u05DC\u05DB\u05DD? \u05DE\u05DC\u05D0\u05D5 \u05D0\u05EA \u05D8\u05D5\u05E4\u05E1 \u05D4\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DB\u05D0\u05DF:
+${SITE_URL}/booking
+
+\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D5 \u05DC\u05E0\u05D5 \u05E2\u05DC \u05D4\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD \u05D4\u05DE\u05D5\u05E2\u05D3\u05E4\u05D9\u05DD \u05D5\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D5\u05E0\u05DB\u05D9\u05DF \u05DC\u05DB\u05DD \u05D4\u05E6\u05E2\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DE\u05D5\u05EA\u05D0\u05DE\u05EA!`,
+      },
+      {
+        keywords: [
+          "kosher",
+          "\u05DB\u05E9\u05E8",
+          "\u05DB\u05E9\u05E8\u05D5\u05EA",
+          "kosher food",
+          "kosher meal",
+        ],
+        replyEn: `All our tours offer kosher meal options! We work with certified kosher restaurants and can arrange Shabbat-friendly accommodations.
+
+Learn more: ${SITE_URL}/kosher-tours`,
+        replyHe: `\u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05E6\u05D9\u05E2\u05D9\u05DD \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D0\u05D5\u05DB\u05DC \u05DB\u05E9\u05E8! \u05D0\u05E0\u05D7\u05E0\u05D5 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05E2\u05DD \u05DE\u05E1\u05E2\u05D3\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA \u05DE\u05D5\u05E1\u05DE\u05DB\u05D5\u05EA \u05D5\u05D9\u05DB\u05D5\u05DC\u05D9\u05DD \u05DC\u05D0\u05E8\u05D2\u05DF \u05DC\u05D9\u05E0\u05D4 \u05D9\u05D3\u05D9\u05D3\u05D5\u05EA\u05D9\u05EA \u05DC\u05E9\u05D1\u05EA.
+
+\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3: ${SITE_URL}/kosher-tours`,
+      },
+      {
+        keywords: [
+          "tour",
+          "tours",
+          "trip",
+          "trips",
+          "excursion",
+          "\u05D8\u05D9\u05D5\u05DC",
+          "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD",
+          "\u05E1\u05D9\u05D5\u05E8",
+        ],
+        replyEn: `We offer 6 amazing off-road tours in Chiang Mai:
+
+\u2022 Doi Inthanon \u2014 Roof of Thailand
+\u2022 Mae Kampong \u2014 Hidden Village
+\u2022 Sticky Waterfalls \u2014 Maerim
+\u2022 Doi Suthep & Pui \u2014 Beyond the Temple
+\u2022 Mae Wang \u2014 Jungle Wilderness
+\u2022 Samoeng Loop \u2014 Mountain Circuit
+
+Explore all tours: ${SITE_URL}/#tours`,
+        replyHe: `\u05D0\u05E0\u05D7\u05E0\u05D5 \u05DE\u05E6\u05D9\u05E2\u05D9\u05DD 6 \u05D8\u05D9\u05D5\u05DC\u05D9 \u05E9\u05D8\u05D7 \u05DE\u05D3\u05D4\u05D9\u05DE\u05D9\u05DD \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9:
+
+\u2022 \u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF \u2014 \u05D2\u05D2 \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3
+\u2022 \u05DE\u05D0\u05D9 \u05E7\u05DE\u05E4\u05D5\u05E0\u05D2 \u2014 \u05DB\u05E4\u05E8 \u05E0\u05E1\u05EA\u05E8
+\u2022 \u05DE\u05E4\u05DC\u05D9 \u05E1\u05D8\u05D9\u05E7\u05D9 \u2014 \u05DE\u05D0\u05D9\u05E8\u05D9\u05DD
+\u2022 \u05D3\u05D5\u05D9 \u05E1\u05D5\u05EA\u05E4 \u05D5\u05E4\u05D5\u05D9 \u2014 \u05DE\u05E2\u05D1\u05E8 \u05DC\u05DE\u05E7\u05D3\u05E9
+\u2022 \u05DE\u05D0\u05D9 \u05D5\u05D5\u05D0\u05E0\u05D2 \u2014 \u05D2'\u05D5\u05E0\u05D2\u05DC \u05E4\u05E8\u05D0\u05D9
+\u2022 \u05DC\u05D5\u05DC\u05D0\u05EA \u05E1\u05DE\u05D5\u05D0\u05E0\u05D2 \u2014 \u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05E8\u05D9\u05DD
+
+\u05D2\u05DC\u05D5 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD: ${SITE_URL}/#tours`,
+      },
+      {
+        keywords: [
+          "help",
+          "menu",
+          "options",
+          "info",
+          "information",
+          "\u05E2\u05D6\u05E8\u05D4",
+          "\u05EA\u05E4\u05E8\u05D9\u05D8",
+          "\u05DE\u05D9\u05D3\u05E2",
+        ],
+        replyEn: `Welcome to WIRO 4x4! How can we help?
+
+Reply with:
+\u2022 "tours" \u2014 See our tour options
+\u2022 "price" \u2014 Get pricing info
+\u2022 "book" \u2014 Start booking
+\u2022 "kosher" \u2014 Kosher tour info
+
+Or visit our website: ${SITE_URL}`,
+        replyHe: `\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DC-WIRO 4x4! \u05D0\u05D9\u05DA \u05E0\u05D5\u05DB\u05DC \u05DC\u05E2\u05D6\u05D5\u05E8?
+
+\u05D4\u05E9\u05D9\u05D1\u05D5 \u05E2\u05DD:
+\u2022 "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD" \u2014 \u05E8\u05D0\u05D5 \u05D0\u05EA \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D4\u05D8\u05D9\u05D5\u05DC
+\u2022 "\u05DE\u05D7\u05D9\u05E8" \u2014 \u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05DE\u05D7\u05D9\u05E8\u05D9\u05DD
+\u2022 "\u05D4\u05D6\u05DE\u05E0\u05D4" \u2014 \u05D4\u05EA\u05D7\u05D9\u05DC\u05D5 \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF
+\u2022 "\u05DB\u05E9\u05E8" \u2014 \u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05DB\u05E9\u05E8\u05D5\u05EA
+
+\u05D0\u05D5 \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5: ${SITE_URL}`,
+      },
+    ];
+    DEFAULT_REPLY_EN = `Thanks for reaching out to WIRO 4x4! \u{1F697}
+
+A team member will reply shortly. Meanwhile, check out our website for tour info and booking:
+${SITE_URL}
+
+Reply "help" to see available options.`;
+    DEFAULT_REPLY_HE = `\u05EA\u05D5\u05D3\u05D4 \u05E9\u05E4\u05E0\u05D9\u05EA\u05DD \u05DC-WIRO 4x4! \u{1F697}
+
+\u05D0\u05D7\u05D3 \u05DE\u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D9\u05E2\u05E0\u05D4 \u05D1\u05E7\u05E8\u05D5\u05D1. \u05D1\u05D9\u05E0\u05EA\u05D9\u05D9\u05DD, \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5 \u05DC\u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA:
+${SITE_URL}
+
+\u05D4\u05E9\u05D9\u05D1\u05D5 "\u05E2\u05D6\u05E8\u05D4" \u05DC\u05E8\u05D0\u05D5\u05EA \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D6\u05DE\u05D9\u05E0\u05D5\u05EA.`;
   },
 });
 
@@ -4386,9 +5691,9 @@ var COOKIE_NAME = "app_session_id";
 var ONE_YEAR_MS = 1e3 * 60 * 60 * 24 * 365;
 var UNAUTHED_ERR_MSG = "Please login (10001)";
 var NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
-var COMPANY_WHATSAPP = "972544715400";
+var COMPANY_WHATSAPP = "66929894495";
 var COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
-var COMPANY_PHONE = "+972 54-471-5400";
+var COMPANY_PHONE = "+66 92-989-4495";
 var COMPANY_EMAIL = "wiro.adventures@gmail.com";
 var COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 var COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
@@ -4457,7 +5762,7 @@ function generateResetToken() {
 init_db();
 init_connection();
 init_schema();
-import { eq as eq25, and as and13, gt } from "drizzle-orm";
+import { eq as eq27, and as and15, gt } from "drizzle-orm";
 var THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1e3;
 var registerInput = z.object({
   email: z.string().email().max(320),
@@ -4622,8 +5927,8 @@ function registerAuthRoutes(app2) {
         .select()
         .from(passwordResetTokens)
         .where(
-          and13(
-            eq25(passwordResetTokens.token, body.token),
+          and15(
+            eq27(passwordResetTokens.token, body.token),
             gt(passwordResetTokens.expiresAt, /* @__PURE__ */ new Date())
           )
         )
@@ -4639,7 +5944,7 @@ function registerAuthRoutes(app2) {
       await updateUserPassword(resetRecord.userId, newHash);
       await dbConn
         .delete(passwordResetTokens)
-        .where(eq25(passwordResetTokens.id, resetRecord.id));
+        .where(eq27(passwordResetTokens.id, resetRecord.id));
       res.json({ success: true });
     } catch (error) {
       if (error.name === "ZodError") {
@@ -4720,96 +6025,96 @@ function escapeXml2(str) {
     .replace(/'/g, "&apos;");
 }
 var STATIC_PAGES = [
-  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-04-30" },
+  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-05-18" },
   {
     path: "/tours",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages/northern-thailand-3d2n",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages/grand-tour-laos-14d",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/pricing",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/estimate",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/book",
     priority: "0.4",
     changefreq: "yearly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/blog",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/gallery",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/reviews",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/kosher-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/hebrew-guide",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/accessible-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/faq",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/contact",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/terms",
@@ -4847,60 +6152,62 @@ function buildHreflangLinks(siteUrl, path2) {
 function buildUrlEntry(siteUrl, path2, lastmod, changefreq, priority) {
   return `  <url>
     <loc>${escapeXml2(siteUrl)}${escapeXml2(path2)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
+${
+  lastmod
+    ? `    <lastmod>${lastmod}</lastmod>
+`
+    : ""
+}    <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
 ${buildHreflangLinks(siteUrl, path2)}
   </url>`;
 }
+function uniqueByPath(entries) {
+  const seen = /* @__PURE__ */ new Set();
+  return entries.filter(entry => {
+    if (seen.has(entry.path)) return false;
+    seen.add(entry.path);
+    return true;
+  });
+}
 function generateSitemap(tours2, blogs, packages, siteUrl) {
-  const today = /* @__PURE__ */ new Date().toISOString().split("T")[0];
-  const staticUrls = STATIC_PAGES.map(p =>
-    buildUrlEntry(siteUrl, p.path, p.lastmod, p.changefreq, p.priority)
-  ).join("\n");
-  const tourUrls = tours2
-    .map(t2 => {
-      const lastmod = formatDate(t2.updatedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/tours/${t2.slug}`,
-        lastmod,
-        "weekly",
-        "0.85"
-      );
-    })
-    .join("\n");
-  const packageUrls = packages
-    .map(p => {
-      const lastmod = formatDate(p.updatedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/packages/${p.slug}`,
-        lastmod,
-        "monthly",
-        "0.8"
-      );
-    })
-    .join("\n");
-  const blogUrls = blogs
-    .map(b => {
-      const lastmod = formatDate(b.publishedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/blog/${b.slug}`,
-        lastmod,
-        "monthly",
-        "0.6"
-      );
-    })
+  const cleanSiteUrl = siteUrl.replace(/\/+$/, "");
+  const entries = uniqueByPath([
+    ...STATIC_PAGES,
+    ...tours2
+      .map(t2 => ({
+        path: `/tours/${t2.slug}`,
+        lastmod: formatDate(t2.updatedAt),
+        changefreq: "weekly",
+        priority: "0.85",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+    ...packages
+      .map(p => ({
+        path: `/packages/${p.slug}`,
+        lastmod: formatDate(p.updatedAt),
+        changefreq: "monthly",
+        priority: "0.8",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+    ...blogs
+      .map(b => ({
+        path: `/blog/${b.slug}`,
+        lastmod: formatDate(b.publishedAt),
+        changefreq: "monthly",
+        priority: "0.6",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+  ]);
+  const urls = entries
+    .map(p =>
+      buildUrlEntry(cleanSiteUrl, p.path, p.lastmod, p.changefreq, p.priority)
+    )
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${staticUrls}
-${tourUrls}
-${packageUrls}
-${blogUrls}
+${urls}
 </urlset>`;
 }
 function registerSitemapRoute(app2) {
@@ -4929,6 +6236,7 @@ function registerSitemapRoute(app2) {
         siteUrl
       );
       res.set("Content-Type", "application/xml; charset=utf-8");
+      res.set("Cache-Control", "public, max-age=3600");
       res.send(xml);
     } catch (err) {
       console.error("[Sitemap] Failed to generate:", err);
@@ -4938,333 +6246,9 @@ function registerSitemapRoute(app2) {
 }
 
 // server/routes/whatsapp.ts
+init_whatsappService();
+init_db();
 import crypto from "crypto";
-
-// server/whatsappService.ts
-init_db();
-function getConfig() {
-  const token = process.env.WHATSAPP_API_TOKEN;
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || "";
-  return { token, phoneNumberId, verifyToken };
-}
-function isWhatsAppConfigured() {
-  const { token, phoneNumberId } = getConfig();
-  return !!(token && phoneNumberId);
-}
-var HEBREW_REGEX = /[\u0590-\u05FF]/;
-function detectLanguage(text2) {
-  return HEBREW_REGEX.test(text2) ? "he" : "en";
-}
-var WHATSAPP_API_BASE = "https://graph.facebook.com/v19.0";
-async function sendWhatsAppMessage(to, text2) {
-  const { token, phoneNumberId } = getConfig();
-  if (!token || !phoneNumberId) {
-    console.warn("[WhatsApp] API not configured \u2014 skipping sendMessage");
-    return null;
-  }
-  try {
-    const response = await fetch(
-      `${WHATSAPP_API_BASE}/${phoneNumberId}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to,
-          type: "text",
-          text: { body: text2 },
-        }),
-      }
-    );
-    if (!response.ok) {
-      const errBody = await response.text();
-      console.error("[WhatsApp] Send failed:", response.status, errBody);
-      return null;
-    }
-    const data = await response.json();
-    return data.messages?.[0]?.id ?? null;
-  } catch (err) {
-    console.error("[WhatsApp] Send error:", err);
-    return null;
-  }
-}
-var SITE_URL = "https://www.wiro4x4indochina.com";
-var AUTO_REPLY_RULES = [
-  {
-    keywords: [
-      "price",
-      "pricing",
-      "cost",
-      "how much",
-      "\u05DE\u05D7\u05D9\u05E8",
-      "\u05E2\u05DC\u05D5\u05EA",
-      "\u05DB\u05DE\u05D4 \u05E2\u05D5\u05DC\u05D4",
-    ],
-    replyEn: `Our tour prices start from 3,500 THB per person. Check our full pricing and trip cost estimator here:
-${SITE_URL}/pricing
-${SITE_URL}/estimate`,
-    replyHe: `\u05DE\u05D7\u05D9\u05E8\u05D9 \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05EA\u05D7\u05D9\u05DC\u05D9\u05DD \u05DE-3,500 \u05D1\u05D8 \u05DC\u05D0\u05D3\u05DD. \u05D1\u05D3\u05E7\u05D5 \u05D0\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8\u05D5\u05DF \u05D4\u05DE\u05DC\u05D0 \u05D5\u05DE\u05D7\u05E9\u05D1\u05D5\u05DF \u05D4\u05E2\u05DC\u05D5\u05D9\u05D5\u05EA \u05DB\u05D0\u05DF:
-${SITE_URL}/pricing
-${SITE_URL}/estimate`,
-  },
-  {
-    keywords: [
-      "book",
-      "booking",
-      "reserve",
-      "reservation",
-      "\u05D4\u05D6\u05DE\u05E0\u05D4",
-      "\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF",
-      "\u05D4\u05D6\u05DE\u05DF",
-    ],
-    replyEn: `Ready to book your adventure? Fill out our booking form here:
-${SITE_URL}/booking
-
-Or tell us your preferred dates and group size and we'll prepare a custom quote!`,
-    replyHe: `\u05DE\u05D5\u05DB\u05E0\u05D9\u05DD \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05E9\u05DC\u05DB\u05DD? \u05DE\u05DC\u05D0\u05D5 \u05D0\u05EA \u05D8\u05D5\u05E4\u05E1 \u05D4\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DB\u05D0\u05DF:
-${SITE_URL}/booking
-
-\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D5 \u05DC\u05E0\u05D5 \u05E2\u05DC \u05D4\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD \u05D4\u05DE\u05D5\u05E2\u05D3\u05E4\u05D9\u05DD \u05D5\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D5\u05E0\u05DB\u05D9\u05DF \u05DC\u05DB\u05DD \u05D4\u05E6\u05E2\u05EA \u05DE\u05D7\u05D9\u05E8 \u05DE\u05D5\u05EA\u05D0\u05DE\u05EA!`,
-  },
-  {
-    keywords: [
-      "kosher",
-      "\u05DB\u05E9\u05E8",
-      "\u05DB\u05E9\u05E8\u05D5\u05EA",
-      "kosher food",
-      "kosher meal",
-    ],
-    replyEn: `All our tours offer kosher meal options! We work with certified kosher restaurants and can arrange Shabbat-friendly accommodations.
-
-Learn more: ${SITE_URL}/kosher-tours`,
-    replyHe: `\u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05DE\u05E6\u05D9\u05E2\u05D9\u05DD \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D0\u05D5\u05DB\u05DC \u05DB\u05E9\u05E8! \u05D0\u05E0\u05D7\u05E0\u05D5 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05E2\u05DD \u05DE\u05E1\u05E2\u05D3\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA \u05DE\u05D5\u05E1\u05DE\u05DB\u05D5\u05EA \u05D5\u05D9\u05DB\u05D5\u05DC\u05D9\u05DD \u05DC\u05D0\u05E8\u05D2\u05DF \u05DC\u05D9\u05E0\u05D4 \u05D9\u05D3\u05D9\u05D3\u05D5\u05EA\u05D9\u05EA \u05DC\u05E9\u05D1\u05EA.
-
-\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3: ${SITE_URL}/kosher-tours`,
-  },
-  {
-    keywords: [
-      "tour",
-      "tours",
-      "trip",
-      "trips",
-      "excursion",
-      "\u05D8\u05D9\u05D5\u05DC",
-      "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD",
-      "\u05E1\u05D9\u05D5\u05E8",
-    ],
-    replyEn: `We offer 6 amazing off-road tours in Chiang Mai:
-
-\u2022 Doi Inthanon \u2014 Roof of Thailand
-\u2022 Mae Kampong \u2014 Hidden Village
-\u2022 Sticky Waterfalls \u2014 Maerim
-\u2022 Doi Suthep & Pui \u2014 Beyond the Temple
-\u2022 Mae Wang \u2014 Jungle Wilderness
-\u2022 Samoeng Loop \u2014 Mountain Circuit
-
-Explore all tours: ${SITE_URL}/#tours`,
-    replyHe: `\u05D0\u05E0\u05D7\u05E0\u05D5 \u05DE\u05E6\u05D9\u05E2\u05D9\u05DD 6 \u05D8\u05D9\u05D5\u05DC\u05D9 \u05E9\u05D8\u05D7 \u05DE\u05D3\u05D4\u05D9\u05DE\u05D9\u05DD \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9:
-
-\u2022 \u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF \u2014 \u05D2\u05D2 \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3
-\u2022 \u05DE\u05D0\u05D9 \u05E7\u05DE\u05E4\u05D5\u05E0\u05D2 \u2014 \u05DB\u05E4\u05E8 \u05E0\u05E1\u05EA\u05E8
-\u2022 \u05DE\u05E4\u05DC\u05D9 \u05E1\u05D8\u05D9\u05E7\u05D9 \u2014 \u05DE\u05D0\u05D9\u05E8\u05D9\u05DD
-\u2022 \u05D3\u05D5\u05D9 \u05E1\u05D5\u05EA\u05E4 \u05D5\u05E4\u05D5\u05D9 \u2014 \u05DE\u05E2\u05D1\u05E8 \u05DC\u05DE\u05E7\u05D3\u05E9
-\u2022 \u05DE\u05D0\u05D9 \u05D5\u05D5\u05D0\u05E0\u05D2 \u2014 \u05D2'\u05D5\u05E0\u05D2\u05DC \u05E4\u05E8\u05D0\u05D9
-\u2022 \u05DC\u05D5\u05DC\u05D0\u05EA \u05E1\u05DE\u05D5\u05D0\u05E0\u05D2 \u2014 \u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05E8\u05D9\u05DD
-
-\u05D2\u05DC\u05D5 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD: ${SITE_URL}/#tours`,
-  },
-  {
-    keywords: [
-      "help",
-      "menu",
-      "options",
-      "info",
-      "information",
-      "\u05E2\u05D6\u05E8\u05D4",
-      "\u05EA\u05E4\u05E8\u05D9\u05D8",
-      "\u05DE\u05D9\u05D3\u05E2",
-    ],
-    replyEn: `Welcome to WIRO 4x4! How can we help?
-
-Reply with:
-\u2022 "tours" \u2014 See our tour options
-\u2022 "price" \u2014 Get pricing info
-\u2022 "book" \u2014 Start booking
-\u2022 "kosher" \u2014 Kosher tour info
-
-Or visit our website: ${SITE_URL}`,
-    replyHe: `\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DC-WIRO 4x4! \u05D0\u05D9\u05DA \u05E0\u05D5\u05DB\u05DC \u05DC\u05E2\u05D6\u05D5\u05E8?
-
-\u05D4\u05E9\u05D9\u05D1\u05D5 \u05E2\u05DD:
-\u2022 "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD" \u2014 \u05E8\u05D0\u05D5 \u05D0\u05EA \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D4\u05D8\u05D9\u05D5\u05DC
-\u2022 "\u05DE\u05D7\u05D9\u05E8" \u2014 \u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05DE\u05D7\u05D9\u05E8\u05D9\u05DD
-\u2022 "\u05D4\u05D6\u05DE\u05E0\u05D4" \u2014 \u05D4\u05EA\u05D7\u05D9\u05DC\u05D5 \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF
-\u2022 "\u05DB\u05E9\u05E8" \u2014 \u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05DB\u05E9\u05E8\u05D5\u05EA
-
-\u05D0\u05D5 \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5: ${SITE_URL}`,
-  },
-];
-var DEFAULT_REPLY_EN = `Thanks for reaching out to WIRO 4x4! \u{1F697}
-
-A team member will reply shortly. Meanwhile, check out our website for tour info and booking:
-${SITE_URL}
-
-Reply "help" to see available options.`;
-var DEFAULT_REPLY_HE = `\u05EA\u05D5\u05D3\u05D4 \u05E9\u05E4\u05E0\u05D9\u05EA\u05DD \u05DC-WIRO 4x4! \u{1F697}
-
-\u05D0\u05D7\u05D3 \u05DE\u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D9\u05E2\u05E0\u05D4 \u05D1\u05E7\u05E8\u05D5\u05D1. \u05D1\u05D9\u05E0\u05EA\u05D9\u05D9\u05DD, \u05D1\u05E7\u05E8\u05D5 \u05D1\u05D0\u05EA\u05E8 \u05E9\u05DC\u05E0\u05D5 \u05DC\u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA:
-${SITE_URL}
-
-\u05D4\u05E9\u05D9\u05D1\u05D5 "\u05E2\u05D6\u05E8\u05D4" \u05DC\u05E8\u05D0\u05D5\u05EA \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D6\u05DE\u05D9\u05E0\u05D5\u05EA.`;
-function getAutoReply(messageText) {
-  const normalizedText = messageText.toLowerCase().trim();
-  const lang = detectLanguage(messageText);
-  for (const rule of AUTO_REPLY_RULES) {
-    for (const keyword of rule.keywords) {
-      if (normalizedText.includes(keyword.toLowerCase())) {
-        return {
-          reply: lang === "he" ? rule.replyHe : rule.replyEn,
-          isAutoReply: true,
-        };
-      }
-    }
-  }
-  return {
-    reply: lang === "he" ? DEFAULT_REPLY_HE : DEFAULT_REPLY_EN,
-    isAutoReply: true,
-  };
-}
-async function handleIncomingMessage(message) {
-  const { from, name, text: text2, messageId } = message;
-  try {
-    await createWhatsAppMessage({
-      direction: "incoming",
-      phoneNumber: from,
-      customerName: name ?? null,
-      messageText: text2,
-      messageType: "text",
-      isAutoReply: 0,
-      status: "delivered",
-      whatsappMessageId: messageId ?? null,
-    });
-  } catch (err) {
-    console.error("[WhatsApp] Failed to log incoming message:", err);
-  }
-  const { getSetting: getSetting2 } = await Promise.resolve().then(
-    () => (init_db(), db_exports)
-  );
-  const autoReplyEnabled = await getSetting2("whatsapp_auto_reply_enabled");
-  if (
-    autoReplyEnabled === false ||
-    autoReplyEnabled === "false" ||
-    autoReplyEnabled === 0
-  ) {
-    return;
-  }
-  const { reply, isAutoReply } = getAutoReply(text2);
-  const sentMessageId = await sendWhatsAppMessage(from, reply);
-  try {
-    await createWhatsAppMessage({
-      direction: "outgoing",
-      phoneNumber: from,
-      customerName: name ?? null,
-      messageText: reply,
-      messageType: "auto-reply",
-      isAutoReply: isAutoReply ? 1 : 0,
-      status: sentMessageId ? "sent" : "failed",
-      whatsappMessageId: sentMessageId ?? null,
-    });
-  } catch (err) {
-    console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
-  }
-  draftAndNotifyEli(from, name, text2).catch(err => {
-    console.error("[WhatsApp] Eli draft/notify failed:", err);
-  });
-}
-function detectWsLanguage(text2) {
-  if (HEBREW_REGEX.test(text2)) return "he";
-  if (/[\u0E00-\u0E7F]/.test(text2)) return "th";
-  return "en";
-}
-async function draftAndNotifyEli(phoneNumber, name, message) {
-  const lang = detectWsLanguage(message);
-  const SYSTEM_PROMPT2 = `You are a helpful assistant for WIRO 4x4, a kosher off-road tour company in Chiang Mai, Thailand.
-
-Tour prices:
-- Doi Inthanon: \u0E3F3,500/person
-- Doi Suthep: \u0E3F2,000/person
-- Mae Wang: \u0E3F3,500/person
-- Multi-day packages from \u0E3F7,500
-
-Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +972 54-471-5400.`;
-  let draft =
-    "Hi! Thanks for reaching out. A team member will get back to you soon.";
-  try {
-    const { invokeLLM: invokeLLM2 } = await Promise.resolve().then(
-      () => (init_llm(), llm_exports)
-    );
-    const result = await invokeLLM2({
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT2 },
-        { role: "user", content: message },
-      ],
-      maxTokens: 200,
-    });
-    const raw = result.choices[0]?.message?.content;
-    const text2 =
-      typeof raw === "string"
-        ? raw
-        : Array.isArray(raw)
-          ? (raw.find(p => p.type === "text")?.text ?? "")
-          : "";
-    if (text2.trim().length > 0) {
-      draft = text2.trim();
-    }
-  } catch (err) {
-    console.warn("[WhatsApp] LLM draft failed, using fallback:", err);
-  }
-  try {
-    const { notifyWhatsAppMessage: notifyWhatsAppMessage2 } =
-      await Promise.resolve().then(() => (init_eliNotify(), eliNotify_exports));
-    await notifyWhatsAppMessage2({
-      phoneNumber,
-      name,
-      language: lang,
-      message,
-      draftReply: draft,
-    });
-  } catch (err) {
-    console.error("[WhatsApp] notifyWhatsAppMessage failed:", err);
-  }
-}
-async function sendManualMessage(to, text2) {
-  const sentMessageId = await sendWhatsAppMessage(to, text2);
-  try {
-    await createWhatsAppMessage({
-      direction: "outgoing",
-      phoneNumber: to,
-      customerName: null,
-      messageText: text2,
-      messageType: "text",
-      isAutoReply: 0,
-      status: sentMessageId ? "sent" : "failed",
-      whatsappMessageId: sentMessageId ?? null,
-    });
-  } catch (err) {
-    console.error("[WhatsApp] Failed to log manual message:", err);
-  }
-  return { success: !!sentMessageId, messageId: sentMessageId };
-}
-function getVerifyToken() {
-  return getConfig().verifyToken;
-}
-
-// server/routes/whatsapp.ts
-init_db();
 
 // server/rateLimit.ts
 var memoryStore = /* @__PURE__ */ new Map();
@@ -5364,6 +6348,81 @@ function checkRateLimit(key, maxRequests = 10, windowMs = 6e4) {
 }
 
 // server/routes/whatsapp.ts
+init_postTourReviewService();
+
+// server/n8nAutomation.ts
+import { randomUUID } from "crypto";
+function isDisabled(value) {
+  return value
+    ? ["0", "false", "no", "off"].includes(value.toLowerCase())
+    : false;
+}
+function getTimeoutMs() {
+  const configured = Number(process.env.N8N_WEBHOOK_TIMEOUT_MS ?? 5e3);
+  if (!Number.isFinite(configured) || configured < 1e3) return 5e3;
+  return Math.min(configured, 15e3);
+}
+function buildEventId(event) {
+  return `${event}:${randomUUID()}`;
+}
+async function dispatchN8nEvent(event, payload) {
+  if (isDisabled(process.env.N8N_AUTOMATION_ENABLED)) {
+    return { dispatched: false, reason: "n8n_disabled" };
+  }
+  const webhookUrl = process.env.N8N_WEBHOOK_URL?.trim();
+  if (!webhookUrl) {
+    return { dispatched: false, reason: "n8n_webhook_not_configured" };
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
+  const envelope = {
+    source: "wiro4x4",
+    schemaVersion: 1,
+    event,
+    eventId: buildEventId(event),
+    occurredAt: /* @__PURE__ */ new Date().toISOString(),
+    payload,
+  };
+  try {
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Wiro-Event": event,
+      "X-Wiro-Event-Id": envelope.eventId,
+    };
+    const secret = process.env.N8N_WEBHOOK_SECRET?.trim();
+    if (secret) headers["X-Wiro-Automation-Secret"] = secret;
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(envelope),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      console.error("[n8n] Webhook rejected event", {
+        event,
+        status: response.status,
+      });
+      return {
+        dispatched: false,
+        reason: "n8n_webhook_rejected",
+        status: response.status,
+      };
+    }
+    return { dispatched: true, reason: "sent", status: response.status };
+  } catch (err) {
+    console.error("[n8n] Webhook dispatch failed", { event, err });
+    return { dispatched: false, reason: "n8n_webhook_failed" };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+function dispatchN8nEventInBackground(event, payload) {
+  dispatchN8nEvent(event, payload).catch(err => {
+    console.error("[n8n] Unexpected dispatch failure", { event, err });
+  });
+}
+
+// server/routes/whatsapp.ts
 function verifyWebhookSignature(rawBody, signature) {
   const appSecret = process.env.WHATSAPP_APP_SECRET;
   if (!appSecret) {
@@ -5434,6 +6493,14 @@ function registerWhatsAppWebhookRoute(app2) {
               ) {
                 try {
                   await updateWhatsAppMessageStatus(waMessageId, statusValue);
+                  if (statusValue === "read") {
+                    await recordPostTourReviewOpenedByMessageId(waMessageId);
+                  }
+                  dispatchN8nEventInBackground("whatsapp.status_updated", {
+                    messageId: waMessageId,
+                    status: statusValue,
+                    rawStatus: status,
+                  });
                 } catch (err) {
                   console.error("[WhatsApp] Status update error:", err);
                 }
@@ -5464,6 +6531,12 @@ function registerWhatsAppWebhookRoute(app2) {
               text: text2,
               messageId,
             });
+            dispatchN8nEventInBackground("whatsapp.message_received", {
+              from,
+              name: contactName ?? null,
+              text: text2,
+              messageId: messageId ?? null,
+            });
           }
         }
       }
@@ -5480,16 +6553,41 @@ function registerWhatsAppWebhookRoute(app2) {
   }
 }
 
+// server/routes/postTourReviewClick.ts
+init_postTourReviewService();
+var DEFAULT_REDIRECT = "https://wiro4x4indochina.com/reviews";
+function registerPostTourReviewClickRoute(app2) {
+  app2.get("/api/post-tour-review/click/:token", async (req, res) => {
+    const token = String(req.params.token ?? "").trim();
+    if (!token) {
+      res.redirect(302, DEFAULT_REDIRECT);
+      return;
+    }
+    try {
+      const entry = await recordPostTourReviewClickByToken(token);
+      if (!entry) {
+        res.redirect(302, DEFAULT_REDIRECT);
+        return;
+      }
+      const redirectUrl = `${DEFAULT_REDIRECT}?bookingId=${entry.bookingId}&source=whatsapp`;
+      res.redirect(302, redirectUrl);
+    } catch (error) {
+      console.error("[PostTourReview] Click tracking error:", error);
+      res.redirect(302, DEFAULT_REDIRECT);
+    }
+  });
+}
+
 // server/routes/agentApi.ts
 init_db();
 init_analytics();
 init_schema();
 import { Router } from "express";
 import {
-  eq as eq26,
-  desc as desc22,
-  and as and14,
-  gte as gte6,
+  eq as eq29,
+  desc as desc25,
+  and as and17,
+  gte as gte9,
 } from "drizzle-orm";
 var agentApi = Router();
 agentApi.use((req, res, next) => {
@@ -5532,8 +6630,8 @@ agentApi.get("/bookings/pending", async (_req, res) => {
     const pending = await db
       .select()
       .from(bookings)
-      .where(eq26(bookings.status, "pending"))
-      .orderBy(desc22(bookings.createdAt))
+      .where(eq29(bookings.status, "pending"))
+      .orderBy(desc25(bookings.createdAt))
       .limit(20);
     res.json({ count: pending.length, pending });
   } catch (_e) {
@@ -5580,12 +6678,12 @@ agentApi.get("/whatsapp/recent", async (req, res) => {
       .select()
       .from(whatsappMessages)
       .where(
-        and14(
-          eq26(whatsappMessages.direction, "incoming"),
-          gte6(whatsappMessages.createdAt, since)
+        and17(
+          eq29(whatsappMessages.direction, "incoming"),
+          gte9(whatsappMessages.createdAt, since)
         )
       )
-      .orderBy(desc22(whatsappMessages.createdAt))
+      .orderBy(desc25(whatsappMessages.createdAt))
       .limit(20);
     res.json({ count: messages.length, messages });
   } catch (_e) {
@@ -5652,6 +6750,37 @@ agentApi.get("/upsells/process", async (_req, res) => {
     res.status(500).json({ error: "Failed to process upsells", detail: msg });
   }
 });
+agentApi.get("/post-tour-reviews/process", async (_req, res) => {
+  try {
+    const {
+      processDuePostTourReviewRequests: processDuePostTourReviewRequests2,
+    } = await Promise.resolve().then(
+      () => (init_postTourReviewService(), postTourReviewService_exports)
+    );
+    const result = await processDuePostTourReviewRequests2();
+    res.json({ success: true, ...result });
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res
+      .status(500)
+      .json({ error: "Failed to process post-tour reviews", detail: msg });
+  }
+});
+agentApi.get("/post-tour-reviews/weekly-metric", async (_req, res) => {
+  try {
+    const { getWeeklyPostTourReviewMetric: getWeeklyPostTourReviewMetric2 } =
+      await Promise.resolve().then(
+        () => (init_postTourReviewService(), postTourReviewService_exports)
+      );
+    const metric = await getWeeklyPostTourReviewMetric2();
+    res.json(metric);
+  } catch (_e) {
+    const msg = _e instanceof Error ? _e.message : "Unknown error";
+    res
+      .status(500)
+      .json({ error: "Failed to fetch weekly metric", detail: msg });
+  }
+});
 agentApi.get("/competitor/check", async (_req, res) => {
   try {
     const { checkCompetitors: checkCompetitors2 } =
@@ -5676,7 +6805,7 @@ init_eliNotify();
 // server/availabilityHelper.ts
 init_connection();
 init_schema();
-import { eq as eq27, and as and15 } from "drizzle-orm";
+import { eq as eq30, and as and18 } from "drizzle-orm";
 async function checkAvailability(dateStr) {
   const db = await getDb();
   if (!db) return [];
@@ -5692,9 +6821,9 @@ async function checkAvailability(dateStr) {
         .select()
         .from(tourAvailability)
         .where(
-          and15(
-            eq27(tourAvailability.tourId, tourId),
-            eq27(tourAvailability.date, dateStr)
+          and18(
+            eq30(tourAvailability.tourId, tourId),
+            eq30(tourAvailability.date, dateStr)
           )
         )
         .limit(1);
@@ -5839,7 +6968,7 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 - Can arrange kosher accommodation recommendations
 
 ## Contact:
-- WhatsApp: +972 54-471-5400
+- WhatsApp: +66 92-989-4495
 - Website: www.wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -5860,7 +6989,7 @@ When the user:
 - Requests custom tour arrangements
 - Mentions payment or deposits
 
-\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +972 54-471-5400" and the response should indicate escalation.
+\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +66 92-989-4495" and the response should indicate escalation.
 `;
 var LANGUAGE_INSTRUCTIONS = {
   en: "Respond in English. Be friendly and professional.",
@@ -5924,7 +7053,7 @@ function shouldEscalate(content, userMessage) {
     combined.includes(keyword.toLowerCase())
   );
 }
-function detectLanguage2(message, declaredLanguage) {
+function detectLanguage3(message, declaredLanguage) {
   if (/[\u0590-\u05FF]/.test(message)) return "he";
   if (/[\u0E00-\u0E7F]/.test(message)) return "th";
   return declaredLanguage;
@@ -5967,7 +7096,7 @@ function registerChatApiRoute(app2) {
           error: "Too many chat messages. Please try again in a minute.",
         });
       }
-      const detectedLanguage = detectLanguage2(body.message, language);
+      const detectedLanguage = detectLanguage3(body.message, language);
       const availKeywords = [
         "available",
         "\u0E27\u0E48\u0E32\u0E07",
@@ -6027,9 +7156,9 @@ function registerChatApiRoute(app2) {
       } catch (apiError) {
         console.error("[Chat] API error:", apiError);
         const fallbackMessages = {
-          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +972 54-471-5400 for immediate assistance!",
-          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
-          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +972 54-471-5400 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
+          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +66 92-989-4495 for immediate assistance!",
+          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
+          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +66 92-989-4495 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
         };
         const chatResponse = {
           reply: fallbackMessages[detectedLanguage],
@@ -6058,7 +7187,7 @@ function buildEliPrompt(language, tours2, availability) {
           )
           .join("\n")
       : `- Doi Inthanon (Roof of Thailand): \u0E3F3,500/pp \u2014 Full day
-- Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day  
+- Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day
 - Mae Kampong Village: \u0E3F2,500/pp \u2014 Half/full day
 - Maerim Sticky Waterfalls: \u0E3F3,000/pp \u2014 Full day
 - Mae Wang Jungle Wilderness: \u0E3F3,500/pp \u2014 Full day
@@ -6092,7 +7221,7 @@ ${tourList}${availNote}
 You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be honest about what works for Shabbat and kosher needs. This matters.
 
 ## Quick Facts
-- WhatsApp: +972 54-471-5400
+- WhatsApp: +66 92-989-4495
 - Website: wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -6101,12 +7230,12 @@ You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be 
 - If asked for specific group pricing / exact dates / custom routes \u2192 say you'll connect them to WhatsApp for a personal quote
 - Suggest the best tour for their situation (family? adventure? short time?)
 - Be concise: bullet points work great
-- For booking/payment: "Message us on WhatsApp +972 54-471-5400 for an instant quote"
+- For booking/payment: "Message us on WhatsApp +66 92-989-4495 for an instant quote"
 
 ## Language
 ${langInstructions[language]}`;
 }
-function detectLanguage3(text2, hint) {
+function detectLanguage4(text2, hint) {
   if (hint && ["en", "he", "th"].includes(hint)) return hint;
   const hebrewPattern = /[\u0590-\u05FF]/;
   const thaiPattern = /[\u0E00-\u0E7F]/;
@@ -6240,7 +7369,7 @@ function registerEliChatRoute(app2) {
       if (body.message.length > 2e3) {
         return res.status(400).json({ error: "Message too long" });
       }
-      const language = detectLanguage3(body.message, body.language);
+      const language = detectLanguage4(body.message, body.language);
       const history = Array.isArray(body.history)
         ? body.history.slice(-10)
         : [];
@@ -6297,11 +7426,11 @@ function registerEliChatRoute(app2) {
     } catch (err) {
       console.error("[EliChat] Error:", err);
       const fallback = {
-        en: "I'm having a moment \u2014 please WhatsApp us at +972 54-471-5400 for immediate help!",
-        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400",
-        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +972 54-471-5400",
+        en: "I'm having a moment \u2014 please WhatsApp us at +66 92-989-4495 for immediate help!",
+        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495",
+        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +66 92-989-4495",
       };
-      const lang = detectLanguage3(req.body?.message ?? "", req.body?.language);
+      const lang = detectLanguage4(req.body?.message ?? "", req.body?.language);
       return res.json({
         reply: fallback[lang],
         language: lang,
@@ -6495,7 +7624,7 @@ About WIRO 4x4:
 - All tours are kosher-friendly with kosher meal options
 - Shabbat hotel options available
 - Self-driving 4x4 rental available ($100-150 USD)
-- WhatsApp: +972544715400
+- WhatsApp: +66929894495
 - Email: wiro.adventures@gmail.com
 - Booking: https://www.wiro4x4indochina.com/book
 
@@ -6564,8 +7693,8 @@ chatRouter.post("/message", async (req, res) => {
       console.error("[Chat] Claude API error:", apiError);
       reply =
         lang === "he"
-          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972544715400"
-          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +972544715400";
+          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66929894495"
+          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +66929894495";
     }
     await addChatMessage({
       sessionId,
@@ -6598,7 +7727,7 @@ function registerChatRoute(app2) {
 // server/routes/moshe.ts
 import Anthropic3 from "@anthropic-ai/sdk";
 import OpenAI3 from "openai";
-var WHATSAPP_NUMBER = "972544715400";
+var WHATSAPP_NUMBER = "66929894495";
 var MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan kosher off-road adventures.
 
 ## About WIRO 4x4
@@ -7098,185 +8227,21 @@ function registerMosheRoute(app2) {
   });
 }
 
-// server/_core/systemRouter.ts
+// server/routes/n8n.ts
+init_db();
+import { createHash, timingSafeEqual } from "crypto";
 import { z as z2 } from "zod";
 
-// server/_core/notification.ts
-import { TRPCError } from "@trpc/server";
-var resendClient = null;
-async function getResendClient() {
-  if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.warn(
-        "[Notification] RESEND_API_KEY not configured \u2014 notifications disabled"
-      );
-      return null;
-    }
-    const { Resend: Resend8 } = await import("resend");
-    resendClient = new Resend8(apiKey);
-  }
-  return resendClient;
+// shared/escapeHtml.ts
+function escapeHtml2(str) {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
-async function notifyOwner(payload) {
-  const { title, content } = payload;
-  if (!title?.trim() || !content?.trim()) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Notification title and content are required.",
-    });
-  }
-  const ownerEmail = process.env.OWNER_EMAIL;
-  if (!ownerEmail) {
-    console.warn("[Notification] OWNER_EMAIL not configured");
-    return false;
-  }
-  const resend = await getResendClient();
-  if (!resend) return false;
-  try {
-    await resend.emails.send({
-      from: "notifications@wiro4x4indochina.com",
-      to: ownerEmail,
-      subject: title.trim(),
-      html: `
-        <h2>${title.trim()}</h2>
-        <div>${content.trim().replace(/\n/g, "<br>")}</div>
-        <hr>
-        <p style="color: #666; font-size: 12px;">
-          Sent from Wiro 4x4 Notification System
-        </p>
-      `,
-    });
-    return true;
-  } catch (error) {
-    console.error("[Notification] Email failed:", error);
-    return false;
-  }
-}
-
-// server/_core/trpc.ts
-import { initTRPC, TRPCError as TRPCError2 } from "@trpc/server";
-import superjson from "superjson";
-var t = initTRPC.context().create({
-  transformer: superjson,
-});
-var router = t.router;
-var publicProcedure = t.procedure;
-var requireUser = t.middleware(async opts => {
-  const { ctx, next } = opts;
-  if (!ctx.user) {
-    throw new TRPCError2({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
-  }
-  return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-    },
-  });
-});
-var protectedProcedure = t.procedure.use(requireUser);
-var adminProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-    if (!ctx.user || ctx.user.role !== "admin") {
-      throw new TRPCError2({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
-    }
-    return next({
-      ctx: {
-        ...ctx,
-        user: ctx.user,
-      },
-    });
-  })
-);
-var OWNER_ROLES = ["admin", "owner"];
-var MANAGER_ROLES = ["admin", "owner", "manager"];
-var AGENT_ROLES = ["admin", "owner", "manager", "agent"];
-var ownerProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-    if (!ctx.user || !OWNER_ROLES.includes(ctx.user.role)) {
-      throw new TRPCError2({
-        code: "FORBIDDEN",
-        message: "Owner access required",
-      });
-    }
-    return next({ ctx: { ...ctx, user: ctx.user } });
-  })
-);
-var managerProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-    if (!ctx.user || !MANAGER_ROLES.includes(ctx.user.role)) {
-      throw new TRPCError2({
-        code: "FORBIDDEN",
-        message: "Manager access required",
-      });
-    }
-    return next({ ctx: { ...ctx, user: ctx.user } });
-  })
-);
-var agentProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-    if (!ctx.user || !AGENT_ROLES.includes(ctx.user.role)) {
-      throw new TRPCError2({
-        code: "FORBIDDEN",
-        message: "Agent access required",
-      });
-    }
-    return next({ ctx: { ...ctx, user: ctx.user } });
-  })
-);
-
-// server/_core/systemRouter.ts
-var systemRouter = router({
-  health: publicProcedure
-    .input(
-      z2.object({
-        timestamp: z2.number().min(0, "timestamp cannot be negative"),
-      })
-    )
-    .query(() => ({
-      ok: true,
-    })),
-  notifyOwner: adminProcedure
-    .input(
-      z2.object({
-        title: z2.string().min(1, "title is required"),
-        content: z2.string().min(1, "content is required"),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const delivered = await notifyOwner(input);
-      return {
-        success: delivered,
-      };
-    }),
-});
-
-// server/routes/_helpers.ts
-import { TRPCError as TRPCError3 } from "@trpc/server";
-
-// server/securityHeaders.ts
-var SECURITY_HEADERS = {
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "X-XSS-Protection": "0",
-  "Permissions-Policy":
-    "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
-  // Note: Strict-Transport-Security should be set at reverse proxy level
-  // (nginx, Cloudflare, etc.) rather than application level.
-};
-function setSecurityHeaders(res) {
-  for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
-    res.setHeader(header, value);
-  }
-}
-
-// server/routes/_helpers.ts
-init_db();
 
 // server/sentry.ts
 var _sentryInitialized = false;
@@ -7314,297 +8279,194 @@ function captureException(error) {
   }
 }
 
-// server/routes/_helpers.ts
-var securePublicProcedure = publicProcedure.use(async ({ ctx, next }) => {
-  setSecurityHeaders(ctx.res);
-  return next();
-});
-var secureProtectedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  setSecurityHeaders(ctx.res);
-  return next();
-});
-var secureOwnerProcedure = ownerProcedure.use(async ({ ctx, next }) => {
-  setSecurityHeaders(ctx.res);
-  return next();
-});
-var secureManagerProcedure = managerProcedure.use(async ({ ctx, next }) => {
-  setSecurityHeaders(ctx.res);
-  return next();
-});
-var secureAgentProcedure = agentProcedure.use(async ({ ctx, next }) => {
-  setSecurityHeaders(ctx.res);
-  return next();
-});
-function checkAdminRateLimit(ctx) {
-  const userId = ctx.user?.id ?? "unknown";
-  const { allowed } = checkRateLimit(`admin:${userId}`, 100, 5 * 6e4);
-  if (!allowed) {
-    throw new TRPCError3({
-      code: "TOO_MANY_REQUESTS",
-      message: "Too many admin operations. Please try again later.",
-    });
-  }
-}
-
-// server/routes/auth.ts
-var authRouter = router({
-  me: securePublicProcedure.query(opts => opts.ctx.user),
-  logout: securePublicProcedure.mutation(({ ctx }) => {
-    const cookieOptions = getSessionCookieOptions(ctx.req);
-    ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-    return { success: true };
-  }),
-});
-
-// server/routes/booking.ts
-import { z as z4 } from "zod";
-init_db();
-
-// server/emailService.ts
-function formatDate2(date) {
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-function formatServices(data) {
-  const services = [];
-  if (data.includesHotels) services.push("Hotels");
-  if (data.includesGuide) services.push("Hebrew-speaking Guide");
-  if (data.includesTrip) services.push("4x4 Trip");
-  if (data.includesFood) services.push("Kosher Meals");
-  if (data.needsShabbatHotel) services.push("Shabbat Hotel");
-  return services.length > 0 ? services.join(", ") : "None selected";
-}
-async function sendNewBookingNotification(data) {
-  const title = `\u{1F389} New Booking: ${data.contactName}`;
-  const content = `
-**New Tour Booking Received!**
-
-**Customer Details:**
-- Name: ${data.contactName}
-- Email: ${data.contactEmail}
-- Phone: ${data.contactPhone}
-
-**Trip Details:**
-- Arrival: ${formatDate2(data.arrivalDate)}
-- Departure: ${formatDate2(data.departureDate)}
-- Adults: ${data.numberOfAdults}
-- Children: ${data.numberOfChildren || 0}
-
-**Services Requested:**
-${formatServices(data)}
-
-**Logistics:**
-- Pickup: ${data.pickupPoint}
-- Dropoff: ${data.dropoffPoint}
-${data.suggestedDestinations ? `- Destinations: ${data.suggestedDestinations}` : ""}
-
-${
-  data.specialRequests
-    ? `**Special Requests:**
-${data.specialRequests}`
-    : ""
-}
-
----
-Please respond to this inquiry within 24 hours.
-  `.trim();
-  try {
-    const result = await notifyOwner({ title, content });
-    if (result) {
-      console.log(
-        `[Email] New booking notification sent for ${data.contactName}`
-      );
-    }
-    return result;
-  } catch (error) {
-    console.error("[Email] Failed to send new booking notification:", error);
-    return false;
-  }
-}
-
-// server/resendEmailService.ts
-import { Resend } from "resend";
-
-// shared/escapeHtml.ts
-function escapeHtml2(str) {
-  if (!str) return "";
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-// server/resendEmailService.ts
+// server/abandonedBookingService.ts
 var _resend = null;
 function getResend() {
-  if (!_resend && process.env.RESEND_API_KEY) {
-    _resend = new Resend(process.env.RESEND_API_KEY);
+  if (!_resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn(
+        "[AbandonedBooking] No RESEND_API_KEY \u2014 emails will not be sent"
+      );
+      return null;
+    }
+    const { Resend: Resend8 } = __require("resend");
+    _resend = new Resend8(apiKey);
   }
   return _resend;
 }
-var NOTIFICATION_RECIPIENTS = [
-  "wiro.adventures@gmail.com",
-  "pasuthunjunkong@gmail.com",
-];
-var SENDER_EMAIL = "WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>";
-function formatDate3(date) {
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-function formatServices2(data) {
-  const services = [];
-  if (data.includesHotels) services.push("\u{1F3E8} Hotels");
-  if (data.includesGuide)
-    services.push("\u{1F5E3}\uFE0F Hebrew-speaking Guide");
-  if (data.includesTrip) services.push("\u{1F699} 4x4 Trip");
-  if (data.includesFood) services.push("\u{1F37D}\uFE0F Kosher Meals");
-  if (data.needsShabbatHotel) services.push("\u2721\uFE0F Shabbat Hotel");
-  return services.length > 0 ? services.join("<br>") : "None selected";
-}
-async function sendNewBookingEmail(data) {
-  const subject = `\u{1F389} New Booking Request: ${data.contactName}`;
-  const htmlContent = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
-        <p style="margin: 10px 0 0 0; opacity: 0.9;">New Booking Request Received!</p>
+var SENDER = `${COMPANY_NAME} <${EMAIL_SENDERS.updates}>`;
+function buildRecoveryEmailHtml(lead) {
+  const name = escapeHtml2(lead.name) || "Traveler";
+  const inquiryNote =
+    lead.message || lead.notes
+      ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${escapeHtml2(lead.message || lead.notes)}"</p>`
+      : "";
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+      <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
+      <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Still planning your Chiang Mai adventure?</p>
+    </div>
+
+    <!-- English Content -->
+    <div style="background: #ffffff; padding: 30px 20px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
+      <p style="font-size: 16px;">Dear ${name},</p>
+
+      <p>We noticed you recently inquired about a tour with us but haven't booked yet. We'd love to help you plan the perfect Chiang Mai adventure!</p>
+
+      ${inquiryNote}
+
+      <h3 style="color: #1a4d2e; margin-top: 25px;">Why travelers choose WIRO 4x4:</h3>
+
+      <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+        <tr>
+          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F37D}\uFE0F</td>
+          <td style="padding: 12px;">
+            <strong>Certified Kosher Meals</strong><br>
+            <span style="color: #666;">Enjoy authentic kosher dining throughout your journey \u2014 carefully prepared and certified.</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F5E3}\uFE0F</td>
+          <td style="padding: 12px;">
+            <strong>Hebrew-Speaking Guide</strong><br>
+            <span style="color: #666;">Your personal guide speaks fluent Hebrew and knows every hidden gem in Northern Thailand.</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F3AF}</td>
+          <td style="padding: 12px;">
+            <strong>Custom Itineraries</strong><br>
+            <span style="color: #666;">Every trip is tailored to your group \u2014 from family-friendly to extreme off-road adventures.</span>
+          </td>
+        </tr>
+      </table>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${COMPANY_WEBSITE}/booking" style="display: inline-block; background: #f5a623; color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+          Book Your Adventure
+        </a>
       </div>
-      
-      <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
-        <h2 style="color: #1a4d2e; margin-top: 0;">\u{1F4CB} Customer Details</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Name:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${escapeHtml2(data.contactName)}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Email:</td>
-            <td style="padding: 8px 0;"><a href="mailto:${data.contactEmail}" style="color: #1a4d2e;">${escapeHtml2(data.contactEmail)}</a></td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Phone:</td>
-            <td style="padding: 8px 0;"><a href="tel:${data.contactPhone}" style="color: #1a4d2e;">${escapeHtml2(data.contactPhone)}</a></td>
-          </tr>
-        </table>
-        
-        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-        
-        <h2 style="color: #1a4d2e;">\u{1F4C5} Trip Details</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Arrival:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${formatDate3(data.arrivalDate)}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Departure:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${formatDate3(data.departureDate)}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Group Size:</td>
-            <td style="padding: 8px 0; font-weight: bold;">${data.numberOfAdults} Adults${data.numberOfChildren ? `, ${data.numberOfChildren} Children` : ""}</td>
-          </tr>
-        </table>
-        
-        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-        
-        <h2 style="color: #1a4d2e;">\u2728 Services Requested</h2>
-        <p style="line-height: 1.8;">${formatServices2(data)}</p>
-        
-        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-        
-        <h2 style="color: #1a4d2e;">\u{1F4CD} Logistics</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Pickup:</td>
-            <td style="padding: 8px 0;">${data.pickupPoint}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Dropoff:</td>
-            <td style="padding: 8px 0;">${data.dropoffPoint}</td>
-          </tr>
-          ${
-            data.suggestedDestinations
-              ? `
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Destinations:</td>
-            <td style="padding: 8px 0;">${data.suggestedDestinations}</td>
-          </tr>
-          `
-              : ""
-          }
-        </table>
-        
-        ${
-          data.specialRequests
-            ? `
-        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-        <h2 style="color: #1a4d2e;">\u{1F4AC} Special Requests</h2>
-        <p style="background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #d4af37;">${data.specialRequests}</p>
-        `
-            : ""
-        }
-        
-        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-        <p style="color: #888; font-size: 12px; text-align: center;">
-          \u{1F4A1} Sent from WIRO 4x4 Booking System
-        </p>
+
+      <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2d6a4f; text-align: center;">
+        <p style="margin: 0 0 8px 0; font-weight: bold; color: #1a4d2e;">Have questions? Chat with us instantly!</p>
+        <a href="https://wa.me/${COMPANY_WHATSAPP}" style="display: inline-block; background: #25d366; color: white; padding: 10px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+          \u{1F4AC} WhatsApp Us
+        </a>
       </div>
-      
-      <div style="background: #1a4d2e; color: white; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
-        <p style="margin: 0; font-size: 14px;">\u23F0 Please respond to this inquiry within 24 hours</p>
-        <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai</p>
+
+      <!-- Hebrew Section -->
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+
+      <div dir="rtl" style="text-align: right;">
+        <p style="font-size: 16px;">\u05E9\u05DC\u05D5\u05DD ${name},</p>
+
+        <p>\u05E9\u05DE\u05E0\u05D5 \u05DC\u05D1 \u05E9\u05D4\u05EA\u05E2\u05E0\u05D9\u05D9\u05E0\u05EA \u05DC\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4 \u05D1\u05D8\u05D9\u05D5\u05DC \u05D0\u05D9\u05EA\u05E0\u05D5 \u05D0\u05DA \u05E2\u05D3\u05D9\u05D9\u05DF \u05DC\u05D0 \u05D4\u05D6\u05DE\u05E0\u05EA. \u05E0\u05E9\u05DE\u05D7 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05DC\u05DA \u05DC\u05EA\u05DB\u05E0\u05DF \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D4\u05DE\u05D5\u05E9\u05DC\u05DE\u05EA \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9!</p>
+
+        <h3 style="color: #1a4d2e;">\u05DC\u05DE\u05D4 \u05DE\u05D8\u05D9\u05D9\u05DC\u05D9\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05D1-WIRO 4x4:</h3>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+          <tr>
+            <td style="padding: 12px;">
+              <strong>\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA \u05DE\u05D5\u05E1\u05DE\u05DB\u05D5\u05EA</strong> \u2014 \u05D4\u05E0\u05D0\u05D4 \u05DE\u05D0\u05D5\u05DB\u05DC \u05DB\u05E9\u05E8 \u05DC\u05D0\u05D5\u05E8\u05DA \u05DB\u05DC \u05D4\u05DE\u05E1\u05E2 \u{1F37D}\uFE0F
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px;">
+              <strong>\u05DE\u05D3\u05E8\u05D9\u05DA \u05D3\u05D5\u05D1\u05E8 \u05E2\u05D1\u05E8\u05D9\u05EA</strong> \u2014 \u05D4\u05DE\u05D3\u05E8\u05D9\u05DA \u05D4\u05D0\u05D9\u05E9\u05D9 \u05E9\u05DC\u05DA \u05D3\u05D5\u05D1\u05E8 \u05E2\u05D1\u05E8\u05D9\u05EA \u05E9\u05D5\u05D8\u05E4\u05EA \u{1F5E3}\uFE0F
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px;">
+              <strong>\u05DE\u05E1\u05DC\u05D5\u05DC\u05D9\u05DD \u05DE\u05D5\u05EA\u05D0\u05DE\u05D9\u05DD \u05D0\u05D9\u05E9\u05D9\u05EA</strong> \u2014 \u05DB\u05DC \u05D8\u05D9\u05D5\u05DC \u05DE\u05D5\u05EA\u05D0\u05DD \u05DC\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E9\u05DC\u05DA \u{1F3AF}
+            </td>
+          </tr>
+        </table>
+
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${COMPANY_WEBSITE}/booking" style="display: inline-block; background: #f5a623; color: white; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px;">
+            \u05D4\u05D6\u05DE\u05D9\u05E0\u05D5 \u05E2\u05DB\u05E9\u05D9\u05D5
+          </a>
+        </div>
       </div>
     </div>
-  `;
+
+    <!-- Footer -->
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; text-align: center; border-top: 1px solid #e0e0e0;">
+      <p style="margin: 0; font-size: 14px; color: #666;">
+        <strong>${COMPANY_NAME}</strong><br>
+        Chiang Mai, Thailand<br>
+        ${COMPANY_PHONE}
+      </p>
+      <p style="margin: 15px 0 0 0; font-size: 11px; color: #999;">
+        You received this email because you inquired about a tour on our website.
+        If you no longer wish to receive these emails, simply ignore this message \u2014 we won't send another.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+async function sendAbandonedBookingEmail(lead) {
   try {
     const resend = getResend();
     if (!resend) {
-      console.warn("[Resend] API key not configured, skipping email");
+      console.warn("[AbandonedBooking] Resend not configured, skipping email");
       return false;
     }
-    const { data: result, error } = await resend.emails.send({
-      from: SENDER_EMAIL,
-      to: NOTIFICATION_RECIPIENTS,
-      subject,
-      html: htmlContent,
+    if (!lead.email) {
+      console.warn(
+        `[AbandonedBooking] Lead #${lead.id} has no email, skipping`
+      );
+      return false;
+    }
+    const html = buildRecoveryEmailHtml(lead);
+    const { data, error } = await resend.emails.send({
+      from: SENDER,
+      to: [lead.email],
+      subject:
+        "Still planning your Chiang Mai adventure? \u{1F699} | \u05E2\u05D3\u05D9\u05D9\u05DF \u05DE\u05EA\u05DB\u05E0\u05E0\u05D9\u05DD \u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9?",
+      html,
     });
     if (error) {
-      console.error("[Resend] Failed to send new booking email:", error);
+      console.error(
+        `[AbandonedBooking] Failed to send to ${lead.email}:`,
+        error
+      );
       captureException(error);
       return false;
     }
     console.log(
-      `[Resend] New booking email sent successfully. ID: ${result?.id}`
+      `[AbandonedBooking] Recovery email sent to ${lead.email}. ID: ${data?.id}`
     );
     return true;
   } catch (error) {
-    console.error("[Resend] Error sending new booking email:", error);
+    console.error("[AbandonedBooking] Error sending recovery email:", error);
     captureException(error);
     return false;
   }
 }
 
 // server/customerEmailService.ts
-import { Resend as Resend2 } from "resend";
+import { Resend } from "resend";
 import { createEvents } from "ics";
 var _resend2 = null;
 function getResend2() {
   if (!_resend2 && process.env.RESEND_API_KEY) {
-    _resend2 = new Resend2(process.env.RESEND_API_KEY);
+    _resend2 = new Resend(process.env.RESEND_API_KEY);
   }
   return _resend2;
 }
-var SENDER_EMAIL2 = COMPANY_SENDER_EMAIL;
+var SENDER_EMAIL = COMPANY_SENDER_EMAIL;
 function generateCalendarEvent(booking) {
   try {
     const tourDate = new Date(booking.tourDate);
@@ -7647,7 +8509,7 @@ function generateCalendarEvent(booking) {
       `Email: ${COMPANY_EMAIL}`,
       `Website: ${COMPANY_WEBSITE}`,
       ``,
-      `Questions? WhatsApp us anytime: +972544715400`,
+      `Questions? WhatsApp us anytime: +66929894495`,
       ``,
       `We look forward to your adventure with us!`,
     ];
@@ -7692,7 +8554,7 @@ function generateCalendarEvent(booking) {
         },
         {
           action: "display",
-          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +972544715400`,
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66929894495`,
           trigger: { hours: 2, before: true },
         },
       ],
@@ -7742,7 +8604,7 @@ async function sendCustomerConfirmation(booking) {
       <h1>\u{1F699} Booking Confirmed!</h1>
       <p>Your adventure with WIRO 4x4 is confirmed</p>
     </div>
-    
+
     <div class="content">
       <p>Dear ${escapeHtml2(booking.customerName)},</p>
 
@@ -7778,7 +8640,7 @@ async function sendCustomerConfirmation(booking) {
             : ""
         }
       </div>
-      
+
       ${
         icsContent
           ? `
@@ -7793,7 +8655,7 @@ async function sendCustomerConfirmation(booking) {
       `
           : ""
       }
-      
+
       <div class="info-box" style="background: #e3f2fd; border-left-color: #1976d2;">
         <h3 style="margin-top: 0; color: #1976d2;">\u{1F4CD} Meeting Point & Location</h3>
         <p><strong>Location:</strong> Chiang Mai, Thailand</p>
@@ -7830,19 +8692,19 @@ async function sendCustomerConfirmation(booking) {
       </div>
 
       <p>We'll send you a reminder 48 hours before your tour with final details.</p>
-      
+
       <p>Looking forward to your adventure!</p>
-      
+
       <p style="margin-top: 30px;">
         <strong>The WIRO 4x4 Team</strong><br>
         <em>Kosher Off-Road Adventures in Chiang Mai</em>
       </p>
     </div>
-    
+
     <div class="footer">
       <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
       <p>Chiang Mai, Thailand</p>
-      <p>${COMPANY_PHONE} | ${SENDER_EMAIL2}</p>
+      <p>${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
       <p style="margin-top: 15px; font-size: 12px;">
         This is an automated confirmation email. Please do not reply directly to this email.
       </p>
@@ -7852,7 +8714,7 @@ async function sendCustomerConfirmation(booking) {
 </html>
     `;
     const emailData = {
-      from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [booking.customerEmail],
       subject: `\u2705 Booking Confirmed - ${booking.tourType} on ${new Date(booking.tourDate).toLocaleDateString()}`,
       html: emailHtml,
@@ -7952,13 +8814,13 @@ async function sendBookingReminder(booking) {
       <p><strong>The WIRO 4x4 Team</strong></p>
     </div>
     <div class="footer">
-      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL2}</p>
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
     </div>
   </div>
 </body>
 </html>`;
     const { error } = await resend.emails.send({
-      from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [booking.customerEmail],
       subject: `Reminder: Your ${booking.tourType} is tomorrow! - WIRO 4x4`,
       html: emailHtml,
@@ -8066,7 +8928,7 @@ async function sendPaymentConfirmationEmail({
     <div class="footer">
       <p><strong>${COMPANY_NAME}</strong></p>
       <p>Chiang Mai, Thailand</p>
-      <p>${COMPANY_PHONE} | ${SENDER_EMAIL2}</p>
+      <p>${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
       <p style="margin-top: 15px; font-size: 12px;">
         This is an automated payment confirmation. Please do not reply directly to this email.
       </p>
@@ -8083,7 +8945,7 @@ async function sendPaymentConfirmationEmail({
       return false;
     }
     const { data, error } = await resend.emails.send({
-      from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [customerEmail],
       subject: `Payment Confirmed - ${typeLabel} of ${formattedAmount} THB - Booking #${bookingId}`,
       html: emailHtml,
@@ -8149,13 +9011,13 @@ async function sendPostTourFeedback(booking) {
       <p><strong>The WIRO 4x4 Team</strong></p>
     </div>
     <div class="footer">
-      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL2}</p>
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
     </div>
   </div>
 </body>
 </html>`;
     const { error } = await resend.emails.send({
-      from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [booking.customerEmail],
       subject: `How was your ${booking.tourType}? Share your experience! - WIRO 4x4`,
       html: emailHtml,
@@ -8215,13 +9077,13 @@ async function sendBulkEmailToCustomer({ to, subject, message, customerName }) {
       </p>
     </div>
     <div class="footer">
-      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL2}</p>
+      <p>${COMPANY_NAME} | ${COMPANY_PHONE} | ${SENDER_EMAIL}</p>
     </div>
   </div>
 </body>
 </html>`;
     const { error } = await resend.emails.send({
-      from: `${COMPANY_NAME} <${SENDER_EMAIL2}>`,
+      from: `${COMPANY_NAME} <${SENDER_EMAIL}>`,
       to: [to],
       subject,
       html: emailHtml,
@@ -8240,191 +9102,1441 @@ async function sendBulkEmailToCustomer({ to, subject, message, customerName }) {
   }
 }
 
-// shared/schemas.ts
+// server/newsletterEmailService.ts
+init_db();
+var _resend3 = null;
+function getResend3() {
+  if (!_resend3) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn(
+        "[Newsletter] No RESEND_API_KEY \u2014 emails will not be sent"
+      );
+      return null;
+    }
+    const { Resend: Resend8 } = __require("resend");
+    _resend3 = new Resend8(apiKey);
+  }
+  return _resend3;
+}
+async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
+  const resend = getResend3();
+  if (!resend) {
+    console.warn("[Newsletter] Resend not configured, skipping email send");
+    return 0;
+  }
+  const post = await getBlogPostById(blogPostId);
+  if (!post) {
+    console.error(`[Newsletter] Blog post ${blogPostId} not found`);
+    return 0;
+  }
+  const siteUrl = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
+  const postUrl = `${siteUrl}/blog/${post.slug}`;
+  const emailSubject = subject || `New from WIRO 4x4: ${post.title}`;
+  let sent = 0;
+  for (const sub of subscribers2) {
+    try {
+      const isHe = sub.language === "he";
+      const title = isHe && post.titleHe ? post.titleHe : post.title;
+      const excerpt =
+        isHe && post.excerptHe ? post.excerptHe : post.excerpt || "";
+      const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(sub.email)}`;
+      await resend.emails.send({
+        from: "WIRO 4x4 <updates@wiro4x4indochina.com>",
+        to: sub.email,
+        subject: emailSubject,
+        html: `
+          <div style="max-width:600px;margin:0 auto;font-family:sans-serif;">
+            <h1 style="color:#1c1c1c;">${title}</h1>
+            ${post.coverImage ? `<img src="${post.coverImage}" alt="${title}" style="width:100%;border-radius:8px;margin:16px 0;" />` : ""}
+            <p style="color:#555;font-size:16px;line-height:1.6;">${excerpt}</p>
+            <a href="${postUrl}" style="display:inline-block;padding:12px 24px;background:#D4AF37;color:#fff;text-decoration:none;border-radius:4px;margin:16px 0;">
+              ${isHe ? "\u05E7\u05E8\u05D0\u05D5 \u05E2\u05D5\u05D3" : "Read More"}
+            </a>
+            <hr style="border:none;border-top:1px solid #eee;margin:32px 0;" />
+            <p style="font-size:12px;color:#999;">
+              <a href="${unsubscribeUrl}" style="color:#999;">${isHe ? "\u05D1\u05D9\u05D8\u05D5\u05DC \u05D4\u05E8\u05E9\u05DE\u05D4" : "Unsubscribe"}</a>
+            </p>
+          </div>
+        `,
+      });
+      sent++;
+    } catch (err) {
+      console.error(`[Newsletter] Failed to send to ${sub.email}:`, err);
+    }
+  }
+  return sent;
+}
+
+// server/_core/notification.ts
+import { TRPCError } from "@trpc/server";
+var resendClient = null;
+async function getResendClient() {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn(
+        "[Notification] RESEND_API_KEY not configured \u2014 notifications disabled"
+      );
+      return null;
+    }
+    const { Resend: Resend8 } = await import("resend");
+    resendClient = new Resend8(apiKey);
+  }
+  return resendClient;
+}
+function escapeHtml3(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+async function sendEmailNotification(title, content) {
+  const ownerEmail = process.env.OWNER_EMAIL;
+  const hasEmailConfig = Boolean(ownerEmail && process.env.RESEND_API_KEY);
+  if (!hasEmailConfig) return false;
+  const resend = await getResendClient();
+  if (!resend) return false;
+  await resend.emails.send({
+    from: "notifications@wiro4x4indochina.com",
+    to: ownerEmail,
+    subject: title,
+    html: `
+      <h2>${escapeHtml3(title)}</h2>
+      <div>${escapeHtml3(content).replace(/\n/g, "<br>")}</div>
+      <hr>
+      <p style="color: #666; font-size: 12px;">
+        Sent from Wiro 4x4 Notification System
+      </p>
+    `,
+  });
+  return true;
+}
+async function sendTelegramNotification(title, content) {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
+  if (!token || !chatId) return false;
+  const response = await fetch(
+    `https://api.telegram.org/bot${token}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: [`WIRO 4x4: ${title}`, "", content].join("\n").slice(0, 4096),
+      }),
+    }
+  );
+  if (!response.ok) {
+    console.error("[Notification] Telegram failed:", await response.text());
+    return false;
+  }
+  return true;
+}
+async function notifyOwner(payload) {
+  const { title, content } = payload;
+  if (!title?.trim() || !content?.trim()) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Notification title and content are required.",
+    });
+  }
+  try {
+    const cleanTitle = title.trim();
+    const cleanContent = content.trim();
+    if (await sendEmailNotification(cleanTitle, cleanContent)) {
+      return true;
+    }
+    if (await sendTelegramNotification(cleanTitle, cleanContent)) {
+      return true;
+    }
+    console.warn(
+      "[Notification] No owner notification channel configured. Set OWNER_EMAIL plus RESEND_API_KEY, or TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID."
+    );
+    return false;
+  } catch (error) {
+    console.error("[Notification] Delivery failed:", error);
+    return false;
+  }
+}
+
+// server/routes/n8n.ts
+init_postTourReviewService();
+var n8nActionSchema = z2.discriminatedUnion("action", [
+  z2.object({
+    action: z2.literal("system.ping"),
+    client: z2.string().trim().max(120).optional(),
+  }),
+  z2.object({
+    action: z2.literal("lead.update"),
+    leadId: z2.number().int().positive(),
+    status: z2
+      .enum(["new", "contacted", "quoted", "converted", "lost"])
+      .optional(),
+    notes: z2.string().max(2e3).optional(),
+    convertedToBookingId: z2.number().int().positive().optional(),
+  }),
+  z2.object({
+    action: z2.literal("booking.update"),
+    bookingId: z2.number().int().positive(),
+    status: z2
+      .enum(["pending", "confirmed", "in_progress", "completed", "cancelled"])
+      .optional(),
+    notes: z2.string().max(2e3).optional(),
+    assignedAgentId: z2.number().int().positive().optional(),
+    totalPrice: z2.number().int().min(0).optional(),
+    depositPaid: z2.number().int().min(0).optional(),
+    balancePaid: z2.number().int().min(0).optional(),
+  }),
+  z2.object({
+    action: z2.literal("booking.send_reminder"),
+    bookingId: z2.number().int().positive(),
+  }),
+  z2.object({
+    action: z2.literal("booking.send_due_reminders"),
+    limit: z2.number().int().min(1).max(10).default(10),
+  }),
+  z2.object({
+    action: z2.literal("post_tour_review.schedule"),
+    bookingId: z2.number().int().positive(),
+    delayMinutes: z2.number().int().min(30).max(60).optional(),
+  }),
+  z2.object({
+    action: z2.literal("post_tour_review.process_due"),
+  }),
+  z2.object({
+    action: z2.literal("abandoned.send_recovery"),
+    leadId: z2.number().int().positive(),
+  }),
+  z2.object({
+    action: z2.literal("abandoned.send_batch_recovery"),
+    limit: z2.number().int().min(1).max(10).default(10),
+  }),
+  z2.object({
+    action: z2.literal("newsletter.send"),
+    blogPostId: z2.number().int().positive(),
+    subject: z2.string().max(200).optional(),
+  }),
+  z2.object({
+    action: z2.literal("ops.notify"),
+    title: z2.string().trim().min(1).max(160),
+    content: z2.string().trim().min(1).max(4e3),
+    priority: z2.enum(["info", "warning", "urgent"]).default("info"),
+    resourceType: z2
+      .enum(["lead", "booking", "review", "newsletter", "system"])
+      .optional(),
+    resourceId: z2.number().int().positive().optional(),
+    dedupeKey: z2.string().trim().min(1).max(200).optional(),
+    cooldownMinutes: z2
+      .number()
+      .int()
+      .min(1)
+      .max(24 * 60)
+      .optional(),
+  }),
+]);
+function getAutomationSecret() {
+  return (
+    process.env.N8N_API_SECRET?.trim() ||
+    process.env.N8N_WEBHOOK_SECRET?.trim() ||
+    ""
+  );
+}
+function safeCompare(a, b) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
+function isAuthorized(req) {
+  const expected = getAutomationSecret();
+  if (!expected) return false;
+  const provided = req.header("x-wiro-automation-secret")?.trim() ?? "";
+  return provided.length > 0 && safeCompare(provided, expected);
+}
+function toIso(value) {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "string") return value;
+  return null;
+}
+function hashDedupeKey(key) {
+  const value = createHash("sha256").update(key).digest().readUInt32BE(0);
+  return (value % 2147483646) + 1;
+}
+function getOpsNotifyAuditTarget(input) {
+  if (input.dedupeKey) {
+    return {
+      resourceType: "n8nNotification",
+      resourceId: hashDedupeKey(input.dedupeKey),
+    };
+  }
+  return {
+    resourceType: input.resourceType ?? "system",
+    resourceId: input.resourceId,
+  };
+}
+function getAuditTarget(input) {
+  switch (input.action) {
+    case "system.ping":
+      return { resourceType: "system", resourceId: void 0 };
+    case "lead.update":
+    case "abandoned.send_recovery":
+      return { resourceType: "lead", resourceId: input.leadId };
+    case "booking.update":
+    case "booking.send_reminder":
+    case "post_tour_review.schedule":
+      return {
+        resourceType:
+          input.action === "post_tour_review.schedule"
+            ? "postTourReview"
+            : "booking",
+        resourceId: input.bookingId,
+      };
+    case "booking.send_due_reminders":
+      return { resourceType: "booking", resourceId: void 0 };
+    case "newsletter.send":
+      return { resourceType: "newsletter", resourceId: input.blogPostId };
+    case "ops.notify":
+      return getOpsNotifyAuditTarget(input);
+    case "post_tour_review.process_due":
+      return { resourceType: "postTourReview", resourceId: void 0 };
+    case "abandoned.send_batch_recovery":
+      return { resourceType: "lead", resourceId: void 0 };
+  }
+}
+async function logN8nAction(input, result) {
+  const target = getAuditTarget(input);
+  await logAdminAction({
+    userId: null,
+    action: `n8n.${input.action}`,
+    resourceType: target.resourceType,
+    resourceId: target.resourceId,
+    newValue: JSON.stringify({
+      input,
+      result,
+      executedAt: /* @__PURE__ */ new Date().toISOString(),
+    }),
+  });
+}
+async function finishN8nAction(input, result) {
+  await logN8nAction(input, result);
+  return result;
+}
+function buildBookingReminderPayload(booking) {
+  return {
+    customerName: booking.contactName,
+    customerEmail: booking.contactEmail ?? "",
+    tourDate: toIso(booking.arrivalDate) ?? "",
+    tourType: "Custom Tour",
+    groupSize: booking.numberOfAdults + (booking.numberOfChildren ?? 0),
+    pickupLocation: booking.pickupPoint,
+    pickupTime: "08:00",
+    specialRequests: booking.specialRequests ?? void 0,
+    bookingId: `WIRO-${booking.id}`,
+  };
+}
+async function getN8nLeadSnapshot(leadId) {
+  const lead = await getLeadById(leadId);
+  if (!lead) return null;
+  return {
+    id: lead.id,
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone ?? null,
+    source: lead.source,
+    interestedTours: lead.interestedTours,
+    status: lead.status,
+    convertedToBookingId: lead.convertedToBookingId ?? null,
+    score: lead.score ?? 0,
+    recoveryEmailSentAt: toIso(lead.recoveryEmailSentAt),
+    createdAt: toIso(lead.createdAt),
+    updatedAt: toIso(lead.updatedAt),
+  };
+}
+async function getN8nBookingSnapshot(bookingId) {
+  const booking = await getBookingById(bookingId);
+  if (!booking) return null;
+  return {
+    id: booking.id,
+    contactName: booking.contactName,
+    contactEmail: booking.contactEmail ?? null,
+    contactPhone: booking.contactPhone,
+    contactWhatsApp: booking.contactWhatsApp ?? null,
+    agentName: booking.agentName ?? null,
+    arrivalDate: toIso(booking.arrivalDate),
+    departureDate: toIso(booking.departureDate),
+    numberOfAdults: booking.numberOfAdults,
+    hasChildren: Boolean(booking.hasChildren),
+    numberOfChildren: booking.numberOfChildren ?? 0,
+    includesHotels: Boolean(booking.includesHotels),
+    includesGuide: Boolean(booking.includesGuide),
+    includesTrip: Boolean(booking.includesTrip),
+    includesAttractions: Boolean(booking.includesAttractions),
+    includesFood: Boolean(booking.includesFood),
+    needsShabbatHotel: Boolean(booking.needsShabbatHotel),
+    selfDriving4x4: Boolean(booking.selfDriving4x4),
+    pickupPoint: booking.pickupPoint,
+    dropoffPoint: booking.dropoffPoint,
+    status: booking.status,
+    totalPrice: booking.totalPrice ?? null,
+    depositPaid: booking.depositPaid ?? 0,
+    balancePaid: booking.balancePaid ?? 0,
+    assignedAgentId: booking.assignedAgentId ?? null,
+    reminderSentAt: toIso(booking.reminderSentAt),
+    feedbackSentAt: toIso(booking.feedbackSentAt),
+    postTourEmailSentAt: toIso(booking.postTourEmailSentAt),
+    source: booking.source,
+    createdAt: toIso(booking.createdAt),
+    updatedAt: toIso(booking.updatedAt),
+  };
+}
+async function executeN8nAction(input) {
+  switch (input.action) {
+    case "system.ping": {
+      return {
+        action: input.action,
+        changed: false,
+        pong: true,
+        client: input.client ?? null,
+        checkedAt: /* @__PURE__ */ new Date().toISOString(),
+      };
+    }
+    case "lead.update": {
+      const data = {
+        ...(input.status ? { status: input.status } : {}),
+        ...(input.notes ? { notes: input.notes } : {}),
+        ...(input.convertedToBookingId
+          ? { convertedToBookingId: input.convertedToBookingId }
+          : {}),
+      };
+      if (Object.keys(data).length === 0) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "no_fields_to_update",
+        });
+      }
+      await updateLead(input.leadId, data);
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: true,
+        leadId: input.leadId,
+      });
+    }
+    case "booking.update": {
+      const data = {
+        ...(input.status ? { status: input.status } : {}),
+        ...(input.notes ? { notes: input.notes } : {}),
+        ...(input.assignedAgentId
+          ? { assignedAgentId: input.assignedAgentId }
+          : {}),
+        ...(input.totalPrice != null ? { totalPrice: input.totalPrice } : {}),
+        ...(input.depositPaid != null
+          ? { depositPaid: input.depositPaid }
+          : {}),
+        ...(input.balancePaid != null
+          ? { balancePaid: input.balancePaid }
+          : {}),
+      };
+      if (Object.keys(data).length === 0) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "no_fields_to_update",
+        });
+      }
+      await updateBooking(input.bookingId, data);
+      if (input.status === "completed") {
+        await schedulePostTourReviewForBooking({
+          bookingId: input.bookingId,
+          completedAt: /* @__PURE__ */ new Date(),
+        });
+      }
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: true,
+        bookingId: input.bookingId,
+      });
+    }
+    case "booking.send_reminder": {
+      const booking = await getBookingById(input.bookingId);
+      if (!booking || !booking.contactEmail) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "booking_not_found_or_missing_email",
+          bookingId: input.bookingId,
+          sent: false,
+        });
+      }
+      if (booking.reminderSentAt) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "reminder_already_sent",
+          bookingId: booking.id,
+          sent: false,
+        });
+      }
+      const sent = await sendBookingReminder(
+        buildBookingReminderPayload(booking)
+      );
+      if (sent) await markReminderSent(booking.id);
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: sent,
+        bookingId: booking.id,
+        sent,
+      });
+    }
+    case "booking.send_due_reminders": {
+      const dueBookings = await getBookingsNeedingReminder();
+      const batch = dueBookings.slice(0, input.limit);
+      let sent = 0;
+      let failed = 0;
+      let skipped = 0;
+      const bookingIds = [];
+      for (const booking of batch) {
+        if (!booking.contactEmail) {
+          skipped++;
+          continue;
+        }
+        const ok = await sendBookingReminder(
+          buildBookingReminderPayload(booking)
+        );
+        if (ok) {
+          await markReminderSent(booking.id);
+          sent++;
+          bookingIds.push(booking.id);
+        } else {
+          failed++;
+        }
+      }
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: sent > 0,
+        attempted: batch.length,
+        sent,
+        failed,
+        skipped,
+        bookingIds,
+      });
+    }
+    case "post_tour_review.schedule": {
+      const entry = await schedulePostTourReviewForBooking({
+        bookingId: input.bookingId,
+        delayMinutes: input.delayMinutes,
+      });
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: true,
+        bookingId: input.bookingId,
+        entry,
+      });
+    }
+    case "post_tour_review.process_due": {
+      const result = await processDuePostTourReviewRequests();
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: true,
+        result,
+      });
+    }
+    case "abandoned.send_recovery": {
+      const leads2 = await getAbandonedLeads(24 * 365);
+      const lead = leads2.find(item => item.id === input.leadId);
+      if (!lead || !lead.email) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "lead_not_found_or_missing_email",
+          leadId: input.leadId,
+        });
+      }
+      if (lead.recoveryEmailSentAt) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "recovery_already_sent",
+          leadId: input.leadId,
+        });
+      }
+      const sent = await sendAbandonedBookingEmail(lead);
+      if (sent) await markRecoveryEmailSent(lead.id);
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: sent,
+        leadId: lead.id,
+        sent,
+      });
+    }
+    case "abandoned.send_batch_recovery": {
+      const leads2 = await getAbandonedLeads(24);
+      const batch = leads2
+        .filter(lead => !lead.recoveryEmailSentAt && lead.email)
+        .slice(0, input.limit);
+      let sent = 0;
+      let failed = 0;
+      for (const lead of batch) {
+        const ok = await sendAbandonedBookingEmail(lead);
+        if (ok) {
+          await markRecoveryEmailSent(lead.id);
+          sent++;
+        } else {
+          failed++;
+        }
+      }
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: sent > 0,
+        attempted: batch.length,
+        sent,
+        failed,
+      });
+    }
+    case "newsletter.send": {
+      const subscribers2 = await getAllActiveSubscribers();
+      if (subscribers2.length === 0) {
+        return finishN8nAction(input, {
+          action: input.action,
+          changed: false,
+          reason: "no_active_subscribers",
+          sent: 0,
+        });
+      }
+      const sent = await sendNewsletterEmail(
+        input.blogPostId,
+        subscribers2,
+        input.subject
+      );
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: sent > 0,
+        blogPostId: input.blogPostId,
+        sent,
+      });
+    }
+    case "ops.notify": {
+      const auditTarget = getOpsNotifyAuditTarget(input);
+      if (input.dedupeKey && input.cooldownMinutes) {
+        const alreadyNotified = await hasRecentAuditLog({
+          action: "n8n.ops.notify",
+          resourceType: auditTarget.resourceType,
+          resourceId: auditTarget.resourceId,
+          since: new Date(Date.now() - input.cooldownMinutes * 60 * 1e3),
+        });
+        if (alreadyNotified) {
+          return {
+            action: input.action,
+            changed: false,
+            delivered: false,
+            deduped: true,
+            priority: input.priority,
+          };
+        }
+      }
+      const delivered = await notifyOwner({
+        title:
+          input.priority === "info"
+            ? input.title
+            : `[${input.priority.toUpperCase()}] ${input.title}`,
+        content: [
+          input.content,
+          input.resourceType
+            ? `
+Resource: ${input.resourceType}${input.resourceId ? ` #${input.resourceId}` : ""}`
+            : "",
+        ].join(""),
+      });
+      return finishN8nAction(input, {
+        action: input.action,
+        changed: delivered,
+        delivered,
+        priority: input.priority,
+      });
+    }
+  }
+}
+function registerN8nRoutes(app2) {
+  app2.get("/api/n8n/leads/:id", async (req, res) => {
+    if (!getAutomationSecret()) {
+      res.status(503).json({ error: "n8n_api_secret_not_configured" });
+      return;
+    }
+    if (!isAuthorized(req)) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+    const parsed = z2.coerce.number().int().positive().safeParse(req.params.id);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid_lead_id" });
+      return;
+    }
+    try {
+      const lead = await getN8nLeadSnapshot(parsed.data);
+      if (!lead) {
+        res.status(404).json({ error: "lead_not_found" });
+        return;
+      }
+      res.json({ lead });
+    } catch (err) {
+      console.error("[n8n] Failed to fetch lead snapshot", err);
+      res.status(500).json({ error: "lead_snapshot_failed" });
+    }
+  });
+  app2.get("/api/n8n/bookings/:id", async (req, res) => {
+    if (!getAutomationSecret()) {
+      res.status(503).json({ error: "n8n_api_secret_not_configured" });
+      return;
+    }
+    if (!isAuthorized(req)) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+    const parsed = z2.coerce.number().int().positive().safeParse(req.params.id);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid_booking_id" });
+      return;
+    }
+    try {
+      const booking = await getN8nBookingSnapshot(parsed.data);
+      if (!booking) {
+        res.status(404).json({ error: "booking_not_found" });
+        return;
+      }
+      res.json({ booking });
+    } catch (err) {
+      console.error("[n8n] Failed to fetch booking snapshot", err);
+      res.status(500).json({ error: "booking_snapshot_failed" });
+    }
+  });
+  app2.get("/api/n8n/operations-snapshot", async (req, res) => {
+    if (!getAutomationSecret()) {
+      res.status(503).json({ error: "n8n_api_secret_not_configured" });
+      return;
+    }
+    if (!isAuthorized(req)) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+    try {
+      const [
+        pendingBookings,
+        newLeads24h,
+        upcomingTours48h,
+        staleLeads,
+        leadSlaDue,
+        coldLeadFollowupsDue,
+        bookingsNeedingReminder,
+        bookingsNeedingFeedback,
+        failedWhatsAppMessages,
+        postTourReviews,
+      ] = await Promise.all([
+        getPendingBookingCount(),
+        getNewLeadCount(24),
+        getUpcomingTourCount(48),
+        getStaleNewLeads(),
+        getLeadSlaBreaches(10),
+        getColdContactedLeads(),
+        getBookingsNeedingReminder(),
+        getBookingsNeedingFeedback(),
+        getRecentFailedWhatsAppMessages(24),
+        getWeeklyPostTourReviewMetrics(),
+      ]);
+      res.json({
+        generatedAt: /* @__PURE__ */ new Date().toISOString(),
+        timezone: "Asia/Bangkok",
+        counts: {
+          pendingBookings,
+          newLeads24h,
+          upcomingTours48h,
+          staleLeads: staleLeads.length,
+          leadSlaDue: leadSlaDue.length,
+          coldLeadFollowupsDue: coldLeadFollowupsDue.length,
+          bookingRemindersDue: bookingsNeedingReminder.length,
+          feedbackRequestsDue: bookingsNeedingFeedback.length,
+          failedWhatsAppMessages: failedWhatsAppMessages.length,
+        },
+        queues: {
+          leadSlaDue: leadSlaDue.map(lead => ({
+            id: lead.id,
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone ?? null,
+            source: lead.source,
+            status: lead.status,
+            score: lead.score ?? 0,
+            createdAt: toIso(lead.createdAt),
+            updatedAt: toIso(lead.updatedAt),
+          })),
+          coldLeadFollowupsDue: coldLeadFollowupsDue.map(lead => ({
+            id: lead.id,
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone ?? null,
+            source: lead.source,
+            status: lead.status,
+            score: lead.score ?? 0,
+            createdAt: toIso(lead.createdAt),
+            updatedAt: toIso(lead.updatedAt),
+          })),
+          staleLeads: staleLeads.map(lead => ({
+            id: lead.id,
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone ?? null,
+            source: lead.source,
+            status: lead.status,
+            createdAt: toIso(lead.createdAt),
+            updatedAt: toIso(lead.updatedAt),
+          })),
+          bookingRemindersDue: bookingsNeedingReminder.map(booking => ({
+            id: booking.id,
+            contactName: booking.contactName,
+            contactEmail: booking.contactEmail ?? null,
+            contactPhone: booking.contactPhone,
+            arrivalDate: toIso(booking.arrivalDate),
+            departureDate: toIso(booking.departureDate),
+            status: booking.status,
+          })),
+          feedbackRequestsDue: bookingsNeedingFeedback.map(booking => ({
+            id: booking.id,
+            contactName: booking.contactName,
+            contactEmail: booking.contactEmail ?? null,
+            contactPhone: booking.contactPhone,
+            arrivalDate: toIso(booking.arrivalDate),
+            departureDate: toIso(booking.departureDate),
+            status: booking.status,
+          })),
+          failedWhatsAppMessages: failedWhatsAppMessages.map(message => ({
+            id: message.id,
+            whatsappMessageId: message.whatsappMessageId ?? null,
+            phoneNumber: message.phoneNumber,
+            direction: message.direction,
+            status: message.status,
+            isAutoReply: Boolean(message.isAutoReply),
+            createdAt: toIso(message.createdAt),
+          })),
+        },
+        postTourReviews,
+      });
+    } catch (err) {
+      console.error("[n8n] Failed to build operations snapshot", err);
+      res.status(500).json({ error: "operations_snapshot_failed" });
+    }
+  });
+  app2.post("/api/n8n/actions", async (req, res) => {
+    if (!getAutomationSecret()) {
+      res.status(503).json({ error: "n8n_api_secret_not_configured" });
+      return;
+    }
+    if (!isAuthorized(req)) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+    const parsed = n8nActionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "invalid_n8n_action",
+        issues: parsed.error.issues,
+      });
+      return;
+    }
+    try {
+      const result = await executeN8nAction(parsed.data);
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error("[n8n] Failed to execute action", {
+        action: parsed.data.action,
+        err,
+      });
+      res.status(500).json({ error: "n8n_action_failed" });
+    }
+  });
+}
+
+// server/_core/systemRouter.ts
 import { z as z3 } from "zod";
+
+// server/_core/trpc.ts
+import { initTRPC, TRPCError as TRPCError2 } from "@trpc/server";
+import superjson from "superjson";
+var t = initTRPC.context().create({
+  transformer: superjson,
+});
+var router = t.router;
+var publicProcedure = t.procedure;
+var requireUser = t.middleware(async opts => {
+  const { ctx, next } = opts;
+  if (!ctx.user) {
+    throw new TRPCError2({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      user: ctx.user,
+    },
+  });
+});
+var protectedProcedure = t.procedure.use(requireUser);
+var adminProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+    if (!ctx.user || ctx.user.role !== "admin") {
+      throw new TRPCError2({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+    }
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    });
+  })
+);
+var OWNER_ROLES = ["admin", "owner"];
+var MANAGER_ROLES = ["admin", "owner", "manager"];
+var AGENT_ROLES = ["admin", "owner", "manager", "agent"];
+var ownerProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+    if (!ctx.user || !OWNER_ROLES.includes(ctx.user.role)) {
+      throw new TRPCError2({
+        code: "FORBIDDEN",
+        message: "Owner access required",
+      });
+    }
+    return next({ ctx: { ...ctx, user: ctx.user } });
+  })
+);
+var managerProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+    if (!ctx.user || !MANAGER_ROLES.includes(ctx.user.role)) {
+      throw new TRPCError2({
+        code: "FORBIDDEN",
+        message: "Manager access required",
+      });
+    }
+    return next({ ctx: { ...ctx, user: ctx.user } });
+  })
+);
+var agentProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+    if (!ctx.user || !AGENT_ROLES.includes(ctx.user.role)) {
+      throw new TRPCError2({
+        code: "FORBIDDEN",
+        message: "Agent access required",
+      });
+    }
+    return next({ ctx: { ...ctx, user: ctx.user } });
+  })
+);
+
+// server/_core/systemRouter.ts
+var systemRouter = router({
+  health: publicProcedure
+    .input(
+      z3.object({
+        timestamp: z3.number().min(0, "timestamp cannot be negative"),
+      })
+    )
+    .query(() => ({
+      ok: true,
+    })),
+  notifyOwner: adminProcedure
+    .input(
+      z3.object({
+        title: z3.string().min(1, "title is required"),
+        content: z3.string().min(1, "content is required"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const delivered = await notifyOwner(input);
+      return {
+        success: delivered,
+      };
+    }),
+});
+
+// server/routes/_helpers.ts
+import { TRPCError as TRPCError3 } from "@trpc/server";
+
+// server/securityHeaders.ts
+var SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-XSS-Protection": "0",
+  "Permissions-Policy":
+    "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
+  // Note: Strict-Transport-Security should be set at reverse proxy level
+  // (nginx, Cloudflare, etc.) rather than application level.
+};
+function setSecurityHeaders(res) {
+  for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
+    res.setHeader(header, value);
+  }
+}
+
+// server/routes/_helpers.ts
+init_db();
+var securePublicProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureProtectedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureOwnerProcedure = ownerProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureManagerProcedure = managerProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+var secureAgentProcedure = agentProcedure.use(async ({ ctx, next }) => {
+  setSecurityHeaders(ctx.res);
+  return next();
+});
+function checkAdminRateLimit(ctx) {
+  const userId = ctx.user?.id ?? "unknown";
+  const { allowed } = checkRateLimit(`admin:${userId}`, 100, 5 * 6e4);
+  if (!allowed) {
+    throw new TRPCError3({
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many admin operations. Please try again later.",
+    });
+  }
+}
+
+// server/routes/auth.ts
+var authRouter = router({
+  me: securePublicProcedure.query(opts => opts.ctx.user),
+  logout: securePublicProcedure.mutation(({ ctx }) => {
+    const cookieOptions = getSessionCookieOptions(ctx.req);
+    ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+    return { success: true };
+  }),
+});
+
+// server/routes/booking.ts
+import { z as z5 } from "zod";
+init_db();
+
+// server/emailService.ts
+function formatDate2(date) {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+function formatServices(data) {
+  const services = [];
+  if (data.includesHotels) services.push("Hotels");
+  if (data.includesGuide) services.push("Hebrew-speaking Guide");
+  if (data.includesTrip) services.push("4x4 Trip");
+  if (data.includesFood) services.push("Kosher Meals");
+  if (data.needsShabbatHotel) services.push("Shabbat Hotel");
+  return services.length > 0 ? services.join(", ") : "None selected";
+}
+async function sendNewBookingNotification(data) {
+  const title = `\u{1F389} New Booking: ${data.contactName}`;
+  const content = `
+**New Tour Booking Received!**
+
+**Customer Details:**
+- Name: ${data.contactName}
+- Email: ${data.contactEmail}
+- Phone: ${data.contactPhone}
+
+**Trip Details:**
+- Arrival: ${formatDate2(data.arrivalDate)}
+- Departure: ${formatDate2(data.departureDate)}
+- Adults: ${data.numberOfAdults}
+- Children: ${data.numberOfChildren || 0}
+
+**Services Requested:**
+${formatServices(data)}
+
+**Logistics:**
+- Pickup: ${data.pickupPoint}
+- Dropoff: ${data.dropoffPoint}
+${data.suggestedDestinations ? `- Destinations: ${data.suggestedDestinations}` : ""}
+
+${
+  data.specialRequests
+    ? `**Special Requests:**
+${data.specialRequests}`
+    : ""
+}
+
+---
+Please respond to this inquiry within 24 hours.
+  `.trim();
+  try {
+    const result = await notifyOwner({ title, content });
+    if (result) {
+      console.log(
+        `[Email] New booking notification sent for ${data.contactName}`
+      );
+    }
+    return result;
+  } catch (error) {
+    console.error("[Email] Failed to send new booking notification:", error);
+    return false;
+  }
+}
+
+// server/resendEmailService.ts
+import { Resend as Resend2 } from "resend";
+var _resend4 = null;
+function getResend4() {
+  if (!_resend4 && process.env.RESEND_API_KEY) {
+    _resend4 = new Resend2(process.env.RESEND_API_KEY);
+  }
+  return _resend4;
+}
+var NOTIFICATION_RECIPIENTS = [
+  "wiro.adventures@gmail.com",
+  "pasuthunjunkong@gmail.com",
+];
+var SENDER_EMAIL2 = "WIRO 4x4 Bookings <bookings@wiro4x4indochina.com>";
+function formatDate3(date) {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+function formatServices2(data) {
+  const services = [];
+  if (data.includesHotels) services.push("\u{1F3E8} Hotels");
+  if (data.includesGuide)
+    services.push("\u{1F5E3}\uFE0F Hebrew-speaking Guide");
+  if (data.includesTrip) services.push("\u{1F699} 4x4 Trip");
+  if (data.includesFood) services.push("\u{1F37D}\uFE0F Kosher Meals");
+  if (data.needsShabbatHotel) services.push("\u2721\uFE0F Shabbat Hotel");
+  return services.length > 0 ? services.join("<br>") : "None selected";
+}
+async function sendNewBookingEmail(data) {
+  const subject = `\u{1F389} New Booking Request: ${data.contactName}`;
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">New Booking Request Received!</p>
+      </div>
+
+      <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
+        <h2 style="color: #1a4d2e; margin-top: 0;">\u{1F4CB} Customer Details</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Name:</td>
+            <td style="padding: 8px 0; font-weight: bold;">${escapeHtml2(data.contactName)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Email:</td>
+            <td style="padding: 8px 0;"><a href="mailto:${data.contactEmail}" style="color: #1a4d2e;">${escapeHtml2(data.contactEmail)}</a></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Phone:</td>
+            <td style="padding: 8px 0;"><a href="tel:${data.contactPhone}" style="color: #1a4d2e;">${escapeHtml2(data.contactPhone)}</a></td>
+          </tr>
+        </table>
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+
+        <h2 style="color: #1a4d2e;">\u{1F4C5} Trip Details</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Arrival:</td>
+            <td style="padding: 8px 0; font-weight: bold;">${formatDate3(data.arrivalDate)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Departure:</td>
+            <td style="padding: 8px 0; font-weight: bold;">${formatDate3(data.departureDate)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Group Size:</td>
+            <td style="padding: 8px 0; font-weight: bold;">${data.numberOfAdults} Adults${data.numberOfChildren ? `, ${data.numberOfChildren} Children` : ""}</td>
+          </tr>
+        </table>
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+
+        <h2 style="color: #1a4d2e;">\u2728 Services Requested</h2>
+        <p style="line-height: 1.8;">${formatServices2(data)}</p>
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+
+        <h2 style="color: #1a4d2e;">\u{1F4CD} Logistics</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Pickup:</td>
+            <td style="padding: 8px 0;">${data.pickupPoint}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Dropoff:</td>
+            <td style="padding: 8px 0;">${data.dropoffPoint}</td>
+          </tr>
+          ${
+            data.suggestedDestinations
+              ? `
+          <tr>
+            <td style="padding: 8px 0; color: #666;">Destinations:</td>
+            <td style="padding: 8px 0;">${data.suggestedDestinations}</td>
+          </tr>
+          `
+              : ""
+          }
+        </table>
+
+        ${
+          data.specialRequests
+            ? `
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+        <h2 style="color: #1a4d2e;">\u{1F4AC} Special Requests</h2>
+        <p style="background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #d4af37;">${data.specialRequests}</p>
+        `
+            : ""
+        }
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+        <p style="color: #888; font-size: 12px; text-align: center;">
+          \u{1F4A1} Sent from WIRO 4x4 Booking System
+        </p>
+      </div>
+
+      <div style="background: #1a4d2e; color: white; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
+        <p style="margin: 0; font-size: 14px;">\u23F0 Please respond to this inquiry within 24 hours</p>
+        <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai</p>
+      </div>
+    </div>
+  `;
+  try {
+    const resend = getResend4();
+    if (!resend) {
+      console.warn("[Resend] API key not configured, skipping email");
+      return false;
+    }
+    const { data: result, error } = await resend.emails.send({
+      from: SENDER_EMAIL2,
+      to: NOTIFICATION_RECIPIENTS,
+      subject,
+      html: htmlContent,
+    });
+    if (error) {
+      console.error("[Resend] Failed to send new booking email:", error);
+      captureException(error);
+      return false;
+    }
+    console.log(
+      `[Resend] New booking email sent successfully. ID: ${result?.id}`
+    );
+    return true;
+  } catch (error) {
+    console.error("[Resend] Error sending new booking email:", error);
+    captureException(error);
+    return false;
+  }
+}
+
+// shared/schemas.ts
+import { z as z4 } from "zod";
 var noHtml = val => !/<[^>]*>/g.test(val);
-var bookingInputSchema = z3.object({
-  contactName: z3
+var bookingInputSchema = z4.object({
+  contactName: z4
     .string()
     .min(1, "Name is required")
     .max(200)
     .refine(noHtml, "HTML tags are not allowed"),
-  contactEmail: z3
+  contactEmail: z4
     .string()
     .email("Invalid email")
     .optional()
-    .or(z3.literal("")),
-  contactPhone: z3.string().min(1, "Phone is required"),
-  contactWhatsApp: z3.string().optional(),
-  agentName: z3.string().max(200).optional(),
-  arrivalDate: z3.string().transform(s => new Date(s)),
-  departureDate: z3.string().transform(s => new Date(s)),
-  numberOfAdults: z3.number().min(1).default(1),
-  hasChildren: z3.boolean().default(false),
-  numberOfChildren: z3.number().optional(),
-  childrenAges: z3.string().optional(),
-  includesHotels: z3.boolean().default(false),
-  hotelPreferences: z3.optional(
-    z3.string().max(500).refine(noHtml, "HTML tags are not allowed")
+    .or(z4.literal("")),
+  contactPhone: z4.string().min(1, "Phone is required"),
+  contactWhatsApp: z4.string().optional(),
+  agentName: z4.string().max(200).optional(),
+  arrivalDate: z4.string().transform(s => new Date(s)),
+  departureDate: z4.string().transform(s => new Date(s)),
+  numberOfAdults: z4.number().min(1).default(1),
+  hasChildren: z4.boolean().default(false),
+  numberOfChildren: z4.number().optional(),
+  childrenAges: z4.string().optional(),
+  includesHotels: z4.boolean().default(false),
+  hotelPreferences: z4.optional(
+    z4.string().max(500).refine(noHtml, "HTML tags are not allowed")
   ),
-  includesGuide: z3.boolean().default(false),
-  includesTrip: z3.boolean().default(false),
-  includesAttractions: z3.boolean().default(false),
-  selectedAttractions: z3.string().optional(),
-  includesFood: z3.boolean().default(false),
-  foodPreferences: z3.optional(
-    z3.string().max(500).refine(noHtml, "HTML tags are not allowed")
+  includesGuide: z4.boolean().default(false),
+  includesTrip: z4.boolean().default(false),
+  includesAttractions: z4.boolean().default(false),
+  selectedAttractions: z4.string().optional(),
+  includesFood: z4.boolean().default(false),
+  foodPreferences: z4.optional(
+    z4.string().max(500).refine(noHtml, "HTML tags are not allowed")
   ),
-  needsShabbatHotel: z3.boolean().default(false),
-  shabbatHotel: z3.string().optional(),
-  pickupPoint: z3.string().min(1, "Pickup point is required"),
-  customPickupLocation: z3.string().max(500).optional(),
-  dropoffPoint: z3.string().min(1, "Dropoff point is required"),
-  customDropoffLocation: z3.string().max(500).optional(),
-  suggestedDestinations: z3.string().max(500).optional(),
-  specialRequests: z3.optional(
-    z3.string().max(1e3).refine(noHtml, "HTML tags are not allowed")
+  needsShabbatHotel: z4.boolean().default(false),
+  shabbatHotel: z4.string().optional(),
+  pickupPoint: z4.string().min(1, "Pickup point is required"),
+  customPickupLocation: z4.string().max(500).optional(),
+  dropoffPoint: z4.string().min(1, "Dropoff point is required"),
+  customDropoffLocation: z4.string().max(500).optional(),
+  suggestedDestinations: z4.string().max(500).optional(),
+  specialRequests: z4.optional(
+    z4.string().max(1e3).refine(noHtml, "HTML tags are not allowed")
   ),
-  dietaryRestrictions: z3.optional(
-    z3.string().max(500).refine(noHtml, "HTML tags are not allowed")
+  dietaryRestrictions: z4.optional(
+    z4.string().max(500).refine(noHtml, "HTML tags are not allowed")
   ),
-  budget: z3.string().optional(),
-  source: z3.string().default("website"),
-  utmSource: z3.string().optional(),
-  utmMedium: z3.string().optional(),
-  utmCampaign: z3.string().optional(),
+  budget: z4.string().optional(),
+  source: z4.string().default("website"),
+  utmSource: z4.string().optional(),
+  utmMedium: z4.string().optional(),
+  utmCampaign: z4.string().optional(),
 });
-var agentInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required"),
-  email: z3.string().email("Invalid email"),
-  phone: z3.string().min(1, "Phone is required"),
-  whatsapp: z3.string().optional(),
-  specialties: z3.string().optional(),
-  languages: z3.string().optional(),
-  status: z3.enum(["active", "inactive", "on_leave"]).default("active"),
-  notes: z3.string().max(500).optional(),
+var agentInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required"),
+  email: z4.string().email("Invalid email"),
+  phone: z4.string().min(1, "Phone is required"),
+  whatsapp: z4.string().optional(),
+  specialties: z4.string().optional(),
+  languages: z4.string().optional(),
+  status: z4.enum(["active", "inactive", "on_leave"]).default("active"),
+  notes: z4.string().max(500).optional(),
 });
-var leadInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required"),
-  email: z3.string().email("Invalid email"),
-  phone: z3.string().optional(),
-  source: z3.string().default("website"),
-  interestedTours: z3.string().optional(),
-  message: z3.optional(
-    z3.string().max(1e3).refine(noHtml, "HTML tags are not allowed")
+var leadInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required"),
+  email: z4.string().email("Invalid email"),
+  phone: z4.string().optional(),
+  source: z4.string().default("website"),
+  interestedTours: z4.string().optional(),
+  message: z4.optional(
+    z4.string().max(1e3).refine(noHtml, "HTML tags are not allowed")
   ),
 });
-var financialRecordInputSchema = z3.object({
-  bookingId: z3.number(),
-  type: z3.enum(["revenue", "cost", "refund"]),
-  category: z3.string().min(1, "Category is required"),
-  amount: z3.number(),
-  currency: z3.string().default("THB"),
-  description: z3.string().optional(),
-  paymentMethod: z3.string().optional(),
-  paymentDate: z3
+var financialRecordInputSchema = z4.object({
+  bookingId: z4.number(),
+  type: z4.enum(["revenue", "cost", "refund"]),
+  category: z4.string().min(1, "Category is required"),
+  amount: z4.number(),
+  currency: z4.string().default("THB"),
+  description: z4.string().optional(),
+  paymentMethod: z4.string().optional(),
+  paymentDate: z4
     .string()
     .optional()
     .transform(s => (s ? new Date(s) : void 0)),
-  notes: z3.string().optional(),
+  notes: z4.string().optional(),
 });
-var tourInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required"),
-  nameHe: z3.string().min(1, "Hebrew name is required"),
-  slug: z3.string().optional(),
-  description: z3.string().min(1, "Description is required"),
-  descriptionHe: z3.string().min(1, "Hebrew description is required"),
-  duration: z3.string().min(1, "Duration is required"),
-  difficulty: z3.enum(["easy", "moderate", "challenging"]).default("moderate"),
-  price: z3.number().min(0, "Price must be positive"),
-  groupMinSize: z3.number().min(1).default(1),
-  groupMaxSize: z3.number().min(1).default(10),
-  imageUrl: z3.string().min(1, "Image URL is required"),
-  highlights: z3.string().optional(),
-  highlightsHe: z3.string().optional(),
-  includedItems: z3.string().optional(),
-  itinerary: z3.string().optional(),
-  isKosher: z3.boolean().default(true),
-  isPrivate: z3.boolean().default(true),
-  isShabbatOk: z3.boolean().default(true),
-  isActive: z3.boolean().default(true),
-  sortOrder: z3.number().default(0),
+var tourInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required"),
+  nameHe: z4.string().min(1, "Hebrew name is required"),
+  slug: z4.string().optional(),
+  description: z4.string().min(1, "Description is required"),
+  descriptionHe: z4.string().min(1, "Hebrew description is required"),
+  duration: z4.string().min(1, "Duration is required"),
+  difficulty: z4.enum(["easy", "moderate", "challenging"]).default("moderate"),
+  price: z4.number().min(0, "Price must be positive"),
+  groupMinSize: z4.number().min(1).default(1),
+  groupMaxSize: z4.number().min(1).default(10),
+  imageUrl: z4.string().min(1, "Image URL is required"),
+  highlights: z4.string().optional(),
+  highlightsHe: z4.string().optional(),
+  includedItems: z4.string().optional(),
+  itinerary: z4.string().optional(),
+  isKosher: z4.boolean().default(true),
+  isPrivate: z4.boolean().default(true),
+  isShabbatOk: z4.boolean().default(true),
+  isActive: z4.boolean().default(true),
+  sortOrder: z4.number().default(0),
 });
-var reviewInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required"),
-  email: z3.string().email("Invalid email"),
-  rating: z3.number().min(1).max(5),
-  text: z3
+var reviewInputSchema = z4.object({
+  bookingId: z4.number().optional(),
+  reviewRequestId: z4.number().optional(),
+  name: z4.string().min(1, "Name is required"),
+  email: z4.string().email("Invalid email"),
+  rating: z4.number().min(1).max(5),
+  text: z4
     .string()
     .min(1, "Review text is required")
     .max(2e3)
     .refine(noHtml, "HTML tags are not allowed"),
-  tourType: z3.string().optional(),
+  tourType: z4.string().optional(),
+  source: z4.string().max(50).optional(),
 });
-var blogPostInputSchema = z3.object({
-  title: z3.string().min(1),
-  titleHe: z3.string().optional(),
-  slug: z3.string().min(1),
-  excerpt: z3.string().optional(),
-  excerptHe: z3.string().optional(),
-  content: z3.string().min(1),
-  contentHe: z3.string().optional(),
-  coverImage: z3.string().optional(),
-  category: z3.string().optional(),
-  tags: z3.string().optional(),
-  isPublished: z3.boolean().optional(),
-  scheduledAt: z3.string().optional(),
+var blogPostInputSchema = z4.object({
+  title: z4.string().min(1),
+  titleHe: z4.string().optional(),
+  slug: z4.string().min(1),
+  excerpt: z4.string().optional(),
+  excerptHe: z4.string().optional(),
+  content: z4.string().min(1),
+  contentHe: z4.string().optional(),
+  coverImage: z4.string().optional(),
+  category: z4.string().optional(),
+  tags: z4.string().optional(),
+  isPublished: z4.boolean().optional(),
+  scheduledAt: z4.string().optional(),
   // ISO datetime string for scheduled publishing
-  author: z3.string().optional(),
+  author: z4.string().optional(),
 });
-var tourPackageInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required").max(255),
-  nameHe: z3.string().min(1, "Hebrew name is required").max(255),
-  slug: z3.string().optional(),
-  description: z3.string().optional(),
-  descriptionHe: z3.string().optional(),
-  tourSlugs: z3
-    .array(z3.string().min(1))
+var tourPackageInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required").max(255),
+  nameHe: z4.string().min(1, "Hebrew name is required").max(255),
+  slug: z4.string().optional(),
+  description: z4.string().optional(),
+  descriptionHe: z4.string().optional(),
+  tourSlugs: z4
+    .array(z4.string().min(1))
     .min(2, "At least 2 tours required")
     .max(5, "Maximum 5 tours"),
-  discountPercent: z3.number().min(0).max(50).nullable().optional(),
-  coverImage: z3.string().optional(),
-  isPublished: z3.boolean().optional(),
+  discountPercent: z4.number().min(0).max(50).nullable().optional(),
+  coverImage: z4.string().optional(),
+  isPublished: z4.boolean().optional(),
 });
-var createCheckoutSchema = z3.object({
-  bookingId: z3.number(),
-  amount: z3.number().positive(),
-  type: z3.enum(["deposit", "balance", "full"]),
+var createCheckoutSchema = z4.object({
+  bookingId: z4.number(),
+  amount: z4.number().positive(),
+  type: z4.enum(["deposit", "balance", "full"]),
 });
-var refundSchema = z3.object({
-  paymentId: z3.number(),
-  amount: z3.number().positive().optional(),
-  reason: z3.string().optional(),
+var refundSchema = z4.object({
+  paymentId: z4.number(),
+  amount: z4.number().positive().optional(),
+  reason: z4.string().optional(),
 });
-var verifySessionSchema = z3.object({
-  sessionId: z3.string(),
+var verifySessionSchema = z4.object({
+  sessionId: z4.string(),
 });
-var paginationInput = z3.object({
-  page: z3.number().min(1).default(1),
-  pageSize: z3.number().min(1).max(100).default(20),
+var paginationInput = z4.object({
+  page: z4.number().min(1).default(1),
+  pageSize: z4.number().min(1).max(100).default(20),
 });
-var customerInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required").max(255),
-  email: z3.string().email("Invalid email").optional().or(z3.literal("")),
-  phone: z3.string().max(50).optional(),
-  whatsapp: z3.string().max(50).optional(),
-  language: z3.enum(["en", "he"]).default("en"),
-  stage: z3
+var customerInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required").max(255),
+  email: z4.string().email("Invalid email").optional().or(z4.literal("")),
+  phone: z4.string().max(50).optional(),
+  whatsapp: z4.string().max(50).optional(),
+  language: z4.enum(["en", "he"]).default("en"),
+  stage: z4
     .enum(["prospect", "active", "completed", "vip", "inactive"])
     .default("prospect"),
-  source: z3.string().max(100).default("website"),
-  tags: z3.string().optional(),
+  source: z4.string().max(100).default("website"),
+  tags: z4.string().optional(),
   // JSON array string
-  notes: z3.string().max(2e3).optional(),
+  notes: z4.string().max(2e3).optional(),
 });
-var customerActivityInputSchema = z3.object({
-  customerId: z3.number(),
-  type: z3.enum([
+var customerActivityInputSchema = z4.object({
+  customerId: z4.number(),
+  type: z4.enum([
     "note",
     "call",
     "whatsapp",
@@ -8432,102 +10544,102 @@ var customerActivityInputSchema = z3.object({
     "follow_up",
     "status_change",
   ]),
-  content: z3.string().min(1, "Content is required").max(2e3),
-  dueDate: z3
+  content: z4.string().min(1, "Content is required").max(2e3),
+  dueDate: z4
     .string()
     .optional()
     .transform(s => (s ? new Date(s) : void 0)),
-  createdBy: z3.string().optional(),
+  createdBy: z4.string().optional(),
 });
-var updateUserRoleSchema = z3.object({
-  userId: z3.number(),
-  role: z3.enum(["user", "admin", "owner", "manager", "agent"]),
+var updateUserRoleSchema = z4.object({
+  userId: z4.number(),
+  role: z4.enum(["user", "admin", "owner", "manager", "agent"]),
 });
-var settingsUpdateSchema = z3.object({
-  key: z3.string().min(1).max(100),
-  value: z3.unknown(),
+var settingsUpdateSchema = z4.object({
+  key: z4.string().min(1).max(100),
+  value: z4.unknown(),
 });
-var bookingDraftInputSchema = z3.object({
-  contactName: z3.string().optional(),
-  contactEmail: z3.string().email().optional().or(z3.literal("")),
-  contactPhone: z3.string().optional(),
-  formData: z3.string(),
+var bookingDraftInputSchema = z4.object({
+  contactName: z4.string().optional(),
+  contactEmail: z4.string().email().optional().or(z4.literal("")),
+  contactPhone: z4.string().optional(),
+  formData: z4.string(),
   // JSON string
-  tourSlug: z3.string().optional(),
+  tourSlug: z4.string().optional(),
 });
-var invoiceInputSchema = z3.object({
-  bookingId: z3.number().optional(),
-  type: z3.enum(["tax_invoice", "receipt", "wht_certificate"]),
-  customerName: z3.string().min(1, "Customer name is required").max(255),
-  customerAddress: z3.string().max(1e3).optional(),
-  customerTaxId: z3.string().max(50).optional(),
-  currency: z3.enum(["THB", "ILS", "USD"]).default("THB"),
-  subtotal: z3.number().min(0),
-  vatAmount: z3.number().default(0),
-  whtRate: z3.number().min(0).max(500).default(0),
-  whtAmount: z3.number().default(0),
-  totalAmount: z3.number().min(0),
-  fxRate: z3.string().optional(),
-  thbEquivalent: z3.number().optional(),
-  paymentMethod: z3.string().max(50).optional(),
-  lineItems: z3.string().optional(),
-  notes: z3.string().max(2e3).optional(),
+var invoiceInputSchema = z4.object({
+  bookingId: z4.number().optional(),
+  type: z4.enum(["tax_invoice", "receipt", "wht_certificate"]),
+  customerName: z4.string().min(1, "Customer name is required").max(255),
+  customerAddress: z4.string().max(1e3).optional(),
+  customerTaxId: z4.string().max(50).optional(),
+  currency: z4.enum(["THB", "ILS", "USD"]).default("THB"),
+  subtotal: z4.number().min(0),
+  vatAmount: z4.number().default(0),
+  whtRate: z4.number().min(0).max(500).default(0),
+  whtAmount: z4.number().default(0),
+  totalAmount: z4.number().min(0),
+  fxRate: z4.string().optional(),
+  thbEquivalent: z4.number().optional(),
+  paymentMethod: z4.string().max(50).optional(),
+  lineItems: z4.string().optional(),
+  notes: z4.string().max(2e3).optional(),
 });
-var accountingEntryInputSchema = z3.object({
-  date: z3.string().transform(s => new Date(s)),
-  accountCode: z3.string().min(5).max(10),
-  description: z3.string().min(1, "Description is required").max(500),
-  debit: z3.number().min(0).default(0),
-  credit: z3.number().min(0).default(0),
-  currency: z3.enum(["THB", "ILS", "USD"]).default("THB"),
-  originalAmount: z3.number().optional(),
-  fxRate: z3.string().optional(),
-  bookingId: z3.number().optional(),
-  invoiceId: z3.number().optional(),
-  vendorPayee: z3.string().max(255).optional(),
-  documentRef: z3.string().max(100).optional(),
+var accountingEntryInputSchema = z4.object({
+  date: z4.string().transform(s => new Date(s)),
+  accountCode: z4.string().min(5).max(10),
+  description: z4.string().min(1, "Description is required").max(500),
+  debit: z4.number().min(0).default(0),
+  credit: z4.number().min(0).default(0),
+  currency: z4.enum(["THB", "ILS", "USD"]).default("THB"),
+  originalAmount: z4.number().optional(),
+  fxRate: z4.string().optional(),
+  bookingId: z4.number().optional(),
+  invoiceId: z4.number().optional(),
+  vendorPayee: z4.string().max(255).optional(),
+  documentRef: z4.string().max(100).optional(),
 });
-var taxFilingInputSchema = z3.object({
-  type: z3.enum([
+var taxFilingInputSchema = z4.object({
+  type: z4.enum([
     "vat_pp30",
     "wht_pnd3",
     "wht_pnd53",
     "cit_pnd50",
     "cit_pnd51",
   ]),
-  period: z3.string().min(4).max(20),
-  dueDate: z3.string().transform(s => new Date(s)),
-  outputVat: z3.number().optional(),
-  inputVat: z3.number().optional(),
-  netVat: z3.number().optional(),
-  whtTotal: z3.number().optional(),
-  taxableIncome: z3.number().optional(),
-  taxAmount: z3.number().optional(),
-  notes: z3.string().max(2e3).optional(),
+  period: z4.string().min(4).max(20),
+  dueDate: z4.string().transform(s => new Date(s)),
+  outputVat: z4.number().optional(),
+  inputVat: z4.number().optional(),
+  netVat: z4.number().optional(),
+  whtTotal: z4.number().optional(),
+  taxableIncome: z4.number().optional(),
+  taxAmount: z4.number().optional(),
+  notes: z4.string().max(2e3).optional(),
 });
-var inventoryInputSchema = z3.object({
-  name: z3.string().min(1, "Name is required").max(255),
-  category: z3.enum(["vehicle", "equipment", "supplies"]),
-  description: z3.string().max(1e3).optional(),
-  purchaseDate: z3
+var inventoryInputSchema = z4.object({
+  name: z4.string().min(1, "Name is required").max(255),
+  category: z4.enum(["vehicle", "equipment", "supplies"]),
+  description: z4.string().max(1e3).optional(),
+  purchaseDate: z4
     .string()
     .optional()
     .transform(s => (s ? new Date(s) : void 0)),
-  purchaseCost: z3.number().min(0).optional(),
-  currentValue: z3.number().min(0).optional(),
-  usefulLifeMonths: z3.number().min(1).optional(),
-  condition: z3
+  purchaseCost: z4.number().min(0).optional(),
+  currentValue: z4.number().min(0).optional(),
+  usefulLifeMonths: z4.number().min(1).optional(),
+  condition: z4
     .enum(["new", "good", "fair", "poor", "retired"])
     .default("good"),
-  quantity: z3.number().min(0).default(1),
-  location: z3.string().max(255).optional(),
-  notes: z3.string().max(2e3).optional(),
+  quantity: z4.number().min(0).default(1),
+  location: z4.string().max(255).optional(),
+  notes: z4.string().max(2e3).optional(),
 });
-var manualPaymentInputSchema = z3.object({
-  bookingId: z3.number(),
-  amount: z3.number().positive(),
-  currency: z3.string().default("THB"),
-  paymentMethod: z3.enum([
+var manualPaymentInputSchema = z4.object({
+  bookingId: z4.number(),
+  amount: z4.number().positive(),
+  currency: z4.string().default("THB"),
+  paymentMethod: z4.enum([
     "bank_transfer",
     "promptpay",
     "cash",
@@ -8535,43 +10647,43 @@ var manualPaymentInputSchema = z3.object({
     "wire",
     "other",
   ]),
-  notes: z3.string().optional(),
+  notes: z4.string().optional(),
 });
-var estimateEmailInputSchema = z3.object({
-  email: z3.string().email("Valid email required"),
-  selectedTours: z3.array(
-    z3.object({
-      slug: z3.string(),
-      nameEn: z3.string(),
-      nameHe: z3.string(),
-      basePrice: z3.number(),
+var estimateEmailInputSchema = z4.object({
+  email: z4.string().email("Valid email required"),
+  selectedTours: z4.array(
+    z4.object({
+      slug: z4.string(),
+      nameEn: z4.string(),
+      nameHe: z4.string(),
+      basePrice: z4.number(),
     })
   ),
-  adults: z3.number().min(1),
-  children: z3.array(z3.number().min(0).max(17)),
-  arrivalDate: z3.string(),
-  departureDate: z3.string(),
-  includesHotels: z3.boolean(),
-  includesFood: z3.boolean(),
-  includesAttractions: z3.boolean(),
-  attractionCount: z3.number().min(1),
-  needsShabbatHotel: z3.boolean(),
-  total: z3.number(),
-  language: z3.enum(["en", "he"]),
+  adults: z4.number().min(1),
+  children: z4.array(z4.number().min(0).max(17)),
+  arrivalDate: z4.string(),
+  departureDate: z4.string(),
+  includesHotels: z4.boolean(),
+  includesFood: z4.boolean(),
+  includesAttractions: z4.boolean(),
+  attractionCount: z4.number().min(1),
+  needsShabbatHotel: z4.boolean(),
+  total: z4.number(),
+  language: z4.enum(["en", "he"]),
 });
-var userPhotoSubmissionSchema = z3.object({
-  name: z3
+var userPhotoSubmissionSchema = z4.object({
+  name: z4
     .string()
     .min(1, "Name is required")
     .max(255)
     .refine(noHtml, "HTML tags are not allowed"),
-  email: z3.string().email("Invalid email"),
-  title: z3
+  email: z4.string().email("Invalid email"),
+  title: z4
     .string()
     .min(1, "Caption is required")
     .max(255)
     .refine(noHtml, "HTML tags are not allowed"),
-  category: z3
+  category: z4
     .enum([
       "tours",
       "vehicles",
@@ -8582,13 +10694,14 @@ var userPhotoSubmissionSchema = z3.object({
       "other",
     ])
     .default("other"),
-  tourDate: z3.string().max(50).optional(),
+  tourDate: z4.string().max(50).optional(),
 });
 
 // server/routes/booking.ts
 init_eliNotify();
 init_bookingReminder();
 init_upsellService();
+init_postTourReviewService();
 var bookingRouter = router({
   create: securePublicProcedure
     .input(bookingInputSchema)
@@ -8616,11 +10729,23 @@ var bookingRouter = router({
       };
       const result = await createBooking(bookingData);
       const bookingId = result[0]?.insertId ?? 0;
+      dispatchN8nEventInBackground("booking.created", {
+        bookingId,
+        booking: {
+          ...input,
+          arrivalDate: input.arrivalDate.toISOString(),
+          departureDate: input.departureDate.toISOString(),
+        },
+        request: {
+          referrer: ctx.req.headers.referer ?? ctx.req.headers.referrer ?? null,
+          acceptLanguage: ctx.req.headers["accept-language"] ?? null,
+        },
+      });
       findOrCreateCustomer({
         name: input.contactName,
         email: input.contactEmail || void 0,
         phone: input.contactPhone,
-        source: "booking",
+        source: input.source,
       })
         .then(async customerId => {
           if (customerId) {
@@ -8729,16 +10854,16 @@ var bookingRouter = router({
       };
     }),
   getById: secureProtectedProcedure
-    .input(z4.object({ id: z4.number() }))
+    .input(z5.object({ id: z5.number() }))
     .query(async ({ input }) => {
       return await getBookingById(input.id);
     }),
   update: secureProtectedProcedure
     .input(
-      z4.object({
-        id: z4.number(),
-        data: z4.object({
-          status: z4
+      z5.object({
+        id: z5.number(),
+        data: z5.object({
+          status: z5
             .enum([
               "pending",
               "confirmed",
@@ -8747,11 +10872,11 @@ var bookingRouter = router({
               "cancelled",
             ])
             .optional(),
-          totalPrice: z4.number().optional(),
-          depositPaid: z4.number().optional(),
-          balancePaid: z4.number().optional(),
-          assignedAgentId: z4.number().optional(),
-          notes: z4.string().optional(),
+          totalPrice: z5.number().optional(),
+          depositPaid: z5.number().optional(),
+          balancePaid: z5.number().optional(),
+          assignedAgentId: z5.number().optional(),
+          notes: z5.string().optional(),
         }),
       })
     )
@@ -8769,6 +10894,13 @@ var bookingRouter = router({
       });
       if (input.data.status && oldStatus && input.data.status !== oldStatus) {
         const name = oldBooking?.contactName ?? `#${input.id}`;
+        dispatchN8nEventInBackground("booking.status_changed", {
+          bookingId: input.id,
+          oldStatus,
+          newStatus: input.data.status,
+          booking: oldBooking ?? null,
+          updatedFields: input.data,
+        });
         if (input.data.status === "confirmed") {
           console.log(
             `[BookingStatus] Booking for ${name} confirmed (was: ${oldStatus}) \u2014 notification pending`
@@ -8783,6 +10915,11 @@ var bookingRouter = router({
           );
         }
         if (input.data.status === "completed") {
+          dispatchN8nEventInBackground("booking.completed", {
+            bookingId: input.id,
+            completedAt: /* @__PURE__ */ new Date().toISOString(),
+            booking: oldBooking ?? null,
+          });
           scheduleUpsell({
             bookingId: input.id,
             customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
@@ -8790,6 +10927,15 @@ var bookingRouter = router({
             completedAt: /* @__PURE__ */ new Date(),
           }).catch(err => {
             console.error("[Booking] Failed to schedule upsell:", err);
+          });
+          schedulePostTourReviewForBooking({
+            bookingId: input.id,
+            completedAt: /* @__PURE__ */ new Date(),
+          }).catch(err => {
+            console.error(
+              "[Booking] Failed to schedule post-tour review request:",
+              err
+            );
           });
         }
       }
@@ -8804,7 +10950,7 @@ var bookingRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z4.object({ id: z4.number() }))
+    .input(z5.object({ id: z5.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteBooking(input.id);
@@ -8817,7 +10963,7 @@ var bookingRouter = router({
       return { success: true };
     }),
   bulkDelete: secureProtectedProcedure
-    .input(z4.object({ ids: z4.array(z4.number()).min(1) }))
+    .input(z5.object({ ids: z5.array(z5.number()).min(1) }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await bulkDeleteBookings(input.ids);
@@ -8830,7 +10976,7 @@ var bookingRouter = router({
       return { success: true, deleted: input.ids.length };
     }),
   sendReminder: secureProtectedProcedure
-    .input(z4.object({ id: z4.number() }))
+    .input(z5.object({ id: z5.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const booking = await getBookingById(input.id);
@@ -8853,7 +10999,7 @@ var bookingRouter = router({
       return { success: true };
     }),
   suggestAgent: secureProtectedProcedure
-    .input(z4.object({ bookingId: z4.number() }))
+    .input(z5.object({ bookingId: z5.number() }))
     .query(async ({ input }) => {
       const booking = await getBookingById(input.bookingId);
       if (!booking)
@@ -8921,15 +11067,15 @@ var bookingRouter = router({
     }),
   updateDate: secureProtectedProcedure
     .input(
-      z4.object({
-        id: z4.number(),
-        arrivalDate: z4
+      z5.object({
+        id: z5.number(),
+        arrivalDate: z5
           .string()
-          .or(z4.date())
+          .or(z5.date())
           .transform(v => new Date(v)),
-        departureDate: z4
+        departureDate: z5
           .string()
-          .or(z4.date())
+          .or(z5.date())
           .transform(v => new Date(v)),
       })
     )
@@ -8953,10 +11099,10 @@ var bookingRouter = router({
     }),
   bulkEmail: secureProtectedProcedure
     .input(
-      z4.object({
-        bookingIds: z4.array(z4.number()).min(1),
-        subject: z4.string().min(1).max(200),
-        message: z4.string().min(1).max(5e3),
+      z5.object({
+        bookingIds: z5.array(z5.number()).min(1),
+        subject: z5.string().min(1).max(200),
+        message: z5.string().min(1).max(5e3),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -8995,7 +11141,7 @@ var bookingRouter = router({
 });
 
 // server/routes/agent.ts
-import { z as z5 } from "zod";
+import { z as z6 } from "zod";
 init_db();
 var agentRouter = router({
   create: secureProtectedProcedure
@@ -9015,14 +11161,14 @@ var agentRouter = router({
     return await getAllAgents();
   }),
   getById: secureProtectedProcedure
-    .input(z5.object({ id: z5.number() }))
+    .input(z6.object({ id: z6.number() }))
     .query(async ({ input }) => {
       return await getAgentById(input.id);
     }),
   update: secureProtectedProcedure
     .input(
-      z5.object({
-        id: z5.number(),
+      z6.object({
+        id: z6.number(),
         data: agentInputSchema.partial(),
       })
     )
@@ -9039,7 +11185,7 @@ var agentRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z5.object({ id: z5.number() }))
+    .input(z6.object({ id: z6.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteAgent(input.id);
@@ -9052,7 +11198,7 @@ var agentRouter = router({
       return { success: true };
     }),
   bookings: secureProtectedProcedure
-    .input(z5.object({ agentId: z5.number() }))
+    .input(z6.object({ agentId: z6.number() }))
     .query(async ({ input }) => {
       return await getBookingsByAgentId(input.agentId);
     }),
@@ -9061,9 +11207,9 @@ var agentRouter = router({
   }),
   updateAvailability: secureProtectedProcedure
     .input(
-      z5.object({
-        id: z5.number(),
-        status: z5.enum(["active", "inactive", "on_leave"]),
+      z6.object({
+        id: z6.number(),
+        status: z6.enum(["active", "inactive", "on_leave"]),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -9081,7 +11227,7 @@ var agentRouter = router({
 });
 
 // server/routes/lead.ts
-import { z as z6 } from "zod";
+import { z as z7 } from "zod";
 init_db();
 
 // server/autoResponse.ts
@@ -9089,16 +11235,16 @@ init_llm();
 init_db();
 import { Resend as Resend3 } from "resend";
 var SENDER_EMAIL3 = COMPANY_SENDER_EMAIL;
-var _resend3 = null;
-function getResend3() {
-  if (!_resend3 && process.env.RESEND_API_KEY) {
-    _resend3 = new Resend3(process.env.RESEND_API_KEY);
+var _resend5 = null;
+function getResend5() {
+  if (!_resend5 && process.env.RESEND_API_KEY) {
+    _resend5 = new Resend3(process.env.RESEND_API_KEY);
   }
-  return _resend3;
+  return _resend5;
 }
 async function sendAutoResponse(lead) {
   try {
-    const resend = getResend3();
+    const resend = getResend5();
     if (!resend) {
       console.warn(
         "[AutoResponse] Resend API key not configured, skipping auto-response"
@@ -9427,6 +11573,17 @@ var leadRouter = router({
         ).catch(err =>
           console.error("[Lead] Failed to update lead score:", err)
         );
+        dispatchN8nEventInBackground("lead.created", {
+          lead: newLead,
+          score: result.score,
+          scoreDetails: result.details,
+          source: input.source ?? "website",
+          request: {
+            referrer:
+              ctx.req.headers.referer ?? ctx.req.headers.referrer ?? null,
+            acceptLanguage: ctx.req.headers["accept-language"] ?? null,
+          },
+        });
       }
       notifyNewLead({
         name: input.name,
@@ -9454,7 +11611,7 @@ var leadRouter = router({
   listPaginated: secureProtectedProcedure
     .input(
       paginationInput.extend({
-        sortBy: z6.enum(["score", "date"]).default("score"),
+        sortBy: z7.enum(["score", "date"]).default("score"),
       })
     )
     .query(async ({ input }) => {
@@ -9473,14 +11630,14 @@ var leadRouter = router({
     }),
   update: secureProtectedProcedure
     .input(
-      z6.object({
-        id: z6.number(),
-        data: z6.object({
-          status: z6
+      z7.object({
+        id: z7.number(),
+        data: z7.object({
+          status: z7
             .enum(["new", "contacted", "quoted", "converted", "lost"])
             .optional(),
-          convertedToBookingId: z6.number().optional(),
-          notes: z6.string().optional(),
+          convertedToBookingId: z7.number().optional(),
+          notes: z7.string().optional(),
         }),
       })
     )
@@ -9497,7 +11654,7 @@ var leadRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z6.object({ id: z6.number() }))
+    .input(z7.object({ id: z7.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteLead(input.id);
@@ -9510,7 +11667,7 @@ var leadRouter = router({
       return { success: true };
     }),
   bulkDelete: secureProtectedProcedure
-    .input(z6.object({ ids: z6.array(z6.number()).min(1) }))
+    .input(z7.object({ ids: z7.array(z7.number()).min(1) }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await bulkDeleteLeads(input.ids);
@@ -9525,7 +11682,7 @@ var leadRouter = router({
 });
 
 // server/routes/financial.ts
-import { z as z7 } from "zod";
+import { z as z8 } from "zod";
 init_db();
 var financialRouter = router({
   create: secureProtectedProcedure
@@ -9542,7 +11699,7 @@ var financialRouter = router({
       return { success: true };
     }),
   listByBooking: secureProtectedProcedure
-    .input(z7.object({ bookingId: z7.number() }))
+    .input(z8.object({ bookingId: z8.number() }))
     .query(async ({ input }) => {
       return await getFinancialRecordsByBookingId(input.bookingId);
     }),
@@ -9567,15 +11724,15 @@ var financialRouter = router({
     }),
   update: secureProtectedProcedure
     .input(
-      z7.object({
-        id: z7.number(),
-        data: z7.object({
-          type: z7.enum(["revenue", "cost", "refund"]).optional(),
-          category: z7.string().optional(),
-          amount: z7.number().optional(),
-          description: z7.string().optional(),
-          paymentMethod: z7.string().optional(),
-          notes: z7.string().optional(),
+      z8.object({
+        id: z8.number(),
+        data: z8.object({
+          type: z8.enum(["revenue", "cost", "refund"]).optional(),
+          category: z8.string().optional(),
+          amount: z8.number().optional(),
+          description: z8.string().optional(),
+          paymentMethod: z8.string().optional(),
+          notes: z8.string().optional(),
         }),
       })
     )
@@ -9592,7 +11749,7 @@ var financialRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z7.object({ id: z7.number() }))
+    .input(z8.object({ id: z8.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteFinancialRecord(input.id);
@@ -9616,8 +11773,8 @@ var financialRouter = router({
 });
 
 // server/routes/gallery.ts
-import { z as z8 } from "zod";
-import { randomUUID } from "crypto";
+import { z as z9 } from "zod";
+import { randomUUID as randomUUID2 } from "crypto";
 init_db();
 
 // server/storage.ts
@@ -9699,9 +11856,9 @@ async function storagePut(
 var galleryRouter = router({
   list: securePublicProcedure
     .input(
-      z8
+      z9
         .object({
-          limit: z8.number().min(1).max(200).optional(),
+          limit: z9.number().min(1).max(200).optional(),
         })
         .optional()
     )
@@ -9716,7 +11873,7 @@ var galleryRouter = router({
   listPaginated: securePublicProcedure
     .input(
       paginationInput.extend({
-        category: z8.string().optional(),
+        category: z9.string().optional(),
       })
     )
     .query(async ({ input }) => {
@@ -9756,11 +11913,11 @@ var galleryRouter = router({
     }),
   create: secureProtectedProcedure
     .input(
-      z8.object({
-        title: z8.string().min(1),
-        imageUrl: z8.string().min(1),
-        description: z8.string().optional(),
-        category: z8
+      z9.object({
+        title: z9.string().min(1),
+        imageUrl: z9.string().min(1),
+        description: z9.string().optional(),
+        category: z9
           .enum([
             "tours",
             "vehicles",
@@ -9771,8 +11928,8 @@ var galleryRouter = router({
             "other",
           ])
           .default("other"),
-        sortOrder: z8.number().default(0),
-        isPublished: z8.boolean().default(true),
+        sortOrder: z9.number().default(0),
+        isPublished: z9.boolean().default(true),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -9800,13 +11957,13 @@ var galleryRouter = router({
     }),
   update: secureProtectedProcedure
     .input(
-      z8.object({
-        id: z8.number(),
-        data: z8.object({
-          title: z8.string().optional(),
-          imageUrl: z8.string().optional(),
-          description: z8.string().optional(),
-          category: z8
+      z9.object({
+        id: z9.number(),
+        data: z9.object({
+          title: z9.string().optional(),
+          imageUrl: z9.string().optional(),
+          description: z9.string().optional(),
+          category: z9
             .enum([
               "tours",
               "vehicles",
@@ -9817,9 +11974,9 @@ var galleryRouter = router({
               "other",
             ])
             .optional(),
-          sortOrder: z8.number().optional(),
-          isPublished: z8.boolean().optional(),
-          isFeatured: z8.boolean().optional(),
+          sortOrder: z9.number().optional(),
+          isPublished: z9.boolean().optional(),
+          isFeatured: z9.boolean().optional(),
         }),
       })
     )
@@ -9853,7 +12010,7 @@ var galleryRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z8.object({ id: z8.number() }))
+    .input(z9.object({ id: z9.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteGalleryPhoto(input.id);
@@ -9867,10 +12024,10 @@ var galleryRouter = router({
     }),
   upload: secureProtectedProcedure
     .input(
-      z8.object({
-        filename: z8.string(),
-        contentType: z8.string(),
-        base64Data: z8.string(),
+      z9.object({
+        filename: z9.string(),
+        contentType: z9.string(),
+        base64Data: z9.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -9898,7 +12055,7 @@ var galleryRouter = router({
         input.contentType.split("/")[1] === "jpeg"
           ? "jpg"
           : input.contentType.split("/")[1];
-      const safeFilename = `${randomUUID()}.${ext}`;
+      const safeFilename = `${randomUUID2()}.${ext}`;
       const key = `gallery/${safeFilename}`;
       const buffer = Buffer.from(input.base64Data, "base64");
       let result;
@@ -9923,11 +12080,11 @@ var galleryRouter = router({
   // Public: user-submitted photo upload
   submitUserPhoto: securePublicProcedure
     .input(
-      z8.object({
+      z9.object({
         metadata: userPhotoSubmissionSchema,
-        filename: z8.string(),
-        contentType: z8.string(),
-        base64Data: z8.string(),
+        filename: z9.string(),
+        contentType: z9.string(),
+        base64Data: z9.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -9960,7 +12117,7 @@ var galleryRouter = router({
         input.contentType.split("/")[1] === "jpeg"
           ? "jpg"
           : input.contentType.split("/")[1];
-      const safeFilename = `${randomUUID()}.${ext}`;
+      const safeFilename = `${randomUUID2()}.${ext}`;
       const key = `gallery/user-submissions/${safeFilename}`;
       const buffer = Buffer.from(input.base64Data, "base64");
       let result;
@@ -9990,17 +12147,21 @@ var galleryRouter = router({
 });
 
 // server/routes/review.ts
-import { z as z9 } from "zod";
+import { z as z10 } from "zod";
 init_db();
+init_postTourReviewService();
 var reviewRouter = router({
   create: securePublicProcedure
     .input(
-      z9.object({
-        name: z9.string().min(1, "Name is required"),
-        email: z9.string().email("Invalid email"),
-        rating: z9.number().min(1).max(5),
-        text: z9.string().min(1, "Review text is required"),
-        tourType: z9.string().optional(),
+      z10.object({
+        bookingId: z10.number().int().positive().optional(),
+        reviewRequestId: z10.number().int().positive().optional(),
+        name: z10.string().min(1, "Name is required"),
+        email: z10.string().email("Invalid email"),
+        rating: z10.number().min(1).max(5),
+        text: z10.string().min(1, "Review text is required"),
+        tourType: z10.string().optional(),
+        source: z10.string().max(50).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -10017,10 +12178,43 @@ var reviewRouter = router({
       }
       await createReview({
         ...input,
+        source:
+          input.source ??
+          (input.reviewRequestId ? "whatsapp_post_tour" : "website"),
         isApproved: 0,
         isPublished: 0,
       });
+      dispatchN8nEventInBackground("review.submitted", {
+        review: {
+          ...input,
+          source:
+            input.source ??
+            (input.reviewRequestId ? "whatsapp_post_tour" : "website"),
+          status: "pending",
+        },
+        request: {
+          referrer: ctx.req.headers.referer ?? ctx.req.headers.referrer ?? null,
+          acceptLanguage: ctx.req.headers["accept-language"] ?? null,
+        },
+      });
+      try {
+        await trackPostTourReviewSubmission({
+          reviewRequestId: input.reviewRequestId,
+          bookingId: input.bookingId,
+          rating: input.rating,
+          text: input.text,
+          reviewerName: input.name,
+        });
+      } catch (err) {
+        console.error("[Review] Failed to track post-tour submission:", err);
+      }
       return { success: true, message: "Review submitted for approval" };
+    }),
+  markClicked: securePublicProcedure
+    .input(z10.object({ reviewRequestId: z10.number().int().positive() }))
+    .mutation(async ({ input }) => {
+      await trackPostTourReviewLinkClick(input.reviewRequestId);
+      return { success: true };
     }),
   listPublic: securePublicProcedure.query(async () => {
     return await getApprovedReviews();
@@ -10063,11 +12257,11 @@ var reviewRouter = router({
   }),
   update: secureProtectedProcedure
     .input(
-      z9.object({
-        id: z9.number(),
-        data: z9.object({
-          status: z9.enum(["pending", "approved", "rejected"]).optional(),
-          adminResponse: z9.string().optional(),
+      z10.object({
+        id: z10.number(),
+        data: z10.object({
+          status: z10.enum(["pending", "approved", "rejected"]).optional(),
+          adminResponse: z10.string().optional(),
         }),
       })
     )
@@ -10094,10 +12288,16 @@ var reviewRouter = router({
         resourceId: input.id,
         newValue: JSON.stringify(input.data),
       });
+      dispatchN8nEventInBackground("review.status_updated", {
+        reviewId: input.id,
+        status: input.data.status ?? null,
+        adminResponse: input.data.adminResponse ?? null,
+        updatedBy: ctx.user?.email ?? null,
+      });
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z9.object({ id: z9.number() }))
+    .input(z10.object({ id: z10.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteReview(input.id);
@@ -10110,7 +12310,7 @@ var reviewRouter = router({
       return { success: true };
     }),
   bulkApprove: secureProtectedProcedure
-    .input(z9.object({ ids: z9.array(z9.number()).min(1) }))
+    .input(z10.object({ ids: z10.array(z10.number()).min(1) }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await bulkApproveReviews(input.ids);
@@ -10123,7 +12323,7 @@ var reviewRouter = router({
       return { success: true, approved: input.ids.length };
     }),
   bulkDelete: secureProtectedProcedure
-    .input(z9.object({ ids: z9.array(z9.number()).min(1) }))
+    .input(z10.object({ ids: z10.array(z10.number()).min(1) }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await bulkDeleteReviews(input.ids);
@@ -10138,7 +12338,7 @@ var reviewRouter = router({
 });
 
 // server/routes/payment.ts
-import { z as z10 } from "zod";
+import { z as z11 } from "zod";
 init_db();
 
 // server/stripe.ts
@@ -10371,7 +12571,7 @@ async function processRefund(paymentId, amount, reason) {
 // server/routes/payment.ts
 var paymentRouter = router({
   listByBooking: secureProtectedProcedure
-    .input(z10.object({ bookingId: z10.number() }))
+    .input(z11.object({ bookingId: z11.number() }))
     .query(async ({ input }) => {
       return await getPaymentsByBookingId(input.bookingId);
     }),
@@ -10564,7 +12764,7 @@ var paymentRouter = router({
 });
 
 // server/routes/tour.ts
-import { z as z11 } from "zod";
+import { z as z12 } from "zod";
 init_db();
 function generateSlug(name) {
   return name
@@ -10577,7 +12777,7 @@ var tourRouter = router({
     return await getAllActiveTours();
   }),
   getBySlug: securePublicProcedure
-    .input(z11.object({ slug: z11.string() }))
+    .input(z12.object({ slug: z12.string() }))
     .query(async ({ input }) => {
       return await getTourBySlug(input.slug);
     }),
@@ -10620,8 +12820,8 @@ var tourRouter = router({
     }),
   update: secureProtectedProcedure
     .input(
-      z11.object({
-        id: z11.number(),
+      z12.object({
+        id: z12.number(),
         data: tourInputSchema.partial(),
       })
     )
@@ -10668,7 +12868,7 @@ var tourRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z11.object({ id: z11.number() }))
+    .input(z12.object({ id: z12.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteTour(input.id);
@@ -10683,7 +12883,7 @@ var tourRouter = router({
 });
 
 // server/routes/blog.ts
-import { z as z12 } from "zod";
+import { z as z13 } from "zod";
 init_db();
 
 // server/aiContentGenerator.ts
@@ -10859,7 +13059,7 @@ var blogRouter = router({
     return await getAllPublishedBlogPosts();
   }),
   getBySlug: securePublicProcedure
-    .input(z12.object({ slug: z12.string() }))
+    .input(z13.object({ slug: z13.string() }))
     .query(async ({ input }) => {
       return await getPublishedBlogPostBySlug(input.slug);
     }),
@@ -10905,8 +13105,8 @@ var blogRouter = router({
     }),
   update: secureProtectedProcedure
     .input(
-      z12.object({
-        id: z12.number(),
+      z13.object({
+        id: z13.number(),
         data: blogPostInputSchema.partial(),
       })
     )
@@ -10950,7 +13150,7 @@ var blogRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z12.object({ id: z12.number() }))
+    .input(z13.object({ id: z13.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteBlogPost(input.id);
@@ -10964,11 +13164,11 @@ var blogRouter = router({
     }),
   uploadImage: secureProtectedProcedure
     .input(
-      z12.object({
-        fileName: z12.string().min(1),
-        fileData: z12.string().min(1),
+      z13.object({
+        fileName: z13.string().min(1),
+        fileData: z13.string().min(1),
         // base64
-        contentType: z12.string().default("image/jpeg"),
+        contentType: z13.string().default("image/jpeg"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -10996,12 +13196,12 @@ var blogRouter = router({
     }),
   generateDraft: secureProtectedProcedure
     .input(
-      z12.object({
-        topic: z12.string().min(1),
-        tone: z12
+      z13.object({
+        topic: z13.string().min(1),
+        tone: z13
           .enum(["informative", "adventurous", "practical"])
           .default("informative"),
-        length: z12.number().min(300).max(3e3).default(1e3),
+        length: z13.number().min(300).max(3e3).default(1e3),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -11027,83 +13227,15 @@ var blogRouter = router({
 });
 
 // server/routes/newsletter.ts
-import { z as z13 } from "zod";
+import { z as z14 } from "zod";
 init_db();
-
-// server/newsletterEmailService.ts
-init_db();
-var _resend4 = null;
-function getResend4() {
-  if (!_resend4) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.warn(
-        "[Newsletter] No RESEND_API_KEY \u2014 emails will not be sent"
-      );
-      return null;
-    }
-    const { Resend: Resend8 } = __require("resend");
-    _resend4 = new Resend8(apiKey);
-  }
-  return _resend4;
-}
-async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
-  const resend = getResend4();
-  if (!resend) {
-    console.warn("[Newsletter] Resend not configured, skipping email send");
-    return 0;
-  }
-  const post = await getBlogPostById(blogPostId);
-  if (!post) {
-    console.error(`[Newsletter] Blog post ${blogPostId} not found`);
-    return 0;
-  }
-  const siteUrl = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
-  const postUrl = `${siteUrl}/blog/${post.slug}`;
-  const emailSubject = subject || `New from WIRO 4x4: ${post.title}`;
-  let sent = 0;
-  for (const sub of subscribers2) {
-    try {
-      const isHe = sub.language === "he";
-      const title = isHe && post.titleHe ? post.titleHe : post.title;
-      const excerpt =
-        isHe && post.excerptHe ? post.excerptHe : post.excerpt || "";
-      const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(sub.email)}`;
-      await resend.emails.send({
-        from: "WIRO 4x4 <updates@wiro4x4indochina.com>",
-        to: sub.email,
-        subject: emailSubject,
-        html: `
-          <div style="max-width:600px;margin:0 auto;font-family:sans-serif;">
-            <h1 style="color:#1c1c1c;">${title}</h1>
-            ${post.coverImage ? `<img src="${post.coverImage}" alt="${title}" style="width:100%;border-radius:8px;margin:16px 0;" />` : ""}
-            <p style="color:#555;font-size:16px;line-height:1.6;">${excerpt}</p>
-            <a href="${postUrl}" style="display:inline-block;padding:12px 24px;background:#D4AF37;color:#fff;text-decoration:none;border-radius:4px;margin:16px 0;">
-              ${isHe ? "\u05E7\u05E8\u05D0\u05D5 \u05E2\u05D5\u05D3" : "Read More"}
-            </a>
-            <hr style="border:none;border-top:1px solid #eee;margin:32px 0;" />
-            <p style="font-size:12px;color:#999;">
-              <a href="${unsubscribeUrl}" style="color:#999;">${isHe ? "\u05D1\u05D9\u05D8\u05D5\u05DC \u05D4\u05E8\u05E9\u05DE\u05D4" : "Unsubscribe"}</a>
-            </p>
-          </div>
-        `,
-      });
-      sent++;
-    } catch (err) {
-      console.error(`[Newsletter] Failed to send to ${sub.email}:`, err);
-    }
-  }
-  return sent;
-}
-
-// server/routes/newsletter.ts
 var newsletterRouter = router({
   subscribe: securePublicProcedure
     .input(
-      z13.object({
-        email: z13.string().email(),
-        name: z13.string().optional(),
-        language: z13.string().default("en"),
+      z14.object({
+        email: z14.string().email(),
+        name: z14.string().optional(),
+        language: z14.string().default("en"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -11123,10 +13255,17 @@ var newsletterRouter = router({
         return { success: true, message: "Already subscribed" };
       }
       await createSubscriber(input);
+      dispatchN8nEventInBackground("newsletter.subscribed", {
+        subscriber: input,
+        request: {
+          referrer: ctx.req.headers.referer ?? ctx.req.headers.referrer ?? null,
+          acceptLanguage: ctx.req.headers["accept-language"] ?? null,
+        },
+      });
       return { success: true, message: "Successfully subscribed!" };
     }),
   unsubscribe: securePublicProcedure
-    .input(z13.object({ email: z13.string().email() }))
+    .input(z14.object({ email: z14.string().email() }))
     .mutation(async ({ input }) => {
       await deactivateSubscriber(input.email);
       return { success: true, message: "Unsubscribed successfully" };
@@ -11136,9 +13275,9 @@ var newsletterRouter = router({
   }),
   send: secureProtectedProcedure
     .input(
-      z13.object({
-        blogPostId: z13.number(),
-        subject: z13.string().optional(),
+      z14.object({
+        blogPostId: z14.number(),
+        subject: z14.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -11161,12 +13300,18 @@ var newsletterRouter = router({
           recipientCount: sent,
         }),
       });
+      dispatchN8nEventInBackground("newsletter.sent", {
+        blogPostId: input.blogPostId,
+        subject: input.subject ?? null,
+        recipientCount: sent,
+        sentBy: ctx.user?.email ?? null,
+      });
       return { success: true, sent, message: `Sent to ${sent} subscribers` };
     }),
 });
 
 // server/routes/health.ts
-import { sql as sql19 } from "drizzle-orm";
+import { sql as sql22 } from "drizzle-orm";
 init_db();
 var healthRouter = router({
   readiness: securePublicProcedure.query(async () => {
@@ -11178,7 +13323,7 @@ var healthRouter = router({
       });
     }
     try {
-      await db.select({ val: sql19`1` }).from(sql19`dual`);
+      await db.select({ val: sql22`1` }).from(sql22`dual`);
       return { status: "ready", database: "connected" };
     } catch (err) {
       captureException(err);
@@ -11197,7 +13342,7 @@ var healthRouter = router({
 });
 
 // server/routes/crm.ts
-import { z as z14 } from "zod";
+import { z as z15 } from "zod";
 init_db();
 var crmRouter = router({
   listCustomers: secureManagerProcedure
@@ -11214,7 +13359,7 @@ var crmRouter = router({
       };
     }),
   getCustomer: secureManagerProcedure
-    .input(z14.object({ id: z14.number() }))
+    .input(z15.object({ id: z15.number() }))
     .query(async ({ input }) => {
       const customer = await getCustomerById(input.id);
       if (!customer) return null;
@@ -11240,7 +13385,7 @@ var crmRouter = router({
     }),
   updateCustomer: secureManagerProcedure
     .input(
-      z14.object({ id: z14.number(), data: customerInputSchema.partial() })
+      z15.object({ id: z15.number(), data: customerInputSchema.partial() })
     )
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
@@ -11255,7 +13400,7 @@ var crmRouter = router({
       return { success: true };
     }),
   deleteCustomer: secureOwnerProcedure
-    .input(z14.object({ id: z14.number() }))
+    .input(z15.object({ id: z15.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteCustomer(input.id);
@@ -11280,7 +13425,7 @@ var crmRouter = router({
       return { success: true };
     }),
   completeActivity: secureAgentProcedure
-    .input(z14.object({ id: z14.number() }))
+    .input(z15.object({ id: z15.number() }))
     .mutation(async ({ input }) => {
       await completeActivity(input.id);
       return { success: true };
@@ -11290,9 +13435,9 @@ var crmRouter = router({
   }),
   movePipeline: secureManagerProcedure
     .input(
-      z14.object({
-        customerId: z14.number(),
-        stage: z14.enum(["prospect", "active", "completed", "vip", "inactive"]),
+      z15.object({
+        customerId: z15.number(),
+        stage: z15.enum(["prospect", "active", "completed", "vip", "inactive"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -11315,7 +13460,7 @@ var crmRouter = router({
 });
 
 // server/routes/admin.ts
-import { z as z15 } from "zod";
+import { z as z16 } from "zod";
 init_db();
 var adminRouter = router({
   listUsers: secureOwnerProcedure.query(async () => {
@@ -11342,7 +13487,7 @@ var adminRouter = router({
       return { success: true };
     }),
   removeUser: secureOwnerProcedure
-    .input(z15.object({ userId: z15.number() }))
+    .input(z16.object({ userId: z16.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       if (input.userId === ctx.user?.id) {
@@ -11363,7 +13508,7 @@ var adminRouter = router({
 });
 
 // server/routes/settings.ts
-import { z as z16 } from "zod";
+import { z as z17 } from "zod";
 init_db();
 var settingsRouter = router({
   getAll: secureProtectedProcedure.query(async () => {
@@ -11375,7 +13520,7 @@ var settingsRouter = router({
     return map;
   }),
   get: secureProtectedProcedure
-    .input(z16.object({ key: z16.string() }))
+    .input(z17.object({ key: z17.string() }))
     .query(async ({ input }) => {
       return getSetting(input.key);
     }),
@@ -11396,14 +13541,15 @@ var settingsRouter = router({
 
 // server/routes/dashboard.ts
 import {
-  sql as sql20,
-  eq as eq28,
-  and as and16,
-  gte as gte7,
-  lte as lte5,
+  sql as sql23,
+  eq as eq31,
+  and as and19,
+  gte as gte10,
+  lte as lte7,
   count as count3,
   sum as sum2,
 } from "drizzle-orm";
+init_db();
 init_db();
 init_schema();
 var dashboardRouter = router({
@@ -11414,6 +13560,15 @@ var dashboardRouter = router({
         bookingsByDay: [],
         revenueByDay: [],
         leadConversion: { total: 0, converted: 0, rate: 0 },
+        postTourReviews: {
+          windowStart: "",
+          windowEnd: "",
+          volume: 0,
+          completedTours: 0,
+          reviewed: 0,
+          completionRate: 0,
+          lowRatingExceptions: 0,
+        },
         upcomingTours: [],
         pendingBookings: 0,
         newLeads: 0,
@@ -11424,32 +13579,32 @@ var dashboardRouter = router({
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1e3);
     const bookingsByDay = await db
       .select({
-        date: sql20`DATE(${bookings.createdAt})`.as("date"),
+        date: sql23`DATE(${bookings.createdAt})`.as("date"),
         count: count3().as("count"),
       })
       .from(bookings)
-      .where(gte7(bookings.createdAt, thirtyDaysAgo))
-      .groupBy(sql20`DATE(${bookings.createdAt})`)
-      .orderBy(sql20`DATE(${bookings.createdAt})`);
+      .where(gte10(bookings.createdAt, thirtyDaysAgo))
+      .groupBy(sql23`DATE(${bookings.createdAt})`)
+      .orderBy(sql23`DATE(${bookings.createdAt})`);
     const revenueByDay = await db
       .select({
-        date: sql20`DATE(${financialRecords.createdAt})`.as("date"),
+        date: sql23`DATE(${financialRecords.createdAt})`.as("date"),
         total: sum2(financialRecords.amount).as("total"),
       })
       .from(financialRecords)
       .where(
-        and16(
-          eq28(financialRecords.type, "revenue"),
-          gte7(financialRecords.createdAt, thirtyDaysAgo)
+        and19(
+          eq31(financialRecords.type, "revenue"),
+          gte10(financialRecords.createdAt, thirtyDaysAgo)
         )
       )
-      .groupBy(sql20`DATE(${financialRecords.createdAt})`)
-      .orderBy(sql20`DATE(${financialRecords.createdAt})`);
+      .groupBy(sql23`DATE(${financialRecords.createdAt})`)
+      .orderBy(sql23`DATE(${financialRecords.createdAt})`);
     const [leadStats] = await db
       .select({
         total: count3().as("total"),
         converted:
-          sql20`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
+          sql23`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
             "converted"
           ),
       })
@@ -11458,10 +13613,10 @@ var dashboardRouter = router({
       .select()
       .from(bookings)
       .where(
-        and16(
-          gte7(bookings.arrivalDate, sql20`CURDATE()`),
-          lte5(bookings.arrivalDate, sevenDaysFromNow),
-          sql20`${bookings.status} IN ('confirmed', 'in_progress')`
+        and19(
+          gte10(bookings.arrivalDate, sql23`CURDATE()`),
+          lte7(bookings.arrivalDate, sevenDaysFromNow),
+          sql23`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       )
       .orderBy(bookings.arrivalDate)
@@ -11469,11 +13624,12 @@ var dashboardRouter = router({
     const [pendingCount] = await db
       .select({ count: count3().as("count") })
       .from(bookings)
-      .where(eq28(bookings.status, "pending"));
+      .where(eq31(bookings.status, "pending"));
     const [newLeadsCount] = await db
       .select({ count: count3().as("count") })
       .from(leads)
-      .where(eq28(leads.status, "new"));
+      .where(eq31(leads.status, "new"));
+    const postTourReviews = await getWeeklyPostTourReviewMetrics();
     return {
       bookingsByDay: bookingsByDay.map(r => ({
         date: r.date,
@@ -11493,6 +13649,7 @@ var dashboardRouter = router({
               )
             : 0,
       },
+      postTourReviews,
       upcomingTours,
       pendingBookings: Number(pendingCount?.count) || 0,
       newLeads: Number(newLeadsCount?.count) || 0,
@@ -11516,31 +13673,31 @@ var dashboardRouter = router({
     const [pendingBookings] = await db
       .select({ count: count3() })
       .from(bookings)
-      .where(eq28(bookings.status, "pending"));
+      .where(eq31(bookings.status, "pending"));
     const [newLeads] = await db
       .select({ count: count3() })
       .from(leads)
-      .where(eq28(leads.status, "new"));
+      .where(eq31(leads.status, "new"));
     const [pendingReviews] = await db
       .select({ count: count3() })
       .from(reviews)
-      .where(eq28(reviews.isApproved, 0));
+      .where(eq31(reviews.isApproved, 0));
     const [draftPosts] = await db
       .select({ count: count3() })
       .from(blogPosts)
-      .where(eq28(blogPosts.isPublished, 0));
+      .where(eq31(blogPosts.isPublished, 0));
     const [newCustomers] = await db
       .select({ count: count3() })
       .from(customers)
-      .where(gte7(customers.createdAt, weekAgo));
+      .where(gte10(customers.createdAt, weekAgo));
     const [todayTours] = await db
       .select({ count: count3() })
       .from(bookings)
       .where(
-        and16(
-          gte7(bookings.arrivalDate, sql20`CURDATE()`),
-          lte5(bookings.arrivalDate, tomorrow),
-          sql20`${bookings.status} IN ('confirmed', 'in_progress')`
+        and19(
+          gte10(bookings.arrivalDate, sql23`CURDATE()`),
+          lte7(bookings.arrivalDate, tomorrow),
+          sql23`${bookings.status} IN ('confirmed', 'in_progress')`
         )
       );
     return {
@@ -11572,22 +13729,22 @@ var statsRouter = router({
 });
 
 // server/routes/bookingDraft.ts
-import { z as z17 } from "zod";
+import { z as z18 } from "zod";
 import crypto2 from "crypto";
 init_db();
 
 // server/abandonedBookingEmail.ts
 import { Resend as Resend4 } from "resend";
-var _resend5 = null;
-function getResend5() {
-  if (!_resend5 && process.env.RESEND_API_KEY) {
-    _resend5 = new Resend4(process.env.RESEND_API_KEY);
+var _resend6 = null;
+function getResend6() {
+  if (!_resend6 && process.env.RESEND_API_KEY) {
+    _resend6 = new Resend4(process.env.RESEND_API_KEY);
   }
-  return _resend5;
+  return _resend6;
 }
 var SITE_URL2 = process.env.SITE_URL || "https://www.wiro4x4indochina.com";
 async function sendBookingRecoveryEmail(email, name, resumeToken) {
-  const resend = getResend5();
+  const resend = getResend6();
   if (!resend) {
     console.warn(
       "[AbandonedBooking] Resend API key not configured, skipping email"
@@ -11653,7 +13810,7 @@ var bookingDraftRouter = router({
       return { id, resumeToken };
     }),
   getByToken: securePublicProcedure
-    .input(z17.object({ token: z17.string().min(1) }))
+    .input(z18.object({ token: z18.string().min(1) }))
     .query(async ({ input }) => {
       const draft = await getBookingDraftByToken(input.token);
       if (!draft || draft.status !== "active") return null;
@@ -11664,10 +13821,10 @@ var bookingDraftRouter = router({
   }),
   updateStatus: secureProtectedProcedure
     .input(
-      z17.object({
-        id: z17.number(),
-        status: z17.enum(["active", "converted", "expired"]),
-        convertedToBookingId: z17.number().optional(),
+      z18.object({
+        id: z18.number(),
+        status: z18.enum(["active", "converted", "expired"]),
+        convertedToBookingId: z18.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -11680,7 +13837,7 @@ var bookingDraftRouter = router({
       return { success: true };
     }),
   sendRecoveryEmail: secureProtectedProcedure
-    .input(z17.object({ draftId: z17.number() }))
+    .input(z18.object({ draftId: z18.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const drafts = await listActiveBookingDrafts();
@@ -11704,7 +13861,7 @@ var bookingDraftRouter = router({
 init_db();
 init_schema();
 init_analytics();
-import { count as count4, gte as gte8 } from "drizzle-orm";
+import { count as count4, gte as gte11 } from "drizzle-orm";
 var analyticsRouter = router({
   /** Existing booking funnel (30 days). */
   funnelData: secureProtectedProcedure.query(async () => {
@@ -11714,11 +13871,11 @@ var analyticsRouter = router({
     const [completedResult] = await db
       .select({ count: count4() })
       .from(bookings)
-      .where(gte8(bookings.createdAt, thirtyDaysAgo));
+      .where(gte11(bookings.createdAt, thirtyDaysAgo));
     const [draftsResult] = await db
       .select({ count: count4() })
       .from(bookingDrafts)
-      .where(gte8(bookingDrafts.createdAt, thirtyDaysAgo));
+      .where(gte11(bookingDrafts.createdAt, thirtyDaysAgo));
     const completed = completedResult?.count ?? 0;
     const abandoned = draftsResult?.count ?? 0;
     const started = completed + abandoned;
@@ -11771,7 +13928,7 @@ var analyticsRouter = router({
 });
 
 // server/routes/package.ts
-import { z as z18 } from "zod";
+import { z as z19 } from "zod";
 init_db();
 
 // shared/pricing.ts
@@ -11833,7 +13990,7 @@ var packageRouter = router({
   }),
   /** Public: single package by slug */
   getBySlug: securePublicProcedure
-    .input(z18.object({ slug: z18.string() }))
+    .input(z19.object({ slug: z19.string() }))
     .query(async ({ input }) => {
       const pkg = await getTourPackageBySlug(input.slug);
       if (!pkg) return void 0;
@@ -11878,8 +14035,8 @@ var packageRouter = router({
   /** Admin: update a package */
   update: secureProtectedProcedure
     .input(
-      z18.object({
-        id: z18.number(),
+      z19.object({
+        id: z19.number(),
         data: tourPackageInputSchema.partial(),
       })
     )
@@ -11915,7 +14072,7 @@ var packageRouter = router({
     }),
   /** Admin: delete a package */
   delete: secureProtectedProcedure
-    .input(z18.object({ id: z18.number() }))
+    .input(z19.object({ id: z19.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteTourPackage(input.id);
@@ -11930,7 +14087,7 @@ var packageRouter = router({
 });
 
 // server/routes/accounting.ts
-import { z as z19 } from "zod";
+import { z as z20 } from "zod";
 init_db();
 
 // shared/accounting.ts
@@ -11994,17 +14151,17 @@ var accountingRouter = router({
       };
     }),
   getInvoice: secureProtectedProcedure
-    .input(z19.object({ id: z19.number() }))
+    .input(z20.object({ id: z20.number() }))
     .query(async ({ input }) => {
       return await getInvoiceById(input.id);
     }),
   updateInvoiceStatus: secureProtectedProcedure
     .input(
-      z19.object({
-        id: z19.number(),
-        status: z19.enum(["unpaid", "paid", "partial", "cancelled"]),
-        paymentDate: z19.string().optional(),
-        paymentMethod: z19.string().optional(),
+      z20.object({
+        id: z20.number(),
+        status: z20.enum(["unpaid", "paid", "partial", "cancelled"]),
+        paymentDate: z20.string().optional(),
+        paymentMethod: z20.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -12045,9 +14202,9 @@ var accountingRouter = router({
   listEntries: secureProtectedProcedure
     .input(
       paginationInput.extend({
-        accountCode: z19.string().optional(),
-        startDate: z19.string().optional(),
-        endDate: z19.string().optional(),
+        accountCode: z20.string().optional(),
+        startDate: z20.string().optional(),
+        endDate: z20.string().optional(),
       })
     )
     .query(async ({ input }) => {
@@ -12097,9 +14254,9 @@ var accountingRouter = router({
     }),
   markFiled: secureProtectedProcedure
     .input(
-      z19.object({
-        id: z19.number(),
-        status: z19.enum(["pending", "prepared", "filed", "late"]),
+      z20.object({
+        id: z20.number(),
+        status: z20.enum(["pending", "prepared", "filed", "late"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -12122,7 +14279,7 @@ var accountingRouter = router({
 });
 
 // server/routes/inventory.ts
-import { z as z20 } from "zod";
+import { z as z21 } from "zod";
 init_db();
 var inventoryRouter = router({
   create: secureProtectedProcedure
@@ -12166,14 +14323,14 @@ var inventoryRouter = router({
       };
     }),
   get: secureProtectedProcedure
-    .input(z20.object({ id: z20.number() }))
+    .input(z21.object({ id: z21.number() }))
     .query(async ({ input }) => {
       return await getInventoryById(input.id);
     }),
   update: secureProtectedProcedure
     .input(
-      z20.object({
-        id: z20.number(),
+      z21.object({
+        id: z21.number(),
         data: inventoryInputSchema.partial(),
       })
     )
@@ -12190,7 +14347,7 @@ var inventoryRouter = router({
       return { success: true };
     }),
   delete: secureProtectedProcedure
-    .input(z20.object({ id: z20.number() }))
+    .input(z21.object({ id: z21.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteInventoryItem(input.id);
@@ -12336,7 +14493,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
             </div>
 
             <div style="text-align: center;">
-              <a href="https://wa.me/972544715400?text=${encodeURIComponent(
+              <a href="https://wa.me/66929894495?text=${encodeURIComponent(
                 isHebrew
                   ? `\u05E9\u05DC\u05D5\u05DD! \u05E7\u05D9\u05D1\u05DC\u05EA\u05D9 \u05D0\u05EA \u05D4\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8 \u05DC-${total.toLocaleString()} \u05D1\u05D0\u05D8. \u05D0\u05E9\u05DE\u05D7 \u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.`
                   : `Hello! I received the estimate for \u0E3F${total.toLocaleString()}. I'd like more details.`
@@ -12352,7 +14509,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
 
           <div class="footer">
             <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
-            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +972 54-471-5400</p>
+            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +66 92-989-4495</p>
             <p>${isHebrew ? "\u{1F4E7} \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC" : "\u{1F4E7} Email"}: ${COMPANY_SENDER_EMAIL}</p>
             <p style="margin-top: 15px; font-size: 12px;">
               ${isHebrew ? "\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9, \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 | www.wiro4x4indochina.com" : "Chiang Mai, Thailand | www.wiro4x4indochina.com"}
@@ -12397,192 +14554,20 @@ var estimateRouter = router({
         toEmail: input.email,
         estimateData: input,
       });
+      dispatchN8nEventInBackground("estimate.requested", {
+        estimate: input,
+        request: {
+          referrer: ctx.req.headers.referer ?? ctx.req.headers.referrer ?? null,
+          acceptLanguage: ctx.req.headers["accept-language"] ?? null,
+        },
+      });
       return { success: true };
     }),
 });
 
 // server/routes/abandoned.ts
-import { z as z21 } from "zod";
+import { z as z22 } from "zod";
 init_db();
-
-// server/abandonedBookingService.ts
-var _resend6 = null;
-function getResend6() {
-  if (!_resend6) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.warn(
-        "[AbandonedBooking] No RESEND_API_KEY \u2014 emails will not be sent"
-      );
-      return null;
-    }
-    const { Resend: Resend8 } = __require("resend");
-    _resend6 = new Resend8(apiKey);
-  }
-  return _resend6;
-}
-var SENDER = `${COMPANY_NAME} <${EMAIL_SENDERS.updates}>`;
-function buildRecoveryEmailHtml(lead) {
-  const name = escapeHtml2(lead.name) || "Traveler";
-  const inquiryNote =
-    lead.message || lead.notes
-      ? `<p style="background: #fff8e1; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f5a623; font-style: italic; margin: 20px 0;">"${escapeHtml2(lead.message || lead.notes)}"</p>`
-      : "";
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 100%); color: white; padding: 30px 20px; border-radius: 10px 10px 0 0; text-align: center;">
-      <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
-      <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Still planning your Chiang Mai adventure?</p>
-    </div>
-
-    <!-- English Content -->
-    <div style="background: #ffffff; padding: 30px 20px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
-      <p style="font-size: 16px;">Dear ${name},</p>
-
-      <p>We noticed you recently inquired about a tour with us but haven't booked yet. We'd love to help you plan the perfect Chiang Mai adventure!</p>
-
-      ${inquiryNote}
-
-      <h3 style="color: #1a4d2e; margin-top: 25px;">Why travelers choose WIRO 4x4:</h3>
-
-      <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-        <tr>
-          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F37D}\uFE0F</td>
-          <td style="padding: 12px;">
-            <strong>Certified Kosher Meals</strong><br>
-            <span style="color: #666;">Enjoy authentic kosher dining throughout your journey \u2014 carefully prepared and certified.</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F5E3}\uFE0F</td>
-          <td style="padding: 12px;">
-            <strong>Hebrew-Speaking Guide</strong><br>
-            <span style="color: #666;">Your personal guide speaks fluent Hebrew and knows every hidden gem in Northern Thailand.</span>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 12px; vertical-align: top; width: 40px;">\u{1F3AF}</td>
-          <td style="padding: 12px;">
-            <strong>Custom Itineraries</strong><br>
-            <span style="color: #666;">Every trip is tailored to your group \u2014 from family-friendly to extreme off-road adventures.</span>
-          </td>
-        </tr>
-      </table>
-
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${COMPANY_WEBSITE}/booking" style="display: inline-block; background: #f5a623; color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-          Book Your Adventure
-        </a>
-      </div>
-
-      <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2d6a4f; text-align: center;">
-        <p style="margin: 0 0 8px 0; font-weight: bold; color: #1a4d2e;">Have questions? Chat with us instantly!</p>
-        <a href="https://wa.me/${COMPANY_WHATSAPP}" style="display: inline-block; background: #25d366; color: white; padding: 10px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-          \u{1F4AC} WhatsApp Us
-        </a>
-      </div>
-
-      <!-- Hebrew Section -->
-      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
-
-      <div dir="rtl" style="text-align: right;">
-        <p style="font-size: 16px;">\u05E9\u05DC\u05D5\u05DD ${name},</p>
-
-        <p>\u05E9\u05DE\u05E0\u05D5 \u05DC\u05D1 \u05E9\u05D4\u05EA\u05E2\u05E0\u05D9\u05D9\u05E0\u05EA \u05DC\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4 \u05D1\u05D8\u05D9\u05D5\u05DC \u05D0\u05D9\u05EA\u05E0\u05D5 \u05D0\u05DA \u05E2\u05D3\u05D9\u05D9\u05DF \u05DC\u05D0 \u05D4\u05D6\u05DE\u05E0\u05EA. \u05E0\u05E9\u05DE\u05D7 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05DC\u05DA \u05DC\u05EA\u05DB\u05E0\u05DF \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D4\u05DE\u05D5\u05E9\u05DC\u05DE\u05EA \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9!</p>
-
-        <h3 style="color: #1a4d2e;">\u05DC\u05DE\u05D4 \u05DE\u05D8\u05D9\u05D9\u05DC\u05D9\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05D1-WIRO 4x4:</h3>
-
-        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-          <tr>
-            <td style="padding: 12px;">
-              <strong>\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05DB\u05E9\u05E8\u05D5\u05EA \u05DE\u05D5\u05E1\u05DE\u05DB\u05D5\u05EA</strong> \u2014 \u05D4\u05E0\u05D0\u05D4 \u05DE\u05D0\u05D5\u05DB\u05DC \u05DB\u05E9\u05E8 \u05DC\u05D0\u05D5\u05E8\u05DA \u05DB\u05DC \u05D4\u05DE\u05E1\u05E2 \u{1F37D}\uFE0F
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 12px;">
-              <strong>\u05DE\u05D3\u05E8\u05D9\u05DA \u05D3\u05D5\u05D1\u05E8 \u05E2\u05D1\u05E8\u05D9\u05EA</strong> \u2014 \u05D4\u05DE\u05D3\u05E8\u05D9\u05DA \u05D4\u05D0\u05D9\u05E9\u05D9 \u05E9\u05DC\u05DA \u05D3\u05D5\u05D1\u05E8 \u05E2\u05D1\u05E8\u05D9\u05EA \u05E9\u05D5\u05D8\u05E4\u05EA \u{1F5E3}\uFE0F
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 12px;">
-              <strong>\u05DE\u05E1\u05DC\u05D5\u05DC\u05D9\u05DD \u05DE\u05D5\u05EA\u05D0\u05DE\u05D9\u05DD \u05D0\u05D9\u05E9\u05D9\u05EA</strong> \u2014 \u05DB\u05DC \u05D8\u05D9\u05D5\u05DC \u05DE\u05D5\u05EA\u05D0\u05DD \u05DC\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E9\u05DC\u05DA \u{1F3AF}
-            </td>
-          </tr>
-        </table>
-
-        <div style="text-align: center; margin: 25px 0;">
-          <a href="${COMPANY_WEBSITE}/booking" style="display: inline-block; background: #f5a623; color: white; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px;">
-            \u05D4\u05D6\u05DE\u05D9\u05E0\u05D5 \u05E2\u05DB\u05E9\u05D9\u05D5
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; text-align: center; border-top: 1px solid #e0e0e0;">
-      <p style="margin: 0; font-size: 14px; color: #666;">
-        <strong>${COMPANY_NAME}</strong><br>
-        Chiang Mai, Thailand<br>
-        ${COMPANY_PHONE}
-      </p>
-      <p style="margin: 15px 0 0 0; font-size: 11px; color: #999;">
-        You received this email because you inquired about a tour on our website.
-        If you no longer wish to receive these emails, simply ignore this message \u2014 we won't send another.
-      </p>
-    </div>
-  </div>
-</body>
-</html>`;
-}
-async function sendAbandonedBookingEmail(lead) {
-  try {
-    const resend = getResend6();
-    if (!resend) {
-      console.warn("[AbandonedBooking] Resend not configured, skipping email");
-      return false;
-    }
-    if (!lead.email) {
-      console.warn(
-        `[AbandonedBooking] Lead #${lead.id} has no email, skipping`
-      );
-      return false;
-    }
-    const html = buildRecoveryEmailHtml(lead);
-    const { data, error } = await resend.emails.send({
-      from: SENDER,
-      to: [lead.email],
-      subject:
-        "Still planning your Chiang Mai adventure? \u{1F699} | \u05E2\u05D3\u05D9\u05D9\u05DF \u05DE\u05EA\u05DB\u05E0\u05E0\u05D9\u05DD \u05D4\u05E8\u05E4\u05EA\u05E7\u05D4 \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9?",
-      html,
-    });
-    if (error) {
-      console.error(
-        `[AbandonedBooking] Failed to send to ${lead.email}:`,
-        error
-      );
-      captureException(error);
-      return false;
-    }
-    console.log(
-      `[AbandonedBooking] Recovery email sent to ${lead.email}. ID: ${data?.id}`
-    );
-    return true;
-  } catch (error) {
-    console.error("[AbandonedBooking] Error sending recovery email:", error);
-    captureException(error);
-    return false;
-  }
-}
-
-// server/routes/abandoned.ts
 var abandonedRouter = router({
   /**
    * List abandoned leads: status='new', created >24h ago, recovery email not yet sent.
@@ -12590,9 +14575,9 @@ var abandonedRouter = router({
    */
   list: secureProtectedProcedure
     .input(
-      z21
+      z22
         .object({
-          includeEmailed: z21.boolean().optional(),
+          includeEmailed: z22.boolean().optional(),
         })
         .optional()
     )
@@ -12615,7 +14600,7 @@ var abandonedRouter = router({
    * Send a recovery email to a single lead (admin-triggered).
    */
   sendRecoveryEmail: secureProtectedProcedure
-    .input(z21.object({ leadId: z21.number() }))
+    .input(z22.object({ leadId: z22.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const leads2 = await getAbandonedLeads(24);
@@ -12635,6 +14620,12 @@ var abandonedRouter = router({
             resourceType: "lead",
             resourceId: foundLead.id,
             newValue: JSON.stringify({ recoveryEmailSent: true }),
+          });
+          dispatchN8nEventInBackground("abandoned.recovery_sent", {
+            leadId: foundLead.id,
+            email: foundLead.email,
+            source: foundLead.source,
+            sentBy: ctx.user?.email ?? null,
           });
         }
         return {
@@ -12659,6 +14650,12 @@ var abandonedRouter = router({
           resourceType: "lead",
           resourceId: lead.id,
           newValue: JSON.stringify({ recoveryEmailSent: true }),
+        });
+        dispatchN8nEventInBackground("abandoned.recovery_sent", {
+          leadId: lead.id,
+          email: lead.email,
+          source: lead.source,
+          sentBy: ctx.user?.email ?? null,
         });
       }
       return {
@@ -12687,6 +14684,14 @@ var abandonedRouter = router({
         failedCount++;
       }
     }
+    dispatchN8nEventInBackground("abandoned.batch_recovery_sent", {
+      attempted: batch.length,
+      sent: sentCount,
+      failed: failedCount,
+      remaining: Math.max(0, unsent.length - batch.length),
+      sentBy: ctx.user?.email ?? null,
+      leadIds: batch.map(lead => lead.id),
+    });
     if (sentCount > 0) {
       await logAdminAction({
         userId: ctx.user?.id,
@@ -12707,7 +14712,7 @@ var abandonedRouter = router({
 });
 
 // server/routes/availability.ts
-import { z as z22 } from "zod";
+import { z as z23 } from "zod";
 init_db();
 var availabilityRouter = router({
   /**
@@ -12717,10 +14722,10 @@ var availabilityRouter = router({
    */
   getByTour: securePublicProcedure
     .input(
-      z22.object({
-        tourId: z22.number(),
-        year: z22.number().min(2024).max(2030),
-        month: z22.number().min(1).max(12),
+      z23.object({
+        tourId: z23.number(),
+        year: z23.number().min(2024).max(2030),
+        month: z23.number().min(1).max(12),
       })
     )
     .query(async ({ input }) => {
@@ -12769,12 +14774,12 @@ var availabilityRouter = router({
    */
   update: secureProtectedProcedure
     .input(
-      z22.object({
-        tourId: z22.number(),
-        date: z22.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        maxSlots: z22.number().min(0).max(100).optional(),
-        isBlocked: z22.boolean().optional(),
-        notes: z22.string().max(500).nullable().optional(),
+      z23.object({
+        tourId: z23.number(),
+        date: z23.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        maxSlots: z23.number().min(0).max(100).optional(),
+        isBlocked: z23.boolean().optional(),
+        notes: z23.string().max(500).nullable().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -12799,15 +14804,15 @@ var availabilityRouter = router({
    */
   bulkUpdate: secureProtectedProcedure
     .input(
-      z22.object({
-        tourId: z22.number(),
-        dates: z22
-          .array(z22.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+      z23.object({
+        tourId: z23.number(),
+        dates: z23
+          .array(z23.string().regex(/^\d{4}-\d{2}-\d{2}$/))
           .min(1)
           .max(90),
-        maxSlots: z22.number().min(0).max(100).optional(),
-        isBlocked: z22.boolean().optional(),
-        notes: z22.string().max(500).nullable().optional(),
+        maxSlots: z23.number().min(0).max(100).optional(),
+        isBlocked: z23.boolean().optional(),
+        notes: z23.string().max(500).nullable().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -12835,8 +14840,8 @@ var availabilityRouter = router({
 });
 
 // server/routes/tripPhotos.ts
-import { z as z23 } from "zod";
-import { randomUUID as randomUUID2 } from "crypto";
+import { z as z24 } from "zod";
+import { randomUUID as randomUUID3 } from "crypto";
 init_db();
 
 // server/tripPhotoEmailService.ts
@@ -12963,19 +14968,19 @@ var tripPhotosRouter = router({
   // ── Admin: Create album for a booking ────────────────────────────
   createAlbum: secureProtectedProcedure
     .input(
-      z23.object({
-        bookingId: z23.number(),
-        title: z23.string().min(1).max(255),
-        message: z23.string().max(2e3).optional(),
-        expiresAt: z23.string().optional(),
+      z24.object({
+        bookingId: z24.number(),
+        title: z24.string().min(1).max(255),
+        message: z24.string().max(2e3).optional(),
+        expiresAt: z24.string().optional(),
         // ISO date string
       })
     )
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const accessToken =
-        randomUUID2().replace(/-/g, "") +
-        randomUUID2().replace(/-/g, "").slice(0, 32);
+        randomUUID3().replace(/-/g, "") +
+        randomUUID3().replace(/-/g, "").slice(0, 32);
       await createTripPhotoAlbum({
         bookingId: input.bookingId,
         accessToken,
@@ -12999,13 +15004,13 @@ var tripPhotosRouter = router({
   // ── Admin: Upload photo to an album ──────────────────────────────
   uploadPhoto: secureProtectedProcedure
     .input(
-      z23.object({
-        albumId: z23.number(),
-        filename: z23.string(),
-        contentType: z23.string(),
-        base64Data: z23.string(),
-        caption: z23.string().max(500).optional(),
-        sortOrder: z23.number().default(0),
+      z24.object({
+        albumId: z24.number(),
+        filename: z24.string(),
+        contentType: z24.string(),
+        base64Data: z24.string(),
+        caption: z24.string().max(500).optional(),
+        sortOrder: z24.number().default(0),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -13040,7 +15045,7 @@ var tripPhotosRouter = router({
         input.contentType.split("/")[1] === "jpeg"
           ? "jpg"
           : input.contentType.split("/")[1];
-      const safeFilename = `${randomUUID2()}.${ext}`;
+      const safeFilename = `${randomUUID3()}.${ext}`;
       const key = `trip-photos/${album.accessToken}/${safeFilename}`;
       const buffer = Buffer.from(input.base64Data, "base64");
       let result;
@@ -13074,7 +15079,7 @@ var tripPhotosRouter = router({
     }),
   // ── Admin: Delete photo from album ───────────────────────────────
   deletePhoto: secureProtectedProcedure
-    .input(z23.object({ id: z23.number() }))
+    .input(z24.object({ id: z24.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteTripPhoto(input.id);
@@ -13104,20 +15109,20 @@ var tripPhotosRouter = router({
   }),
   // ── Admin: Get album photos ──────────────────────────────────────
   getAlbumPhotos: secureProtectedProcedure
-    .input(z23.object({ albumId: z23.number() }))
+    .input(z24.object({ albumId: z24.number() }))
     .query(async ({ input }) => {
       return await getTripPhotosByAlbumId(input.albumId);
     }),
   // ── Admin: Update album ──────────────────────────────────────────
   updateAlbum: secureProtectedProcedure
     .input(
-      z23.object({
-        id: z23.number(),
-        data: z23.object({
-          title: z23.string().min(1).max(255).optional(),
-          message: z23.string().max(2e3).nullable().optional(),
-          isActive: z23.boolean().optional(),
-          expiresAt: z23.string().nullable().optional(),
+      z24.object({
+        id: z24.number(),
+        data: z24.object({
+          title: z24.string().min(1).max(255).optional(),
+          message: z24.string().max(2e3).nullable().optional(),
+          isActive: z24.boolean().optional(),
+          expiresAt: z24.string().nullable().optional(),
         }),
       })
     )
@@ -13145,7 +15150,7 @@ var tripPhotosRouter = router({
     }),
   // ── Admin: Delete album ──────────────────────────────────────────
   deleteAlbum: secureProtectedProcedure
-    .input(z23.object({ id: z23.number() }))
+    .input(z24.object({ id: z24.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       await deleteTripPhotoAlbum(input.id);
@@ -13159,7 +15164,7 @@ var tripPhotosRouter = router({
     }),
   // ── Admin: Send album email to customer ──────────────────────────
   sendAlbumEmail: secureProtectedProcedure
-    .input(z23.object({ albumId: z23.number() }))
+    .input(z24.object({ albumId: z24.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const album = await getTripPhotoAlbumById(input.albumId);
@@ -13212,7 +15217,7 @@ var tripPhotosRouter = router({
     }),
   // ── Public: Get album by access token ────────────────────────────
   getAlbum: securePublicProcedure
-    .input(z23.object({ token: z23.string().min(1) }))
+    .input(z24.object({ token: z24.string().min(1) }))
     .query(async ({ input }) => {
       const album = await getTripPhotoAlbumByToken(input.token);
       if (!album) {
@@ -13339,17 +15344,18 @@ var googleReviewsRouter = router({
 });
 
 // server/routes/whatsappAdmin.ts
-import { z as z24 } from "zod";
+import { z as z25 } from "zod";
 init_db();
+init_whatsappService();
 init_db();
 var whatsappAdminRouter = router({
   /** List WhatsApp messages with pagination and optional phone filter */
   listMessages: secureProtectedProcedure
     .input(
-      z24.object({
-        page: z24.number().min(1).default(1),
-        pageSize: z24.number().min(1).max(100).default(20),
-        phoneFilter: z24.string().optional(),
+      z25.object({
+        page: z25.number().min(1).default(1),
+        pageSize: z25.number().min(1).max(100).default(20),
+        phoneFilter: z25.string().optional(),
       })
     )
     .query(async ({ input }) => {
@@ -13369,9 +15375,9 @@ var whatsappAdminRouter = router({
   /** Send a manual WhatsApp message to a phone number */
   sendMessage: secureProtectedProcedure
     .input(
-      z24.object({
-        to: z24.string().min(1),
-        text: z24.string().min(1).max(4096),
+      z25.object({
+        to: z25.string().min(1),
+        text: z25.string().min(1).max(4096),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -13411,8 +15417,8 @@ var whatsappAdminRouter = router({
   /** Update auto-reply settings */
   updateAutoReply: secureProtectedProcedure
     .input(
-      z24.object({
-        enabled: z24.boolean(),
+      z25.object({
+        enabled: z25.boolean(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -13429,7 +15435,7 @@ var whatsappAdminRouter = router({
 });
 
 // server/routes/leadScoring.ts
-import { z as z25 } from "zod";
+import { z as z26 } from "zod";
 init_db();
 var leadScoringRouter = router({
   /**
@@ -13448,7 +15454,7 @@ var leadScoringRouter = router({
    * Score a single lead by ID.
    */
   scoreLead: secureProtectedProcedure
-    .input(z25.object({ id: z25.number() }))
+    .input(z26.object({ id: z26.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const allLeads = await getAllLeads();
@@ -13476,9 +15482,9 @@ var leadScoringRouter = router({
    */
   getLeaderboard: secureProtectedProcedure
     .input(
-      z25.object({
-        minScore: z25.number().min(0).max(100).optional(),
-        limit: z25.number().min(1).max(100).default(20),
+      z26.object({
+        minScore: z26.number().min(0).max(100).optional(),
+        limit: z26.number().min(1).max(100).default(20),
       })
     )
     .query(async ({ input }) => {
@@ -13507,7 +15513,7 @@ var leadScoringRouter = router({
 });
 
 // server/routes/postTourEmail.ts
-import { z as z26 } from "zod";
+import { z as z27 } from "zod";
 init_db();
 
 // server/postTourEmailService.ts
@@ -13521,6 +15527,21 @@ function getResend8() {
   return _resend8;
 }
 var SENDER_EMAIL5 = COMPANY_SENDER_EMAIL;
+function normalizePhone2(phone) {
+  if (!phone) return null;
+  const normalized = phone.replace(/[^0-9+]/g, "").trim();
+  return normalized.length > 0 ? normalized : null;
+}
+function getReferralCodeFromSource(source) {
+  if (!source) return null;
+  const match = source.match(/^referral:\s*([^:]+)$/i);
+  return match?.[1]?.trim() || null;
+}
+function appendReferralQuery(baseUrl, referralCode) {
+  if (!referralCode) return baseUrl;
+  const separator = baseUrl.includes("?") ? "&" : "?";
+  return `${baseUrl}${separator}ref=${encodeURIComponent(referralCode)}`;
+}
 function generatePostTourEmailHtml({ booking, albumToken }) {
   const customerName = escapeHtml2(booking.contactName);
   const tourDate = booking.departureDate
@@ -13537,9 +15558,16 @@ function generatePostTourEmailHtml({ booking, albumToken }) {
         day: "numeric",
       })
     : "";
-  const reviewUrl = `${COMPANY_WEBSITE}/reviews`;
+  const referralCode = getReferralCodeFromSource(booking.source);
+  const reviewUrl = appendReferralQuery(
+    `${COMPANY_WEBSITE}/reviews`,
+    referralCode
+  );
   const albumUrl = albumToken ? `${COMPANY_WEBSITE}/album/${albumToken}` : null;
-  const bookNextUrl = `${COMPANY_WEBSITE}/packages`;
+  const bookNextUrl = appendReferralQuery(
+    `${COMPANY_WEBSITE}/packages`,
+    referralCode
+  );
   const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent("Hi WIRO 4x4! I just completed my tour and wanted to share feedback.")}`;
   const googleReviewUrl = `https://search.google.com/local/writereview?placeid=ChIJByjTCcj1dDAR_WIRO4x4`;
   const starRating = [1, 2, 3, 4, 5]
@@ -13724,6 +15752,31 @@ async function sendPostTourEmail(booking, albumToken) {
     console.log(
       `[PostTourEmail] Sent to ${booking.contactEmail} for booking #${booking.id}. ID: ${data?.id}`
     );
+    const guestPhone = normalizePhone2(
+      booking.contactWhatsApp ?? booking.contactPhone
+    );
+    const guestReference = buildGuestReference({
+      bookingId: booking.id,
+      phone: guestPhone,
+    });
+    await createPostTourReviewEvent({
+      bookingId: booking.id,
+      channel: "whatsapp",
+      state: "request_sent",
+      guestReference,
+      guestPhone,
+      guestName: booking.contactName,
+      externalMessageId: null,
+      dedupeKey: buildPostTourReviewDedupeKey({
+        state: "request_sent",
+        bookingId: booking.id,
+        guestReference,
+      }),
+      metadata: {
+        trigger: "post_tour_email",
+        resendEmailId: data?.id ?? null,
+      },
+    });
     return true;
   } catch (error) {
     console.error("[PostTourEmail] Error in sendPostTourEmail:", error);
@@ -13799,7 +15852,7 @@ var postTourEmailRouter = router({
    * Send post-tour email to a specific booking.
    */
   send: secureProtectedProcedure
-    .input(z26.object({ bookingId: z26.number() }))
+    .input(z27.object({ bookingId: z27.number() }))
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const booking = await getBookingById(input.bookingId);
@@ -13860,7 +15913,7 @@ var postTourEmailRouter = router({
    * Preview the email HTML for a booking (does not send).
    */
   preview: secureProtectedProcedure
-    .input(z26.object({ bookingId: z26.number() }))
+    .input(z27.object({ bookingId: z27.number() }))
     .query(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
       const booking = await getBookingById(input.bookingId);
@@ -13890,13 +15943,151 @@ var postTourEmailRouter = router({
   }),
 });
 
+// server/routes/postTourReview.ts
+import { z as z28 } from "zod";
+init_postTourReviewService();
+var postTourReviewRouter = router({
+  config: secureProtectedProcedure.query(async ({ ctx }) => {
+    checkAdminRateLimit(ctx);
+    const delayMinutes = await getConfiguredPostTourReviewDelayMinutes();
+    return { delayMinutes, min: 30, max: 60, default: 45 };
+  }),
+  updateConfig: secureProtectedProcedure
+    .input(
+      z28.object({
+        delayMinutes: z28.number().int().min(30).max(60),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const delayMinutes = await updatePostTourReviewDelayMinutes(
+        input.delayMinutes
+      );
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "postTourReviewConfig",
+        resourceId: null,
+        newValue: JSON.stringify({ delayMinutes }),
+      });
+      return { success: true, delayMinutes };
+    }),
+  schedule: secureProtectedProcedure
+    .input(
+      z28.object({
+        bookingId: z28.number(),
+        delayMinutes: z28.number().int().min(30).max(60).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const entry = await schedulePostTourReviewForBooking({
+        bookingId: input.bookingId,
+        delayMinutes: input.delayMinutes,
+      });
+      if (!entry) {
+        throw new TRPCError3({
+          code: "BAD_REQUEST",
+          message: `Booking #${input.bookingId} has no WhatsApp/phone; cannot schedule review`,
+        });
+      }
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "postTourReview",
+        resourceId: input.bookingId,
+        newValue: JSON.stringify({
+          scheduledAt: entry.scheduledAt,
+          delayMinutes: input.delayMinutes ?? 45,
+        }),
+      });
+      dispatchN8nEventInBackground("post_tour_review.scheduled", {
+        bookingId: input.bookingId,
+        delayMinutes: input.delayMinutes ?? 45,
+        entry,
+      });
+      return { success: true, entry };
+    }),
+  processDue: secureProtectedProcedure.mutation(async ({ ctx }) => {
+    checkAdminRateLimit(ctx);
+    const result = await processDuePostTourReviewRequests();
+    dispatchN8nEventInBackground("post_tour_review.processed", {
+      result,
+      processedAt: /* @__PURE__ */ new Date().toISOString(),
+    });
+    await logAdminAction({
+      userId: ctx.user?.id,
+      action: "update",
+      resourceType: "postTourReview",
+      resourceId: null,
+      newValue: JSON.stringify(result),
+    });
+    return result;
+  }),
+  trackEvent: secureProtectedProcedure
+    .input(
+      z28.object({
+        bookingId: z28.number(),
+        event: z28.enum(["opened", "clicked", "reviewed"]),
+        rating: z28.number().min(1).max(5).optional(),
+        comments: z28.string().max(500).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      const updated = await recordPostTourReviewEvent(input);
+      if (!updated) {
+        throw new TRPCError3({
+          code: "NOT_FOUND",
+          message: `No post-tour review entry for booking #${input.bookingId}`,
+        });
+      }
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "update",
+        resourceType: "postTourReview",
+        resourceId: input.bookingId,
+        newValue: JSON.stringify({
+          event: input.event,
+          rating: input.rating ?? null,
+          escalatedAt: updated.escalatedAt,
+          followUpPath: updated.opsFollowUpUrl,
+        }),
+      });
+      dispatchN8nEventInBackground("post_tour_review.event_tracked", {
+        bookingId: input.bookingId,
+        event: input.event,
+        rating: input.rating ?? null,
+        comments: input.comments ?? null,
+        entry: updated,
+      });
+      return { success: true, entry: updated };
+    }),
+  getByBooking: secureProtectedProcedure
+    .input(z28.object({ bookingId: z28.number() }))
+    .query(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      return await getPostTourReviewEntry(input.bookingId);
+    }),
+  listRecent: secureProtectedProcedure
+    .input(z28.object({ limit: z28.number().int().min(1).max(100).optional() }))
+    .query(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+      return await getRecentPostTourReviewEntries(input.limit ?? 20);
+    }),
+  weeklyMetric: secureProtectedProcedure.query(async ({ ctx }) => {
+    checkAdminRateLimit(ctx);
+    return await getWeeklyPostTourReviewMetric();
+  }),
+});
+
 // server/routes/search.ts
-import { z as z27 } from "zod";
+import { z as z29 } from "zod";
 
 // server/db/search.ts
 init_connection();
 init_schema();
-import { sql as sql21 } from "drizzle-orm";
+import { sql as sql24 } from "drizzle-orm";
 function escapeLike(str) {
   return str.replace(/[%_\\]/g, "\\$&");
 }
@@ -13918,7 +16109,7 @@ async function globalSearch(query) {
         })
         .from(bookings)
         .where(
-          sql21`(${bookings.contactName} LIKE ${pattern} OR ${bookings.contactEmail} LIKE ${pattern})`
+          sql24`(${bookings.contactName} LIKE ${pattern} OR ${bookings.contactEmail} LIKE ${pattern})`
         )
         .limit(5),
       db
@@ -13933,7 +16124,7 @@ async function globalSearch(query) {
         })
         .from(leads)
         .where(
-          sql21`(${leads.name} LIKE ${pattern} OR ${leads.email} LIKE ${pattern} OR ${leads.phone} LIKE ${pattern})`
+          sql24`(${leads.name} LIKE ${pattern} OR ${leads.email} LIKE ${pattern} OR ${leads.phone} LIKE ${pattern})`
         )
         .limit(5),
       db
@@ -13947,7 +16138,7 @@ async function globalSearch(query) {
         })
         .from(reviews)
         .where(
-          sql21`(${reviews.name} LIKE ${pattern} OR ${reviews.text} LIKE ${pattern})`
+          sql24`(${reviews.name} LIKE ${pattern} OR ${reviews.text} LIKE ${pattern})`
         )
         .limit(5),
       db
@@ -13960,7 +16151,7 @@ async function globalSearch(query) {
         })
         .from(tours)
         .where(
-          sql21`(${tours.name} LIKE ${pattern} OR ${tours.slug} LIKE ${pattern})`
+          sql24`(${tours.name} LIKE ${pattern} OR ${tours.slug} LIKE ${pattern})`
         )
         .limit(5),
     ]);
@@ -13976,8 +16167,8 @@ async function globalSearch(query) {
 var searchRouter = router({
   global: secureProtectedProcedure
     .input(
-      z27.object({
-        query: z27.string().min(2).max(200),
+      z29.object({
+        query: z29.string().min(2).max(200),
       })
     )
     .query(async ({ input }) => {
@@ -14045,7 +16236,9 @@ function startSessionChecker(intervalMs = 3e5) {
 
 // server/reminderScheduler.ts
 init_db();
+init_postTourReviewService();
 var ONE_HOUR = 60 * 60 * 1e3;
+var FIFTEEN_MINUTES = 15 * 60 * 1e3;
 async function checkStaleLeads() {
   try {
     const staleLeads = await getStaleNewLeads();
@@ -14204,6 +16397,20 @@ async function processReminders2() {
 }
 async function hourlyTick() {
   await processReminders2();
+  try {
+    const result = await processDuePostTourReviewRequests();
+    if (result.sent > 0) {
+      console.log(
+        `[PostTourReview] Processed ${result.processed}, sent ${result.sent}, pending ${result.pending}`
+      );
+    }
+  } catch (err) {
+    console.error(
+      "[PostTourReview] Failed to process due review requests:",
+      err
+    );
+    captureException(err);
+  }
   const staleCount = await checkStaleLeads();
   const coldCount = await checkColdLeads();
   if (staleCount > 0 || coldCount > 0) {
@@ -14216,6 +16423,7 @@ async function hourlyTick() {
   await generateDailySummary();
 }
 var _schedulerTimer = null;
+var _reviewSchedulerTimer = null;
 function startReminderScheduler() {
   if (_schedulerTimer) return;
   console.log("[Reminder Scheduler] Starting (runs every hour)");
@@ -14231,6 +16439,22 @@ function startReminderScheduler() {
       captureException(err);
     });
   }, ONE_HOUR);
+  if (_reviewSchedulerTimer) return;
+  console.log(
+    "[Reminder Scheduler] Starting post-tour WhatsApp review loop (every 15 minutes)"
+  );
+  _reviewSchedulerTimer = setInterval(() => {
+    processPendingPostTourReviewRequests().catch(err => {
+      console.error("[PostTourReview] Scheduled run failed:", err);
+      captureException(err);
+    });
+  }, FIFTEEN_MINUTES);
+  setTimeout(() => {
+    processPendingPostTourReviewRequests().catch(err => {
+      console.error("[PostTourReview] Initial run failed:", err);
+      captureException(err);
+    });
+  }, 15e3);
 }
 
 // server/routers.ts
@@ -14270,6 +16494,7 @@ var appRouter = router({
   whatsapp: whatsappAdminRouter,
   leadScoring: leadScoringRouter,
   postTourEmail: postTourEmailRouter,
+  postTourReview: postTourReviewRouter,
   search: searchRouter,
 });
 
@@ -14325,10 +16550,12 @@ function createApp() {
   registerRssRoute(app2);
   registerSitemapRoute(app2);
   registerWhatsAppWebhookRoute(app2);
+  registerPostTourReviewClickRoute(app2);
   registerAgentApiRoutes(app2);
   registerChatApiRoute(app2);
   registerEliChatRoute(app2);
   registerEliRelayRoute(app2);
+  registerN8nRoutes(app2);
   registerChatRoute(app2);
   registerMosheRoute(app2);
   app2.use(
@@ -14351,6 +16578,17 @@ var SITE_URL3 = "https://www.wiro4x4indochina.com";
 var DEFAULT_OG_IMAGE = `${SITE_URL3}/images/optimized/single_cascade_waterfall-lg.jpg`;
 var BRAND_LOGO = `${SITE_URL3}/images/icon-512.png`;
 var BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
+var BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
+var BUSINESS_PHONE = "+66929894495";
+var BUSINESS_EMAIL = "wiro.adventures@gmail.com";
+var BUSINESS_WHATSAPP = "https://wa.me/66929894495";
+var BUSINESS_MAP_URL =
+  "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
+var BUSINESS_IMAGES = [
+  `${SITE_URL3}/images/optimized/banner-lg.webp`,
+  `${SITE_URL3}/images/optimized/wiro_with_vehicle-lg.jpg`,
+  `${SITE_URL3}/images/optimized/wiro_with_colleague-sm.jpg`,
+];
 function pageJsonLd(meta) {
   const url = `${SITE_URL3}${meta.path}`;
   return {
@@ -14381,6 +16619,71 @@ function serviceJsonLd(meta) {
     provider: { "@id": `${SITE_URL3}/#organization` },
     url: `${SITE_URL3}${meta.path}`,
     inLanguage: meta.inLanguage || ["en", "he"],
+  };
+}
+function localBusinessJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["TravelAgency", "LocalBusiness"],
+    "@id": `${SITE_URL3}/#organization`,
+    name: BUSINESS_NAME,
+    alternateName: ["WIRO 4x4", "Wiro 4x4 Indochina Adventure Tours"],
+    description:
+      "Private kosher-friendly 4x4 tour operator in Chiang Mai and Northern Thailand with Hebrew and English support, kosher-aware meal planning, and WhatsApp-first reservations.",
+    url: SITE_URL3,
+    logo: BRAND_LOGO,
+    image: BUSINESS_IMAGES,
+    telephone: BUSINESS_PHONE,
+    email: BUSINESS_EMAIL,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "183/15 Chang Klan Rd",
+      addressLocality: "Mueang Chiang Mai District",
+      addressRegion: "Chiang Mai",
+      postalCode: "50100",
+      addressCountry: "TH",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 18.7883,
+      longitude: 98.9853,
+    },
+    hasMap: BUSINESS_MAP_URL,
+    areaServed: [
+      "Chiang Mai",
+      "Northern Thailand",
+      "Chiang Rai",
+      "Mae Hong Son",
+      "Indochina",
+    ],
+    availableLanguage: ["English", "Hebrew", "Thai"],
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+      opens: "08:00:00",
+      closes: "18:00:00",
+    },
+    priceRange: "$$-$$$",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: BUSINESS_PHONE,
+      contactType: "reservations",
+      availableLanguage: ["English", "Hebrew", "Thai"],
+      url: BUSINESS_WHATSAPP,
+    },
+    sameAs: [BUSINESS_WHATSAPP],
+    potentialAction: [
+      {
+        "@type": "ReserveAction",
+        target: `${SITE_URL3}/book`,
+        name: "Book a private 4x4 tour",
+      },
+      {
+        "@type": "CommunicateAction",
+        target: BUSINESS_WHATSAPP,
+        name: "Ask WIRO 4x4 on WhatsApp",
+      },
+    ],
   };
 }
 var STATIC_ROUTES = {
@@ -14500,6 +16803,7 @@ var STATIC_ROUTES = {
     description:
       "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
     canonicalPath: "/contact",
+    jsonLd: localBusinessJsonLd(),
   },
   "/packages": {
     title: "Multi-Day Tour Packages \u2014 Northern Thailand",
@@ -14536,7 +16840,7 @@ var PACKAGE_META = {
     price: 59900,
   },
 };
-function escapeHtml3(str) {
+function escapeHtml4(str) {
   return str
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
@@ -14565,7 +16869,7 @@ function buildAlternateTags(meta, canonicalUrl) {
     .filter(entry => Boolean(entry[1]))
     .map(
       ([hreflang, href]) =>
-        `<link rel="alternate" hreflang="${hreflang}" href="${escapeHtml3(
+        `<link rel="alternate" hreflang="${hreflang}" href="${escapeHtml4(
           href
         )}" />`
     )
@@ -14576,8 +16880,8 @@ function injectMeta(html, meta) {
     meta.appendBrandSuffix === false || meta.title.includes("WIRO 4x4")
       ? meta.title
       : meta.title + BRAND_SUFFIX;
-  const safeTitle = escapeHtml3(fullTitle);
-  const safeDesc = escapeHtml3(meta.description);
+  const safeTitle = escapeHtml4(fullTitle);
+  const safeDesc = escapeHtml4(meta.description);
   const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
   const canonicalUrl = `${SITE_URL3}${meta.canonicalPath}`;
   const ogType = meta.ogType || "website";
@@ -14600,11 +16904,11 @@ function injectMeta(html, meta) {
   );
   html = html.replace(
     /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:image" content="${escapeHtml3(ogImage)}" />`
+    `<meta property="og:image" content="${escapeHtml4(ogImage)}" />`
   );
   html = html.replace(
     /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/,
-    `<meta property="og:url" content="${escapeHtml3(canonicalUrl)}" />`
+    `<meta property="og:url" content="${escapeHtml4(canonicalUrl)}" />`
   );
   html = html.replace(
     /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/,
@@ -14616,7 +16920,7 @@ function injectMeta(html, meta) {
   );
   html = html.replace(
     /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/,
-    `<meta name="twitter:image" content="${escapeHtml3(ogImage)}" />`
+    `<meta name="twitter:image" content="${escapeHtml4(ogImage)}" />`
   );
   const alternateTags = buildAlternateTags(meta, canonicalUrl);
   html = html.replace(
@@ -14625,7 +16929,7 @@ function injectMeta(html, meta) {
   );
   html = html.replace(
     /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
-    `<link rel="canonical" href="${escapeHtml3(canonicalUrl)}" />
+    `<link rel="canonical" href="${escapeHtml4(canonicalUrl)}" />
 ${alternateTags}`
   );
   if (meta.lang) {
@@ -14649,6 +16953,19 @@ ${alternateTags}`
     html = html.replace(
       "</head>",
       `${jsonLdScript}
+</head>`
+    );
+  }
+  const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  if (
+    googleSiteVerification &&
+    !html.includes('name="google-site-verification"')
+  ) {
+    html = html.replace(
+      "</head>",
+      `<meta name="google-site-verification" content="${escapeHtml4(
+        googleSiteVerification
+      )}" />
 </head>`
     );
   }

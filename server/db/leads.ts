@@ -15,6 +15,13 @@ export async function getAllLeads() {
   return await db.select().from(leads).orderBy(desc(leads.createdAt));
 }
 
+export async function getLeadById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function updateLead(id: number, data: Partial<InsertLead>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -80,7 +87,21 @@ export async function getStaleNewLeads() {
 }
 
 /**
- * Get leads with status 'contacted' that haven't been updated in 5+ days.
+ * Get new leads that have not been handled within the response SLA.
+ */
+export async function getLeadSlaBreaches(slaMinutes = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - slaMinutes * 60 * 1000);
+  return await db
+    .select()
+    .from(leads)
+    .where(sql`${leads.status} = 'new' AND ${leads.createdAt} < ${cutoff}`)
+    .orderBy(desc(leads.createdAt));
+}
+
+/**
+ * Get contacted or quoted leads that haven't been updated in 5+ days.
  */
 export async function getColdContactedLeads() {
   const db = await getDb();
@@ -90,8 +111,9 @@ export async function getColdContactedLeads() {
     .select()
     .from(leads)
     .where(
-      sql`${leads.status} = 'contacted' AND ${leads.updatedAt} < ${cutoff}`
-    );
+      sql`${leads.status} IN ('contacted', 'quoted') AND ${leads.updatedAt} < ${cutoff}`
+    )
+    .orderBy(desc(leads.updatedAt));
 }
 
 // ─── Abandoned Booking Recovery ──────────────────────────

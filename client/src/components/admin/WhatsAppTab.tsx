@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -23,6 +23,7 @@ export function WhatsAppTab() {
   const [sendTo, setSendTo] = useState("");
   const [sendText, setSendText] = useState("");
   const [showSendForm, setShowSendForm] = useState(false);
+  const [reviewDelayMinutes, setReviewDelayMinutes] = useState(45);
 
   const { data: stats, refetch: refetchStats } =
     trpc.whatsapp.getStats.useQuery();
@@ -33,6 +34,11 @@ export function WhatsAppTab() {
       pageSize: PAGE_SIZE,
       phoneFilter: phoneFilter || undefined,
     });
+
+  const { data: reviewConfig, refetch: refetchReviewConfig } =
+    trpc.postTourReview.config.useQuery();
+  const { data: weeklyMetric, refetch: refetchWeeklyMetric } =
+    trpc.postTourReview.weeklyMetric.useQuery();
 
   const sendMut = trpc.whatsapp.sendMessage.useMutation({
     onSuccess: data => {
@@ -59,6 +65,32 @@ export function WhatsAppTab() {
     },
     onError: () => toast.error("Failed to update auto-reply setting"),
   });
+
+  const processDueReviews = trpc.postTourReview.processDue.useMutation({
+    onSuccess: data => {
+      toast.success(
+        `Processed ${data.processed} requests, sent ${data.sent}, pending ${data.pending}`
+      );
+      void refetchWeeklyMetric();
+    },
+    onError: () => toast.error("Failed to process review requests"),
+  });
+
+  const updateReviewConfig = trpc.postTourReview.updateConfig.useMutation({
+    onSuccess: data => {
+      toast.success(
+        `Post-tour review delay set to ${data.delayMinutes} minutes`
+      );
+      void refetchReviewConfig();
+    },
+    onError: () => toast.error("Failed to update review delay"),
+  });
+
+  useEffect(() => {
+    if (reviewConfig?.delayMinutes) {
+      setReviewDelayMinutes(reviewConfig.delayMinutes);
+    }
+  }, [reviewConfig?.delayMinutes]);
 
   const messages = messagesData?.items ?? [];
   const totalPages = messagesData?.totalPages ?? 1;
@@ -196,6 +228,137 @@ export function WhatsAppTab() {
           </div>
         </div>
       )}
+
+      {/* Post-tour review tracking */}
+      <div className="bg-card border border-border rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+          <div>
+            <p className="text-sm font-semibold">Post-tour WhatsApp Reviews</p>
+            <p className="text-xs text-muted-foreground">
+              Weekly reviewed / tours completed with low-rating exceptions
+            </p>
+          </div>
+          <button
+            onClick={() => processDueReviews.mutate()}
+            disabled={processDueReviews.isPending}
+            className="px-3 py-1.5 rounded-lg border text-sm hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            {processDueReviews.isPending
+              ? "Processing..."
+              : "Process Due Requests"}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="bg-muted/40 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Tours Completed</p>
+            <p className="text-lg font-semibold">
+              {weeklyMetric?.toursCompleted ?? 0}
+            </p>
+          </div>
+          <div className="bg-muted/40 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Reviewed</p>
+            <p className="text-lg font-semibold">
+              {weeklyMetric?.reviewed ?? 0}
+            </p>
+          </div>
+          <div className="bg-muted/40 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Completion Rate</p>
+            <p className="text-lg font-semibold">
+              {weeklyMetric?.completionRate ?? 0}%
+            </p>
+          </div>
+          <div className="bg-muted/40 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">
+              Low Ratings (&lt;=4)
+            </p>
+            <p className="text-lg font-semibold text-orange-600">
+              {weeklyMetric?.lowRatingCount ?? 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 mb-3">
+          <label className="text-xs text-muted-foreground">
+            Auto-send delay (minutes)
+          </label>
+          <input
+            type="number"
+            min={reviewConfig?.min ?? 30}
+            max={reviewConfig?.max ?? 60}
+            value={reviewDelayMinutes}
+            onChange={e => setReviewDelayMinutes(Number(e.target.value))}
+            className="w-20 px-2 py-1 border border-border rounded text-sm bg-background"
+          />
+          <button
+            onClick={() =>
+              updateReviewConfig.mutate({
+                delayMinutes: Math.max(
+                  reviewConfig?.min ?? 30,
+                  Math.min(reviewConfig?.max ?? 60, reviewDelayMinutes || 45)
+                ),
+              })
+            }
+            disabled={updateReviewConfig.isPending}
+            className="px-2.5 py-1 border border-border rounded text-sm hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            Save
+          </button>
+        </div>
+
+        {(weeklyMetric?.lowRatingExceptions?.length ?? 0) > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left">
+                  <th className="pb-2 font-medium text-muted-foreground">
+                    Booking
+                  </th>
+                  <th className="pb-2 font-medium text-muted-foreground">
+                    Customer
+                  </th>
+                  <th className="pb-2 font-medium text-muted-foreground">
+                    Rating
+                  </th>
+                  <th className="pb-2 font-medium text-muted-foreground">
+                    Comment
+                  </th>
+                  <th className="pb-2 font-medium text-muted-foreground">
+                    Follow-up
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {weeklyMetric?.lowRatingExceptions.map(item => (
+                  <tr
+                    key={`${item.bookingId}-${item.reviewedAt}`}
+                    className="border-b"
+                  >
+                    <td className="py-2 font-mono">#{item.bookingId}</td>
+                    <td className="py-2">{item.customerName}</td>
+                    <td className="py-2 text-orange-600 font-semibold">
+                      {item.rating}
+                    </td>
+                    <td className="py-2">{item.comments || "—"}</td>
+                    <td className="py-2">
+                      {item.followUpPath ? (
+                        <a
+                          href={item.followUpPath}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Open
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Auto-Reply Toggle */}
       <div className="flex items-center justify-between bg-muted/30 border border-border rounded-lg p-3 mb-4">

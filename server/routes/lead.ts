@@ -23,6 +23,7 @@ import { leadInputSchema, paginationInput } from "../../shared/schemas";
 import { sendAutoResponse } from "../autoResponse";
 import { notifyNewLead } from "../eliNotify";
 import { calculateLeadScore, type LeadData } from "../leadScoring";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const leadRouter = router({
   create: securePublicProcedure
@@ -62,6 +63,21 @@ export const leadRouter = router({
         ).catch(err =>
           console.error("[Lead] Failed to update lead score:", err)
         );
+        dispatchN8nEventInBackground("lead.created", {
+          lead: newLead,
+          score: result.score,
+          scoreDetails: result.details,
+          source: input.source ?? "website",
+          request: {
+            referrer:
+              (ctx.req.headers.referer as string | undefined) ??
+              (ctx.req.headers.referrer as string | undefined) ??
+              null,
+            acceptLanguage:
+              (ctx.req.headers["accept-language"] as string | undefined) ??
+              null,
+          },
+        });
       }
 
       // Notify Eli → Telegram (async, non-blocking)

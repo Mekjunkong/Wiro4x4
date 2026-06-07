@@ -30,9 +30,14 @@ import {
   sendBookingReminder,
   sendPostTourFeedback,
 } from "./customerEmailService";
+import {
+  processDuePostTourReviewRequests,
+  processPendingPostTourReviewRequests,
+} from "./postTourReviewService";
 import { captureException } from "./sentry";
 
 const ONE_HOUR = 60 * 60 * 1000;
+const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
 // ─── O1: Lead Follow-up Automation ──────────────────────────
 
@@ -251,6 +256,22 @@ async function hourlyTick(): Promise<void> {
   // Booking reminders & feedback (existing)
   await processReminders();
 
+  // Post-tour WhatsApp review requests (configured delay, default 45m)
+  try {
+    const result = await processDuePostTourReviewRequests();
+    if (result.sent > 0) {
+      console.log(
+        `[PostTourReview] Processed ${result.processed}, sent ${result.sent}, pending ${result.pending}`
+      );
+    }
+  } catch (err) {
+    console.error(
+      "[PostTourReview] Failed to process due review requests:",
+      err
+    );
+    captureException(err);
+  }
+
   // O1: Lead follow-up checks
   const staleCount = await checkStaleLeads();
   const coldCount = await checkColdLeads();
@@ -273,6 +294,7 @@ async function hourlyTick(): Promise<void> {
 // ─── Scheduler Lifecycle ────────────────────────────────────
 
 let _schedulerTimer: ReturnType<typeof setInterval> | null = null;
+let _reviewSchedulerTimer: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Start the reminder scheduler. Runs hourlyTick() every hour.
@@ -298,6 +320,24 @@ export function startReminderScheduler(): void {
       captureException(err);
     });
   }, ONE_HOUR);
+
+  if (_reviewSchedulerTimer) return;
+  console.log(
+    "[Reminder Scheduler] Starting post-tour WhatsApp review loop (every 15 minutes)"
+  );
+  _reviewSchedulerTimer = setInterval(() => {
+    processPendingPostTourReviewRequests().catch((err: unknown) => {
+      console.error("[PostTourReview] Scheduled run failed:", err);
+      captureException(err);
+    });
+  }, FIFTEEN_MINUTES);
+
+  setTimeout(() => {
+    processPendingPostTourReviewRequests().catch((err: unknown) => {
+      console.error("[PostTourReview] Initial run failed:", err);
+      captureException(err);
+    });
+  }, 15_000);
 }
 
 // Export individual check functions for testing

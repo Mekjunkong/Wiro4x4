@@ -7,7 +7,13 @@
  * Uses native fetch (no external packages).
  */
 
-import { createWhatsAppMessage } from "./db";
+import {
+  createWhatsAppMessage,
+  createPostTourReviewEvent,
+  getLatestPostTourRequestEventByPhone,
+  buildPostTourReviewDedupeKey,
+  buildGuestReference,
+} from "./db";
 
 // ---------------------------------------------------------------------------
 // Configuration (lazy)
@@ -266,6 +272,41 @@ export async function handleIncomingMessage(
 ): Promise<void> {
   const { from, name, text, messageId } = message;
 
+  let matchedPostTourBookingId: number | null = null;
+  let guestReference = buildGuestReference({ phone: from });
+
+  try {
+    const latestRequest = await getLatestPostTourRequestEventByPhone(from);
+    if (latestRequest?.bookingId) {
+      matchedPostTourBookingId = latestRequest.bookingId;
+      guestReference = buildGuestReference({
+        bookingId: latestRequest.bookingId,
+        phone: from,
+      });
+    }
+
+    await createPostTourReviewEvent({
+      bookingId: matchedPostTourBookingId,
+      channel: "whatsapp",
+      state: "response_received",
+      guestReference,
+      guestPhone: from,
+      guestName: name ?? null,
+      externalMessageId: messageId ?? null,
+      dedupeKey: buildPostTourReviewDedupeKey({
+        state: "response_received",
+        bookingId: matchedPostTourBookingId,
+        guestReference,
+        externalMessageId: messageId ?? null,
+      }),
+      metadata: {
+        inboundTextPreview: text.slice(0, 240),
+      },
+    });
+  } catch (err) {
+    console.error("[WhatsApp] Failed to track post-tour response event:", err);
+  }
+
   // 1. Log incoming message
   try {
     await createWhatsAppMessage({
@@ -282,7 +323,42 @@ export async function handleIncomingMessage(
     console.error("[WhatsApp] Failed to log incoming message:", err);
   }
 
-  // 2. Check auto-reply setting (defaults to enabled)
+  // 2. Check if this message is a post-tour review reply.
+  try {
+    const { handlePostTourReviewReply } =
+      await import("./postTourReviewService");
+    const reviewReply = await handlePostTourReviewReply({ from, text });
+    if (reviewReply.handled) {
+      if (reviewReply.replyText) {
+        const sentMessageId = await sendWhatsAppMessage(
+          from,
+          reviewReply.replyText
+        );
+        try {
+          await createWhatsAppMessage({
+            direction: "outgoing",
+            phoneNumber: from,
+            customerName: name ?? null,
+            messageText: reviewReply.replyText,
+            messageType: "text",
+            isAutoReply: 0,
+            status: sentMessageId ? "sent" : "failed",
+            whatsappMessageId: sentMessageId ?? null,
+          });
+        } catch (err) {
+          console.error(
+            "[WhatsApp] Failed to log post-tour review reply:",
+            err
+          );
+        }
+      }
+      return;
+    }
+  } catch (err) {
+    console.error("[WhatsApp] Post-tour review processing failed:", err);
+  }
+
+  // 3. Check auto-reply setting (defaults to enabled)
   const { getSetting } = await import("./db");
   const autoReplyEnabled = await getSetting("whatsapp_auto_reply_enabled");
   if (
@@ -293,11 +369,11 @@ export async function handleIncomingMessage(
     return;
   }
 
-  // 3. Generate and send auto-reply (keyword-based fallback)
+  // 4. Generate and send auto-reply (keyword-based fallback)
   const { reply, isAutoReply } = getAutoReply(text);
   const sentMessageId = await sendWhatsAppMessage(from, reply);
 
-  // 4. Log outgoing auto-reply
+  // 5. Log outgoing auto-reply
   try {
     await createWhatsAppMessage({
       direction: "outgoing",
@@ -313,7 +389,37 @@ export async function handleIncomingMessage(
     console.error("[WhatsApp] Failed to log outgoing auto-reply:", err);
   }
 
-  // 5. Draft a smarter reply via LLM and notify Eli (non-blocking)
+  // 4b. Track outbound WhatsApp follow-up on post-tour review response
+  if (sentMessageId) {
+    try {
+      await createPostTourReviewEvent({
+        bookingId: matchedPostTourBookingId,
+        channel: "whatsapp",
+        state: "follow_up_sent",
+        guestReference,
+        guestPhone: from,
+        guestName: name ?? null,
+        externalMessageId: sentMessageId,
+        dedupeKey: buildPostTourReviewDedupeKey({
+          state: "follow_up_sent",
+          bookingId: matchedPostTourBookingId,
+          guestReference,
+          externalMessageId: sentMessageId,
+        }),
+        metadata: {
+          autoReply: true,
+          replyLength: reply.length,
+        },
+      });
+    } catch (err) {
+      console.error(
+        "[WhatsApp] Failed to track post-tour follow-up event:",
+        err
+      );
+    }
+  }
+
+  // 6. Draft a smarter reply via LLM and notify Eli (non-blocking)
   draftAndNotifyEli(from, name, text).catch(err => {
     console.error("[WhatsApp] Eli draft/notify failed:", err);
   });

@@ -258,8 +258,8 @@ export default function Pricing() {
   const handleWhatsAppInquiry = (tourName: string, price: number) => {
     const message = encodeURIComponent(
       t(
-        `Hi WIRO 4x4! I'm interested in the ${tourName} ($${Math.round(price * 0.028).toLocaleString()}). Can you provide more details?`,
-        `היי WIRO 4x4! מתעניינים ב${tourName} ($${Math.round(price * 0.028).toLocaleString()}). אפשר לשמוע פרטים?`
+        `Hi WIRO 4x4, I'm interested in ${tourName} (from $${Math.round(price * 0.028).toLocaleString()}).\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __`,
+        `שלום WIRO 4x4, מתעניינים ב${tourName} (החל מ-$${Math.round(price * 0.028).toLocaleString()}).\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __`
       )
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");

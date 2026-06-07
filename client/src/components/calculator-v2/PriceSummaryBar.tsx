@@ -69,7 +69,9 @@ export function PriceSummaryBar({
             </CurrencyTooltip>
             <div className="flex items-center gap-1 text-[10px] text-green-700 mt-0.5">
               <Shield className="w-2.5 h-2.5" />
-              <span>{t("100% Guarantee", "ערבות מלאה")}</span>
+              <span>
+                {t("No-obligation estimate", "הערכת מחיר ללא התחייבות")}
+              </span>
             </div>
           </div>
           <div className="flex gap-2">
@@ -138,11 +140,14 @@ export function PriceSummaryBar({
             </button>
           </div>
 
-          {/* Guarantee badge */}
+          {/* Trust note */}
           <div className="flex items-center justify-center gap-2 text-xs text-green-700 bg-green-50 py-2 px-3 rounded-sm border border-green-200">
             <Shield className="w-3 h-3" />
             <span className="font-medium">
-              {t("100% Money-Back Guarantee", "החזר כספי מלא")}
+              {t(
+                "Final quote confirmed on WhatsApp",
+                "הצעת המחיר הסופית מאושרת בוואטסאפ"
+              )}
             </span>
           </div>
         </div>

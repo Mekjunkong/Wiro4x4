@@ -17,6 +17,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReviewCardSkeleton } from "@/components/SkeletonLoader";
 import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
+import { captureReferralFromUrl, getStoredReferralCode } from "@/lib/referral";
 
 const TOUR_TYPES = [
   { id: "waterfall", en: "Waterfall Adventure", he: "טיול מפלים" },
@@ -115,8 +116,13 @@ export default function Reviews() {
   >("newest");
   const [showSuccess, setShowSuccess] = useState(false);
   const [formError, setFormError] = useState("");
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const REVIEWS_PER_PAGE = 6;
   const [visibleCount, setVisibleCount] = useState(REVIEWS_PER_PAGE);
+  const [reviewRequestId, setReviewRequestId] = useState<number | undefined>(
+    undefined
+  );
+  const [bookingId, setBookingId] = useState<number | undefined>(undefined);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -127,6 +133,7 @@ export default function Reviews() {
   });
 
   const { data: reviewsList, isLoading } = trpc.review.listPublic.useQuery();
+  const markReviewClicked = trpc.review.markClicked.useMutation();
   const utils = trpc.useUtils();
 
   // Calculate aggregate rating from reviews data
@@ -183,6 +190,32 @@ export default function Reviews() {
     },
   });
 
+  useEffect(() => {
+    const urlReferral = captureReferralFromUrl();
+    if (urlReferral) {
+      setReferralCode(urlReferral);
+      return;
+    }
+    setReferralCode(getStoredReferralCode());
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestIdRaw = params.get("reviewRequestId");
+    const bookingIdRaw = params.get("bookingId");
+    const parsedRequestId = requestIdRaw ? Number(requestIdRaw) : NaN;
+    const parsedBookingId = bookingIdRaw ? Number(bookingIdRaw) : NaN;
+
+    if (!Number.isNaN(parsedRequestId) && parsedRequestId > 0) {
+      setReviewRequestId(parsedRequestId);
+      markReviewClicked.mutate({ reviewRequestId: parsedRequestId });
+    }
+
+    if (!Number.isNaN(parsedBookingId) && parsedBookingId > 0) {
+      setBookingId(parsedBookingId);
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -202,6 +235,9 @@ export default function Reviews() {
 
     createReview.mutate({
       ...formData,
+      bookingId,
+      reviewRequestId,
+      source: reviewRequestId ? "whatsapp_post_tour" : "website",
       tourType: formData.tourType || undefined,
     });
   };
@@ -259,6 +295,14 @@ export default function Reviews() {
                 "קראו מה אומרים המטיילים שלנו ושתפו גם את החוויה שלכם"
               )}
             </p>
+            {referralCode && (
+              <p className="mt-3 text-sm opacity-90">
+                {t(
+                  `Referred with code: ${referralCode}`,
+                  `נקלט קוד הפניה: ${referralCode}`
+                )}
+              </p>
+            )}
           </div>
         </section>
 

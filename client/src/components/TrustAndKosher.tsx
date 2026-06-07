@@ -22,10 +22,10 @@ export function TrustAndKosher() {
   const trustPoints = [
     {
       icon: Award,
-      en: "First Kosher 4x4 Company",
-      he: "חברת 4x4 כשרה ראשונה",
-      descEn: "Pioneer of kosher off-road in Chiang Mai",
-      descHe: "חלוצי טיולי השטח הכשרים בצ'יאנג מאי",
+      en: "Kosher-Aware 4x4 Planning",
+      he: "תכנון 4x4 מודע כשרות",
+      descEn: "Food logistics discussed before route confirmation",
+      descHe: "לוגיסטיקת אוכל נסגרת לפני אישור מסלול",
     },
     {
       icon: MessageSquare,
@@ -59,8 +59,8 @@ export function TrustAndKosher() {
       icon: Heart,
       en: "WhatsApp Support",
       he: "תמיכה בוואטסאפ",
-      descEn: "Quick responses, always available",
-      descHe: "מענה מהיר, תמיד זמינים",
+      descEn: "Fastest channel for availability checks",
+      descHe: "הערוץ המהיר לבדיקת זמינות",
     },
   ];
 
@@ -132,8 +132,8 @@ export function TrustAndKosher() {
               </div>
               <p className="text-muted-foreground">
                 {t(
-                  "Meals are planned in advance with sealed packaging, separate handling, and route timing that can respect Shabbat needs.",
-                  "הארוחות מתוכננות מראש עם אריזות סגורות, טיפול נפרד ותזמון מסלול שיכול להתחשב בצרכי שבת."
+                  "Meal logistics are confirmed before the trip: sourcing, packaging, handling, timing, and any Shabbat-sensitive routing are discussed with your group.",
+                  "לוגיסטיקת הארוחות מאושרת לפני הטיול: מקור, אריזה, טיפול, תזמון וכל התאמת מסלול רגישה לשבת נבדקים מול הקבוצה."
                 )}
               </p>
             </div>
@@ -141,8 +141,11 @@ export function TrustAndKosher() {
             {/* Kosher Accordion */}
             <div id="kosher" className="mt-8 border-t border-accent/30 pt-6">
               <button
+                type="button"
                 onClick={() => setKosherOpen(!kosherOpen)}
-                className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold"
+                aria-expanded={kosherOpen}
+                aria-controls="kosher-logistics-details"
+                className="flex items-center gap-2 w-full text-left font-heading text-xl font-bold focus:outline-none focus:ring-2 focus:ring-accent/40 rounded-md"
               >
                 <ShieldCheck className="w-6 h-6 text-accent" />
                 {t("Kosher Standards & Logistics", "תקני כשרות ולוגיסטיקה")}
@@ -151,11 +154,14 @@ export function TrustAndKosher() {
                 />
               </button>
               {kosherOpen && (
-                <div className="mt-4 text-muted-foreground leading-relaxed animate-fade-in">
+                <div
+                  id="kosher-logistics-details"
+                  className="mt-4 text-muted-foreground leading-relaxed animate-fade-in"
+                >
                   <p>
                     {t(
-                      "Certified ingredient sourcing, dedicated kosher kitchen, sealed packaging, and strict separation. We accommodate all levels — from basic kosher to mehadrin standards. Non-kosher guests welcome too.",
-                      "חומרי גלם מוסמכים, מטבח כשר ייעודי, אריזות אטומות והפרדה מלאה. מתאימים לכל רמות הכשרות — מכשרות רגילה ועד מהדרין. גם מי שלא שומר כשרות מוזמן."
+                      "Before confirming a route, we discuss your kosher level, food source, packaging, handling, serving plan, and Shabbat timing. We do not assume one standard fits every traveler — tell us what you require and we will confirm what is possible for that itinerary.",
+                      "לפני אישור מסלול אנחנו בודקים את רמת הכשרות, מקור האוכל, האריזה, הטיפול, אופן ההגשה ותזמון שבת. לא מניחים שסטנדרט אחד מתאים לכולם — ספרו לנו מה נדרש ונאשר מה אפשרי במסלול."
                     )}
                   </p>
                 </div>

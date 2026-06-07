@@ -64,9 +64,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: "What kosher food options are available during tours?",
     questionHe: "אילו אפשרויות אוכל כשר זמינות במהלך הטיולים?",
     answerEn:
-      "We provide fully kosher meals on all our tours, including breakfast, lunch, and snacks. Our meals are prepared with kosher-certified ingredients and follow strict kashrus standards. We can accommodate glatt kosher, mehadrin, and various dietary preferences. Vegetarian and vegan kosher options are also available upon request.",
+      "Kosher-friendly meal planning is available on all tours. Depending on route and advance notice, options may include packed kosher meals and, when available, meals from local providers you can review in advance. Share your kosher level before booking and we will confirm what is feasible for your itinerary.",
     answerHe:
-      "אנו מספקים ארוחות כשרות מלאות בכל הטיולים שלנו, כולל ארוחת בוקר, ארוחת צהריים וחטיפים. הארוחות שלנו מוכנות עם מרכיבים בעלי הכשר ועומדות בסטנדרטים מחמירים של כשרות. אנו יכולים להתאים כשר גלאט, מהדרין, והעדפות תזונתיות שונות. אפשרויות כשרות צמחוניות וטבעוניות זמינות גם לפי בקשה.",
+      "תכנון אוכל ידידותי לכשרות זמין בכל הטיולים. בהתאם למסלול ולהודעה מראש, האפשרויות יכולות לכלול ארוחות כשרות ארוזות, ובכפוף לזמינות, ארוחות מספקים מקומיים שתוכלו לבדוק מראש. שתפו את רמת הכשרות לפני ההזמנה ונאשר מה אפשרי למסלול שלכם.",
   },
   {
     id: "shabbat-observance",
@@ -74,9 +74,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: "How do you handle Shabbat observance during multi-day trips?",
     questionHe: "איך אתם מתמודדים עם שמירת שבת בטיולים רב-יומיים?",
     answerEn:
-      "We fully respect Shabbat observance. Multi-day trips are planned so you can rest at a comfortable hotel on Shabbat. We arrange Shabbat-friendly accommodations with pre-set timers, nearby synagogues when available, and kosher Shabbat meals. No driving or activities are scheduled during Shabbat hours.",
+      "When requested, we plan multi-day itineraries to support Shabbat observance. Trips can include a Shabbat hotel stop, and we help coordinate timing, accommodation options, and meal planning based on availability. For Shabbat-observant itineraries, no driving or activities are scheduled during Shabbat hours.",
     answerHe:
-      "אנו מכבדים באופן מלא את שמירת השבת. טיולים רב-יומיים מתוכננים כך שתוכלו לנוח במלון נוח בשבת. אנו מסדרים לינה מותאמת לשבת עם שעוני שבת, בתי כנסת קרובים כשאפשר, וארוחות שבת כשרות. לא מתוכננות נסיעות או פעילויות בשעות השבת.",
+      "כשמבקשים זאת מראש, אנו מתכננים מסלולים רב-יומיים שמתחשבים בשמירת שבת. אפשר לשלב עצירה במלון לשבת, ואנו עוזרים לתאם זמנים, אפשרויות לינה ותכנון ארוחות לפי זמינות. במסלולים לשומרי שבת לא מתוכננות נסיעות או פעילויות בשעות השבת.",
   },
   {
     id: "hebrew-guide",
@@ -84,9 +84,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: "Do you offer Hebrew-speaking guides?",
     questionHe: "האם אתם מציעים מדריכים דוברי עברית?",
     answerEn:
-      "Yes! Our founder Wiro speaks fluent Hebrew and serves as the primary guide for most tours. Having a Hebrew-speaking guide means no language barriers, easy communication, and a deeper connection with the local culture. Wiro has extensive experience working with Israeli travelers and understands the specific needs of Hebrew-speaking guests.",
+      "Yes. Our founder Wiro speaks fluent Hebrew and is the primary guide on many tours. Hebrew guidance helps with clear communication and cultural context throughout the day. If Hebrew support is essential for your dates, confirm guide availability with us before booking.",
     answerHe:
-      "כן! המייסד שלנו וירו דובר עברית שוטפת ומשמש כמדריך הראשי ברוב הטיולים. מדריך דובר עברית משמעו ללא מחסומי שפה, תקשורת קלה, וחיבור עמוק יותר עם התרבות המקומית. לווירו ניסיון רב בעבודה עם מטיילים ישראליים והוא מבין את הצרכים הספציפיים של אורחים דוברי עברית.",
+      "כן. המייסד שלנו וירו דובר עברית שוטפת והוא המדריך הראשי בחלק גדול מהטיולים. הדרכה בעברית עוזרת לתקשורת ברורה ולהבנת ההקשר המקומי לאורך היום. אם תמיכה בעברית חיונית לתאריכים שלכם, כדאי לאשר זמינות מדריך לפני ההזמנה.",
   },
   {
     id: "group-sizes",
@@ -156,9 +156,9 @@ const FAQ_ITEMS: FAQItem[] = [
     questionEn: "What safety measures do you have in place?",
     questionHe: "אילו אמצעי בטיחות יש לכם?",
     answerEn:
-      "Safety is our top priority. All our 4x4 vehicles are regularly maintained and inspected. Our drivers are experienced off-road professionals who know every trail. We carry first aid kits, emergency communication devices, and drinking water on every tour. We also have comprehensive insurance coverage for all passengers and provide safety briefings before each tour.",
+      "Safety is a core operating priority for our team. Our 4x4 vehicles are maintained on a regular schedule, and our drivers are experienced in the routes they operate. We carry first-aid kits, emergency communication tools, and drinking water on each tour, and we provide a safety briefing before departure. Passenger insurance details are shared during booking confirmation.",
     answerHe:
-      "הבטיחות היא בראש סדר העדיפויות שלנו. כל רכבי השטח שלנו עוברים תחזוקה ובדיקה קבועה. הנהגים שלנו הם אנשי מקצוע מנוסים בנהיגת שטח שמכירים כל שביל. אנו נושאים ערכות עזרה ראשונה, מכשירי תקשורת חירום ומי שתייה בכל טיול. יש לנו גם כיסוי ביטוחי מקיף לכל הנוסעים ואנו מעבירים תדריך בטיחות לפני כל טיול.",
+      "הבטיחות היא עיקרון תפעולי מרכזי אצלנו. רכבי ה-4x4 עוברים תחזוקה שוטפת, והנהגים שלנו מנוסים במסלולים שהם מפעילים. בכל טיול אנו נושאים ערכות עזרה ראשונה, אמצעי תקשורת חירום ומי שתייה, ומעבירים תדריך בטיחות לפני היציאה. פרטי הביטוח לנוסעים נמסרים בשלב אישור ההזמנה.",
   },
   {
     id: "custom-tours",
@@ -215,7 +215,10 @@ export default function FAQ() {
       ? FAQ_ITEMS
       : FAQ_ITEMS.filter(item => item.category === selectedCategory);
 
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/\+/g, "")}?text=${encodeURIComponent("Hi! I have a question about WIRO 4x4 tours.")}`;
+  const whatsappPrefill = isHebrew
+    ? "שלום WIRO 4x4, נשמח לתכנן טיול.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
+    : "Hi WIRO 4x4, we'd like to plan a tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/\+/g, "")}?text=${encodeURIComponent(whatsappPrefill)}`;
 
   return (
     <div className="min-h-screen">

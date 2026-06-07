@@ -12,8 +12,8 @@ const faqData = [
   {
     q: ["Is the food on tours kosher?", "האם האוכל בטיולים כשר?"],
     a: [
-      "Yes! All meals provided during our tours are kosher. We work with certified kosher restaurants and caterers in Chiang Mai to ensure all dietary requirements are met.",
-      "בוודאי! כל הארוחות בטיולים שלנו כשרות. אנחנו עובדים עם מסעדות וקייטרינג בעלי הכשר בצ'יאנג מאי, ודואגים שהכל עומד בסטנדרטים שלכם.",
+      "We offer kosher-friendly meal planning for every tour. Depending on route and advance notice, options can include packed kosher meals and, when available, meals from local providers you can review in advance. Share your kosher level before booking so we can confirm what is feasible.",
+      "אנחנו מציעים תכנון אוכל ידידותי לכשרות בכל טיול. בהתאם למסלול ולהודעה מראש, האפשרויות יכולות לכלול ארוחות כשרות ארוזות ובכפוף לזמינות ארוחות מספקים מקומיים שתוכלו לבדוק מראש. שתפו את רמת הכשרות לפני ההזמנה כדי שנאשר מה אפשרי.",
     ],
   },
   {
@@ -22,8 +22,8 @@ const faqData = [
       "איך מתנהלים לגבי שמירת שבת?",
     ],
     a: [
-      "We fully respect Shabbat observance. Tours are not scheduled on Shabbat, and we can arrange Shabbat-friendly accommodations near the local Chabad house. Just let us know your needs when booking.",
-      'אנחנו מכבדים שמירת שבת לגמרי. לא יוצאים לטיולים בשבת, ואפשר לארגן לינה ליד בית חב"ד המקומי. פשוט ספרו לנו מה אתם צריכים כשמזמינים.',
+      "When requested, we plan around Shabbat observance. Tours are not scheduled on Shabbat for Shabbat-observant itineraries, and we can help coordinate accommodation options near local Jewish services based on availability. Tell us your needs when booking.",
+      "כשמבקשים זאת מראש, אנחנו מתכננים בהתאם לשמירת שבת. במסלולים לשומרי שבת לא מתוכננים טיולים בשבת, ואפשר לסייע בתיאום אפשרויות לינה ליד שירותים יהודיים מקומיים לפי זמינות. ספרו לנו מה אתם צריכים בזמן ההזמנה.",
     ],
   },
   {

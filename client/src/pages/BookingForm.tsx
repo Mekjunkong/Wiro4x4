@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { trackEvent, FUNNEL } from "@/lib/analytics";
 import { getStoredUtm } from "@/lib/utm";
+import { captureReferralFromUrl, clearReferralCode } from "@/lib/referral";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { Header } from "@/components/Header";
@@ -101,6 +102,9 @@ export default function BookingForm() {
   const [bookingRef, setBookingRef] = useState("");
   const [draftSaved, setDraftSaved] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(() =>
+    captureReferralFromUrl()
+  );
 
   // Read URL params once on mount
   const [tokenParam] = useState(() => {
@@ -407,6 +411,8 @@ export default function BookingForm() {
       setIsSubmitting(false);
       setBookingRef(`WIRO-${data.bookingId || Date.now()}`);
       setSubmitSuccess(true);
+      setReferralCode(null);
+      clearReferralCode();
       // N5: Clear draft on successful submission
       try {
         localStorage.removeItem(DRAFT_KEY);
@@ -575,6 +581,7 @@ export default function BookingForm() {
         utmSource: utm?.utm_source,
         utmMedium: utm?.utm_medium,
         utmCampaign: utm?.utm_campaign,
+        source: referralCode ? `referral:${referralCode}` : undefined,
       });
     } finally {
       setIsSubmitting(false);

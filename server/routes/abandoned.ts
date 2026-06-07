@@ -7,6 +7,7 @@ import {
 } from "./_helpers";
 import { getAbandonedLeads, markRecoveryEmailSent } from "../db";
 import { sendAbandonedBookingEmail } from "../abandonedBookingService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const abandonedRouter = router({
   /**
@@ -68,6 +69,12 @@ export const abandonedRouter = router({
             resourceId: foundLead.id,
             newValue: JSON.stringify({ recoveryEmailSent: true }),
           });
+          dispatchN8nEventInBackground("abandoned.recovery_sent", {
+            leadId: foundLead.id,
+            email: foundLead.email,
+            source: foundLead.source,
+            sentBy: ctx.user?.email ?? null,
+          });
         }
         return {
           success: sent,
@@ -93,6 +100,12 @@ export const abandonedRouter = router({
           resourceType: "lead",
           resourceId: lead.id,
           newValue: JSON.stringify({ recoveryEmailSent: true }),
+        });
+        dispatchN8nEventInBackground("abandoned.recovery_sent", {
+          leadId: lead.id,
+          email: lead.email,
+          source: lead.source,
+          sentBy: ctx.user?.email ?? null,
         });
       }
 
@@ -126,6 +139,14 @@ export const abandonedRouter = router({
         failedCount++;
       }
     }
+    dispatchN8nEventInBackground("abandoned.batch_recovery_sent", {
+      attempted: batch.length,
+      sent: sentCount,
+      failed: failedCount,
+      remaining: Math.max(0, unsent.length - batch.length),
+      sentBy: ctx.user?.email ?? null,
+      leadIds: batch.map(lead => lead.id),
+    });
 
     if (sentCount > 0) {
       await logAdminAction({

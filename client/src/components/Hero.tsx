@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { ChevronDown, MessageCircle, ShieldCheck, Clock3 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
@@ -28,6 +28,29 @@ export function Hero() {
     trackHeroAction("view_tours");
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const scrollToInquiry = () => {
+    trackHeroAction("start_inquiry");
+    document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const responseProof = [
+    {
+      icon: Clock3,
+      en: "Personal WhatsApp reply",
+      he: "מענה אישי בוואטסאפ",
+    },
+    {
+      icon: ShieldCheck,
+      en: "Private route planning",
+      he: "תכנון מסלול פרטי",
+    },
+    {
+      icon: MessageCircle,
+      en: "English / Hebrew support",
+      he: "מענה בעברית / אנגלית",
+    },
+  ];
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
@@ -77,25 +100,55 @@ export function Hero() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackHeroAction("whatsapp")}
-            className="bg-[#25D366] hover:bg-[#20BA5A] active:bg-[#1EA653] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base"
+            className="min-h-12 bg-[#25D366] hover:bg-[#20BA5A] active:bg-[#1EA653] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
           >
-            <MessageCircle className="w-5 h-5" />
-            {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
+            <MessageCircle className="w-5 h-5" aria-hidden="true" />
+            {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
           </a>
           <button
-            onClick={scrollToTours}
-            className="text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8"
+            type="button"
+            onClick={scrollToInquiry}
+            className="min-h-12 text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
           >
-            {t("Compare Routes", "השוואת מסלולים")}
+            {t("Send Trip Details", "שליחת פרטי הטיול")}
+          </button>
+          <button
+            type="button"
+            onClick={scrollToTours}
+            className="min-h-12 text-white/90 font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-xs md:text-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
+          >
+            {t("See Route Ideas", "רעיונות למסלולים")}
           </button>
         </div>
 
-        <p className="max-w-[21rem] sm:max-w-xl text-sm md:text-base leading-relaxed text-white/75 animate-hero-reveal [animation-delay:0.65s]">
-          {t(
-            "Send dates, group size, pickup area, and kosher or Shabbat needs. Replies in English or Hebrew.",
-            "שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי כשרות או שבת. מענה בעברית או באנגלית."
-          )}
-        </p>
+        <div className="max-w-[22rem] sm:max-w-2xl animate-hero-reveal [animation-delay:0.65s] space-y-3">
+          <p className="text-sm md:text-base leading-relaxed text-white/85">
+            {t(
+              "Send dates, group size, pickup area, and kosher or Shabbat needs. We confirm availability and price personally in English or Hebrew.",
+              "שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי כשרות או שבת. נאשר זמינות ומחיר אישית בעברית או באנגלית."
+            )}
+          </p>
+          <div
+            className="flex flex-wrap gap-2"
+            aria-label={t(
+              "Trip planning trust markers",
+              "סימני אמון לתכנון הטיול"
+            )}
+          >
+            {responseProof.map(item => (
+              <span
+                key={item.en}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-primary/45 px-3 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur"
+              >
+                <item.icon
+                  className="h-3.5 w-3.5 text-accent"
+                  aria-hidden="true"
+                />
+                {t(item.en, item.he)}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Animated scroll chevron */}

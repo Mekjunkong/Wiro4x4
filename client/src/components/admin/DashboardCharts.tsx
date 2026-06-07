@@ -17,6 +17,7 @@ import {
   DollarSign,
   AlertCircle,
   ArrowRight,
+  MessageSquare,
 } from "lucide-react";
 import { FunnelChart } from "./FunnelChart";
 
@@ -25,6 +26,15 @@ interface DashboardChartsProps {
     bookingsByDay: { date: string; count: number }[];
     revenueByDay: { date: string; total: number }[];
     leadConversion: { total: number; converted: number; rate: number };
+    postTourReviews: {
+      windowStart: string;
+      windowEnd: string;
+      volume: number;
+      completedTours: number;
+      reviewed: number;
+      completionRate: number;
+      lowRatingExceptions: number;
+    };
     upcomingTours: Array<{
       id: number;
       contactName: string;
@@ -156,7 +166,7 @@ export function DashboardCharts({
         <h3 className="text-sm font-semibold text-gray-800 mb-3">
           Today&apos;s Priorities
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Upcoming Tours */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase">
@@ -219,6 +229,28 @@ export function DashboardCharts({
               <div className="text-xs text-orange-600">New leads</div>
             </div>
             <ArrowRight className="h-4 w-4 text-orange-400 ml-auto" />
+          </button>
+
+          {/* Post-Tour Review Ops */}
+          <button
+            onClick={() => onFilterBookings?.("reviews")}
+            className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition text-left"
+          >
+            <MessageSquare className="h-8 w-8 text-blue-600 shrink-0" />
+            <div>
+              <div className="text-lg font-bold text-blue-800">
+                {stats.postTourReviews.completionRate}%
+              </div>
+              <div className="text-xs text-blue-600">
+                Review completion ({stats.postTourReviews.reviewed}/
+                {stats.postTourReviews.completedTours})
+              </div>
+              <div className="text-[11px] text-blue-500 mt-0.5">
+                Weekly sent: {stats.postTourReviews.volume} · Low-rating
+                exceptions: {stats.postTourReviews.lowRatingExceptions}
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-blue-400 ml-auto" />
           </button>
         </div>
       </div>

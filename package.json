@@ -22,6 +22,14 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "images:optimize": "tsx scripts/optimize-images.ts",
     "images:report": "tsx scripts/optimize-images.ts --report",
+    "n8n:validate": "tsx scripts/validate-n8n-workflows.ts",
+    "n8n:doctor": "tsx scripts/n8n-doctor.ts",
+    "n8n:secrets": "tsx scripts/n8n-generate-secrets.ts",
+    "n8n:readiness": "tsx scripts/n8n-readiness.ts",
+    "n8n:import": "tsx scripts/n8n-import-workflows.ts",
+    "n8n:verify-live": "tsx scripts/n8n-verify-live.ts",
+    "n8n:smoke": "tsx scripts/n8n-smoke-test.ts",
+    "run:email-pack": "tsx scripts/run-booking-email-pack.ts",
     "prepare": "husky"
   },
   "lint-staged": {

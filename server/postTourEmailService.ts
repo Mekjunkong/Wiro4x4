@@ -21,6 +21,9 @@ import {
   getEligiblePostTourBookings,
   getAlbumByBookingId,
   markPostTourEmailSent,
+  createPostTourReviewEvent,
+  buildPostTourReviewDedupeKey,
+  buildGuestReference,
 } from "./db";
 
 // Lazily initialize Resend so tests don't crash when RESEND_API_KEY is unset
@@ -37,6 +40,29 @@ const SENDER_EMAIL = COMPANY_SENDER_EMAIL;
 interface PostTourEmailOptions {
   booking: Booking;
   albumToken?: string | null;
+}
+
+function normalizePhone(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const normalized = phone.replace(/[^0-9+]/g, "").trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function getReferralCodeFromSource(
+  source: string | null | undefined
+): string | null {
+  if (!source) return null;
+  const match = source.match(/^referral:\s*([^:]+)$/i);
+  return match?.[1]?.trim() || null;
+}
+
+function appendReferralQuery(
+  baseUrl: string,
+  referralCode: string | null
+): string {
+  if (!referralCode) return baseUrl;
+  const separator = baseUrl.includes("?") ? "&" : "?";
+  return `${baseUrl}${separator}ref=${encodeURIComponent(referralCode)}`;
 }
 
 /**
@@ -62,9 +88,16 @@ export function generatePostTourEmailHtml({
       })
     : "";
 
-  const reviewUrl = `${COMPANY_WEBSITE}/reviews`;
+  const referralCode = getReferralCodeFromSource(booking.source);
+  const reviewUrl = appendReferralQuery(
+    `${COMPANY_WEBSITE}/reviews`,
+    referralCode
+  );
   const albumUrl = albumToken ? `${COMPANY_WEBSITE}/album/${albumToken}` : null;
-  const bookNextUrl = `${COMPANY_WEBSITE}/packages`;
+  const bookNextUrl = appendReferralQuery(
+    `${COMPANY_WEBSITE}/packages`,
+    referralCode
+  );
   const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent("Hi WIRO 4x4! I just completed my tour and wanted to share feedback.")}`;
   const googleReviewUrl = `https://search.google.com/local/writereview?placeid=ChIJByjTCcj1dDAR_WIRO4x4`;
 
@@ -265,6 +298,33 @@ export async function sendPostTourEmail(
     console.log(
       `[PostTourEmail] Sent to ${booking.contactEmail} for booking #${booking.id}. ID: ${data?.id}`
     );
+
+    const guestPhone = normalizePhone(
+      booking.contactWhatsApp ?? booking.contactPhone
+    );
+    const guestReference = buildGuestReference({
+      bookingId: booking.id,
+      phone: guestPhone,
+    });
+
+    await createPostTourReviewEvent({
+      bookingId: booking.id,
+      channel: "whatsapp",
+      state: "request_sent",
+      guestReference,
+      guestPhone,
+      guestName: booking.contactName,
+      externalMessageId: null,
+      dedupeKey: buildPostTourReviewDedupeKey({
+        state: "request_sent",
+        bookingId: booking.id,
+        guestReference,
+      }),
+      metadata: {
+        trigger: "post_tour_email",
+        resendEmailId: data?.id ?? null,
+      },
+    });
     return true;
   } catch (error) {
     console.error("[PostTourEmail] Error in sendPostTourEmail:", error);

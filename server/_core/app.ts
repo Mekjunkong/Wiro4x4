@@ -5,12 +5,14 @@ import { registerAuthRoutes } from "../routes/authRoutes";
 import { registerRssRoute } from "../routes/rss";
 import { registerSitemapRoute } from "../routes/sitemap";
 import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
+import { registerPostTourReviewClickRoute } from "../routes/postTourReviewClick";
 import { registerAgentApiRoutes } from "../routes/agentApi";
 import { registerChatApiRoute } from "../routes/chatApi";
 import { registerEliChatRoute } from "../routes/eliChatApi";
 import { registerEliRelayRoute } from "../routes/eliRelay";
 import { registerChatRoute } from "../routes/chat";
 import { registerMosheRoute } from "../routes/moshe";
+import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 
@@ -43,12 +45,14 @@ export function createApp() {
   registerRssRoute(app);
   registerSitemapRoute(app);
   registerWhatsAppWebhookRoute(app);
+  registerPostTourReviewClickRoute(app);
   registerAgentApiRoutes(app);
 
   // AI Chat API (legacy endpoint)
   registerChatApiRoute(app);
   registerEliChatRoute(app);
   registerEliRelayRoute(app);
+  registerN8nRoutes(app);
 
   // AI Chat API with DB persistence
   registerChatRoute(app);

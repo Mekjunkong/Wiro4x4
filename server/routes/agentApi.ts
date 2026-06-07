@@ -196,6 +196,42 @@ agentApi.get("/upsells/process", async (_req: Request, res: Response) => {
   }
 });
 
+// ── Process due post-tour WhatsApp review requests ─────────────────────────
+agentApi.get(
+  "/post-tour-reviews/process",
+  async (_req: Request, res: Response) => {
+    try {
+      const { processDuePostTourReviewRequests } =
+        await import("../postTourReviewService");
+      const result = await processDuePostTourReviewRequests();
+      res.json({ success: true, ...result });
+    } catch (_e) {
+      const msg = _e instanceof Error ? _e.message : "Unknown error";
+      res
+        .status(500)
+        .json({ error: "Failed to process post-tour reviews", detail: msg });
+    }
+  }
+);
+
+// ── Weekly metric: reviewed / tours completed ──────────────────────────────
+agentApi.get(
+  "/post-tour-reviews/weekly-metric",
+  async (_req: Request, res: Response) => {
+    try {
+      const { getWeeklyPostTourReviewMetric } =
+        await import("../postTourReviewService");
+      const metric = await getWeeklyPostTourReviewMetric();
+      res.json(metric);
+    } catch (_e) {
+      const msg = _e instanceof Error ? _e.message : "Unknown error";
+      res
+        .status(500)
+        .json({ error: "Failed to fetch weekly metric", detail: msg });
+    }
+  }
+);
+
 // ── Competitor Monitor ──────────────────────────────────────────
 agentApi.get("/competitor/check", async (_req: Request, res: Response) => {
   try {

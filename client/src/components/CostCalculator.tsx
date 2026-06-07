@@ -332,8 +332,8 @@ export function CostCalculator() {
         ? `\n${isHebrew ? "שירותים" : "Services"}: ${serviceLabels.join(", ")}`
         : "";
     const message = isHebrew
-      ? `היי WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatCurrency(breakdown.total, currency)}${servicesText}\n\n${shareUrl ? `קישור לשיתוף: ${shareUrl}\n` : ""}אפשר לקבל הצעת מחיר מדויקת?`
-      : `Hi WIRO 4x4! I used the cost estimator on your site:\n\nTours: ${tourNames}\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nDates: ${arrivalDate} → ${departureDate}\nEstimated price: ${formatCurrency(breakdown.total, currency)}${servicesText}\n\n${shareUrl ? `Share link: ${shareUrl}\n` : ""}Can I get an exact quote?`;
+      ? `שלום WIRO 4x4! עשיתי חישוב עלויות באתר:\n\nטיולים: ${tourNames}\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריכים: ${arrivalDate} → ${departureDate}\nהערכת מחיר: ${formatCurrency(breakdown.total, currency)}${servicesText}\nמלון או אזור איסוף: __\nצרכי כשרות / שבת / מדריך בעברית: __\n\n${shareUrl ? `קישור לשיתוף: ${shareUrl}\n` : ""}אפשר לקבל הצעת מחיר סופית בוואטסאפ?`
+      : `Hi WIRO 4x4, I used the cost estimator:\n\nTours: ${tourNames}\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nDates: ${arrivalDate} → ${departureDate}\nEstimated price: ${formatCurrency(breakdown.total, currency)}${servicesText}\nPickup area or hotel: __\nKosher / Shabbat / Hebrew-guide needs: __\n\n${shareUrl ? `Share link: ${shareUrl}\n` : ""}Can I get the final quote on WhatsApp?`;
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank"

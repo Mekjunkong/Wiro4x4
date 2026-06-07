@@ -111,6 +111,23 @@ export async function getWhatsAppMessageStats() {
   };
 }
 
+export async function getRecentFailedWhatsAppMessages(withinHours = 24) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1000);
+  return await db
+    .select()
+    .from(whatsappMessages)
+    .where(
+      and(
+        eq(whatsappMessages.status, "failed"),
+        gte(whatsappMessages.createdAt, cutoff)
+      )
+    )
+    .orderBy(desc(whatsappMessages.createdAt))
+    .limit(20);
+}
+
 export async function updateWhatsAppMessageStatus(
   whatsappMessageId: string,
   status: "sent" | "delivered" | "read" | "failed"

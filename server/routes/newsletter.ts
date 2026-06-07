@@ -16,6 +16,7 @@ import {
   deactivateSubscriber,
 } from "../db";
 import { sendNewsletterEmail } from "../newsletterEmailService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const newsletterRouter = router({
   subscribe: securePublicProcedure
@@ -45,6 +46,17 @@ export const newsletterRouter = router({
       }
 
       await createSubscriber(input);
+      dispatchN8nEventInBackground("newsletter.subscribed", {
+        subscriber: input,
+        request: {
+          referrer:
+            (ctx.req.headers.referer as string | undefined) ??
+            (ctx.req.headers.referrer as string | undefined) ??
+            null,
+          acceptLanguage:
+            (ctx.req.headers["accept-language"] as string | undefined) ?? null,
+        },
+      });
       return { success: true, message: "Successfully subscribed!" };
     }),
 
@@ -85,6 +97,12 @@ export const newsletterRouter = router({
           blogPostId: input.blogPostId,
           recipientCount: sent,
         }),
+      });
+      dispatchN8nEventInBackground("newsletter.sent", {
+        blogPostId: input.blogPostId,
+        subject: input.subject ?? null,
+        recipientCount: sent,
+        sentBy: ctx.user?.email ?? null,
       });
       return { success: true, sent, message: `Sent to ${sent} subscribers` };
     }),

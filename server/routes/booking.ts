@@ -36,6 +36,8 @@ import { bookingInputSchema, paginationInput } from "../../shared/schemas";
 import { notifyBookingConfirmed } from "../eliNotify";
 import { scheduleBookingReminder } from "../bookingReminder";
 import { scheduleUpsell } from "../upsellService";
+import { schedulePostTourReviewForBooking } from "../postTourReviewService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const bookingRouter = router({
   create: securePublicProcedure
@@ -66,13 +68,29 @@ export const bookingRouter = router({
       };
       const result = await createBooking(bookingData);
       const bookingId = result[0]?.insertId ?? 0;
+      dispatchN8nEventInBackground("booking.created", {
+        bookingId,
+        booking: {
+          ...input,
+          arrivalDate: input.arrivalDate.toISOString(),
+          departureDate: input.departureDate.toISOString(),
+        },
+        request: {
+          referrer:
+            (ctx.req.headers.referer as string | undefined) ??
+            (ctx.req.headers.referrer as string | undefined) ??
+            null,
+          acceptLanguage:
+            (ctx.req.headers["accept-language"] as string | undefined) ?? null,
+        },
+      });
 
       // Auto-create or link customer (non-blocking)
       findOrCreateCustomer({
         name: input.contactName,
         email: input.contactEmail || undefined,
         phone: input.contactPhone,
-        source: "booking",
+        source: input.source,
       })
         .then(async customerId => {
           if (customerId) {
@@ -243,6 +261,13 @@ export const bookingRouter = router({
       // Detect status transitions and log for future email notifications
       if (input.data.status && oldStatus && input.data.status !== oldStatus) {
         const name = oldBooking?.contactName ?? `#${input.id}`;
+        dispatchN8nEventInBackground("booking.status_changed", {
+          bookingId: input.id,
+          oldStatus,
+          newStatus: input.data.status,
+          booking: oldBooking ?? null,
+          updatedFields: input.data,
+        });
         if (input.data.status === "confirmed") {
           console.log(
             `[BookingStatus] Booking for ${name} confirmed (was: ${oldStatus}) — notification pending`
@@ -259,6 +284,11 @@ export const bookingRouter = router({
 
         // Schedule post-tour upsell when tour is marked completed
         if (input.data.status === "completed") {
+          dispatchN8nEventInBackground("booking.completed", {
+            bookingId: input.id,
+            completedAt: new Date().toISOString(),
+            booking: oldBooking ?? null,
+          });
           scheduleUpsell({
             bookingId: input.id,
             customerName: oldBooking?.contactName ?? `Booking #${input.id}`,
@@ -266,6 +296,16 @@ export const bookingRouter = router({
             completedAt: new Date(),
           }).catch(err => {
             console.error("[Booking] Failed to schedule upsell:", err);
+          });
+
+          schedulePostTourReviewForBooking({
+            bookingId: input.id,
+            completedAt: new Date(),
+          }).catch(err => {
+            console.error(
+              "[Booking] Failed to schedule post-tour review request:",
+              err
+            );
           });
         }
       }

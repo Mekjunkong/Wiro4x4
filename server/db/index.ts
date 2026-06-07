@@ -57,6 +57,7 @@ export {
 export {
   createLead,
   getAllLeads,
+  getLeadById,
   updateLead,
   deleteLead,
   getAllLeadsPaginated,
@@ -64,6 +65,7 @@ export {
   updateLeadScore,
   getLeadsByScore,
   getAllLeadsPaginatedByScore,
+  getLeadSlaBreaches,
   getStaleNewLeads,
   getColdContactedLeads,
   getNewLeadCount,
@@ -208,7 +210,21 @@ export {
   logAdminAction,
   createScheduledEmail,
   hasScheduledEmailBeenSent,
+  hasRecentAuditLog,
 } from "./audit";
+
+// Post-tour review requests
+export {
+  getPostTourReviewRequestByBookingId,
+  createPostTourReviewRequest,
+  getDuePostTourReviewRequests,
+  markPostTourReviewRequestSent,
+  markPostTourReviewRequestFailed,
+  markPostTourReviewOpenedByMessageId,
+  markPostTourReviewClicked,
+  markPostTourReviewReviewed,
+  getWeeklyPostTourReviewMetrics,
+} from "./postTourReviewRequests";
 
 // Settings
 export {
@@ -285,8 +301,17 @@ export {
   createWhatsAppMessage,
   getAllWhatsAppMessagesPaginated,
   getWhatsAppMessageStats,
+  getRecentFailedWhatsAppMessages,
   updateWhatsAppMessageStatus,
 } from "./whatsapp";
+
+// Post-tour review tracking events
+export {
+  createPostTourReviewEvent,
+  getLatestPostTourRequestEventByPhone,
+  buildPostTourReviewDedupeKey,
+  buildGuestReference,
+} from "./postTourReviewEvents";
 
 // Analytics
 export {

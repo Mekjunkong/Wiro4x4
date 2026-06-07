@@ -1720,10 +1720,20 @@ export default function TourDetail() {
                   )}
 
                   <div className="space-y-3 pt-2">
+                    <Link href={`/book?tour=${slug}`}>
+                      <Button
+                        className="w-full gap-2"
+                        variant="default"
+                        size="lg"
+                      >
+                        <Calendar className="w-5 h-5" />
+                        {t("Book Now", "הזמינו עכשיו")}
+                      </Button>
+                    </Link>
                     <Button
                       asChild
                       className="w-full gap-2"
-                      variant="default"
+                      variant="outline"
                       size="lg"
                     >
                       <Link href={`/book?tour=${slug}`}>

@@ -40,6 +40,7 @@ import { googleReviewsRouter } from "./routes/googleReviews";
 import { whatsappAdminRouter } from "./routes/whatsappAdmin";
 import { leadScoringRouter } from "./routes/leadScoring";
 import { postTourEmailRouter } from "./routes/postTourEmail";
+import { postTourReviewRouter } from "./routes/postTourReview";
 import { searchRouter } from "./routes/search";
 
 // Side-effects: start background workers
@@ -83,6 +84,7 @@ export const appRouter = router({
   whatsapp: whatsappAdminRouter,
   leadScoring: leadScoringRouter,
   postTourEmail: postTourEmailRouter,
+  postTourReview: postTourReviewRouter,
   search: searchRouter,
 });
 

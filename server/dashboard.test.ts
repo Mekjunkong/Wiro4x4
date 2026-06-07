@@ -13,6 +13,7 @@ describe("dashboard.stats", () => {
     expect(result).toHaveProperty("bookingsByDay");
     expect(result).toHaveProperty("revenueByDay");
     expect(result).toHaveProperty("leadConversion");
+    expect(result).toHaveProperty("postTourReviews");
     expect(result).toHaveProperty("upcomingTours");
     expect(result).toHaveProperty("pendingBookings");
     expect(result).toHaveProperty("newLeads");
@@ -26,6 +27,9 @@ describe("dashboard.stats", () => {
     expect(result.leadConversion).toHaveProperty("total");
     expect(result.leadConversion).toHaveProperty("converted");
     expect(result.leadConversion).toHaveProperty("rate");
+    expect(result.postTourReviews).toHaveProperty("volume");
+    expect(result.postTourReviews).toHaveProperty("completionRate");
+    expect(result.postTourReviews).toHaveProperty("lowRatingExceptions");
   });
 });
 

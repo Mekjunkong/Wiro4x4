@@ -14,6 +14,19 @@ const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
+const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
+const BUSINESS_PHONE = "+66929894495";
+const BUSINESS_EMAIL = "wiro.adventures@gmail.com";
+const BUSINESS_WHATSAPP = "https://wa.me/66929894495";
+const BUSINESS_MAP_URL =
+  "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
+const BUSINESS_IMAGES = [
+  `${SITE_URL}/images/optimized/banner-lg.webp`,
+  `${SITE_URL}/images/optimized/wiro_with_vehicle-lg.jpg`,
+  `${SITE_URL}/images/optimized/wiro_with_colleague-sm.jpg`,
+];
+
+type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
 
 interface PageMeta {
   title: string;
@@ -25,7 +38,7 @@ interface PageMeta {
   dir?: "ltr" | "rtl";
   appendBrandSuffix?: boolean;
   alternateLanguages?: Partial<Record<"en" | "he" | "x-default", string>>;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: JsonLdValue;
 }
 
 function pageJsonLd(meta: {
@@ -71,6 +84,72 @@ function serviceJsonLd(meta: {
     provider: { "@id": `${SITE_URL}/#organization` },
     url: `${SITE_URL}${meta.path}`,
     inLanguage: meta.inLanguage || ["en", "he"],
+  };
+}
+
+function localBusinessJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["TravelAgency", "LocalBusiness"],
+    "@id": `${SITE_URL}/#organization`,
+    name: BUSINESS_NAME,
+    alternateName: ["WIRO 4x4", "Wiro 4x4 Indochina Adventure Tours"],
+    description:
+      "Private kosher-friendly 4x4 tour operator in Chiang Mai and Northern Thailand with Hebrew and English support, kosher-aware meal planning, and WhatsApp-first reservations.",
+    url: SITE_URL,
+    logo: BRAND_LOGO,
+    image: BUSINESS_IMAGES,
+    telephone: BUSINESS_PHONE,
+    email: BUSINESS_EMAIL,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "183/15 Chang Klan Rd",
+      addressLocality: "Mueang Chiang Mai District",
+      addressRegion: "Chiang Mai",
+      postalCode: "50100",
+      addressCountry: "TH",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 18.7883,
+      longitude: 98.9853,
+    },
+    hasMap: BUSINESS_MAP_URL,
+    areaServed: [
+      "Chiang Mai",
+      "Northern Thailand",
+      "Chiang Rai",
+      "Mae Hong Son",
+      "Indochina",
+    ],
+    availableLanguage: ["English", "Hebrew", "Thai"],
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+      opens: "08:00:00",
+      closes: "18:00:00",
+    },
+    priceRange: "$$-$$$",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: BUSINESS_PHONE,
+      contactType: "reservations",
+      availableLanguage: ["English", "Hebrew", "Thai"],
+      url: BUSINESS_WHATSAPP,
+    },
+    sameAs: [BUSINESS_WHATSAPP],
+    potentialAction: [
+      {
+        "@type": "ReserveAction",
+        target: `${SITE_URL}/book`,
+        name: "Book a private 4x4 tour",
+      },
+      {
+        "@type": "CommunicateAction",
+        target: BUSINESS_WHATSAPP,
+        name: "Ask WIRO 4x4 on WhatsApp",
+      },
+    ],
   };
 }
 
@@ -191,6 +270,7 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     description:
       "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
     canonicalPath: "/contact",
+    jsonLd: localBusinessJsonLd(),
   },
   "/packages": {
     title: "Multi-Day Tour Packages — Northern Thailand",
@@ -367,6 +447,19 @@ function injectMeta(html: string, meta: PageMeta): string {
   if (meta.jsonLd) {
     const jsonLdScript = `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`;
     html = html.replace("</head>", `${jsonLdScript}\n</head>`);
+  }
+
+  const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  if (
+    googleSiteVerification &&
+    !html.includes('name="google-site-verification"')
+  ) {
+    html = html.replace(
+      "</head>",
+      `<meta name="google-site-verification" content="${escapeHtml(
+        googleSiteVerification
+      )}" />\n</head>`
+    );
   }
 
   return html;

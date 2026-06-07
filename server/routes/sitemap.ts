@@ -20,97 +20,104 @@ interface SlugItem {
   publishedAt?: Date | string | null;
 }
 
+interface SitemapEntry {
+  path: string;
+  priority: string;
+  changefreq: string;
+  lastmod: string | null;
+}
+
 const STATIC_PAGES = [
-  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-04-30" },
+  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-05-18" },
   {
     path: "/tours",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages/northern-thailand-3d2n",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/packages/grand-tour-laos-14d",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/pricing",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/estimate",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/book",
     priority: "0.4",
     changefreq: "yearly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/blog",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-04-30",
+    lastmod: "2026-05-18",
   },
   {
     path: "/gallery",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/reviews",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/kosher-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/hebrew-guide",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/accessible-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/faq",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/contact",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-03-21",
+    lastmod: "2026-05-18",
   },
   {
     path: "/terms",
@@ -153,17 +160,25 @@ function buildHreflangLinks(siteUrl: string, path: string): string {
 function buildUrlEntry(
   siteUrl: string,
   path: string,
-  lastmod: string,
+  lastmod: string | null,
   changefreq: string,
   priority: string
 ): string {
   return `  <url>
     <loc>${escapeXml(siteUrl)}${escapeXml(path)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
+${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ""}    <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
 ${buildHreflangLinks(siteUrl, path)}
   </url>`;
+}
+
+function uniqueByPath(entries: SitemapEntry[]): SitemapEntry[] {
+  const seen = new Set<string>();
+  return entries.filter(entry => {
+    if (seen.has(entry.path)) return false;
+    seen.add(entry.path);
+    return true;
+  });
 }
 
 export function generateSitemap(
@@ -172,58 +187,45 @@ export function generateSitemap(
   packages: SlugItem[],
   siteUrl: string
 ): string {
-  const today = new Date().toISOString().split("T")[0];
+  const cleanSiteUrl = siteUrl.replace(/\/+$/, "");
+  const entries = uniqueByPath([
+    ...STATIC_PAGES,
+    ...tours
+      .map(t => ({
+        path: `/tours/${t.slug}`,
+        lastmod: formatDate(t.updatedAt),
+        changefreq: "weekly",
+        priority: "0.85",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+    ...packages
+      .map(p => ({
+        path: `/packages/${p.slug}`,
+        lastmod: formatDate(p.updatedAt),
+        changefreq: "monthly",
+        priority: "0.8",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+    ...blogs
+      .map(b => ({
+        path: `/blog/${b.slug}`,
+        lastmod: formatDate(b.publishedAt),
+        changefreq: "monthly",
+        priority: "0.6",
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+  ]);
 
-  const staticUrls = STATIC_PAGES.map(p =>
-    buildUrlEntry(siteUrl, p.path, p.lastmod, p.changefreq, p.priority)
-  ).join("\n");
-
-  const tourUrls = tours
-    .map(t => {
-      const lastmod = formatDate(t.updatedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/tours/${t.slug}`,
-        lastmod,
-        "weekly",
-        "0.85"
-      );
-    })
-    .join("\n");
-
-  const packageUrls = packages
-    .map(p => {
-      const lastmod = formatDate(p.updatedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/packages/${p.slug}`,
-        lastmod,
-        "monthly",
-        "0.8"
-      );
-    })
-    .join("\n");
-
-  const blogUrls = blogs
-    .map(b => {
-      const lastmod = formatDate(b.publishedAt) || today;
-      return buildUrlEntry(
-        siteUrl,
-        `/blog/${b.slug}`,
-        lastmod,
-        "monthly",
-        "0.6"
-      );
-    })
+  const urls = entries
+    .map(p =>
+      buildUrlEntry(cleanSiteUrl, p.path, p.lastmod, p.changefreq, p.priority)
+    )
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${staticUrls}
-${tourUrls}
-${packageUrls}
-${blogUrls}
+${urls}
 </urlset>`;
 }
 
@@ -262,6 +264,7 @@ export function registerSitemapRoute(app: Express) {
         siteUrl
       );
       res.set("Content-Type", "application/xml; charset=utf-8");
+      res.set("Cache-Control", "public, max-age=3600");
       res.send(xml);
     } catch (err) {
       console.error("[Sitemap] Failed to generate:", err);

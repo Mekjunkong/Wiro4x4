@@ -257,11 +257,14 @@ export const galleryPhotos = mysqlTable("galleryPhotos", {
 // Customer Reviews Table
 export const reviews = mysqlTable("reviews", {
   id: int("id").autoincrement().primaryKey(),
+  bookingId: int("bookingId"),
+  reviewRequestId: int("reviewRequestId"),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }),
   rating: int("rating").notNull(), // 1-5
   title: varchar("title", { length: 255 }),
   text: text("text").notNull(),
+  source: varchar("source", { length: 50 }).default("website"),
   tourType: varchar("tourType", { length: 100 }),
   travelDate: timestamp("travelDate"),
   isApproved: int("isApproved").default(0).notNull(), // boolean as int
@@ -439,6 +442,52 @@ export const scheduledEmails = mysqlTable(
 );
 export type ScheduledEmail = typeof scheduledEmails.$inferSelect;
 export type InsertScheduledEmail = typeof scheduledEmails.$inferInsert;
+
+// Post-tour WhatsApp review request funnel tracking
+export const postTourReviewRequests = mysqlTable(
+  "postTourReviewRequests",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    bookingId: int("bookingId").notNull(),
+    phoneNumber: varchar("phoneNumber", { length: 50 }).notNull(),
+    customerName: varchar("customerName", { length: 255 }),
+    language: mysqlEnum("language", ["en", "he"]).default("en").notNull(),
+    status: mysqlEnum("status", [
+      "scheduled",
+      "sent",
+      "opened",
+      "clicked",
+      "reviewed",
+      "failed",
+    ])
+      .default("scheduled")
+      .notNull(),
+    scheduledAt: timestamp("scheduledAt").notNull(),
+    sentAt: timestamp("sentAt"),
+    openedAt: timestamp("openedAt"),
+    clickedAt: timestamp("clickedAt"),
+    reviewedAt: timestamp("reviewedAt"),
+    rating: int("rating"),
+    comments: text("comments"),
+    whatsappMessageId: varchar("whatsappMessageId", { length: 255 }),
+    reviewUrl: varchar("reviewUrl", { length: 1024 }),
+    opsFollowUpUrl: varchar("opsFollowUpUrl", { length: 1024 }),
+    escalatedAt: timestamp("escalatedAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("idx_postTourReview_bookingId").on(table.bookingId),
+    index("idx_postTourReview_status_scheduledAt").on(
+      table.status,
+      table.scheduledAt
+    ),
+    index("idx_postTourReview_whatsappMessageId").on(table.whatsappMessageId),
+  ]
+);
+export type PostTourReviewRequest = typeof postTourReviewRequests.$inferSelect;
+export type InsertPostTourReviewRequest =
+  typeof postTourReviewRequests.$inferInsert;
 
 // CRM Customers Table
 export const customers = mysqlTable(
@@ -770,3 +819,38 @@ export const whatsappMessages = mysqlTable(
 );
 export type WhatsAppMessage = typeof whatsappMessages.$inferSelect;
 export type InsertWhatsAppMessage = typeof whatsappMessages.$inferInsert;
+
+// Post-tour WhatsApp review tracking events
+export const postTourReviewEvents = mysqlTable(
+  "postTourReviewEvents",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    bookingId: int("bookingId"),
+    channel: mysqlEnum("channel", ["whatsapp"]).notNull().default("whatsapp"),
+    state: mysqlEnum("state", [
+      "request_sent",
+      "response_received",
+      "follow_up_sent",
+    ]).notNull(),
+    guestReference: varchar("guestReference", { length: 255 }).notNull(),
+    guestPhone: varchar("guestPhone", { length: 50 }),
+    guestName: varchar("guestName", { length: 255 }),
+    externalMessageId: varchar("externalMessageId", { length: 255 }),
+    dedupeKey: varchar("dedupeKey", { length: 255 }).notNull().unique(),
+    metadata: json("metadata"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("idx_postTourReviewEvents_bookingId_state").on(
+      table.bookingId,
+      table.state
+    ),
+    index("idx_postTourReviewEvents_guestReference").on(table.guestReference),
+    index("idx_postTourReviewEvents_externalMessageId").on(
+      table.externalMessageId
+    ),
+  ]
+);
+export type PostTourReviewEvent = typeof postTourReviewEvents.$inferSelect;
+export type InsertPostTourReviewEvent =
+  typeof postTourReviewEvents.$inferInsert;

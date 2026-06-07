@@ -1,6 +1,7 @@
 import { sql, eq, and, gte, lte, count, sum } from "drizzle-orm";
 import { router, secureProtectedProcedure } from "./_helpers";
 import { getDb } from "../db";
+import { getWeeklyPostTourReviewMetrics } from "../db";
 import {
   bookings,
   leads,
@@ -18,6 +19,15 @@ export const dashboardRouter = router({
         bookingsByDay: [],
         revenueByDay: [],
         leadConversion: { total: 0, converted: 0, rate: 0 },
+        postTourReviews: {
+          windowStart: "",
+          windowEnd: "",
+          volume: 0,
+          completedTours: 0,
+          reviewed: 0,
+          completionRate: 0,
+          lowRatingExceptions: 0,
+        },
         upcomingTours: [],
         pendingBookings: 0,
         newLeads: 0,
@@ -92,6 +102,8 @@ export const dashboardRouter = router({
       .from(leads)
       .where(eq(leads.status, "new"));
 
+    const postTourReviews = await getWeeklyPostTourReviewMetrics();
+
     return {
       bookingsByDay: bookingsByDay.map(r => ({
         date: r.date,
@@ -111,6 +123,7 @@ export const dashboardRouter = router({
               )
             : 0,
       },
+      postTourReviews,
       upcomingTours,
       pendingBookings: Number(pendingCount?.count) || 0,
       newLeads: Number(newLeadsCount?.count) || 0,

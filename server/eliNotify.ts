@@ -114,6 +114,25 @@ export async function notifyNewReview(review: {
   );
 }
 
+export async function notifyLowRatingReviewEscalation(input: {
+  reviewRequestId: number;
+  bookingId: number;
+  reviewerName: string;
+  rating: number;
+  text: string;
+  followUpUrl: string;
+}) {
+  await sendTelegram(
+    `🚨 *Low Rating Review Escalation*\n\n` +
+      `🎫 Booking #${input.bookingId}\n` +
+      `🧾 Request #${input.reviewRequestId}\n` +
+      `👤 ${input.reviewerName}\n` +
+      `⭐ Rating: ${input.rating}/5\n` +
+      `💬 "${input.text.slice(0, 220)}"\n\n` +
+      `🔗 Follow-up: ${input.followUpUrl}`
+  );
+}
+
 // ── F: Pre-tour reminder due ───────────────────────────────────────────────
 export async function notifyBookingReminder(wa: {
   bookingId: number;

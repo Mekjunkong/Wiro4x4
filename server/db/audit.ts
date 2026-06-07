@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 import { getDb } from "./connection";
 import {
   auditLogs,
@@ -17,6 +17,33 @@ export async function logAdminAction(log: InsertAuditLog) {
   } catch (err) {
     console.error("[Audit] Failed to log action:", err);
   }
+}
+
+export async function hasRecentAuditLog(input: {
+  action: string;
+  resourceType: string;
+  resourceId?: number;
+  since: Date;
+}) {
+  const db = await getDb();
+  if (!db) return false;
+  const resourceCondition =
+    input.resourceId == null
+      ? sql`${auditLogs.resourceId} IS NULL`
+      : eq(auditLogs.resourceId, input.resourceId);
+  const result = await db
+    .select({ id: auditLogs.id })
+    .from(auditLogs)
+    .where(
+      and(
+        eq(auditLogs.action, input.action),
+        eq(auditLogs.resourceType, input.resourceType),
+        resourceCondition,
+        gte(auditLogs.createdAt, input.since)
+      )
+    )
+    .limit(1);
+  return result.length > 0;
 }
 
 // ─── Scheduled Emails ─────────────────────────────────────

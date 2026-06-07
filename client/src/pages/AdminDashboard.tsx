@@ -499,6 +499,8 @@ export default function AdminDashboard() {
   const handleFilterBookings = (filter: string) => {
     if (filter === "leads") {
       setActiveTab("leads");
+    } else if (filter === "reviews") {
+      setActiveTab("reviews");
     } else {
       setActiveTab("bookings");
     }

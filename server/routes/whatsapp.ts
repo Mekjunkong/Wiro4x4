@@ -14,6 +14,8 @@ import {
 } from "../whatsappService";
 import { updateWhatsAppMessageStatus } from "../db";
 import { checkRateLimit } from "../rateLimit";
+import { recordPostTourReviewOpenedByMessageId } from "../postTourReviewService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 /**
  * Verify the X-Hub-Signature-256 header from Meta's webhook payload.
@@ -116,6 +118,14 @@ export function registerWhatsAppWebhookRoute(app: Express) {
                     waMessageId,
                     statusValue as "sent" | "delivered" | "read" | "failed"
                   );
+                  if (statusValue === "read") {
+                    await recordPostTourReviewOpenedByMessageId(waMessageId);
+                  }
+                  dispatchN8nEventInBackground("whatsapp.status_updated", {
+                    messageId: waMessageId,
+                    status: statusValue,
+                    rawStatus: status,
+                  });
                 } catch (err) {
                   console.error("[WhatsApp] Status update error:", err);
                 }
@@ -160,6 +170,12 @@ export function registerWhatsAppWebhookRoute(app: Express) {
               name: contactName,
               text,
               messageId,
+            });
+            dispatchN8nEventInBackground("whatsapp.message_received", {
+              from,
+              name: contactName ?? null,
+              text,
+              messageId: messageId ?? null,
             });
           }
         }

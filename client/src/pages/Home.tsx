@@ -11,13 +11,58 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import {
+  COMPANY_EMAIL,
+  COMPANY_NAME,
+  COMPANY_PHONE,
+  COMPANY_WEBSITE,
+  COMPANY_WHATSAPP_URL,
+} from "@/const";
+
+const homeJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    name: COMPANY_NAME,
+    url: COMPANY_WEBSITE,
+    telephone: COMPANY_PHONE,
+    email: COMPANY_EMAIL,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "183/15 Chang Klan Rd",
+      addressLocality: "Mueang Chiang Mai District",
+      addressRegion: "Chiang Mai",
+      postalCode: "50100",
+      addressCountry: "TH",
+    },
+    areaServed: ["Chiang Mai", "Northern Thailand", "Indochina"],
+    availableLanguage: ["English", "Hebrew"],
+    sameAs: [COMPANY_WHATSAPP_URL],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name: "Private kosher 4x4 tours from Chiang Mai",
+    description:
+      "Private off-road routes from Chiang Mai with Hebrew/English support, kosher-aware meal planning, and Shabbat-sensitive itinerary planning.",
+    provider: {
+      "@type": "TravelAgency",
+      name: COMPANY_NAME,
+      url: COMPANY_WEBSITE,
+    },
+    touristType: ["Families", "Israeli travelers", "Private groups"],
+    itinerary: "Custom 4x4 routes around Chiang Mai and Northern Thailand",
+  },
+];
 
 export default function Home() {
   usePageMeta({
-    title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
+    title: "Private Kosher 4x4 Tours from Chiang Mai",
     description:
-      "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
+      "Plan a private WIRO 4x4 trip from Chiang Mai with Hebrew/English support, kosher-aware meal planning, Shabbat-sensitive routing, and WhatsApp-first availability checks.",
+    ogTitle: "WIRO 4x4 Chiang Mai — Private Kosher Off-Road Tours",
     canonicalPath: "/",
+    jsonLd: homeJsonLd,
   });
   return (
     <div className="min-h-screen smooth-scroll">

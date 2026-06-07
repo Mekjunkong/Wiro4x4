@@ -6,6 +6,7 @@ import {
 } from "./_helpers";
 import { estimateEmailInputSchema } from "../../shared/schemas";
 import { sendEstimateEmail } from "../estimateEmailService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const estimateRouter = router({
   sendEmail: securePublicProcedure
@@ -28,6 +29,17 @@ export const estimateRouter = router({
       await sendEstimateEmail({
         toEmail: input.email,
         estimateData: input,
+      });
+      dispatchN8nEventInBackground("estimate.requested", {
+        estimate: input,
+        request: {
+          referrer:
+            (ctx.req.headers.referer as string | undefined) ??
+            (ctx.req.headers.referrer as string | undefined) ??
+            null,
+          acceptLanguage:
+            (ctx.req.headers["accept-language"] as string | undefined) ?? null,
+        },
       });
 
       return { success: true };

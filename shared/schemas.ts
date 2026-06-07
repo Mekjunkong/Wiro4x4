@@ -115,6 +115,8 @@ export const tourInputSchema = z.object({
 });
 
 export const reviewInputSchema = z.object({
+  bookingId: z.number().optional(),
+  reviewRequestId: z.number().optional(),
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   rating: z.number().min(1).max(5),
@@ -124,6 +126,7 @@ export const reviewInputSchema = z.object({
     .max(2000)
     .refine(noHtml, "HTML tags are not allowed"),
   tourType: z.string().optional(),
+  source: z.string().max(50).optional(),
 });
 
 export const blogPostInputSchema = z.object({

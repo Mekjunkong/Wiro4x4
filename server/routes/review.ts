@@ -20,16 +20,24 @@ import {
   bulkDeleteReviews,
 } from "../db";
 import { paginationInput } from "../../shared/schemas";
+import {
+  trackPostTourReviewLinkClick,
+  trackPostTourReviewSubmission,
+} from "../postTourReviewService";
+import { dispatchN8nEventInBackground } from "../n8nAutomation";
 
 export const reviewRouter = router({
   create: securePublicProcedure
     .input(
       z.object({
+        bookingId: z.number().int().positive().optional(),
+        reviewRequestId: z.number().int().positive().optional(),
         name: z.string().min(1, "Name is required"),
         email: z.string().email("Invalid email"),
         rating: z.number().min(1).max(5),
         text: z.string().min(1, "Review text is required"),
         tourType: z.string().optional(),
+        source: z.string().max(50).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -46,10 +54,50 @@ export const reviewRouter = router({
       }
       await createReview({
         ...input,
+        source:
+          input.source ??
+          (input.reviewRequestId ? "whatsapp_post_tour" : "website"),
         isApproved: 0,
         isPublished: 0,
       });
+      dispatchN8nEventInBackground("review.submitted", {
+        review: {
+          ...input,
+          source:
+            input.source ??
+            (input.reviewRequestId ? "whatsapp_post_tour" : "website"),
+          status: "pending",
+        },
+        request: {
+          referrer:
+            (ctx.req.headers.referer as string | undefined) ??
+            (ctx.req.headers.referrer as string | undefined) ??
+            null,
+          acceptLanguage:
+            (ctx.req.headers["accept-language"] as string | undefined) ?? null,
+        },
+      });
+
+      try {
+        await trackPostTourReviewSubmission({
+          reviewRequestId: input.reviewRequestId,
+          bookingId: input.bookingId,
+          rating: input.rating,
+          text: input.text,
+          reviewerName: input.name,
+        });
+      } catch (err) {
+        console.error("[Review] Failed to track post-tour submission:", err);
+      }
+
       return { success: true, message: "Review submitted for approval" };
+    }),
+
+  markClicked: securePublicProcedure
+    .input(z.object({ reviewRequestId: z.number().int().positive() }))
+    .mutation(async ({ input }) => {
+      await trackPostTourReviewLinkClick(input.reviewRequestId);
+      return { success: true };
     }),
 
   listPublic: securePublicProcedure.query(async () => {
@@ -127,6 +175,12 @@ export const reviewRouter = router({
         resourceType: "review",
         resourceId: input.id,
         newValue: JSON.stringify(input.data),
+      });
+      dispatchN8nEventInBackground("review.status_updated", {
+        reviewId: input.id,
+        status: input.data.status ?? null,
+        adminResponse: input.data.adminResponse ?? null,
+        updatedBy: ctx.user?.email ?? null,
       });
       return { success: true };
     }),
