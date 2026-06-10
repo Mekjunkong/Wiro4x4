@@ -111,7 +111,7 @@ export function TrustBar() {
               <div className="flex items-center gap-3 text-white/90 px-6 md:px-10">
                 <item.icon className="w-5 h-5 text-accent flex-shrink-0" />
                 <div className="flex flex-col">
-                  <span className="font-bold text-2xl text-white leading-tight">
+                  <span className="font-bold text-3xl md:text-4xl text-white leading-tight">
                     {item.targetNum !== null && item.targetNum !== undefined ? (
                       <AnimatedNumber
                         target={item.targetNum}

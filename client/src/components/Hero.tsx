@@ -74,14 +74,20 @@ export function Hero() {
           {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
         </p>
 
-        <h1 className="text-2xl min-[380px]:text-[1.75rem] md:text-4xl lg:text-5xl leading-[1.12] mb-3 md:mb-4 max-w-[20rem] sm:max-w-2xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
-          {t(
-            "Kosher 4×4 Adventures in Chiang Mai",
-            "טיולי 4×4 כשרים בצ'יאנג מאי"
+        <h1 className="text-[clamp(2.25rem,1rem+5.5vw,5.5rem)] leading-[1.04] mb-4 md:mb-5 max-w-[22rem] sm:max-w-3xl lg:max-w-4xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+          {language === "he" ? (
+            <>
+              טיולי 4×4 <span className="text-accent">כשרים</span> בצ'יאנג מאי
+            </>
+          ) : (
+            <>
+              <span className="italic text-accent">Kosher</span> 4×4 Adventures
+              in Chiang Mai
+            </>
           )}
         </h1>
 
-        <p className="text-sm min-[380px]:text-base md:text-lg lg:text-xl font-normal text-white/85 mb-6 md:mb-8 max-w-[21rem] sm:max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
+        <p className="text-sm min-[380px]:text-base md:text-lg lg:text-xl font-light text-white/90 mb-6 md:mb-8 max-w-[21rem] sm:max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
           {t(
             "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
             "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
