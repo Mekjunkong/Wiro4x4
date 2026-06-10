@@ -1,0 +1,153 @@
+{
+  "name": "WIRO 4x4 Scheduled Actions",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-8am",
+      "name": "Every Day 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"action\": \"post_tour_review.process_due\" }",
+        "options": {}
+      },
+      "id": "process-due-reviews",
+      "name": "Process Due Review Requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"action\": \"abandoned.send_batch_recovery\", \"limit\": 10 }",
+        "options": {}
+      },
+      "id": "send-abandoned-recovery",
+      "name": "Send Abandoned Recovery Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary",
+              "name": "summary",
+              "type": "string",
+              "value": "=Scheduled Wiro actions ran at {{$now}}. Connect this node to Slack, Telegram, Gmail, Notion, or Sheets if you want an operator report."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-action-summary",
+      "name": "Build Action Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [780, 0]
+    },
+    {
+      "parameters": {
+        "content": "This workflow runs daily at 08:00 Asia/Bangkok and calls Wiro's bounded n8n action endpoint.\n\nIt processes due post-tour review requests and sends up to 10 abandoned-lead recovery messages. Wiro tries email first and falls back to WhatsApp when the lead has a phone number.\n\nRequired n8n environment variables:\nWIRO_SITE_URL=https://www.wiro4x4indochina.com\nWIRO_N8N_API_SECRET=<same value as Wiro N8N_API_SECRET>",
+        "height": 320,
+        "width": 420
+      },
+      "id": "setup-notes",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 240]
+    }
+  ],
+  "connections": {
+    "Every Day 8am": {
+      "main": [
+        [
+          {
+            "node": "Process Due Review Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Due Review Requests": {
+      "main": [
+        [
+          {
+            "node": "Send Abandoned Recovery Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Abandoned Recovery Batch": {
+      "main": [
+        [
+          {
+            "node": "Build Action Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "wiro-n8n-scheduled-actions-v1",
+  "triggerCount": 1,
+  "tags": []
+}

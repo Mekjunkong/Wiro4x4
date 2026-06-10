@@ -1,0 +1,143 @@
+{
+  "name": "WIRO 4x4 Booking Reminder Sender",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "15 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "hourly",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"action\": \"booking.send_due_reminders\",\n  \"limit\": 10\n}",
+        "options": {}
+      },
+      "id": "send-due-reminders",
+      "name": "Send Due Booking Reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $json;\nif (!result.changed && (result.sent ?? 0) === 0) return [];\nreturn [{\n  json: {\n    action: \"ops.notify\",\n    title: `WIRO booking reminders sent: ${result.sent ?? 0}`,\n    content: `n8n processed ${result.attempted ?? 0} due booking reminder(s).\\nSent: ${result.sent ?? 0}\\nFailed: ${result.failed ?? 0}\\nSkipped: ${result.skipped ?? 0}\\nBooking IDs: ${(result.bookingIds ?? []).join(\", \") || \"none\"}`,\n    priority: (result.failed ?? 0) > 0 ? \"warning\" : \"info\",\n    resourceType: \"booking\",\n    dedupeKey: `booking-reminders:${(result.bookingIds ?? []).join(\"-\") || \"none\"}:${result.sent ?? 0}:${result.failed ?? 0}`,\n    cooldownMinutes: 60\n  }\n}];"
+      },
+      "id": "build-summary",
+      "name": "Build Reminder Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "notify-owner",
+      "name": "Notify Owner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 0]
+    },
+    {
+      "parameters": {
+        "content": "This workflow runs hourly and asks Wiro to send due pre-tour customer reminders for confirmed bookings in the 24-48 hour window.\n\nThe Wiro action is capped at 10 bookings per run, tries email first, falls back to WhatsApp when the booking has a phone number, and marks reminderSentAt only after a customer message succeeds.\n\nRequired n8n environment variables:\nWIRO_SITE_URL=https://www.wiro4x4indochina.com\nWIRO_N8N_API_SECRET=<same value as Wiro N8N_API_SECRET>",
+        "height": 360,
+        "width": 460
+      },
+      "id": "setup-notes",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 220]
+    }
+  ],
+  "connections": {
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Send Due Booking Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Due Booking Reminders": {
+      "main": [
+        [
+          {
+            "node": "Build Reminder Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reminder Summary": {
+      "main": [
+        [
+          {
+            "node": "Notify Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "wiro-n8n-booking-reminder-sender-v1",
+  "triggerCount": 1,
+  "tags": []
+}

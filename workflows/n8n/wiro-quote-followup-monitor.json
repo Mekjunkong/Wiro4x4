@@ -1,0 +1,135 @@
+{
+  "name": "WIRO 4x4 Quote Follow-up Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-2pm",
+      "name": "Every Day 2pm",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/operations-snapshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-snapshot",
+      "name": "Fetch Wiro Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $json.queues?.coldLeadFollowupsDue ?? [];\nif (leads.length === 0) return [];\nconst ids = leads.map((lead) => lead.id).sort((a, b) => a - b).join(\"-\");\nconst rows = leads.slice(0, 10).map((lead) => `#${lead.id} ${lead.name} <${lead.email}> ${lead.phone ?? \"no phone\"} (${lead.status}, score ${lead.score ?? 0}, updated ${lead.updatedAt ?? \"unknown\"})`).join(\"\\n\");\nreturn [{\n  json: {\n    action: \"ops.notify\",\n    title: `${leads.length} WIRO quoted/contacted lead${leads.length === 1 ? \"\" : \"s\"} need follow-up`,\n    content: `These leads have been contacted or quoted but have not moved for 5+ days:\\n\\n${rows}\\n\\nSend a human follow-up, ask if dates changed, and try to convert or mark lost.`,\n    priority: \"warning\",\n    resourceType: \"lead\",\n    dedupeKey: `quote-followup:${ids}`,\n    cooldownMinutes: 1440\n  }\n}];"
+      },
+      "id": "build-followup-alert",
+      "name": "Build Follow-up Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "notify-owner",
+      "name": "Notify Owner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 0]
+    },
+    {
+      "parameters": {
+        "content": "This workflow runs daily at 14:00 Asia/Bangkok and alerts the owner when contacted or quoted leads have had no update for 5+ days.\n\nRequired n8n environment variables:\nWIRO_SITE_URL=https://www.wiro4x4indochina.com\nWIRO_N8N_API_SECRET=<same value as Wiro N8N_API_SECRET>\n\nWiro needs OWNER_EMAIL plus RESEND_API_KEY, or TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID, for ops.notify delivery.",
+        "height": 320,
+        "width": 420
+      },
+      "id": "setup-notes",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 240]
+    }
+  ],
+  "connections": {
+    "Every Day 2pm": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wiro Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wiro Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Build Follow-up Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Follow-up Alert": {
+      "main": [
+        [
+          {
+            "node": "Notify Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "wiro-n8n-quote-followup-monitor-v1",
+  "triggerCount": 1,
+  "tags": []
+}

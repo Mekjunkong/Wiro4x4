@@ -1,0 +1,135 @@
+{
+  "name": "WIRO 4x4 WhatsApp Failure Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/30 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "every-30-minutes",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/operations-snapshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-snapshot",
+      "name": "Fetch Wiro Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const failures = $json.queues?.failedWhatsAppMessages ?? [];\nif (failures.length === 0) return [];\nconst ids = failures.map((message) => message.id).sort((a, b) => a - b).join(\"-\");\nconst rows = failures.slice(0, 10).map((message) => `#${message.id} ${message.phoneNumber} ${message.direction} ${message.whatsappMessageId ?? \"no message id\"} at ${message.createdAt ?? \"unknown\"}`).join(\"\\n\");\nreturn [{\n  json: {\n    action: \"ops.notify\",\n    title: `${failures.length} WIRO WhatsApp message${failures.length === 1 ? \"\" : \"s\"} failed`,\n    content: `WhatsApp delivery failures were recorded in the last 24 hours:\\n\\n${rows}\\n\\nCheck WhatsApp Business API status, token validity, template approval, and guest phone formatting.`,\n    priority: \"urgent\",\n    resourceType: \"system\",\n    dedupeKey: `whatsapp-failures:${ids}`,\n    cooldownMinutes: 120\n  }\n}];"
+      },
+      "id": "build-failure-alert",
+      "name": "Build Failure Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "notify-owner",
+      "name": "Notify Owner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 0]
+    },
+    {
+      "parameters": {
+        "content": "This workflow runs every 30 minutes and alerts the owner when WhatsApp messages have failed in the last 24 hours.\n\nRequired n8n environment variables:\nWIRO_SITE_URL=https://www.wiro4x4indochina.com\nWIRO_N8N_API_SECRET=<same value as Wiro N8N_API_SECRET>\n\nWiro needs OWNER_EMAIL plus RESEND_API_KEY, or TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID, for ops.notify delivery.",
+        "height": 320,
+        "width": 420
+      },
+      "id": "setup-notes",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 240]
+    }
+  ],
+  "connections": {
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wiro Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wiro Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Build Failure Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Failure Alert": {
+      "main": [
+        [
+          {
+            "node": "Notify Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "wiro-n8n-whatsapp-failure-monitor-v1",
+  "triggerCount": 1,
+  "tags": []
+}

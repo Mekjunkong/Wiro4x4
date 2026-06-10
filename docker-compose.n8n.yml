@@ -1,0 +1,52 @@
+services:
+  n8n-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${N8N_POSTGRES_DB:-n8n}
+      POSTGRES_USER: ${N8N_POSTGRES_USER:-n8n}
+      POSTGRES_PASSWORD: ${N8N_POSTGRES_PASSWORD:?set N8N_POSTGRES_PASSWORD}
+    volumes:
+      - n8n_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${N8N_POSTGRES_USER:-n8n} -d ${N8N_POSTGRES_DB:-n8n}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    depends_on:
+      n8n-postgres:
+        condition: service_healthy
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: n8n-postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_POSTGRES_DB:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_POSTGRES_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_POSTGRES_PASSWORD:?set N8N_POSTGRES_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${N8N_PUBLIC_WEBHOOK_URL:-http://localhost:5678/}
+      GENERIC_TIMEZONE: Asia/Bangkok
+      TZ: Asia/Bangkok
+      WIRO_SITE_URL: ${WIRO_SITE_URL:-https://www.wiro4x4indochina.com}
+      WIRO_N8N_API_SECRET: ${WIRO_N8N_API_SECRET:?set WIRO_N8N_API_SECRET}
+      WIRO_N8N_SHARED_SECRET: ${WIRO_N8N_SHARED_SECRET:?set WIRO_N8N_SHARED_SECRET}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows/n8n:/home/node/wiro-workflows:ro
+
+volumes:
+  n8n_data:
+  n8n_postgres_data:

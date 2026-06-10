@@ -1,0 +1,145 @@
+{
+  "name": "WIRO 4x4 Daily Operations Snapshot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-7am",
+      "name": "Every Day 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/operations-snapshot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-snapshot",
+      "name": "Fetch Wiro Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary",
+              "name": "summary",
+              "type": "string",
+              "value": "=WIRO daily ops: {{$json.counts.pendingBookings}} pending bookings, {{$json.counts.newLeads24h}} new leads, {{$json.counts.upcomingTours48h}} upcoming tours, {{$json.counts.staleLeads}} stale leads, {{$json.counts.coldLeadFollowupsDue}} quote follow-ups due, {{$json.counts.bookingRemindersDue}} reminders due, {{$json.counts.feedbackRequestsDue}} feedback requests due, {{$json.counts.failedWhatsAppMessages}} failed WhatsApp messages."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-summary",
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WIRO_SITE_URL }}/api/n8n/actions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Wiro-Automation-Secret",
+              "value": "={{ $env.WIRO_N8N_API_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"action\": \"ops.notify\", \"title\": \"WIRO daily ops\", \"content\": $json.summary, \"priority\": $json.counts.failedWhatsAppMessages > 0 ? \"urgent\" : ($json.counts.staleLeads > 0 || $json.counts.coldLeadFollowupsDue > 0 || $json.counts.bookingRemindersDue > 0 ? \"warning\" : \"info\"), \"resourceType\": \"system\" }",
+        "options": {}
+      },
+      "id": "send-owner-digest",
+      "name": "Send Owner Daily Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 0]
+    },
+    {
+      "parameters": {
+        "content": "Set these n8n environment variables:\n\nWIRO_SITE_URL=https://www.wiro4x4indochina.com\nWIRO_N8N_API_SECRET=<same value as Wiro N8N_API_SECRET>\n\nThis workflow fetches the Wiro snapshot, builds the summary, and sends it through Wiro's bounded ops.notify action. Wiro needs OWNER_EMAIL plus RESEND_API_KEY, or TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID, for owner alert delivery.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "setup-notes",
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 240]
+    }
+  ],
+  "connections": {
+    "Every Day 7am": {
+      "main": [
+        [
+          {
+            "node": "Fetch Wiro Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Wiro Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Build Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Owner Daily Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "wiro-n8n-daily-snapshot-v1",
+  "triggerCount": 1,
+  "tags": []
+}
