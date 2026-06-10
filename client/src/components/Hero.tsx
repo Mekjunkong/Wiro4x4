@@ -29,11 +29,6 @@ export function Hero() {
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const scrollToInquiry = () => {
-    trackHeroAction("start_inquiry");
-    document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const responseProof = [
     {
       icon: Clock3,
@@ -91,7 +86,7 @@ export function Hero() {
             "Private off-road routes with Hebrew-speaking guides, kosher meals, and Shabbat-friendly planning for families and groups.",
             "מסלולי שטח פרטיים עם מדריכים דוברי עברית, ארוחות כשרות ותכנון מותאם שבת למשפחות וקבוצות."
           )}
-          <span className="absolute -bottom-3 left-0 h-[2px] w-14 bg-accent" />
+          <span className="absolute -bottom-3 start-0 h-[2px] w-14 bg-accent" />
         </p>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 md:mb-6 animate-hero-reveal [animation-delay:0.5s] mt-4">
@@ -107,15 +102,8 @@ export function Hero() {
           </a>
           <button
             type="button"
-            onClick={scrollToInquiry}
-            className="min-h-12 text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
-          >
-            {t("Send Trip Details", "שליחת פרטי הטיול")}
-          </button>
-          <button
-            type="button"
             onClick={scrollToTours}
-            className="min-h-12 text-white/90 font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-xs md:text-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
+            className="min-h-12 text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
           >
             {t("See Route Ideas", "רעיונות למסלולים")}
           </button>
@@ -158,7 +146,7 @@ export function Hero() {
         onClick={scrollToTours}
       >
         <span className="text-white/50 text-xs tracking-[0.2em] uppercase">
-          Scroll
+          {t("Scroll", "גלילה")}
         </span>
         <ChevronDown className="w-6 h-6 text-accent animate-hero-chevron" />
       </div>
