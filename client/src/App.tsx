@@ -38,6 +38,7 @@ const Login = React.lazy(() => import("./pages/Login"));
 const Register = React.lazy(() => import("./pages/Register"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
+const CarRental = React.lazy(() => import("./pages/CarRental"));
 const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
 
 /** Scrolls to top on every route change (N1) */
@@ -100,6 +101,7 @@ function Router() {
             <Route path={"/kosher-tours"} component={KosherTours} />
             <Route path={"/hebrew-guide"} component={HebrewGuide} />
             <Route path={"/accessible-tours"} component={AccessibleTours} />
+            <Route path={"/car-rental"} component={CarRental} />
             <Route path={"/faq"} component={FAQ} />
             <Route path={"/contact"} component={Contact} />
             <Route path={"/terms"} component={TermsOfService} />

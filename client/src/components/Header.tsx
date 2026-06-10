@@ -26,8 +26,8 @@ export function Header() {
 
   const isActive = (path: string) => currentPath === path;
   const isHomePage = currentPath === "/";
-  const isExploreActive = ["/gallery", "/blog", "/faq"].some(path =>
-    currentPath.startsWith(path)
+  const isExploreActive = ["/gallery", "/blog", "/faq", "/car-rental"].some(
+    path => currentPath.startsWith(path)
   );
 
   useEffect(() => {
@@ -130,6 +130,9 @@ export function Header() {
               <DropdownMenuContent align="end" className="min-w-40">
                 <DropdownMenuItem asChild>
                   <Link href="/gallery">{t("Gallery", "גלריה")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/car-rental">{t("Car Rental", "השכרת רכב")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/faq">{t("FAQ", "שאלות נפוצות")}</Link>
@@ -246,6 +249,12 @@ export function Header() {
             <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("Gallery", "גלריה")}
+              </span>
+            </Link>
+            <div className="h-px w-12 bg-accent/30" />
+            <Link href="/car-rental" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
+                {t("Car Rental", "השכרת רכב")}
               </span>
             </Link>
             <div className="h-px w-12 bg-accent/30" />

@@ -10,6 +10,7 @@ Allow: /estimate
 Allow: /kosher-tours
 Allow: /hebrew-guide
 Allow: /accessible-tours
+Allow: /car-rental
 Allow: /faq
 Allow: /contact
 Disallow: /admin/

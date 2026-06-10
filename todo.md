@@ -1,5 +1,14 @@
 # Wiro 4x4 Website TODO
 
+## ✅ Car Rental Page + SEO Fixes (2026-06-10)
+
+- [x] Fixed stale WhatsApp number (+66 92-989-4495 → +972 54-471-5400) in `client/index.html` JSON-LD, `server/seoMiddleware.ts`, GSC docs
+- [x] New `/car-rental` partner referral page (Chiang Mai Wheels) — bilingual, fleet cards, inquiry form via `lead.create` (source: `car-rental`), WhatsApp CTA
+- [x] Wired `/car-rental` into App routes, Header (Explore dropdown + mobile menu), Footer, `seoMiddleware.ts` STATIC_ROUTES, sitemap, `vercel.json` rewrites, `robots.txt`
+- [x] Added BreadcrumbList JSON-LD to tour/package/blog detail pages (rich breadcrumbs in Google results)
+- [x] Fixed missing `getStoredReferralCode` export in `client/src/lib/referral.ts` (was breaking `Reviews.tsx` build)
+- [ ] After deploy: validate https://www.wiro4x4indochina.com/car-rental in Google Rich Results Test, request indexing in GSC
+
 ## ✅ MarTech Phase 1 Complete (2026-03-15)
 
 - [x] Created martech-ops agent (Operations Director)

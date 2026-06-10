@@ -15,9 +15,9 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const BUSINESS_PHONE = "+66929894495";
+const BUSINESS_PHONE = "+972544715400";
 const BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-const BUSINESS_WHATSAPP = "https://wa.me/66929894495";
+const BUSINESS_WHATSAPP = "https://wa.me/972544715400";
 const BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 const BUSINESS_IMAGES = [
@@ -27,6 +27,30 @@ const BUSINESS_IMAGES = [
 ];
 
 type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
+
+/** BreadcrumbList JSON-LD for rich breadcrumb trails in search results */
+function breadcrumbJsonLd(
+  items: { name: string; path: string }[]
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      ...items.map((item, idx) => ({
+        "@type": "ListItem",
+        position: idx + 2,
+        name: item.name,
+        item: `${SITE_URL}${item.path}`,
+      })),
+    ],
+  };
+}
 
 interface PageMeta {
   title: string;
@@ -259,6 +283,20 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
         "Families, seniors, wheelchair users, travelers with mobility needs",
     }),
   },
+  "/car-rental": {
+    title: "Car Rental Chiang Mai — Self-Drive Cars & 4x4 from ฿990/Day",
+    description:
+      "Rent a car in Chiang Mai from ฿990/day. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English booking support.",
+    canonicalPath: "/car-rental",
+    jsonLd: serviceJsonLd({
+      name: "Car Rental in Chiang Mai",
+      description:
+        "Self-drive car rental in Chiang Mai with first-class insurance, unlimited mileage, free hotel and airport delivery, and Hebrew/English booking support.",
+      path: "/car-rental",
+      audienceType:
+        "Tourists, Israeli travelers, families, self-drive travelers",
+    }),
+  },
   "/faq": {
     title: "FAQ — Kosher Tours & Off-Road Adventures Chiang Mai",
     description:
@@ -479,23 +517,29 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
           `${tour.name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
         ogImage: tour.imageUrl || undefined,
         canonicalPath: `/tours/${tour.slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "TouristTrip",
-          name: tour.name,
-          description: tour.description,
-          provider: {
-            "@type": "TravelAgency",
-            name: "WIRO 4x4",
-            url: SITE_URL,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name: tour.name,
+            description: tour.description,
+            provider: {
+              "@type": "TravelAgency",
+              name: "WIRO 4x4",
+              url: SITE_URL,
+            },
+            offers: {
+              "@type": "Offer",
+              price: String(tour.price),
+              priceCurrency: "THB",
+              availability: "https://schema.org/InStock",
+            },
           },
-          offers: {
-            "@type": "Offer",
-            price: String(tour.price),
-            priceCurrency: "THB",
-            availability: "https://schema.org/InStock",
-          },
-        },
+          breadcrumbJsonLd([
+            { name: "Tours", path: "/tours" },
+            { name: tour.name, path: `/tours/${tour.slug}` },
+          ]),
+        ],
       };
     }
   }
@@ -520,26 +564,32 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
           `${name} — private multi-day 4x4 tour package with WIRO 4x4.`,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         canonicalPath: `/packages/${slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "TouristTrip",
-          name,
-          description,
-          image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
-          provider: {
-            "@type": "TravelAgency",
-            name: "WIRO 4x4",
-            url: SITE_URL,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name,
+            description,
+            image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
+            provider: {
+              "@type": "TravelAgency",
+              name: "WIRO 4x4",
+              url: SITE_URL,
+            },
+            offers: price
+              ? {
+                  "@type": "Offer",
+                  price: String(price),
+                  priceCurrency: "THB",
+                  availability: "https://schema.org/InStock",
+                }
+              : undefined,
           },
-          offers: price
-            ? {
-                "@type": "Offer",
-                price: String(price),
-                priceCurrency: "THB",
-                availability: "https://schema.org/InStock",
-              }
-            : undefined,
-        },
+          breadcrumbJsonLd([
+            { name: "Packages", path: "/packages" },
+            { name, path: `/packages/${slug}` },
+          ]),
+        ],
       };
     }
   }
@@ -561,33 +611,39 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
         ogImage: post.coverImage || undefined,
         ogType: "article",
         canonicalPath: `/blog/${post.slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: post.title,
-          description: post.excerpt || post.content?.slice(0, 200),
-          image: post.coverImage || DEFAULT_OG_IMAGE,
-          mainEntityOfPage: {
-            "@type": "WebPage",
-            "@id": `${SITE_URL}/blog/${post.slug}`,
-          },
-          author: {
-            "@type": "Person",
-            name: "Wiro",
-            worksFor: { "@type": "Organization", name: "WIRO 4x4" },
-          },
-          publisher: {
-            "@type": "Organization",
-            name: "WIRO 4x4",
-            logo: {
-              "@type": "ImageObject",
-              url: BRAND_LOGO,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt || post.content?.slice(0, 200),
+            image: post.coverImage || DEFAULT_OG_IMAGE,
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `${SITE_URL}/blog/${post.slug}`,
             },
+            author: {
+              "@type": "Person",
+              name: "Wiro",
+              worksFor: { "@type": "Organization", name: "WIRO 4x4" },
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "WIRO 4x4",
+              logo: {
+                "@type": "ImageObject",
+                url: BRAND_LOGO,
+              },
+            },
+            datePublished: publishedIso,
+            dateModified: publishedIso,
+            url: `${SITE_URL}/blog/${post.slug}`,
           },
-          datePublished: publishedIso,
-          dateModified: publishedIso,
-          url: `${SITE_URL}/blog/${post.slug}`,
-        },
+          breadcrumbJsonLd([
+            { name: "Blog", path: "/blog" },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+        ],
       };
     }
   }

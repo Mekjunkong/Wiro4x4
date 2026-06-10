@@ -66,6 +66,10 @@
       "destination": "/api"
     },
     {
+      "source": "/car-rental",
+      "destination": "/api"
+    },
+    {
       "source": "/faq",
       "destination": "/api"
     },

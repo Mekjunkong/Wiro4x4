@@ -93,6 +93,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/car-rental"
+                  className="hover:text-accent transition-colors"
+                >
+                  {t("Car Rental", "השכרת רכב")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/terms"
                   className="hover:text-accent transition-colors"
                 >

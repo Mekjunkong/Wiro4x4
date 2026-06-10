@@ -108,6 +108,12 @@ const STATIC_PAGES = [
     lastmod: "2026-05-18",
   },
   {
+    path: "/car-rental",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: "2026-06-10",
+  },
+  {
     path: "/faq",
     priority: "0.8",
     changefreq: "monthly",
