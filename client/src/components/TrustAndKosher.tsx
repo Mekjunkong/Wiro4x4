@@ -87,7 +87,7 @@ export function TrustAndKosher() {
           {/* Right: Content */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-4">
                 {t("Why WIRO 4×4?", "?למה WIRO 4×4")}
               </h2>
               <GoldDivider />

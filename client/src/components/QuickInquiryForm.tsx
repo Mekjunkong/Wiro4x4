@@ -164,7 +164,7 @@ export function QuickInquiryForm() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
             {t("Fastest booking path", "הדרך המהירה להזמנה")}
           </p>
-          <h2 className="text-4xl md:text-5xl font-medium mb-3 text-foreground">
+          <h2 className="text-3xl md:text-4xl font-medium mb-3 text-foreground">
             {t(
               "Send Dates, Group Size, Pickup Area",
               "שלחו תאריכים, מספר מטיילים ואזור איסוף"

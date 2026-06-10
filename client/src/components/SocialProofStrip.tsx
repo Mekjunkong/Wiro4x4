@@ -1,14 +1,26 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Star, CheckCircle, Clock } from "lucide-react";
+import {
+  Star,
+  CheckCircle,
+  Clock,
+  Languages,
+  Utensils,
+  Lock,
+  Flame,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const TRUST_BADGES = [
-  { en: "Hebrew / English support", he: "מענה בעברית / אנגלית", icon: "🇮🇱" },
-  { en: "Kosher meal planning", he: "תכנון אוכל כשר", icon: "✡️" },
-  { en: "Private tours only", he: "טיולים פרטיים בלבד", icon: "🔒" },
-  { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: "🕯️" },
+  {
+    en: "Hebrew / English support",
+    he: "מענה בעברית / אנגלית",
+    icon: Languages,
+  },
+  { en: "Kosher meal planning", he: "תכנון אוכל כשר", icon: Utensils },
+  { en: "Private tours only", he: "טיולים פרטיים בלבד", icon: Lock },
+  { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: Flame },
 ];
 
 function StarRating({ rating }: { rating: number }) {
@@ -28,11 +40,15 @@ function StarRating({ rating }: { rating: number }) {
 export function SocialProofStrip() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 30, duration: 0.5 });
-  const { data: reviews, isLoading } = trpc.review.listPublic.useQuery();
+  const { data: reviews } = trpc.review.listPublic.useQuery();
 
   const topReviews = (reviews || [])
     .filter(review => review.rating >= 4 && review.text?.trim())
     .slice(0, 3);
+
+  // No reviews yet? Don't advertise the absence of proof — skip the
+  // review cards and lead with the trust badges instead.
+  const hasReviews = topReviews.length > 0;
 
   return (
     <section
@@ -48,13 +64,13 @@ export function SocialProofStrip() {
           <GoldDivider />
           <p className="mx-auto mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">
             {t(
-              "We only show real review content when it is available from the site review system. No fake recent-booking ticker.",
-              "אנחנו מציגים רק תוכן ביקורות אמיתי כשהוא זמין במערכת האתר. אין טיקר הזמנות מדומה."
+              "Every review here was written by a real guest. Want more? Ask us on WhatsApp for recent traveler references.",
+              "כל ביקורת כאן נכתבה על ידי אורח אמיתי. רוצים עוד? בקשו בוואטסאפ המלצות עדכניות ממטיילים."
             )}
           </p>
         </div>
 
-        {topReviews.length > 0 ? (
+        {hasReviews && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {topReviews.map(review => (
               <article
@@ -86,15 +102,6 @@ export function SocialProofStrip() {
               </article>
             ))}
           </div>
-        ) : (
-          <div className="mb-12 rounded-xl border border-dashed border-accent/40 bg-card p-6 text-center text-sm text-muted-foreground">
-            {isLoading
-              ? t("Loading verified reviews...", "טוען ביקורות מאומתות...")
-              : t(
-                  "Verified review cards will appear here when real site reviews are available. Until then, ask us on WhatsApp for current guest references.",
-                  "כרטיסי ביקורות מאומתים יופיעו כאן כשיש ביקורות אמיתיות במערכת. בינתיים אפשר לבקש בוואטסאפ המלצות עדכניות ממטיילים."
-                )}
-          </div>
         )}
 
         <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -103,9 +110,7 @@ export function SocialProofStrip() {
               key={badge.en}
               className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-accent/20 shadow-sm"
             >
-              <span className="text-lg" aria-hidden="true">
-                {badge.icon}
-              </span>
+              <badge.icon className="h-4 w-4 text-accent" aria-hidden="true" />
               <span className="text-sm font-medium">
                 {t(badge.en, badge.he)}
               </span>
