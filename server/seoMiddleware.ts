@@ -330,6 +330,65 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
   },
 };
 
+/**
+ * Hardcoded fallback meta for the 6 core tour slugs — mirrors the
+ * client-side HARDCODED_TOURS in client/src/components/Tours.tsx.
+ * Used when the tours table is empty or the DB is unreachable, so
+ * tour pages always ship correct SEO meta.
+ */
+const TOUR_META: Record<
+  string,
+  {
+    name: string;
+    description: string;
+    coverImage: string;
+    price: number;
+  }
+> = {
+  "doi-inthanon-roof-of-thailand": {
+    name: "Doi Inthanon — Roof of Thailand",
+    description:
+      "Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm. Private 4x4 day trip from Chiang Mai with kosher and Shabbat-friendly options.",
+    coverImage: "/images/optimized/mountain_sunset-lg.jpg",
+    price: 5000,
+  },
+  "mae-kampong-hidden-village": {
+    name: "Mae Kampong — Hidden Mountain Village",
+    description:
+      "A 700-year-old eco-village, wild gibbon spotting, ancient tea ceremony, and panoramic viewpoint hike. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/mountain_village_view-lg.jpg",
+    price: 3500,
+  },
+  "maerim-sticky-waterfalls": {
+    name: "Maerim & Sticky Waterfalls",
+    description:
+      "Climb UP a waterfall barefoot, walk a sky-high canopy walkway, and explore upper waterfall tiers no one reaches. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/sticky_waterfalls-lg.jpg",
+    price: 4500,
+  },
+  "doi-suthep-pui-beyond-temple": {
+    name: "Doi Suthep-Pui — Beyond the Temple",
+    description:
+      "Hike the ancient Monk's Trail, then keep going where tourists turn back — Hmong village, hidden coffee farm, secluded waterfall. Private 4x4 day trip.",
+    coverImage: "/images/optimized/doi_suthep_golden_chedi-lg.jpg",
+    price: 3500,
+  },
+  "mae-wang-jungle-wilderness": {
+    name: "Mae Wang — Jungle & River Wilderness",
+    description:
+      "Real 4x4 off-road through jungle, Pha Chor canyon, ethical elephants, bamboo rafting, and hidden waterfalls. Private day trip from Chiang Mai.",
+    coverImage: "/images/optimized/elephant_encounter-lg.jpg",
+    price: 5500,
+  },
+  "samoeng-loop-mountain-circuit": {
+    name: "Samoeng Loop — The Mountain Circuit",
+    description:
+      "100km mountain loop — rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, and lakeside sunset. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/chiang_mai_valley-lg.jpg",
+    price: 5000,
+  },
+};
+
 const PACKAGE_META: Record<
   string,
   {
@@ -508,36 +567,51 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   // /tours/:slug
   const tourMatch = urlPath.match(/^\/tours\/([a-z0-9-]+)$/);
   if (tourMatch) {
-    const tour = await getTourBySlug(tourMatch[1]);
-    if (tour) {
+    const slug = tourMatch[1];
+    let tour: Awaited<ReturnType<typeof getTourBySlug>>;
+    try {
+      tour = await getTourBySlug(slug);
+    } catch {
+      tour = undefined; // DB error — use hardcoded fallback below
+    }
+    const fallback = TOUR_META[slug];
+    const name = tour?.name || fallback?.name;
+    const description = tour?.description || fallback?.description;
+    const coverImage = tour?.imageUrl || fallback?.coverImage;
+    const price = tour?.price ?? fallback?.price;
+
+    if (name) {
       return {
-        title: `${tour.name} — Chiang Mai 4x4 Tour`,
+        title: `${name} — Chiang Mai 4x4 Tour`,
         description:
-          tour.description?.slice(0, 155) ||
-          `${tour.name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
-        ogImage: tour.imageUrl || undefined,
-        canonicalPath: `/tours/${tour.slug}`,
+          description?.slice(0, 155) ||
+          `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+        ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
+        canonicalPath: `/tours/${slug}`,
         jsonLd: [
           {
             "@context": "https://schema.org",
             "@type": "TouristTrip",
-            name: tour.name,
-            description: tour.description,
+            name,
+            description,
             provider: {
               "@type": "TravelAgency",
               name: "WIRO 4x4",
               url: SITE_URL,
             },
-            offers: {
-              "@type": "Offer",
-              price: String(tour.price),
-              priceCurrency: "THB",
-              availability: "https://schema.org/InStock",
-            },
+            offers:
+              price !== undefined && price !== null
+                ? {
+                    "@type": "Offer",
+                    price: String(price),
+                    priceCurrency: "THB",
+                    availability: "https://schema.org/InStock",
+                  }
+                : undefined,
           },
           breadcrumbJsonLd([
             { name: "Tours", path: "/tours" },
-            { name: tour.name, path: `/tours/${tour.slug}` },
+            { name, path: `/tours/${slug}` },
           ]),
         ],
       };
@@ -739,7 +813,16 @@ export function seoMiddleware() {
     }
 
     if (!meta) {
-      next(); // Unknown route — let _core handle (404 page)
+      // No route-specific meta (e.g. unknown slug or DB unavailable).
+      // On Vercel this middleware is the LAST handler for rewritten SPA
+      // routes (/tours/:slug, /blog/:slug, ...) — calling next() would
+      // return an empty response and the visitor would see a blank page.
+      // Serve the SPA shell as-is so the client router can render the
+      // page (or its own 404) instead.
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .send(html);
       return;
     }
 

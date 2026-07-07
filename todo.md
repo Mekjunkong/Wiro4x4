@@ -763,3 +763,13 @@
 - [x] Create ACCESSIBILITY_AUDIT.md documenting all findings and fixes
 - [x] TypeScript clean (0 errors)
 - [x] All 157 tests passing
+
+## Production Fixes & Performance (Jul 7, 2026)
+
+- [x] Fix blank /tours/:slug and /blog/:slug pages on Vercel — seoMiddleware now serves the SPA shell instead of next() when no meta is resolved (next() returned an empty response for rewritten routes)
+- [x] Add TOUR_META hardcoded fallback meta for all 6 tour slugs (mirrors PACKAGE_META pattern) so tour SEO survives DB outages/empty tables
+- [x] Wrap getTourBySlug in try/catch inside getDynamicMeta
+- [x] Re-encode hero banner images (banner-lg.webp 562KB→240KB, banner-md 269KB→110KB, banner-sm 74KB→33KB) — LCP improvement
+- [x] Fix homepage og:image/twitter:image to use optimized single_cascade_waterfall-lg.jpg
+- [x] Delete 101 unreferenced images from client/public (37MB deploy weight reduction)
+- [x] Verified: 271 tests pass, TypeScript clean, production build succeeds
