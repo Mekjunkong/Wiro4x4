@@ -87,39 +87,23 @@ describe("sitemap", () => {
     expect(xml).not.toContain("tour-with-&-ampersand</loc>");
   });
 
-  it("routes /sitemap.xml to the server function before the SPA catch-all on Vercel", () => {
+  it("routes all page requests (sitemap, package details, catch-all) to the server function on Vercel", () => {
+    // The catch-all rewrite must target /api (the Express app with the SEO
+    // middleware), NOT /index.html — a static-shell catch-all would bypass
+    // meta injection and turn every unknown URL into a soft 404. Static
+    // files still win before rewrites, so this covers /sitemap.xml,
+    // /packages/:slug, and every other HTML route.
     const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
       rewrites: Array<{ source: string; destination: string }>;
     };
 
-    const sitemapRewriteIndex = vercelConfig.rewrites.findIndex(
-      rewrite => rewrite.source === "/sitemap.xml"
-    );
-    const catchAllRewriteIndex = vercelConfig.rewrites.findIndex(
-      rewrite => rewrite.source === "/(.*)"
-    );
+    const catchAll = vercelConfig.rewrites.find(r => r.source === "/(.*)");
+    expect(catchAll?.destination).toBe("/api");
 
-    expect(sitemapRewriteIndex).toBeGreaterThanOrEqual(0);
-    expect(vercelConfig.rewrites[sitemapRewriteIndex].destination).toBe("/api");
-    expect(catchAllRewriteIndex).toBeGreaterThan(sitemapRewriteIndex);
-  });
-
-  it("routes package detail pages to the server function before the SPA catch-all on Vercel", () => {
-    const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
-      rewrites: Array<{ source: string; destination: string }>;
-    };
-
-    const packageDetailRewriteIndex = vercelConfig.rewrites.findIndex(
-      rewrite => rewrite.source === "/packages/(.*)"
-    );
-    const catchAllRewriteIndex = vercelConfig.rewrites.findIndex(
-      rewrite => rewrite.source === "/(.*)"
-    );
-
-    expect(packageDetailRewriteIndex).toBeGreaterThanOrEqual(0);
-    expect(vercelConfig.rewrites[packageDetailRewriteIndex].destination).toBe(
-      "/api"
-    );
-    expect(catchAllRewriteIndex).toBeGreaterThan(packageDetailRewriteIndex);
+    // Every rewrite destination must be the server function — nothing may
+    // point at a static shell.
+    for (const rewrite of vercelConfig.rewrites) {
+      expect(rewrite.destination).toBe("/api");
+    }
   });
 });

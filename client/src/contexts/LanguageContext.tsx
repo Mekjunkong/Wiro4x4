@@ -56,6 +56,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Keep <html lang/dir> in sync for screen readers, search engines, and
+  // browser translation prompts — the wrapper div below only covers styling.
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
+  }, [language]);
+
   // Load Hebrew fonts (Rubik + Heebo) only when needed
   useEffect(() => {
     if (language !== "he") return;

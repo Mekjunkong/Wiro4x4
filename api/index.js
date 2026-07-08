@@ -5116,7 +5116,7 @@ Tour prices:
 - Mae Wang: \u0E3F3,500/person
 - Multi-day packages from \u0E3F7,500
 
-Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 92-989-4495.`;
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +972 54-471-5400.`;
   let draft =
     "Hi! Thanks for reaching out. A team member will get back to you soon.";
   try {
@@ -5691,9 +5691,9 @@ var COOKIE_NAME = "app_session_id";
 var ONE_YEAR_MS = 1e3 * 60 * 60 * 24 * 365;
 var UNAUTHED_ERR_MSG = "Please login (10001)";
 var NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
-var COMPANY_WHATSAPP = "66929894495";
+var COMPANY_WHATSAPP = "972544715400";
 var COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
-var COMPANY_PHONE = "+66 92-989-4495";
+var COMPANY_PHONE = "+972 54-471-5400";
 var COMPANY_EMAIL = "wiro.adventures@gmail.com";
 var COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 var COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
@@ -6025,108 +6025,114 @@ function escapeXml2(str) {
     .replace(/'/g, "&apos;");
 }
 var STATIC_PAGES = [
-  { path: "/", priority: "1.0", changefreq: "daily", lastmod: "2026-05-18" },
+  { path: "/", priority: "1.0", changefreq: "weekly", lastmod: null },
   {
     path: "/tours",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/packages",
     priority: "0.9",
     changefreq: "weekly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/packages/northern-thailand-3d2n",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/packages/grand-tour-laos-14d",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/pricing",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/estimate",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/book",
     priority: "0.4",
     changefreq: "yearly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/blog",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/gallery",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/reviews",
     priority: "0.8",
     changefreq: "weekly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/kosher-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/hebrew-guide",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/accessible-tours",
     priority: "0.9",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
+  },
+  {
+    path: "/car-rental",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: null,
   },
   {
     path: "/faq",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/contact",
     priority: "0.8",
     changefreq: "monthly",
-    lastmod: "2026-05-18",
+    lastmod: null,
   },
   {
     path: "/terms",
     priority: "0.3",
     changefreq: "yearly",
-    lastmod: "2025-06-01",
+    lastmod: null,
   },
   {
     path: "/privacy",
     priority: "0.3",
     changefreq: "yearly",
-    lastmod: "2025-06-01",
+    lastmod: null,
   },
 ];
 function formatDate(date) {
@@ -6968,7 +6974,7 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 - Can arrange kosher accommodation recommendations
 
 ## Contact:
-- WhatsApp: +66 92-989-4495
+- WhatsApp: +972 54-471-5400
 - Website: www.wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -6989,7 +6995,7 @@ When the user:
 - Requests custom tour arrangements
 - Mentions payment or deposits
 
-\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +66 92-989-4495" and the response should indicate escalation.
+\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +972 54-471-5400" and the response should indicate escalation.
 `;
 var LANGUAGE_INSTRUCTIONS = {
   en: "Respond in English. Be friendly and professional.",
@@ -7156,9 +7162,9 @@ function registerChatApiRoute(app2) {
       } catch (apiError) {
         console.error("[Chat] API error:", apiError);
         const fallbackMessages = {
-          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +66 92-989-4495 for immediate assistance!",
-          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
-          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +66 92-989-4495 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
+          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +972 54-471-5400 for immediate assistance!",
+          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
+          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +972 54-471-5400 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
         };
         const chatResponse = {
           reply: fallbackMessages[detectedLanguage],
@@ -7187,7 +7193,7 @@ function buildEliPrompt(language, tours2, availability) {
           )
           .join("\n")
       : `- Doi Inthanon (Roof of Thailand): \u0E3F3,500/pp \u2014 Full day
-- Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day
+- Doi Suthep & Pui National Park: \u0E3F2,000/pp \u2014 Half/full day  
 - Mae Kampong Village: \u0E3F2,500/pp \u2014 Half/full day
 - Maerim Sticky Waterfalls: \u0E3F3,000/pp \u2014 Full day
 - Mae Wang Jungle Wilderness: \u0E3F3,500/pp \u2014 Full day
@@ -7221,7 +7227,7 @@ ${tourList}${availNote}
 You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be honest about what works for Shabbat and kosher needs. This matters.
 
 ## Quick Facts
-- WhatsApp: +66 92-989-4495
+- WhatsApp: +972 54-471-5400
 - Website: wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -7230,7 +7236,7 @@ You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be 
 - If asked for specific group pricing / exact dates / custom routes \u2192 say you'll connect them to WhatsApp for a personal quote
 - Suggest the best tour for their situation (family? adventure? short time?)
 - Be concise: bullet points work great
-- For booking/payment: "Message us on WhatsApp +66 92-989-4495 for an instant quote"
+- For booking/payment: "Message us on WhatsApp +972 54-471-5400 for an instant quote"
 
 ## Language
 ${langInstructions[language]}`;
@@ -7426,9 +7432,9 @@ function registerEliChatRoute(app2) {
     } catch (err) {
       console.error("[EliChat] Error:", err);
       const fallback = {
-        en: "I'm having a moment \u2014 please WhatsApp us at +66 92-989-4495 for immediate help!",
-        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 92-989-4495",
-        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +66 92-989-4495",
+        en: "I'm having a moment \u2014 please WhatsApp us at +972 54-471-5400 for immediate help!",
+        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400",
+        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +972 54-471-5400",
       };
       const lang = detectLanguage4(req.body?.message ?? "", req.body?.language);
       return res.json({
@@ -7624,7 +7630,7 @@ About WIRO 4x4:
 - All tours are kosher-friendly with kosher meal options
 - Shabbat hotel options available
 - Self-driving 4x4 rental available ($100-150 USD)
-- WhatsApp: +66929894495
+- WhatsApp: +972544715400
 - Email: wiro.adventures@gmail.com
 - Booking: https://www.wiro4x4indochina.com/book
 
@@ -7693,8 +7699,8 @@ chatRouter.post("/message", async (req, res) => {
       console.error("[Chat] Claude API error:", apiError);
       reply =
         lang === "he"
-          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66929894495"
-          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +66929894495";
+          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972544715400"
+          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +972544715400";
     }
     await addChatMessage({
       sessionId,
@@ -7727,7 +7733,7 @@ function registerChatRoute(app2) {
 // server/routes/moshe.ts
 import Anthropic3 from "@anthropic-ai/sdk";
 import OpenAI3 from "openai";
-var WHATSAPP_NUMBER = "66929894495";
+var WHATSAPP_NUMBER = "972544715400";
 var MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan kosher off-road adventures.
 
 ## About WIRO 4x4
@@ -8509,7 +8515,7 @@ function generateCalendarEvent(booking) {
       `Email: ${COMPANY_EMAIL}`,
       `Website: ${COMPANY_WEBSITE}`,
       ``,
-      `Questions? WhatsApp us anytime: +66929894495`,
+      `Questions? WhatsApp us anytime: +972544715400`,
       ``,
       `We look forward to your adventure with us!`,
     ];
@@ -8554,7 +8560,7 @@ function generateCalendarEvent(booking) {
         },
         {
           action: "display",
-          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66929894495`,
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +972544715400`,
           trigger: { hours: 2, before: true },
         },
       ],
@@ -8604,7 +8610,7 @@ async function sendCustomerConfirmation(booking) {
       <h1>\u{1F699} Booking Confirmed!</h1>
       <p>Your adventure with WIRO 4x4 is confirmed</p>
     </div>
-
+    
     <div class="content">
       <p>Dear ${escapeHtml2(booking.customerName)},</p>
 
@@ -8640,7 +8646,7 @@ async function sendCustomerConfirmation(booking) {
             : ""
         }
       </div>
-
+      
       ${
         icsContent
           ? `
@@ -8655,7 +8661,7 @@ async function sendCustomerConfirmation(booking) {
       `
           : ""
       }
-
+      
       <div class="info-box" style="background: #e3f2fd; border-left-color: #1976d2;">
         <h3 style="margin-top: 0; color: #1976d2;">\u{1F4CD} Meeting Point & Location</h3>
         <p><strong>Location:</strong> Chiang Mai, Thailand</p>
@@ -8692,15 +8698,15 @@ async function sendCustomerConfirmation(booking) {
       </div>
 
       <p>We'll send you a reminder 48 hours before your tour with final details.</p>
-
+      
       <p>Looking forward to your adventure!</p>
-
+      
       <p style="margin-top: 30px;">
         <strong>The WIRO 4x4 Team</strong><br>
         <em>Kosher Off-Road Adventures in Chiang Mai</em>
       </p>
     </div>
-
+    
     <div class="footer">
       <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
       <p>Chiang Mai, Thailand</p>
@@ -9168,6 +9174,9 @@ async function sendNewsletterEmail(blogPostId, subscribers2, subject) {
   return sent;
 }
 
+// server/routes/n8n.ts
+init_whatsappService();
+
 // server/_core/notification.ts
 import { TRPCError } from "@trpc/server";
 var resendClient = null;
@@ -9404,6 +9413,8 @@ function getAuditTarget(input) {
       return { resourceType: "postTourReview", resourceId: void 0 };
     case "abandoned.send_batch_recovery":
       return { resourceType: "lead", resourceId: void 0 };
+    default:
+      return { resourceType: "system", resourceId: void 0 };
   }
 }
 async function logN8nAction(input, result) {
@@ -9436,6 +9447,78 @@ function buildBookingReminderPayload(booking) {
     specialRequests: booking.specialRequests ?? void 0,
     bookingId: `WIRO-${booking.id}`,
   };
+}
+function normalizeWhatsAppRecipient(value) {
+  const normalized = value?.replace(/\D/g, "") ?? "";
+  return normalized.length >= 8 ? normalized : null;
+}
+function buildWhatsAppBookingReminderText(booking) {
+  const tourDate = toIso(booking.arrivalDate);
+  const formattedDate = tourDate
+    ? new Date(tourDate).toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "tomorrow";
+  const groupSize = booking.numberOfAdults + (booking.numberOfChildren ?? 0);
+  const pickup = booking.pickupPoint?.trim() || "to be confirmed";
+  return [
+    `Hi ${booking.contactName}, this is your WIRO 4x4 tour reminder.`,
+    `Tour date: ${formattedDate}`,
+    `Pickup: ${pickup} around 08:00`,
+    `Group size: ${groupSize}`,
+    `Booking: WIRO-${booking.id}`,
+    "",
+    "Please bring comfortable shoes, sun protection, water, and anything you need for kosher/Shabbat planning.",
+    "Questions? Reply here on WhatsApp and we will help.",
+  ].join("\n");
+}
+async function sendBookingReminderWithFallback(booking) {
+  if (booking.contactEmail) {
+    const emailSent = await sendBookingReminder(
+      buildBookingReminderPayload(booking)
+    );
+    if (emailSent) return { sent: true, channel: "email" };
+  }
+  const recipient = normalizeWhatsAppRecipient(
+    booking.contactWhatsApp || booking.contactPhone
+  );
+  if (!recipient) return { sent: false, channel: null };
+  const messageId = await sendWhatsAppMessage(
+    recipient,
+    buildWhatsAppBookingReminderText(booking)
+  );
+  return messageId
+    ? { sent: true, channel: "whatsapp", messageId }
+    : { sent: false, channel: "whatsapp" };
+}
+function buildWhatsAppRecoveryText(lead) {
+  const name = lead.name?.trim() || "there";
+  return [
+    `Hi ${name}, this is WIRO 4x4 in Chiang Mai.`,
+    "You asked us about a private off-road trip, and we would love to help you finish the plan.",
+    "",
+    "Reply here with your travel dates, group size, pickup area, and kosher/Shabbat needs. We will confirm availability personally.",
+    "You can also continue here:",
+    "https://www.wiro4x4indochina.com/booking",
+  ].join("\n");
+}
+async function sendRecoveryWithFallback(lead) {
+  if (lead.email) {
+    const emailSent = await sendAbandonedBookingEmail(lead);
+    if (emailSent) return { sent: true, channel: "email" };
+  }
+  const recipient = normalizeWhatsAppRecipient(lead.phone);
+  if (!recipient) return { sent: false, channel: null };
+  const messageId = await sendWhatsAppMessage(
+    recipient,
+    buildWhatsAppRecoveryText(lead)
+  );
+  return messageId
+    ? { sent: true, channel: "whatsapp", messageId }
+    : { sent: false, channel: "whatsapp" };
 }
 async function getN8nLeadSnapshot(leadId) {
   const lead = await getLeadById(leadId);
@@ -9562,11 +9645,16 @@ async function executeN8nAction(input) {
     }
     case "booking.send_reminder": {
       const booking = await getBookingById(input.bookingId);
-      if (!booking || !booking.contactEmail) {
+      if (
+        !booking ||
+        (!booking.contactEmail &&
+          !booking.contactWhatsApp &&
+          !booking.contactPhone)
+      ) {
         return finishN8nAction(input, {
           action: input.action,
           changed: false,
-          reason: "booking_not_found_or_missing_email",
+          reason: "booking_not_found_or_missing_contact",
           bookingId: input.bookingId,
           sent: false,
         });
@@ -9580,15 +9668,14 @@ async function executeN8nAction(input) {
           sent: false,
         });
       }
-      const sent = await sendBookingReminder(
-        buildBookingReminderPayload(booking)
-      );
-      if (sent) await markReminderSent(booking.id);
+      const delivery = await sendBookingReminderWithFallback(booking);
+      if (delivery.sent) await markReminderSent(booking.id);
       return finishN8nAction(input, {
         action: input.action,
-        changed: sent,
+        changed: delivery.sent,
         bookingId: booking.id,
-        sent,
+        sent: delivery.sent,
+        channel: delivery.channel,
       });
     }
     case "booking.send_due_reminders": {
@@ -9599,14 +9686,16 @@ async function executeN8nAction(input) {
       let skipped = 0;
       const bookingIds = [];
       for (const booking of batch) {
-        if (!booking.contactEmail) {
+        if (
+          !booking.contactEmail &&
+          !booking.contactWhatsApp &&
+          !booking.contactPhone
+        ) {
           skipped++;
           continue;
         }
-        const ok = await sendBookingReminder(
-          buildBookingReminderPayload(booking)
-        );
-        if (ok) {
+        const delivery = await sendBookingReminderWithFallback(booking);
+        if (delivery.sent) {
           await markReminderSent(booking.id);
           sent++;
           bookingIds.push(booking.id);
@@ -9647,11 +9736,11 @@ async function executeN8nAction(input) {
     case "abandoned.send_recovery": {
       const leads2 = await getAbandonedLeads(24 * 365);
       const lead = leads2.find(item => item.id === input.leadId);
-      if (!lead || !lead.email) {
+      if (!lead || (!lead.email && !lead.phone)) {
         return finishN8nAction(input, {
           action: input.action,
           changed: false,
-          reason: "lead_not_found_or_missing_email",
+          reason: "lead_not_found_or_missing_contact",
           leadId: input.leadId,
         });
       }
@@ -9663,25 +9752,26 @@ async function executeN8nAction(input) {
           leadId: input.leadId,
         });
       }
-      const sent = await sendAbandonedBookingEmail(lead);
-      if (sent) await markRecoveryEmailSent(lead.id);
+      const delivery = await sendRecoveryWithFallback(lead);
+      if (delivery.sent) await markRecoveryEmailSent(lead.id);
       return finishN8nAction(input, {
         action: input.action,
-        changed: sent,
+        changed: delivery.sent,
         leadId: lead.id,
-        sent,
+        sent: delivery.sent,
+        channel: delivery.channel,
       });
     }
     case "abandoned.send_batch_recovery": {
       const leads2 = await getAbandonedLeads(24);
       const batch = leads2
-        .filter(lead => !lead.recoveryEmailSentAt && lead.email)
+        .filter(lead => !lead.recoveryEmailSentAt && (lead.email || lead.phone))
         .slice(0, input.limit);
       let sent = 0;
       let failed = 0;
       for (const lead of batch) {
-        const ok = await sendAbandonedBookingEmail(lead);
-        if (ok) {
+        const delivery = await sendRecoveryWithFallback(lead);
+        if (delivery.sent) {
           await markRecoveryEmailSent(lead.id);
           sent++;
         } else {
@@ -9757,6 +9847,8 @@ Resource: ${input.resourceType}${input.resourceId ? ` #${input.resourceId}` : ""
         priority: input.priority,
       });
     }
+    default:
+      throw new Error(`Unsupported n8n action: ${input.action}`);
   }
 }
 function registerN8nRoutes(app2) {
@@ -10234,7 +10326,7 @@ async function sendNewBookingEmail(data) {
         <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">New Booking Request Received!</p>
       </div>
-
+      
       <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
         <h2 style="color: #1a4d2e; margin-top: 0;">\u{1F4CB} Customer Details</h2>
         <table style="width: 100%; border-collapse: collapse;">
@@ -10251,9 +10343,9 @@ async function sendNewBookingEmail(data) {
             <td style="padding: 8px 0;"><a href="tel:${data.contactPhone}" style="color: #1a4d2e;">${escapeHtml2(data.contactPhone)}</a></td>
           </tr>
         </table>
-
+        
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-
+        
         <h2 style="color: #1a4d2e;">\u{1F4C5} Trip Details</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -10269,14 +10361,14 @@ async function sendNewBookingEmail(data) {
             <td style="padding: 8px 0; font-weight: bold;">${data.numberOfAdults} Adults${data.numberOfChildren ? `, ${data.numberOfChildren} Children` : ""}</td>
           </tr>
         </table>
-
+        
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-
+        
         <h2 style="color: #1a4d2e;">\u2728 Services Requested</h2>
         <p style="line-height: 1.8;">${formatServices2(data)}</p>
-
+        
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
-
+        
         <h2 style="color: #1a4d2e;">\u{1F4CD} Logistics</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -10298,7 +10390,7 @@ async function sendNewBookingEmail(data) {
               : ""
           }
         </table>
-
+        
         ${
           data.specialRequests
             ? `
@@ -10308,13 +10400,13 @@ async function sendNewBookingEmail(data) {
         `
             : ""
         }
-
+        
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <p style="color: #888; font-size: 12px; text-align: center;">
           \u{1F4A1} Sent from WIRO 4x4 Booking System
         </p>
       </div>
-
+      
       <div style="background: #1a4d2e; color: white; padding: 20px; border-radius: 0 0 10px 10px; text-align: center;">
         <p style="margin: 0; font-size: 14px;">\u23F0 Please respond to this inquiry within 24 hours</p>
         <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai</p>
@@ -14493,7 +14585,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
             </div>
 
             <div style="text-align: center;">
-              <a href="https://wa.me/66929894495?text=${encodeURIComponent(
+              <a href="https://wa.me/972544715400?text=${encodeURIComponent(
                 isHebrew
                   ? `\u05E9\u05DC\u05D5\u05DD! \u05E7\u05D9\u05D1\u05DC\u05EA\u05D9 \u05D0\u05EA \u05D4\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8 \u05DC-${total.toLocaleString()} \u05D1\u05D0\u05D8. \u05D0\u05E9\u05DE\u05D7 \u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.`
                   : `Hello! I received the estimate for \u0E3F${total.toLocaleString()}. I'd like more details.`
@@ -14509,7 +14601,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
 
           <div class="footer">
             <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
-            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +66 92-989-4495</p>
+            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +972 54-471-5400</p>
             <p>${isHebrew ? "\u{1F4E7} \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC" : "\u{1F4E7} Email"}: ${COMPANY_SENDER_EMAIL}</p>
             <p style="margin-top: 15px; font-size: 12px;">
               ${isHebrew ? "\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9, \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 | www.wiro4x4indochina.com" : "Chiang Mai, Thailand | www.wiro4x4indochina.com"}
@@ -16579,9 +16671,9 @@ var DEFAULT_OG_IMAGE = `${SITE_URL3}/images/optimized/single_cascade_waterfall-l
 var BRAND_LOGO = `${SITE_URL3}/images/icon-512.png`;
 var BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 var BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-var BUSINESS_PHONE = "+66929894495";
+var BUSINESS_PHONE = "+972544715400";
 var BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-var BUSINESS_WHATSAPP = "https://wa.me/66929894495";
+var BUSINESS_WHATSAPP = "https://wa.me/972544715400";
 var BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 var BUSINESS_IMAGES = [
@@ -16589,6 +16681,26 @@ var BUSINESS_IMAGES = [
   `${SITE_URL3}/images/optimized/wiro_with_vehicle-lg.jpg`,
   `${SITE_URL3}/images/optimized/wiro_with_colleague-sm.jpg`,
 ];
+function breadcrumbJsonLd(items) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL3,
+      },
+      ...items.map((item, idx) => ({
+        "@type": "ListItem",
+        position: idx + 2,
+        name: item.name,
+        item: `${SITE_URL3}${item.path}`,
+      })),
+    ],
+  };
+}
 function pageJsonLd(meta) {
   const url = `${SITE_URL3}${meta.path}`;
   return {
@@ -16792,6 +16904,21 @@ var STATIC_ROUTES = {
         "Families, seniors, wheelchair users, travelers with mobility needs",
     }),
   },
+  "/car-rental": {
+    title:
+      "Car Rental Chiang Mai \u2014 Self-Drive Cars & 4x4 from \u0E3F990/Day",
+    description:
+      "Rent a car in Chiang Mai from \u0E3F990/day. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English booking support.",
+    canonicalPath: "/car-rental",
+    jsonLd: serviceJsonLd({
+      name: "Car Rental in Chiang Mai",
+      description:
+        "Self-drive car rental in Chiang Mai with first-class insurance, unlimited mileage, free hotel and airport delivery, and Hebrew/English booking support.",
+      path: "/car-rental",
+      audienceType:
+        "Tourists, Israeli travelers, families, self-drive travelers",
+    }),
+  },
   "/faq": {
     title: "FAQ \u2014 Kosher Tours & Off-Road Adventures Chiang Mai",
     description:
@@ -16822,6 +16949,50 @@ var STATIC_ROUTES = {
     description:
       "How WIRO 4x4 collects, uses, and protects your personal data.",
     canonicalPath: "/privacy",
+  },
+};
+var TOUR_META = {
+  "doi-inthanon-roof-of-thailand": {
+    name: "Doi Inthanon \u2014 Roof of Thailand",
+    description:
+      "Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm. Private 4x4 day trip from Chiang Mai with kosher and Shabbat-friendly options.",
+    coverImage: "/images/optimized/mountain_sunset-lg.jpg",
+    price: 5e3,
+  },
+  "mae-kampong-hidden-village": {
+    name: "Mae Kampong \u2014 Hidden Mountain Village",
+    description:
+      "A 700-year-old eco-village, wild gibbon spotting, ancient tea ceremony, and panoramic viewpoint hike. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/mountain_village_view-lg.jpg",
+    price: 3500,
+  },
+  "maerim-sticky-waterfalls": {
+    name: "Maerim & Sticky Waterfalls",
+    description:
+      "Climb UP a waterfall barefoot, walk a sky-high canopy walkway, and explore upper waterfall tiers no one reaches. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/sticky_waterfalls-lg.jpg",
+    price: 4500,
+  },
+  "doi-suthep-pui-beyond-temple": {
+    name: "Doi Suthep-Pui \u2014 Beyond the Temple",
+    description:
+      "Hike the ancient Monk's Trail, then keep going where tourists turn back \u2014 Hmong village, hidden coffee farm, secluded waterfall. Private 4x4 day trip.",
+    coverImage: "/images/optimized/doi_suthep_golden_chedi-lg.jpg",
+    price: 3500,
+  },
+  "mae-wang-jungle-wilderness": {
+    name: "Mae Wang \u2014 Jungle & River Wilderness",
+    description:
+      "Real 4x4 off-road through jungle, Pha Chor canyon, ethical elephants, bamboo rafting, and hidden waterfalls. Private day trip from Chiang Mai.",
+    coverImage: "/images/optimized/elephant_encounter-lg.jpg",
+    price: 5500,
+  },
+  "samoeng-loop-mountain-circuit": {
+    name: "Samoeng Loop \u2014 The Mountain Circuit",
+    description:
+      "100km mountain loop \u2014 rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, and lakeside sunset. Private 4x4 day trip from Chiang Mai.",
+    coverImage: "/images/optimized/chiang_mai_valley-lg.jpg",
+    price: 5e3,
   },
 };
 var PACKAGE_META = {
@@ -16974,32 +17145,52 @@ ${alternateTags}`
 async function getDynamicMeta(urlPath) {
   const tourMatch = urlPath.match(/^\/tours\/([a-z0-9-]+)$/);
   if (tourMatch) {
-    const tour = await getTourBySlug(tourMatch[1]);
-    if (tour) {
+    const slug = tourMatch[1];
+    let tour;
+    try {
+      tour = await getTourBySlug(slug);
+    } catch {
+      tour = void 0;
+    }
+    const fallback = TOUR_META[slug];
+    const name = tour?.name || fallback?.name;
+    const description = tour?.description || fallback?.description;
+    const coverImage = tour?.imageUrl || fallback?.coverImage;
+    const price = tour?.price ?? fallback?.price;
+    if (name) {
       return {
-        title: `${tour.name} \u2014 Chiang Mai 4x4 Tour`,
+        title: `${name} \u2014 Chiang Mai 4x4 Tour`,
         description:
-          tour.description?.slice(0, 155) ||
-          `${tour.name} \u2014 private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
-        ogImage: tour.imageUrl || void 0,
-        canonicalPath: `/tours/${tour.slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "TouristTrip",
-          name: tour.name,
-          description: tour.description,
-          provider: {
-            "@type": "TravelAgency",
-            name: "WIRO 4x4",
-            url: SITE_URL3,
+          description?.slice(0, 155) ||
+          `${name} \u2014 private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+        ogImage: coverImage ? absoluteUrl(coverImage) : void 0,
+        canonicalPath: `/tours/${slug}`,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name,
+            description,
+            provider: {
+              "@type": "TravelAgency",
+              name: "WIRO 4x4",
+              url: SITE_URL3,
+            },
+            offers:
+              price !== void 0 && price !== null
+                ? {
+                    "@type": "Offer",
+                    price: String(price),
+                    priceCurrency: "THB",
+                    availability: "https://schema.org/InStock",
+                  }
+                : void 0,
           },
-          offers: {
-            "@type": "Offer",
-            price: String(tour.price),
-            priceCurrency: "THB",
-            availability: "https://schema.org/InStock",
-          },
-        },
+          breadcrumbJsonLd([
+            { name: "Tours", path: "/tours" },
+            { name, path: `/tours/${slug}` },
+          ]),
+        ],
       };
     }
   }
@@ -17021,26 +17212,32 @@ async function getDynamicMeta(urlPath) {
           `${name} \u2014 private multi-day 4x4 tour package with WIRO 4x4.`,
         ogImage: coverImage ? absoluteUrl(coverImage) : void 0,
         canonicalPath: `/packages/${slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "TouristTrip",
-          name,
-          description,
-          image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
-          provider: {
-            "@type": "TravelAgency",
-            name: "WIRO 4x4",
-            url: SITE_URL3,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name,
+            description,
+            image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
+            provider: {
+              "@type": "TravelAgency",
+              name: "WIRO 4x4",
+              url: SITE_URL3,
+            },
+            offers: price
+              ? {
+                  "@type": "Offer",
+                  price: String(price),
+                  priceCurrency: "THB",
+                  availability: "https://schema.org/InStock",
+                }
+              : void 0,
           },
-          offers: price
-            ? {
-                "@type": "Offer",
-                price: String(price),
-                priceCurrency: "THB",
-                availability: "https://schema.org/InStock",
-              }
-            : void 0,
-        },
+          breadcrumbJsonLd([
+            { name: "Packages", path: "/packages" },
+            { name, path: `/packages/${slug}` },
+          ]),
+        ],
       };
     }
   }
@@ -17060,37 +17257,61 @@ async function getDynamicMeta(urlPath) {
         ogImage: post.coverImage || void 0,
         ogType: "article",
         canonicalPath: `/blog/${post.slug}`,
-        jsonLd: {
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: post.title,
-          description: post.excerpt || post.content?.slice(0, 200),
-          image: post.coverImage || DEFAULT_OG_IMAGE,
-          mainEntityOfPage: {
-            "@type": "WebPage",
-            "@id": `${SITE_URL3}/blog/${post.slug}`,
-          },
-          author: {
-            "@type": "Person",
-            name: "Wiro",
-            worksFor: { "@type": "Organization", name: "WIRO 4x4" },
-          },
-          publisher: {
-            "@type": "Organization",
-            name: "WIRO 4x4",
-            logo: {
-              "@type": "ImageObject",
-              url: BRAND_LOGO,
+        jsonLd: [
+          {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt || post.content?.slice(0, 200),
+            image: post.coverImage || DEFAULT_OG_IMAGE,
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `${SITE_URL3}/blog/${post.slug}`,
             },
+            author: {
+              "@type": "Person",
+              name: "Wiro",
+              worksFor: { "@type": "Organization", name: "WIRO 4x4" },
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "WIRO 4x4",
+              logo: {
+                "@type": "ImageObject",
+                url: BRAND_LOGO,
+              },
+            },
+            datePublished: publishedIso,
+            dateModified: publishedIso,
+            url: `${SITE_URL3}/blog/${post.slug}`,
           },
-          datePublished: publishedIso,
-          dateModified: publishedIso,
-          url: `${SITE_URL3}/blog/${post.slug}`,
-        },
+          breadcrumbJsonLd([
+            { name: "Blog", path: "/blog" },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+        ],
       };
     }
   }
   return null;
+}
+var CLIENT_ONLY_ROUTES = /* @__PURE__ */ new Set([
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/booking/success",
+  "/booking/cancel",
+  "/404",
+]);
+var CLIENT_ONLY_PREFIXES = [/^\/admin(\/|$)/, /^\/album\/[^/]+$/];
+var CONTENT_SLUG_PATTERN = /^\/(tours|packages|blog)\/[a-z0-9-]+$/;
+var PAGE_CACHE_CONTROL = "public, s-maxage=3600, stale-while-revalidate=86400";
+var NOT_FOUND_CACHE_CONTROL = "public, s-maxage=300";
+function injectNoindex(html) {
+  return html.replace(
+    /<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="robots" content="noindex, nofollow" />`
+  );
 }
 var cachedHtml = null;
 function getIndexHtml() {
@@ -17131,7 +17352,7 @@ function seoMiddleware() {
   return async (req, res, next) => {
     const urlPath = req.path;
     if (
-      req.method !== "GET" ||
+      (req.method !== "GET" && req.method !== "HEAD") ||
       urlPath.startsWith("/api/") ||
       urlPath.startsWith("/assets/") ||
       urlPath.startsWith("/images/") ||
@@ -17151,15 +17372,36 @@ function seoMiddleware() {
         meta = await getDynamicMeta(urlPath);
       } catch {}
     }
-    if (!meta) {
-      next();
+    if (meta) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .set("Cache-Control", PAGE_CACHE_CONTROL)
+        .send(injectMeta(html, meta));
       return;
     }
-    const injectedHtml = injectMeta(html, meta);
+    if (
+      CLIENT_ONLY_ROUTES.has(urlPath) ||
+      CLIENT_ONLY_PREFIXES.some(p => p.test(urlPath))
+    ) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .set("Cache-Control", "no-store")
+        .set("X-Robots-Tag", "noindex, nofollow")
+        .send(injectNoindex(html));
+      return;
+    }
+    const isContentSlug = CONTENT_SLUG_PATTERN.test(urlPath);
     res
-      .status(200)
+      .status(404)
       .set("Content-Type", "text/html; charset=utf-8")
-      .send(injectedHtml);
+      .set(
+        "Cache-Control",
+        isContentSlug ? NOT_FOUND_CACHE_CONTROL : "no-store"
+      )
+      .set("X-Robots-Tag", "noindex, nofollow")
+      .send(injectNoindex(html));
   };
 }
 

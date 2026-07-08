@@ -29,7 +29,7 @@
     />
     <meta
       property="og:image"
-      content="https://www.wiro4x4indochina.com/images/single_cascade_waterfall.jpg"
+      content="https://www.wiro4x4indochina.com/images/optimized/single_cascade_waterfall-lg.jpg"
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -49,7 +49,7 @@
     />
     <meta
       name="twitter:image"
-      content="https://www.wiro4x4indochina.com/images/single_cascade_waterfall.jpg"
+      content="https://www.wiro4x4indochina.com/images/optimized/single_cascade_waterfall-lg.jpg"
     />
 
     <!-- Hebrew Language Support -->
@@ -108,7 +108,7 @@
             "email": "wiro.adventures@gmail.com",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+66929894495",
+              "telephone": "+972544715400",
               "contactType": "reservations",
               "availableLanguage": ["English", "Hebrew", "Thai"]
             },
@@ -155,11 +155,11 @@
               },
               {
                 "@type": "CommunicateAction",
-                "target": "https://wa.me/66929894495",
+                "target": "https://wa.me/972544715400",
                 "name": "Ask WIRO 4x4 on WhatsApp"
               }
             ],
-            "sameAs": ["https://wa.me/66929894495"]
+            "sameAs": ["https://wa.me/972544715400"]
           },
           {
             "@type": "Service",
@@ -199,28 +199,16 @@
     <meta name="apple-mobile-web-app-title" content="WIRO 4x4" />
     <title>WIRO 4x4 | Kosher Off-Road Adventures in Chiang Mai</title>
 
-    <!-- Prevent flash of wrong theme by applying dark class before paint -->
-    <script>
-      (function () {
-        var stored = localStorage.getItem("wiro-theme");
-        var prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
-        if (stored === "dark" || (!stored && prefersDark)) {
-          document.documentElement.classList.add("dark");
-        }
-      })();
-    </script>
+    <!-- Prevent flash of wrong theme by applying dark class before paint.
+         External file (not inline) so the strict CSP (script-src 'self')
+         served by the SEO function doesn't block it. -->
+    <script src="/theme-init.js"></script>
 
     <!-- DNS Prefetch & Preconnect for external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://files.manuscdn.com" />
-    <link rel="dns-prefetch" href="https://files.manuscdn.com" />
-    <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" />
-    <link rel="dns-prefetch" href="https://d2xsxph8kpxj0f.cloudfront.net" />
 
     <!-- Preload critical hero image (LCP optimization) -->
     <link
@@ -232,19 +220,15 @@
       imagesizes="100vw"
     />
 
-    <!-- Base fonts (always loaded) — DM Serif Display for headings, Source Sans 3 for body -->
+    <!-- Base fonts — DM Serif Display for headings, Source Sans 3 for body.
+         Plain stylesheet (no media="print" + onload trick): the inline onload
+         handler was blocked by CSP script-src-attr 'none', which left fonts
+         stuck at media="print" on all server-rendered routes. display=swap
+         already prevents invisible text. -->
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
       rel="stylesheet"
-      media="print"
-      onload="this.media = 'all'"
     />
-    <noscript>
-      <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
-        rel="stylesheet"
-      />
-    </noscript>
     <!-- Hebrew fonts (Rubik + Heebo) loaded conditionally by LanguageContext when lang=he -->
 
     <!-- Analytics (Plausible - privacy-friendly, no cookies) -->
@@ -253,12 +237,12 @@
       data-domain="www.wiro4x4indochina.com"
       src="https://plausible.io/js/script.js"
     ></script>
-    <script type="module" crossorigin src="/assets/js/index-C1h9BKnI.js"></script>
+    <script type="module" crossorigin src="/assets/js/index-Ccr1Zn9U.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/js/react-vendor-5wom38gs.js">
     <link rel="modulepreload" crossorigin href="/assets/js/router-BPRbBu-F.js">
     <link rel="modulepreload" crossorigin href="/assets/js/ui-vendor-Bslgp3KO.js">
     <link rel="modulepreload" crossorigin href="/assets/js/utils-BNe0Xlio.js">
-    <link rel="stylesheet" crossorigin href="/assets/css/index-D4EUq-Qy.css">
+    <link rel="stylesheet" crossorigin href="/assets/css/index-DA2FK36I.css">
   </head>
 
   <body>

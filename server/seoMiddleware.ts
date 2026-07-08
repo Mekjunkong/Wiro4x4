@@ -725,6 +725,52 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   return null;
 }
 
+/**
+ * Client-side routes that have no server meta but are valid SPA pages.
+ * They get the plain shell with a noindex signal (auth/transactional pages).
+ */
+const CLIENT_ONLY_ROUTES = new Set([
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/booking/success",
+  "/booking/cancel",
+  "/404",
+]);
+
+const CLIENT_ONLY_PREFIXES = [/^\/admin(\/|$)/, /^\/album\/[^/]+$/];
+
+/** Content prefixes whose slugs are validated against the DB / fallbacks */
+const CONTENT_SLUG_PATTERN = /^\/(tours|packages|blog)\/[a-z0-9-]+$/;
+
+/** True for SPA-only pages (auth, admin, booking confirmations) that should
+ * be served with a noindex signal but a 200 status. Exported for tests. */
+export function isClientOnlyRoute(urlPath: string): boolean {
+  return (
+    CLIENT_ONLY_ROUTES.has(urlPath) ||
+    CLIENT_ONLY_PREFIXES.some(p => p.test(urlPath))
+  );
+}
+
+/** True for /tours/:slug, /packages/:slug, /blog/:slug shapes. Exported for tests. */
+export function isContentSlugPath(urlPath: string): boolean {
+  return CONTENT_SLUG_PATTERN.test(urlPath);
+}
+
+/** Edge cache for indexable marketing pages (1h fresh, 24h stale) */
+const PAGE_CACHE_CONTROL =
+  "public, s-maxage=3600, stale-while-revalidate=86400";
+/** Short edge cache for 404 responses */
+const NOT_FOUND_CACHE_CONTROL = "public, s-maxage=300";
+
+/** Swap the shell's index,follow robots meta for noindex. Exported for tests. */
+export function injectNoindex(html: string): string {
+  return html.replace(
+    /<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/,
+    `<meta name="robots" content="noindex, nofollow" />`
+  );
+}
+
 /** Cache the built index.html in memory (only read once per cold start) */
 let cachedHtml: string | null = null;
 
@@ -780,12 +826,13 @@ export function seoMiddleware() {
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    // Only intercept GET requests for HTML pages (not API, assets, etc.)
+    // Only intercept GET/HEAD requests for HTML pages (not API, assets, etc.)
+    // HEAD must be handled too: link checkers and some crawlers probe with
+    // HEAD, and falling through returns a 404 for perfectly valid pages.
     const urlPath = req.path;
 
-    // Skip API routes, static assets, and non-GET requests
     if (
-      req.method !== "GET" ||
+      (req.method !== "GET" && req.method !== "HEAD") ||
       urlPath.startsWith("/api/") ||
       urlPath.startsWith("/assets/") ||
       urlPath.startsWith("/images/") ||
@@ -812,24 +859,41 @@ export function seoMiddleware() {
       }
     }
 
-    if (!meta) {
-      // No route-specific meta (e.g. unknown slug or DB unavailable).
-      // On Vercel this middleware is the LAST handler for rewritten SPA
-      // routes (/tours/:slug, /blog/:slug, ...) — calling next() would
-      // return an empty response and the visitor would see a blank page.
-      // Serve the SPA shell as-is so the client router can render the
-      // page (or its own 404) instead.
+    if (meta) {
       res
         .status(200)
         .set("Content-Type", "text/html; charset=utf-8")
-        .send(html);
+        .set("Cache-Control", PAGE_CACHE_CONTROL)
+        .send(injectMeta(html, meta));
       return;
     }
 
-    const injectedHtml = injectMeta(html, meta);
+    // Valid SPA-only routes (auth, admin, booking confirmations): serve the
+    // shell with a noindex signal — these should never appear in search.
+    if (isClientOnlyRoute(urlPath)) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .set("Cache-Control", "no-store")
+        .set("X-Robots-Tag", "noindex, nofollow")
+        .send(injectNoindex(html));
+      return;
+    }
+
+    // Unknown content slug or unknown path: real 404 so crawlers don't
+    // index junk URLs (previously every URL returned 200 — a soft 404).
+    // The client router renders its own NotFound view from the shell.
+    // A 404 is also safer than noindex on transient DB failures for
+    // /tours|/packages|/blog slugs: Google retries 404s before dropping.
+    const isContentSlug = isContentSlugPath(urlPath);
     res
-      .status(200)
+      .status(404)
       .set("Content-Type", "text/html; charset=utf-8")
-      .send(injectedHtml);
+      .set(
+        "Cache-Control",
+        isContentSlug ? NOT_FOUND_CACHE_CONTROL : "no-store"
+      )
+      .set("X-Robots-Tag", "noindex, nofollow")
+      .send(injectNoindex(html));
   };
 }

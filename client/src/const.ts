@@ -15,7 +15,8 @@ export {
 
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || "App";
 
-export const APP_LOGO =
-  "https://files.manuscdn.com/user_upload_by_module/session_file/310519663190487952/IgRfDwmHFJhVXtzf.png";
+// Self-hosted logo (previously hot-linked from a temporary Manus CDN
+// session URL that could expire at any time; also 820KB vs 36KB now).
+export const APP_LOGO = "/images/wiro-logo.png";
 
 export const LOGIN_URL = "/login";

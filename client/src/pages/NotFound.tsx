@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Home } from "lucide-react";
@@ -11,6 +12,17 @@ export default function NotFound() {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
   usePageMeta("Page Not Found");
+
+  // Keep 404 pages out of search results when reached via client-side
+  // navigation (server-side 404s already send X-Robots-Tag: noindex).
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="robots"]');
+    const previous = meta?.getAttribute("content") ?? null;
+    meta?.setAttribute("content", "noindex, nofollow");
+    return () => {
+      if (previous) meta?.setAttribute("content", previous);
+    };
+  }, []);
 
   const handleGoHome = () => {
     setLocation("/");

@@ -68,7 +68,7 @@ export function Header() {
     >
       <div className="container">
         <div
-          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-20 md:h-32 lg:h-36"}`}
+          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-20 md:h-24 lg:h-28"}`}
         >
           <Link
             href="/"
@@ -79,7 +79,7 @@ export function Header() {
               alt="WIRO 4x4 Logo"
               width={144}
               height={144}
-              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-16 md:h-32 lg:h-36"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-20 lg:h-24"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
             />
           </Link>
 

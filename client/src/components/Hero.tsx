@@ -74,7 +74,7 @@ export function Hero() {
           {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
         </p>
 
-        <h1 className="text-[clamp(2.25rem,1rem+5.5vw,5.5rem)] leading-[1.04] mb-4 md:mb-5 max-w-[22rem] sm:max-w-3xl lg:max-w-4xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+        <h1 className="text-[clamp(2.25rem,1rem+5vw,4.75rem)] leading-[1.04] mb-4 md:mb-5 max-w-[22rem] sm:max-w-3xl lg:max-w-4xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
           {language === "he" ? (
             <>
               טיולי 4×4 <span className="text-accent">כשרים</span> בצ'יאנג מאי
