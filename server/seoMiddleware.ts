@@ -819,8 +819,13 @@ function getIndexHtml(): string | null {
  * route-specific meta tags into the SPA shell for SEO.
  *
  * Must be registered BEFORE the _core catch-all static file handler.
+ *
+ * Pass `html` (the SPA shell) to make the middleware self-contained —
+ * the Vercel entry embeds it at build time because file tracing does not
+ * reliably ship index.html into the serverless bundle. Without it, the
+ * shell is read from disk (local dev/prod).
  */
-export function seoMiddleware() {
+export function seoMiddleware(options?: { html?: string }) {
   return async (
     req: Request,
     res: Response,
@@ -842,7 +847,7 @@ export function seoMiddleware() {
       return;
     }
 
-    const html = getIndexHtml();
+    const html = options?.html || getIndexHtml();
     if (!html) {
       next(); // Fallback to _core handler in dev mode
       return;

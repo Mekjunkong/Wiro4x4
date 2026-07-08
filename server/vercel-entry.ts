@@ -2,6 +2,11 @@ import "dotenv/config";
 import helmet from "helmet";
 import { createApp } from "./_core/app";
 import { seoMiddleware } from "./seoMiddleware";
+// Embedded at build time by esbuild (--loader:.html=text) so the serverless
+// bundle never depends on Vercel's file tracing to ship the SPA shell —
+// tracing silently missed it and every HTML route 404'd ("Cannot GET /").
+// vite build runs before esbuild in build:frontend, so this file exists.
+import indexHtml from "../dist/public/index.html";
 
 const app = createApp();
 
@@ -27,6 +32,6 @@ app.use(
 );
 
 // SEO: inject route-specific meta tags into the SPA HTML for crawlers
-app.use(seoMiddleware());
+app.use(seoMiddleware({ html: indexHtml }));
 
 export default app;

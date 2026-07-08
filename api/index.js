@@ -17305,6 +17305,15 @@ var CLIENT_ONLY_ROUTES = /* @__PURE__ */ new Set([
 ]);
 var CLIENT_ONLY_PREFIXES = [/^\/admin(\/|$)/, /^\/album\/[^/]+$/];
 var CONTENT_SLUG_PATTERN = /^\/(tours|packages|blog)\/[a-z0-9-]+$/;
+function isClientOnlyRoute(urlPath) {
+  return (
+    CLIENT_ONLY_ROUTES.has(urlPath) ||
+    CLIENT_ONLY_PREFIXES.some(p => p.test(urlPath))
+  );
+}
+function isContentSlugPath(urlPath) {
+  return CONTENT_SLUG_PATTERN.test(urlPath);
+}
 var PAGE_CACHE_CONTROL = "public, s-maxage=3600, stale-while-revalidate=86400";
 var NOT_FOUND_CACHE_CONTROL = "public, s-maxage=300";
 function injectNoindex(html) {
@@ -17348,7 +17357,7 @@ function getIndexHtml() {
   }
   return null;
 }
-function seoMiddleware() {
+function seoMiddleware(options) {
   return async (req, res, next) => {
     const urlPath = req.path;
     if (
@@ -17361,7 +17370,7 @@ function seoMiddleware() {
       next();
       return;
     }
-    const html = getIndexHtml();
+    const html = options?.html || getIndexHtml();
     if (!html) {
       next();
       return;
@@ -17380,10 +17389,7 @@ function seoMiddleware() {
         .send(injectMeta(html, meta));
       return;
     }
-    if (
-      CLIENT_ONLY_ROUTES.has(urlPath) ||
-      CLIENT_ONLY_PREFIXES.some(p => p.test(urlPath))
-    ) {
+    if (isClientOnlyRoute(urlPath)) {
       res
         .status(200)
         .set("Content-Type", "text/html; charset=utf-8")
@@ -17392,7 +17398,7 @@ function seoMiddleware() {
         .send(injectNoindex(html));
       return;
     }
-    const isContentSlug = CONTENT_SLUG_PATTERN.test(urlPath);
+    const isContentSlug = isContentSlugPath(urlPath);
     res
       .status(404)
       .set("Content-Type", "text/html; charset=utf-8")
@@ -17404,6 +17410,261 @@ function seoMiddleware() {
       .send(injectNoindex(html));
   };
 }
+
+// dist/public/index.html
+var public_default = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5"
+    />
+
+    <!-- Security & Best Practices -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="WIRO 4x4 - Premium kosher off-road tours in Chiang Mai, Northern Thailand. Hebrew-speaking guides, Shabbat-friendly scheduling, and authentic 4x4 adventures."
+    />
+    <meta name="author" content="WIRO 4x4" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="WIRO 4x4 \u2013 Kosher Off-Road Tours Chiang Mai"
+    />
+    <meta
+      property="og:description"
+      content="Premium kosher off-road tours in Chiang Mai with Hebrew-speaking guides and Shabbat-friendly scheduling."
+    />
+    <meta
+      property="og:image"
+      content="https://www.wiro4x4indochina.com/images/optimized/single_cascade_waterfall-lg.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:url" content="https://www.wiro4x4indochina.com/" />
+    <meta property="og:site_name" content="WIRO 4x4" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="WIRO 4x4 \u2013 Kosher Off-Road Tours Chiang Mai"
+    />
+    <meta
+      name="twitter:description"
+      content="Premium kosher off-road tours in Chiang Mai with Hebrew-speaking guides and Shabbat-friendly scheduling."
+    />
+    <meta
+      name="twitter:image"
+      content="https://www.wiro4x4indochina.com/images/optimized/single_cascade_waterfall-lg.jpg"
+    />
+
+    <!-- Hebrew Language Support -->
+    <meta name="language" content="English, Hebrew" />
+
+    <!-- Canonical & Hreflang -->
+    <link rel="canonical" href="https://www.wiro4x4indochina.com/" />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://www.wiro4x4indochina.com/"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://www.wiro4x4indochina.com/"
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- RSS Feed -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="WIRO 4x4 Blog"
+      href="/api/rss"
+    />
+
+    <!-- Geo Meta Tags -->
+    <meta name="geo.region" content="TH-50" />
+    <meta name="geo.position" content="18.7883;98.9853" />
+    <meta name="ICBM" content="18.7883, 98.9853" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": ["TravelAgency", "LocalBusiness"],
+            "@id": "https://www.wiro4x4indochina.com/#organization",
+            "name": "WIRO 4x4 - Kosher Off-Road Adventures",
+            "alternateName": ["WIRO 4x4", "Wiro 4x4 Indochina Adventure Tours"],
+            "description": "Private kosher-friendly 4x4 tour operator in Chiang Mai and Northern Thailand with Hebrew and English support, kosher-aware meal planning, and WhatsApp-first reservations.",
+            "url": "https://www.wiro4x4indochina.com",
+            "logo": "https://www.wiro4x4indochina.com/images/icon-512.png",
+            "image": [
+              "https://www.wiro4x4indochina.com/images/optimized/banner-lg.webp",
+              "https://www.wiro4x4indochina.com/images/optimized/wiro_with_vehicle-lg.jpg",
+              "https://www.wiro4x4indochina.com/images/optimized/wiro_with_colleague-sm.jpg"
+            ],
+            "founder": {
+              "@type": "Person",
+              "name": "Wiro",
+              "url": "https://www.wiro4x4indochina.com"
+            },
+            "email": "wiro.adventures@gmail.com",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+972544715400",
+              "contactType": "reservations",
+              "availableLanguage": ["English", "Hebrew", "Thai"]
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "183/15 Chang Klan Rd",
+              "addressLocality": "Mueang Chiang Mai District",
+              "addressRegion": "Chiang Mai",
+              "postalCode": "50100",
+              "addressCountry": "TH"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 18.7883,
+              "longitude": 98.9853
+            },
+            "openingHoursSpecification": {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday"
+              ],
+              "opens": "08:00:00",
+              "closes": "18:00:00"
+            },
+            "hasMap": "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai",
+            "areaServed": [
+              "Chiang Mai",
+              "Northern Thailand",
+              "Chiang Rai",
+              "Mae Hong Son",
+              "Indochina"
+            ],
+            "availableLanguage": ["English", "Hebrew", "Thai"],
+            "priceRange": "$$-$$$",
+            "potentialAction": [
+              {
+                "@type": "ReserveAction",
+                "target": "https://www.wiro4x4indochina.com/book",
+                "name": "Book a private 4x4 tour"
+              },
+              {
+                "@type": "CommunicateAction",
+                "target": "https://wa.me/972544715400",
+                "name": "Ask WIRO 4x4 on WhatsApp"
+              }
+            ],
+            "sameAs": ["https://wa.me/972544715400"]
+          },
+          {
+            "@type": "Service",
+            "name": "Kosher Off-Road Tours in Chiang Mai",
+            "description": "Premium kosher-friendly 4x4 off-road tours in Northern Thailand with Hebrew-speaking guides",
+            "serviceType": "TourOperator",
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Jewish travelers, Israeli travelers, Kosher travelers"
+            },
+            "provider": {
+              "@id": "https://www.wiro4x4indochina.com/#organization"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.wiro4x4indochina.com/#website",
+            "url": "https://www.wiro4x4indochina.com",
+            "name": "WIRO 4x4",
+            "inLanguage": ["en", "he"],
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://www.wiro4x4indochina.com/blog?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
+
+    <link rel="icon" type="image/png" href="/images/icon-192.png" />
+    <link rel="apple-touch-icon" href="/images/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1C1C1C" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="WIRO 4x4" />
+    <title>WIRO 4x4 | Kosher Off-Road Adventures in Chiang Mai</title>
+
+    <!-- Prevent flash of wrong theme by applying dark class before paint.
+         External file (not inline) so the strict CSP (script-src 'self')
+         served by the SEO function doesn't block it. -->
+    <script src="/theme-init.js"></script>
+
+    <!-- DNS Prefetch & Preconnect for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload critical hero image (LCP optimization) -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/optimized/banner.webp"
+      type="image/webp"
+      imagesrcset="/images/optimized/banner-sm.webp 400w, /images/optimized/banner-md.webp 800w, /images/optimized/banner-lg.webp 1600w"
+      imagesizes="100vw"
+    />
+
+    <!-- Base fonts \u2014 DM Serif Display for headings, Source Sans 3 for body.
+         Plain stylesheet (no media="print" + onload trick): the inline onload
+         handler was blocked by CSP script-src-attr 'none', which left fonts
+         stuck at media="print" on all server-rendered routes. display=swap
+         already prevents invisible text. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Hebrew fonts (Rubik + Heebo) loaded conditionally by LanguageContext when lang=he -->
+
+    <!-- Analytics (Plausible - privacy-friendly, no cookies) -->
+    <script
+      defer
+      data-domain="www.wiro4x4indochina.com"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script type="module" crossorigin src="/assets/js/index-Ccr1Zn9U.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/js/react-vendor-5wom38gs.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/router-BPRbBu-F.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/ui-vendor-Bslgp3KO.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/utils-BNe0Xlio.js">
+    <link rel="stylesheet" crossorigin href="/assets/css/index-DA2FK36I.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- Analytics: loaded from React app when env vars are configured -->
+  </body>
+</html>
+`;
 
 // server/vercel-entry.ts
 var app = createApp();
@@ -17427,6 +17688,6 @@ app.use(
     // Allow embedded images from S3/CDN
   })
 );
-app.use(seoMiddleware());
+app.use(seoMiddleware({ html: public_default }));
 var vercel_entry_default = app;
 export { vercel_entry_default as default };
