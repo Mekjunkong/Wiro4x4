@@ -136,45 +136,6 @@ export default function Reviews() {
   const markReviewClicked = trpc.review.markClicked.useMutation();
   const utils = trpc.useUtils();
 
-  // Calculate aggregate rating from reviews data
-  const aggregateRating = useMemo(() => {
-    if (!reviewsList || reviewsList.length === 0) return null;
-    const total = reviewsList.reduce((sum, r) => sum + r.rating, 0);
-    return {
-      average: parseFloat((total / reviewsList.length).toFixed(1)),
-      count: reviewsList.length,
-    };
-  }, [reviewsList]);
-
-  // Inject AggregateRating JSON-LD when reviews data is available
-  useEffect(() => {
-    if (!aggregateRating) return;
-    const scriptId = "reviews-aggregate-json-ld";
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.type = "application/ld+json";
-      document.head.appendChild(script);
-    }
-    script.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "TravelAgency",
-      name: "WIRO 4x4",
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: aggregateRating.average,
-        reviewCount: aggregateRating.count,
-        bestRating: 5,
-        worstRating: 1,
-      },
-    });
-    return () => {
-      const el = document.getElementById(scriptId);
-      if (el) el.remove();
-    };
-  }, [aggregateRating]);
-
   const createReview = trpc.review.create.useMutation({
     onSuccess: () => {
       setShowSuccess(true);

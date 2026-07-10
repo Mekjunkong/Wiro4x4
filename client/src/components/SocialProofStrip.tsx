@@ -7,10 +7,12 @@ import {
   Utensils,
   Lock,
   Flame,
+  ExternalLink,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { COMPANY_TRIPADVISOR_URL } from "@/const";
 
 const TRUST_BADGES = [
   {
@@ -64,8 +66,12 @@ export function SocialProofStrip() {
           <GoldDivider />
           <p className="mx-auto mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">
             {t(
-              "Every review here was written by a real guest. Want more? Ask us on WhatsApp for recent traveler references.",
-              "כל ביקורת כאן נכתבה על ידי אורח אמיתי. רוצים עוד? בקשו בוואטסאפ המלצות עדכניות ממטיילים."
+              hasReviews
+                ? "These approved website submissions come from our guests. You can also check our public review listing."
+                : "No approved website reviews are shown yet. Check our public listing for independent traveler feedback.",
+              hasReviews
+                ? "הביקורות המאושרות באתר נשלחו על ידי האורחים שלנו. אפשר לבדוק גם את עמוד הביקורות הציבורי."
+                : "עדיין לא מוצגות ביקורות מאושרות באתר. אפשר לבדוק משוב עצמאי של מטיילים בעמוד הציבורי שלנו."
             )}
           </p>
         </div>
@@ -80,7 +86,7 @@ export function SocialProofStrip() {
                 <div className="flex items-center justify-between gap-3">
                   <StarRating rating={review.rating} />
                   <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                    {t("Site review", "ביקורת באתר")}
+                    {t("Approved website review", "ביקורת מאושרת באתר")}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-4">
@@ -95,7 +101,7 @@ export function SocialProofStrip() {
                       {review.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t("Verified website submission", "נשלח דרך האתר")}
+                      {t("Submitted through this website", "נשלח דרך האתר")}
                     </p>
                   </div>
                 </div>
@@ -118,7 +124,19 @@ export function SocialProofStrip() {
           ))}
         </div>
 
-        <div className="text-center">
+        <div className="flex flex-col items-center text-center">
+          <a
+            href={COMPANY_TRIPADVISOR_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
+          >
+            {t(
+              "Read public reviews on Tripadvisor",
+              "קראו ביקורות ציבוריות ב-Tripadvisor"
+            )}
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          </a>
           <div className="inline-flex max-w-2xl items-center gap-2 rounded-full border border-accent/30 bg-card px-5 py-2 shadow-sm">
             <CheckCircle className="w-4 h-4 text-accent" aria-hidden="true" />
             <span className="text-sm text-muted-foreground">

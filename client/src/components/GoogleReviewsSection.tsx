@@ -1,52 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
-
-/** Hardcoded fallback reviews shown when Google API is not configured. */
-const FALLBACK_REVIEWS = [
-  {
-    author: "David Cohen",
-    rating: 5,
-    text: "Wiro was an incredible guide! He took us on an off-road adventure through Doi Inthanon that we'll never forget. The kosher meals were outstanding — fresh, authentic Thai flavors prepared with strict kashrut standards. Highly recommend for any Israeli family visiting Chiang Mai.",
-    relativeTime: "2 months ago",
-    profilePhoto: null,
-    googleReviewUrl: null,
-  },
-  {
-    author: "Sarah Levi",
-    rating: 5,
-    text: "Having a Hebrew-speaking guide made ALL the difference. Wiro explained the culture, history, and nature in our language which made the experience so much richer. The kids loved the waterfall trek at Mae Kampong. Best day of our Thailand trip!",
-    relativeTime: "3 months ago",
-    profilePhoto: null,
-    googleReviewUrl: null,
-  },
-  {
-    author: "Michael Ben-Ari",
-    rating: 4,
-    text: "The 4x4 ride through the jungle was exhilarating. Wiro is a skilled driver who knows every trail. We saw wild elephants at a distance which was magical. The only reason for 4 stars is I wish the tour was longer — I didn't want it to end!",
-    relativeTime: "1 month ago",
-    profilePhoto: null,
-    googleReviewUrl: null,
-  },
-  {
-    author: "Rachel Goldstein",
-    rating: 5,
-    text: "We booked the Samoeng Loop tour and it exceeded all expectations. Stunning mountain scenery, authentic hill tribe villages, and Wiro's knowledge of the area is encyclopedic. The kosher lunch he arranged at a local restaurant was delicious. A must-do in Chiang Mai!",
-    relativeTime: "2 weeks ago",
-    profilePhoto: null,
-    googleReviewUrl: null,
-  },
-  {
-    author: "Yonatan Shapira",
-    rating: 5,
-    text: "Third time booking with Wiro and each tour is better than the last. This time we did Doi Suthep beyond the temple — trails most tourists never see. He's patient, fun, and genuinely passionate about sharing northern Thailand. Already planning our next trip!",
-    relativeTime: "3 weeks ago",
-    profilePhoto: null,
-    googleReviewUrl: null,
-  },
-];
+import { ExternalLink } from "lucide-react";
+import { COMPANY_TRIPADVISOR_URL } from "@/const";
 
 /** Google "G" logo as inline SVG to avoid external dependency. */
 function GoogleLogo({ className }: { className?: string }) {
@@ -168,15 +125,11 @@ function ReviewCard({ review }: { review: ReviewData }) {
 }
 
 export function GoogleReviewsSection() {
-  const { t, language } = useLanguage();
-  const isHebrew = language === "he";
+  const { t } = useLanguage();
   const { data: googleReviews } = trpc.googleReviews.list.useQuery();
 
-  const reviews =
-    googleReviews && googleReviews.length > 0
-      ? googleReviews
-      : FALLBACK_REVIEWS;
-  const isFallback = !googleReviews || googleReviews.length === 0;
+  const reviews = googleReviews ?? [];
+  const hasGoogleReviews = reviews.length > 0;
 
   const avgRating = useMemo(() => {
     if (reviews.length === 0) return 0;
@@ -184,183 +137,70 @@ export function GoogleReviewsSection() {
     return parseFloat((sum / reviews.length).toFixed(1));
   }, [reviews]);
 
-  // Horizontal scroll helpers for mobile carousel
-  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollButtons = () => {
-    if (!scrollRef) return;
-    setCanScrollLeft(scrollRef.scrollLeft > 10);
-    setCanScrollRight(
-      scrollRef.scrollLeft < scrollRef.scrollWidth - scrollRef.clientWidth - 10
-    );
-  };
-
-  useEffect(() => {
-    updateScrollButtons();
-    const el = scrollRef;
-    if (!el) return;
-    el.addEventListener("scroll", updateScrollButtons, { passive: true });
-    return () => el.removeEventListener("scroll", updateScrollButtons);
-  }, [scrollRef]);
-
-  const scroll = (dir: "left" | "right") => {
-    if (!scrollRef) return;
-    const amount = 340;
-    scrollRef.scrollBy({
-      left: dir === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
-
-  // Inject AggregateRating JSON-LD for SEO
-  useEffect(() => {
-    if (reviews.length === 0) return;
-    const scriptId = "google-reviews-aggregate-json-ld";
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.type = "application/ld+json";
-      document.head.appendChild(script);
-    }
-    script.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "TravelAgency",
-      name: "WIRO 4x4",
-      url: "https://www.wiro4x4indochina.com",
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: avgRating,
-        reviewCount: reviews.length,
-        bestRating: 5,
-        worstRating: 1,
-      },
-    });
-    return () => {
-      const el = document.getElementById(scriptId);
-      if (el) el.remove();
-    };
-  }, [reviews, avgRating]);
-
   return (
     <section className="py-10 md:py-14">
-      {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <GoogleLogo className="w-6 h-6" />
+          {hasGoogleReviews && <GoogleLogo className="w-6 h-6" />}
           <h2 className="text-2xl md:text-3xl font-serif font-medium">
-            {t(
-              "Google Reviews",
-              "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05D2\u05D5\u05D2\u05DC"
-            )}
+            {hasGoogleReviews
+              ? t(
+                  "Google Reviews",
+                  "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05D2\u05D5\u05D2\u05DC"
+                )
+              : t(
+                  "Public Reviews",
+                  "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05E6\u05D9\u05D1\u05D5\u05E8\u05D9\u05D5\u05EA"
+                )}
           </h2>
         </div>
 
-        {/* Aggregate rating summary */}
-        <div className="flex items-center justify-center gap-3 text-sm">
-          <span className="text-3xl font-bold text-foreground">
-            {avgRating}
-          </span>
-          <div>
-            <StarDisplay rating={Math.round(avgRating)} />
-            <p className="text-muted-foreground">
-              {t(
-                `Based on ${reviews.length} review${reviews.length !== 1 ? "s" : ""}`,
-                `\u05DE\u05D1\u05D5\u05E1\u05E1 \u05E2\u05DC ${reviews.length} \u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA`
-              )}
-            </p>
+        {hasGoogleReviews ? (
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <span className="text-3xl font-bold text-foreground">
+              {avgRating}
+            </span>
+            <div>
+              <StarDisplay rating={Math.round(avgRating)} />
+              <p className="text-muted-foreground">
+                {t(
+                  `Based on ${reviews.length} review${reviews.length !== 1 ? "s" : ""}`,
+                  `\u05DE\u05D1\u05D5\u05E1\u05E1 \u05E2\u05DC ${reviews.length} \u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA`
+                )}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="mx-auto max-w-xl text-sm text-muted-foreground">
+            {t(
+              "Live Google reviews are not connected yet. Check our public Tripadvisor listing for independent traveler feedback.",
+              "ביקורות Google החיות עדיין אינן מחוברות. אפשר לבדוק משוב עצמאי של מטיילים בעמוד הציבורי שלנו ב-Tripadvisor."
+            )}
+          </p>
+        )}
       </div>
 
-      {/* Reviews carousel (mobile) / grid (desktop) */}
-      <div className="relative">
-        {/* Scroll buttons — mobile/tablet only */}
-        {canScrollLeft && (
-          <button
-            onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center hover:bg-muted transition-colors lg:hidden"
-            aria-label={t(
-              "Previous reviews",
-              "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05E7\u05D5\u05D3\u05DE\u05D5\u05EA"
-            )}
-          >
-            {isHebrew ? (
-              <ChevronRight className="w-5 h-5" />
-            ) : (
-              <ChevronLeft className="w-5 h-5" />
-            )}
-          </button>
-        )}
-        {canScrollRight && (
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center hover:bg-muted transition-colors lg:hidden"
-            aria-label={t(
-              "Next reviews",
-              "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05D4\u05D1\u05D0\u05D5\u05EA"
-            )}
-          >
-            {isHebrew ? (
-              <ChevronLeft className="w-5 h-5" />
-            ) : (
-              <ChevronRight className="w-5 h-5" />
-            )}
-          </button>
-        )}
-
-        {/* Mobile: horizontal scroll | Desktop: grid */}
-        <div
-          ref={setScrollRef}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0"
-        >
+      {hasGoogleReviews && (
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0">
           {reviews.map((review, i) => (
             <ReviewCard key={`${review.author}-${i}`} review={review} />
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Footer: fallback notice or "See all on Google" link */}
       <div className="text-center mt-6">
-        {isFallback ? (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground italic">
-              {t(
-                "Sample reviews — Connect Google Reviews for live data",
-                "\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05DC\u05D3\u05D5\u05D2\u05DE\u05D4 \u2014 \u05D7\u05D1\u05E8\u05D5 \u05D0\u05EA Google Reviews \u05DC\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D7\u05D9\u05D9\u05DD"
-              )}
-            </p>
-            <a
-              href="https://g.page/r/review"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
-            >
-              <GoogleLogo className="w-4 h-4" />
-              {t(
-                "Leave us a review on Google!",
-                "\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D9\u05E7\u05D5\u05E8\u05EA \u05D1\u05D2\u05D5\u05D2\u05DC!"
-              )}
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        ) : (
-          <a
-            href="https://search.google.com/local/writereview?placeid=ChIJ_wFoog31dDARWiro4x4"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
-          >
-            <GoogleLogo className="w-4 h-4" />
-            {t(
-              "See all reviews on Google",
-              "\u05E6\u05E4\u05D5 \u05D1\u05DB\u05DC \u05D4\u05D1\u05D9\u05E7\u05D5\u05E8\u05D5\u05EA \u05D1\u05D2\u05D5\u05D2\u05DC"
-            )}
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
+        <a
+          href={COMPANY_TRIPADVISOR_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+        >
+          {t(
+            "Read public reviews on Tripadvisor",
+            "קראו ביקורות ציבוריות ב-Tripadvisor"
+          )}
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </div>
     </section>
   );
