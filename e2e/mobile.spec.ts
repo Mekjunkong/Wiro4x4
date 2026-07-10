@@ -19,9 +19,8 @@ test.describe("Mobile Responsiveness", () => {
   async function openMobileMenu(page: Page) {
     const menuButton = page.getByRole("button", { name: /toggle menu/i });
     await expect(menuButton).toBeVisible();
-    await page.waitForTimeout(500);
-    // Use dispatchEvent to avoid event interception issues
-    await menuButton.dispatchEvent("click");
+    await menuButton.click();
+    await expect(menuButton).toHaveAttribute("aria-expanded", "true");
     const mobileNav = page.locator('nav[aria-label="Mobile navigation"]');
     await expect(mobileNav).toBeVisible({ timeout: 5000 });
     return mobileNav;
@@ -75,6 +74,16 @@ test.describe("Mobile Responsiveness", () => {
     await expect(mobileNav).not.toBeVisible();
   });
 
+  test("should close mobile menu with Escape", async ({ page }) => {
+    await preparePage(page);
+    await page.goto("/");
+
+    const mobileNav = await openMobileMenu(page);
+    await page.keyboard.press("Escape");
+
+    await expect(mobileNav).not.toBeVisible();
+  });
+
   test("should hide desktop navigation on mobile", async ({ page }) => {
     await preparePage(page);
     await page.goto("/");
@@ -87,7 +96,11 @@ test.describe("Mobile Responsiveness", () => {
   test("should display floating action buttons on mobile", async ({ page }) => {
     await preparePage(page);
     await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, 720));
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(600);
 
     // FAB group should be visible
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');
@@ -134,6 +147,8 @@ test.describe("Mobile Responsiveness", () => {
   }) => {
     await preparePage(page);
     await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("main p").first()).toBeVisible();
 
     const proseFontSizes = await page.locator("p").evaluateAll(elements =>
       elements

@@ -38,19 +38,23 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (mobileMenuOpen && !target.closest("header")) {
+    if (!mobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setMobileMenuOpen(false);
       }
     };
 
-    if (mobileMenuOpen) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [mobileMenuOpen]);
 
   const toggleMobileMenu = () => {
@@ -199,6 +203,7 @@ export function Header() {
               className="p-3 hover:bg-accent/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
               aria-label={t("Toggle menu", "תפריט")}
               aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
               type="button"
               style={{
                 minWidth: "48px",
@@ -221,8 +226,14 @@ export function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div
+          id="mobile-navigation"
           className="md:hidden fixed inset-0 bg-background overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
           style={{ zIndex: 9999 }}
+          onClick={event => {
+            if (event.target === event.currentTarget) {
+              setMobileMenuOpen(false);
+            }
+          }}
         >
           <nav
             className="container pt-28 flex flex-col items-center justify-center gap-2 min-h-[calc(100vh-8rem)]"
