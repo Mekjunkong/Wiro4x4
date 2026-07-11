@@ -156,9 +156,18 @@ git commit -m "feat: add privacy-safe WhatsApp attribution"
 - Modify: `client/src/components/FloatingActionButtons.tsx`
 - Modify: `client/src/components/QuickInquiryForm.tsx`
 - Modify: `client/src/components/Footer.tsx`
+- Modify: `client/src/components/FAQ.tsx`
+- Modify: `client/src/components/SocialProofStrip.tsx`
+- Modify: `client/src/components/CostCalculator.tsx`
 - Modify: `client/src/pages/KosherTours.tsx`
 - Modify: `client/src/pages/HebrewGuide.tsx`
 - Modify: `client/src/pages/TourDetail.tsx`
+- Modify: `client/src/pages/Pricing.tsx`
+- Modify: `client/src/pages/Packages.tsx`
+- Modify: `client/src/pages/PackageDetail.tsx`
+- Modify: `client/src/pages/BookingForm.tsx`
+- Modify: `client/src/pages/BookingSuccess.tsx`
+- Modify: `client/src/pages/FAQ.tsx`
 
 - [ ] **Step 1: Write failing analytics sanitization tests**
 
@@ -204,16 +213,30 @@ props, and never delays navigation when analytics fails.
 
 - [ ] **Step 7: Migrate high-value WhatsApp entry points**
 
-Replace locally assembled URLs in the listed homepage, commercial-page, and
-tour-detail files. Do not migrate administrative reply links or social sharing
-links. Preserve the human message content and add a registry entry for each
-page/placement/language pair.
+Replace locally assembled URLs in every listed homepage, pricing, package,
+booking, calculator, commercial-page, and tour-detail file. Do not migrate
+administrative reply links or social sharing links. Preserve the human message
+content and add a registry entry for each page/placement/language pair. Add a
+test that enumerates these high-value files and fails if a direct customer
+`wa.me` URL remains outside the shared builder.
 
 - [ ] **Step 8: Add behavior events at existing interactions**
 
-Instrument pricing visibility, itinerary expansion, proof links, FAQs, inquiry
-start, tour views, booking start, and booking completion. Reuse existing events
-where possible and rename them to the canonical event model.
+Instrument each required event at an explicit surface:
+
+- `pricing_view`: `Pricing.tsx`, `PackageDetail.tsx`, and `TourDetail.tsx` when
+  the price section first enters view.
+- `itinerary_expand`: `TourDetail.tsx` and `PackageDetail.tsx` on expansion.
+- `proof_open`: `SocialProofStrip.tsx` when an external proof source opens.
+- `faq_expand`: `components/FAQ.tsx` and `pages/FAQ.tsx` on expansion.
+- `inquiry_start`: `QuickInquiryForm.tsx` on the first field interaction.
+- `tour_view`: `TourDetail.tsx` and `PackageDetail.tsx` after a valid item loads.
+- `booking_start`: `BookingForm.tsx` once on first meaningful interaction.
+- `booking_complete`: `BookingSuccess.tsx` once after a valid success state.
+
+Add behavior-level tests for once-only visibility events and interaction events
+using pure state helpers where possible. Reuse existing events and rename them
+to the canonical model.
 
 - [ ] **Step 9: Run focused checks**
 
@@ -236,8 +259,13 @@ git add client/src/lib client/src/hooks/useBehaviorTracking.ts \
   client/src/components/Hero.tsx client/src/components/Header.tsx \
   client/src/components/FloatingActionButtons.tsx \
   client/src/components/QuickInquiryForm.tsx client/src/components/Footer.tsx \
+  client/src/components/FAQ.tsx client/src/components/SocialProofStrip.tsx \
+  client/src/components/CostCalculator.tsx \
   client/src/pages/KosherTours.tsx client/src/pages/HebrewGuide.tsx \
-  client/src/pages/TourDetail.tsx
+  client/src/pages/TourDetail.tsx client/src/pages/Pricing.tsx \
+  client/src/pages/Packages.tsx client/src/pages/PackageDetail.tsx \
+  client/src/pages/BookingForm.tsx client/src/pages/BookingSuccess.tsx \
+  client/src/pages/FAQ.tsx
 git commit -m "feat: track commercial behavior and WhatsApp starts"
 ```
 
@@ -263,7 +291,8 @@ status is `lost`.
 
 Cover unauthenticated rejection, authenticated creation without email,
 attribution persistence, audit logging, completion milestone set/unset, and
-lost-reason validation.
+lost-reason validation. Assert that `checkAdminRateLimit` protects the new
+creation mutation and that a rate-limited request cannot create a lead.
 
 - [ ] **Step 3: Run lead tests and verify failure**
 
@@ -300,7 +329,8 @@ Keep `leadInputSchema` unchanged. Add `adminLeadInputSchema`. Add a protected
 `lead.createFromWhatsApp` mutation and extend `lead.update` for attribution,
 status, loss reason, estimated THB value, and completion milestone. Parse the
 capsule on the server through `shared/whatsappAttribution.ts`, not client-only
-code.
+code. Apply `checkAdminRateLimit` and existing audit logging conventions to
+every new administrative mutation.
 
 - [ ] **Step 7: Run lead and migration checks**
 
@@ -334,8 +364,9 @@ git commit -m "feat: persist WhatsApp lead attribution"
 
 Extend `e2e/admin-operations.spec.ts` to cover required name and phone, capsule
 parsing preview, manual source fallback, optional email, tour/date/group fields,
-duplicate-submit prevention, THB labels, keyboard operation, and persistence
-after reload.
+duplicate-submit prevention, THB labels, keyboard operation, preservation of
+every entered value after an intercepted recoverable server error, successful
+retry, and persistence after reload.
 
 - [ ] **Step 2: Run the focused E2E test and verify failure**
 
@@ -351,7 +382,9 @@ Expected: FAIL because the WhatsApp lead action does not exist.
 
 Place the action above the existing lead table. Use existing input and button
 components. Show parsed source details before save and "Unknown" for absent
-fields. Keep the common mobile workflow visible without nested modals.
+fields. Keep controlled form state unchanged after a recoverable mutation error
+and clear it only after confirmed success. Keep the common mobile workflow
+visible without nested modals.
 
 - [ ] **Step 4: Extend lead table operations**
 
@@ -364,7 +397,9 @@ converted leads. Include new fields in CSV export.
 
 Create a WhatsApp lead without email, update it through contacted, quoted, and
 converted, set THB value, mark completed, and confirm the values persist after
-reload. Use the existing admin authentication helpers and test database.
+reload. First intercept one save request with a recoverable failure, assert all
+entered values remain, then retry successfully. Use the existing admin
+authentication helpers and test database.
 
 - [ ] **Step 6: Run focused tests**
 
@@ -403,7 +438,9 @@ Seed attributed and unattributed leads across statuses. Verify source counts,
 confirmed and completed counts, lead-to-confirmed rate,
 confirmed-to-completed rate, THB estimated value, and loss reasons. Ensure null
 attribution groups under "Unknown" and estimated value is not included in
-collected revenue.
+collected revenue. A lead counts as completed when either `completedAt` is set
+or `convertedToBookingId` references a booking whose status is `completed`.
+Seed and assert both paths without double-counting a lead that satisfies both.
 
 - [ ] **Step 2: Run aggregation tests and verify failure**
 
@@ -418,15 +455,17 @@ Expected: FAIL because attribution queries do not exist.
 - [ ] **Step 3: Implement bounded analytics queries**
 
 Add one query function per reporting concern or one well-typed grouped response
-when a single SQL query is clearer. Avoid loading all leads into memory. Expose
-the response from the protected analytics router.
+when a single SQL query is clearer. Join `leads.convertedToBookingId` to
+`bookings.id` for completed booking outcomes and combine it with the WhatsApp
+`completedAt` milestone without double-counting. Avoid loading all leads into
+memory. Expose the response from the protected analytics router.
 
 - [ ] **Step 4: Implement the attribution dashboard section**
 
 Add summary metrics and accessible tables or charts for sources and loss
 reasons. Use "Confirmed" for converted leads, "Completed" for `completedAt`,
-"Estimated confirmed value (THB)" for lead value, and keep collected revenue
-separate.
+or a linked completed booking, "Estimated confirmed value (THB)" for lead
+value, and keep collected revenue separate.
 
 - [ ] **Step 5: Run focused checks**
 
@@ -551,12 +590,14 @@ git commit -m "feat: add Hebrew family tour landing pages"
 
 For all six commercial URLs, verify title, description, canonical,
 index/follow, HTML language, direction, and reciprocal `hreflang` in raw server
-HTML. Confirm English `/hebrew-guide` is `lang="en"`, not Hebrew.
+HTML. Assert `x-default` points to the corresponding English page for every
+pair. Confirm English `/hebrew-guide` is `lang="en"`, not Hebrew.
 
 - [ ] **Step 2: Write failing sitemap tests**
 
 Verify all six canonical URLs occur once, each has correct reciprocal language
-alternates, and no admin, login, or tracking URL is present.
+alternates plus `x-default` to English, and no admin, login, or tracking URL is
+present.
 
 - [ ] **Step 3: Run SEO tests and verify failure**
 
@@ -571,9 +612,10 @@ Expected: FAIL for missing family and Hebrew routes.
 - [ ] **Step 4: Extend static metadata and sitemap entries**
 
 Use one source of truth for route pairs where practical. Ensure raw HTML matches
-client metadata. Keep the existing baked HTML fallback and noindex policies.
-Confirm `robots.txt` still references the canonical sitemap and requires no new
-allow rule.
+client metadata. Generate English, Hebrew, and `x-default` alternates from each
+route pair, with `x-default` always pointing to English. Keep the existing baked
+HTML fallback and noindex policies. Confirm `robots.txt` still references the
+canonical sitemap and requires no new allow rule.
 
 - [ ] **Step 5: Run SEO and configuration tests**
 
@@ -700,4 +742,71 @@ git log --oneline --decorate -12
 ```
 
 Expected: no tracked changes remain and the implementation commit series is
-ready for integration.
+ready for integration and deployment.
+
+### Task 10: Integrate, deploy, and verify production operations
+
+**Files:**
+
+- Do not modify product files unless production verification reveals a real
+  defect. Keep screenshots and network captures under untracked `output/`.
+
+- [ ] **Step 1: Integrate the approved branch**
+
+After reviewer approval and green checks, update local `main`, integrate the
+feature branch without including unrelated untracked files, and push the exact
+approved commit range to `origin/main`. Record the resulting production commit.
+
+- [ ] **Step 2: Monitor CI and Vercel deployment**
+
+Use GitHub checks and the Vercel deployment status associated with the
+production commit. Do not treat a successful local build as deployment success.
+Wait for the deployment state to report success and record its URL.
+
+- [ ] **Step 3: Verify live commercial HTML and sitemap**
+
+Use timeout-bounded HTTP requests against the public production domain. For all
+six commercial URLs, verify HTTP 200, title, description, self-canonical,
+English/Hebrew alternates, English `x-default`, and correct HTML language and
+direction. Verify the live sitemap contains each canonical URL once.
+
+- [ ] **Step 4: Verify live browser behavior**
+
+In a real browser, check mobile and desktop English/Hebrew pages, capture one
+WhatsApp URL without opening a real conversation, and confirm the capsule has
+the expected registered source and contains no personal data. Verify zero
+application console errors.
+
+- [ ] **Step 5: Verify live Plausible payloads**
+
+Inspect browser network traffic while triggering each event category. Confirm
+requests reach Plausible with the canonical event name and allowed properties,
+and confirm no name, email, phone, message, full referrer URL, or click
+identifier value is present. Do not fabricate dashboard success if account
+access is unavailable.
+
+- [ ] **Step 6: Complete Search Console setup**
+
+Using the user's authenticated Search Console access, confirm the domain
+property, submit `/sitemap.xml`, inspect all six commercial URLs, and export the
+previous three to six months of queries, pages, countries, and devices. Save
+the export outside tracked source files. If an authentication or ownership
+prompt blocks completion, report the exact prompt and stop this manual step
+without weakening code verification.
+
+- [ ] **Step 7: Complete Plausible dashboard setup**
+
+Using the user's authenticated Plausible access, create goals for every event
+in the operations runbook and create the commercial-page-to-WhatsApp funnel.
+Verify a live test event appears. If account access is unavailable, provide the
+exact remaining clicks from the runbook and report this external-state blocker
+separately from implementation status.
+
+- [ ] **Step 8: Report production evidence**
+
+Report the production commit, deployment URL, live domain, CI result, test
+counts, reviewer approval, production HTML/sitemap result, Plausible payload
+result, and whether Search Console and Plausible account setup are complete.
+The task is fully complete only when code, reviewer, tests, deployment, and
+available account-level setup all pass; external authentication blockers must
+be named explicitly.
