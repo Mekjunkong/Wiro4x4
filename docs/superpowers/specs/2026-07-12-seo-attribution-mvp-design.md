@@ -154,7 +154,16 @@ other personal data in Plausible properties or browser attribution storage.
 ### WhatsApp source codes
 
 All high-value WhatsApp links must use one shared URL builder. The builder adds
-a stable, human-readable source code to the prefilled message, for example:
+a stable, human-readable source capsule to the prefilled message. The capsule
+transfers non-sensitive first-touch attribution into the WhatsApp conversation
+without a visitor identifier. Its versioned format is:
+
+`[WIRO:v1|SOURCE_CODE|CHANNEL|UTM_SOURCE|UTM_MEDIUM|UTM_CAMPAIGN|LANDING_PATH]`
+
+Each value must use a normalized allowlist of URL-safe characters and a bounded
+length. Missing values use `-`. The builder must reject message content,
+personal data, click identifiers, full referrer URLs, and arbitrary unbounded
+values. Example source codes include:
 
 - `HOME-HERO-EN`
 - `HOME-FLOAT-HE`
@@ -164,9 +173,17 @@ a stable, human-readable source code to the prefilled message, for example:
 - `TOUR-DOI-INTHANON-EN`
 
 The source code must identify page, placement when relevant, and language. It
-must not contain a visitor identifier. The builder must also trigger a
-`whatsapp_click` event before navigation with page, placement, language, tour,
-and first-touch channel properties.
+must not contain a visitor identifier. An authenticated admin can paste the
+capsule from the incoming message into the manual lead form. A shared parser
+validates the capsule and populates source code, source channel, UTM fields, and
+landing page. If a customer removes the capsule, the admin can select a source
+code manually and the remaining attribution fields stay unknown.
+
+Maintain one canonical source-code registry. Each entry defines page,
+placement, language, and a deterministic channel fallback. Both the WhatsApp
+builder and admin source selector must use this registry. The builder must also
+trigger a `whatsapp_click` event before navigation with page, placement,
+language, tour, source code, and first-touch channel properties.
 
 ### Plausible event model
 
@@ -188,8 +205,8 @@ Allowed event properties are page, placement, language, tour slug, depth,
 source channel, UTM values, and source code. Event code must remain a no-op when
 Plausible is unavailable.
 
-Scroll depth must fire once per page at meaningful thresholds, with a maximum
-of three events per page view. It must respect navigation within the single-page
+Scroll depth must fire once per page at 25%, 50%, and 90%, with a maximum of
+three events per page view. It must respect navigation within the single-page
 application and avoid duplicate listeners.
 
 Plausible account configuration is an operational step. The implementation
@@ -209,14 +226,18 @@ Reuse the existing lead statuses:
 - `lost`: customer declined or stopped responding.
 
 A completed tour remains represented by an associated booking when one exists.
-The MVP must not add a second competing status model. Analytics may label
-`converted` as "Confirmed" in user-facing copy.
+For WhatsApp-only confirmations without a booking record, a nullable
+`completedAt` milestone records that the converted lead traveled. The admin can
+mark a converted lead completed or undo that action without changing its lead
+status. The MVP must not add a second competing status model. Analytics may
+label `converted` as "Confirmed" in user-facing copy.
 
 ### Lead fields
 
 Extend the existing lead record with nullable fields:
 
 - `sourceCode`
+- `sourceChannel`
 - `landingPage`
 - `language`
 - `utmSource`
@@ -224,13 +245,21 @@ Extend the existing lead record with nullable fields:
 - `utmCampaign`
 - `travelDate`
 - `groupSize`
-- `estimatedValue`
-- `valueCurrency`
+- `estimatedValueThb`
 - `lostReason`
+- `completedAt`
 
-Do not require email for an admin-created WhatsApp lead. Public website lead
-submission keeps its current email validation. Admin-created leads require a
-name or recognizable WhatsApp label plus a phone number.
+Change the lead email database column to nullable with an additive migration.
+Define a separate authenticated `adminLeadInputSchema` that requires a name or
+recognizable WhatsApp label plus a phone number and accepts an optional email.
+The public `leadInputSchema` and public creation endpoint must keep the existing
+required, valid email behavior. Admin lead creation must use its own protected
+procedure and must never generate placeholder email addresses.
+
+Store estimated value as a non-negative integer number of Thai baht in
+`estimatedValueThb`. Do not aggregate mixed currencies in this MVP. If a quote
+uses another currency, the operator converts it to THB before entry. Label all
+estimated-value input and output explicitly as THB.
 
 ### Admin workflow
 
@@ -238,12 +267,13 @@ Add an inline "Add WhatsApp inquiry" action to the existing Leads tab. It must
 open a compact form, not a separate CRM surface. The required workflow is:
 
 1. Enter customer name or WhatsApp label and phone number.
-2. Select or enter the source code.
+2. Paste the attribution capsule or select a source code.
 3. Enter tour interest, travel date, and group size when known.
 4. Save the lead with status `new`.
 5. Update the existing status control as the conversation progresses.
 6. Enter estimated value when quoted or confirmed.
 7. Require a loss reason when status becomes `lost`.
+8. Mark the tour completed after the customer travels.
 
 The common create flow must take under 30 seconds on mobile and desktop. The
 form must provide clear validation, preserve entered values after a recoverable
@@ -255,7 +285,9 @@ Extend the existing admin analytics with:
 
 - Leads by source code and source channel.
 - Confirmed leads by source code.
+- Completed tours by source code.
 - Lead-to-confirmed conversion rate.
+- Confirmed-to-completed conversion rate.
 - Estimated confirmed value by source.
 - Funnel counts for new, contacted, quoted, converted, and lost.
 - Loss reasons.
@@ -304,11 +336,14 @@ Required automated coverage includes:
 
 - Attribution capture, 90-day expiry, and unavailable-storage behavior.
 - WhatsApp source-code generation and URL encoding.
+- Attribution capsule normalization, parsing, and rejection of personal or
+  malformed values.
 - Plausible event property filtering and no-op behavior.
 - Hebrew route metadata, canonical URLs, `hreflang`, and sitemap entries.
 - Public lead validation remains unchanged.
 - Authenticated WhatsApp lead creation without email.
-- Lead attribution fields, status updates, estimated value, and loss reason.
+- Lead attribution fields, status updates, THB estimated value, loss reason,
+  and completion milestone.
 - Analytics aggregation, including unattributed records.
 
 Required verification commands are:
