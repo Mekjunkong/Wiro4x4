@@ -71,10 +71,10 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <ProductTiers />
-        <GalleryShowcase />
+        <QuickInquiryForm />
         <TrustAndKosher />
         <SocialProofStrip />
-        <QuickInquiryForm />
+        <GalleryShowcase />
         <FAQ />
       </main>
       <Footer />

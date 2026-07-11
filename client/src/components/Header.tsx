@@ -2,14 +2,22 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, Moon, Sun, ChevronDown } from "lucide-react";
+import {
+  Menu,
+  X,
+  Shield,
+  Moon,
+  Sun,
+  ChevronDown,
+  MessageCircle,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { APP_LOGO } from "@/const";
+import { APP_LOGO, COMPANY_WHATSAPP_URL } from "@/const";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -29,6 +37,12 @@ export function Header() {
   const isExploreActive = ["/gallery", "/blog", "/faq", "/car-rental"].some(
     path => currentPath.startsWith(path)
   );
+  const whatsappHref = `${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(
+    t(
+      "Hi WIRO 4x4, I'd like to check availability for a private trip. Dates: __ Group size: __ Pickup area: __",
+      "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי. תאריכים: __ מספר מטיילים: __ אזור איסוף: __"
+    )
+  )}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -166,15 +180,16 @@ export function Header() {
                 </span>
               </Link>
             )}
-            <Link href="/book">
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
               <Button
                 variant="default"
                 size="sm"
                 className="bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
-                {t("Book Now", "הזמינו עכשיו")}
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                {t("Check Availability", "בדיקת זמינות")}
               </Button>
-            </Link>
+            </a>
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
@@ -297,15 +312,21 @@ export function Header() {
                 </Link>
               </>
             )}
-            <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+            >
               <Button
                 variant="default"
                 size="lg"
                 className="w-full max-w-xs mt-6 bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
               >
-                {t("Book Now", "הזמינו עכשיו")}
+                <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                {t("Check Availability", "בדיקת זמינות")}
               </Button>
-            </Link>
+            </a>
             <div className="flex items-center gap-4 mt-8">
               {switchable && toggleTheme && (
                 <button

@@ -36,7 +36,7 @@ export function TrustBar() {
   return (
     <section className="py-6 md:py-8 bg-primary border-y border-accent/20">
       <div className="container">
-        <div className="flex flex-wrap justify-center items-center gap-6 md:gap-0">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:flex md:items-center md:justify-center md:gap-0">
           {TRUST_ITEMS.map((item, index) => {
             const content = (
               <>
@@ -53,18 +53,21 @@ export function TrustBar() {
             );
 
             return (
-              <div key={item.en} className="flex items-center">
+              <div
+                key={item.en}
+                className="flex min-w-0 items-center justify-center md:justify-start"
+              >
                 {"href" in item ? (
                   <a
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-6 text-white/90 transition-colors hover:text-white md:px-10"
+                    className="flex min-w-0 items-center gap-2 px-2 text-white/90 transition-colors hover:text-white md:gap-3 md:px-10"
                   >
                     {content}
                   </a>
                 ) : (
-                  <div className="flex items-center gap-3 px-6 text-white/90 md:px-10">
+                  <div className="flex min-w-0 items-center gap-2 px-2 text-white/90 md:gap-3 md:px-10">
                     {content}
                   </div>
                 )}
