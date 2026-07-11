@@ -91,15 +91,38 @@ export interface ParsedAttributionCapsule {
 const CHANNEL_MAX_LENGTH = 24;
 const UTM_MAX_LENGTH = 64;
 const LANDING_PATH_MAX_LENGTH = 240;
-const MAX_PATH_DECODE_PASSES = 4;
+const MAX_ATTRIBUTION_DECODE_PASSES = 4;
 
 function isSensitiveOrStructural(value: string): boolean {
   return (
     /[^\s/@]+@[^\s/@]+\.[^\s/@]+/.test(value) ||
     /\d(?:[\s()+.-]*\d){6,}/.test(value) ||
     /:\/\//.test(value) ||
-    /[|[\]\r\n]/.test(value)
+    /[\[\]|\r\n\uFFFD]/.test(value)
   );
+}
+
+/**
+ * Decodes only attribution values, with a fixed pass limit. Malformed,
+ * excessively encoded, structural, or personal values fail closed.
+ */
+export function decodeAndValidateAttributionValue(
+  value: string
+): string | null {
+  let decoded = value;
+  for (let pass = 0; pass < MAX_ATTRIBUTION_DECODE_PASSES; pass += 1) {
+    if (!decoded.includes("%")) {
+      return isSensitiveOrStructural(decoded) ? null : decoded;
+    }
+    try {
+      decoded = decodeURIComponent(decoded);
+    } catch {
+      return null;
+    }
+  }
+  return decoded.includes("%") || isSensitiveOrStructural(decoded)
+    ? null
+    : decoded;
 }
 
 function normalizeToken(
@@ -108,12 +131,12 @@ function normalizeToken(
   field: string
 ): string {
   if (value == null || value.trim() === "") return "-";
-  if (value.length > maxLength)
+  const decoded = decodeAndValidateAttributionValue(value);
+  if (decoded === null) throw new Error(`${field} contains disallowed data`);
+  if (decoded.length > maxLength)
     throw new Error(`${field} exceeds maximum length`);
-  if (isSensitiveOrStructural(value))
-    throw new Error(`${field} contains disallowed data`);
 
-  const normalized = value
+  const normalized = decoded
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9._~-]+/g, "-")
@@ -121,30 +144,13 @@ function normalizeToken(
   return normalized || "-";
 }
 
-function decodePathSafely(pathname: string): string | null {
-  let decoded = pathname;
-  for (let pass = 0; pass < MAX_PATH_DECODE_PASSES; pass += 1) {
-    if (!decoded.includes("%")) return decoded;
-    try {
-      decoded = decodeURIComponent(decoded);
-    } catch {
-      return null;
-    }
-  }
-  return decoded.includes("%") ? null : decoded;
-}
-
 function normalizeLandingPath(value: string | null | undefined): string {
   if (value == null || value.trim() === "") return "-";
   if (value.length > LANDING_PATH_MAX_LENGTH) {
     throw new Error("landingPath exceeds maximum length");
   }
-  const decoded = decodePathSafely(value);
-  if (
-    !decoded?.startsWith("/") ||
-    /[?#]/.test(decoded) ||
-    isSensitiveOrStructural(decoded)
-  ) {
+  const decoded = decodeAndValidateAttributionValue(value);
+  if (!decoded?.startsWith("/") || /[?#]/.test(decoded)) {
     throw new Error("landingPath contains disallowed data");
   }
 

@@ -212,4 +212,79 @@ describe("captureFirstTouch", () => {
     expect(result.landingPath).toBe("/private-family-tours");
     expect(result.session.landingPath).toBe("/private-family-tours");
   });
+
+  it.each([
+    ["utm_source", "utmSource"],
+    ["utm_medium", "utmMedium"],
+    ["utm_campaign", "utmCampaign"],
+    ["utm_content", "utmContent"],
+  ] as const)(
+    "rejects single and double encoded personal data in %s",
+    (queryField, resultField) => {
+      for (const encodedPrivateValue of [
+        "person%40example.com",
+        "person%2540example.com",
+        "%2B972%2054%20123%204567",
+        "%252B972%252054%2520123%25204567",
+      ]) {
+        const result = captureFirstTouch(
+          environment("/", `?${queryField}=${encodedPrivateValue}`),
+          new MemoryStorage()
+        );
+        expect(result[resultField]).toBeNull();
+      }
+    }
+  );
+
+  it.each([
+    ["utm_source", "utmSource"],
+    ["utm_medium", "utmMedium"],
+    ["utm_campaign", "utmCampaign"],
+    ["utm_content", "utmContent"],
+  ] as const)(
+    "fails closed on malformed encoding in %s",
+    (queryField, resultField) => {
+      const result = captureFirstTouch(
+        environment("/", `?${queryField}=broken%E0%A4%A`),
+        new MemoryStorage()
+      );
+      expect(result[resultField]).toBeNull();
+    }
+  );
+
+  it("canonicalizes safe encoded values in every UTM field", () => {
+    const result = captureFirstTouch(
+      environment(
+        "/",
+        "?utm_source=Safe%2520Source&utm_medium=Social%2520Media&utm_campaign=Family%2520Summer&utm_content=Hero%2520CTA"
+      ),
+      new MemoryStorage()
+    );
+
+    expect(result).toMatchObject({
+      utmSource: "safe-source",
+      utmMedium: "social-media",
+      utmCampaign: "family-summer",
+      utmContent: "hero-cta",
+    });
+  });
+
+  it("keeps encoded personal data outside the referrer host boundary", () => {
+    const safeHostOnly = captureFirstTouch(
+      environment("/", "", {
+        referrer:
+          "https://example.com/customer/person%2540example.com?phone=%252B972541234567",
+      }),
+      new MemoryStorage()
+    );
+    const malformedHost = captureFirstTouch(
+      environment("/", "", {
+        referrer: "https://person%2540example.com/",
+      }),
+      new MemoryStorage()
+    );
+
+    expect(safeHostOnly.referrerHost).toBe("example.com");
+    expect(malformedHost.referrerHost).toBeNull();
+  });
 });

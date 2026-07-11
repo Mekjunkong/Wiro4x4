@@ -198,4 +198,63 @@ describe("attribution capsule", () => {
       "/private-family-tours"
     );
   });
+
+  it.each(["channel", "utmSource", "utmMedium", "utmCampaign"] as const)(
+    "rejects encoded personal data in capsule %s",
+    field => {
+      for (const encodedPrivateValue of [
+        "person%40example.com",
+        "person%2540example.com",
+        "%2B972%2054%20123%204567",
+        "%252B972%252054%2520123%25204567",
+      ]) {
+        expect(() =>
+          buildAttributionCapsule({
+            sourceCode: "HOME-HERO-EN",
+            landingPath: "/",
+            [field]: encodedPrivateValue,
+          })
+        ).toThrow();
+      }
+    }
+  );
+
+  it.each(["channel", "utmSource", "utmMedium", "utmCampaign"] as const)(
+    "rejects malformed encoding in capsule %s",
+    field => {
+      expect(() =>
+        buildAttributionCapsule({
+          sourceCode: "HOME-HERO-EN",
+          landingPath: "/",
+          [field]: "broken%E0%A4%A",
+        })
+      ).toThrow();
+    }
+  );
+
+  it("canonicalizes safe encoded capsule tokens", () => {
+    const capsule = buildAttributionCapsule({
+      sourceCode: "HOME-HERO-EN",
+      channel: "Organic%2520Search",
+      utmSource: "Safe%2520Source",
+      utmMedium: "Social%2520Media",
+      utmCampaign: "Family%2520Summer",
+      landingPath: "/",
+    });
+
+    expect(capsule).toBe(
+      "[WIRO:v1|HOME-HERO-EN|organic-search|safe-source|social-media|family-summer|%2F]"
+    );
+  });
+
+  it("rejects encoded token values while parsing capsules", () => {
+    for (const capsule of [
+      "[WIRO:v1|HOME-HERO-EN|person%2540example.com|-|-|-|%2F]",
+      "[WIRO:v1|HOME-HERO-EN|direct|person%2540example.com|-|-|%2F]",
+      "[WIRO:v1|HOME-HERO-EN|direct|-|%252B972541234567|-|%2F]",
+      "[WIRO:v1|HOME-HERO-EN|direct|-|-|person%40example.com|%2F]",
+    ]) {
+      expect(parseAttributionCapsule(capsule)).toBeNull();
+    }
+  });
 });
