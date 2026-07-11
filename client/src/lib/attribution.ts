@@ -3,6 +3,7 @@ export const ATTRIBUTION_TTL_MS = 90 * 24 * 60 * 60 * 1_000;
 const STORAGE_KEY = "wiro:first-touch:v1";
 const UTM_MAX_LENGTH = 64;
 const LANDING_PATH_MAX_LENGTH = 240;
+const MAX_PATH_DECODE_PASSES = 4;
 
 export interface AttributionStorage {
   getItem(key: string): string | null;
@@ -48,10 +49,24 @@ function looksSensitive(value: string): boolean {
   );
 }
 
+function decodePathSafely(pathname: string): string | null {
+  let decoded = pathname;
+  for (let pass = 0; pass < MAX_PATH_DECODE_PASSES; pass += 1) {
+    if (!decoded.includes("%")) return decoded;
+    try {
+      decoded = decodeURIComponent(decoded);
+    } catch {
+      return null;
+    }
+  }
+  return decoded.includes("%") ? null : decoded;
+}
+
 function normalizeLandingPath(pathname: string): string {
-  if (!pathname.startsWith("/") || looksSensitive(pathname)) return "/";
-  const normalized = pathname
-    .replace(/[^A-Za-z0-9/_~.!$&'()*+,;=:@%-]/g, "-")
+  const decoded = decodePathSafely(pathname);
+  if (!decoded?.startsWith("/") || looksSensitive(decoded)) return "/";
+  const normalized = decoded
+    .replace(/[^A-Za-z0-9/_~.!$&'()*+,;=:@-]/g, "-")
     .slice(0, LANDING_PATH_MAX_LENGTH);
   return normalized || "/";
 }

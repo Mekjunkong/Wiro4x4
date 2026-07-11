@@ -179,4 +179,37 @@ describe("captureFirstTouch", () => {
     expect(result.utmSource).toBe("google");
     expect(storage.value).not.toContain("person@example.com");
   });
+
+  it.each([
+    "/customer/person%40example.com",
+    "/customer/%2B972%2054%20123%204567",
+  ])("rejects percent-encoded personal data in landing paths: %s", pathname => {
+    const storage = new MemoryStorage();
+    const result = captureFirstTouch(environment(pathname), storage);
+
+    expect(result.landingPath).toBe("/");
+    expect(result.session.landingPath).toBe("/");
+    expect(storage.value).not.toContain(pathname);
+  });
+
+  it("rejects malformed percent encoding without throwing", () => {
+    const storage = new MemoryStorage();
+
+    expect(() =>
+      captureFirstTouch(environment("/broken/%E0%A4%A"), storage)
+    ).not.toThrow();
+    expect(
+      captureFirstTouch(environment("/broken/%E0%A4%A"), storage).landingPath
+    ).toBe("/");
+  });
+
+  it("canonicalizes a safe percent-encoded landing path", () => {
+    const result = captureFirstTouch(
+      environment("/private%20family%20tours"),
+      new MemoryStorage()
+    );
+
+    expect(result.landingPath).toBe("/private-family-tours");
+    expect(result.session.landingPath).toBe("/private-family-tours");
+  });
 });

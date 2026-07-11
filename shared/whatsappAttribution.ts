@@ -91,6 +91,7 @@ export interface ParsedAttributionCapsule {
 const CHANNEL_MAX_LENGTH = 24;
 const UTM_MAX_LENGTH = 64;
 const LANDING_PATH_MAX_LENGTH = 240;
+const MAX_PATH_DECODE_PASSES = 4;
 
 function isSensitiveOrStructural(value: string): boolean {
   return (
@@ -120,20 +121,34 @@ function normalizeToken(
   return normalized || "-";
 }
 
+function decodePathSafely(pathname: string): string | null {
+  let decoded = pathname;
+  for (let pass = 0; pass < MAX_PATH_DECODE_PASSES; pass += 1) {
+    if (!decoded.includes("%")) return decoded;
+    try {
+      decoded = decodeURIComponent(decoded);
+    } catch {
+      return null;
+    }
+  }
+  return decoded.includes("%") ? null : decoded;
+}
+
 function normalizeLandingPath(value: string | null | undefined): string {
   if (value == null || value.trim() === "") return "-";
   if (value.length > LANDING_PATH_MAX_LENGTH) {
     throw new Error("landingPath exceeds maximum length");
   }
+  const decoded = decodePathSafely(value);
   if (
-    !value.startsWith("/") ||
-    /[?#]/.test(value) ||
-    isSensitiveOrStructural(value)
+    !decoded?.startsWith("/") ||
+    /[?#]/.test(decoded) ||
+    isSensitiveOrStructural(decoded)
   ) {
     throw new Error("landingPath contains disallowed data");
   }
 
-  const normalized = value.replace(/[^A-Za-z0-9/_~.%-]+/g, "-");
+  const normalized = decoded.replace(/[^A-Za-z0-9/_~.-]+/g, "-");
   return encodeURIComponent(normalized);
 }
 

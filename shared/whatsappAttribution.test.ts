@@ -163,4 +163,39 @@ describe("attribution capsule", () => {
       "landingPath",
     ]);
   });
+
+  it("rejects malformed and double-encoded sensitive landing paths", () => {
+    for (const landingPath of [
+      "/broken/%E0%A4%A",
+      "/customer/person%2540example.com",
+      "/customer/%252B972%252054%2520123%25204567",
+    ]) {
+      expect(() =>
+        buildAttributionCapsule({
+          sourceCode: "HOME-HERO-EN",
+          landingPath,
+        })
+      ).toThrow(/landingPath/);
+    }
+
+    expect(
+      parseAttributionCapsule(
+        "[WIRO:v1|HOME-HERO-EN|direct|-|-|-|%2Fcustomer%2Fperson%252540example.com]"
+      )
+    ).toBeNull();
+  });
+
+  it("accepts a safe encoded path in one canonical representation", () => {
+    const capsule = buildAttributionCapsule({
+      sourceCode: "HOME-HERO-EN",
+      landingPath: "/private%20family%20tours",
+    });
+
+    expect(capsule).toBe(
+      "[WIRO:v1|HOME-HERO-EN|direct|-|-|-|%2Fprivate-family-tours]"
+    );
+    expect(parseAttributionCapsule(capsule)?.landingPath).toBe(
+      "/private-family-tours"
+    );
+  });
 });
