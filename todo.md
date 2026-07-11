@@ -1,5 +1,14 @@
 # Wiro 4x4 Website TODO
 
+## ✅ First Website Improvement Batch (2026-07-11)
+
+- [x] Replaced synthetic review profiles and unsourced trust counters with transparent public-review links
+- [x] Fixed real mobile menu clicks, Escape closing, backdrop behavior, and body scroll locking
+- [x] Made holiday pricing year-specific (2026 Passover/Sukkot windows) with unsupported-year WhatsApp confirmation
+- [x] Fixed audited contrast failures across CTA, cards, product headings, footer, and newsletter
+- [x] Self-hosted critical Latin fonts, removed duplicate image preloads, and compressed hero variants
+- [x] Added apex-to-www edge redirect, absolute dynamic social images, word-safe descriptions, and truthful Hebrew sitemap alternates
+
 ## ✅ Car Rental Page + SEO Fixes (2026-06-10)
 
 - [x] Fixed stale WhatsApp number (+66 92-989-4495 → +972 54-471-5400) in `client/index.html` JSON-LD, `server/seoMiddleware.ts`, GSC docs
