@@ -1,7 +1,7 @@
 # WIRO First Improvement Batch Design
 
-**Date:** 2026-07-10  
-**Status:** Approved by the user after the live audit  
+**Date:** 2026-07-10
+**Status:** Approved by the user after the live audit
 **Scope:** Trust integrity, mobile navigation, seasonal pricing accuracy, accessibility contrast, mobile performance quick wins, and targeted SEO cleanup.
 
 ## Context
