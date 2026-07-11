@@ -159,6 +159,10 @@ git commit -m "feat: add privacy-safe WhatsApp attribution"
 - Modify: `client/src/components/FAQ.tsx`
 - Modify: `client/src/components/SocialProofStrip.tsx`
 - Modify: `client/src/components/CostCalculator.tsx`
+- Modify: `client/src/components/ChatWidget.tsx`
+- Modify: `client/src/components/PackageBuilder.tsx`
+- Modify: `client/src/components/calculator-v2/SaveEstimateModal.tsx`
+- Modify: `client/src/components/blog/BlogPostCta.tsx`
 - Modify: `client/src/pages/KosherTours.tsx`
 - Modify: `client/src/pages/HebrewGuide.tsx`
 - Modify: `client/src/pages/TourDetail.tsx`
@@ -168,6 +172,9 @@ git commit -m "feat: add privacy-safe WhatsApp attribution"
 - Modify: `client/src/pages/BookingForm.tsx`
 - Modify: `client/src/pages/BookingSuccess.tsx`
 - Modify: `client/src/pages/FAQ.tsx`
+- Modify: `client/src/pages/Contact.tsx`
+- Modify: `client/src/pages/CarRental.tsx`
+- Modify: `client/src/pages/AccessibleTours.tsx`
 
 - [ ] **Step 1: Write failing analytics sanitization tests**
 
@@ -213,12 +220,16 @@ props, and never delays navigation when analytics fails.
 
 - [ ] **Step 7: Migrate high-value WhatsApp entry points**
 
-Replace locally assembled URLs in every listed homepage, pricing, package,
-booking, calculator, commercial-page, and tour-detail file. Do not migrate
-administrative reply links or social sharing links. Preserve the human message
-content and add a registry entry for each page/placement/language pair. Add a
-test that enumerates these high-value files and fails if a direct customer
-`wa.me` URL remains outside the shared builder.
+Replace locally assembled URLs in every listed homepage, contact, chat,
+pricing, package, booking, calculator, blog CTA, commercial-page, and
+tour-detail file. Do not migrate administrative reply links, social sharing
+links, or legal-page contact references. Preserve the human message content and
+add a registry entry for each page/placement/language pair. Add a source-scan
+test that enumerates all public inquiry surfaces and fails when customer-facing
+code assembles `wa.me` directly or uses `WHATSAPP_URL` or
+`COMPANY_WHATSAPP_URL` without the shared builder. Keep an explicit allowlist
+for the builder module, administrative reply links, social sharing, and legal
+contact references.
 
 - [ ] **Step 8: Add behavior events at existing interactions**
 
@@ -260,12 +271,16 @@ git add client/src/lib client/src/hooks/useBehaviorTracking.ts \
   client/src/components/FloatingActionButtons.tsx \
   client/src/components/QuickInquiryForm.tsx client/src/components/Footer.tsx \
   client/src/components/FAQ.tsx client/src/components/SocialProofStrip.tsx \
-  client/src/components/CostCalculator.tsx \
+  client/src/components/CostCalculator.tsx client/src/components/ChatWidget.tsx \
+  client/src/components/PackageBuilder.tsx \
+  client/src/components/calculator-v2/SaveEstimateModal.tsx \
+  client/src/components/blog/BlogPostCta.tsx \
   client/src/pages/KosherTours.tsx client/src/pages/HebrewGuide.tsx \
   client/src/pages/TourDetail.tsx client/src/pages/Pricing.tsx \
   client/src/pages/Packages.tsx client/src/pages/PackageDetail.tsx \
   client/src/pages/BookingForm.tsx client/src/pages/BookingSuccess.tsx \
-  client/src/pages/FAQ.tsx
+  client/src/pages/FAQ.tsx client/src/pages/Contact.tsx \
+  client/src/pages/CarRental.tsx client/src/pages/AccessibleTours.tsx
 git commit -m "feat: track commercial behavior and WhatsApp starts"
 ```
 
@@ -366,7 +381,9 @@ Extend `e2e/admin-operations.spec.ts` to cover required name and phone, capsule
 parsing preview, manual source fallback, optional email, tour/date/group fields,
 duplicate-submit prevention, THB labels, keyboard operation, preservation of
 every entered value after an intercepted recoverable server error, successful
-retry, and persistence after reload.
+retry, and persistence after reload. For manual fallback, assert selector
+options come from `WHATSAPP_SOURCES`, selecting one derives its registered
+language and channel, and non-registry UTM and landing fields remain unknown.
 
 - [ ] **Step 2: Run the focused E2E test and verify failure**
 
@@ -384,7 +401,10 @@ Place the action above the existing lead table. Use existing input and button
 components. Show parsed source details before save and "Unknown" for absent
 fields. Keep controlled form state unchanged after a recoverable mutation error
 and clear it only after confirmed success. Keep the common mobile workflow
-visible without nested modals.
+visible without nested modals. Render fallback options directly from
+`WHATSAPP_SOURCES`; do not maintain a second source list. Populate source code,
+language, and deterministic channel from the selected registry entry, and leave
+UTM fields and landing page unknown unless a valid capsule supplies them.
 
 - [ ] **Step 4: Extend lead table operations**
 
