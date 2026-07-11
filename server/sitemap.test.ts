@@ -67,8 +67,15 @@ describe("sitemap", () => {
 
   it("marks the Hebrew guide as the Hebrew page without making every URL Hebrew", () => {
     const xml = generateSitemap([], [], [], "https://www.wiro4x4indochina.com");
+    const hebrewGuideBlock = xml.match(
+      /<url>\s*<loc>https:\/\/www\.wiro4x4indochina\.com\/hebrew-guide<\/loc>[\s\S]*?<\/url>/
+    )?.[0];
+    expect(hebrewGuideBlock).toBeTruthy();
     expect(xml).toContain(
       '<xhtml:link rel="alternate" hreflang="he" href="https://www.wiro4x4indochina.com/hebrew-guide"/>'
+    );
+    expect(hebrewGuideBlock).not.toContain(
+      'hreflang="en" href="https://www.wiro4x4indochina.com/hebrew-guide"'
     );
     expect(xml).not.toContain(
       '<xhtml:link rel="alternate" hreflang="he" href="https://www.wiro4x4indochina.com/tours"/>'

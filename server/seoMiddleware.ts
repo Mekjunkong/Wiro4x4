@@ -422,9 +422,21 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function absoluteUrl(url: string): string {
+export function absoluteUrl(url: string): string {
   if (/^https?:\/\//.test(url)) return url;
   return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+export function truncateDescription(text: string, maxLength = 155): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  const ellipsis = "…";
+  const available = Math.max(1, maxLength - ellipsis.length);
+  const candidate = normalized.slice(0, available).trimEnd();
+  const boundary = candidate.lastIndexOf(" ");
+  const wholeWord = boundary > 0 ? candidate.slice(0, boundary) : candidate;
+  return `${wholeWord}${ellipsis}`;
 }
 
 function defaultAlternateLanguages(meta: PageMeta, canonicalUrl: string) {
@@ -453,14 +465,14 @@ function buildAlternateTags(meta: PageMeta, canonicalUrl: string): string {
     .join("\n");
 }
 
-function injectMeta(html: string, meta: PageMeta): string {
+export function injectMeta(html: string, meta: PageMeta): string {
   const fullTitle =
     meta.appendBrandSuffix === false || meta.title.includes("WIRO 4x4")
       ? meta.title
       : meta.title + BRAND_SUFFIX;
   const safeTitle = escapeHtml(fullTitle);
-  const safeDesc = escapeHtml(meta.description);
-  const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
+  const safeDesc = escapeHtml(truncateDescription(meta.description));
+  const ogImage = absoluteUrl(meta.ogImage || DEFAULT_OG_IMAGE);
   const canonicalUrl = `${SITE_URL}${meta.canonicalPath}`;
   const ogType = meta.ogType || "website";
 
@@ -584,7 +596,7 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
       return {
         title: `${name} — Chiang Mai 4x4 Tour`,
         description:
-          description?.slice(0, 155) ||
+          truncateDescription(description || "") ||
           `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         canonicalPath: `/tours/${slug}`,
@@ -634,7 +646,7 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
       return {
         title: `${name} — Private 4x4 Package`,
         description:
-          description?.slice(0, 155) ||
+          truncateDescription(description || "") ||
           `${name} — private multi-day 4x4 tour package with WIRO 4x4.`,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         canonicalPath: `/packages/${slug}`,
@@ -679,10 +691,9 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
       return {
         title: post.title,
         description:
-          post.excerpt?.slice(0, 155) ||
-          post.content?.slice(0, 155) ||
+          truncateDescription(post.excerpt || post.content || "") ||
           `${post.title} — WIRO 4x4 blog.`,
-        ogImage: post.coverImage || undefined,
+        ogImage: post.coverImage ? absoluteUrl(post.coverImage) : undefined,
         ogType: "article",
         canonicalPath: `/blog/${post.slug}`,
         jsonLd: [
@@ -690,8 +701,12 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
             "@context": "https://schema.org",
             "@type": "BlogPosting",
             headline: post.title,
-            description: post.excerpt || post.content?.slice(0, 200),
-            image: post.coverImage || DEFAULT_OG_IMAGE,
+            description: truncateDescription(
+              post.excerpt || post.content || ""
+            ),
+            image: post.coverImage
+              ? absoluteUrl(post.coverImage)
+              : DEFAULT_OG_IMAGE,
             mainEntityOfPage: {
               "@type": "WebPage",
               "@id": `${SITE_URL}/blog/${post.slug}`,

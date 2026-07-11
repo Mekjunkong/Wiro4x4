@@ -3,6 +3,9 @@ import {
   injectNoindex,
   isClientOnlyRoute,
   isContentSlugPath,
+  absoluteUrl,
+  truncateDescription,
+  injectMeta,
 } from "./seoMiddleware";
 
 describe("seoMiddleware route classification", () => {
@@ -47,5 +50,47 @@ describe("injectNoindex", () => {
       '<meta name="robots" content="noindex, nofollow" />'
     );
     expect(result).not.toContain('content="index, follow"');
+  });
+});
+
+describe("SEO metadata helpers", () => {
+  it("normalizes image URLs and keeps descriptions on word boundaries", () => {
+    expect(absoluteUrl("/images/post.jpg")).toBe(
+      "https://www.wiro4x4indochina.com/images/post.jpg"
+    );
+    expect(absoluteUrl("https://cdn.example.com/post.jpg")).toBe(
+      "https://cdn.example.com/post.jpg"
+    );
+    expect(truncateDescription("one two three four", 13)).toBe("one two…");
+  });
+
+  it("injects absolute social images into the HTML shell", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+    </head></html>`;
+    const result = injectMeta(shell, {
+      title: "Post",
+      description: "one two three four",
+      ogImage: "/images/post.jpg",
+      canonicalPath: "/blog/post",
+    });
+
+    expect(result).toContain(
+      'property="og:image" content="https://www.wiro4x4indochina.com/images/post.jpg"'
+    );
+    expect(result).toContain(
+      'name="twitter:image" content="https://www.wiro4x4indochina.com/images/post.jpg"'
+    );
+    expect(result).toContain('name="description" content="one two three four"');
   });
 });
