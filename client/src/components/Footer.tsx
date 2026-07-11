@@ -47,7 +47,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-accent">
+            <h4 className="text-lg font-semibold text-accent-readable">
               {t("Quick Links", "קישורים מהירים")}
             </h4>
             <ul className="space-y-2 text-sm">
@@ -120,7 +120,7 @@ export function Footer() {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-accent">
+            <h4 className="text-lg font-semibold text-accent-readable">
               {t("Contact Us", "צרו קשר")}
             </h4>
             <ul className="space-y-3 text-sm">

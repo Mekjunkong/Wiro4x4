@@ -101,7 +101,7 @@ export function Hero() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackHeroAction("whatsapp")}
-            className="min-h-12 bg-[#25D366] hover:bg-[#20BA5A] active:bg-[#1EA653] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
+            className="min-h-12 bg-[#075E54] hover:bg-[#064C44] active:bg-[#053D37] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#075E54] focus:ring-offset-2 focus:ring-offset-primary"
           >
             <MessageCircle className="w-5 h-5" aria-hidden="true" />
             {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}

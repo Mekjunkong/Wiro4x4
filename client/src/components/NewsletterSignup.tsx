@@ -26,10 +26,10 @@ export function NewsletterSignup() {
 
   return (
     <div className="mt-6 pt-6 border-t border-accent/20">
-      <h4 className="text-lg font-semibold text-accent mb-3">
+      <h4 className="text-lg font-semibold text-accent-readable mb-3">
         {t("Stay Updated", "הישארו מעודכנים")}
       </h4>
-      <p className="text-sm text-white/70 mb-3">
+      <p className="text-sm text-muted-foreground mb-3">
         {t(
           "Get the latest tour updates and special offers",
           "קבלו עדכונים על טיולים ומבצעים"
@@ -38,7 +38,7 @@ export function NewsletterSignup() {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <div className="relative flex-1">
           <Mail
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
             aria-hidden="true"
           />
           <label htmlFor="newsletter-email" className="sr-only">
@@ -50,7 +50,7 @@ export function NewsletterSignup() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder={t("Your email", "המייל שלכם")}
-            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             required
           />
         </div>

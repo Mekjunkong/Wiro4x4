@@ -106,10 +106,7 @@ export function ProductTiers() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Premium section heading with decorative bg text */}
         <div className="text-center mb-12 md:mb-16 relative">
-          <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-[8rem] md:text-[12rem] font-heading font-black text-foreground/[0.03] dark:text-white/[0.03] leading-none select-none pointer-events-none tracking-widest">
-            ADVENTURES
-          </span>
-          <span className="relative text-accent text-xs font-bold tracking-[0.3em] uppercase block mb-3">
+          <span className="relative text-accent-readable text-xs font-bold tracking-[0.3em] uppercase block mb-3">
             {t("Choose Your Journey", "בחרו את המסע שלכם")}
           </span>
           <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-heading font-bold mt-2 text-foreground dark:text-white tracking-tight">
@@ -196,7 +193,7 @@ export function ProductTiers() {
                   </div>
 
                   {/* CTA */}
-                  <div className="flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
+                  <div className="flex items-center gap-2 text-accent-readable font-semibold text-sm group-hover:gap-3 transition-all">
                     {t("Explore", "גלו עוד")}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </div>

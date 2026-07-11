@@ -25,6 +25,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-readable: var(--accent-readable);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-cta: var(--accent-cta);
@@ -69,6 +70,7 @@
   /* Gold accent */
   --accent: #d4af37;
   --accent-foreground: #1c1c1c;
+  --accent-readable: #715700;
   /* CTA button gold — darker for WCAG contrast on white text */
   --accent-cta: #b8960f;
   --accent-cta-hover: #a3850e;
