@@ -1,6 +1,38 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "DM Serif Display";
+  src: url("/fonts/dm-serif-display-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Serif Display";
+  src: url("/fonts/dm-serif-display-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/source-sans-3-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/source-sans-3-italic-latin.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
 /* Dark mode is class-based so it only activates when .dark is explicitly applied.
    The app is light-only; this prevents system dark mode from triggering dark: classes. */
 @custom-variant dark (&:is(.dark *));

@@ -1,4 +1,4 @@
-import { ImgHTMLAttributes, useState, useEffect } from "react";
+import { ImgHTMLAttributes, useState } from "react";
 
 interface OptimizedImageProps extends Omit<
   ImgHTMLAttributes<HTMLImageElement>,
@@ -61,20 +61,6 @@ export function OptimizedImage({
   const showResponsive = fallbackIndex === 0 && !isExternalUrl;
   const currentSrc = fallbackChain[fallbackIndex];
 
-  useEffect(() => {
-    if (!priority || isExternalUrl || !showResponsive) return;
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.type = "image/webp";
-    link.imageSrcset = webpSrcSet;
-    link.imageSizes = sizes;
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, [priority, webpSrcSet, sizes, isExternalUrl, showResponsive]);
-
   if (hasError) return null;
 
   const containerStyle: React.CSSProperties = {
@@ -119,22 +105,4 @@ export function OptimizedImage({
       />
     </picture>
   );
-}
-
-export function preloadImage(
-  src: string,
-  basePath = "/images/optimized",
-  sizes = "100vw"
-) {
-  const cleanSrc = src
-    .replace(/^\/images\/optimized\//, "")
-    .replace(/\.(jpg|jpeg|png|webp)$/i, "");
-
-  const link = document.createElement("link");
-  link.rel = "preload";
-  link.as = "image";
-  link.type = "image/webp";
-  link.imageSrcset = `${basePath}/${cleanSrc}-sm.webp 400w, ${basePath}/${cleanSrc}-md.webp 800w, ${basePath}/${cleanSrc}-lg.webp 1600w`;
-  link.imageSizes = sizes;
-  document.head.appendChild(link);
 }

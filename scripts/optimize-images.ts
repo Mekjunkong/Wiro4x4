@@ -19,7 +19,7 @@ const THUMB_WIDTH = 20;
 
 // Hero/banner images need near-lossless quality (first thing users see, especially on mobile)
 const HERO_IMAGES = ["banner", "hero", "hero-bg"];
-const HERO_WEBP_QUALITY = 98;
+const HERO_WEBP_QUALITY = 72;
 const HERO_JPEG_QUALITY = 96;
 
 // Parse CLI flags
@@ -103,7 +103,7 @@ async function processImage(
 
     await sharp(filePath)
       .resize(targetWidth)
-      .webp({ quality: webpQuality })
+      .webp({ quality: webpQuality, effort: 6 })
       .toFile(webpPath);
 
     await sharp(filePath)
