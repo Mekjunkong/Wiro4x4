@@ -91,6 +91,12 @@ export function PriceBreakdownModal({
             </div>
           )}
 
+          {breakdown.season.note && (
+            <div className="px-3 py-2 bg-sky-50 border border-sky-200 rounded-sm text-sm text-sky-800">
+              {isHebrew ? breakdown.season.noteHe : breakdown.season.note}
+            </div>
+          )}
+
           {/* Seasonal Pricing Notice */}
           {hasSeason && seasonConfig && (
             <div

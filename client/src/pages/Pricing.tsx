@@ -19,7 +19,12 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { getSeasonForDate, applySeasonalPrice } from "@shared/pricing";
+import {
+  getSeasonForDate,
+  applySeasonalPrice,
+  getSeasonPricingRows,
+  getHolidayPeakWindows,
+} from "@shared/pricing";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
@@ -147,38 +152,6 @@ const HARDCODED_TOURS = [
   },
 ];
 
-// Seasonal pricing season table for display
-const SEASON_TABLE = [
-  {
-    months: "Nov – Feb",
-    monthsHe: "נוב–פבר",
-    label: "High Season",
-    labelHe: "עונה גבוהה",
-    adjust: "+20%",
-  },
-  {
-    months: "Apr 5–13",
-    monthsHe: "5–13 אפר",
-    label: "Passover",
-    labelHe: "פסח",
-    adjust: "+25%",
-  },
-  {
-    months: "Oct 2–9",
-    monthsHe: "2–9 אוק",
-    label: "Sukkot",
-    labelHe: "סוכות",
-    adjust: "+25%",
-  },
-  {
-    months: "May – Oct",
-    monthsHe: "מאי–אוק",
-    label: "Standard Season",
-    labelHe: "עונה רגילה",
-    adjust: "—",
-  },
-];
-
 export default function Pricing() {
   const { t } = useLanguage();
   usePageMeta({
@@ -188,6 +161,9 @@ export default function Pricing() {
     canonicalPath: "/pricing",
   });
   const { data: dbTours } = trpc.tour.list.useQuery();
+  const pricingYear = new Date().getFullYear();
+  const seasonRows = getSeasonPricingRows(pricingYear);
+  const holidayRows = getHolidayPeakWindows(pricingYear);
 
   const tours =
     dbTours && dbTours.length > 0
@@ -347,19 +323,21 @@ export default function Pricing() {
                       </tr>
                     </thead>
                     <tbody>
-                      {SEASON_TABLE.map((row, i) => (
+                      {seasonRows.map((row, i) => (
                         <tr
-                          key={i}
+                          key={`${row.type}-${i}`}
                           className="border-b border-amber-100 last:border-0"
                         >
                           <td className="py-1.5 pr-4 text-muted-foreground">
-                            {t(row.months, row.monthsHe)}
+                            {t(row.periodEn, row.periodHe)}
                           </td>
                           <td className="py-1.5 pr-4">
-                            {t(row.label, row.labelHe)}
+                            {t(row.labelEn, row.labelHe)}
                           </td>
                           <td className="py-1.5 font-semibold text-accent">
-                            {row.adjust}
+                            {row.multiplier > 1
+                              ? `+${Math.round((row.multiplier - 1) * 100)}%`
+                              : "—"}
                           </td>
                         </tr>
                       ))}
@@ -367,10 +345,15 @@ export default function Pricing() {
                   </table>
                 </div>
                 <p className="mt-3 text-xs text-amber-700 dark:text-amber-400 italic">
-                  {t(
-                    "⚠️ Prices may vary during Jewish holidays. Contact us for exact seasonal pricing.",
-                    "⚠️ המחירים עשויים להשתנות בחגים יהודיים. צורו קשר לתמחור מדויק."
-                  )}
+                  {holidayRows.length > 0
+                    ? t(
+                        "Holiday peak windows are listed for the published year. Contact us if your dates change.",
+                        "חלונות שיא לחגים רשומים לשנה שפורסמה. צרו קשר אם התאריכים משתנים."
+                      )
+                    : t(
+                        "Holiday peak pricing for this year is confirmed on WhatsApp.",
+                        "מחירי שיא לחגים בשנה זו מאושרים בוואטסאפ."
+                      )}
                 </p>
               </Card>
             </div>
@@ -379,16 +362,10 @@ export default function Pricing() {
               {tours.map(tour => {
                 const today = new Date();
                 const currentSeason = getSeasonForDate(today);
-                const peakSeason = {
-                  type: "passover" as const,
-                  multiplier: 1.25,
-                  labelEn: "Peak Season",
-                  labelHe: "עונת שיא",
-                };
-                const peakPrice = applySeasonalPrice(
-                  tour.basePrice,
-                  peakSeason
-                );
+                const peakSeason = holidayRows[0];
+                const peakPrice = peakSeason
+                  ? applySeasonalPrice(tour.basePrice, peakSeason)
+                  : null;
                 const isCurrentlyPeak = currentSeason.multiplier > 1;
                 return (
                   <Card
@@ -451,12 +428,21 @@ export default function Pricing() {
                             <p className="text-sm text-muted-foreground">
                               {t("Standard Price", "מחיר סטנדרט")}
                             </p>
-                            <p className="text-xs text-muted-foreground/70 mt-1">
-                              {t(
-                                `Peak Season: $${Math.round(peakPrice * 0.028).toLocaleString()}`,
-                                `עונת שיא: $${Math.round(peakPrice * 0.028).toLocaleString()}`
-                              )}
-                            </p>
+                            {peakPrice !== null ? (
+                              <p className="text-xs text-muted-foreground/70 mt-1">
+                                {t(
+                                  `Peak Season: $${Math.round(peakPrice * 0.028).toLocaleString()}`,
+                                  `עונת שיא: $${Math.round(peakPrice * 0.028).toLocaleString()}`
+                                )}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-muted-foreground/70 mt-1">
+                                {t(
+                                  "Holiday peak pricing confirmed on WhatsApp",
+                                  "מחירי שיא לחגים מאושרים בוואטסאפ"
+                                )}
+                              </p>
+                            )}
                           </>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">

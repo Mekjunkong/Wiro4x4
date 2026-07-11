@@ -139,58 +139,127 @@ export interface SeasonInfo {
   labelEn: string;
   labelHe: string;
   note?: string;
+  noteHe?: string;
+}
+
+export interface HolidayPeakWindow extends SeasonInfo {
+  start: string;
+  end: string;
+  periodEn: string;
+  periodHe: string;
+}
+
+export interface SeasonPricingRow extends SeasonInfo {
+  periodEn: string;
+  periodHe: string;
+}
+
+const HIGH_SEASON: SeasonPricingRow = {
+  type: "high",
+  multiplier: 1.2,
+  labelEn: "High Season",
+  labelHe: "עונה גבוהה",
+  periodEn: "Nov – Feb",
+  periodHe: "נוב–פבר",
+};
+
+const STANDARD_SEASON: SeasonPricingRow = {
+  type: "low",
+  multiplier: 1,
+  labelEn: "Standard Season",
+  labelHe: "עונה רגילה",
+  periodEn: "Mar – Oct outside peak dates",
+  periodHe: "מרץ–אוק מחוץ לתאריכי השיא",
+};
+
+export const HOLIDAY_PEAK_WINDOWS_BY_YEAR: Record<number, HolidayPeakWindow[]> =
+  {
+    2026: [
+      {
+        type: "passover",
+        start: "2026-04-01",
+        end: "2026-04-09",
+        periodEn: "Apr 1–9, 2026",
+        periodHe: "1–9 אפריל 2026",
+        multiplier: 1.25,
+        labelEn: "Passover peak window",
+        labelHe: "חלון שיא לפסח",
+      },
+      {
+        type: "sukkot",
+        start: "2026-09-25",
+        end: "2026-10-02",
+        periodEn: "Sep 25–Oct 2, 2026",
+        periodHe: "25 ספט׳–2 אוק׳ 2026",
+        multiplier: 1.25,
+        labelEn: "Sukkot peak window",
+        labelHe: "חלון שיא לסוכות",
+      },
+    ],
+  };
+
+const UNSUPPORTED_HOLIDAY_NOTE =
+  "Holiday peak pricing for this year is confirmed on WhatsApp.";
+const UNSUPPORTED_HOLIDAY_NOTE_HE = "מחירי שיא לחגים בשנה זו מאושרים בוואטסאפ.";
+
+export function getHolidayPeakWindows(year: number): HolidayPeakWindow[] {
+  return (
+    HOLIDAY_PEAK_WINDOWS_BY_YEAR[year]?.map(window => ({ ...window })) ?? []
+  );
+}
+
+export function getSeasonPricingRows(year: number): SeasonPricingRow[] {
+  const holidayRows = getHolidayPeakWindows(year).map(window => ({
+    type: window.type,
+    multiplier: window.multiplier,
+    labelEn: window.labelEn,
+    labelHe: window.labelHe,
+    periodEn: window.periodEn,
+    periodHe: window.periodHe,
+  }));
+
+  return [{ ...HIGH_SEASON }, ...holidayRows, { ...STANDARD_SEASON }];
+}
+
+function addUnsupportedHolidayNote(season: SeasonInfo, year: number) {
+  if (getHolidayPeakWindows(year).length > 0) return season;
+  return {
+    ...season,
+    note: UNSUPPORTED_HOLIDAY_NOTE,
+    noteHe: UNSUPPORTED_HOLIDAY_NOTE_HE,
+  };
+}
+
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 /**
  * Determine the season for a given date.
- * - Passover (April 5–13): +25%
- * - Sukkot (Oct 2–9): +25%
+ * - Supported holiday windows: +25%
  * - High Season (Nov–Feb): +20%
- * - Low Season (May–Oct): standard
+ * - Standard Season (Mar–Oct outside holiday windows): standard
  *
  * When a date range spans multiple seasons, the most expensive season wins.
  */
 export function getSeasonForDate(date: Date): SeasonInfo {
   const month = date.getMonth() + 1; // 1-indexed
-  const day = date.getDate();
-
-  // Passover: April 5–13 (fixed dates approximation; exact dates vary year to year)
-  if (month === 4 && day >= 5 && day <= 13) {
-    return {
-      type: "passover",
-      multiplier: 1.25,
-      labelEn: "Passover (Peak)",
-      labelHe: "פסח (עונת שיא)",
-    };
-  }
-
-  // Sukkot: Oct 2–9 (fixed dates approximation)
-  if (month === 10 && day >= 2 && day <= 9) {
-    return {
-      type: "sukkot",
-      multiplier: 1.25,
-      labelEn: "Sukkot (Peak)",
-      labelHe: "סוכות (עונת שיא)",
-    };
-  }
+  const year = date.getFullYear();
+  const dateKey = localDateKey(date);
+  const holiday = getHolidayPeakWindows(year).find(
+    window => dateKey >= window.start && dateKey <= window.end
+  );
+  if (holiday) return holiday;
 
   // High Season: Nov–Feb
   if (month >= 11 || month <= 2) {
-    return {
-      type: "high",
-      multiplier: 1.2,
-      labelEn: "High Season (Nov–Feb)",
-      labelHe: "עונה גבוהה (נוב–פבר)",
-    };
+    return addUnsupportedHolidayNote({ ...HIGH_SEASON }, year);
   }
 
-  // Low Season: May–Oct (excluding Sukkot above)
-  return {
-    type: "low",
-    multiplier: 1.0,
-    labelEn: "Standard Season",
-    labelHe: "עונה רגילה",
-  };
+  return addUnsupportedHolidayNote({ ...STANDARD_SEASON }, year);
 }
 
 /**

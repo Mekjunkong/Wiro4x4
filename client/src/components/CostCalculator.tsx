@@ -706,6 +706,12 @@ export function CostCalculator() {
             </div>
           )}
 
+          {breakdown.season.note && (
+            <div className="mb-4 px-3 py-2 bg-sky-50 border border-sky-200 rounded-sm text-sm text-sky-800">
+              {isHebrew ? breakdown.season.noteHe : breakdown.season.note}
+            </div>
+          )}
+
           <div className="space-y-3">
             {/* Tour items */}
             <div>

@@ -11,9 +11,44 @@ import {
   calculateTripTotal,
   formatUSD,
   calculatePackageDiscount,
+  getSeasonForDate,
+  getHolidayPeakWindows,
+  getSeasonPricingRows,
 } from "../shared/pricing";
 
 describe("Pricing Module", () => {
+  describe("holiday peak pricing", () => {
+    it("uses the inclusive 2026 Passover peak window", () => {
+      expect(getSeasonForDate(new Date(2026, 3, 1)).type).toBe("passover");
+      expect(getSeasonForDate(new Date(2026, 3, 9)).type).toBe("passover");
+      expect(getSeasonForDate(new Date(2026, 3, 10)).type).toBe("low");
+    });
+
+    it("uses the inclusive 2026 Sukkot peak window", () => {
+      expect(getSeasonForDate(new Date(2026, 8, 25)).type).toBe("sukkot");
+      expect(getSeasonForDate(new Date(2026, 9, 2)).type).toBe("sukkot");
+      expect(getSeasonForDate(new Date(2026, 9, 3)).type).toBe("low");
+    });
+
+    it("does not invent holiday surcharges for unsupported years", () => {
+      const season = getSeasonForDate(new Date(2027, 3, 15));
+
+      expect(season.multiplier).toBe(1);
+      expect(season.note).toMatch(/WhatsApp/i);
+      expect(season.noteHe).toBeTruthy();
+      expect(getHolidayPeakWindows(2027)).toEqual([]);
+    });
+
+    it("builds the 2026 public table from the calculator source", () => {
+      expect(getSeasonPricingRows(2026).map(row => row.type)).toEqual([
+        "high",
+        "passover",
+        "sukkot",
+        "low",
+      ]);
+    });
+  });
+
   describe("getGroupMultiplier", () => {
     it("returns 1.0 for groups of 1-4", () => {
       expect(getGroupMultiplier(1)).toBe(1.0);
