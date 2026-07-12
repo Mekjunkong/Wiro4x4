@@ -5,19 +5,18 @@ import { Link } from "wouter";
 import {
   APP_LOGO,
   WHATSAPP_NUMBER,
-  WHATSAPP_URL,
   COMPANY_PHONE,
   COMPANY_EMAIL,
   COMPANY_FACEBOOK_URL,
   COMPANY_INSTAGRAM_URL,
 } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 export function Footer() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const whatsappMessage = t(
     "Hi WIRO 4x4, I'd like to check availability for a private tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __",
     "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
   );
-  const whatsappHref = `${WHATSAPP_URL}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <footer id="contact" className="bg-card text-foreground py-12">
@@ -151,14 +150,17 @@ export function Footer() {
                   className="h-4 w-4 text-accent"
                   aria-hidden="true"
                 />
-                <a
-                  href={whatsappHref}
+                <TrackedWhatsAppLink
+                  sourceCode={
+                    language === "he" ? "GLOBAL-FOOTER-HE" : "GLOBAL-FOOTER-EN"
+                  }
+                  humanMessage={whatsappMessage}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-accent transition-colors"
                 >
                   {t("WhatsApp WIRO 4x4", "וואטסאפ WIRO 4x4")}
-                </a>
+                </TrackedWhatsAppLink>
               </li>
             </ul>
             <NewsletterSignup />

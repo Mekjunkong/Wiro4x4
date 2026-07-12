@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
@@ -136,7 +136,7 @@ const HEBREW_TRAVEL_INTENTS = [
 ];
 
 export default function HebrewGuide() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   usePageMeta({
     title: "Hebrew Speaking Guide Chiang Mai",
@@ -167,15 +167,10 @@ export default function HebrewGuide() {
     },
   });
 
-  const handleWhatsApp = () => {
-    const msg = encodeURIComponent(
-      t(
-        "Hi WIRO 4x4! I'm looking for a Hebrew-speaking guide in Chiang Mai. Can you tell me more?",
-        "היי WIRO 4x4! אני מחפש/ת מדריך דובר עברית בצ'יאנג מאי. אפשר לשמוע עוד?"
-      )
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-  };
+  const whatsappMessage = t(
+    "Hi WIRO 4x4! I'm looking for a Hebrew-speaking guide in Chiang Mai. Can you tell me more?",
+    "היי WIRO 4x4! אני מחפש/ת מדריך דובר עברית בצ'יאנג מאי. אפשר לשמוע עוד?"
+  );
 
   return (
     <div className="min-h-screen">
@@ -453,14 +448,22 @@ export default function HebrewGuide() {
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={handleWhatsApp}
-                size="lg"
-                className="gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white"
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he" ? "HEBREW-GUIDE-HE" : "HEBREW-GUIDE-EN"
+                }
+                humanMessage={whatsappMessage}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <MessageCircle className="w-5 h-5" />
-                {t("Chat on WhatsApp", "שלחו הודעה בוואטסאפ")}
-              </Button>
+                <Button
+                  size="lg"
+                  className="gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  {t("Chat on WhatsApp", "שלחו הודעה בוואטסאפ")}
+                </Button>
+              </TrackedWhatsAppLink>
               <Link href="/book">
                 <Button
                   size="lg"

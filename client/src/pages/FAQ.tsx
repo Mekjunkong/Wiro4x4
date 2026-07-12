@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
 import { Link } from "wouter";
-import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { trackEvent } from "@/lib/analytics";
 
 interface FAQItem {
   id: string;
@@ -218,8 +219,6 @@ export default function FAQ() {
   const whatsappPrefill = isHebrew
     ? "שלום WIRO 4x4, נשמח לתכנן טיול.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
     : "Hi WIRO 4x4, we'd like to plan a tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/\+/g, "")}?text=${encodeURIComponent(whatsappPrefill)}`;
-
   return (
     <div className="min-h-screen">
       <Header />
@@ -279,7 +278,20 @@ export default function FAQ() {
 
           {/* FAQ Accordion */}
           <div ref={sectionRef} className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              onValueChange={value => {
+                if (value) {
+                  trackEvent("faq_expand", {
+                    page: "/faq",
+                    placement: value,
+                    language,
+                  });
+                }
+              }}
+            >
               {filteredFAQs.map(item => (
                 <AccordionItem
                   key={item.id}
@@ -321,8 +333,9 @@ export default function FAQ() {
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href={whatsappUrl}
+              <TrackedWhatsAppLink
+                sourceCode={language === "he" ? "FAQ-PAGE-HE" : "FAQ-PAGE-EN"}
+                humanMessage={whatsappPrefill}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors"
@@ -336,7 +349,7 @@ export default function FAQ() {
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.38 0-4.584-.678-6.467-1.849l-.452-.283-3.196 1.072 1.072-3.196-.283-.452A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z" />
                 </svg>
                 {t("Chat on WhatsApp", "צ'אט בוואטסאפ")}
-              </a>
+              </TrackedWhatsAppLink>
               <Link href="/book">
                 <span className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-accent-cta hover:bg-accent-cta-hover text-white font-semibold transition-colors">
                   {t("Book a Tour", "הזמינו טיול")}

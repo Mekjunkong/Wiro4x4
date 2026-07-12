@@ -20,12 +20,8 @@ import {
   MessageCircle,
   CheckCircle,
 } from "lucide-react";
-import {
-  WHATSAPP_NUMBER,
-  WHATSAPP_URL,
-  COMPANY_EMAIL,
-  COMPANY_PHONE,
-} from "@/const";
+import { WHATSAPP_NUMBER, COMPANY_EMAIL, COMPANY_PHONE } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 const SUBJECT_OPTIONS = [
   { value: "general", en: "General Inquiry", he: "פנייה כללית" },
@@ -204,15 +200,18 @@ export default function Contact() {
                 >
                   {COMPANY_PHONE}
                 </a>
-                <a
-                  href={WHATSAPP_URL}
+                <TrackedWhatsAppLink
+                  sourceCode={
+                    language === "he" ? "CONTACT-CARD-HE" : "CONTACT-CARD-EN"
+                  }
+                  humanMessage=""
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
                 >
                   <MessageCircle className="w-4 h-4" />
                   {t("Chat on WhatsApp", "שלחו הודעה בוואטסאפ")}
-                </a>
+                </TrackedWhatsAppLink>
               </Card>
 
               {/* Email Card */}
@@ -284,8 +283,13 @@ export default function Contact() {
                         "קיבלנו את ההודעה שלכם וניצור קשר תוך 24 שעות."
                       )}
                     </p>
-                    <a
-                      href={WHATSAPP_URL}
+                    <TrackedWhatsAppLink
+                      sourceCode={
+                        language === "he"
+                          ? "CONTACT-SUCCESS-HE"
+                          : "CONTACT-SUCCESS-EN"
+                      }
+                      humanMessage=""
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-6 py-3 rounded-sm bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
@@ -295,7 +299,7 @@ export default function Contact() {
                         "Or chat with us on WhatsApp",
                         "או שוחחו איתנו בוואטסאפ"
                       )}
-                    </a>
+                    </TrackedWhatsAppLink>
                   </Card>
                 ) : (
                   <Card className="p-6 md:p-8 border border-accent/30 rounded-2xl shadow-lg bg-card">

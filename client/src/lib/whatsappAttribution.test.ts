@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import { COMPANY_WHATSAPP_URL } from "@shared/const";
 
 import type { FirstTouchAttribution } from "./attribution";
-import { buildTrackedWhatsAppUrl } from "./whatsappAttribution";
+import {
+  buildTrackedWhatsAppLink,
+  buildTrackedWhatsAppUrl,
+} from "./whatsappAttribution";
 
 const attribution: FirstTouchAttribution = {
   landingPath: "/kosher-tours",
@@ -34,6 +37,33 @@ describe("buildTrackedWhatsAppUrl", () => {
       `${humanMessage}\n[WIRO:v1|HOME-HERO-EN|organic|google|organic|-|%2Fkosher-tours]`
     );
     expect(decodedMessage?.split("\n").at(-1)).toMatch(/^\[WIRO:v1\|/);
+  });
+
+  it("prepares matching privacy-safe analytics properties for a tracked link", () => {
+    const link = buildTrackedWhatsAppLink({
+      sourceCode: "HOME-HERO-EN",
+      humanMessage: "Hello",
+      attribution,
+    });
+
+    expect(link.href).toBe(
+      buildTrackedWhatsAppUrl({
+        sourceCode: "HOME-HERO-EN",
+        humanMessage: "Hello",
+        attribution,
+      })
+    );
+    expect(link.eventProperties).toEqual({
+      page: "/",
+      placement: "hero",
+      language: "en",
+      sourceCode: "HOME-HERO-EN",
+      sourceChannel: "organic",
+      utmSource: "google",
+      utmMedium: "organic",
+    });
+    expect(link.eventProperties).not.toHaveProperty("landingPath");
+    expect(link.eventProperties).not.toHaveProperty("referrerHost");
   });
 
   it("derives paid, referral, and registered fallback channels deterministically", () => {

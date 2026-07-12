@@ -7,7 +7,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_URL } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -170,8 +170,8 @@ export default function CarRental() {
     },
   });
 
-  const whatsappUrl = useMemo(() => {
-    const message =
+  const whatsappMessage = useMemo(
+    () =>
       language === "he"
         ? [
             "שלום WIRO 4x4! אשמח לשכור רכב בצ'יאנג מאי.",
@@ -184,9 +184,9 @@ export default function CarRental() {
             `Car: ${selectedCar.name}`,
             `Dates: ${form.rentalDates || "__"}`,
             `Notes: ${form.notes || "__"}`,
-          ].join("\n");
-    return `${WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
-  }, [form, language, selectedCar]);
+          ].join("\n"),
+    [form, language, selectedCar]
+  );
 
   const createLead = trpc.lead.create.useMutation({
     onSuccess: () => {
@@ -440,15 +440,18 @@ export default function CarRental() {
                     "קיבלנו את הפרטים. לאישור הכי מהיר, שלחו עכשיו את אותה בקשה בוואטסאפ."
                   )}
                 </p>
-                <a
-                  href={whatsappUrl}
+                <TrackedWhatsAppLink
+                  sourceCode={
+                    language === "he" ? "CAR-RENTAL-HE" : "CAR-RENTAL-EN"
+                  }
+                  humanMessage={whatsappMessage}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A]"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
                   {t("Confirm on WhatsApp", "אישור בוואטסאפ")}
-                </a>
+                </TrackedWhatsAppLink>
               </Card>
             ) : (
               <>
@@ -645,8 +648,11 @@ export default function CarRental() {
                           ? t("Sending...", "...שולח")
                           : t("Check Availability", "בדיקת זמינות")}
                       </Button>
-                      <a
-                        href={whatsappUrl}
+                      <TrackedWhatsAppLink
+                        sourceCode={
+                          language === "he" ? "CAR-RENTAL-HE" : "CAR-RENTAL-EN"
+                        }
+                        humanMessage={whatsappMessage}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#25D366]/60 px-5 py-2.5 text-sm font-bold text-foreground transition-colors hover:bg-[#25D366]/10"
@@ -656,7 +662,7 @@ export default function CarRental() {
                           aria-hidden="true"
                         />
                         {t("Ask on WhatsApp", "שאלו בוואטסאפ")}
-                      </a>
+                      </TrackedWhatsAppLink>
                     </div>
                   </form>
                 </Card>

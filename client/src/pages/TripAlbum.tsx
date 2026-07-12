@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Camera,
@@ -16,12 +17,11 @@ import {
   AlertCircle,
   Clock,
 } from "lucide-react";
-import { COMPANY_WHATSAPP_URL } from "@/const";
 
 export default function TripAlbum() {
   const params = useParams<{ token: string }>();
   const token = params.token ?? "";
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   usePageMeta({
@@ -182,8 +182,9 @@ export default function TripAlbum() {
                 </p>
               </>
             )}
-            <a
-              href={COMPANY_WHATSAPP_URL}
+            <TrackedWhatsAppLink
+              sourceCode={language === "he" ? "TRIP-ALBUM-HE" : "TRIP-ALBUM-EN"}
+              humanMessage=""
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
@@ -192,7 +193,7 @@ export default function TripAlbum() {
                 "Contact Us on WhatsApp",
                 "\u05E6\u05D5\u05E8 \u05E7\u05E9\u05E8 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"
               )}
-            </a>
+            </TrackedWhatsAppLink>
           </div>
         </main>
         <Footer />
@@ -377,15 +378,18 @@ export default function TripAlbum() {
                   "\u05D2\u05DC\u05D5 \u05E2\u05D5\u05D3 \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD"
                 )}
               </a>
-              <a
-                href={COMPANY_WHATSAPP_URL}
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he" ? "TRIP-ALBUM-HE" : "TRIP-ALBUM-EN"
+                }
+                humanMessage=""
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 WhatsApp
-              </a>
+              </TrackedWhatsAppLink>
             </div>
           </div>
         </section>

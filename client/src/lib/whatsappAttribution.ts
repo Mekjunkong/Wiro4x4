@@ -10,6 +10,7 @@ import {
   type AttributionStorage,
   type FirstTouchAttribution,
 } from "./attribution";
+import type { AnalyticsEventProperties } from "./analytics";
 
 export interface BuildTrackedWhatsAppUrlInput {
   sourceCode: string;
@@ -17,6 +18,11 @@ export interface BuildTrackedWhatsAppUrlInput {
   attribution?: FirstTouchAttribution;
   environment?: AttributionEnvironment;
   storage?: AttributionStorage;
+}
+
+export interface TrackedWhatsAppLink {
+  href: string;
+  eventProperties: AnalyticsEventProperties;
 }
 
 function browserEnvironment(): AttributionEnvironment | undefined {
@@ -76,16 +82,17 @@ function attributionChannel(
   return fallback;
 }
 
-export function buildTrackedWhatsAppUrl(
+export function buildTrackedWhatsAppLink(
   input: BuildTrackedWhatsAppUrlInput
-): string {
+): TrackedWhatsAppLink {
   const source = getWhatsAppSource(input.sourceCode);
   if (!source)
     throw new Error(`Unknown WhatsApp source code: ${input.sourceCode}`);
   const attribution = resolveAttribution(input);
+  const sourceChannel = attributionChannel(attribution, source.channelFallback);
   const capsule = buildAttributionCapsule({
     sourceCode: source.code,
-    channel: attributionChannel(attribution, source.channelFallback),
+    channel: sourceChannel,
     utmSource: attribution.utmSource,
     utmMedium: attribution.utmMedium,
     utmCampaign: attribution.utmCampaign,
@@ -94,5 +101,27 @@ export function buildTrackedWhatsAppUrl(
   const message = input.humanMessage
     ? `${input.humanMessage}\n${capsule}`
     : capsule;
-  return `${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
+  const eventProperties: AnalyticsEventProperties = {
+    page: source.page,
+    placement: source.placement,
+    language: source.language,
+    sourceCode: source.code,
+    sourceChannel,
+  };
+  if (attribution.utmSource) eventProperties.utmSource = attribution.utmSource;
+  if (attribution.utmMedium) eventProperties.utmMedium = attribution.utmMedium;
+  if (attribution.utmCampaign) {
+    eventProperties.utmCampaign = attribution.utmCampaign;
+  }
+
+  return {
+    href: `${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(message)}`,
+    eventProperties,
+  };
+}
+
+export function buildTrackedWhatsAppUrl(
+  input: BuildTrackedWhatsAppUrlInput
+): string {
+  return buildTrackedWhatsAppLink(input).href;
 }

@@ -10,6 +10,7 @@ const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
 import { ChatWidget } from "./components/ChatWidget";
 import { captureUtmParams } from "@/lib/utm";
+import { useBehaviorTracking } from "@/hooks/useBehaviorTracking";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
 const Estimate = React.lazy(() => import("./pages/Estimate"));
@@ -132,6 +133,7 @@ function Router() {
 
 function AppContent() {
   const { language, t } = useLanguage();
+  useBehaviorTracking(language);
 
   // Set document language and direction
   React.useEffect(() => {

@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_URL } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +7,8 @@ import { toast } from "sonner";
 import { Send, MessageCircle, CheckCircle, Clock3 } from "lucide-react";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { trackEvent } from "@/lib/analytics";
 
 const INTEREST_OPTIONS = [
   { value: "day_tour", en: "Day Tour", he: "טיול יום" },
@@ -20,6 +21,7 @@ export function QuickInquiryForm() {
   const { t, language } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>();
   const [submitted, setSubmitted] = useState(false);
+  const inquiryStartedRef = useRef(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     name: "",
@@ -36,8 +38,8 @@ export function QuickInquiryForm() {
     INTEREST_OPTIONS.find(option => option.value === form.interest) ||
     INTEREST_OPTIONS[0];
 
-  const whatsappUrl = useMemo(() => {
-    const message =
+  const whatsappMessage = useMemo(
+    () =>
       language === "he"
         ? [
             "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי.",
@@ -54,10 +56,19 @@ export function QuickInquiryForm() {
             `Pickup area / hotel: ${form.pickupArea || "__"}`,
             `Trip type: ${selectedInterest.en}`,
             `Kosher / Shabbat / Hebrew-guide needs: ${form.notes || "__"}`,
-          ].join("\n");
+          ].join("\n"),
+    [form, language, selectedInterest]
+  );
 
-    return `${WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
-  }, [form, language, selectedInterest]);
+  const handleInquiryInteraction = () => {
+    if (inquiryStartedRef.current) return;
+    inquiryStartedRef.current = true;
+    trackEvent("inquiry_start", {
+      page: "/",
+      placement: "inquiry-form",
+      language,
+    });
+  };
 
   const createLead = trpc.lead.create.useMutation({
     onSuccess: () => {
@@ -138,15 +149,18 @@ export function QuickInquiryForm() {
                 "קיבלנו את פניית הגיבוי. לאישור זמינות ומחיר הכי מהיר, שלחו עכשיו את אותם הפרטים בוואטסאפ."
               )}
             </p>
-            <a
-              href={whatsappUrl}
+            <TrackedWhatsAppLink
+              sourceCode={
+                language === "he" ? "HOME-INQUIRY-HE" : "HOME-INQUIRY-EN"
+              }
+              humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
             >
               <MessageCircle className="w-4 h-4" aria-hidden="true" />
               {t("Confirm Faster on WhatsApp", "אישור מהיר יותר בוואטסאפ")}
-            </a>
+            </TrackedWhatsAppLink>
           </Card>
         </div>
       </section>
@@ -193,15 +207,18 @@ export function QuickInquiryForm() {
                 "פתחו הודעה מוכנה עם הפרטים החשובים: תאריכים, מספר מטיילים, אזור איסוף, רעיון למסלול וצרכי כשרות או שבת."
               )}
             </p>
-            <a
-              href={whatsappUrl}
+            <TrackedWhatsAppLink
+              sourceCode={
+                language === "he" ? "HOME-INQUIRY-HE" : "HOME-INQUIRY-EN"
+              }
+              humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-5 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
-            </a>
+            </TrackedWhatsAppLink>
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-white/15 bg-white/10 p-3 text-xs text-white/75">
               <Clock3
                 className="mt-0.5 h-4 w-4 text-accent"
@@ -217,7 +234,13 @@ export function QuickInquiryForm() {
           </Card>
 
           <Card className="p-6 md:p-8 border border-accent/30 rounded-2xl shadow-lg bg-card">
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <form
+              onSubmit={handleSubmit}
+              onFocusCapture={handleInquiryInteraction}
+              onChangeCapture={handleInquiryInteraction}
+              className="space-y-5"
+              noValidate
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-accent/20 bg-accent/5 p-4">
                 <div>
                   <label
@@ -448,8 +471,11 @@ export function QuickInquiryForm() {
                     ? t("Saving...", "...שומר")
                     : t("Save Backup Inquiry", "שמירת פניית גיבוי")}
                 </Button>
-                <a
-                  href={whatsappUrl}
+                <TrackedWhatsAppLink
+                  sourceCode={
+                    language === "he" ? "HOME-INQUIRY-HE" : "HOME-INQUIRY-EN"
+                  }
+                  humanMessage={whatsappMessage}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#25D366]/60 px-5 py-2.5 text-sm font-bold text-foreground transition-colors hover:bg-[#25D366]/10 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50"
@@ -459,7 +485,7 @@ export function QuickInquiryForm() {
                     aria-hidden="true"
                   />
                   {t("Open WhatsApp Instead", "פתיחה בוואטסאפ במקום")}
-                </a>
+                </TrackedWhatsAppLink>
               </div>
             </form>
           </Card>

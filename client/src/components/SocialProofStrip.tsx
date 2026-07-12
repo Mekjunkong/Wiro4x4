@@ -13,6 +13,7 @@ import { trpc } from "@/lib/trpc";
 import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { COMPANY_TRIPADVISOR_URL } from "@/const";
+import { trackEvent } from "@/lib/analytics";
 
 const TRUST_BADGES = [
   {
@@ -40,7 +41,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function SocialProofStrip() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 30, duration: 0.5 });
   const { data: reviews } = trpc.review.listPublic.useQuery();
 
@@ -129,6 +130,13 @@ export function SocialProofStrip() {
             href={COMPANY_TRIPADVISOR_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent("proof_open", {
+                page: "/",
+                placement: "tripadvisor",
+                language,
+              })
+            }
             className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
           >
             {t(

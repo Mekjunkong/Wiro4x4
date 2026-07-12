@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_URL } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function BlogPostCta() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="mt-12 p-8 bg-primary/5 rounded-lg border border-primary/20">
@@ -19,11 +19,18 @@ export function BlogPostCta() {
           "\u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05E2\u05DD WIRO 4x4 \u05DC\u05EA\u05DB\u05E0\u05D5\u05DF \u05D7\u05D5\u05D5\u05D9\u05EA \u05D4\u05E9\u05D8\u05D7 \u05D4\u05DE\u05D5\u05E9\u05DC\u05DE\u05EA \u05D5\u05D4\u05D9\u05D3\u05D9\u05D3\u05D5\u05EA\u05D9\u05EA \u05DC\u05DB\u05E9\u05E8\u05D5\u05EA \u05E9\u05DC\u05DB\u05DD \u05D1\u05D0\u05D9\u05E0\u05D3\u05D5\u05E1\u05D9\u05DF."
         )}
       </p>
-      <Button size="lg" onClick={() => window.open(WHATSAPP_URL, "_blank")}>
-        {t(
-          "Contact Us on WhatsApp",
-          "\u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"
-        )}
+      <Button size="lg" asChild>
+        <TrackedWhatsAppLink
+          sourceCode={language === "he" ? "BLOG-CTA-HE" : "BLOG-CTA-EN"}
+          humanMessage=""
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t(
+            "Contact Us on WhatsApp",
+            "\u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"
+          )}
+        </TrackedWhatsAppLink>
       </Button>
     </div>
   );

@@ -23,7 +23,8 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { WHATSAPP_NUMBER } from "@/const";
+import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
+import { trackEvent } from "@/lib/analytics";
 import {
   Package,
   Check,
@@ -413,10 +414,12 @@ export default function Packages() {
       ? `היי WIRO 4x4! בניתי חבילה של ${selectedDuration} ימים באתר:\n\n${tourNames}\n\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריך: ${startDate}\n${addons.length > 0 ? `תוספות: ${addons.join(", ")}\n` : ""}${total ? `הערכת מחיר: ${total}${discount}\n` : ""}\nאשמח לקבל הצעת מחיר מדויקת!`
       : `Hi WIRO 4x4! I built a ${selectedDuration}-day package on your site:\n\n${tourNames}\n\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nStart date: ${startDate}\n${addons.length > 0 ? `Add-ons: ${addons.join(", ")}\n` : ""}${total ? `Estimated price: ${total}${discount}\n` : ""}\nPlease send me an exact quote!`;
 
-    window.open(
-      `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    const tracked = buildTrackedWhatsAppLink({
+      sourceCode: isHebrew ? "PACKAGES-REQUEST-HE" : "PACKAGES-REQUEST-EN",
+      humanMessage: message,
+    });
+    trackEvent("whatsapp_click", tracked.eventProperties);
+    window.open(tracked.href, "_blank");
   };
 
   // ── Lead submission handler ───────────────────────────────

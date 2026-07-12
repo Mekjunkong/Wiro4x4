@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { WHATSAPP_URL } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { trackEvent } from "@/lib/analytics";
 
 export default function BookingSuccess() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   usePageMeta(
     "Payment Confirmed",
     "Your payment has been confirmed. Thank you for booking with WIRO 4x4."
@@ -26,6 +27,17 @@ export default function BookingSuccess() {
       { sessionId: sessionId! },
       { enabled: !!sessionId, retry: 2 }
     );
+  const completionTrackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!data?.success || completionTrackedRef.current) return;
+    completionTrackedRef.current = true;
+    trackEvent("booking_complete", {
+      page: "/booking/success",
+      placement: "payment-confirmation",
+      language,
+    });
+  }, [data?.success, language]);
 
   return (
     <>
@@ -71,12 +83,17 @@ export default function BookingSuccess() {
                     "לא הצלחנו לאמת את התשלום. צרו איתנו קשר."
                   )}
               </p>
-              <a
-                href={WHATSAPP_URL}
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he"
+                    ? "BOOKING-SUCCESS-HE"
+                    : "BOOKING-SUCCESS-EN"
+                }
+                humanMessage=""
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
-              </a>
+              </TrackedWhatsAppLink>
             </div>
           ) : data?.success ? (
             <div className="text-center py-12">
@@ -141,12 +158,17 @@ export default function BookingSuccess() {
                   "התשלום שלכם עדיין בתהליך. בדקו שוב בעוד כמה דקות."
                 )}
               </p>
-              <a
-                href={WHATSAPP_URL}
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he"
+                    ? "BOOKING-SUCCESS-HE"
+                    : "BOOKING-SUCCESS-EN"
+                }
+                humanMessage=""
                 className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
-              </a>
+              </TrackedWhatsAppLink>
             </div>
           )}
         </div>

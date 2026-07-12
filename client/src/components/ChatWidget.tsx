@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 interface ChatMessage {
   role: "user" | "moshe";
@@ -42,9 +43,7 @@ export function ChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [chatLanguage, setChatLanguage] = useState<"en" | "he">(appLanguage);
   const [needsHandoff, setNeedsHandoff] = useState(false);
-  const [whatsappUrl, setWhatsappUrl] = useState(
-    `https://wa.me/${WHATSAPP_NUMBER}`
-  );
+  const [whatsappMessage, setWhatsappMessage] = useState("");
   const [visitorId] = useState(getVisitorId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -156,7 +155,15 @@ export function ChatWidget() {
             : "Thanks! Moshe received your message and will reply via WhatsApp shortly.");
 
         setMessages(prev => [...prev, { role: "moshe", content: reply }]);
-        if (data.whatsappUrl) setWhatsappUrl(data.whatsappUrl);
+        if (data.whatsappUrl) {
+          try {
+            setWhatsappMessage(
+              new URL(data.whatsappUrl).searchParams.get("text") ?? ""
+            );
+          } catch {
+            setWhatsappMessage("");
+          }
+        }
         setNeedsHandoff(Boolean(data.escalate));
       } catch {
         const fallback =
@@ -323,8 +330,11 @@ export function ChatWidget() {
 
           {needsHandoff && (
             <div className="px-4 py-3 border-t border-border bg-card">
-              <a
-                href={whatsappUrl}
+              <TrackedWhatsAppLink
+                sourceCode={
+                  chatLanguage === "he" ? "CHAT-HANDOFF-HE" : "CHAT-HANDOFF-EN"
+                }
+                humanMessage={whatsappMessage}
                 target="_blank"
                 rel="noreferrer"
                 className="min-h-11 w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-[#f9fff9] hover:bg-[#20BA5A] transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
@@ -334,7 +344,7 @@ export function ChatWidget() {
                   "בדיקת זמינות ב-WhatsApp"
                 )}
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
-              </a>
+              </TrackedWhatsAppLink>
             </div>
           )}
 

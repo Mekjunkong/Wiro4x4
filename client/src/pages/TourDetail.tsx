@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { trackEvent, FUNNEL } from "@/lib/analytics";
+import { useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -1072,7 +1072,7 @@ interface NormalizedTour {
 }
 
 export default function TourDetail() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const params = useParams<{ slug: string }>();
   const [, navigate] = useLocation();
   const slug = params.slug ?? "";
@@ -1233,9 +1233,44 @@ export default function TourDetail() {
       : { title: "Tour Details" }
   );
 
+  const pricingSectionRef = useRef<HTMLDivElement>(null);
+  const tourViewKeyRef = useRef("");
+  const pricingViewKeyRef = useRef("");
+
   useEffect(() => {
-    trackEvent(FUNNEL.TOUR_PAGE_VIEW, { tour: slug });
-  }, [slug]);
+    if (!tour || tourViewKeyRef.current === slug) return;
+    tourViewKeyRef.current = slug;
+    trackEvent("tour_view", {
+      page: `/tours/${slug}`,
+      placement: "tour-detail",
+      language,
+      tour: slug,
+    });
+  }, [language, slug, tour]);
+
+  useEffect(() => {
+    if (!tour || !pricingSectionRef.current) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (
+          !entries.some(entry => entry.isIntersecting) ||
+          pricingViewKeyRef.current === slug
+        )
+          return;
+        pricingViewKeyRef.current = slug;
+        trackEvent("pricing_view", {
+          page: `/tours/${slug}`,
+          placement: "booking-card",
+          language,
+          tour: slug,
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(pricingSectionRef.current);
+    return () => observer.disconnect();
+  }, [language, slug, tour]);
 
   if (isLoading) {
     return (
@@ -1318,15 +1353,10 @@ export default function TourDetail() {
   const diffColor =
     DIFFICULTY_COLORS[tour.difficulty] ?? DIFFICULTY_COLORS.moderate;
 
-  const handleBookWhatsApp = () => {
-    const msg = encodeURIComponent(
-      t(
-        `Hi WIRO 4x4! I'm interested in the ${tour.name}. Can you share pricing and availability?`,
-        `היי WIRO 4x4! מתעניינים ב${t(tour.name, tour.nameHe)}. אפשר לשמוע על מחירים וזמינות?`
-      )
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-  };
+  const whatsappMessage = t(
+    `Hi WIRO 4x4! I'm interested in the ${tour.name}. Can you share pricing and availability?`,
+    `היי WIRO 4x4! מתעניינים ב${t(tour.name, tour.nameHe)}. אפשר לשמוע על מחירים וזמינות?`
+  );
 
   return (
     <div className="min-h-screen">
@@ -1473,22 +1503,31 @@ export default function TourDetail() {
                     </h2>
                     <div className="space-y-4">
                       {itinerary.map((step, idx) => (
-                        <div
+                        <details
                           key={idx}
-                          className="flex gap-4 p-4 border border-border rounded-sm"
+                          className="group p-4 border border-border rounded-sm"
+                          onToggle={event => {
+                            if (!event.currentTarget.open) return;
+                            trackEvent("itinerary_expand", {
+                              page: `/tours/${slug}`,
+                              placement: `step-${idx + 1}`,
+                              language,
+                              tour: slug,
+                            });
+                          }}
                         >
-                          <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-2xl shrink-0">
-                            {idx + 1}
-                          </div>
-                          <div>
-                            <h4 className="font-semibold mb-1">
+                          <summary className="flex cursor-pointer list-none items-center gap-4">
+                            <span className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-2xl shrink-0">
+                              {idx + 1}
+                            </span>
+                            <h4 className="font-semibold">
                               {t(step.title, step.titleHe)}
                             </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {t(step.description, step.descriptionHe)}
-                            </p>
-                          </div>
-                        </div>
+                          </summary>
+                          <p className="mt-3 ps-14 text-sm text-muted-foreground">
+                            {t(step.description, step.descriptionHe)}
+                          </p>
+                        </details>
                       ))}
                     </div>
                   </div>
@@ -1659,7 +1698,10 @@ export default function TourDetail() {
 
               {/* Sidebar - Booking Card */}
               <div>
-                <Card className="p-6 sticky top-24 space-y-5 rounded-sm">
+                <Card
+                  ref={pricingSectionRef}
+                  className="p-6 sticky top-24 space-y-5 rounded-sm"
+                >
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">
                       {t("Starting from", "החל מ-")}
@@ -1742,13 +1784,25 @@ export default function TourDetail() {
                       </Link>
                     </Button>
                     <Button
-                      onClick={handleBookWhatsApp}
+                      asChild
                       className="w-full gap-2"
                       variant="outline"
                       size="lg"
                     >
-                      <MessageCircle className="w-5 h-5" />
-                      {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
+                      <TrackedWhatsAppLink
+                        sourceCode={
+                          language === "he"
+                            ? "TOUR-DETAIL-HE"
+                            : "TOUR-DETAIL-EN"
+                        }
+                        humanMessage={whatsappMessage}
+                        tour={slug}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                        {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
+                      </TrackedWhatsAppLink>
                     </Button>
                     <a
                       href="#inquiry"

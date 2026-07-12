@@ -1,12 +1,12 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_URL } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { XCircle } from "lucide-react";
 
 export default function BookingCancel() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   usePageMeta(
     "Payment Cancelled",
     "Your payment was cancelled. You can try again or contact us for help."
@@ -35,12 +35,15 @@ export default function BookingCancel() {
               >
                 {t("Try Again", "נסו שוב")}
               </a>
-              <a
-                href={WHATSAPP_URL}
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he" ? "BOOKING-CANCEL-HE" : "BOOKING-CANCEL-EN"
+                }
+                humanMessage=""
                 className="inline-block border border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary/5 transition"
               >
                 {t("Contact Us on WhatsApp", "צרו קשר בוואטסאפ")}
-              </a>
+              </TrackedWhatsAppLink>
             </div>
           </div>
         </div>
