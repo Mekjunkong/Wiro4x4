@@ -167,11 +167,21 @@ export const leads = mysqlTable(
   {
     id: int("id").autoincrement().primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
-    email: varchar("email", { length: 320 }).notNull(),
+    email: varchar("email", { length: 320 }),
     phone: varchar("phone", { length: 50 }),
     source: varchar("source", { length: 100 }).default("website"), // website, whatsapp, referral, etc.
+    sourceCode: varchar("sourceCode", { length: 120 }),
+    sourceChannel: varchar("sourceChannel", { length: 24 }),
+    landingPage: varchar("landingPage", { length: 240 }),
+    language: varchar("language", { length: 2 }),
+    utmSource: varchar("utmSource", { length: 64 }),
+    utmMedium: varchar("utmMedium", { length: 64 }),
+    utmCampaign: varchar("utmCampaign", { length: 64 }),
     interestedTours: text("interestedTours"), // JSON array
     message: text("message"),
+    travelDate: timestamp("travelDate"),
+    groupSize: int("groupSize"),
+    estimatedValueThb: int("estimatedValueThb"),
     status: mysqlEnum("status", [
       "new",
       "contacted",
@@ -182,6 +192,8 @@ export const leads = mysqlTable(
       .default("new")
       .notNull(),
     convertedToBookingId: int("convertedToBookingId"),
+    lostReason: text("lostReason"),
+    completedAt: timestamp("completedAt"),
     notes: text("notes"),
     score: int("score").default(0), // Lead score 0-100
     scoreDetails: text("score_details"), // JSON string with scoring breakdown
@@ -193,6 +205,8 @@ export const leads = mysqlTable(
   table => [
     index("idx_leads_convertedToBookingId").on(table.convertedToBookingId),
     index("idx_leads_status_createdAt").on(table.status, table.createdAt),
+    index("idx_leads_sourceCode").on(table.sourceCode),
+    index("idx_leads_completedAt").on(table.completedAt),
   ]
 );
 

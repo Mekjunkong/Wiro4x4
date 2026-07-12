@@ -11,6 +11,7 @@ import {
 import {
   createLead,
   getAllLeads,
+  getLeadById,
   updateLead,
   deleteLead,
   getAllLeadsPaginated,
@@ -19,7 +20,16 @@ import {
   updateLeadScore,
   findOrCreateCustomer,
 } from "../db";
-import { leadInputSchema, paginationInput } from "../../shared/schemas";
+import {
+  adminLeadInputSchema,
+  adminLeadUpdateSchema,
+  leadInputSchema,
+  paginationInput,
+} from "../../shared/schemas";
+import {
+  getWhatsAppSource,
+  parseAttributionCapsule,
+} from "../../shared/whatsappAttribution";
 import { sendAutoResponse } from "../autoResponse";
 import { notifyNewLead } from "../eliNotify";
 import { calculateLeadScore, type LeadData } from "../leadScoring";
@@ -54,7 +64,9 @@ export const leadRouter = router({
       const allLeads = await getAllLeads();
       const newLead = allLeads[0]; // Most recent lead
       if (newLead) {
-        const allEmails = allLeads.map(l => l.email);
+        const allEmails = allLeads
+          .map(l => l.email)
+          .filter((email): email is string => email !== null);
         const result = calculateLeadScore(newLead as LeadData, allEmails);
         updateLeadScore(
           newLead.id,
@@ -105,6 +117,63 @@ export const leadRouter = router({
       return { success: true, message: "Lead captured successfully" };
     }),
 
+  createFromWhatsApp: secureProtectedProcedure
+    .input(adminLeadInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      checkAdminRateLimit(ctx);
+
+      const parsedCapsule = input.attributionCapsule
+        ? parseAttributionCapsule(input.attributionCapsule)
+        : null;
+      if (input.attributionCapsule && !parsedCapsule) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid attribution capsule",
+        });
+      }
+
+      const registeredSource = getWhatsAppSource(
+        parsedCapsule?.sourceCode ?? input.sourceCode ?? ""
+      );
+      if (input.sourceCode && !registeredSource) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Unknown WhatsApp source code",
+        });
+      }
+
+      const lead = {
+        name: input.name,
+        email: input.email || null,
+        phone: input.phone,
+        source: "whatsapp",
+        interestedTours: input.interestedTours,
+        message: input.message,
+        status: input.status,
+        sourceCode: registeredSource?.code ?? null,
+        sourceChannel:
+          parsedCapsule?.channel ?? registeredSource?.channelFallback ?? null,
+        landingPage: parsedCapsule?.landingPath ?? null,
+        language: registeredSource?.language ?? input.language ?? null,
+        utmSource: parsedCapsule?.utmSource ?? null,
+        utmMedium: parsedCapsule?.utmMedium ?? null,
+        utmCampaign: parsedCapsule?.utmCampaign ?? null,
+        travelDate: input.travelDate,
+        groupSize: input.groupSize,
+        estimatedValueThb: input.estimatedValueThb,
+        lostReason: input.lostReason,
+      };
+
+      await createLead(lead);
+      await logAdminAction({
+        userId: ctx.user?.id,
+        action: "create",
+        resourceType: "lead",
+        newValue: JSON.stringify(lead),
+      });
+      return { success: true };
+    }),
+
   list: secureProtectedProcedure.query(async () => {
     return await getAllLeads();
   }),
@@ -134,24 +203,87 @@ export const leadRouter = router({
     .input(
       z.object({
         id: z.number(),
-        data: z.object({
-          status: z
-            .enum(["new", "contacted", "quoted", "converted", "lost"])
-            .optional(),
-          convertedToBookingId: z.number().optional(),
-          notes: z.string().optional(),
-        }),
+        data: adminLeadUpdateSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
-      await updateLead(input.id, input.data);
+      const existingLead = await getLeadById(input.id);
+      if (!existingLead) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Lead not found" });
+      }
+
+      const { attributionCapsule, sourceCode, completed, ...outcomeFields } =
+        input.data;
+      const updates = { ...outcomeFields };
+
+      if (attributionCapsule !== undefined) {
+        const parsed = parseAttributionCapsule(attributionCapsule);
+        if (!parsed) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid attribution capsule",
+          });
+        }
+        const source = getWhatsAppSource(parsed.sourceCode);
+        Object.assign(updates, {
+          sourceCode: parsed.sourceCode,
+          sourceChannel: parsed.channel,
+          landingPage: parsed.landingPath,
+          language: source?.language ?? null,
+          utmSource: parsed.utmSource,
+          utmMedium: parsed.utmMedium,
+          utmCampaign: parsed.utmCampaign,
+        });
+      } else if (sourceCode !== undefined) {
+        const source = sourceCode ? getWhatsAppSource(sourceCode) : undefined;
+        if (sourceCode && !source) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Unknown WhatsApp source code",
+          });
+        }
+        Object.assign(updates, {
+          sourceCode,
+          sourceChannel: source?.channelFallback ?? null,
+          landingPage: null,
+          language: source?.language ?? null,
+          utmSource: null,
+          utmMedium: null,
+          utmCampaign: null,
+        });
+      }
+
+      if (completed !== undefined) {
+        const effectiveStatus = input.data.status ?? existingLead.status;
+        if (completed && effectiveStatus !== "converted") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Only converted leads can be marked completed",
+          });
+        }
+        Object.assign(updates, { completedAt: completed ? new Date() : null });
+      }
+
+      const effectiveStatus = input.data.status ?? existingLead.status;
+      const effectiveLostReason =
+        input.data.lostReason !== undefined
+          ? input.data.lostReason
+          : existingLead.lostReason;
+      if (effectiveStatus === "lost" && !effectiveLostReason?.trim()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Lost reason is required when status is lost",
+        });
+      }
+
+      await updateLead(input.id, updates);
       await logAdminAction({
         userId: ctx.user?.id,
         action: "update",
         resourceType: "lead",
         resourceId: input.id,
-        newValue: JSON.stringify(input.data),
+        newValue: JSON.stringify(updates),
       });
       return { success: true };
     }),

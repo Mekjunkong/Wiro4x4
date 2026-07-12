@@ -20,7 +20,7 @@ export interface GlobalSearchResult {
   leads: Array<{
     id: number;
     name: string;
-    email: string;
+    email: string | null;
     phone: string | null;
     status: string;
     score: number | null;

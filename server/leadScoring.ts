@@ -12,7 +12,7 @@ import { leads } from "../drizzle/schema";
 export interface LeadData {
   id: number;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   source: string | null;
   interestedTours: string | null;
@@ -170,9 +170,10 @@ export function calculateLeadScore(
   }
 
   // Multiple leads from same email (repeat interest)
-  if (allLeadEmails) {
+  if (allLeadEmails && lead.email) {
+    const leadEmail = lead.email.toLowerCase();
     const sameEmailCount = allLeadEmails.filter(
-      e => e.toLowerCase() === lead.email.toLowerCase()
+      e => e.toLowerCase() === leadEmail
     ).length;
     if (sameEmailCount > 1) {
       engagementPts += 10;
@@ -252,7 +253,9 @@ export async function recalculateAllLeadScores(): Promise<{
   );
 
   // Collect all emails for repeat-inquiry detection
-  const allEmails = allLeads.map(l => l.email);
+  const allEmails = allLeads
+    .map(l => l.email)
+    .filter((email): email is string => email !== null);
 
   let updated = 0;
   for (const lead of activeLeads) {

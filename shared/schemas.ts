@@ -3,6 +3,10 @@
  * These are the single source of truth for input validation.
  */
 import { z } from "zod";
+import {
+  isWhatsAppSourceCode,
+  parseAttributionCapsule,
+} from "./whatsappAttribution";
 
 const noHtml = (val: string) => !/<[^>]*>/g.test(val);
 
@@ -74,6 +78,88 @@ export const leadInputSchema = z.object({
   message: z.optional(
     z.string().max(1000).refine(noHtml, "HTML tags are not allowed")
   ),
+});
+
+const leadStatusSchema = z.enum([
+  "new",
+  "contacted",
+  "quoted",
+  "converted",
+  "lost",
+]);
+
+const whatsappSourceCodeSchema = z
+  .string()
+  .refine(isWhatsAppSourceCode, "Unknown WhatsApp source code");
+
+const attributionCapsuleSchema = z
+  .string()
+  .max(600)
+  .refine(
+    capsule => parseAttributionCapsule(capsule) !== null,
+    "Invalid attribution capsule"
+  );
+
+function isValidIsoDate(value: string): boolean {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
+}
+
+const travelDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid travel date")
+  .refine(isValidIsoDate, {
+    message: "Invalid travel date",
+  })
+  .transform(value => new Date(`${value}T00:00:00.000Z`));
+
+export const adminLeadInputSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name or WhatsApp label is required")
+      .max(255)
+      .refine(noHtml, "HTML tags are not allowed"),
+    phone: z.string().trim().min(1, "Phone is required").max(50),
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    attributionCapsule: attributionCapsuleSchema.optional(),
+    sourceCode: whatsappSourceCodeSchema.optional(),
+    language: z.enum(["en", "he"]).optional(),
+    interestedTours: z.string().max(2000).optional(),
+    message: z.optional(
+      z.string().max(1000).refine(noHtml, "HTML tags are not allowed")
+    ),
+    status: leadStatusSchema.default("new"),
+    travelDate: travelDateSchema.optional(),
+    groupSize: z.number().int().positive().optional(),
+    estimatedValueThb: z.number().int().nonnegative().optional(),
+    lostReason: z.string().trim().min(1).max(1000).optional(),
+  })
+  .superRefine((input, ctx) => {
+    if (input.status === "lost" && !input.lostReason) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["lostReason"],
+        message: "Lost reason is required when status is lost",
+      });
+    }
+  });
+
+export const adminLeadUpdateSchema = z.object({
+  status: leadStatusSchema.optional(),
+  convertedToBookingId: z.number().int().positive().nullable().optional(),
+  notes: z.string().max(5000).nullable().optional(),
+  attributionCapsule: attributionCapsuleSchema.optional(),
+  sourceCode: whatsappSourceCodeSchema.nullable().optional(),
+  language: z.enum(["en", "he"]).nullable().optional(),
+  travelDate: travelDateSchema.nullable().optional(),
+  groupSize: z.number().int().positive().nullable().optional(),
+  estimatedValueThb: z.number().int().nonnegative().nullable().optional(),
+  lostReason: z.string().trim().min(1).max(1000).nullable().optional(),
+  completed: z.boolean().optional(),
 });
 
 export const financialRecordInputSchema = z.object({
@@ -221,6 +307,8 @@ export const updateUserRoleSchema = z.object({
 export type BookingInput = z.infer<typeof bookingInputSchema>;
 export type AgentInput = z.infer<typeof agentInputSchema>;
 export type LeadInput = z.infer<typeof leadInputSchema>;
+export type AdminLeadInput = z.infer<typeof adminLeadInputSchema>;
+export type AdminLeadUpdateInput = z.infer<typeof adminLeadUpdateSchema>;
 export type FinancialRecordInput = z.infer<typeof financialRecordInputSchema>;
 export type TourInput = z.infer<typeof tourInputSchema>;
 export type ReviewInput = z.infer<typeof reviewInputSchema>;
