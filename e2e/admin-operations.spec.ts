@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
   buildAttributionCapsule,
+  parseAttributionCapsule,
   WHATSAPP_SOURCES,
 } from "../shared/whatsappAttribution";
 
@@ -28,6 +29,10 @@ type MockLead = Record<string, unknown> & { id: number; status: string };
 async function mockAuthenticatedAdmin(page: Page) {
   const leads: MockLead[] = [];
   let createAttempts = 0;
+  let lastCreatePayload: Record<string, unknown> | undefined;
+  let updateAttempts = 0;
+  let activeUpdates = 0;
+  let maxConcurrentUpdates = 0;
 
   const dataFor = (procedure: string) => {
     if (procedure === "auth.me") {
@@ -94,8 +99,9 @@ async function mockAuthenticatedAdmin(page: Page) {
         "json" in rawBody ? rawBody.json : Object.values(rawBody)[0]?.json;
       if (procedures.includes("lead.createFromWhatsApp")) {
         createAttempts += 1;
+        lastCreatePayload = payload;
         if (createAttempts === 1) {
-          await new Promise(resolve => setTimeout(resolve, 150));
+          await new Promise(resolve => setTimeout(resolve, 750));
           await route.fulfill({
             status: 500,
             contentType: "application/json",
@@ -111,8 +117,19 @@ async function mockAuthenticatedAdmin(page: Page) {
           });
           return;
         }
+        const parsed = parseAttributionCapsule(
+          String(payload?.attributionCapsule ?? "")
+        );
+        if (!parsed) {
+          await route.fulfill({
+            status: 400,
+            contentType: "application/json",
+            body: JSON.stringify({ error: { message: "Capsule required" } }),
+          });
+          return;
+        }
         const source = WHATSAPP_SOURCES.find(
-          item => item.code === payload?.sourceCode
+          item => item.code === parsed.sourceCode
         );
         leads.unshift({
           id: 101,
@@ -121,13 +138,13 @@ async function mockAuthenticatedAdmin(page: Page) {
           email: payload?.email || null,
           source: "whatsapp",
           status: "new",
-          sourceCode: payload?.sourceCode ?? "HOME-HERO-EN",
-          sourceChannel: source?.channelFallback ?? "organic",
+          sourceCode: parsed.sourceCode,
+          sourceChannel: parsed.channel,
           language: source?.language ?? "en",
-          landingPage: "/kosher-tours",
-          utmSource: "google",
-          utmMedium: "organic",
-          utmCampaign: "summer",
+          landingPage: parsed.landingPath,
+          utmSource: parsed.utmSource,
+          utmMedium: parsed.utmMedium,
+          utmCampaign: parsed.utmCampaign,
           interestedTours: payload?.interestedTours ?? null,
           message: payload?.message ?? null,
           travelDate: payload?.travelDate ?? null,
@@ -140,6 +157,12 @@ async function mockAuthenticatedAdmin(page: Page) {
         });
       }
       if (procedures.includes("lead.update")) {
+        updateAttempts += 1;
+        activeUpdates += 1;
+        maxConcurrentUpdates = Math.max(maxConcurrentUpdates, activeUpdates);
+        await new Promise(resolve =>
+          setTimeout(resolve, updateAttempts === 1 ? 400 : 75)
+        );
         const id = Number(payload?.id);
         const lead = leads.find(item => item.id === id);
         const data = payload?.data as Record<string, unknown> | undefined;
@@ -150,6 +173,7 @@ async function mockAuthenticatedAdmin(page: Page) {
             delete lead.completed;
           }
         }
+        activeUpdates -= 1;
       }
       await route.fulfill({
         contentType: "application/json",
@@ -167,11 +191,19 @@ async function mockAuthenticatedAdmin(page: Page) {
     });
   });
 
-  return { leads, getCreateAttempts: () => createAttempts };
+  return {
+    leads,
+    getCreateAttempts: () => createAttempts,
+    getLastCreatePayload: () => lastCreatePayload,
+    getActiveUpdates: () => activeUpdates,
+    getMaxConcurrentUpdates: () => maxConcurrentUpdates,
+  };
 }
 
 test.describe("Admin Dashboard - WhatsApp lead operations", () => {
-  test("captures an attributed WhatsApp inquiry inline", async ({ page }) => {
+  test("captures an attributed WhatsApp inquiry inline", async ({
+    page,
+  }, testInfo) => {
     await preparePage(page);
     const mockAdmin = await mockAuthenticatedAdmin(page);
     await page.goto("/admin");
@@ -182,6 +214,10 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     ).toBeVisible();
     await page.getByRole("button", { name: "Add WhatsApp inquiry" }).focus();
     await page.keyboard.press("Enter");
+    await expect(page.getByLabel("Attribution capsule")).toHaveAttribute(
+      "placeholder",
+      "Paste [WIRO:v1|…] from the WhatsApp message"
+    );
 
     const capsule = buildAttributionCapsule({
       sourceCode: "HOME-HERO-EN",
@@ -215,11 +251,19 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     await page.getByLabel("Estimated value (THB)").fill("48000");
     await page.getByLabel("Notes").fill("=1+1");
 
-    const save = page.getByRole("button", { name: "Save WhatsApp inquiry" });
-    await save.dblclick();
+    const form = page.getByRole("form", { name: "Add WhatsApp inquiry" });
+    const submitButton = form.locator('button[type="submit"]');
+    await submitButton.click();
+    await expect(form).toHaveAttribute("aria-busy", "true");
+    await expect(
+      page.getByRole("button", { name: "Close WhatsApp inquiry form" })
+    ).toBeDisabled();
+    await expect(page.getByLabel("Name or WhatsApp label")).toBeDisabled();
+    await expect(submitButton).toBeDisabled();
     await expect(page.getByRole("alert")).toContainText(
       "Temporary save failure"
     );
+    const save = page.getByRole("button", { name: "Save WhatsApp inquiry" });
     await expect(save).toBeEnabled();
     await expect(page.getByLabel("Name or WhatsApp label")).toHaveValue(
       "Noa WhatsApp"
@@ -242,10 +286,16 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     await expect(
       page.getByRole("button", { name: "Add WhatsApp inquiry" })
     ).toBeVisible();
+    expect(mockAdmin.getLastCreatePayload()?.attributionCapsule).toBe(capsule);
     const row = page.getByRole("row", { name: /Noa WhatsApp/ });
     await expect(row).toContainText("HOME-HERO-EN");
     await expect(row).toContainText("organic");
     await expect(row).toContainText("THB 48,000");
+    if (testInfo.project.name === "Mobile Chrome") {
+      const mobileContact = page.getByLabel("Mobile contact for Noa WhatsApp");
+      await expect(mobileContact).toBeVisible();
+      await expect(mobileContact).toContainText("+66 81 234 5678");
+    }
 
     const status = row.getByLabel("Status for Noa WhatsApp");
     await status.selectOption("lost");
@@ -261,6 +311,9 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     await page.getByLabel("Loss reason for Noa WhatsApp").fill("Travel dates");
     await status.selectOption("contacted");
     await status.selectOption("quoted");
+    await expect.poll(() => mockAdmin.getActiveUpdates()).toBe(0);
+    expect(mockAdmin.getMaxConcurrentUpdates()).toBe(1);
+    await expect(status.locator("option:checked")).toHaveText("Quoted");
     await status.selectOption("converted");
     await expect(status.locator("option:checked")).toHaveText("Confirmed");
     await row.getByRole("button", { name: "Mark completed" }).click();

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -289,6 +289,10 @@ export function LeadsTab() {
   const [estimatedValues, setEstimatedValues] = useState<
     Record<number, string>
   >({});
+  const [updatingLeadIds, setUpdatingLeadIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const updatingLeadIdsRef = useRef(new Set<number>());
 
   const {
     data: leadsData,
@@ -323,6 +327,18 @@ export function LeadsTab() {
       toast.error("Failed to update lead. Please try again.");
     },
   });
+  const mutateLead = (input: Parameters<typeof updateLeadMut.mutate>[0]) => {
+    if (updatingLeadIdsRef.current.has(input.id)) return;
+
+    updatingLeadIdsRef.current.add(input.id);
+    setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
+    updateLeadMut.mutate(input, {
+      onSettled: () => {
+        updatingLeadIdsRef.current.delete(input.id);
+        setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
+      },
+    });
+  };
   const deleteLeadMut = trpc.lead.delete.useMutation({
     onSuccess: () => {
       void refetchLeads();
@@ -356,7 +372,7 @@ export function LeadsTab() {
     }
     if (lead.completedAt && newStatus !== "converted") {
       if (!confirm("Undo completed and change this lead's status?")) return;
-      updateLeadMut.mutate({
+      mutateLead({
         id: lead.id,
         data: {
           status: newStatus as "new" | "contacted" | "quoted" | "lost",
@@ -366,7 +382,7 @@ export function LeadsTab() {
       });
       return;
     }
-    updateLeadMut.mutate({
+    mutateLead({
       id: lead.id,
       data: {
         status: newStatus as
@@ -381,7 +397,7 @@ export function LeadsTab() {
   };
 
   const handleConvertLead = (leadId: number) => {
-    updateLeadMut.mutate({ id: leadId, data: { status: "converted" } });
+    mutateLead({ id: leadId, data: { status: "converted" } });
   };
 
   const toggleSelect = (id: number) => {
@@ -608,12 +624,20 @@ export function LeadsTab() {
                         type="checkbox"
                         checked={selectedIds.has(lead.id)}
                         onChange={() => toggleSelect(lead.id)}
+                        disabled={updatingLeadIds.has(lead.id)}
                         className="w-4 h-4 rounded border-border"
                       />
                     </td>
                     <td className="py-3 px-4 text-sm">
                       <p>{lead.name}</p>
                       <div className="mt-1 text-[11px] leading-4 text-muted-foreground md:hidden">
+                        <div
+                          aria-label={`Mobile contact for ${lead.name}`}
+                          className="mb-1 select-text sm:hidden"
+                        >
+                          <p>{lead.phone || "No phone"}</p>
+                          <p>{lead.email || "No email"}</p>
+                        </div>
                         <p>
                           {lead.sourceCode || "Unknown"} ·{" "}
                           {lead.sourceChannel || "Unknown"}
@@ -679,6 +703,7 @@ export function LeadsTab() {
                       <select
                         value={lead.status}
                         aria-label={`Status for ${lead.name}`}
+                        disabled={updatingLeadIds.has(lead.id)}
                         onChange={e =>
                           handleLeadStatusChange(lead, e.target.value)
                         }
@@ -701,7 +726,8 @@ export function LeadsTab() {
                         {lead.status !== "converted" && (
                           <button
                             onClick={() => handleConvertLead(lead.id)}
-                            className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1"
+                            disabled={updatingLeadIds.has(lead.id)}
+                            className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             <ArrowRightLeft className="w-3 h-3" />
                             <span className="hidden sm:inline">Convert</span>
@@ -711,12 +737,13 @@ export function LeadsTab() {
                           <button
                             type="button"
                             onClick={() =>
-                              updateLeadMut.mutate({
+                              mutateLead({
                                 id: lead.id,
                                 data: { completed: !lead.completedAt },
                               })
                             }
-                            className="flex min-h-[44px] items-center gap-1 rounded bg-blue-100 px-2 text-xs text-blue-700 transition hover:bg-blue-200"
+                            disabled={updatingLeadIds.has(lead.id)}
+                            className="flex min-h-[44px] items-center gap-1 rounded bg-blue-100 px-2 text-xs text-blue-700 transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {lead.completedAt ? (
                               <Circle className="h-3 w-3" />
@@ -733,7 +760,8 @@ export function LeadsTab() {
                             if (confirm("Delete this lead?"))
                               deleteLeadMut.mutate({ id: lead.id });
                           }}
-                          className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center"
+                          disabled={updatingLeadIds.has(lead.id)}
+                          className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -777,6 +805,7 @@ export function LeadsTab() {
                                 type="number"
                                 min={0}
                                 max={2_147_483_647}
+                                disabled={updatingLeadIds.has(lead.id)}
                                 value={
                                   estimatedValues[lead.id] ??
                                   String(lead.estimatedValueThb ?? "")
@@ -795,7 +824,7 @@ export function LeadsTab() {
                                   const value =
                                     estimatedValues[lead.id] ??
                                     String(lead.estimatedValueThb ?? "");
-                                  updateLeadMut.mutate({
+                                  mutateLead({
                                     id: lead.id,
                                     data: {
                                       estimatedValueThb: value
@@ -804,7 +833,8 @@ export function LeadsTab() {
                                     },
                                   });
                                 }}
-                                className="min-h-[44px] rounded bg-muted px-3"
+                                disabled={updatingLeadIds.has(lead.id)}
+                                className="min-h-[44px] rounded bg-muted px-3 disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 Save
                               </button>
@@ -817,6 +847,7 @@ export function LeadsTab() {
                               value={
                                 lostReasons[lead.id] ?? lead.lostReason ?? ""
                               }
+                              disabled={updatingLeadIds.has(lead.id)}
                               onChange={event =>
                                 setLostReasons(reasons => ({
                                   ...reasons,

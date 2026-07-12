@@ -140,6 +140,7 @@ export function WhatsAppLeadForm({ onCreated }: Props) {
       onSubmit={submit}
       className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm"
       aria-label="Add WhatsApp inquiry"
+      aria-busy={createLead.isPending}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -156,146 +157,151 @@ export function WhatsAppLeadForm({ onCreated }: Props) {
         <button
           type="button"
           aria-label="Close WhatsApp inquiry form"
-          onClick={() => setOpen(false)}
-          className="grid min-h-[44px] min-w-[44px] place-items-center rounded-lg hover:bg-emerald-100"
+          onClick={() => {
+            if (!createLead.isPending) setOpen(false);
+          }}
+          disabled={createLead.isPending}
+          className="grid min-h-[44px] min-w-[44px] place-items-center rounded-lg hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Field label="Name or WhatsApp label" required>
-          <input
-            className={controlClass}
-            value={name}
-            onChange={event => setName(event.target.value)}
-            required
-          />
-        </Field>
-        <Field label="WhatsApp phone" required>
-          <input
-            className={controlClass}
-            value={phone}
-            onChange={event => setPhone(event.target.value)}
-            inputMode="tel"
-            required
-          />
-        </Field>
-        <Field label="Email (optional)">
-          <input
-            className={controlClass}
-            type="email"
-            value={email}
-            onChange={event => setEmail(event.target.value)}
-          />
-        </Field>
-        <Field label="Manual source fallback">
-          <select
-            className={controlClass}
-            value={sourceCode}
-            onChange={event => {
-              setSourceCode(event.target.value);
-              if (event.target.value) setCapsule("");
-            }}
-          >
-            <option value="">Unknown</option>
-            {WHATSAPP_SOURCES.map(source => (
-              <option key={source.code} value={source.code}>
-                {source.code}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <div className="sm:col-span-2 lg:col-span-4">
-          <Field label="Attribution capsule">
+      <fieldset disabled={createLead.isPending} className="contents">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Name or WhatsApp label" required>
             <input
               className={controlClass}
-              value={capsule}
+              value={name}
+              onChange={event => setName(event.target.value)}
+              required
+            />
+          </Field>
+          <Field label="WhatsApp phone" required>
+            <input
+              className={controlClass}
+              value={phone}
+              onChange={event => setPhone(event.target.value)}
+              inputMode="tel"
+              required
+            />
+          </Field>
+          <Field label="Email (optional)">
+            <input
+              className={controlClass}
+              type="email"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+            />
+          </Field>
+          <Field label="Manual source fallback">
+            <select
+              className={controlClass}
+              value={sourceCode}
               onChange={event => {
-                setCapsule(event.target.value);
-                if (event.target.value) setSourceCode("");
+                setSourceCode(event.target.value);
+                if (event.target.value) setCapsule("");
               }}
-              placeholder="Paste [WIRO-SRC|v1|…] from the WhatsApp message"
+            >
+              <option value="">Unknown</option>
+              {WHATSAPP_SOURCES.map(source => (
+                <option key={source.code} value={source.code}>
+                  {source.code}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <div className="sm:col-span-2 lg:col-span-4">
+            <Field label="Attribution capsule">
+              <input
+                className={controlClass}
+                value={capsule}
+                onChange={event => {
+                  setCapsule(event.target.value);
+                  if (event.target.value) setSourceCode("");
+                }}
+                placeholder="Paste [WIRO:v1|…] from the WhatsApp message"
+              />
+            </Field>
+            {capsule.trim() && !parsed && (
+              <p className="mt-1 text-xs text-red-700" role="alert">
+                Capsule not recognized
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="my-3 rounded-lg border border-border/70 bg-background/80 p-3 text-xs"
+          aria-label="Source preview"
+        >
+          <span className="font-semibold">Source preview:</span>{" "}
+          <span>{preview?.sourceCode ?? "Unknown"}</span>
+          <span className="mx-2 text-muted-foreground">·</span>
+          <span>{preview?.channel ?? "Unknown"}</span>
+          <span className="mx-2 text-muted-foreground">·</span>
+          <span>{preview?.language?.toUpperCase() ?? "Unknown"}</span>
+          <div className="mt-1 text-muted-foreground">
+            Landing {preview?.landingPage ?? "Unknown"} · UTM source{" "}
+            {preview?.utmSource ?? "Unknown"} · medium{" "}
+            {preview?.utmMedium ?? "Unknown"} · campaign{" "}
+            {preview?.utmCampaign ?? "Unknown"}
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Tour interest">
+            <input
+              className={controlClass}
+              value={interestedTours}
+              onChange={event => setInterestedTours(event.target.value)}
             />
           </Field>
-          {capsule.trim() && !parsed && (
-            <p className="mt-1 text-xs text-red-700" role="alert">
-              Capsule not recognized
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div
-        className="my-3 rounded-lg border border-border/70 bg-background/80 p-3 text-xs"
-        aria-label="Source preview"
-      >
-        <span className="font-semibold">Source preview:</span>{" "}
-        <span>{preview?.sourceCode ?? "Unknown"}</span>
-        <span className="mx-2 text-muted-foreground">·</span>
-        <span>{preview?.channel ?? "Unknown"}</span>
-        <span className="mx-2 text-muted-foreground">·</span>
-        <span>{preview?.language?.toUpperCase() ?? "Unknown"}</span>
-        <div className="mt-1 text-muted-foreground">
-          Landing {preview?.landingPage ?? "Unknown"} · UTM source{" "}
-          {preview?.utmSource ?? "Unknown"} · medium{" "}
-          {preview?.utmMedium ?? "Unknown"} · campaign{" "}
-          {preview?.utmCampaign ?? "Unknown"}
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Field label="Tour interest">
-          <input
-            className={controlClass}
-            value={interestedTours}
-            onChange={event => setInterestedTours(event.target.value)}
-          />
-        </Field>
-        <Field label="Travel date">
-          <input
-            className={controlClass}
-            type="date"
-            min="2020-01-01"
-            max="2100-12-31"
-            value={travelDate}
-            onChange={event => setTravelDate(event.target.value)}
-          />
-        </Field>
-        <Field label="Group size">
-          <input
-            className={controlClass}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={200}
-            value={groupSize}
-            onChange={event => setGroupSize(event.target.value)}
-          />
-        </Field>
-        <Field label="Estimated value (THB)">
-          <input
-            className={controlClass}
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={2_147_483_647}
-            step={1}
-            value={estimatedValueThb}
-            onChange={event => setEstimatedValueThb(event.target.value)}
-          />
-        </Field>
-        <div className="sm:col-span-2 lg:col-span-4">
-          <Field label="Notes">
-            <textarea
-              className={`${controlClass} min-h-[72px] py-2`}
-              value={message}
-              maxLength={1000}
-              onChange={event => setMessage(event.target.value)}
+          <Field label="Travel date">
+            <input
+              className={controlClass}
+              type="date"
+              min="2020-01-01"
+              max="2100-12-31"
+              value={travelDate}
+              onChange={event => setTravelDate(event.target.value)}
             />
           </Field>
+          <Field label="Group size">
+            <input
+              className={controlClass}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={200}
+              value={groupSize}
+              onChange={event => setGroupSize(event.target.value)}
+            />
+          </Field>
+          <Field label="Estimated value (THB)">
+            <input
+              className={controlClass}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={2_147_483_647}
+              step={1}
+              value={estimatedValueThb}
+              onChange={event => setEstimatedValueThb(event.target.value)}
+            />
+          </Field>
+          <div className="sm:col-span-2 lg:col-span-4">
+            <Field label="Notes">
+              <textarea
+                className={`${controlClass} min-h-[72px] py-2`}
+                value={message}
+                maxLength={1000}
+                onChange={event => setMessage(event.target.value)}
+              />
+            </Field>
+          </div>
         </div>
-      </div>
+      </fieldset>
 
       {error && (
         <p className="mt-3 text-sm font-medium text-red-700" role="alert">
