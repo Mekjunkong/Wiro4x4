@@ -1,3 +1,8 @@
+import {
+  decodeAndValidateAttributionValue,
+  isWhatsAppSourceCode,
+} from "@shared/whatsappAttribution";
+
 export const CANONICAL_EVENTS = [
   "commercial_page_view",
   "tour_view",
@@ -27,18 +32,16 @@ export interface AnalyticsEventProperties {
   sourceCode?: string;
 }
 
-const ALLOWED_PROPERTY_KEYS = [
-  "page",
-  "placement",
-  "language",
-  "tour",
-  "depth",
-  "sourceChannel",
-  "utmSource",
-  "utmMedium",
-  "utmCampaign",
-  "sourceCode",
-] as const satisfies readonly (keyof AnalyticsEventProperties)[];
+const PAGE_MAX_LENGTH = 240;
+const PLACEMENT_MAX_LENGTH = 80;
+const TOUR_MAX_LENGTH = 120;
+const CHANNEL_MAX_LENGTH = 24;
+const UTM_MAX_LENGTH = 64;
+
+const PAGE_PATTERN = /^(?:global|\/[A-Za-z0-9/_~.:-]*)$/;
+const LABEL_PATTERN = /^[A-Za-z0-9._~:-]+$/;
+const TOUR_PATTERN = /^[A-Za-z0-9._~-]+$/;
+const LOWER_TOKEN_PATTERN = /^[a-z0-9._~-]+$/;
 
 type PlausibleWindow = Window & {
   plausible?: (
@@ -53,14 +56,71 @@ function sanitizeProperties(
   const safe: AnalyticsEventProperties = {};
   const source = properties as Record<string, unknown>;
 
-  for (const key of ALLOWED_PROPERTY_KEYS) {
-    const value = source[key];
-    if (typeof value === "string" || typeof value === "number") {
-      Object.assign(safe, { [key]: value });
-    }
+  const safeString = (
+    value: unknown,
+    maxLength: number,
+    pattern: RegExp
+  ): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const decoded = decodeAndValidateAttributionValue(value);
+    if (
+      decoded === null ||
+      decoded.length === 0 ||
+      decoded.length > maxLength ||
+      !pattern.test(decoded)
+    )
+      return undefined;
+    return decoded;
+  };
+
+  const page = safeString(source.page, PAGE_MAX_LENGTH, PAGE_PATTERN);
+  if (page !== undefined) safe.page = page;
+
+  const placement = safeString(
+    source.placement,
+    PLACEMENT_MAX_LENGTH,
+    LABEL_PATTERN
+  );
+  if (placement !== undefined) safe.placement = placement;
+
+  if (source.language === "en" || source.language === "he") {
+    safe.language = source.language;
+  }
+
+  const tour = safeString(source.tour, TOUR_MAX_LENGTH, TOUR_PATTERN);
+  if (tour !== undefined) safe.tour = tour;
+
+  if (source.depth === 25 || source.depth === 50 || source.depth === 90) {
+    safe.depth = source.depth;
+  }
+
+  const sourceChannel = safeString(
+    source.sourceChannel,
+    CHANNEL_MAX_LENGTH,
+    LOWER_TOKEN_PATTERN
+  );
+  if (sourceChannel !== undefined) safe.sourceChannel = sourceChannel;
+
+  for (const key of ["utmSource", "utmMedium", "utmCampaign"] as const) {
+    const value = safeString(source[key], UTM_MAX_LENGTH, LOWER_TOKEN_PATTERN);
+    if (value !== undefined) Object.assign(safe, { [key]: value });
+  }
+
+  if (
+    typeof source.sourceCode === "string" &&
+    isWhatsAppSourceCode(source.sourceCode)
+  ) {
+    safe.sourceCode = source.sourceCode;
   }
 
   return safe;
+}
+
+function isAnalyticsEventName(value: unknown): value is AnalyticsEventName {
+  return (
+    typeof value === "string" &&
+    CANONICAL_EVENTS.includes(value as AnalyticsEventName)
+  );
 }
 
 /** Dispatches a privacy-bounded event without ever blocking user actions. */
@@ -71,6 +131,7 @@ export function trackEvent(
   if (typeof window === "undefined") return;
 
   try {
+    if (!isAnalyticsEventName(eventName)) return;
     const plausible = (window as PlausibleWindow).plausible;
     if (typeof plausible !== "function") return;
     plausible(eventName, { props: sanitizeProperties(properties) });

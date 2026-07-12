@@ -237,7 +237,7 @@ export default function Pricing() {
 
   useEffect(() => {
     const element = pricingSectionRef.current;
-    if (!element) return;
+    if (!element || pricingViewTrackedRef.current) return;
     const observer = new IntersectionObserver(
       entries => {
         if (

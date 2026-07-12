@@ -103,6 +103,25 @@ describe("once-only behavior state", () => {
 
     expect(pricingPage).toContain("pricingViewTrackedRef.current");
   });
+
+  it("does not construct pricing observers after visibility is already claimed", () => {
+    const cases = [
+      ["client/src/pages/Pricing.tsx", "pricingViewTrackedRef.current"],
+      ["client/src/pages/TourDetail.tsx", "pricingViewKeyRef.current === slug"],
+      [
+        "client/src/pages/PackageDetail.tsx",
+        "pricingViewKeyRef.current === slug",
+      ],
+    ] as const;
+
+    for (const [file, guard] of cases) {
+      const source = readFileSync(resolve(file), "utf8");
+      expect(
+        source.indexOf(guard),
+        `${file} must guard before observing`
+      ).toBeLessThan(source.indexOf("new IntersectionObserver"));
+    }
+  });
 });
 
 describe("commercial route configuration", () => {

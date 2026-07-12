@@ -1249,7 +1249,12 @@ export default function TourDetail() {
   }, [language, slug, tour]);
 
   useEffect(() => {
-    if (!tour || !pricingSectionRef.current) return;
+    if (
+      !tour ||
+      !pricingSectionRef.current ||
+      pricingViewKeyRef.current === slug
+    )
+      return;
     const observer = new IntersectionObserver(
       entries => {
         if (

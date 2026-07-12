@@ -514,7 +514,7 @@ export default function PackageDetail() {
 
   useEffect(() => {
     const element = pricingSectionRef.current;
-    if (!hasData || !element) return;
+    if (!hasData || !element || pricingViewKeyRef.current === slug) return;
     const observer = new IntersectionObserver(
       entries => {
         if (
