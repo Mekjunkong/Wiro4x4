@@ -105,6 +105,20 @@ export const WHATSAPP_SOURCES = [
     channelFallback: "direct",
   },
   {
+    code: "ESTIMATE-V2-SAVE-EN",
+    page: "/estimate-v2",
+    placement: "save-estimate",
+    language: "en",
+    channelFallback: "direct",
+  },
+  {
+    code: "ESTIMATE-V2-SAVE-HE",
+    page: "/estimate-v2",
+    placement: "save-estimate",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
     code: "CHAT-HANDOFF-EN",
     page: "global",
     placement: "chat-handoff",

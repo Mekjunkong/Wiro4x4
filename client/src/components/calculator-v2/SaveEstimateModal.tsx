@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { COMPANY_WHATSAPP_URL } from "@/const";
+import { trackEvent } from "@/lib/analytics";
+import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
 
 interface SaveEstimateModalProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export function SaveEstimateModal({
   needsShabbatHotel,
   total: _total,
 }: SaveEstimateModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
@@ -101,10 +102,13 @@ export function SaveEstimateModal({
   };
 
   const handleWhatsAppShare = () => {
-    const message = encodeURIComponent(
-      `Check out my Chiang Mai trip estimate: ${shareableUrl}`
-    );
-    window.open(`${COMPANY_WHATSAPP_URL}?text=${message}`, "_blank");
+    const tracked = buildTrackedWhatsAppLink({
+      sourceCode:
+        language === "he" ? "ESTIMATE-V2-SAVE-HE" : "ESTIMATE-V2-SAVE-EN",
+      humanMessage: `Check out my Chiang Mai trip estimate: ${shareableUrl}`,
+    });
+    trackEvent("whatsapp_click", tracked.eventProperties);
+    window.open(tracked.href, "_blank");
   };
 
   return (
