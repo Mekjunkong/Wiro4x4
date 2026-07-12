@@ -1,6 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { getTableColumns, getTableName } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
+
+import {
+  tourAvailability,
+  tripPhotoAlbums,
+  tripPhotos,
+} from "../drizzle/schema";
 
 const drizzleDirectory = resolve(process.cwd(), "drizzle");
 const metadataDirectory = resolve(drizzleDirectory, "meta");
@@ -9,20 +16,54 @@ const journal = JSON.parse(
 ) as { entries: Array<{ idx: number; tag: string }> };
 
 describe("hand-authored migration integrity", () => {
-  it.each(["0009_post_tour_review_funnel", "0010_lead_attribution"])(
-    "keeps %s discoverable without claiming a generated snapshot",
-    tag => {
-      const migrationNumber = tag.slice(0, 4);
+  it("maps legacy production tables without asking migrations to rename them", () => {
+    expect(getTableName(tourAvailability)).toBe("tour_availability");
+    expect(getTableColumns(tourAvailability).tourId.name).toBe("tour_id");
+    expect(getTableName(tripPhotoAlbums)).toBe("trip_photo_albums");
+    expect(getTableColumns(tripPhotoAlbums).accessToken.name).toBe(
+      "access_token"
+    );
+    expect(getTableName(tripPhotos)).toBe("trip_photos");
+    expect(getTableColumns(tripPhotos).albumId.name).toBe("album_id");
+  });
 
+  it.each(["0009_post_tour_review_funnel", "0010_lead_attribution"])(
+    "keeps %s discoverable through the journal and SQL history",
+    tag => {
       expect(journal.entries.some(entry => entry.tag === tag)).toBe(true);
       expect(existsSync(resolve(drizzleDirectory, `${tag}.sql`))).toBe(true);
-      expect(
-        existsSync(
-          resolve(metadataDirectory, `${migrationNumber}_snapshot.json`)
-        )
-      ).toBe(false);
     }
   );
+
+  it("links a verified 0009 production baseline to the truthful post-0010 snapshot", () => {
+    const snapshotPaths = ["0008", "0009", "0010"].map(number =>
+      resolve(metadataDirectory, `${number}_snapshot.json`)
+    );
+    expect(snapshotPaths.every(existsSync)).toBe(true);
+    if (!snapshotPaths.every(existsSync)) return;
+
+    const [snapshot0008, snapshot0009, snapshot0010] = snapshotPaths.map(
+      path =>
+        JSON.parse(readFileSync(path, "utf8")) as {
+          id: string;
+          prevId: string;
+          tables: Record<
+            string,
+            { columns: Record<string, { notNull: boolean }> }
+          >;
+        }
+    );
+
+    expect(snapshot0009.prevId).toBe(snapshot0008.id);
+    expect(snapshot0010.prevId).toBe(snapshot0009.id);
+    expect(snapshot0009.tables).toHaveProperty("postTourReviewRequests");
+    expect(snapshot0009.tables).toHaveProperty("postTourReviewEvents");
+    expect(snapshot0009.tables.leads.columns.email.notNull).toBe(true);
+    expect(snapshot0009.tables.leads.columns).not.toHaveProperty("sourceCode");
+    expect(snapshot0010.tables.leads.columns.email.notNull).toBe(false);
+    expect(snapshot0010.tables.leads.columns).toHaveProperty("sourceCode");
+    expect(snapshot0010.tables.leads.columns).toHaveProperty("completedAt");
+  });
 
   it("keeps the lead migration additive and scoped to the leads table", () => {
     const sql = readFileSync(

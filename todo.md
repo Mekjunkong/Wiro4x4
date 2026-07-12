@@ -782,3 +782,7 @@
 - [x] Fix homepage og:image/twitter:image to use optimized single_cascade_waterfall-lg.jpg
 - [x] Delete 101 unreferenced images from client/public (37MB deploy weight reduction)
 - [x] Verified: 271 tests pass, TypeScript clean, production build succeeds
+
+## SEO Attribution MVP (Jul 12, 2026)
+
+- [x] Reconcile the verified post-0009 production baseline and generate lead-only 0010 migration metadata

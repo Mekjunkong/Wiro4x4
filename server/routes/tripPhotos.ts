@@ -182,6 +182,7 @@ export const tripPhotosRouter = router({
         const photoCount = await getAlbumPhotoCount(a.album.id);
         return {
           ...a.album,
+          title: a.album.title ?? "Untitled album",
           bookingContactName: a.bookingContactName,
           bookingContactEmail: a.bookingContactEmail,
           photoCount,
@@ -195,7 +196,10 @@ export const tripPhotosRouter = router({
   getAlbumPhotos: secureProtectedProcedure
     .input(z.object({ albumId: z.number() }))
     .query(async ({ input }) => {
-      return await getTripPhotosByAlbumId(input.albumId);
+      const photos = await getTripPhotosByAlbumId(input.albumId);
+      return photos
+        .filter(photo => photo.s3Url !== null)
+        .map(photo => ({ ...photo, s3Url: photo.s3Url! }));
     }),
 
   // ── Admin: Update album ──────────────────────────────────────────
@@ -285,7 +289,7 @@ export const tripPhotosRouter = router({
       const success = await sendTripPhotoAlbumEmail({
         customerName: booking.contactName,
         customerEmail: booking.contactEmail,
-        albumTitle: album.title,
+        albumTitle: album.title ?? "Your WIRO 4x4 trip photos",
         albumUrl,
         personalMessage: album.message,
         photoCount: photos.length,
@@ -351,16 +355,18 @@ export const tripPhotosRouter = router({
       const booking = await getBookingById(album.bookingId);
 
       return {
-        title: album.title,
+        title: album.title ?? "Your WIRO 4x4 trip photos",
         message: album.message,
         createdAt: album.createdAt,
         customerName: booking?.contactName ?? "Guest",
-        photos: photos.map(p => ({
-          id: p.id,
-          url: p.s3Url,
-          caption: p.caption,
-          sortOrder: p.sortOrder,
-        })),
+        photos: photos
+          .filter(photo => photo.s3Url !== null)
+          .map(photo => ({
+            id: photo.id,
+            url: photo.s3Url!,
+            caption: photo.caption,
+            sortOrder: photo.sortOrder,
+          })),
       };
     }),
 });

@@ -743,61 +743,56 @@ export type InsertInventoryItem = typeof inventory.$inferInsert;
 
 // Tour Availability Table
 export const tourAvailability = mysqlTable(
-  "tourAvailability",
+  "tour_availability",
   {
-    id: int("id").autoincrement().primaryKey(),
-    tourId: int("tourId").notNull(),
+    id: int("id").autoincrement().notNull(),
+    tourId: int("tour_id").notNull(),
     date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
-    maxSlots: int("maxSlots").default(10).notNull(),
-    bookedSlots: int("bookedSlots").default(0).notNull(),
-    isBlocked: int("isBlocked").default(0).notNull(), // boolean as int
+    maxSlots: int("max_slots").default(10).notNull(),
+    bookedSlots: int("booked_slots").default(0).notNull(),
+    isBlocked: int("is_blocked").default(0).notNull(), // boolean as int
     notes: text("notes"), // e.g., "Shabbat", "Holiday"
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
-  table => [
-    index("idx_tourAvailability_tourId_date").on(table.tourId, table.date),
-  ]
+  table => [index("idx_tour_date").on(table.tourId, table.date)]
 );
 export type TourAvailability = typeof tourAvailability.$inferSelect;
 export type InsertTourAvailability = typeof tourAvailability.$inferInsert;
 
 // Trip Photo Albums Table (private gallery delivery after tours)
 export const tripPhotoAlbums = mysqlTable(
-  "tripPhotoAlbums",
+  "trip_photo_albums",
   {
-    id: int("id").autoincrement().primaryKey(),
-    bookingId: int("bookingId").notNull(),
-    accessToken: varchar("accessToken", { length: 64 }).notNull().unique(),
-    title: varchar("title", { length: 255 }).notNull(),
+    id: int("id").autoincrement().notNull(),
+    bookingId: int("booking_id").notNull(),
+    accessToken: varchar("access_token", { length: 64 }).notNull(),
+    title: varchar("title", { length: 255 }),
     message: text("message"), // personal message from guide
-    isActive: int("isActive").default(1).notNull(),
-    expiresAt: timestamp("expiresAt"), // optional expiry
-    viewCount: int("viewCount").default(0).notNull(),
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+    isActive: int("is_active").default(1).notNull(),
+    expiresAt: timestamp("expires_at"), // optional expiry
+    viewCount: int("view_count").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
   },
-  table => [
-    index("idx_tripPhotoAlbums_bookingId").on(table.bookingId),
-    index("idx_tripPhotoAlbums_accessToken").on(table.accessToken),
-  ]
+  table => [index("access_token").on(table.accessToken)]
 );
 export type TripPhotoAlbum = typeof tripPhotoAlbums.$inferSelect;
 export type InsertTripPhotoAlbum = typeof tripPhotoAlbums.$inferInsert;
 
 // Trip Photos Table (photos within an album)
 export const tripPhotos = mysqlTable(
-  "tripPhotos",
+  "trip_photos",
   {
-    id: int("id").autoincrement().primaryKey(),
-    albumId: int("albumId").notNull(),
-    s3Key: varchar("s3Key", { length: 512 }).notNull(),
-    s3Url: varchar("s3Url", { length: 1024 }).notNull(),
-    caption: varchar("caption", { length: 500 }),
-    sortOrder: int("sortOrder").default(0).notNull(),
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    id: int("id").autoincrement().notNull(),
+    albumId: int("album_id").notNull(),
+    s3Key: varchar("s3_key", { length: 512 }),
+    s3Url: varchar("s3_url", { length: 1024 }),
+    caption: varchar("caption", { length: 255 }),
+    sortOrder: int("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  table => [index("idx_tripPhotos_albumId").on(table.albumId)]
+  table => [index("idx_album").on(table.albumId)]
 );
 export type TripPhoto = typeof tripPhotos.$inferSelect;
 export type InsertTripPhoto = typeof tripPhotos.$inferInsert;
