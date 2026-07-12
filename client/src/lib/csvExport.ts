@@ -10,7 +10,10 @@
 /** Escape a cell value for CSV (handles commas, quotes, newlines) */
 function escapeCell(value: unknown): string {
   if (value == null) return '""';
-  const str = value instanceof Date ? value.toISOString() : String(value);
+  const raw = value instanceof Date ? value.toISOString() : String(value);
+  // Neutralize values Excel/Sheets can interpret as formulas while preserving
+  // the visible text. Leading whitespace is ignored for the safety check.
+  const str = /^[=+\-@\t\r]/.test(raw.trimStart()) ? `'${raw}` : raw;
   // Always wrap in quotes; escape internal quotes by doubling them
   return `"${str.replace(/"/g, '""')}"`;
 }
