@@ -3,7 +3,11 @@ import { appRouter } from "./routers";
 import { createLead, getLeadById, logAdminAction, updateLead } from "./db";
 import { checkRateLimit } from "./rateLimit";
 import { createAuthContext, createPublicContext } from "./test-helpers";
-import { adminLeadInputSchema, leadInputSchema } from "../shared/schemas";
+import {
+  adminLeadInputSchema,
+  adminLeadUpdateSchema,
+  leadInputSchema,
+} from "../shared/schemas";
 
 vi.mock("./db", async importOriginal => {
   const actual = await importOriginal<typeof import("./db")>();
@@ -126,6 +130,64 @@ describe("lead validation", () => {
     expect(
       adminLeadInputSchema.safeParse({ ...base, sourceCode: "ARBITRARY-CODE" })
         .success
+    ).toBe(false);
+  });
+
+  it("bounds date-only travel plans and integer outcomes to storage-safe ranges", () => {
+    const createBase = { name: "Dana", phone: "+66912345678" };
+
+    for (const travelDate of ["2020-01-01", "2100-12-31"]) {
+      expect(
+        adminLeadInputSchema.safeParse({ ...createBase, travelDate }).success
+      ).toBe(true);
+      expect(adminLeadUpdateSchema.safeParse({ travelDate }).success).toBe(
+        true
+      );
+    }
+
+    for (const travelDate of ["2019-12-31", "2101-01-01"]) {
+      expect(
+        adminLeadInputSchema.safeParse({ ...createBase, travelDate }).success
+      ).toBe(false);
+      expect(adminLeadUpdateSchema.safeParse({ travelDate }).success).toBe(
+        false
+      );
+    }
+
+    expect(
+      adminLeadInputSchema.safeParse({ ...createBase, groupSize: 200 }).success
+    ).toBe(true);
+    expect(adminLeadUpdateSchema.safeParse({ groupSize: 200 }).success).toBe(
+      true
+    );
+    expect(
+      adminLeadInputSchema.safeParse({ ...createBase, groupSize: 201 }).success
+    ).toBe(false);
+    expect(adminLeadUpdateSchema.safeParse({ groupSize: 201 }).success).toBe(
+      false
+    );
+
+    expect(
+      adminLeadInputSchema.safeParse({
+        ...createBase,
+        estimatedValueThb: 2_147_483_647,
+      }).success
+    ).toBe(true);
+    expect(
+      adminLeadUpdateSchema.safeParse({
+        estimatedValueThb: 2_147_483_647,
+      }).success
+    ).toBe(true);
+    expect(
+      adminLeadInputSchema.safeParse({
+        ...createBase,
+        estimatedValueThb: 2_147_483_648,
+      }).success
+    ).toBe(false);
+    expect(
+      adminLeadUpdateSchema.safeParse({
+        estimatedValueThb: 2_147_483_648,
+      }).success
     ).toBe(false);
   });
 
@@ -300,6 +362,32 @@ describe("lead.update attribution outcomes", () => {
       caller.lead.update({ id: 22, data: { status: "lost" } })
     ).rejects.toThrow(/lost reason/i);
     expect(updateLead).not.toHaveBeenCalled();
+  });
+
+  it("requires explicitly undoing completion before leaving converted", async () => {
+    vi.mocked(getLeadById).mockResolvedValue({
+      id: 24,
+      status: "converted",
+      completedAt: new Date("2026-07-12T00:00:00.000Z"),
+      lostReason: null,
+    } as never);
+    const caller = appRouter.createCaller(createAuthContext().ctx);
+
+    await expect(
+      caller.lead.update({ id: 24, data: { status: "contacted" } })
+    ).rejects.toThrow(/completed.*false/i);
+    expect(updateLead).not.toHaveBeenCalled();
+
+    await expect(
+      caller.lead.update({
+        id: 24,
+        data: { status: "contacted", completed: false },
+      })
+    ).resolves.toEqual({ success: true });
+    expect(updateLead).toHaveBeenCalledWith(24, {
+      status: "contacted",
+      completedAt: null,
+    });
   });
 
   it("uses the existing lost reason for unrelated partial updates", async () => {

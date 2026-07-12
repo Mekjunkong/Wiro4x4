@@ -49,7 +49,7 @@ describe("hand-authored migration integrity", () => {
           prevId: string;
           tables: Record<
             string,
-            { columns: Record<string, { notNull: boolean }> }
+            { columns: Record<string, { notNull: boolean; type: string }> }
           >;
         }
     );
@@ -63,6 +63,7 @@ describe("hand-authored migration integrity", () => {
     expect(snapshot0010.tables.leads.columns.email.notNull).toBe(false);
     expect(snapshot0010.tables.leads.columns).toHaveProperty("sourceCode");
     expect(snapshot0010.tables.leads.columns).toHaveProperty("completedAt");
+    expect(snapshot0010.tables.leads.columns.travelDate.type).toBe("date");
   });
 
   it("keeps the lead migration additive and scoped to the leads table", () => {
@@ -73,6 +74,8 @@ describe("hand-authored migration integrity", () => {
 
     expect(sql).toContain("ALTER TABLE `leads` MODIFY COLUMN `email`");
     expect(sql).toContain("ALTER TABLE `leads` ADD `sourceCode`");
+    expect(sql).toContain("ALTER TABLE `leads` ADD `travelDate` date");
+    expect(sql).not.toContain("ALTER TABLE `leads` ADD `travelDate` timestamp");
     expect(sql).toContain("CREATE INDEX `idx_leads_completedAt`");
     expect(sql).not.toMatch(/\b(?:CREATE|DROP|RENAME)\s+TABLE\b/i);
     expect(sql).not.toMatch(/\bDROP\s+(?:COLUMN|INDEX)\b/i);

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "1e990c31-0a97-403c-8a3a-544343eea140",
+  "id": "0fdadf2d-b7d1-423e-8c7f-8c0122d62991",
   "prevId": "fd559469-1139-4501-9e5e-5b394d0fdcd5",
   "tables": {
     "accountingEntries": {
@@ -2006,7 +2006,7 @@
         },
         "travelDate": {
           "name": "travelDate",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

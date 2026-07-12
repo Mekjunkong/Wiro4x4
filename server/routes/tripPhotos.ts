@@ -77,7 +77,7 @@ export const tripPhotosRouter = router({
         filename: z.string(),
         contentType: z.string(),
         base64Data: z.string(),
-        caption: z.string().max(500).optional(),
+        caption: z.string().max(255).optional(),
         sortOrder: z.number().default(0),
       })
     )

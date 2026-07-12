@@ -254,8 +254,20 @@ export const leadRouter = router({
         });
       }
 
+      const effectiveStatus = input.data.status ?? existingLead.status;
+      if (
+        existingLead.completedAt &&
+        effectiveStatus !== "converted" &&
+        completed !== false
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Set completed to false in the same update before moving a completed lead away from converted",
+        });
+      }
+
       if (completed !== undefined) {
-        const effectiveStatus = input.data.status ?? existingLead.status;
         if (completed && effectiveStatus !== "converted") {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -265,7 +277,6 @@ export const leadRouter = router({
         Object.assign(updates, { completedAt: completed ? new Date() : null });
       }
 
-      const effectiveStatus = input.data.status ?? existingLead.status;
       const effectiveLostReason =
         input.data.lostReason !== undefined
           ? input.data.lostReason

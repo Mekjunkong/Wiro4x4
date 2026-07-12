@@ -113,7 +113,17 @@ const travelDateSchema = z
   .refine(isValidIsoDate, {
     message: "Invalid travel date",
   })
+  .refine(value => value >= "2020-01-01" && value <= "2100-12-31", {
+    message: "Travel date must be between 2020-01-01 and 2100-12-31",
+  })
   .transform(value => new Date(`${value}T00:00:00.000Z`));
+
+const leadGroupSizeSchema = z.number().int().positive().max(200);
+const estimatedValueThbSchema = z
+  .number()
+  .int()
+  .nonnegative()
+  .max(2_147_483_647);
 
 export const adminLeadInputSchema = z
   .object({
@@ -134,8 +144,8 @@ export const adminLeadInputSchema = z
     ),
     status: leadStatusSchema.default("new"),
     travelDate: travelDateSchema.optional(),
-    groupSize: z.number().int().positive().optional(),
-    estimatedValueThb: z.number().int().nonnegative().optional(),
+    groupSize: leadGroupSizeSchema.optional(),
+    estimatedValueThb: estimatedValueThbSchema.optional(),
     lostReason: z.string().trim().min(1).max(1000).optional(),
   })
   .superRefine((input, ctx) => {
@@ -156,8 +166,8 @@ export const adminLeadUpdateSchema = z.object({
   sourceCode: whatsappSourceCodeSchema.nullable().optional(),
   language: z.enum(["en", "he"]).nullable().optional(),
   travelDate: travelDateSchema.nullable().optional(),
-  groupSize: z.number().int().positive().nullable().optional(),
-  estimatedValueThb: z.number().int().nonnegative().nullable().optional(),
+  groupSize: leadGroupSizeSchema.nullable().optional(),
+  estimatedValueThb: estimatedValueThbSchema.nullable().optional(),
   lostReason: z.string().trim().min(1).max(1000).nullable().optional(),
   completed: z.boolean().optional(),
 });

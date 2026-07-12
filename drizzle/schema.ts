@@ -1,4 +1,5 @@
 import {
+  date,
   index,
   int,
   json,
@@ -179,7 +180,7 @@ export const leads = mysqlTable(
     utmCampaign: varchar("utmCampaign", { length: 64 }),
     interestedTours: text("interestedTours"), // JSON array
     message: text("message"),
-    travelDate: timestamp("travelDate"),
+    travelDate: date("travelDate"),
     groupSize: int("groupSize"),
     estimatedValueThb: int("estimatedValueThb"),
     status: mysqlEnum("status", [
