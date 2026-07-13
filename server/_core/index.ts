@@ -24,7 +24,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  const app = createApp();
+  const app = createApp({ production: process.env.NODE_ENV === "production" });
   const server = createServer(app);
 
   // development mode uses Vite, production mode uses static files
