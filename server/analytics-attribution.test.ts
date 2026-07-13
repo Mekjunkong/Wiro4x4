@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { drizzle } from "drizzle-orm/mysql2";
 import { appRouter } from "./routers";
 import { createAuthContext, createPublicContext } from "./test-helpers";
 import { getDb } from "./db/connection";
+import { buildAttributionQueries } from "./db/analytics";
 
 vi.mock("./db/connection", () => ({
   getDb: vi.fn(),
@@ -175,6 +177,32 @@ function funnelRowsFromSeeds() {
   return [...counts].map(([status, count]) => ({ status, count }));
 }
 
+function summaryRowFromSeeds(seeds: LeadSeed[] = leadSeeds) {
+  return seeds.reduce(
+    (summary, lead) => {
+      summary.leads += 1;
+      if (lead.status === "converted") {
+        summary.confirmed += 1;
+        summary.estimatedConfirmedValueThb += lead.estimatedValueThb ?? 0;
+      }
+      if (
+        lead.completedAt !== null ||
+        (lead.convertedToBookingId !== null &&
+          completedBookingIds.has(lead.convertedToBookingId))
+      ) {
+        summary.completed += 1;
+      }
+      return summary;
+    },
+    {
+      leads: 0,
+      confirmed: 0,
+      completed: 0,
+      estimatedConfirmedValueThb: 0,
+    }
+  );
+}
+
 function queryReturning<T>(rows: T[]) {
   const chain: Record<string, unknown> = {};
   for (const method of [
@@ -198,6 +226,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   const groupedResults = [
     sourceRowsFromSeeds(),
+    [summaryRowFromSeeds()],
     lossRowsFromSeeds(),
     funnelRowsFromSeeds(),
   ];
@@ -207,6 +236,47 @@ beforeEach(() => {
 });
 
 describe("analytics.attribution", () => {
+  it("builds completion and Unknown semantics into both source and summary SQL", () => {
+    const db = drizzle.mock();
+    const { sourceQuery, summaryQuery } = buildAttributionQueries(db);
+
+    for (const query of [sourceQuery, summaryQuery]) {
+      const { sql } = query.toSQL();
+      const normalizedSql = sql.replace(/\s+/g, " ").toLowerCase();
+
+      expect(normalizedSql).toContain("left join `bookings`");
+      expect(normalizedSql).toContain(
+        "`leads`.`convertedtobookingid` = `bookings`.`id`"
+      );
+      expect(normalizedSql).toMatch(
+        /case when `leads`\.`completedat` is not null or `bookings`\.`status` = 'completed' then 1 else 0 end/
+      );
+      expect(normalizedSql).not.toMatch(
+        /completedat` is not null\s+and\s+`bookings`\.`status`/
+      );
+      expect(
+        normalizedSql.match(
+          /case when [^)]*completedat[^)]* then 1 else 0 end/g
+        )
+      ).toHaveLength(1);
+    }
+
+    const sourceSql = sourceQuery
+      .toSQL()
+      .sql.replace(/\s+/g, " ")
+      .toLowerCase();
+    expect(sourceSql.match(/coalesce\(nullif\(trim\(/g)).toHaveLength(2);
+    expect(sourceSql.match(/\), ''\), 'unknown'\)/g)).toHaveLength(2);
+    expect(sourceSql).toContain("`leads`.`status` = 'converted'");
+
+    const summarySql = summaryQuery
+      .toSQL()
+      .sql.replace(/\s+/g, " ")
+      .toLowerCase();
+    expect(summarySql).not.toContain(" group by ");
+    expect(summarySql).not.toContain(" limit ");
+  });
+
   it("reports source, confirmation, completion, value, loss, and funnel metrics", async () => {
     const caller = appRouter.createCaller(createAuthContext().ctx);
 
@@ -284,6 +354,16 @@ describe("analytics.attribution", () => {
             },
           ])
         )
+        .mockReturnValueOnce(
+          queryReturning([
+            {
+              leads: 1,
+              confirmed: 0,
+              completed: 0,
+              estimatedConfirmedValueThb: 0,
+            },
+          ])
+        )
         .mockReturnValueOnce(queryReturning([]))
         .mockReturnValueOnce(queryReturning([{ status: "new", count: 1 }])),
     } as never);
@@ -298,6 +378,57 @@ describe("analytics.attribution", () => {
     expect(report.summary).toMatchObject({
       leadToConfirmedRate: 0,
       confirmedToCompletedRate: 0,
+    });
+  });
+
+  it("keeps the summary authoritative when source display rows are capped", async () => {
+    const allSourceRows = Array.from({ length: 101 }, (_, index) => ({
+      sourceCode: `SOURCE-${String(index).padStart(3, "0")}`,
+      sourceChannel: `channel-${index}`,
+      leads: 1,
+      confirmed: 1,
+      completed: 1,
+      estimatedConfirmedValueThb: 1_000,
+    }));
+    const displayedSourceRows = allSourceRows.slice(0, 100);
+    const authoritativeSummary = allSourceRows.reduce(
+      (summary, source) => ({
+        leads: summary.leads + source.leads,
+        confirmed: summary.confirmed + source.confirmed,
+        completed: summary.completed + source.completed,
+        estimatedConfirmedValueThb:
+          summary.estimatedConfirmedValueThb +
+          source.estimatedConfirmedValueThb,
+      }),
+      {
+        leads: 0,
+        confirmed: 0,
+        completed: 0,
+        estimatedConfirmedValueThb: 0,
+      }
+    );
+    vi.mocked(getDb).mockResolvedValue({
+      select: vi
+        .fn()
+        .mockReturnValueOnce(queryReturning(displayedSourceRows))
+        .mockReturnValueOnce(queryReturning([authoritativeSummary]))
+        .mockReturnValueOnce(queryReturning([]))
+        .mockReturnValueOnce(
+          queryReturning([{ status: "converted", count: 101 }])
+        ),
+    } as never);
+    const caller = appRouter.createCaller(createAuthContext().ctx);
+
+    const report = await caller.analytics.attribution();
+
+    expect(report.sources).toHaveLength(100);
+    expect(report.summary).toEqual({
+      leads: 101,
+      confirmed: 101,
+      completed: 101,
+      leadToConfirmedRate: 100,
+      confirmedToCompletedRate: 100,
+      estimatedConfirmedValueThb: 101_000,
     });
   });
 

@@ -214,28 +214,32 @@ function percentage(numerator: number, denominator: number) {
   return Math.round((numerator / denominator) * 1000) / 10;
 }
 
-/**
- * Organic lead attribution grouped in SQL. Estimated lead value is deliberately
- * kept separate from collected financial revenue.
- */
-export async function getAttributionAnalytics() {
-  const db = await getDb();
-  if (!db) {
-    return {
-      summary: {
-        leads: 0,
-        confirmed: 0,
-        completed: 0,
-        leadToConfirmedRate: 0,
-        confirmedToCompletedRate: 0,
-        estimatedConfirmedValueThb: 0,
-      },
-      sources: [],
-      lossReasons: [],
-      funnel: { ...EMPTY_FUNNEL },
-    };
-  }
+type AttributionDb = NonNullable<Awaited<ReturnType<typeof getDb>>>;
 
+function attributionMetricSelection() {
+  return {
+    leads: count(),
+    confirmed:
+      sql<number>`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
+        "confirmed"
+      ),
+    completed:
+      sql<number>`SUM(CASE WHEN ${leads.completedAt} IS NOT NULL OR ${bookings.status} = 'completed' THEN 1 ELSE 0 END)`.as(
+        "completed"
+      ),
+    estimatedConfirmedValueThb:
+      sql<number>`COALESCE(SUM(CASE WHEN ${leads.status} = 'converted' THEN COALESCE(${leads.estimatedValueThb}, 0) ELSE 0 END), 0)`.as(
+        "estimatedConfirmedValueThb"
+      ),
+  };
+}
+
+/**
+ * Build the attribution queries without executing them. Keeping these grouped
+ * SQL queries inspectable lets tests protect completion and normalization
+ * semantics without requiring a production-like database connection.
+ */
+export function buildAttributionQueries(db: AttributionDb) {
   const sourceCode =
     sql<string>`COALESCE(NULLIF(TRIM(${leads.sourceCode}), ''), 'Unknown')`.as(
       "sourceCode"
@@ -249,25 +253,20 @@ export async function getAttributionAnalytics() {
     .select({
       sourceCode,
       sourceChannel,
-      leads: count(),
-      confirmed:
-        sql<number>`SUM(CASE WHEN ${leads.status} = 'converted' THEN 1 ELSE 0 END)`.as(
-          "confirmed"
-        ),
-      completed:
-        sql<number>`SUM(CASE WHEN ${leads.completedAt} IS NOT NULL OR ${bookings.status} = 'completed' THEN 1 ELSE 0 END)`.as(
-          "completed"
-        ),
-      estimatedConfirmedValueThb:
-        sql<number>`COALESCE(SUM(CASE WHEN ${leads.status} = 'converted' THEN COALESCE(${leads.estimatedValueThb}, 0) ELSE 0 END), 0)`.as(
-          "estimatedConfirmedValueThb"
-        ),
+      ...attributionMetricSelection(),
     })
     .from(leads)
     .leftJoin(bookings, eq(leads.convertedToBookingId, bookings.id))
     .groupBy(sourceCode, sourceChannel)
     .orderBy(desc(count()), asc(sourceCode), asc(sourceChannel))
     .limit(100);
+
+  // This separate aggregate is intentionally not derived from the capped
+  // source rows, so dashboard totals remain authoritative for every lead.
+  const summaryQuery = db
+    .select(attributionMetricSelection())
+    .from(leads)
+    .leftJoin(bookings, eq(leads.convertedToBookingId, bookings.id));
 
   const lossReason =
     sql<string>`COALESCE(NULLIF(TRIM(${leads.lostReason}), ''), 'Unknown')`.as(
@@ -293,8 +292,36 @@ export async function getAttributionAnalytics() {
     .groupBy(leads.status)
     .orderBy(asc(leads.status));
 
-  const [sourceRows, lossRows, funnelRows] = await Promise.all([
+  return { sourceQuery, summaryQuery, lossQuery, funnelQuery };
+}
+
+/**
+ * Organic lead attribution grouped in SQL. Estimated lead value is deliberately
+ * kept separate from collected financial revenue.
+ */
+export async function getAttributionAnalytics() {
+  const db = await getDb();
+  if (!db) {
+    return {
+      summary: {
+        leads: 0,
+        confirmed: 0,
+        completed: 0,
+        leadToConfirmedRate: 0,
+        confirmedToCompletedRate: 0,
+        estimatedConfirmedValueThb: 0,
+      },
+      sources: [],
+      lossReasons: [],
+      funnel: { ...EMPTY_FUNNEL },
+    };
+  }
+
+  const { sourceQuery, summaryQuery, lossQuery, funnelQuery } =
+    buildAttributionQueries(db);
+  const [sourceRows, summaryRows, lossRows, funnelRows] = await Promise.all([
     sourceQuery,
+    summaryQuery,
     lossQuery,
     funnelQuery,
   ]);
@@ -336,16 +363,15 @@ export async function getAttributionAnalytics() {
     }
   }
 
-  const totals = sources.reduce(
-    (summary, source) => ({
-      leads: summary.leads + source.leads,
-      confirmed: summary.confirmed + source.confirmed,
-      completed: summary.completed + source.completed,
-      estimatedConfirmedValueThb:
-        summary.estimatedConfirmedValueThb + source.estimatedConfirmedValueThb,
-    }),
-    { leads: 0, confirmed: 0, completed: 0, estimatedConfirmedValueThb: 0 }
-  );
+  const summaryRow = summaryRows[0];
+  const totals = {
+    leads: Number(summaryRow?.leads ?? 0),
+    confirmed: Number(summaryRow?.confirmed ?? 0),
+    completed: Number(summaryRow?.completed ?? 0),
+    estimatedConfirmedValueThb: Number(
+      summaryRow?.estimatedConfirmedValueThb ?? 0
+    ),
+  };
 
   return {
     summary: {
