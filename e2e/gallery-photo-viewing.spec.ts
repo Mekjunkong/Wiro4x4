@@ -9,6 +9,41 @@ async function preparePage(page: Page) {
       String(Date.now() + 86400000)
     );
   });
+  await page.route("**/api/trpc/**", async route => {
+    const url = new URL(route.request().url());
+    const procedures = url.pathname.replace(/^\/api\/trpc\//, "").split(",");
+    if (
+      !procedures.every(
+        procedure => procedure === "auth.me" || procedure.startsWith("gallery.")
+      )
+    ) {
+      await route.fallback();
+      return;
+    }
+
+    const results = procedures.map(procedure => ({
+      result: {
+        data: {
+          json:
+            procedure === "auth.me"
+              ? null
+              : procedure === "gallery.listPaginated"
+                ? {
+                    items: [],
+                    total: 0,
+                    page: 1,
+                    pageSize: 20,
+                    totalPages: 1,
+                  }
+                : [],
+        },
+      },
+    }));
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify(procedures.length === 1 ? results[0] : results),
+    });
+  });
 }
 
 // Helper to switch language to Hebrew
