@@ -23,6 +23,15 @@ const attribution: FirstTouchAttribution = {
   firstVisitAt: Date.UTC(2026, 6, 12),
 };
 
+const readAttributionRunbook = () =>
+  readFileSync(
+    new URL("../../../docs/seo-attribution-operations.md", import.meta.url),
+    "utf8"
+  );
+
+const normalizeMarkdown = (markdown: string) =>
+  markdown.replace(/\s+/g, " ").trim();
+
 describe("buildTrackedWhatsAppUrl", () => {
   it("appends the capsule as the final message line and encodes the wa.me URL", () => {
     const humanMessage =
@@ -43,10 +52,7 @@ describe("buildTrackedWhatsAppUrl", () => {
   });
 
   it("keeps the runbook console command compatible with canonical capsules", () => {
-    const runbook = readFileSync(
-      new URL("../../../docs/seo-attribution-operations.md", import.meta.url),
-      "utf8"
-    );
+    const runbook = readAttributionRunbook();
     const commandSection = runbook.match(
       /With that link still selected[\s\S]*?```js\n\s*(?<command>[^\n]+)\n\s*```/
     );
@@ -79,22 +85,57 @@ describe("buildTrackedWhatsAppUrl", () => {
     });
   });
 
-  it("keeps the runbook funnel scorecard based on unique entrants", () => {
-    const runbook = readFileSync(
-      new URL("../../../docs/seo-attribution-operations.md", import.meta.url),
-      "utf8"
-    );
+  it("defines the scorecard week as exactly seven complete days ending yesterday", () => {
+    const runbook = normalizeMarkdown(readAttributionRunbook());
 
-    expect(runbook).toContain("**Commercial funnel entrants:**");
-    expect(runbook).toContain("**Commercial funnel completers:**");
     expect(runbook).toContain(
-      "unique step-two completers\n  divided by unique step-one entrants, multiplied by 100"
+      "**Current scorecard week:** The seven consecutive complete calendar days immediately before the snapshot date."
+    );
+  });
+
+  it("defines the comparison as the immediately preceding 28 complete days", () => {
+    const runbook = normalizeMarkdown(readAttributionRunbook());
+
+    expect(runbook).toContain(
+      "**Previous four-week comparison period:** The 28 consecutive complete calendar days immediately before the current scorecard week. This period excludes the current scorecard week."
+    );
+  });
+
+  it("uses unique funnel visitors rather than event totals for entrants and rate", () => {
+    const runbook = normalizeMarkdown(readAttributionRunbook());
+
+    expect(runbook).toContain(
+      "This is the number of unique step-one entrants for that date range, not the goal's **Total conversions**."
     );
     expect(runbook).toContain(
-      "fewer than 20 unique step-one\ncommercial funnel entrants"
+      "Verify it as unique step-two completers divided by unique step-one entrants, multiplied by 100, for the same date range."
     );
-    expect(runbook).toContain("**Previous four-week comparison period:**");
-    expect(runbook).not.toMatch(/commercial (?:landing )?visits/i);
+    expect(runbook).toContain("don't divide the two goal event totals.");
+  });
+
+  it("uses unique funnel entrants for the 20-visitor low-sample threshold", () => {
+    const runbook = normalizeMarkdown(readAttributionRunbook());
+
+    expect(runbook).toContain(
+      "fewer than 20 unique step-one commercial funnel entrants"
+    );
+    expect(runbook).toContain(
+      "Don't use `commercial_page_view` total conversions for the 20-entrant threshold."
+    );
+  });
+
+  it("keeps repeatable WhatsApp event volume separate from unique completers", () => {
+    const runbook = normalizeMarkdown(readAttributionRunbook());
+
+    expect(runbook).toContain(
+      "This count includes unique visitors who completed step 1 before step 2 in the configured sequential funnel."
+    );
+    expect(runbook).toContain(
+      "**WhatsApp click events:** Plausible **Total conversions** for `whatsapp_click` during the current scorecard week."
+    );
+    expect(runbook).toContain(
+      "This is event volume and can include repeated actions by one visitor; it isn't the unique funnel completer count."
+    );
   });
 
   it("prepares matching privacy-safe analytics properties for a tracked link", () => {
