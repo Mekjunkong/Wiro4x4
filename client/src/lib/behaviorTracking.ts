@@ -30,7 +30,23 @@ export const COMMERCIAL_ROUTES: readonly CommercialRoute[] = [
   },
   { id: "booking", matches: exact("/book") },
   { id: "kosher-tours", matches: exact("/kosher-tours") },
+  {
+    id: "kosher-tours",
+    matches: exact("/he/kosher-tours-chiang-mai"),
+  },
   { id: "hebrew-guide", matches: exact("/hebrew-guide") },
+  {
+    id: "hebrew-guide",
+    matches: exact("/he/hebrew-guide-chiang-mai"),
+  },
+  {
+    id: "private-family-tours",
+    matches: exact("/private-family-tours"),
+  },
+  {
+    id: "private-family-tours",
+    matches: exact("/he/private-family-tours-chiang-mai"),
+  },
   { id: "accessible-tours", matches: exact("/accessible-tours") },
   { id: "car-rental", matches: exact("/car-rental") },
   { id: "contact", matches: exact("/contact") },

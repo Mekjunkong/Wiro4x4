@@ -132,4 +132,29 @@ describe("commercial route configuration", () => {
     expect(getCommercialRoute("/admin")).toBeUndefined();
     expect(getCommercialRoute("/blog/how-to-pack")).toBeUndefined();
   });
+
+  it("pairs each English and Hebrew commercial landing route under one stable intent", () => {
+    const routePairs = [
+      {
+        id: "kosher-tours",
+        en: "/kosher-tours",
+        he: "/he/kosher-tours-chiang-mai",
+      },
+      {
+        id: "hebrew-guide",
+        en: "/hebrew-guide",
+        he: "/he/hebrew-guide-chiang-mai",
+      },
+      {
+        id: "private-family-tours",
+        en: "/private-family-tours",
+        he: "/he/private-family-tours-chiang-mai",
+      },
+    ] as const;
+
+    for (const { id, en, he } of routePairs) {
+      expect(getCommercialRoute(en)?.id).toBe(id);
+      expect(getCommercialRoute(he)?.id).toBe(id);
+    }
+  });
 });

@@ -207,6 +207,90 @@ test.describe("Commercial route dossiers", () => {
     expect(titles.size).toBe(6);
     expect(descriptions.size).toBe(6);
   });
+
+  for (const route of [
+    {
+      path: "/private-family-tours",
+      language: "en",
+      galleryLabel: "View the real trip gallery",
+      reviewsLabel: "Read public guest reviews",
+    },
+    {
+      path: "/he/private-family-tours-chiang-mai",
+      language: "he",
+      galleryLabel: "גלריית טיולים אמיתית",
+      reviewsLabel: "ביקורות אורחים ציבוריות",
+    },
+  ] as const) {
+    test(`${route.path} tracks each dossier proof link once before navigation`, async ({
+      page,
+    }) => {
+      const captured: Array<{
+        eventName: string;
+        options: { props?: Record<string, unknown> };
+      }> = [];
+      await page.exposeFunction(
+        "capturePlausibleEvent",
+        (eventName: string, options: { props?: Record<string, unknown> }) => {
+          captured.push({ eventName, options });
+        }
+      );
+      await page.addInitScript(() => {
+        Object.defineProperty(window, "plausible", {
+          configurable: true,
+          value: (eventName: string, options: unknown) => {
+            void (
+              window as Window & {
+                capturePlausibleEvent: (
+                  name: string,
+                  detail: unknown
+                ) => Promise<void>;
+              }
+            ).capturePlausibleEvent(eventName, options);
+          },
+        });
+      });
+
+      await page.goto(route.path);
+      await page.getByRole("link", { name: route.galleryLabel }).click();
+      await expect(page).toHaveURL(/\/gallery$/);
+      await expect
+        .poll(() => captured.filter(event => event.eventName === "proof_open"))
+        .toHaveLength(1);
+
+      await page.goto(route.path);
+      await page.getByRole("link", { name: route.reviewsLabel }).click();
+      await expect(page).toHaveURL(/\/reviews$/);
+      await expect
+        .poll(() => captured.filter(event => event.eventName === "proof_open"))
+        .toHaveLength(2);
+
+      expect(
+        captured.filter(event => event.eventName === "proof_open")
+      ).toEqual([
+        {
+          eventName: "proof_open",
+          options: {
+            props: {
+              page: route.path,
+              placement: "dossier-gallery",
+              language: route.language,
+            },
+          },
+        },
+        {
+          eventName: "proof_open",
+          options: {
+            props: {
+              page: route.path,
+              placement: "dossier-reviews",
+              language: route.language,
+            },
+          },
+        },
+      ]);
+    });
+  }
 });
 
 test.describe("Language Switching", () => {

@@ -6,6 +6,7 @@ import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { trackEvent } from "@/lib/analytics";
 import {
   ArrowLeft,
   ArrowRight,
@@ -333,6 +334,13 @@ export function CommercialLandingPage({
               <div className="mt-5 flex flex-wrap gap-5">
                 <Link
                   href="/gallery"
+                  onClick={() =>
+                    trackEvent("proof_open", {
+                      page: canonicalPath,
+                      placement: "dossier-gallery",
+                      language,
+                    })
+                  }
                   className="font-semibold text-accent hover:underline"
                 >
                   {language === "he"
@@ -341,6 +349,13 @@ export function CommercialLandingPage({
                 </Link>
                 <Link
                   href="/reviews"
+                  onClick={() =>
+                    trackEvent("proof_open", {
+                      page: canonicalPath,
+                      placement: "dossier-reviews",
+                      language,
+                    })
+                  }
                   className="font-semibold text-accent hover:underline"
                 >
                   {language === "he"
