@@ -31,6 +31,18 @@ interface SitemapEntry {
   lastmod: string | null;
 }
 
+const CONTENT_SLUG_PATTERN = /^[a-z0-9-]+$/;
+const TOUR_AND_PACKAGE_SLUG_MAX_LENGTH = 255;
+const BLOG_SLUG_MAX_LENGTH = 500;
+
+function isCanonicalContentSlug(slug: string, maxLength: number): boolean {
+  return (
+    typeof slug === "string" &&
+    slug.length <= maxLength &&
+    CONTENT_SLUG_PATTERN.test(slug)
+  );
+}
+
 const COMMERCIAL_PAGES: SitemapEntry[] = COMMERCIAL_SEO_ROUTE_PAIRS.flatMap(
   pair =>
     ([pair.paths.en, pair.paths.he] as const).map(path => ({
@@ -204,6 +216,9 @@ export function generateSitemap(
   const entries = uniqueByPath([
     ...STATIC_PAGES,
     ...tours
+      .filter(t =>
+        isCanonicalContentSlug(t.slug, TOUR_AND_PACKAGE_SLUG_MAX_LENGTH)
+      )
       .map(t => ({
         path: `/tours/${t.slug}`,
         lastmod: formatDate(t.updatedAt),
@@ -212,6 +227,9 @@ export function generateSitemap(
       }))
       .sort((a, b) => a.path.localeCompare(b.path)),
     ...packages
+      .filter(p =>
+        isCanonicalContentSlug(p.slug, TOUR_AND_PACKAGE_SLUG_MAX_LENGTH)
+      )
       .map(p => ({
         path: `/packages/${p.slug}`,
         lastmod: formatDate(p.updatedAt),
@@ -220,6 +238,7 @@ export function generateSitemap(
       }))
       .sort((a, b) => a.path.localeCompare(b.path)),
     ...blogs
+      .filter(b => isCanonicalContentSlug(b.slug, BLOG_SLUG_MAX_LENGTH))
       .map(b => ({
         path: `/blog/${b.slug}`,
         lastmod: formatDate(b.publishedAt),

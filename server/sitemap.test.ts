@@ -113,19 +113,64 @@ describe("sitemap", () => {
     }
   });
 
-  it("excludes non-canonical admin, auth, booking, album, and tracking URLs", () => {
+  it("rejects traversal and malformed dynamic slugs before they can normalize to private routes", () => {
     const xml = generateSitemap(
-      [{ slug: "tracked?utm_source=referral" }],
-      [{ slug: "fragmented#section" }],
-      [],
+      [
+        { slug: "../admin" },
+        { slug: "../../login" },
+        { slug: "tracked?utm_source=referral" },
+        { slug: "UPPERCASE" },
+        { slug: "has spaces" },
+        { slug: "valid-tour" },
+      ],
+      [
+        { slug: "../album/private" },
+        { slug: "fragmented#section" },
+        { slug: "under_score" },
+        { slug: "" },
+        { slug: "valid-blog" },
+      ],
+      [
+        { slug: "../booking" },
+        { slug: "nested/path" },
+        { slug: "kosher&family" },
+        { slug: "valid-package" },
+      ],
       "https://www.wiro4x4indochina.com"
     );
 
-    expect(xml).not.toMatch(
-      /<loc>[^<]*\/(?:admin|login|register|booking|album)(?:\/|<)/
-    );
-    expect(xml).not.toMatch(/<loc>[^<]*[?&](?:utm_|gclid|fbclid)/);
-    expect(xml).not.toContain("fragmented#section");
+    for (const invalidSlug of [
+      "../admin",
+      "../../login",
+      "tracked?utm_source=referral",
+      "UPPERCASE",
+      "has spaces",
+      "../album/private",
+      "fragmented#section",
+      "under_score",
+      "../booking",
+      "nested/path",
+      "kosher&amp;family",
+    ]) {
+      expect(xml, invalidSlug).not.toContain(invalidSlug);
+    }
+
+    for (const path of [
+      "/tours/valid-tour",
+      "/blog/valid-blog",
+      "/packages/valid-package",
+    ]) {
+      const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      expect(
+        xml.match(
+          new RegExp(
+            `<loc>https://www\\.wiro4x4indochina\\.com${escapedPath}</loc>`,
+            "g"
+          )
+        ),
+        path
+      ).toHaveLength(1);
+    }
   });
 
   it("keeps one canonical sitemap directive and relies on the existing root allow rule", () => {
@@ -142,16 +187,17 @@ describe("sitemap", () => {
     expect(robots).not.toContain("Allow: /he/private-family-tours-chiang-mai");
   });
 
-  it("escapes XML special characters in slugs", () => {
-    const tours = [{ slug: "tour-with-&-ampersand" }];
+  it("rejects dynamic slugs that exceed their database field length", () => {
     const xml = generateSitemap(
-      tours,
-      [],
-      [],
+      [{ slug: "a".repeat(256) }],
+      [{ slug: "b".repeat(501) }],
+      [{ slug: "c".repeat(256) }],
       "https://www.wiro4x4indochina.com"
     );
-    expect(xml).toContain("tour-with-&amp;-ampersand");
-    expect(xml).not.toContain("tour-with-&-ampersand</loc>");
+
+    expect(xml).not.toContain("a".repeat(256));
+    expect(xml).not.toContain("b".repeat(501));
+    expect(xml).not.toContain("c".repeat(256));
   });
 
   it("routes all page requests (sitemap, package details, catch-all) to the server function on Vercel", () => {
