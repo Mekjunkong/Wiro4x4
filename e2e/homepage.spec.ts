@@ -13,7 +13,11 @@ async function prepareQuickActions(page: Page) {
 async function showHomeQuickActions(page: Page) {
   await prepareQuickActions(page);
   await page.goto("/");
-  await page.evaluate(() => window.scrollTo(0, 720));
+  await expect(page.locator("#main-content")).toBeVisible();
+  await page.evaluate(() => {
+    window.scrollTo(0, 720);
+    window.dispatchEvent(new Event("scroll"));
+  });
 }
 
 async function openExploreMenu(page: Page) {
@@ -69,13 +73,27 @@ test.describe("Homepage", () => {
     expect(criticalErrors).toHaveLength(0);
   });
 
-  test("should have floating action buttons (WhatsApp and Book Now)", async ({
-    page,
-  }) => {
+  test("should have floating WhatsApp and guide actions", async ({ page }) => {
     await showHomeQuickActions(page);
 
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');
     await expect(fabGroup).toBeVisible();
+  });
+
+  test("links families to the three commercial planning guides", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("link", { name: "Private family 4x4 tours" })
+    ).toHaveAttribute("href", "/private-family-tours");
+    await expect(
+      page.getByRole("link", { name: "Kosher-friendly tour planning" })
+    ).toHaveAttribute("href", "/kosher-tours");
+    await expect(
+      page.getByRole("link", { name: "Hebrew-speaking guide options" })
+    ).toHaveAttribute("href", "/hebrew-guide");
   });
 });
 
@@ -102,13 +120,14 @@ test.describe("Homepage Desktop Navigation", () => {
     await expect(page.getByRole("menuitem", { name: /blog/i })).toBeVisible();
   });
 
-  test("should display the Book Now button in header", async ({ page }) => {
+  test("should display the availability action in header", async ({ page }) => {
     await page.goto("/");
 
-    const bookNowButton = page
+    const availabilityAction = page
       .locator('nav[aria-label="Main navigation"]')
-      .getByRole("link", { name: /book now/i });
-    await expect(bookNowButton).toBeVisible();
+      .getByRole("link", { name: /check availability/i });
+    await expect(availabilityAction).toBeVisible();
+    await expect(availabilityAction).toHaveAttribute("href", /wa\.me/);
   });
 
   test("should navigate to tours page when clicking Tours nav link", async ({
@@ -123,16 +142,18 @@ test.describe("Homepage Desktop Navigation", () => {
     await expect(page).toHaveURL(/\/tours/);
   });
 
-  test("should navigate to booking page when clicking Book Now", async ({
+  test("should open the guide chat from the floating actions", async ({
     page,
   }) => {
-    await page.goto("/");
+    await showHomeQuickActions(page);
 
     await page
-      .locator('nav[aria-label="Main navigation"]')
-      .getByRole("link", { name: /book now/i })
+      .locator('[role="group"][aria-label="Quick actions"]')
+      .getByRole("button", { name: /ask moshe/i })
       .click();
-    await expect(page).toHaveURL(/\/book/);
+    await expect(
+      page.getByRole("log", { name: /chat conversation/i })
+    ).toBeVisible();
   });
 
   test("should navigate to gallery page", async ({ page }) => {

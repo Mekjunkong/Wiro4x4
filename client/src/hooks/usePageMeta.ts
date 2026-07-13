@@ -3,7 +3,7 @@ import { useEffect } from "react";
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
 
-interface PageMetaOptions {
+export interface PageMetaOptions {
   /** Page title (will be suffixed with "| WIRO 4x4 Kosher Adventures") */
   title: string;
   /** Meta description */
@@ -16,6 +16,10 @@ interface PageMetaOptions {
   ogImage?: string;
   /** Canonical path (e.g. "/tours/doi-inthanon") — will be prefixed with SITE_URL */
   canonicalPath?: string;
+  /** Explicit content language for social metadata. */
+  language?: "en" | "he";
+  /** Reciprocal canonical paths for localized equivalents. */
+  alternates?: Partial<Record<"en" | "he" | "x-default", string>>;
   /** JSON-LD structured data object to inject */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
@@ -60,6 +64,10 @@ function setHreflangLink(hreflang: string, href: string) {
     document.head.appendChild(el);
   }
   el.setAttribute("href", href);
+}
+
+function absoluteUrl(pathOrUrl: string) {
+  return pathOrUrl.startsWith("http") ? pathOrUrl : `${SITE_URL}${pathOrUrl}`;
 }
 
 function removeHreflangLink(hreflang: string) {
@@ -130,15 +138,28 @@ export function usePageMeta(
       setLinkTag("canonical", canonicalUrl);
       setMetaTag('meta[property="og:url"]', "content", canonicalUrl);
 
-      // Dynamic hreflang links per page
+      // Dynamic hreflang links per page. Explicit mappings are required for
+      // localized commercial pairs; `/hebrew-guide` is an English route.
       removeHreflangLink("en");
       removeHreflangLink("he");
-      setHreflangLink("x-default", canonicalUrl);
-      if (options.canonicalPath === "/hebrew-guide") {
-        setHreflangLink("he", canonicalUrl);
+      removeHreflangLink("x-default");
+      if (options.alternates) {
+        for (const hreflang of ["en", "he", "x-default"] as const) {
+          const path = options.alternates[hreflang];
+          if (path) setHreflangLink(hreflang, absoluteUrl(path));
+        }
       } else {
-        setHreflangLink("en", canonicalUrl);
+        setHreflangLink(options.language ?? "en", canonicalUrl);
+        setHreflangLink("x-default", canonicalUrl);
       }
+    }
+
+    if (options.language) {
+      setMetaTag(
+        'meta[property="og:locale"]',
+        "content",
+        options.language === "he" ? "he_IL" : "en_US"
+      );
     }
 
     // JSON-LD injection
@@ -180,6 +201,10 @@ export function usePageMeta(
     options.ogDescription,
     options.ogImage,
     options.canonicalPath,
+    options.language,
+    options.alternates?.en,
+    options.alternates?.he,
+    options.alternates?.["x-default"],
     options.jsonLd,
   ]);
 }

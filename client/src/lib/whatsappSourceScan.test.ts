@@ -14,8 +14,7 @@ const PUBLIC_INQUIRY_SURFACES = [
   "client/src/components/PackageBuilder.tsx",
   "client/src/components/calculator-v2/SaveEstimateModal.tsx",
   "client/src/components/blog/BlogPostCta.tsx",
-  "client/src/pages/KosherTours.tsx",
-  "client/src/pages/HebrewGuide.tsx",
+  "client/src/pages/HebrewLandingPage.tsx",
   "client/src/pages/TourDetail.tsx",
   "client/src/pages/Pricing.tsx",
   "client/src/pages/Packages.tsx",
@@ -27,6 +26,12 @@ const PUBLIC_INQUIRY_SURFACES = [
   "client/src/pages/Contact.tsx",
   "client/src/pages/CarRental.tsx",
   "client/src/pages/AccessibleTours.tsx",
+] as const;
+
+const DELEGATED_INQUIRY_SURFACES = [
+  "client/src/pages/KosherTours.tsx",
+  "client/src/pages/HebrewGuide.tsx",
+  "client/src/pages/PrivateFamilyTours.tsx",
 ] as const;
 
 const MIXED_INQUIRY_AND_SOCIAL_SHARE_SURFACES = [
@@ -47,7 +52,8 @@ const EXCLUDED_SURFACES = [
 
 describe("public WhatsApp inquiry source scan", () => {
   it("enumerates every public inquiry surface separately from explicit exclusions", () => {
-    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(23);
+    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(22);
+    expect(DELEGATED_INQUIRY_SURFACES).toHaveLength(3);
     expect(EXCLUDED_SURFACES).not.toContain(
       "client/src/components/calculator-v2/SaveEstimateModal.tsx"
     );
@@ -73,6 +79,19 @@ describe("public WhatsApp inquiry source scan", () => {
           "programmatic inquiry navigation must emit the canonical click event"
         ).toContain('trackEvent("whatsapp_click"');
       }
+    });
+  }
+
+  for (const file of DELEGATED_INQUIRY_SURFACES) {
+    it(`${file} delegates to the audited commercial inquiry surface`, () => {
+      const source = readFileSync(resolve(file), "utf8");
+
+      expect(source, "must not construct wa.me URLs directly").not.toMatch(
+        /https:\/\/wa\.me/i
+      );
+      expect(source, "must delegate to the audited landing renderer").toMatch(
+        /\bCommercialLandingPage\b/
+      );
     });
   }
 

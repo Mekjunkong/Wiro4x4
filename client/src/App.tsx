@@ -30,6 +30,10 @@ const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 const KosherTours = React.lazy(() => import("./pages/KosherTours"));
 const HebrewGuide = React.lazy(() => import("./pages/HebrewGuide"));
+const PrivateFamilyTours = React.lazy(
+  () => import("./pages/PrivateFamilyTours")
+);
+const HebrewLandingPage = React.lazy(() => import("./pages/HebrewLandingPage"));
 const AccessibleTours = React.lazy(() => import("./pages/AccessibleTours"));
 const Contact = React.lazy(() => import("./pages/Contact"));
 const ToursListing = React.lazy(() => import("./pages/ToursListing"));
@@ -101,6 +105,19 @@ function Router() {
             <Route path={"/booking/cancel"} component={BookingCancel} />
             <Route path={"/kosher-tours"} component={KosherTours} />
             <Route path={"/hebrew-guide"} component={HebrewGuide} />
+            <Route
+              path={"/private-family-tours"}
+              component={PrivateFamilyTours}
+            />
+            <Route path={"/he/kosher-tours-chiang-mai"}>
+              <HebrewLandingPage intent="kosher" />
+            </Route>
+            <Route path={"/he/hebrew-guide-chiang-mai"}>
+              <HebrewLandingPage intent="hebrewGuide" />
+            </Route>
+            <Route path={"/he/private-family-tours-chiang-mai"}>
+              <HebrewLandingPage intent="family" />
+            </Route>
             <Route path={"/accessible-tours"} component={AccessibleTours} />
             <Route path={"/car-rental"} component={CarRental} />
             <Route path={"/faq"} component={FAQ} />
@@ -134,12 +151,6 @@ function Router() {
 function AppContent() {
   const { language, t } = useLanguage();
   useBehaviorTracking(language);
-
-  // Set document language and direction
-  React.useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
-  }, [language]);
 
   return (
     <TooltipProvider>

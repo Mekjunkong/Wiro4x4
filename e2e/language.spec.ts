@@ -1,5 +1,214 @@
 import { test, expect } from "@playwright/test";
 
+const commercialRoutes = [
+  {
+    hebrewPath: "/he/kosher-tours-chiang-mai",
+    englishPath: "/kosher-tours",
+    h1: "טיולים כשרים בצ׳אנג מאי",
+    title: "טיולים כשרים בצ׳אנג מאי למשפחות",
+  },
+  {
+    hebrewPath: "/he/hebrew-guide-chiang-mai",
+    englishPath: "/hebrew-guide",
+    h1: "מדריך דובר עברית בצ׳אנג מאי",
+    title: "מדריך דובר עברית בצ׳אנג מאי לטיולים פרטיים",
+  },
+  {
+    hebrewPath: "/he/private-family-tours-chiang-mai",
+    englishPath: "/private-family-tours",
+    h1: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+    title: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+  },
+] as const;
+
+const allCommercialRoutes = [
+  {
+    path: "/kosher-tours",
+    h1: "Kosher-Friendly Tours in Chiang Mai",
+    included: "Included",
+  },
+  {
+    path: "/hebrew-guide",
+    h1: "Hebrew-Speaking Guide in Chiang Mai",
+    included: "Included",
+  },
+  {
+    path: "/private-family-tours",
+    h1: "Private Family 4x4 Tours in Chiang Mai",
+    included: "Included",
+  },
+  ...commercialRoutes.map(route => ({
+    path: route.hebrewPath,
+    h1: route.h1,
+    included: "מה כלול",
+  })),
+] as const;
+
+test.describe("Hebrew commercial routes", () => {
+  for (const route of commercialRoutes) {
+    test(`${route.hebrewPath} renders Hebrew before any English heading`, async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem("wiro-preferred-language", "en");
+        const firstRender: { h1?: string; lang?: string; dir?: string } = {};
+        Object.defineProperty(window, "__wiroFirstCommercialRender", {
+          value: firstRender,
+          writable: false,
+        });
+        new MutationObserver(() => {
+          if (firstRender.h1) return;
+          const heading = document.querySelector("main h1");
+          if (!heading) return;
+          firstRender.h1 = heading.textContent?.trim();
+          firstRender.lang = document.documentElement.lang;
+          firstRender.dir = document.documentElement.dir;
+        }).observe(document, { childList: true, subtree: true });
+      });
+
+      await page.goto(route.hebrewPath);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+        route.h1
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "he");
+      await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+
+      const firstRender = await page.evaluate(
+        () =>
+          (
+            window as Window & {
+              __wiroFirstCommercialRender?: {
+                h1?: string;
+                lang?: string;
+                dir?: string;
+              };
+            }
+          ).__wiroFirstCommercialRender
+      );
+      expect(firstRender).toEqual({
+        h1: route.h1,
+        lang: "he",
+        dir: "rtl",
+      });
+    });
+
+    test(`${route.hebrewPath} has unique reciprocal metadata`, async ({
+      page,
+    }) => {
+      await page.goto(route.hebrewPath);
+
+      await expect(page).toHaveTitle(new RegExp(`^${route.title}`));
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+        "content",
+        /[א-ת]/
+      );
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        `https://www.wiro4x4indochina.com${route.hebrewPath}`
+      );
+      await expect(
+        page.locator('link[rel="alternate"][hreflang="he"]')
+      ).toHaveAttribute(
+        "href",
+        `https://www.wiro4x4indochina.com${route.hebrewPath}`
+      );
+      await expect(
+        page.locator('link[rel="alternate"][hreflang="en"]')
+      ).toHaveAttribute(
+        "href",
+        `https://www.wiro4x4indochina.com${route.englishPath}`
+      );
+      await expect(
+        page.locator('link[rel="alternate"][hreflang="x-default"]')
+      ).toHaveAttribute(
+        "href",
+        `https://www.wiro4x4indochina.com${route.englishPath}`
+      );
+    });
+  }
+
+  test("an English preference is restored after client navigation from Hebrew", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("wiro-preferred-language", "en");
+    });
+    await page.goto("/he/private-family-tours-chiang-mai");
+
+    await page.getByRole("link", { name: "העמוד באנגלית" }).click();
+
+    await expect(page).toHaveURL(/\/private-family-tours$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Private Family 4x4 Tours in Chiang Mai"
+    );
+  });
+});
+
+test.describe("Commercial route dossiers", () => {
+  for (const route of allCommercialRoutes) {
+    test(`${route.path} exposes one primary inquiry and concrete planning details`, async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem("wiro-preferred-language", "en");
+      });
+      await page.goto(route.path);
+
+      await expect(page.locator("main h1")).toHaveCount(1);
+      await expect(page.locator("main h1")).toHaveText(route.h1);
+      await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(1);
+      await expect(
+        page.getByRole("heading", { name: route.included, exact: true })
+      ).toBeVisible();
+      await expect(page.locator("main")).toContainText("3,500");
+      await expect(page.locator("main img").first()).toHaveJSProperty(
+        "complete",
+        true
+      );
+    });
+  }
+
+  test("all six routes have unique metadata and reciprocal alternates", async ({
+    page,
+  }) => {
+    const pairs = commercialRoutes.map(route => ({
+      en: route.englishPath,
+      he: route.hebrewPath,
+    }));
+    const titles = new Set<string>();
+    const descriptions = new Set<string>();
+
+    for (const pair of pairs) {
+      for (const language of ["en", "he"] as const) {
+        await page.goto(pair[language]);
+        await expect(page.locator("html")).toHaveAttribute("lang", language);
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+          "href",
+          `https://www.wiro4x4indochina.com${pair[language]}`
+        );
+        await expect(
+          page.locator('link[rel="alternate"][hreflang="en"]')
+        ).toHaveAttribute("href", `https://www.wiro4x4indochina.com${pair.en}`);
+        await expect(
+          page.locator('link[rel="alternate"][hreflang="he"]')
+        ).toHaveAttribute("href", `https://www.wiro4x4indochina.com${pair.he}`);
+
+        titles.add(await page.title());
+        descriptions.add(
+          (await page
+            .locator('meta[name="description"]')
+            .getAttribute("content")) ?? ""
+        );
+      }
+    }
+
+    expect(titles.size).toBe(6);
+    expect(descriptions.size).toBe(6);
+  });
+});
+
 test.describe("Language Switching", () => {
   test.skip(
     ({ isMobile }) => isMobile,

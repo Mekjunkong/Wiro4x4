@@ -52,6 +52,13 @@ describe("WHATSAPP_SOURCES", () => {
           channelFallback: "direct",
         },
         {
+          code: "FAMILY-PAGE-HE",
+          page: "/he/private-family-tours-chiang-mai",
+          placement: "page",
+          language: "he",
+          channelFallback: "direct",
+        },
+        {
           code: "TOUR-DOI-INTHANON-EN",
           page: "/tours/doi-inthanon-roof-of-thailand",
           placement: "tour",
