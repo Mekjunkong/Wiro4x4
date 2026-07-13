@@ -26,8 +26,11 @@ async function openLeadsTab(page: Page) {
 
 type MockLead = Record<string, unknown> & { id: number; status: string };
 
-async function mockAuthenticatedAdmin(page: Page) {
-  const leads: MockLead[] = [];
+async function mockAuthenticatedAdmin(
+  page: Page,
+  initialLeads: MockLead[] = []
+) {
+  const leads: MockLead[] = [...initialLeads];
   let createAttempts = 0;
   let lastCreatePayload: Record<string, unknown> | undefined;
   let updateAttempts = 0;
@@ -161,7 +164,16 @@ async function mockAuthenticatedAdmin(page: Page) {
         activeUpdates += 1;
         maxConcurrentUpdates = Math.max(maxConcurrentUpdates, activeUpdates);
         await new Promise(resolve =>
-          setTimeout(resolve, updateAttempts === 1 ? 400 : 75)
+          setTimeout(
+            resolve,
+            initialLeads.length > 1
+              ? updateAttempts === 1
+                ? 1_000
+                : 750
+              : updateAttempts === 1
+                ? 400
+                : 75
+          )
         );
         const id = Number(payload?.id);
         const lead = leads.find(item => item.id === id);
@@ -201,6 +213,60 @@ async function mockAuthenticatedAdmin(page: Page) {
 }
 
 test.describe("Admin Dashboard - WhatsApp lead operations", () => {
+  test("releases independent row locks after concurrent updates", async ({
+    page,
+  }) => {
+    await preparePage(page);
+    const leadDefaults = {
+      email: null,
+      phone: "+66 80 000 0000",
+      source: "whatsapp",
+      sourceCode: "CONTACT-CARD-EN",
+      sourceChannel: "direct",
+      language: "en",
+      landingPage: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      interestedTours: null,
+      message: null,
+      travelDate: null,
+      groupSize: null,
+      estimatedValueThb: null,
+      completedAt: null,
+      lostReason: null,
+      score: 0,
+      createdAt: "2026-07-13T00:00:00.000Z",
+    };
+    const mockAdmin = await mockAuthenticatedAdmin(page, [
+      {
+        ...leadDefaults,
+        id: 201,
+        name: "First concurrent lead",
+        status: "new",
+      },
+      {
+        ...leadDefaults,
+        id: 202,
+        name: "Second concurrent lead",
+        status: "new",
+      },
+    ]);
+    await page.goto("/admin");
+    await openLeadsTab(page);
+
+    const firstStatus = page.getByLabel("Status for First concurrent lead");
+    const secondStatus = page.getByLabel("Status for Second concurrent lead");
+    await firstStatus.selectOption("contacted");
+    await secondStatus.selectOption("contacted");
+    await expect.poll(() => mockAdmin.getMaxConcurrentUpdates()).toBe(2);
+    await expect(firstStatus).toBeDisabled();
+    await expect(secondStatus).toBeDisabled();
+    await expect.poll(() => mockAdmin.getActiveUpdates()).toBe(0);
+    await expect(firstStatus).toBeEnabled();
+    await expect(secondStatus).toBeEnabled();
+  });
+
   test("captures an attributed WhatsApp inquiry inline", async ({
     page,
   }, testInfo) => {

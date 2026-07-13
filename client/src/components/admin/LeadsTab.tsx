@@ -332,12 +332,13 @@ export function LeadsTab() {
 
     updatingLeadIdsRef.current.add(input.id);
     setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
-    updateLeadMut.mutate(input, {
-      onSettled: () => {
+    void updateLeadMut
+      .mutateAsync(input)
+      .catch(() => undefined)
+      .finally(() => {
         updatingLeadIdsRef.current.delete(input.id);
         setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
-      },
-    });
+      });
   };
   const deleteLeadMut = trpc.lead.delete.useMutation({
     onSuccess: () => {
