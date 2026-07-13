@@ -14,10 +14,27 @@ import { registerChatRoute } from "../routes/chat";
 import { registerMosheRoute } from "../routes/moshe";
 import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
+import { productionSecurityMiddleware } from "../productionSecurity";
+import { seoMiddleware } from "../seoMiddleware";
 import { createContext } from "./context";
 
-export function createApp() {
+interface CreateAppOptions {
+  /** Embedded SPA shell used by the Vercel production bundle and tests. */
+  seoHtml?: string;
+  /** Enable the ordered production security and SEO response stack. */
+  production?: boolean;
+}
+
+export function createApp(options?: CreateAppOptions) {
   const app = express();
+  const isProductionEntry =
+    options?.production || options?.seoHtml !== undefined;
+
+  // This must precede CORS preflight, body-parser errors, SEO HTML, API routes,
+  // and static fallbacks so every production response carries the same policy.
+  if (isProductionEntry) {
+    app.use(productionSecurityMiddleware());
+  }
 
   // CORS whitelist
   app.use(
@@ -37,6 +54,13 @@ export function createApp() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // Serve route-specific metadata from the same app entrypoint used by the
+  // local production build. Development must always fall through to Vite so a
+  // stale dist shell cannot reference assets that the dev server does not own.
+  if (isProductionEntry) {
+    app.use(seoMiddleware({ html: options?.seoHtml }));
+  }
 
   // Auth routes (register, login, logout, forgot/reset password)
   registerAuthRoutes(app);

@@ -3,8 +3,40 @@
  * These are the single source of truth for input validation.
  */
 import { z } from "zod";
+import {
+  isWhatsAppSourceCode,
+  parseAttributionCapsule,
+} from "./whatsappAttribution";
 
 const noHtml = (val: string) => !/<[^>]*>/g.test(val);
+
+export const CONTENT_SLUG_PATTERN = /^[a-z0-9-]+$/;
+export const TOUR_AND_PACKAGE_SLUG_MAX_LENGTH = 255;
+export const BLOG_SLUG_MAX_LENGTH = 500;
+
+function canonicalContentSlugSchema(maxLength: number) {
+  return z
+    .string()
+    .min(1, "Slug is required")
+    .max(maxLength, `Slug must be at most ${maxLength} characters`)
+    .regex(
+      CONTENT_SLUG_PATTERN,
+      "Slug may contain only lowercase letters, numbers, and hyphens"
+    );
+}
+
+export const tourAndPackageSlugSchema = canonicalContentSlugSchema(
+  TOUR_AND_PACKAGE_SLUG_MAX_LENGTH
+);
+export const blogSlugSchema = canonicalContentSlugSchema(BLOG_SLUG_MAX_LENGTH);
+
+export function isCanonicalTourOrPackageSlug(slug: unknown): slug is string {
+  return tourAndPackageSlugSchema.safeParse(slug).success;
+}
+
+export function isCanonicalBlogSlug(slug: unknown): slug is string {
+  return blogSlugSchema.safeParse(slug).success;
+}
 
 export const bookingInputSchema = z.object({
   contactName: z
@@ -76,6 +108,98 @@ export const leadInputSchema = z.object({
   ),
 });
 
+const leadStatusSchema = z.enum([
+  "new",
+  "contacted",
+  "quoted",
+  "converted",
+  "lost",
+]);
+
+const whatsappSourceCodeSchema = z
+  .string()
+  .refine(isWhatsAppSourceCode, "Unknown WhatsApp source code");
+
+const attributionCapsuleSchema = z
+  .string()
+  .max(600)
+  .refine(
+    capsule => parseAttributionCapsule(capsule) !== null,
+    "Invalid attribution capsule"
+  );
+
+function isValidIsoDate(value: string): boolean {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
+}
+
+const travelDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid travel date")
+  .refine(isValidIsoDate, {
+    message: "Invalid travel date",
+  })
+  .refine(value => value >= "2020-01-01" && value <= "2100-12-31", {
+    message: "Travel date must be between 2020-01-01 and 2100-12-31",
+  })
+  .transform(value => new Date(`${value}T00:00:00.000Z`));
+
+const leadGroupSizeSchema = z.number().int().positive().max(200);
+const estimatedValueThbSchema = z
+  .number()
+  .int()
+  .nonnegative()
+  .max(2_147_483_647);
+
+export const adminLeadInputSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name or WhatsApp label is required")
+      .max(255)
+      .refine(noHtml, "HTML tags are not allowed"),
+    phone: z.string().trim().min(1, "Phone is required").max(50),
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    attributionCapsule: attributionCapsuleSchema.optional(),
+    sourceCode: whatsappSourceCodeSchema.optional(),
+    language: z.enum(["en", "he"]).optional(),
+    interestedTours: z.string().max(2000).optional(),
+    message: z.optional(
+      z.string().max(1000).refine(noHtml, "HTML tags are not allowed")
+    ),
+    status: leadStatusSchema.default("new"),
+    travelDate: travelDateSchema.optional(),
+    groupSize: leadGroupSizeSchema.optional(),
+    estimatedValueThb: estimatedValueThbSchema.optional(),
+    lostReason: z.string().trim().min(1).max(1000).optional(),
+  })
+  .superRefine((input, ctx) => {
+    if (input.status === "lost" && !input.lostReason) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["lostReason"],
+        message: "Lost reason is required when status is lost",
+      });
+    }
+  });
+
+export const adminLeadUpdateSchema = z.object({
+  status: leadStatusSchema.optional(),
+  convertedToBookingId: z.number().int().positive().nullable().optional(),
+  notes: z.string().max(5000).nullable().optional(),
+  attributionCapsule: attributionCapsuleSchema.optional(),
+  sourceCode: whatsappSourceCodeSchema.nullable().optional(),
+  language: z.enum(["en", "he"]).nullable().optional(),
+  travelDate: travelDateSchema.nullable().optional(),
+  groupSize: leadGroupSizeSchema.nullable().optional(),
+  estimatedValueThb: estimatedValueThbSchema.nullable().optional(),
+  lostReason: z.string().trim().min(1).max(1000).nullable().optional(),
+  completed: z.boolean().optional(),
+});
+
 export const financialRecordInputSchema = z.object({
   bookingId: z.number(),
   type: z.enum(["revenue", "cost", "refund"]),
@@ -94,7 +218,7 @@ export const financialRecordInputSchema = z.object({
 export const tourInputSchema = z.object({
   name: z.string().min(1, "Name is required"),
   nameHe: z.string().min(1, "Hebrew name is required"),
-  slug: z.string().optional(),
+  slug: tourAndPackageSlugSchema.optional(),
   description: z.string().min(1, "Description is required"),
   descriptionHe: z.string().min(1, "Hebrew description is required"),
   duration: z.string().min(1, "Duration is required"),
@@ -132,7 +256,7 @@ export const reviewInputSchema = z.object({
 export const blogPostInputSchema = z.object({
   title: z.string().min(1),
   titleHe: z.string().optional(),
-  slug: z.string().min(1),
+  slug: blogSlugSchema,
   excerpt: z.string().optional(),
   excerptHe: z.string().optional(),
   content: z.string().min(1),
@@ -148,7 +272,7 @@ export const blogPostInputSchema = z.object({
 export const tourPackageInputSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   nameHe: z.string().min(1, "Hebrew name is required").max(255),
-  slug: z.string().optional(),
+  slug: tourAndPackageSlugSchema.optional(),
   description: z.string().optional(),
   descriptionHe: z.string().optional(),
   tourSlugs: z
@@ -221,6 +345,8 @@ export const updateUserRoleSchema = z.object({
 export type BookingInput = z.infer<typeof bookingInputSchema>;
 export type AgentInput = z.infer<typeof agentInputSchema>;
 export type LeadInput = z.infer<typeof leadInputSchema>;
+export type AdminLeadInput = z.infer<typeof adminLeadInputSchema>;
+export type AdminLeadUpdateInput = z.infer<typeof adminLeadUpdateSchema>;
 export type FinancialRecordInput = z.infer<typeof financialRecordInputSchema>;
 export type TourInput = z.infer<typeof tourInputSchema>;
 export type ReviewInput = z.infer<typeof reviewInputSchema>;

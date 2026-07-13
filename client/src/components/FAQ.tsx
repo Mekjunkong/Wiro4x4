@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { trackEvent } from "@/lib/analytics";
 
 const faqData = [
   {
@@ -60,7 +61,7 @@ const faqData = [
 ];
 
 export function FAQ() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
 
   // FAQPage JSON-LD schema
@@ -97,7 +98,20 @@ export function FAQ() {
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          onValueChange={value => {
+            if (value) {
+              trackEvent("faq_expand", {
+                page: "/",
+                placement: value,
+                language,
+              });
+            }
+          }}
+        >
           {faqData.map((item, index) => (
             <AccordionItem
               key={index}

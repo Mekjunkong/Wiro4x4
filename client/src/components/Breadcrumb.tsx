@@ -1,5 +1,6 @@
 import { Link } from "wouter";
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BreadcrumbItem {
   label: string;
@@ -11,7 +12,12 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ items }: BreadcrumbProps) {
-  const allItems: BreadcrumbItem[] = [{ label: "Home", href: "/" }, ...items];
+  const { t, language } = useLanguage();
+  const Chevron = language === "he" ? ChevronLeft : ChevronRight;
+  const allItems: BreadcrumbItem[] = [
+    { label: t("Home", "דף הבית"), href: "/" },
+    ...items,
+  ];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -27,15 +33,18 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   };
 
   return (
-    <nav aria-label="Breadcrumb" className="px-4 sm:px-6 lg:px-8 py-3 mt-16">
+    <nav
+      aria-label="Breadcrumb"
+      className="px-4 pb-3 pt-20 sm:px-6 md:pt-24 lg:px-8 lg:pt-28"
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ol className="flex items-center gap-1.5 text-sm text-muted-foreground flex-wrap">
+      <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
         {allItems.map((item, index) => (
           <li key={index} className="flex items-center gap-1.5">
-            {index > 0 && <ChevronRight className="w-3.5 h-3.5 shrink-0" />}
+            {index > 0 && <Chevron className="w-3.5 h-3.5 shrink-0" />}
             {index === 0 && <Home className="w-3.5 h-3.5 shrink-0" />}
             {item.href && index < allItems.length - 1 ? (
               <Link

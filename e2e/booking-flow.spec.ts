@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 // Keeping this file with complementary tests for the full booking user journey.
 
 test.describe("Booking User Journey", () => {
-  test("should complete the full booking form navigation journey", async ({
+  test("should expose tracked availability and load the booking form", async ({
     page,
     isMobile,
   }) => {
@@ -15,11 +15,16 @@ test.describe("Booking User Journey", () => {
       // Start from homepage on desktop
       await page.goto("/");
 
-      // Click Book Now in header
-      await page
+      const availabilityLink = page
         .locator('nav[aria-label="Main navigation"]')
-        .getByRole("link", { name: /book now/i })
-        .click();
+        .getByRole("link", { name: /check availability/i });
+      await expect(availabilityLink).toBeVisible();
+      await expect(availabilityLink).toHaveAttribute("href", /wa\.me\//);
+      await expect(availabilityLink).toHaveAttribute(
+        "href",
+        /GLOBAL-HEADER-EN/
+      );
+      await page.goto("/book");
     }
 
     // Should land on booking page

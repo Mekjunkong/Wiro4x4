@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,19 +105,17 @@ export function PackageBuilder() {
   const savingsPercent =
     individualTotal > 0 ? Math.round((savings / individualTotal) * 100) : 0;
 
-  const whatsappMessage = encodeURIComponent(
-    isHebrew
-      ? `היי WIRO 4x4! אשמח לבנות חבילה של ${totalDays} ימים:\n\n${selectedTours
-          .map(tour => `- ${tour.nameHe} (${formatUSD(tour.price)})`)
-          .join("\n")}\n\nסה"כ משוער: ${formatUSD(packageTotal)}${
-          savings > 0 ? ` (חיסכון ${formatUSD(savings)})` : ""
-        }\n\nאשמח לקבל הצעת מחיר!`
-      : `Hi WIRO 4x4! I'd like to build a ${totalDays}-day package:\n\n${selectedTours
-          .map(tour => `- ${tour.name} (${formatUSD(tour.price)})`)
-          .join("\n")}\n\nTotal estimate: ${formatUSD(packageTotal)}${
-          savings > 0 ? ` (saving ${formatUSD(savings)})` : ""
-        }\n\nPlease send me a quote!`
-  );
+  const whatsappMessage = isHebrew
+    ? `היי WIRO 4x4! אשמח לבנות חבילה של ${totalDays} ימים:\n\n${selectedTours
+        .map(tour => `- ${tour.nameHe} (${formatUSD(tour.price)})`)
+        .join("\n")}\n\nסה"כ משוער: ${formatUSD(packageTotal)}${
+        savings > 0 ? ` (חיסכון ${formatUSD(savings)})` : ""
+      }\n\nאשמח לקבל הצעת מחיר!`
+    : `Hi WIRO 4x4! I'd like to build a ${totalDays}-day package:\n\n${selectedTours
+        .map(tour => `- ${tour.name} (${formatUSD(tour.price)})`)
+        .join("\n")}\n\nTotal estimate: ${formatUSD(packageTotal)}${
+        savings > 0 ? ` (saving ${formatUSD(savings)})` : ""
+      }\n\nPlease send me a quote!`;
 
   return (
     <Card className="p-6 sm:p-8">
@@ -214,8 +212,11 @@ export function PackageBuilder() {
             asChild
             className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g, "")}?text=${whatsappMessage}`}
+            <TrackedWhatsAppLink
+              sourceCode={
+                isHebrew ? "PACKAGE-BUILDER-HE" : "PACKAGE-BUILDER-EN"
+              }
+              humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -224,7 +225,7 @@ export function PackageBuilder() {
                 "Get a Quote via WhatsApp",
                 "\u05E7\u05D1\u05DC\u05D5 \u05D4\u05E6\u05E2\u05EA \u05DE\u05D7\u05D9\u05E8 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"
               )}
-            </a>
+            </TrackedWhatsAppLink>
           </Button>
         </div>
       )}

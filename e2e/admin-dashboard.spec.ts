@@ -118,7 +118,11 @@ test.describe("Accessibility Basics", () => {
       );
     });
     await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, 720));
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(600);
 
     // Floating action buttons should have aria-labels
     const fabGroup = page.locator('[role="group"][aria-label="Quick actions"]');

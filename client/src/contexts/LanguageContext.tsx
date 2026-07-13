@@ -4,8 +4,10 @@ import {
   useState,
   useCallback,
   useEffect,
+  useLayoutEffect,
   ReactNode,
 } from "react";
+import { useLocation } from "wouter";
 
 type Language = "en" | "he";
 
@@ -16,6 +18,17 @@ interface LanguageContextType {
 }
 
 const STORAGE_KEY = "wiro-preferred-language";
+const ENGLISH_COMMERCIAL_ROUTES = new Set([
+  "/kosher-tours",
+  "/hebrew-guide",
+  "/private-family-tours",
+]);
+
+export function getForcedRouteLanguage(pathname: string): Language | null {
+  if (pathname === "/he" || pathname.startsWith("/he/")) return "he";
+  if (ENGLISH_COMMERCIAL_ROUTES.has(pathname)) return "en";
+  return null;
+}
 
 function getStoredLanguage(): Language {
   try {
@@ -45,7 +58,17 @@ const HEBREW_FONTS_URL =
 const HEBREW_FONTS_ID = "hebrew-fonts";
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(getStoredLanguage);
+  const [location] = useLocation();
+  const [preferredLanguage, setLanguageState] =
+    useState<Language>(getStoredLanguage);
+  const language = getForcedRouteLanguage(location) ?? preferredLanguage;
+
+  // Content language is selected during render; root attributes follow in a
+  // layout effect before the browser paints the route.
+  useLayoutEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
+  }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
@@ -55,13 +78,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // localStorage unavailable
     }
   }, []);
-
-  // Keep <html lang/dir> in sync for screen readers, search engines, and
-  // browser translation prompts — the wrapper div below only covers styling.
-  useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
-  }, [language]);
 
   // Load Hebrew fonts (Rubik + Heebo) only when needed
   useEffect(() => {

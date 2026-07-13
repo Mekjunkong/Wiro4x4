@@ -1,9 +1,8 @@
 import { useRef } from "react";
 import { ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { COMPANY_WHATSAPP_URL } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { trackEvent } from "@/lib/analytics";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function Hero() {
   const { t, language } = useLanguage();
@@ -11,21 +10,10 @@ export function Hero() {
 
   const whatsappMessage =
     language === "he"
-      ? encodeURIComponent(
-          "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
-        )
-      : encodeURIComponent(
-          "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __"
-        );
-
-  const whatsappUrl = `${COMPANY_WHATSAPP_URL}?text=${whatsappMessage}`;
-
-  const trackHeroAction = (action: string) => {
-    trackEvent("hero_cta_click", { action, language });
-  };
+      ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
+      : "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
 
   const scrollToTours = () => {
-    trackHeroAction("view_tours");
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -76,16 +64,16 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 md:mb-6 animate-hero-reveal [animation-delay:0.5s] mt-4">
-            <a
-              href={whatsappUrl}
+            <TrackedWhatsAppLink
+              sourceCode={language === "he" ? "HOME-HERO-HE" : "HOME-HERO-EN"}
+              humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackHeroAction("whatsapp")}
               className="min-h-12 bg-[#075E54] hover:bg-[#064C44] active:bg-[#053D37] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#075E54] focus:ring-offset-2 focus:ring-offset-primary"
             >
               <MessageCircle className="w-5 h-5" aria-hidden="true" />
               {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
-            </a>
+            </TrackedWhatsAppLink>
             <button
               type="button"
               onClick={scrollToTours}

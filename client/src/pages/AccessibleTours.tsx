@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
@@ -90,7 +90,7 @@ const ACCESSIBLE_TOURS = [
 ];
 
 export default function AccessibleTours() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   usePageMeta({
     title: "Accessible Tours Chiang Mai",
@@ -121,15 +121,10 @@ export default function AccessibleTours() {
     },
   });
 
-  const handleWhatsApp = () => {
-    const msg = encodeURIComponent(
-      t(
-        "Hi WIRO 4x4! I'd like to discuss accessible tour options in Chiang Mai. Can you help with my specific needs?",
-        "היי WIRO 4x4! אשמח לדון באפשרויות טיול נגיש בצ'יאנג מאי. אפשר לעזור עם הצרכים הספציפיים שלי?"
-      )
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-  };
+  const whatsappMessage = t(
+    "Hi WIRO 4x4! I'd like to discuss accessible tour options in Chiang Mai. Can you help with my specific needs?",
+    "היי WIRO 4x4! אשמח לדון באפשרויות טיול נגיש בצ'יאנג מאי. אפשר לעזור עם הצרכים הספציפיים שלי?"
+  );
 
   return (
     <div className="min-h-screen">
@@ -346,14 +341,24 @@ export default function AccessibleTours() {
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={handleWhatsApp}
-                size="lg"
-                className="gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white"
+              <TrackedWhatsAppLink
+                sourceCode={
+                  language === "he"
+                    ? "ACCESSIBLE-PAGE-HE"
+                    : "ACCESSIBLE-PAGE-EN"
+                }
+                humanMessage={whatsappMessage}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <MessageCircle className="w-5 h-5" />
-                {t("Chat on WhatsApp", "שלחו הודעה בוואטסאפ")}
-              </Button>
+                <Button
+                  size="lg"
+                  className="gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  {t("Chat on WhatsApp", "שלחו הודעה בוואטסאפ")}
+                </Button>
+              </TrackedWhatsAppLink>
               <Link href="/book">
                 <Button
                   size="lg"

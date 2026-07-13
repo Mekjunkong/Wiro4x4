@@ -17,13 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { APP_LOGO, COMPANY_WHATSAPP_URL } from "@/const";
+import { APP_LOGO } from "@/const";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export function Header() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { theme, toggleTheme, switchable } = useTheme();
   const { user, isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
@@ -37,12 +38,12 @@ export function Header() {
   const isExploreActive = ["/gallery", "/blog", "/faq", "/car-rental"].some(
     path => currentPath.startsWith(path)
   );
-  const whatsappHref = `${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(
-    t(
-      "Hi WIRO 4x4, I'd like to check availability for a private trip. Dates: __ Group size: __ Pickup area: __",
-      "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי. תאריכים: __ מספר מטיילים: __ אזור איסוף: __"
-    )
-  )}`;
+  const whatsappMessage = t(
+    "Hi WIRO 4x4, I'd like to check availability for a private trip. Dates: __ Group size: __ Pickup area: __",
+    "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי. תאריכים: __ מספר מטיילים: __ אזור איסוף: __"
+  );
+  const whatsappSource =
+    language === "he" ? "GLOBAL-HEADER-HE" : "GLOBAL-HEADER-EN";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -180,7 +181,12 @@ export function Header() {
                 </span>
               </Link>
             )}
-            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+            <TrackedWhatsAppLink
+              sourceCode={whatsappSource}
+              humanMessage={whatsappMessage}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button
                 variant="default"
                 size="sm"
@@ -189,7 +195,7 @@ export function Header() {
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 {t("Check Availability", "בדיקת זמינות")}
               </Button>
-            </a>
+            </TrackedWhatsAppLink>
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
@@ -312,8 +318,9 @@ export function Header() {
                 </Link>
               </>
             )}
-            <a
-              href={whatsappHref}
+            <TrackedWhatsAppLink
+              sourceCode={whatsappSource}
+              humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
@@ -326,7 +333,7 @@ export function Header() {
                 <MessageCircle className="h-5 w-5" aria-hidden="true" />
                 {t("Check Availability", "בדיקת זמינות")}
               </Button>
-            </a>
+            </TrackedWhatsAppLink>
             <div className="flex items-center gap-4 mt-8">
               {switchable && toggleTheme && (
                 <button

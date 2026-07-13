@@ -46,7 +46,9 @@ export const leadScoringRouter = router({
         return { success: false, message: "Lead not found", score: 0 };
       }
 
-      const allEmails = allLeads.map(l => l.email);
+      const allEmails = allLeads
+        .map(l => l.email)
+        .filter((email): email is string => email !== null);
       const result = calculateLeadScore(lead as LeadData, allEmails);
       await updateLeadScore(
         lead.id,

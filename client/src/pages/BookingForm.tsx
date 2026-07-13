@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { trackEvent, FUNNEL } from "@/lib/analytics";
+import { trackEvent } from "@/lib/analytics";
 import { getStoredUtm } from "@/lib/utm";
 import { captureReferralFromUrl, clearReferralCode } from "@/lib/referral";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
+import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
@@ -94,9 +94,16 @@ export default function BookingForm() {
     canonicalPath: "/book",
   });
 
-  useEffect(() => {
-    trackEvent(FUNNEL.BOOKING_STARTED);
-  }, []);
+  const bookingStartedRef = useRef(false);
+  const handleBookingInteraction = () => {
+    if (bookingStartedRef.current) return;
+    bookingStartedRef.current = true;
+    trackEvent("booking_start", {
+      page: "/book",
+      placement: "booking-form",
+      language,
+    });
+  };
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [bookingRef, setBookingRef] = useState("");
@@ -407,7 +414,6 @@ export default function BookingForm() {
 
   const createBooking = trpc.booking.create.useMutation({
     onSuccess: data => {
-      trackEvent(FUNNEL.BOOKING_COMPLETED);
       setIsSubmitting(false);
       setBookingRef(`WIRO-${data.bookingId || Date.now()}`);
       setSubmitSuccess(true);
@@ -424,10 +430,13 @@ export default function BookingForm() {
       );
       // Generate WhatsApp message
       const message = generateWhatsAppMessage();
-      window.open(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
+      const tracked = buildTrackedWhatsAppLink({
+        sourceCode:
+          language === "he" ? "BOOKING-SUBMIT-HE" : "BOOKING-SUBMIT-EN",
+        humanMessage: message,
+      });
+      trackEvent("whatsapp_click", tracked.eventProperties);
+      window.open(tracked.href, "_blank");
     },
     onError: error => {
       setIsSubmitting(false);
@@ -702,6 +711,7 @@ export default function BookingForm() {
 
               <form
                 onSubmit={handleSubmit}
+                onChangeCapture={handleBookingInteraction}
                 className="space-y-6 md:space-y-8"
                 noValidate
               >

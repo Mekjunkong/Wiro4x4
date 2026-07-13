@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -13,11 +13,14 @@ import {
   Thermometer,
   Snowflake,
   Info,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 import { PAGE_SIZE } from "./types";
 import { TableSkeleton } from "./AdminSkeleton";
 import { Pagination } from "./Pagination";
 import { exportToCsv, todayStamp, fmtDate } from "@/lib/csvExport";
+import { WhatsAppLeadForm } from "./WhatsAppLeadForm";
 
 // ── Score tier helpers ──────────────────────────────────
 
@@ -282,6 +285,14 @@ export function LeadsTab() {
   const [leadsPage, setLeadsPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [sortBy, setSortBy] = useState<"score" | "date">("score");
+  const [lostReasons, setLostReasons] = useState<Record<number, string>>({});
+  const [estimatedValues, setEstimatedValues] = useState<
+    Record<number, string>
+  >({});
+  const [updatingLeadIds, setUpdatingLeadIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const updatingLeadIdsRef = useRef(new Set<number>());
 
   const {
     data: leadsData,
@@ -316,6 +327,19 @@ export function LeadsTab() {
       toast.error("Failed to update lead. Please try again.");
     },
   });
+  const mutateLead = (input: Parameters<typeof updateLeadMut.mutate>[0]) => {
+    if (updatingLeadIdsRef.current.has(input.id)) return;
+
+    updatingLeadIdsRef.current.add(input.id);
+    setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
+    void updateLeadMut
+      .mutateAsync(input)
+      .catch(() => undefined)
+      .finally(() => {
+        updatingLeadIdsRef.current.delete(input.id);
+        setUpdatingLeadIds(new Set(updatingLeadIdsRef.current));
+      });
+  };
   const deleteLeadMut = trpc.lead.delete.useMutation({
     onSuccess: () => {
       void refetchLeads();
@@ -338,9 +362,29 @@ export function LeadsTab() {
     },
   });
 
-  const handleLeadStatusChange = (leadId: number, newStatus: string) => {
-    updateLeadMut.mutate({
-      id: leadId,
+  const handleLeadStatusChange = (
+    lead: NonNullable<typeof leads>[number],
+    newStatus: string
+  ) => {
+    const lostReason = lostReasons[lead.id] ?? lead.lostReason ?? "";
+    if (newStatus === "lost" && !lostReason.trim()) {
+      toast.error("Add a loss reason below, then choose Lost again.");
+      return;
+    }
+    if (lead.completedAt && newStatus !== "converted") {
+      if (!confirm("Undo completed and change this lead's status?")) return;
+      mutateLead({
+        id: lead.id,
+        data: {
+          status: newStatus as "new" | "contacted" | "quoted" | "lost",
+          completed: false,
+          lostReason: newStatus === "lost" ? lostReason.trim() : undefined,
+        },
+      });
+      return;
+    }
+    mutateLead({
+      id: lead.id,
       data: {
         status: newStatus as
           | "new"
@@ -348,12 +392,13 @@ export function LeadsTab() {
           | "quoted"
           | "converted"
           | "lost",
+        lostReason: newStatus === "lost" ? lostReason.trim() : undefined,
       },
     });
   };
 
   const handleConvertLead = (leadId: number) => {
-    updateLeadMut.mutate({ id: leadId, data: { status: "converted" } });
+    mutateLead({ id: leadId, data: { status: "converted" } });
   };
 
   const toggleSelect = (id: number) => {
@@ -398,7 +443,20 @@ export function LeadsTab() {
         "Email",
         "Phone",
         "Source",
+        "Source Code",
+        "Channel",
+        "Language",
+        "Landing Page",
+        "UTM Source",
+        "UTM Medium",
+        "UTM Campaign",
         "Status",
+        "Tour Interest",
+        "Travel Date",
+        "Group Size",
+        "Estimated Value THB",
+        "Completed At",
+        "Loss Reason",
         "Score",
         "Message",
         "Created At",
@@ -409,7 +467,20 @@ export function LeadsTab() {
         l.email ?? "",
         l.phone ?? "",
         l.source ?? "",
+        l.sourceCode ?? "Unknown",
+        l.sourceChannel ?? "Unknown",
+        l.language ?? "Unknown",
+        l.landingPage ?? "Unknown",
+        l.utmSource ?? "Unknown",
+        l.utmMedium ?? "Unknown",
+        l.utmCampaign ?? "Unknown",
         l.status ?? "",
+        l.interestedTours ?? "",
+        fmtDate(l.travelDate),
+        l.groupSize ?? "",
+        l.estimatedValueThb ?? "",
+        fmtDate(l.completedAt),
+        l.lostReason ?? "",
         l.score ?? 0,
         l.message ?? "",
         fmtDate(l.createdAt),
@@ -425,6 +496,9 @@ export function LeadsTab() {
 
   return (
     <div className="p-6">
+      <div className="mb-4">
+        <WhatsAppLeadForm onCreated={() => void refetchLeads()} />
+      </div>
       {/* Actions bar */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <button
@@ -522,6 +596,12 @@ export function LeadsTab() {
                 <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden md:table-cell">
                   Source
                 </th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden xl:table-cell">
+                  Trip context
+                </th>
+                <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden lg:table-cell">
+                  Outcome
+                </th>
                 <th className="text-left py-3 px-4 font-semibold text-foreground text-xs md:text-sm hidden sm:table-cell">
                   Score
                 </th>
@@ -538,83 +618,252 @@ export function LeadsTab() {
             </thead>
             <tbody>
               {leads?.map(lead => (
-                <tr
-                  key={lead.id}
-                  className="border-b border-border/50 hover:bg-muted/50"
-                >
-                  <td className="py-3 px-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(lead.id)}
-                      onChange={() => toggleSelect(lead.id)}
-                      className="w-4 h-4 rounded border-border"
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-sm">{lead.name}</td>
-                  <td className="py-3 px-4 hidden sm:table-cell">
-                    <p className="text-sm">{lead.email}</p>
-                    {lead.phone && (
-                      <p className="text-sm text-muted-foreground">
-                        {lead.phone}
-                      </p>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-sm hidden md:table-cell">
-                    {lead.source}
-                  </td>
-                  <td className="py-3 px-4 hidden sm:table-cell">
-                    {lead.score != null && lead.score > 0 ? (
-                      <ScoreBadge
-                        score={lead.score}
-                        scoreDetails={(lead as any).scoreDetails}
+                <Fragment key={lead.id}>
+                  <tr className="border-b border-border/50 hover:bg-muted/50">
+                    <td className="py-3 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(lead.id)}
+                        onChange={() => toggleSelect(lead.id)}
+                        disabled={updatingLeadIds.has(lead.id)}
+                        className="w-4 h-4 rounded border-border"
                       />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">-</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={lead.status}
-                      onChange={e =>
-                        handleLeadStatusChange(lead.id, e.target.value)
-                      }
-                      className="px-2 py-1 border border-border rounded text-xs md:text-sm min-h-[44px]"
-                    >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="quoted">Quoted</option>
-                      <option value="converted">Converted</option>
-                      <option value="lost">Lost</option>
-                    </select>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-muted-foreground hidden md:table-cell">
-                    {lead.createdAt
-                      ? new Date(lead.createdAt).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex flex-wrap gap-1">
-                      {lead.status !== "converted" && (
-                        <button
-                          onClick={() => handleConvertLead(lead.id)}
-                          className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1"
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      <p>{lead.name}</p>
+                      <div className="mt-1 text-[11px] leading-4 text-muted-foreground md:hidden">
+                        <div
+                          aria-label={`Mobile contact for ${lead.name}`}
+                          className="mb-1 select-text sm:hidden"
                         >
-                          <ArrowRightLeft className="w-3 h-3" />
-                          <span className="hidden sm:inline">Convert</span>
-                        </button>
+                          <p>{lead.phone || "No phone"}</p>
+                          <p>{lead.email || "No email"}</p>
+                        </div>
+                        <p>
+                          {lead.sourceCode || "Unknown"} ·{" "}
+                          {lead.sourceChannel || "Unknown"}
+                        </p>
+                        <p>
+                          {lead.estimatedValueThb != null
+                            ? `THB ${Number(lead.estimatedValueThb).toLocaleString()}`
+                            : "Unknown value"}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 hidden sm:table-cell">
+                      <p className="text-sm">{lead.email || "No email"}</p>
+                      {lead.phone && (
+                        <p className="text-sm text-muted-foreground">
+                          {lead.phone}
+                        </p>
                       )}
-                      <button
-                        onClick={() => {
-                          if (confirm("Delete this lead?"))
-                            deleteLeadMut.mutate({ id: lead.id });
-                        }}
-                        className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center"
+                    </td>
+                    <td className="py-3 px-4 text-sm hidden md:table-cell">
+                      <p className="font-medium">
+                        {lead.sourceCode || "Unknown"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {lead.sourceChannel || "Unknown"}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 text-sm hidden xl:table-cell">
+                      <p>{lead.interestedTours || "Unknown tour"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {fmtDate(lead.travelDate) || "Unknown date"} ·{" "}
+                        {lead.groupSize
+                          ? `${lead.groupSize} people`
+                          : "Unknown group"}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 text-sm hidden lg:table-cell">
+                      <p className="font-medium">
+                        {lead.estimatedValueThb != null
+                          ? `THB ${Number(lead.estimatedValueThb).toLocaleString()}`
+                          : "Unknown value"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {lead.completedAt ? "Completed" : "Not completed"}
+                      </p>
+                      {lead.lostReason && (
+                        <p className="text-xs text-red-700">
+                          {lead.lostReason}
+                        </p>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 hidden sm:table-cell">
+                      {lead.score != null && lead.score > 0 ? (
+                        <ScoreBadge
+                          score={lead.score}
+                          scoreDetails={lead.scoreDetails}
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <select
+                        value={lead.status}
+                        aria-label={`Status for ${lead.name}`}
+                        disabled={updatingLeadIds.has(lead.id)}
+                        onChange={e =>
+                          handleLeadStatusChange(lead, e.target.value)
+                        }
+                        className="px-2 py-1 border border-border rounded text-xs md:text-sm min-h-[44px]"
                       >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="quoted">Quoted</option>
+                        <option value="converted">Confirmed</option>
+                        <option value="lost">Lost</option>
+                      </select>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground hidden md:table-cell">
+                      {lead.createdAt
+                        ? new Date(lead.createdAt).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {lead.status !== "converted" && (
+                          <button
+                            onClick={() => handleConvertLead(lead.id)}
+                            disabled={updatingLeadIds.has(lead.id)}
+                            className="px-2 md:px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors min-h-[36px] flex items-center gap-1 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            <ArrowRightLeft className="w-3 h-3" />
+                            <span className="hidden sm:inline">Convert</span>
+                          </button>
+                        )}
+                        {lead.status === "converted" && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              mutateLead({
+                                id: lead.id,
+                                data: { completed: !lead.completedAt },
+                              })
+                            }
+                            disabled={updatingLeadIds.has(lead.id)}
+                            className="flex min-h-[44px] items-center gap-1 rounded bg-blue-100 px-2 text-xs text-blue-700 transition hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {lead.completedAt ? (
+                              <Circle className="h-3 w-3" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            {lead.completedAt
+                              ? "Undo completed"
+                              : "Mark completed"}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (confirm("Delete this lead?"))
+                              deleteLeadMut.mutate({ id: lead.id });
+                          }}
+                          disabled={updatingLeadIds.has(lead.id)}
+                          className="px-2 py-1.5 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors min-h-[36px] flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td colSpan={11} className="px-4 pb-3">
+                      <details className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                        <summary className="min-h-[44px] cursor-pointer py-3 font-medium">
+                          Attribution and outcome details
+                        </summary>
+                        <div className="grid gap-3 pb-3 sm:grid-cols-2 lg:grid-cols-4">
+                          <div className="text-xs leading-5 text-muted-foreground">
+                            <strong className="block text-foreground">
+                              Attribution
+                            </strong>
+                            Code: {lead.sourceCode || "Unknown"}
+                            <br />
+                            Channel: {lead.sourceChannel || "Unknown"}
+                            <br />
+                            Language: {lead.language || "Unknown"}
+                            <br />
+                            Landing: {lead.landingPage || "Unknown"}
+                          </div>
+                          <div className="text-xs leading-5 text-muted-foreground">
+                            <strong className="block text-foreground">
+                              Trip
+                            </strong>
+                            Tour: {lead.interestedTours || "Unknown"}
+                            <br />
+                            Date: {fmtDate(lead.travelDate) || "Unknown"}
+                            <br />
+                            Group: {lead.groupSize || "Unknown"}
+                          </div>
+                          <label className="grid gap-1 text-xs font-medium">
+                            Estimated value (THB)
+                            <div className="flex gap-2">
+                              <input
+                                aria-label={`Estimated value for ${lead.name}`}
+                                type="number"
+                                min={0}
+                                max={2_147_483_647}
+                                disabled={updatingLeadIds.has(lead.id)}
+                                value={
+                                  estimatedValues[lead.id] ??
+                                  String(lead.estimatedValueThb ?? "")
+                                }
+                                onChange={event =>
+                                  setEstimatedValues(values => ({
+                                    ...values,
+                                    [lead.id]: event.target.value,
+                                  }))
+                                }
+                                className="min-h-[44px] min-w-0 flex-1 rounded border border-border bg-background px-2"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const value =
+                                    estimatedValues[lead.id] ??
+                                    String(lead.estimatedValueThb ?? "");
+                                  mutateLead({
+                                    id: lead.id,
+                                    data: {
+                                      estimatedValueThb: value
+                                        ? Number(value)
+                                        : null,
+                                    },
+                                  });
+                                }}
+                                disabled={updatingLeadIds.has(lead.id)}
+                                className="min-h-[44px] rounded bg-muted px-3 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </label>
+                          <label className="grid gap-1 text-xs font-medium">
+                            Loss reason (required before Lost)
+                            <input
+                              aria-label={`Loss reason for ${lead.name}`}
+                              value={
+                                lostReasons[lead.id] ?? lead.lostReason ?? ""
+                              }
+                              disabled={updatingLeadIds.has(lead.id)}
+                              onChange={event =>
+                                setLostReasons(reasons => ({
+                                  ...reasons,
+                                  [lead.id]: event.target.value,
+                                }))
+                              }
+                              className="min-h-[44px] rounded border border-border bg-background px-2"
+                              placeholder="Price, timing, no response…"
+                            />
+                          </label>
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>

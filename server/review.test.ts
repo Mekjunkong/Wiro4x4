@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
+import {
+  createAuthContext,
+  createPublicContext,
+  itWithDb,
+} from "./test-helpers";
 
 describe("review.create", () => {
   itWithDb("submits a review for approval", async () => {
@@ -15,7 +19,10 @@ describe("review.create", () => {
       tourType: "waterfall",
     });
 
-    expect(result).toEqual({ success: true, message: "Review submitted for approval" });
+    expect(result).toEqual({
+      success: true,
+      message: "Review submitted for approval",
+    });
   });
 
   itWithDb("submits a review without optional tour type", async () => {
@@ -29,7 +36,10 @@ describe("review.create", () => {
       text: "Great tour, highly recommended!",
     });
 
-    expect(result).toEqual({ success: true, message: "Review submitted for approval" });
+    expect(result).toEqual({
+      success: true,
+      message: "Review submitted for approval",
+    });
   });
 });
 
@@ -64,7 +74,7 @@ describe("review.update (approve/reject)", () => {
     const caller = appRouter.createCaller(ctx);
 
     const reviews = await caller.review.listAll();
-    const pending = reviews.find((r) => r.status === "pending");
+    const pending = reviews.find(r => r.status === "pending");
     if (pending) {
       const result = await caller.review.update({
         id: pending.id,

@@ -1,5 +1,5 @@
+import { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WHATSAPP_NUMBER } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -27,6 +27,8 @@ import {
 } from "@shared/pricing";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
+import { trackEvent } from "@/lib/analytics";
 
 // Same image map as Tours.tsx — override DB imageUrls with local optimized image names
 const TOUR_IMAGE_MAP: Record<string, string> = {
@@ -153,7 +155,9 @@ const HARDCODED_TOURS = [
 ];
 
 export default function Pricing() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const pricingSectionRef = useRef<HTMLElement>(null);
+  const pricingViewTrackedRef = useRef(false);
   usePageMeta({
     title: "Tour Pricing",
     description:
@@ -231,14 +235,53 @@ export default function Pricing() {
     },
   ];
 
-  const handleWhatsAppInquiry = (tourName: string, price: number) => {
-    const message = encodeURIComponent(
-      t(
-        `Hi WIRO 4x4, I'm interested in ${tourName} (from $${Math.round(price * 0.028).toLocaleString()}).\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __`,
-        `שלום WIRO 4x4, מתעניינים ב${tourName} (החל מ-$${Math.round(price * 0.028).toLocaleString()}).\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __`
-      )
+  useEffect(() => {
+    const element = pricingSectionRef.current;
+    if (!element || pricingViewTrackedRef.current) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (
+          pricingViewTrackedRef.current ||
+          !entries.some(entry => entry.isIntersecting)
+        )
+          return;
+        pricingViewTrackedRef.current = true;
+        trackEvent("pricing_view", {
+          page: "/pricing",
+          placement: "pricing-section",
+          language,
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.25 }
     );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [language]);
+
+  const handleWhatsAppInquiry = (
+    tourName: string,
+    price: number,
+    placement: "tour" | "package"
+  ) => {
+    const message = t(
+      `Hi WIRO 4x4, I'm interested in ${tourName} (from $${Math.round(price * 0.028).toLocaleString()}).\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __`,
+      `שלום WIRO 4x4, מתעניינים ב${tourName} (החל מ-$${Math.round(price * 0.028).toLocaleString()}).\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __`
+    );
+    const sourceCode =
+      placement === "tour"
+        ? language === "he"
+          ? "PRICING-TOUR-HE"
+          : "PRICING-TOUR-EN"
+        : language === "he"
+          ? "PRICING-PACKAGE-HE"
+          : "PRICING-PACKAGE-EN";
+    const tracked = buildTrackedWhatsAppLink({
+      sourceCode,
+      humanMessage: message,
+    });
+    trackEvent("whatsapp_click", tracked.eventProperties);
+    window.open(tracked.href, "_blank");
   };
 
   return (
@@ -292,7 +335,7 @@ export default function Pricing() {
         </section>
 
         {/* Individual Tours Pricing */}
-        <section className="py-16">
+        <section ref={pricingSectionRef} className="py-16">
           <div className="container">
             <h2 className="text-3xl font-medium text-center mb-12">
               {t("Individual Tours", "טיולים בודדים")}
@@ -477,7 +520,11 @@ export default function Pricing() {
 
                       <Button
                         onClick={() =>
-                          handleWhatsAppInquiry(tour.name, tour.basePrice)
+                          handleWhatsAppInquiry(
+                            tour.name,
+                            tour.basePrice,
+                            "tour"
+                          )
                         }
                         variant="default"
                         className="w-full mt-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
@@ -601,7 +648,9 @@ export default function Pricing() {
                   </ul>
 
                   <Button
-                    onClick={() => handleWhatsAppInquiry(pkg.name, pkg.price)}
+                    onClick={() =>
+                      handleWhatsAppInquiry(pkg.name, pkg.price, "package")
+                    }
                     className={`w-full mt-auto ${idx === 1 ? "bg-accent-cta hover:bg-accent-cta-hover text-white" : "border-accent text-accent hover:bg-accent/10"}`}
                     variant={idx === 1 ? "default" : "outline"}
                   >

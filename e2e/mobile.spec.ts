@@ -169,15 +169,20 @@ test.describe("Mobile Responsiveness", () => {
     }
   });
 
-  test("should have Book Now button in mobile menu", async ({ page }) => {
+  test("should have tracked availability link in mobile menu", async ({
+    page,
+  }) => {
     await preparePage(page);
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
     const mobileNav = await openMobileMenu(page);
 
-    // Book Now button should be in mobile menu
-    const bookNow = mobileNav.getByRole("button", { name: /book now/i });
-    await expect(bookNow).toBeVisible();
+    const availabilityLink = mobileNav.getByRole("link", {
+      name: /check availability/i,
+    });
+    await expect(availabilityLink).toBeVisible();
+    await expect(availabilityLink).toHaveAttribute("href", /wa\.me\//);
+    await expect(availabilityLink).toHaveAttribute("href", /GLOBAL-HEADER-EN/);
   });
 });

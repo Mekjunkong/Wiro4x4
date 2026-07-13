@@ -149,6 +149,20 @@ describe("calculateLeadScore", () => {
     expect(result.details.engagementSignals.points).toBeGreaterThanOrEqual(10);
   });
 
+  it("scores a phone-only WhatsApp lead without treating missing email as repeat", () => {
+    const lead = {
+      ...makeLead({ phone: "+66912345678" }),
+      email: null,
+    };
+
+    const result = calculateLeadScore(lead, ["other@example.com"]);
+
+    expect(result.details.contactCompleteness.points).toBe(15);
+    expect(result.details.engagementSignals.reason).not.toContain(
+      "repeat inquiry"
+    );
+  });
+
   it("gives status bonus: quoted=10, contacted=5, new=0", () => {
     const quoted = calculateLeadScore(makeLead({ status: "quoted" }));
     expect(quoted.details.statusBonus.points).toBe(10);

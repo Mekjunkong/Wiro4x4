@@ -6,6 +6,11 @@
 import type { Request, Response, NextFunction } from "express";
 import fs from "node:fs";
 import path from "node:path";
+import { COMMERCIAL_SEO_ROUTE_PAIRS } from "../shared/commercialSeo";
+import {
+  isCanonicalBlogSlug,
+  isCanonicalTourOrPackageSlug,
+} from "../shared/schemas";
 import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
@@ -110,6 +115,39 @@ function serviceJsonLd(meta: {
     inLanguage: meta.inLanguage || ["en", "he"],
   };
 }
+
+const COMMERCIAL_STATIC_ROUTES: Record<string, PageMeta> = Object.fromEntries(
+  COMMERCIAL_SEO_ROUTE_PAIRS.flatMap(pair =>
+    (["en", "he"] as const).map(language => {
+      const path = pair.paths[language];
+      const metadata = pair.metadata[language];
+      return [
+        path,
+        {
+          title: metadata.title,
+          description: metadata.description,
+          canonicalPath: path,
+          lang: language,
+          dir: language === "he" ? "rtl" : "ltr",
+          ogImage: `${SITE_URL}/images/optimized/${pair.heroImage}.webp`,
+          alternateLanguages: {
+            en: `${SITE_URL}${pair.paths.en}`,
+            he: `${SITE_URL}${pair.paths.he}`,
+            "x-default": `${SITE_URL}${pair.paths.en}`,
+          },
+          jsonLd: serviceJsonLd({
+            name: metadata.title,
+            description: metadata.description,
+            path,
+            audienceType:
+              "Jewish and Israeli families seeking private Chiang Mai 4x4 tours",
+            inLanguage: [language],
+          }),
+        } satisfies PageMeta,
+      ];
+    })
+  )
+);
 
 function localBusinessJsonLd(): Record<string, unknown> {
   return {
@@ -235,40 +273,6 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy online booking with WhatsApp confirmation.",
     canonicalPath: "/book",
   },
-  "/kosher-tours": {
-    title: "Kosher Tours Chiang Mai — Private 4x4 for Jewish Travelers",
-    description:
-      "Kosher tours in Chiang Mai with private 4x4 routes, kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support for Jewish travelers.",
-    canonicalPath: "/kosher-tours",
-    jsonLd: serviceJsonLd({
-      name: "Kosher Tours Chiang Mai",
-      description:
-        "Private kosher-friendly 4x4 tours in Chiang Mai with kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support.",
-      path: "/kosher-tours",
-      audienceType:
-        "Jewish travelers, kosher travelers, Israeli travelers, observant families",
-    }),
-  },
-  "/hebrew-guide": {
-    title: "מדריך דובר עברית בצ׳אנג מאי — Hebrew Guide Chiang Mai",
-    description:
-      "מדריך דובר עברית בצ׳אנג מאי לטיול ג׳יפים פרטי בצפון תאילנד. Hebrew-speaking Chiang Mai guide for Israeli families, couples, and groups.",
-    canonicalPath: "/hebrew-guide",
-    lang: "he",
-    dir: "rtl",
-    alternateLanguages: {
-      he: `${SITE_URL}/hebrew-guide`,
-      "x-default": `${SITE_URL}/hebrew-guide`,
-    },
-    jsonLd: serviceJsonLd({
-      name: "Hebrew-Speaking Guide in Chiang Mai",
-      description:
-        "Private 4x4 tours in Chiang Mai and Northern Thailand with Hebrew-speaking guide support for Israeli travelers.",
-      path: "/hebrew-guide",
-      audienceType: "Israeli travelers, Hebrew-speaking travelers, families",
-      inLanguage: ["he", "en"],
-    }),
-  },
   "/accessible-tours": {
     title: "Family-Friendly & Accessible Tours Chiang Mai",
     description:
@@ -328,6 +332,7 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "How WIRO 4x4 collects, uses, and protects your personal data.",
     canonicalPath: "/privacy",
   },
+  ...COMMERCIAL_STATIC_ROUTES,
 };
 
 /**
@@ -420,6 +425,17 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+const PAGE_JSON_LD_ID = "page-json-ld";
+const PAGE_JSON_LD_PATTERN =
+  /<script\b(?=[^>]*\bid=["']page-json-ld["'])[^>]*>[\s\S]*?<\/script>\s*/gi;
+
+function serializeJsonLd(value: JsonLdValue): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 export function absoluteUrl(url: string): string {
@@ -535,7 +551,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
   // Override lang attribute for non-English pages
   if (meta.lang) {
     html = html.replace(
-      /(<html\b[^>]*)\blang="[^"]*"/,
+      /(<html\b[^>]*)\s+lang="[^"]*"/,
       `$1 lang="${meta.lang}"`
     );
   }
@@ -544,7 +560,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
   if (meta.dir) {
     if (/<html\b[^>]*\sdir="[^"]*"/.test(html)) {
       html = html.replace(
-        /(<html\b[^>]*)\bdir="[^"]*"/,
+        /(<html\b[^>]*)\s+dir="[^"]*"/,
         `$1 dir="${meta.dir}"`
       );
     } else {
@@ -552,9 +568,10 @@ export function injectMeta(html: string, meta: PageMeta): string {
     }
   }
 
-  // Inject page-specific JSON-LD before closing </head>
+  // Replace the page-specific JSON-LD while preserving baked organization data.
+  html = html.replace(PAGE_JSON_LD_PATTERN, "");
   if (meta.jsonLd) {
-    const jsonLdScript = `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`;
+    const jsonLdScript = `<script id="${PAGE_JSON_LD_ID}" type="application/ld+json">${serializeJsonLd(meta.jsonLd)}</script>`;
     html = html.replace("</head>", `${jsonLdScript}\n</head>`);
   }
 
@@ -574,11 +591,20 @@ export function injectMeta(html: string, meta: PageMeta): string {
   return html;
 }
 
+/** Render a known static route from the same metadata used by the middleware. */
+export function renderStaticRouteHtml(
+  html: string,
+  urlPath: string
+): string | null {
+  const meta = STATIC_ROUTES[urlPath];
+  return meta ? injectMeta(html, meta) : null;
+}
+
 /** Resolve meta for a dynamic route (tour or blog post) */
 async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   // /tours/:slug
-  const tourMatch = urlPath.match(/^\/tours\/([a-z0-9-]+)$/);
-  if (tourMatch) {
+  const tourMatch = urlPath.match(/^\/tours\/([^/]+)$/);
+  if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[1])) {
     const slug = tourMatch[1];
     let tour: Awaited<ReturnType<typeof getTourBySlug>>;
     try {
@@ -631,8 +657,8 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   }
 
   // /packages/:slug
-  const packageMatch = urlPath.match(/^\/packages\/([a-z0-9-]+)$/);
-  if (packageMatch) {
+  const packageMatch = urlPath.match(/^\/packages\/([^/]+)$/);
+  if (packageMatch && isCanonicalTourOrPackageSlug(packageMatch[1])) {
     const slug = packageMatch[1];
     const dbPkg = await getTourPackageBySlug(slug);
     const pkg = dbPkg?.isPublished === 1 ? dbPkg : undefined;
@@ -681,8 +707,8 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   }
 
   // /blog/:slug
-  const blogMatch = urlPath.match(/^\/blog\/([a-z0-9-]+)$/);
-  if (blogMatch) {
+  const blogMatch = urlPath.match(/^\/blog\/([^/]+)$/);
+  if (blogMatch && isCanonicalBlogSlug(blogMatch[1])) {
     const post = await getPublishedBlogPostBySlug(blogMatch[1]);
     if (post) {
       const publishedIso = post.publishedAt
@@ -755,9 +781,6 @@ const CLIENT_ONLY_ROUTES = new Set([
 
 const CLIENT_ONLY_PREFIXES = [/^\/admin(\/|$)/, /^\/album\/[^/]+$/];
 
-/** Content prefixes whose slugs are validated against the DB / fallbacks */
-const CONTENT_SLUG_PATTERN = /^\/(tours|packages|blog)\/[a-z0-9-]+$/;
-
 /** True for SPA-only pages (auth, admin, booking confirmations) that should
  * be served with a noindex signal but a 200 status. Exported for tests. */
 export function isClientOnlyRoute(urlPath: string): boolean {
@@ -769,7 +792,11 @@ export function isClientOnlyRoute(urlPath: string): boolean {
 
 /** True for /tours/:slug, /packages/:slug, /blog/:slug shapes. Exported for tests. */
 export function isContentSlugPath(urlPath: string): boolean {
-  return CONTENT_SLUG_PATTERN.test(urlPath);
+  const match = urlPath.match(/^\/(tours|packages|blog)\/([^/]+)$/);
+  if (!match) return false;
+  return match[1] === "blog"
+    ? isCanonicalBlogSlug(match[2])
+    : isCanonicalTourOrPackageSlug(match[2]);
 }
 
 /** Edge cache for indexable marketing pages (1h fresh, 24h stale) */
@@ -868,15 +895,22 @@ export function seoMiddleware(options?: { html?: string }) {
       return;
     }
 
-    // Try static routes first, then dynamic
-    let meta: PageMeta | null = STATIC_ROUTES[urlPath] || null;
+    // Static pages render through the same helper covered by raw-HTML tests.
+    const staticHtml = renderStaticRouteHtml(html, urlPath);
+    if (staticHtml) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .set("Cache-Control", PAGE_CACHE_CONTROL)
+        .send(staticHtml);
+      return;
+    }
 
-    if (!meta) {
-      try {
-        meta = await getDynamicMeta(urlPath);
-      } catch {
-        // DB error — fall through to default HTML
-      }
+    let meta: PageMeta | null = null;
+    try {
+      meta = await getDynamicMeta(urlPath);
+    } catch {
+      // DB error — fall through to default HTML
     }
 
     if (meta) {

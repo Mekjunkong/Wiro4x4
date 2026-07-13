@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
+import {
+  createAuthContext,
+  createPublicContext,
+  itWithDb,
+} from "./test-helpers";
 
 describe("agent.create", () => {
   itWithDb("creates an agent with valid data", async () => {
@@ -16,7 +20,10 @@ describe("agent.create", () => {
       status: "active",
     });
 
-    expect(result).toEqual({ success: true, message: "Agent created successfully" });
+    expect(result).toEqual({
+      success: true,
+      message: "Agent created successfully",
+    });
   });
 
   it("rejects agent creation without authentication", async () => {
@@ -28,7 +35,7 @@ describe("agent.create", () => {
         name: "Unauthorized Agent",
         email: "unauth@example.com",
         phone: "+66800000000",
-      }),
+      })
     ).rejects.toThrow();
   });
 });
@@ -73,7 +80,7 @@ describe("agent.delete", () => {
     });
 
     const agents = await caller.agent.list();
-    const toDelete = agents.find((a) => a.email === "delete@wiro4x4.com");
+    const toDelete = agents.find(a => a.email === "delete@wiro4x4.com");
     if (toDelete) {
       const result = await caller.agent.delete({ id: toDelete.id });
       expect(result).toEqual({ success: true });

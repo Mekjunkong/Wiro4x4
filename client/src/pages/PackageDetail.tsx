@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
@@ -22,8 +23,9 @@ import {
   Utensils,
   BedDouble,
 } from "lucide-react";
-import { WHATSAPP_NUMBER } from "@/const";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { trackEvent } from "@/lib/analytics";
 
 /* ─── Fallback itinerary day type ─── */
 interface ItineraryDay {
@@ -449,6 +451,9 @@ export default function PackageDetail() {
   const fallback = FALLBACK_PACKAGES[slug];
   const hasFallback = !dbPkg && !!fallback;
   const hasData = !!dbPkg || hasFallback;
+  const pricingSectionRef = useRef<HTMLDivElement>(null);
+  const tourViewKeyRef = useRef("");
+  const pricingViewKeyRef = useRef("");
 
   const packageName = dbPkg
     ? t(dbPkg.name, dbPkg.nameHe)
@@ -495,6 +500,42 @@ export default function PackageDetail() {
         }
       : undefined,
   });
+
+  useEffect(() => {
+    if (!hasData || tourViewKeyRef.current === slug) return;
+    tourViewKeyRef.current = slug;
+    trackEvent("tour_view", {
+      page: `/packages/${slug}`,
+      placement: "package-detail",
+      language,
+      tour: slug,
+    });
+  }, [hasData, language, slug]);
+
+  useEffect(() => {
+    const element = pricingSectionRef.current;
+    if (!hasData || !element || pricingViewKeyRef.current === slug) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (
+          !entries.some(entry => entry.isIntersecting) ||
+          pricingViewKeyRef.current === slug
+        )
+          return;
+        pricingViewKeyRef.current = slug;
+        trackEvent("pricing_view", {
+          page: `/packages/${slug}`,
+          placement: "booking-card",
+          language,
+          tour: slug,
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasData, language, slug]);
 
   if (isLoading) {
     return (
@@ -545,10 +586,7 @@ export default function PackageDetail() {
   /* ─── Fallback rendering (multi-day itinerary) ─── */
   if (hasFallback) {
     const pkg = fallback!;
-    const whatsappMsg = encodeURIComponent(
-      `Hi! I'm interested in the ${pkg.name} package. Can you tell me more?`
-    );
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g, "")}?text=${whatsappMsg}`;
+    const whatsappMessage = `Hi! I'm interested in the ${pkg.name} package. Can you tell me more?`;
 
     return (
       <div className="min-h-screen flex flex-col">
@@ -626,10 +664,21 @@ export default function PackageDetail() {
                               {t("Day", "יום")} {day.day}
                             </div>
                           </div>
-                          <div className="p-5 flex-1">
-                            <h3 className="text-lg font-bold mb-2">
+                          <details
+                            className="p-5 flex-1"
+                            onToggle={event => {
+                              if (!event.currentTarget.open) return;
+                              trackEvent("itinerary_expand", {
+                                page: `/packages/${slug}`,
+                                placement: `day-${day.day}`,
+                                language,
+                                tour: slug,
+                              });
+                            }}
+                          >
+                            <summary className="cursor-pointer list-none text-lg font-bold mb-2">
                               {t(day.title, day.titleHe)}
-                            </h3>
+                            </summary>
                             <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                               {t(day.description, day.descriptionHe)}
                             </p>
@@ -646,7 +695,7 @@ export default function PackageDetail() {
                                 </span>
                               ))}
                             </div>
-                          </div>
+                          </details>
                         </div>
                       </Card>
                     ))}
@@ -676,7 +725,10 @@ export default function PackageDetail() {
 
               {/* Sticky Sidebar */}
               <div className="lg:col-span-1">
-                <div className="sticky top-28 bg-white dark:bg-card border border-accent/20 rounded-2xl p-6 shadow-lg space-y-5">
+                <div
+                  ref={pricingSectionRef}
+                  className="sticky top-28 bg-white dark:bg-card border border-accent/20 rounded-2xl p-6 shadow-lg space-y-5"
+                >
                   <h3 className="font-heading font-bold text-xl flex items-center gap-2">
                     <Mountain className="w-5 h-5 text-accent" />
                     {t("Trip Overview", "סקירת המסע")}
@@ -744,19 +796,26 @@ export default function PackageDetail() {
                     </div>
                   </div>
 
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button
+                    asChild
+                    className="w-full bg-accent-cta hover:bg-accent-cta-hover text-white font-bold"
+                    size="lg"
                   >
-                    <Button
-                      className="w-full bg-accent-cta hover:bg-accent-cta-hover text-white font-bold"
-                      size="lg"
+                    <TrackedWhatsAppLink
+                      sourceCode={
+                        language === "he"
+                          ? "PACKAGE-DETAIL-HE"
+                          : "PACKAGE-DETAIL-EN"
+                      }
+                      humanMessage={whatsappMessage}
+                      tour={slug}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {t("Inquire via WhatsApp", "פנו אלינו בוואטסאפ")}
                       <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </a>
+                    </TrackedWhatsAppLink>
+                  </Button>
 
                   <Link href="/book">
                     <Button variant="outline" className="w-full" size="lg">
@@ -869,10 +928,21 @@ export default function PackageDetail() {
                               {t("Day", "יום")} {index + 1}
                             </div>
                           </div>
-                          <div className="p-4 flex-1">
-                            <h3 className="text-lg font-bold mb-1">
+                          <details
+                            className="p-4 flex-1"
+                            onToggle={event => {
+                              if (!event.currentTarget.open) return;
+                              trackEvent("itinerary_expand", {
+                                page: `/packages/${slug}`,
+                                placement: `day-${index + 1}`,
+                                language,
+                                tour: slug,
+                              });
+                            }}
+                          >
+                            <summary className="cursor-pointer list-none text-lg font-bold mb-1">
                               {t(tour.name, tour.nameHe)}
-                            </h3>
+                            </summary>
                             {tour.description && (
                               <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                                 {t(
@@ -907,7 +977,7 @@ export default function PackageDetail() {
                                 <ArrowRight className="w-3 h-3" />
                               </Link>
                             </div>
-                          </div>
+                          </details>
                         </div>
                       </Card>
                     );
@@ -942,7 +1012,10 @@ export default function PackageDetail() {
 
             {/* Sticky Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 bg-card border rounded-lg p-5 shadow-sm space-y-4">
+              <div
+                ref={pricingSectionRef}
+                className="sticky top-24 bg-card border rounded-lg p-5 shadow-sm space-y-4"
+              >
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Tag className="w-5 h-5 text-primary" />
                   {t("Package Price", "מחיר החבילה")}

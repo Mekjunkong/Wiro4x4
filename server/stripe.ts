@@ -33,13 +33,15 @@ function getStripeClient(): Stripe | null {
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    console.warn("[Stripe] STRIPE_SECRET_KEY not set — payment features disabled");
+    console.warn(
+      "[Stripe] STRIPE_SECRET_KEY not set — payment features disabled"
+    );
     return null;
   }
 
   try {
     // Dynamic require so the app works if the stripe package is not installed
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+
     const StripeConstructor = require("stripe").default ?? require("stripe");
     _stripe = new StripeConstructor(secretKey, {
       apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion,
@@ -57,7 +59,10 @@ function getStripeClient(): Stripe | null {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const APP_URL = process.env.APP_URL || process.env.VITE_APP_URL || "https://wiro4x4.manus.space";
+const APP_URL =
+  process.env.APP_URL ||
+  process.env.VITE_APP_URL ||
+  "https://wiro4x4.manus.space";
 
 function ensureStripe(): Stripe {
   const stripe = getStripeClient();
@@ -86,7 +91,7 @@ export async function createCheckoutSession(
   bookingId: number,
   amount: number,
   type: "deposit" | "balance" | "full",
-  customerEmail?: string,
+  customerEmail?: string
 ): Promise<{ url: string; sessionId: string }> {
   const stripe = ensureStripe();
 
@@ -143,7 +148,7 @@ export async function createCheckoutSession(
  */
 export async function handleWebhook(
   payload: string | Buffer,
-  signature: string,
+  signature: string
 ): Promise<{
   type: string;
   bookingId?: number;
@@ -160,7 +165,11 @@ export async function handleWebhook(
     );
   }
 
-  const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+  const event = stripe.webhooks.constructEvent(
+    payload,
+    signature,
+    webhookSecret
+  );
 
   switch (event.type) {
     case "checkout.session.completed": {
@@ -202,9 +211,7 @@ export async function handleWebhook(
  * @param sessionId - Stripe Checkout Session ID
  * @returns Session status and payment details
  */
-export async function getSessionStatus(
-  sessionId: string,
-): Promise<{
+export async function getSessionStatus(sessionId: string): Promise<{
   status: string;
   paymentStatus: string;
   amountPaid?: number;
@@ -235,7 +242,7 @@ export async function getSessionStatus(
  */
 export async function createRefund(
   paymentIntentId: string,
-  amount?: number,
+  amount?: number
 ): Promise<{ refundId: string; status: string; amount: number }> {
   const stripe = ensureStripe();
 

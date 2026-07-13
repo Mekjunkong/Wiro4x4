@@ -6,7 +6,72 @@ import {
   absoluteUrl,
   truncateDescription,
   injectMeta,
+  renderStaticRouteHtml,
 } from "./seoMiddleware";
+
+const SITE_URL = "https://www.wiro4x4indochina.com";
+const commercialRoutes = [
+  {
+    path: "/kosher-tours",
+    language: "en",
+    direction: "ltr",
+    title: "Kosher-Friendly Tours in Chiang Mai for Families",
+    description:
+      "Plan a private kosher-friendly 4x4 tour from Chiang Mai with realistic meal logistics, Shabbat-aware timing, and Hebrew or English support.",
+    en: "/kosher-tours",
+    he: "/he/kosher-tours-chiang-mai",
+  },
+  {
+    path: "/he/kosher-tours-chiang-mai",
+    language: "he",
+    direction: "rtl",
+    title: "טיולים כשרים בצ׳אנג מאי למשפחות",
+    description:
+      "תכננו טיול 4x4 פרטי וידידותי לכשרות מצ׳אנג מאי, עם לוגיסטיקת אוכל מציאותית, תזמון שמתחשב בשבת ותמיכה בעברית.",
+    en: "/kosher-tours",
+    he: "/he/kosher-tours-chiang-mai",
+  },
+  {
+    path: "/hebrew-guide",
+    language: "en",
+    direction: "ltr",
+    title: "Hebrew-Speaking Guide in Chiang Mai for Private Tours",
+    description:
+      "Check a Hebrew-speaking guide for a private Chiang Mai 4x4 tour, with family-paced routes and kosher-aware planning when requested.",
+    en: "/hebrew-guide",
+    he: "/he/hebrew-guide-chiang-mai",
+  },
+  {
+    path: "/he/hebrew-guide-chiang-mai",
+    language: "he",
+    direction: "rtl",
+    title: "מדריך דובר עברית בצ׳אנג מאי לטיולים פרטיים",
+    description:
+      "בדקו זמינות של מדריך דובר עברית לטיול 4x4 פרטי בצ׳אנג מאי, עם מסלולים בקצב משפחתי ותכנון כשרות לפי הצורך.",
+    en: "/hebrew-guide",
+    he: "/he/hebrew-guide-chiang-mai",
+  },
+  {
+    path: "/private-family-tours",
+    language: "en",
+    direction: "ltr",
+    title: "Private Family 4x4 Tours in Chiang Mai",
+    description:
+      "Compare private family 4x4 routes from Chiang Mai with flexible pacing, hotel pickup, clear inclusions, and English or Hebrew planning.",
+    en: "/private-family-tours",
+    he: "/he/private-family-tours-chiang-mai",
+  },
+  {
+    path: "/he/private-family-tours-chiang-mai",
+    language: "he",
+    direction: "rtl",
+    title: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+    description:
+      "השוו מסלולי 4x4 פרטיים למשפחות מצ׳אנג מאי, עם קצב גמיש, איסוף מהמלון, פירוט ברור ותכנון בעברית או באנגלית.",
+    en: "/private-family-tours",
+    he: "/he/private-family-tours-chiang-mai",
+  },
+] as const;
 
 describe("seoMiddleware route classification", () => {
   it("flags auth and transactional SPA routes as client-only (noindex, 200)", () => {
@@ -54,6 +119,71 @@ describe("injectNoindex", () => {
 });
 
 describe("SEO metadata helpers", () => {
+  it("replaces one marked page JSON-LD script without duplicating baked organization data", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+      <script type="application/ld+json">{"@type":"Organization","name":"WIRO 4x4"}</script>
+    </head></html>`;
+
+    const first = renderStaticRouteHtml(shell, "/kosher-tours");
+    expect(first).not.toBeNull();
+    const second = renderStaticRouteHtml(first!, "/kosher-tours");
+
+    expect(second).toBe(first);
+    expect(second?.match(/id="page-json-ld"/g)).toHaveLength(1);
+    expect(second?.match(/"@type":"Organization"/g)).toHaveLength(1);
+    expect(second?.match(/type="application\/ld\+json"/g)).toHaveLength(2);
+  });
+
+  it("serializes hostile metadata without allowing JSON-LD script breakout", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+      <script type="application/ld+json">{"@type":"Organization"}</script>
+    </head></html>`;
+    const hostile = `tour</script><script id="injected">alert(1)</script>`;
+
+    const html = injectMeta(shell, {
+      title: hostile,
+      description: hostile,
+      canonicalPath: "/hostile",
+      jsonLd: { "@type": "WebPage", name: hostile },
+    });
+
+    expect(html).not.toContain('<script id="injected">');
+    expect(html).toContain(
+      'tour\\u003c/script>\\u003cscript id=\\"injected\\"'
+    );
+    expect(html.match(/<script\b/g)).toHaveLength(2);
+    expect(html.match(/<\/script>/g)).toHaveLength(2);
+  });
+
+  it("keeps each commercial search snippet unique", () => {
+    expect(new Set(commercialRoutes.map(route => route.title)).size).toBe(6);
+    expect(new Set(commercialRoutes.map(route => route.description)).size).toBe(
+      6
+    );
+  });
+
   it("normalizes image URLs and keeps descriptions on word boundaries", () => {
     expect(absoluteUrl("/images/post.jpg")).toBe(
       "https://www.wiro4x4indochina.com/images/post.jpg"
@@ -92,5 +222,74 @@ describe("SEO metadata helpers", () => {
       'name="twitter:image" content="https://www.wiro4x4indochina.com/images/post.jpg"'
     );
     expect(result).toContain('name="description" content="one two three four"');
+  });
+
+  it.each(commercialRoutes)(
+    "renders crawlable, localized raw HTML for $path",
+    route => {
+      const shell = `<html lang="en"><head>
+        <title>App</title>
+        <meta name="description" content="default" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="default" />
+        <meta property="og:description" content="default" />
+        <meta property="og:image" content="/default.jpg" />
+        <meta property="og:url" content="https://example.com" />
+        <meta name="twitter:title" content="default" />
+        <meta name="twitter:description" content="default" />
+        <meta name="twitter:image" content="/default.jpg" />
+        <link rel="canonical" href="https://example.com" />
+      </head><body></body></html>`;
+
+      const html = renderStaticRouteHtml(shell, route.path);
+
+      expect(html).not.toBeNull();
+      expect(html).toContain(
+        `<title>${route.title} | WIRO 4x4 Kosher Adventures</title>`
+      );
+      expect(html).toContain(
+        `<meta name="description" content="${route.description}" />`
+      );
+      expect(html).toContain('<meta name="robots" content="index, follow" />');
+      expect(html).toContain(
+        `<link rel="canonical" href="${SITE_URL}${route.path}" />`
+      );
+      expect(html).toContain(
+        `<link rel="alternate" hreflang="en" href="${SITE_URL}${route.en}" />`
+      );
+      expect(html).toContain(
+        `<link rel="alternate" hreflang="he" href="${SITE_URL}${route.he}" />`
+      );
+      expect(html).toContain(
+        `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${route.en}" />`
+      );
+      expect(html).toMatch(
+        new RegExp(
+          `<html(?=[^>]*lang="${route.language}")(?=[^>]*dir="${route.direction}")[^>]*>`
+        )
+      );
+    }
+  );
+
+  it("keeps the English Hebrew-guide route explicitly English and LTR", () => {
+    const shell = `<html lang="he" dir="rtl"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta name="robots" content="index, follow" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+    </head></html>`;
+
+    expect(renderStaticRouteHtml(shell, "/hebrew-guide")).toMatch(
+      /<html(?=[^>]*lang="en")(?=[^>]*dir="ltr")[^>]*>/
+    );
   });
 });

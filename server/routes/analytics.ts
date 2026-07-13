@@ -7,6 +7,7 @@ import {
   getRevenueByMonth,
   getBookingsByMonth,
   getLeadFunnel,
+  getAttributionAnalytics,
   getTopTours,
   getRecentActivity,
 } from "../db/analytics";
@@ -74,6 +75,11 @@ export const analyticsRouter = router({
   /** Lead funnel: count of leads in each status. */
   leadFunnel: secureProtectedProcedure.query(async () => {
     return await getLeadFunnel();
+  }),
+
+  /** Lead source attribution, outcomes, estimated value, and losses. */
+  attribution: secureProtectedProcedure.query(async () => {
+    return await getAttributionAnalytics();
   }),
 
   /** Most booked tours with revenue. */

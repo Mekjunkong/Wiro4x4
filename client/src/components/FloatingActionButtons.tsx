@@ -3,8 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Bot, MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
-import { WHATSAPP_URL } from "@/const";
-import { trackEvent } from "@/lib/analytics";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function FloatingActionButtons() {
   const { t, language } = useLanguage();
@@ -49,7 +48,6 @@ export function FloatingActionButtons() {
   }, []);
 
   const handleChatClick = () => {
-    trackEvent("floating_chat_click", { language, path: location });
     window.dispatchEvent(new CustomEvent("chat-toggle"));
   };
 
@@ -57,8 +55,6 @@ export function FloatingActionButtons() {
     language === "he"
       ? "שלום WIRO 4x4, נשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
       : "Hi WIRO 4x4, I'd like to check availability for a private tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
-  const whatsappHref = `${WHATSAPP_URL}?text=${encodeURIComponent(whatsappMessage)}`;
-
   const isHomePage = location === "/";
   const hideUntilUsefulOnHome = isHomePage && (!scrolledPast || !consentGiven);
 
@@ -77,13 +73,11 @@ export function FloatingActionButtons() {
       style={{ zIndex: 9997 }}
     >
       <div className="flex flex-col items-end gap-2">
-        <a
-          href={whatsappHref}
+        <TrackedWhatsAppLink
+          sourceCode={language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"}
+          humanMessage={whatsappMessage}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() =>
-            trackEvent("floating_whatsapp_click", { language, path: location })
-          }
           className="h-12 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg flex items-center justify-center gap-2 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
           aria-label={t(
             "Check availability on WhatsApp",
@@ -94,7 +88,7 @@ export function FloatingActionButtons() {
           <span className="text-sm font-semibold">
             {t("WhatsApp", "וואטסאפ")}
           </span>
-        </a>
+        </TrackedWhatsAppLink>
         <button
           type="button"
           onClick={handleChatClick}

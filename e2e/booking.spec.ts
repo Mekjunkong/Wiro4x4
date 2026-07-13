@@ -11,7 +11,7 @@ test.describe("Booking Flow", () => {
     await expect(page.locator("#contactName")).toBeVisible();
   });
 
-  test("should navigate to booking form from homepage", async ({
+  test("should expose tracked availability before loading the booking form", async ({
     page,
     isMobile,
   }) => {
@@ -21,11 +21,16 @@ test.describe("Booking Flow", () => {
       // On mobile, navigate directly
       await page.goto("/book");
     } else {
-      // On desktop, click "Book Now" button in header nav
-      await page
+      const availabilityLink = page
         .locator('nav[aria-label="Main navigation"]')
-        .getByRole("link", { name: /book now/i })
-        .click();
+        .getByRole("link", { name: /check availability/i });
+      await expect(availabilityLink).toBeVisible();
+      await expect(availabilityLink).toHaveAttribute("href", /wa\.me\//);
+      await expect(availabilityLink).toHaveAttribute(
+        "href",
+        /GLOBAL-HEADER-EN/
+      );
+      await page.goto("/book");
     }
 
     await expect(page).toHaveURL(/\/book/);

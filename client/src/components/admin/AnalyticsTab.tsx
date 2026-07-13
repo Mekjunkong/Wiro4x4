@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Mail,
 } from "lucide-react";
+import { AttributionAnalytics } from "./AttributionAnalytics";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -515,20 +516,20 @@ export function AnalyticsTab() {
     trpc.analytics.revenueByMonth.useQuery();
   const { data: bookingsData, isLoading: loadingBookings } =
     trpc.analytics.bookingsByMonth.useQuery();
-  const { data: funnelData, isLoading: loadingFunnel } =
-    trpc.analytics.leadFunnel.useQuery();
   const { data: topTours, isLoading: loadingTours } =
     trpc.analytics.topTours.useQuery();
   const { data: recentActivity, isLoading: loadingActivity } =
     trpc.analytics.recentActivity.useQuery();
+  const { data: attribution, isLoading: loadingAttribution } =
+    trpc.analytics.attribution.useQuery();
 
   const isLoading =
     loadingOverview ||
     loadingRevenue ||
     loadingBookings ||
-    loadingFunnel ||
     loadingTours ||
-    loadingActivity;
+    loadingActivity ||
+    loadingAttribution;
 
   const bookingsGrowth = useMemo(() => {
     if (!overview) return null;
@@ -590,6 +591,8 @@ export function AnalyticsTab() {
         />
       </div>
 
+      {attribution && <AttributionAnalytics report={attribution} t={t} />}
+
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <RevenueBarChart data={revenueData ?? []} t={t} />
@@ -600,7 +603,7 @@ export function AnalyticsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <LeadFunnel
           funnel={
-            funnelData ?? {
+            attribution?.funnel ?? {
               new: 0,
               contacted: 0,
               quoted: 0,
@@ -608,7 +611,7 @@ export function AnalyticsTab() {
               lost: 0,
             }
           }
-          totalLeads={overview?.totalLeads ?? 0}
+          totalLeads={attribution?.summary.leads ?? 0}
           t={t}
         />
         <TopToursList tours={topTours ?? []} t={t} />
