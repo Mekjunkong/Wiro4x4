@@ -63,6 +63,52 @@ async function mockAuthenticatedAdmin(
       return [];
     }
     if (procedure === "dashboard.badgeCounts") return {};
+    if (procedure === "analytics.overview") {
+      return {
+        totalRevenue: 0,
+        bookingsThisMonth: 0,
+        bookingsLastMonth: 0,
+        totalLeads: 4,
+        convertedLeads: 2,
+        avgRating: 0,
+        totalReviews: 0,
+        activeSubscribers: 0,
+      };
+    }
+    if (
+      procedure === "analytics.revenueByMonth" ||
+      procedure === "analytics.bookingsByMonth" ||
+      procedure === "analytics.topTours" ||
+      procedure === "analytics.recentActivity"
+    ) {
+      return [];
+    }
+    if (procedure === "analytics.attribution") {
+      return {
+        summary: {
+          leads: 4,
+          confirmed: 2,
+          completed: 1,
+          leadToConfirmedRate: 50,
+          confirmedToCompletedRate: 50,
+          estimatedConfirmedValueThb: 48000,
+        },
+        sources: [
+          {
+            sourceCode: "HOME-HERO-EN",
+            sourceChannel: "organic",
+            leads: 4,
+            confirmed: 2,
+            completed: 1,
+            leadToConfirmedRate: 50,
+            confirmedToCompletedRate: 50,
+            estimatedConfirmedValueThb: 48000,
+          },
+        ],
+        lossReasons: [{ reason: "Travel dates", count: 1 }],
+        funnel: { new: 1, contacted: 0, quoted: 0, converted: 2, lost: 1 },
+      };
+    }
     if (procedure === "analytics.funnelData") {
       return { steps: [], conversionRate: 0 };
     }
@@ -404,6 +450,27 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     const chunks: Buffer[] = [];
     for await (const chunk of stream) chunks.push(Buffer.from(chunk));
     expect(Buffer.concat(chunks).toString("utf8")).toContain('"\'=1+1"');
+  });
+
+  test("reports source outcomes and estimated confirmed THB", async ({
+    page,
+  }) => {
+    await preparePage(page);
+    await mockAuthenticatedAdmin(page);
+    await page.goto("/admin");
+    await page.getByRole("tab", { name: "Analytics", exact: true }).click();
+
+    const attribution = page.getByRole("region", { name: "Lead attribution" });
+    await expect(attribution).toBeVisible();
+    await expect(attribution).toContainText("HOME-HERO-EN");
+    await expect(attribution).toContainText("organic");
+    await expect(attribution).toContainText("48,000 THB");
+    await expect(attribution).toContainText("Travel dates");
+    await expect(
+      attribution.getByRole("img", {
+        name: "HOME-HERO-EN: 4 leads, 2 Confirmed, 1 Completed",
+      })
+    ).toBeVisible();
   });
 });
 
