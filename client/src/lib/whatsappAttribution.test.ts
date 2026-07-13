@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import { COMPANY_WHATSAPP_URL } from "@shared/const";
+import { parseAttributionCapsule } from "@shared/whatsappAttribution";
 
 import type { FirstTouchAttribution } from "./attribution";
 import {
@@ -37,6 +40,43 @@ describe("buildTrackedWhatsAppUrl", () => {
       `${humanMessage}\n[WIRO:v1|HOME-HERO-EN|organic|google|organic|-|%2Fkosher-tours]`
     );
     expect(decodedMessage?.split("\n").at(-1)).toMatch(/^\[WIRO:v1\|/);
+  });
+
+  it("keeps the runbook console command compatible with canonical capsules", () => {
+    const runbook = readFileSync(
+      new URL("../../../docs/seo-attribution-operations.md", import.meta.url),
+      "utf8"
+    );
+    const commandSection = runbook.match(
+      /With that link still selected[\s\S]*?```js\n\s*(?<command>[^\n]+)\n\s*```/
+    );
+    const command = commandSection?.groups?.command.trim();
+
+    expect(command).toBeTruthy();
+
+    const href = buildTrackedWhatsAppUrl({
+      sourceCode: "KOSHER-PAGE-EN",
+      humanMessage: "Hello WIRO",
+      attribution: {
+        ...attribution,
+        utmSource: "runbook",
+        utmMedium: "manual",
+        utmCampaign: "attribution-test",
+      },
+    });
+    const runCommand = new Function(
+      "$0",
+      `return ${command}`
+    ) as (selectedLink: { href: string }) => string;
+    const capsule = runCommand({ href }).split("\n").at(-1);
+
+    expect(capsule).toBe(
+      "[WIRO:v1|KOSHER-PAGE-EN|manual|runbook|manual|attribution-test|%2Fkosher-tours]"
+    );
+    expect(parseAttributionCapsule(capsule ?? "")).toMatchObject({
+      sourceCode: "KOSHER-PAGE-EN",
+      landingPath: "/kosher-tours",
+    });
   });
 
   it("prepares matching privacy-safe analytics properties for a tracked link", () => {

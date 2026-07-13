@@ -285,7 +285,7 @@ adding customer data.
 4. With that link still selected, open **Console** and run this local command:
 
    ```js
-   decodeURIComponent(new URL($0.href).searchParams.get("text") ?? "");
+   new URL($0.href).searchParams.get("text") ?? "";
    ```
 
 5. Confirm that the final line of the result is this capsule:
