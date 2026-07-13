@@ -43,12 +43,18 @@ declare module "stripe" {
   interface Stripe {
     checkout: {
       sessions: {
-        create(params: Record<string, unknown>): Promise<Stripe.Checkout.Session>;
+        create(
+          params: Record<string, unknown>
+        ): Promise<Stripe.Checkout.Session>;
         retrieve(id: string): Promise<Stripe.Checkout.Session>;
       };
     };
     webhooks: {
-      constructEvent(payload: string | Buffer, signature: string, secret: string): Stripe.Event;
+      constructEvent(
+        payload: string | Buffer,
+        signature: string,
+        secret: string
+      ): Stripe.Event;
     };
     refunds: {
       create(params: Record<string, unknown>): Promise<Stripe.Refund>;

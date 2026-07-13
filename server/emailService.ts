@@ -20,11 +20,11 @@ export interface BookingEmailData {
 }
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -41,9 +41,11 @@ function formatServices(data: BookingEmailData): string {
 /**
  * Send notification to owner when a new booking is received
  */
-export async function sendNewBookingNotification(data: BookingEmailData): Promise<boolean> {
+export async function sendNewBookingNotification(
+  data: BookingEmailData
+): Promise<boolean> {
   const title = `🎉 New Booking: ${data.contactName}`;
-  
+
   const content = `
 **New Tour Booking Received!**
 
@@ -64,9 +66,9 @@ ${formatServices(data)}
 **Logistics:**
 - Pickup: ${data.pickupPoint}
 - Dropoff: ${data.dropoffPoint}
-${data.suggestedDestinations ? `- Destinations: ${data.suggestedDestinations}` : ''}
+${data.suggestedDestinations ? `- Destinations: ${data.suggestedDestinations}` : ""}
 
-${data.specialRequests ? `**Special Requests:**\n${data.specialRequests}` : ''}
+${data.specialRequests ? `**Special Requests:**\n${data.specialRequests}` : ""}
 
 ---
 Please respond to this inquiry within 24 hours.
@@ -75,7 +77,9 @@ Please respond to this inquiry within 24 hours.
   try {
     const result = await notifyOwner({ title, content });
     if (result) {
-      console.log(`[Email] New booking notification sent for ${data.contactName}`);
+      console.log(
+        `[Email] New booking notification sent for ${data.contactName}`
+      );
     }
     return result;
   } catch (error) {
@@ -94,7 +98,7 @@ export async function sendBookingStatusNotification(
   newStatus: string
 ): Promise<boolean> {
   const title = `📋 Booking #${bookingId} Status Updated`;
-  
+
   const content = `
 **Booking Status Change**
 
@@ -103,9 +107,9 @@ export async function sendBookingStatusNotification(
 - Previous Status: ${oldStatus}
 - New Status: ${newStatus}
 
-${newStatus === 'confirmed' ? '✅ This booking has been confirmed!' : ''}
-${newStatus === 'cancelled' ? '❌ This booking has been cancelled.' : ''}
-${newStatus === 'completed' ? '🎉 This booking has been completed!' : ''}
+${newStatus === "confirmed" ? "✅ This booking has been confirmed!" : ""}
+${newStatus === "cancelled" ? "❌ This booking has been cancelled." : ""}
+${newStatus === "completed" ? "🎉 This booking has been completed!" : ""}
   `.trim();
 
   try {
@@ -127,10 +131,13 @@ export async function sendDailySummaryNotification(
   upcomingArrivals: Array<{ name: string; date: Date }>
 ): Promise<boolean> {
   const title = `📊 Daily Booking Summary - ${new Date().toLocaleDateString()}`;
-  
-  const arrivalsText = upcomingArrivals.length > 0
-    ? upcomingArrivals.map(a => `- ${a.name} (${formatDate(a.date)})`).join('\n')
-    : 'No arrivals in the next 7 days';
+
+  const arrivalsText =
+    upcomingArrivals.length > 0
+      ? upcomingArrivals
+          .map(a => `- ${a.name} (${formatDate(a.date)})`)
+          .join("\n")
+      : "No arrivals in the next 7 days";
 
   const content = `
 **Daily Booking Summary**

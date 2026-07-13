@@ -1,37 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createAuthContext, createPublicContext, itWithDb } from "./test-helpers";
+import {
+  createAuthContext,
+  createPublicContext,
+  itWithDb,
+} from "./test-helpers";
 
 describe("booking.create", () => {
-  itWithDb("creates a booking with valid data", async () => {
-    const { ctx } = createPublicContext();
-    const caller = appRouter.createCaller(ctx);
+  itWithDb(
+    "creates a booking with valid data",
+    async () => {
+      const { ctx } = createPublicContext();
+      const caller = appRouter.createCaller(ctx);
 
-    const bookingData = {
-      contactName: "John Doe",
-      contactEmail: "john@example.com",
-      contactPhone: "+1234567890",
-      arrivalDate: "2026-03-01",
-      departureDate: "2026-03-05",
-      numberOfAdults: 2,
-      numberOfChildren: 1,
-      includesHotels: true,
-      includesGuide: true,
-      includesTrip: true,
-      includesFood: true,
-      needsShabbatHotel: false,
-      pickupPoint: "airport",
-      dropoffPoint: "hotel",
-      destinations: "Chiang Mai, Pai",
-      specialRequests: "Vegetarian kosher meals",
-    };
+      const bookingData = {
+        contactName: "John Doe",
+        contactEmail: "john@example.com",
+        contactPhone: "+1234567890",
+        arrivalDate: "2026-03-01",
+        departureDate: "2026-03-05",
+        numberOfAdults: 2,
+        numberOfChildren: 1,
+        includesHotels: true,
+        includesGuide: true,
+        includesTrip: true,
+        includesFood: true,
+        needsShabbatHotel: false,
+        pickupPoint: "airport",
+        dropoffPoint: "hotel",
+        destinations: "Chiang Mai, Pai",
+        specialRequests: "Vegetarian kosher meals",
+      };
 
-    const result = await caller.booking.create(bookingData);
+      const result = await caller.booking.create(bookingData);
 
-    expect(result).toBeDefined();
-    expect(result.success).toBe(true);
-    expect(result.message).toBe("Booking created successfully");
-  }, 10000); // Increase timeout to 10s for email operations
+      expect(result).toBeDefined();
+      expect(result.success).toBe(true);
+      expect(result.message).toBe("Booking created successfully");
+    },
+    10000
+  ); // Increase timeout to 10s for email operations
 
   itWithDb("creates a booking with minimal required data", async () => {
     const { ctx } = createPublicContext();

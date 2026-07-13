@@ -24,14 +24,17 @@ interface RateLimitEntry {
 const memoryStore = new Map<string, RateLimitEntry>();
 
 // Clean up expired entries every 5 minutes (memory store only)
-const cleanupTimer = setInterval(() => {
-  const now = Date.now();
-  memoryStore.forEach((entry, key) => {
-    if (entry.resetAt <= now) {
-      memoryStore.delete(key);
-    }
-  });
-}, 5 * 60 * 1000);
+const cleanupTimer = setInterval(
+  () => {
+    const now = Date.now();
+    memoryStore.forEach((entry, key) => {
+      if (entry.resetAt <= now) {
+        memoryStore.delete(key);
+      }
+    });
+  },
+  5 * 60 * 1000
+);
 
 // Allow Node to exit even if the interval is still running
 if (typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
@@ -68,7 +71,10 @@ async function getRedis(): Promise<RedisType | null> {
     console.log("[RateLimit] Redis connected successfully");
     return redisClient;
   } catch (err) {
-    console.warn("[RateLimit] Redis unavailable, using in-memory fallback:", err);
+    console.warn(
+      "[RateLimit] Redis unavailable, using in-memory fallback:",
+      err
+    );
     redisClient = null;
     redisAvailable = false;
     return null;
@@ -85,14 +91,18 @@ getRedis().catch(() => {});
 function checkRateLimitMemory(
   key: string,
   maxRequests: number,
-  windowMs: number,
+  windowMs: number
 ): { allowed: boolean; remaining: number; resetAt: number } {
   const now = Date.now();
   const entry = memoryStore.get(key);
 
   if (!entry || entry.resetAt <= now) {
     memoryStore.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, remaining: maxRequests - 1, resetAt: now + windowMs };
+    return {
+      allowed: true,
+      remaining: maxRequests - 1,
+      resetAt: now + windowMs,
+    };
   }
 
   if (entry.count >= maxRequests) {
@@ -100,7 +110,11 @@ function checkRateLimitMemory(
   }
 
   entry.count++;
-  return { allowed: true, remaining: maxRequests - entry.count, resetAt: entry.resetAt };
+  return {
+    allowed: true,
+    remaining: maxRequests - entry.count,
+    resetAt: entry.resetAt,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +125,7 @@ async function checkRateLimitRedis(
   redis: RedisType,
   key: string,
   maxRequests: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   const now = Date.now();
   const windowId = Math.floor(now / windowMs);
@@ -158,7 +172,7 @@ async function checkRateLimitRedis(
 export function checkRateLimit(
   key: string,
   maxRequests = 10,
-  windowMs = 60_000,
+  windowMs = 60_000
 ): { allowed: boolean; remaining: number; resetAt: number } {
   // If Redis is connected, try the async path but return synchronously
   // by using the memory fallback as the sync result. The async Redis
@@ -189,7 +203,7 @@ export function checkRateLimit(
 export async function checkRateLimitAsync(
   key: string,
   maxRequests = 10,
-  windowMs = 60_000,
+  windowMs = 60_000
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   if (redisAvailable && redisClient) {
     return checkRateLimitRedis(redisClient, key, maxRequests, windowMs);

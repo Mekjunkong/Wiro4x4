@@ -773,11 +773,9 @@ export function registerAuthRoutes(app: Express) {
         .limit(1);
 
       if (tokenRows.length === 0) {
-        res
-          .status(400)
-          .json({
-            error: "Reset failed. Please request a new password reset link.",
-          });
+        res.status(400).json({
+          error: "Reset failed. Please request a new password reset link.",
+        });
         return;
       }
 

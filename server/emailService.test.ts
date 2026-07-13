@@ -5,7 +5,11 @@ vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
-import { sendNewBookingNotification, sendBookingStatusNotification, sendDailySummaryNotification } from "./emailService";
+import {
+  sendNewBookingNotification,
+  sendBookingStatusNotification,
+  sendDailySummaryNotification,
+} from "./emailService";
 import { notifyOwner } from "./_core/notification";
 
 describe("Email Service", () => {
@@ -38,7 +42,7 @@ describe("Email Service", () => {
 
       expect(result).toBe(true);
       expect(notifyOwner).toHaveBeenCalledTimes(1);
-      
+
       const call = vi.mocked(notifyOwner).mock.calls[0][0];
       expect(call.title).toContain("New Booking");
       expect(call.title).toContain("John Doe");
@@ -87,7 +91,7 @@ describe("Email Service", () => {
 
       expect(result).toBe(true);
       expect(notifyOwner).toHaveBeenCalledTimes(1);
-      
+
       const call = vi.mocked(notifyOwner).mock.calls[0][0];
       expect(call.title).toContain("#123");
       expect(call.title).toContain("Status Updated");
@@ -98,7 +102,7 @@ describe("Email Service", () => {
 
     it("includes confirmation message for confirmed status", async () => {
       await sendBookingStatusNotification(1, "Test", "pending", "confirmed");
-      
+
       const call = vi.mocked(notifyOwner).mock.calls[0][0];
       expect(call.content).toContain("confirmed");
     });
@@ -120,7 +124,7 @@ describe("Email Service", () => {
 
       expect(result).toBe(true);
       expect(notifyOwner).toHaveBeenCalledTimes(1);
-      
+
       const call = vi.mocked(notifyOwner).mock.calls[0][0];
       expect(call.title).toContain("Daily Booking Summary");
       expect(call.content).toContain("Total Bookings: 10");
@@ -134,7 +138,7 @@ describe("Email Service", () => {
       const result = await sendDailySummaryNotification(5, 2, 3, []);
 
       expect(result).toBe(true);
-      
+
       const call = vi.mocked(notifyOwner).mock.calls[0][0];
       expect(call.content).toContain("No arrivals in the next 7 days");
     });
