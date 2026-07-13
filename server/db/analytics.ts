@@ -240,14 +240,10 @@ function attributionMetricSelection() {
  * semantics without requiring a production-like database connection.
  */
 export function buildAttributionQueries(db: AttributionDb) {
-  const sourceCode =
-    sql<string>`COALESCE(NULLIF(TRIM(${leads.sourceCode}), ''), 'Unknown')`.as(
-      "sourceCode"
-    );
-  const sourceChannel =
-    sql<string>`COALESCE(NULLIF(TRIM(${leads.sourceChannel}), ''), 'Unknown')`.as(
-      "sourceChannel"
-    );
+  const normalizedSourceCode = sql<string>`COALESCE(NULLIF(TRIM(${leads.sourceCode}), ''), 'Unknown')`;
+  const normalizedSourceChannel = sql<string>`COALESCE(NULLIF(TRIM(${leads.sourceChannel}), ''), 'Unknown')`;
+  const sourceCode = normalizedSourceCode.as("normalized_source_code");
+  const sourceChannel = normalizedSourceChannel.as("normalized_source_channel");
 
   const sourceQuery = db
     .select({
@@ -257,8 +253,12 @@ export function buildAttributionQueries(db: AttributionDb) {
     })
     .from(leads)
     .leftJoin(bookings, eq(leads.convertedToBookingId, bookings.id))
-    .groupBy(sourceCode, sourceChannel)
-    .orderBy(desc(count()), asc(sourceCode), asc(sourceChannel))
+    .groupBy(normalizedSourceCode, normalizedSourceChannel)
+    .orderBy(
+      desc(count()),
+      asc(normalizedSourceCode),
+      asc(normalizedSourceChannel)
+    )
     .limit(100);
 
   // This separate aggregate is intentionally not derived from the capped

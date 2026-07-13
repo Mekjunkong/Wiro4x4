@@ -516,8 +516,6 @@ export function AnalyticsTab() {
     trpc.analytics.revenueByMonth.useQuery();
   const { data: bookingsData, isLoading: loadingBookings } =
     trpc.analytics.bookingsByMonth.useQuery();
-  const { data: funnelData, isLoading: loadingFunnel } =
-    trpc.analytics.leadFunnel.useQuery();
   const { data: topTours, isLoading: loadingTours } =
     trpc.analytics.topTours.useQuery();
   const { data: recentActivity, isLoading: loadingActivity } =
@@ -529,7 +527,6 @@ export function AnalyticsTab() {
     loadingOverview ||
     loadingRevenue ||
     loadingBookings ||
-    loadingFunnel ||
     loadingTours ||
     loadingActivity ||
     loadingAttribution;
@@ -606,7 +603,7 @@ export function AnalyticsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <LeadFunnel
           funnel={
-            funnelData ?? {
+            attribution?.funnel ?? {
               new: 0,
               contacted: 0,
               quoted: 0,
@@ -614,7 +611,7 @@ export function AnalyticsTab() {
               lost: 0,
             }
           }
-          totalLeads={overview?.totalLeads ?? 0}
+          totalLeads={attribution?.summary.leads ?? 0}
           t={t}
         />
         <TopToursList tours={topTours ?? []} t={t} />

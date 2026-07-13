@@ -79,8 +79,8 @@ const leadSeeds: LeadSeed[] = [
     convertedToBookingId: 103,
   },
   {
-    sourceCode: null,
-    sourceChannel: null,
+    sourceCode: "",
+    sourceChannel: "   ",
     status: "quoted",
     estimatedValueThb: 40_000,
     lostReason: null,
@@ -88,8 +88,8 @@ const leadSeeds: LeadSeed[] = [
     convertedToBookingId: null,
   },
   {
-    sourceCode: null,
-    sourceChannel: null,
+    sourceCode: "   ",
+    sourceChannel: "",
     status: "converted",
     estimatedValueThb: null,
     lostReason: null,
@@ -265,8 +265,19 @@ describe("analytics.attribution", () => {
       .toSQL()
       .sql.replace(/\s+/g, " ")
       .toLowerCase();
-    expect(sourceSql.match(/coalesce\(nullif\(trim\(/g)).toHaveLength(2);
-    expect(sourceSql.match(/\), ''\), 'unknown'\)/g)).toHaveLength(2);
+    const sourceSelectSql = sourceSql.split(" from ")[0];
+    expect(sourceSelectSql.match(/coalesce\(nullif\(trim\(/g)).toHaveLength(2);
+    expect(sourceSelectSql.match(/\), ''\), 'unknown'\)/g)).toHaveLength(2);
+    expect(sourceSql).toContain("as `normalized_source_code`");
+    expect(sourceSql).toContain("as `normalized_source_channel`");
+    const sourceGroupBySql = sourceSql
+      .split(" group by ")[1]
+      ?.split(" order by ")[0];
+    expect(sourceGroupBySql).toBeDefined();
+    expect(sourceGroupBySql?.match(/coalesce\(nullif\(trim\(/g)).toHaveLength(
+      2
+    );
+    expect(sourceGroupBySql).not.toBe("`sourcecode`, `sourcechannel`");
     expect(sourceSql).toContain("`leads`.`status` = 'converted'");
 
     const summarySql = summaryQuery
@@ -314,6 +325,26 @@ describe("analytics.attribution", () => {
         estimatedConfirmedValueThb: 80_000,
       },
     ]);
+    const unknownRows = report.sources.filter(
+      source =>
+        source.sourceCode === "Unknown" && source.sourceChannel === "Unknown"
+    );
+    expect(unknownRows).toEqual([
+      {
+        sourceCode: "Unknown",
+        sourceChannel: "Unknown",
+        leads: 4,
+        confirmed: 1,
+        completed: 1,
+        leadToConfirmedRate: 25,
+        confirmedToCompletedRate: 100,
+        estimatedConfirmedValueThb: 0,
+      },
+    ]);
+    const reactKeys = report.sources.map(
+      source => `${source.sourceCode}:${source.sourceChannel}`
+    );
+    expect(new Set(reactKeys).size).toBe(reactKeys.length);
     expect(report.lossReasons).toEqual([
       { reason: "Dates did not work", count: 1 },
       { reason: "No response", count: 1 },
