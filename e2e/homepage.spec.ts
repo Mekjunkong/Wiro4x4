@@ -95,6 +95,30 @@ test.describe("Homepage", () => {
       page.getByRole("link", { name: "Hebrew-speaking guide options" })
     ).toHaveAttribute("href", "/hebrew-guide");
   });
+
+  test("localizes the planning guides for a stored Hebrew preference", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("wiro-preferred-language", "he");
+    });
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("heading", {
+        name: "תכננו לפי צורכי המשפחה, האוכל והשפה",
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "טיולי 4x4 פרטיים למשפחות" })
+    ).toHaveAttribute("href", "/he/private-family-tours-chiang-mai");
+    await expect(
+      page.getByRole("link", { name: "תכנון טיול ידידותי לכשרות" })
+    ).toHaveAttribute("href", "/he/kosher-tours-chiang-mai");
+    await expect(
+      page.getByRole("link", { name: "אפשרויות למדריך דובר עברית" })
+    ).toHaveAttribute("href", "/he/hebrew-guide-chiang-mai");
+  });
 });
 
 // Desktop-only navigation tests (require desktop viewport for nav[aria-label="Main navigation"])

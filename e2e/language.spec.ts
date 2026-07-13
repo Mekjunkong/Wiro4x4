@@ -146,6 +146,117 @@ test.describe("Hebrew commercial routes", () => {
   });
 });
 
+test.describe("English commercial routes", () => {
+  for (const route of allCommercialRoutes.slice(0, 3)) {
+    test(`${route.path} forces English before paint for a stored Hebrew preference`, async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem("wiro-preferred-language", "he");
+        const firstRender: { h1?: string; lang?: string; dir?: string } = {};
+        Object.defineProperty(window, "__wiroFirstCommercialRender", {
+          value: firstRender,
+          writable: false,
+        });
+        new MutationObserver(() => {
+          if (firstRender.h1) return;
+          const heading = document.querySelector("main h1");
+          if (!heading) return;
+          firstRender.h1 = heading.textContent?.trim();
+          firstRender.lang = document.documentElement.lang;
+          firstRender.dir = document.documentElement.dir;
+        }).observe(document, { childList: true, subtree: true });
+      });
+
+      await page.goto(route.path);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+        route.h1
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+      await expect(page).toHaveTitle(/\| WIRO 4x4 Kosher Adventures$/);
+
+      const firstRender = await page.evaluate(
+        () =>
+          (
+            window as Window & {
+              __wiroFirstCommercialRender?: {
+                h1?: string;
+                lang?: string;
+                dir?: string;
+              };
+            }
+          ).__wiroFirstCommercialRender
+      );
+      expect(firstRender).toEqual({
+        h1: route.h1,
+        lang: "en",
+        dir: "ltr",
+      });
+    });
+  }
+
+  test("a Hebrew preference is restored after client navigation to an unrelated route", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("wiro-preferred-language", "he");
+    });
+    await page.goto("/private-family-tours");
+
+    await page
+      .getByRole("link", { name: "View the real trip gallery" })
+      .click();
+
+    await expect(page).toHaveURL(/\/gallery$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "he");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  });
+});
+
+test.describe("SPA page metadata ownership", () => {
+  test("removes a route-owned og locale after leaving a localized route", async ({
+    page,
+  }) => {
+    await page.goto("/he/private-family-tours-chiang-mai");
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+      "content",
+      "he_IL"
+    );
+
+    await page.getByRole("link", { name: "גלריית טיולים אמיתית" }).click();
+
+    await expect(page).toHaveURL(/\/gallery$/);
+    await expect(page.locator('meta[property="og:locale"]')).toHaveCount(0);
+  });
+
+  test("restores a server-owned og locale after leaving a localized route", async ({
+    page,
+  }) => {
+    await page.route("**/he/private-family-tours-chiang-mai", async route => {
+      const response = await route.fetch();
+      const body = (await response.text()).replace(
+        "</head>",
+        '<meta property="og:locale" content="en_GB" data-server-owned="true"></head>'
+      );
+      await route.fulfill({ response, body });
+    });
+
+    await page.goto("/he/private-family-tours-chiang-mai");
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+      "content",
+      "he_IL"
+    );
+
+    await page.getByRole("link", { name: "גלריית טיולים אמיתית" }).click();
+
+    await expect(page).toHaveURL(/\/gallery$/);
+    await expect(
+      page.locator('meta[property="og:locale"][data-server-owned="true"]')
+    ).toHaveAttribute("content", "en_GB");
+  });
+});
+
 test.describe("Commercial route dossiers", () => {
   for (const route of allCommercialRoutes) {
     test(`${route.path} exposes one primary inquiry and concrete planning details`, async ({
@@ -159,6 +270,7 @@ test.describe("Commercial route dossiers", () => {
       await expect(page.locator("main h1")).toHaveCount(1);
       await expect(page.locator("main h1")).toHaveText(route.h1);
       await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(1);
+      await expect(page.locator('main a[href*="wa.me"] button')).toHaveCount(0);
       await expect(
         page.getByRole("heading", { name: route.included, exact: true })
       ).toBeVisible();

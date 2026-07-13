@@ -115,20 +115,21 @@ export function CommercialLandingPage({
                 {copyFor(content.intro, language)}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-5">
-                <TrackedWhatsAppLink
-                  sourceCode={content.sourceCodes[language]}
-                  humanMessage={copyFor(content.whatsappMessage, language)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button
+                  asChild
+                  size="lg"
+                  className="min-h-12 gap-2 bg-[#25D366] px-6 text-white hover:bg-[#20BA5A]"
                 >
-                  <Button
-                    size="lg"
-                    className="min-h-12 gap-2 bg-[#25D366] px-6 text-white hover:bg-[#20BA5A]"
+                  <TrackedWhatsAppLink
+                    sourceCode={content.sourceCodes[language]}
+                    humanMessage={copyFor(content.whatsappMessage, language)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <MessageCircle className="h-5 w-5" aria-hidden="true" />
                     {copyFor(content.whatsappLabel, language)}
-                  </Button>
-                </TrackedWhatsAppLink>
+                  </TrackedWhatsAppLink>
+                </Button>
                 <Link
                   href={content.paths[oppositeLanguage]}
                   className="inline-flex min-h-11 items-center gap-2 border-b border-white/50 text-sm font-semibold text-white hover:border-accent hover:text-accent"

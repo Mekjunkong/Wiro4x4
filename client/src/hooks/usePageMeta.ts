@@ -41,6 +41,46 @@ function setMetaTag(selector: string, attribute: string, value: string) {
   el.setAttribute(attribute, value);
 }
 
+function setTransientMetaTag(
+  selector: string,
+  attribute: string,
+  value: string
+) {
+  let el = document.querySelector(selector);
+  const created = !el;
+  const previousValue = el?.getAttribute(attribute) ?? null;
+
+  if (!el) {
+    el = document.createElement("meta");
+    if (selector.startsWith("meta[property=")) {
+      const prop = selector.match(/property="([^"]+)"/)?.[1];
+      if (prop) el.setAttribute("property", prop);
+    } else if (selector.startsWith("meta[name=")) {
+      const name = selector.match(/name="([^"]+)"/)?.[1];
+      if (name) el.setAttribute("name", name);
+    }
+    el.setAttribute("data-page-meta-owned", "true");
+    document.head.appendChild(el);
+  }
+
+  el.setAttribute(attribute, value);
+
+  return () => {
+    if (!el?.isConnected || el.getAttribute(attribute) !== value) return;
+
+    if (created && el.getAttribute("data-page-meta-owned") === "true") {
+      el.remove();
+      return;
+    }
+
+    if (previousValue === null) {
+      el.removeAttribute(attribute);
+    } else {
+      el.setAttribute(attribute, previousValue);
+    }
+  };
+}
+
 function setLinkTag(rel: string, href: string) {
   let el = document.querySelector(
     `link[rel="${rel}"]`
@@ -154,13 +194,13 @@ export function usePageMeta(
       }
     }
 
-    if (options.language) {
-      setMetaTag(
-        'meta[property="og:locale"]',
-        "content",
-        options.language === "he" ? "he_IL" : "en_US"
-      );
-    }
+    const restoreOgLocale = options.language
+      ? setTransientMetaTag(
+          'meta[property="og:locale"]',
+          "content",
+          options.language === "he" ? "he_IL" : "en_US"
+        )
+      : undefined;
 
     // JSON-LD injection
     if (options.jsonLd) {
@@ -187,6 +227,8 @@ export function usePageMeta(
       document
         .querySelectorAll('link[data-dynamic-hreflang="true"]')
         .forEach(el => el.remove());
+
+      restoreOgLocale?.();
 
       // Reset canonical to homepage
       const canonicalLink = document.querySelector(

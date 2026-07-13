@@ -11,6 +11,7 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "wouter";
 import {
@@ -58,6 +59,25 @@ const homeJsonLd = [
 ];
 
 export default function Home() {
+  const { language, t } = useLanguage();
+  const planningGuides = [
+    {
+      href:
+        language === "he"
+          ? "/he/private-family-tours-chiang-mai"
+          : "/private-family-tours",
+      label: t("Private family 4x4 tours", "טיולי 4x4 פרטיים למשפחות"),
+    },
+    {
+      href: language === "he" ? "/he/kosher-tours-chiang-mai" : "/kosher-tours",
+      label: t("Kosher-friendly tour planning", "תכנון טיול ידידותי לכשרות"),
+    },
+    {
+      href: language === "he" ? "/he/hebrew-guide-chiang-mai" : "/hebrew-guide",
+      label: t("Hebrew-speaking guide options", "אפשרויות למדריך דובר עברית"),
+    },
+  ];
+
   usePageMeta({
     title: "Private Kosher 4x4 Tours from Chiang Mai",
     description:
@@ -80,33 +100,23 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
-                  Start with the right dossier
+                  {t("Start with the right dossier", "התחילו מהמדריך המתאים")}
                 </p>
                 <h2
                   id="planning-guides-heading"
                   className="mt-3 text-2xl font-medium md:text-3xl"
                 >
-                  Plan for your family, food, and language needs
+                  {t(
+                    "Plan for your family, food, and language needs",
+                    "תכננו לפי צורכי המשפחה, האוכל והשפה"
+                  )}
                 </h2>
               </div>
               <nav
                 className="grid gap-px bg-border sm:grid-cols-3"
-                aria-label="Tour planning guides"
+                aria-label={t("Tour planning guides", "מדריכי תכנון לטיולים")}
               >
-                {[
-                  {
-                    href: "/private-family-tours",
-                    label: "Private family 4x4 tours",
-                  },
-                  {
-                    href: "/kosher-tours",
-                    label: "Kosher-friendly tour planning",
-                  },
-                  {
-                    href: "/hebrew-guide",
-                    label: "Hebrew-speaking guide options",
-                  },
-                ].map(item => (
+                {planningGuides.map(item => (
                   <Link
                     key={item.href}
                     href={item.href}

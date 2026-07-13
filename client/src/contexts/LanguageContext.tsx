@@ -18,9 +18,16 @@ interface LanguageContextType {
 }
 
 const STORAGE_KEY = "wiro-preferred-language";
+const ENGLISH_COMMERCIAL_ROUTES = new Set([
+  "/kosher-tours",
+  "/hebrew-guide",
+  "/private-family-tours",
+]);
 
 export function getForcedRouteLanguage(pathname: string): Language | null {
-  return pathname === "/he" || pathname.startsWith("/he/") ? "he" : null;
+  if (pathname === "/he" || pathname.startsWith("/he/")) return "he";
+  if (ENGLISH_COMMERCIAL_ROUTES.has(pathname)) return "en";
+  return null;
 }
 
 function getStoredLanguage(): Language {
