@@ -98,6 +98,29 @@ describe("createApp commercial SEO", () => {
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
   });
 
+  it("permits only the Contact page's Google Maps frame origin in production CSP", async () => {
+    const server = createServer(createApp({ seoHtml: BUILT_PUBLIC_SHELL }));
+    servers.push(server);
+    await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (!address || typeof address === "string") {
+      throw new Error("Expected an ephemeral TCP address");
+    }
+
+    const response = await fetch(`http://127.0.0.1:${address.port}/contact`);
+    const csp = response.headers.get("content-security-policy") ?? "";
+    const frameSrc = csp
+      .split(";")
+      .map(directive => directive.trim().split(/\s+/))
+      .find(([name]) => name === "frame-src")
+      ?.slice(1);
+
+    expect(response.status).toBe(200);
+    expect(frameSrc).toEqual(["https://www.google.com"]);
+    expect(frameSrc).not.toContain("*");
+    expect(frameSrc).not.toContain("https://untrusted-frame.example");
+  });
+
   it("keeps production security and noindex headers on API and client-only routes", async () => {
     const server = createServer(createApp({ seoHtml: BUILT_PUBLIC_SHELL }));
     servers.push(server);

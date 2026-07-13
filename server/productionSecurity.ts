@@ -9,7 +9,8 @@ const productionHelmetOptions = {
       imgSrc: ["'self'", "data:", "blob:", "https:"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       connectSrc: ["'self'", "https://plausible.io", "https://wa.me"],
-      frameSrc: ["'none'"],
+      // Contact embeds WIRO's location through this exact Google Maps origin.
+      frameSrc: ["https://www.google.com"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
