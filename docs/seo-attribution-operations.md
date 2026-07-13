@@ -377,9 +377,20 @@ loss reason to exactly `Unknown` rather than dropping the record.
 
 ## Review the 90-day scorecard each week
 
-Save the scorecard at the same weekday and time for 13 weeks. Compare a complete
-seven-day period with the trailing four complete weeks, and keep the original
-three-to-six-month Search Console export as the pre-launch baseline.
+Save the scorecard at the same weekday and time for 13 weeks. Use these exact
+date ranges for every weekly snapshot:
+
+- **Current scorecard week:** The seven consecutive complete calendar days
+  immediately before the snapshot date.
+- **Previous four-week comparison period:** The 28 consecutive complete
+  calendar days immediately before the current scorecard week. This period
+  excludes the current scorecard week.
+
+Use the Plausible site's configured time zone for event boundaries, and record
+the start and end dates beside every snapshot. Apply the same calendar dates in
+Search Console. Calculate each funnel rate from the unique people shown for its
+entire selected range. Don't average four weekly rates or add weekly unique
+counts to create the previous four-week comparison.
 
 The admin attribution report is currently cumulative rather than date-filtered.
 Record a dated snapshot of its totals each week and subtract the previous
@@ -397,10 +408,23 @@ Use these definitions and sources for the scorecard.
 - **Clicks from Israel:** Search Console clicks with **Country** set to Israel.
 - **Hebrew-query impressions:** Search Console impressions with a **Query** >
   **Custom (regex)** filter of `[א-ת]`. Keep the same filter each week.
-- **Commercial landing visits:** Plausible **Total conversions** for
-  `commercial_page_view` during the seven-day period.
-- **WhatsApp clicks:** Plausible **Total conversions** for `whatsapp_click`
-  during the same period.
+- **Commercial funnel entrants:** In the configured **Commercial page to
+  WhatsApp** funnel, set the current scorecard week and record the visitor count
+  shown beside step 1, `commercial_page_view`. This is the number of unique
+  step-one entrants for that date range, not the goal's **Total conversions**.
+- **Commercial funnel completers:** In the same funnel and date range, record
+  the visitor count shown beside step 2, `whatsapp_click`. This count includes
+  unique visitors who completed step 1 before step 2 in the configured
+  sequential funnel.
+- **Commercial-page-to-WhatsApp funnel rate:** Record the conversion percentage
+  displayed for the configured funnel. Verify it as unique step-two completers
+  divided by unique step-one entrants, multiplied by 100, for the same date
+  range. If Plausible doesn't provide the funnel, record this metric as `N/A`;
+  don't divide the two goal event totals.
+- **WhatsApp click events:** Plausible **Total conversions** for
+  `whatsapp_click` during the current scorecard week. This is event volume and
+  can include repeated actions by one visitor; it isn't the unique funnel
+  completer count.
 - **Recorded inquiries:** Lead records whose **Created At** date falls inside
   the period, counted from a Leads CSV export.
 - **Confirmed tours:** The daily tally of leads newly moved to **Confirmed**
@@ -414,17 +438,19 @@ Use these definitions and sources for the scorecard.
 - **Loss reasons:** The daily tally of leads newly moved to **Lost**, grouped by
   the recorded reason. Label a snapshot-only result as a net change.
 
-Use Plausible total conversions for event counts. A unique conversion counts a
-visitor once, while total conversions count repeated events; the distinction is
+Use Plausible **Total conversions** only for event counts. Total conversions can
+include repeated events from one visitor. Use the visitor counts shown at the
+configured funnel steps for unique entrants and completers. The distinction is
 documented in Plausible's [metrics
 definitions](https://plausible.io/docs/metrics-definitions).
 
 ### Use thresholds as diagnostic alerts
 
 These thresholds start an investigation; they aren't promises or industry
-benchmarks. When a week has fewer than 20 commercial visits or fewer than five
-recorded inquiries, record the numbers but mark conversion conclusions as
-**low sample**.
+benchmarks. When the current scorecard week has fewer than 20 unique step-one
+commercial funnel entrants or fewer than five recorded inquiries, record the
+numbers but mark conversion conclusions as **low sample**. Don't use
+`commercial_page_view` total conversions for the 20-entrant threshold.
 
 - **Unknown source code above 20% of newly recorded leads:** Divide new lead
   records whose source code is `Unknown` by all new lead records. Inspect the
@@ -437,10 +463,14 @@ recorded inquiries, record the numbers but mark conversion conclusions as
 - **No Hebrew-query impressions for four complete weeks:** Inspect the three
   Hebrew URLs, confirm that Google selected their own canonicals, and check the
   Hebrew titles, descriptions, and internal links before changing content.
-- **Commercial-page-to-WhatsApp rate down at least 25% from its trailing
-  four-week rate with at least 20 commercial visits:** Break down the two goals
-  by page, language, country, and device. Test the affected WhatsApp action on
-  mobile and desktop.
+- **Commercial-page-to-WhatsApp funnel rate down at least 25% from the previous
+  four-week comparison rate, with at least 20 unique step-one entrants in the
+  current scorecard week:** Calculate the previous rate by selecting the exact
+  28-day comparison period in the configured funnel. Trigger the alert when the
+  current weekly rate is at most 75% of that comparison rate; don't use this
+  alert when the comparison rate is zero. Break down the funnel steps by page,
+  language, country, and device. Test the affected WhatsApp action on mobile
+  and desktop.
 - **Plausible records WhatsApp clicks but no website-attributed inquiries for a
   complete week:** Audit daily lead entry and capsule parsing. Remember that one
   visitor can click more than once and some conversations never become serious

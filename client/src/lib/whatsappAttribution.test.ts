@@ -79,6 +79,24 @@ describe("buildTrackedWhatsAppUrl", () => {
     });
   });
 
+  it("keeps the runbook funnel scorecard based on unique entrants", () => {
+    const runbook = readFileSync(
+      new URL("../../../docs/seo-attribution-operations.md", import.meta.url),
+      "utf8"
+    );
+
+    expect(runbook).toContain("**Commercial funnel entrants:**");
+    expect(runbook).toContain("**Commercial funnel completers:**");
+    expect(runbook).toContain(
+      "unique step-two completers\n  divided by unique step-one entrants, multiplied by 100"
+    );
+    expect(runbook).toContain(
+      "fewer than 20 unique step-one\ncommercial funnel entrants"
+    );
+    expect(runbook).toContain("**Previous four-week comparison period:**");
+    expect(runbook).not.toMatch(/commercial (?:landing )?visits/i);
+  });
+
   it("prepares matching privacy-safe analytics properties for a tracked link", () => {
     const link = buildTrackedWhatsAppLink({
       sourceCode: "HOME-HERO-EN",
