@@ -72,6 +72,11 @@ test.describe("Hebrew commercial routes", () => {
       );
       await expect(page.locator("html")).toHaveAttribute("lang", "he");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+      await expect(
+        page
+          .getByRole("navigation", { name: "Breadcrumb" })
+          .getByRole("link", { name: "דף הבית", exact: true })
+      ).toBeVisible();
 
       const firstRender = await page.evaluate(
         () =>
@@ -269,6 +274,16 @@ test.describe("Commercial route dossiers", () => {
 
       await expect(page.locator("main h1")).toHaveCount(1);
       await expect(page.locator("main h1")).toHaveText(route.h1);
+      const geometry = await page.evaluate(() => ({
+        headerBottom: document.querySelector("header")!.getBoundingClientRect()
+          .bottom,
+        breadcrumbTop: document
+          .querySelector('nav[aria-label="Breadcrumb"] ol')!
+          .getBoundingClientRect().top,
+      }));
+      expect(geometry.breadcrumbTop).toBeGreaterThanOrEqual(
+        geometry.headerBottom - 0.5
+      );
       await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(1);
       await expect(page.locator('main a[href*="wa.me"] button')).toHaveCount(0);
       await expect(
