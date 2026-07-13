@@ -103,22 +103,22 @@ export function CommercialLandingPage({
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/70 to-primary/15" />
-          <div className="container relative flex min-h-[72vh] items-end pb-14 pt-40 md:pb-20">
-            <div className="max-w-4xl">
+          <div className="container relative flex min-h-[72vh] min-w-0 max-w-full items-end pb-14 pt-40 md:pb-20">
+            <div className="w-full min-w-0 max-w-4xl">
               <p className="mb-5 text-xs font-bold uppercase tracking-[0.28em] text-accent">
                 {copyFor(content.eyebrow, language)}
               </p>
-              <h1 className="max-w-4xl text-4xl font-medium leading-[1.05] text-white md:text-6xl lg:text-7xl">
+              <h1 className="max-w-full break-words text-4xl font-medium leading-[1.05] text-white md:text-6xl lg:text-7xl">
                 {copyFor(content.h1, language)}
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/85 md:text-xl">
+              <p className="mt-6 max-w-full text-lg leading-relaxed text-white/85 md:max-w-2xl md:text-xl">
                 {copyFor(content.intro, language)}
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-5">
+              <div className="mt-8 flex min-w-0 max-w-full flex-wrap items-center gap-5">
                 <Button
                   asChild
                   size="lg"
-                  className="min-h-12 gap-2 bg-[#25D366] px-6 text-white hover:bg-[#20BA5A]"
+                  className="h-auto min-h-12 min-w-0 max-w-full gap-2 whitespace-normal bg-[#25D366] px-6 py-3 text-center leading-snug text-white hover:bg-[#20BA5A]"
                 >
                   <TrackedWhatsAppLink
                     sourceCode={content.sourceCodes[language]}

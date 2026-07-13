@@ -267,6 +267,7 @@ test.describe("Commercial route dossiers", () => {
     test(`${route.path} exposes one primary inquiry and concrete planning details`, async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
       await page.addInitScript(() => {
         localStorage.setItem("wiro-preferred-language", "en");
       });
@@ -284,8 +285,26 @@ test.describe("Commercial route dossiers", () => {
       expect(geometry.breadcrumbTop).toBeGreaterThanOrEqual(
         geometry.headerBottom - 0.5
       );
-      await expect(page.locator('main a[href*="wa.me"]')).toHaveCount(1);
+      const hero = page.locator("main > section").first();
+      const heroHeading = hero.getByRole("heading", { level: 1 });
+      const heroIntro = heroHeading.locator("xpath=following-sibling::p[1]");
+      const primaryInquiry = hero.locator('a[href*="wa.me"]');
+      await expect(primaryInquiry).toHaveCount(1);
       await expect(page.locator('main a[href*="wa.me"] button')).toHaveCount(0);
+
+      for (const [name, locator] of [
+        ["hero heading", heroHeading],
+        ["hero intro", heroIntro],
+        ["hero WhatsApp CTA", primaryInquiry],
+      ] as const) {
+        const box = await locator.boundingBox();
+        expect(box, `${name} should have a bounding box`).not.toBeNull();
+        expect(box!.x, `${name} left edge`).toBeGreaterThanOrEqual(-0.5);
+        expect(box!.x + box!.width, `${name} right edge`).toBeLessThanOrEqual(
+          390.5
+        );
+      }
+
       await expect(
         page.getByRole("heading", { name: route.included, exact: true })
       ).toBeVisible();
