@@ -6,6 +6,7 @@
 import type { Request, Response, NextFunction } from "express";
 import fs from "node:fs";
 import path from "node:path";
+import { COMMERCIAL_SEO_ROUTE_PAIRS } from "../shared/commercialSeo";
 import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
@@ -110,6 +111,39 @@ function serviceJsonLd(meta: {
     inLanguage: meta.inLanguage || ["en", "he"],
   };
 }
+
+const COMMERCIAL_STATIC_ROUTES: Record<string, PageMeta> = Object.fromEntries(
+  COMMERCIAL_SEO_ROUTE_PAIRS.flatMap(pair =>
+    (["en", "he"] as const).map(language => {
+      const path = pair.paths[language];
+      const metadata = pair.metadata[language];
+      return [
+        path,
+        {
+          title: metadata.title,
+          description: metadata.description,
+          canonicalPath: path,
+          lang: language,
+          dir: language === "he" ? "rtl" : "ltr",
+          ogImage: `${SITE_URL}/images/optimized/${pair.heroImage}.webp`,
+          alternateLanguages: {
+            en: `${SITE_URL}${pair.paths.en}`,
+            he: `${SITE_URL}${pair.paths.he}`,
+            "x-default": `${SITE_URL}${pair.paths.en}`,
+          },
+          jsonLd: serviceJsonLd({
+            name: metadata.title,
+            description: metadata.description,
+            path,
+            audienceType:
+              "Jewish and Israeli families seeking private Chiang Mai 4x4 tours",
+            inLanguage: [language],
+          }),
+        } satisfies PageMeta,
+      ];
+    })
+  )
+);
 
 function localBusinessJsonLd(): Record<string, unknown> {
   return {
@@ -235,40 +269,6 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "Reserve your WIRO 4x4 off-road adventure in Chiang Mai. Easy online booking with WhatsApp confirmation.",
     canonicalPath: "/book",
   },
-  "/kosher-tours": {
-    title: "Kosher Tours Chiang Mai — Private 4x4 for Jewish Travelers",
-    description:
-      "Kosher tours in Chiang Mai with private 4x4 routes, kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support for Jewish travelers.",
-    canonicalPath: "/kosher-tours",
-    jsonLd: serviceJsonLd({
-      name: "Kosher Tours Chiang Mai",
-      description:
-        "Private kosher-friendly 4x4 tours in Chiang Mai with kosher meal planning, Shabbat-aware scheduling, and Hebrew/English support.",
-      path: "/kosher-tours",
-      audienceType:
-        "Jewish travelers, kosher travelers, Israeli travelers, observant families",
-    }),
-  },
-  "/hebrew-guide": {
-    title: "מדריך דובר עברית בצ׳אנג מאי — Hebrew Guide Chiang Mai",
-    description:
-      "מדריך דובר עברית בצ׳אנג מאי לטיול ג׳יפים פרטי בצפון תאילנד. Hebrew-speaking Chiang Mai guide for Israeli families, couples, and groups.",
-    canonicalPath: "/hebrew-guide",
-    lang: "he",
-    dir: "rtl",
-    alternateLanguages: {
-      he: `${SITE_URL}/hebrew-guide`,
-      "x-default": `${SITE_URL}/hebrew-guide`,
-    },
-    jsonLd: serviceJsonLd({
-      name: "Hebrew-Speaking Guide in Chiang Mai",
-      description:
-        "Private 4x4 tours in Chiang Mai and Northern Thailand with Hebrew-speaking guide support for Israeli travelers.",
-      path: "/hebrew-guide",
-      audienceType: "Israeli travelers, Hebrew-speaking travelers, families",
-      inLanguage: ["he", "en"],
-    }),
-  },
   "/accessible-tours": {
     title: "Family-Friendly & Accessible Tours Chiang Mai",
     description:
@@ -328,6 +328,7 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "How WIRO 4x4 collects, uses, and protects your personal data.",
     canonicalPath: "/privacy",
   },
+  ...COMMERCIAL_STATIC_ROUTES,
 };
 
 /**
@@ -572,6 +573,15 @@ export function injectMeta(html: string, meta: PageMeta): string {
   }
 
   return html;
+}
+
+/** Render a known static route from the same metadata used by the middleware. */
+export function renderStaticRouteHtml(
+  html: string,
+  urlPath: string
+): string | null {
+  const meta = STATIC_ROUTES[urlPath];
+  return meta ? injectMeta(html, meta) : null;
 }
 
 /** Resolve meta for a dynamic route (tour or blog post) */
@@ -868,15 +878,22 @@ export function seoMiddleware(options?: { html?: string }) {
       return;
     }
 
-    // Try static routes first, then dynamic
-    let meta: PageMeta | null = STATIC_ROUTES[urlPath] || null;
+    // Static pages render through the same helper covered by raw-HTML tests.
+    const staticHtml = renderStaticRouteHtml(html, urlPath);
+    if (staticHtml) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html; charset=utf-8")
+        .set("Cache-Control", PAGE_CACHE_CONTROL)
+        .send(staticHtml);
+      return;
+    }
 
-    if (!meta) {
-      try {
-        meta = await getDynamicMeta(urlPath);
-      } catch {
-        // DB error — fall through to default HTML
-      }
+    let meta: PageMeta | null = null;
+    try {
+      meta = await getDynamicMeta(urlPath);
+    } catch {
+      // DB error — fall through to default HTML
     }
 
     if (meta) {

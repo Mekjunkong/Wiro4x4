@@ -1,4 +1,5 @@
 import type { WhatsAppSourceCode } from "@shared/whatsappAttribution";
+import { COMMERCIAL_SEO_BY_INTENT } from "@shared/commercialSeo";
 
 export type CommercialIntent = "kosher" | "hebrewGuide" | "family";
 export type CommercialLanguage = "en" | "he";
@@ -70,18 +71,15 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
 > = {
   kosher: {
     intent: "kosher",
-    paths: {
-      en: "/kosher-tours",
-      he: "/he/kosher-tours-chiang-mai",
-    },
+    paths: COMMERCIAL_SEO_BY_INTENT.kosher.paths,
     sourceCodes: { en: "KOSHER-PAGE-EN", he: "KOSHER-PAGE-HE" },
     metaTitle: {
-      en: "Kosher-Friendly Tours in Chiang Mai for Families",
-      he: "טיולים כשרים בצ׳אנג מאי למשפחות",
+      en: COMMERCIAL_SEO_BY_INTENT.kosher.metadata.en.title,
+      he: COMMERCIAL_SEO_BY_INTENT.kosher.metadata.he.title,
     },
     metaDescription: {
-      en: "Plan a private kosher-friendly 4x4 tour from Chiang Mai with realistic meal logistics, Shabbat-aware timing, and Hebrew or English support.",
-      he: "תכננו טיול 4x4 פרטי וידידותי לכשרות מצ׳אנג מאי, עם לוגיסטיקת אוכל מציאותית, תזמון שמתחשב בשבת ותמיכה בעברית.",
+      en: COMMERCIAL_SEO_BY_INTENT.kosher.metadata.en.description,
+      he: COMMERCIAL_SEO_BY_INTENT.kosher.metadata.he.description,
     },
     eyebrow: {
       en: "Kosher-aware expedition planning",
@@ -99,7 +97,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       en: "Best for families and small private groups who need kosher-friendly options, prayer breaks, or Shabbat-sensitive scheduling.",
       he: "מתאים למשפחות ולקבוצות פרטיות קטנות שצריכות אפשרויות ידידותיות לכשרות, הפסקות לתפילה או תכנון שמתחשב בשבת.",
     },
-    heroImage: "kosher_meal_packages",
+    heroImage: COMMERCIAL_SEO_BY_INTENT.kosher.heroImage,
     heroAlt: {
       en: "Packed kosher-friendly meal options prepared for a WIRO 4x4 day trip",
       he: "אפשרויות אוכל ארוזות וידידותיות לכשרות לטיול יום של WIRO 4x4",
@@ -177,18 +175,15 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
   },
   hebrewGuide: {
     intent: "hebrewGuide",
-    paths: {
-      en: "/hebrew-guide",
-      he: "/he/hebrew-guide-chiang-mai",
-    },
+    paths: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.paths,
     sourceCodes: { en: "HEBREW-GUIDE-EN", he: "HEBREW-GUIDE-HE" },
     metaTitle: {
-      en: "Hebrew-Speaking Guide in Chiang Mai for Private Tours",
-      he: "מדריך דובר עברית בצ׳אנג מאי לטיולים פרטיים",
+      en: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.metadata.en.title,
+      he: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.metadata.he.title,
     },
     metaDescription: {
-      en: "Check a Hebrew-speaking guide for a private Chiang Mai 4x4 tour, with family-paced routes and kosher-aware planning when requested.",
-      he: "בדקו זמינות של מדריך דובר עברית לטיול 4x4 פרטי בצ׳אנג מאי, עם מסלולים בקצב משפחתי ותכנון כשרות לפי הצורך.",
+      en: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.metadata.en.description,
+      he: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.metadata.he.description,
     },
     eyebrow: {
       en: "Local routes, explained in Hebrew",
@@ -206,7 +201,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       en: "For Israeli families, couples, and small groups who want local context and practical decisions explained in Hebrew.",
       he: "למשפחות ישראליות, זוגות וקבוצות קטנות שרוצים הקשר מקומי והחלטות מעשיות בהסבר בעברית.",
     },
-    heroImage: "guide_wiro",
+    heroImage: COMMERCIAL_SEO_BY_INTENT.hebrewGuide.heroImage,
     heroAlt: {
       en: "WIRO guide beside a 4x4 vehicle in Northern Thailand",
       he: "המדריך WIRO ליד רכב 4x4 בצפון תאילנד",
@@ -284,18 +279,15 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
   },
   family: {
     intent: "family",
-    paths: {
-      en: "/private-family-tours",
-      he: "/he/private-family-tours-chiang-mai",
-    },
+    paths: COMMERCIAL_SEO_BY_INTENT.family.paths,
     sourceCodes: { en: "FAMILY-PAGE-EN", he: "FAMILY-PAGE-HE" },
     metaTitle: {
-      en: "Private Family 4x4 Tours in Chiang Mai",
-      he: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+      en: COMMERCIAL_SEO_BY_INTENT.family.metadata.en.title,
+      he: COMMERCIAL_SEO_BY_INTENT.family.metadata.he.title,
     },
     metaDescription: {
-      en: "Compare private family 4x4 routes from Chiang Mai with flexible pacing, hotel pickup, clear inclusions, and English or Hebrew planning.",
-      he: "השוו מסלולי 4x4 פרטיים למשפחות מצ׳אנג מאי, עם קצב גמיש, איסוף מהמלון, פירוט ברור ותכנון בעברית או באנגלית.",
+      en: COMMERCIAL_SEO_BY_INTENT.family.metadata.en.description,
+      he: COMMERCIAL_SEO_BY_INTENT.family.metadata.he.description,
     },
     eyebrow: {
       en: "An expedition dossier for your family",
@@ -313,7 +305,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       en: "For parents, children, grandparents, and multigenerational groups who prefer one private vehicle and a flexible day.",
       he: "להורים, ילדים, סבים וקבוצות רב־דוריות שמעדיפים רכב פרטי אחד ויום גמיש.",
     },
-    heroImage: "tourists_with_4x4",
+    heroImage: COMMERCIAL_SEO_BY_INTENT.family.heroImage,
     heroAlt: {
       en: "Family travelers beside a WIRO 4x4 vehicle in Northern Thailand",
       he: "משפחה מטיילת ליד רכב WIRO 4x4 בצפון תאילנד",

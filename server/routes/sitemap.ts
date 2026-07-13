@@ -1,5 +1,9 @@
 import type { Express } from "express";
 import {
+  COMMERCIAL_SEO_ROUTE_PAIRS,
+  getCommercialSeoRoute,
+} from "../../shared/commercialSeo";
+import {
   getAllActiveTours,
   getAllPublishedBlogPosts,
   getPublishedTourPackages,
@@ -26,6 +30,16 @@ interface SitemapEntry {
   changefreq: string;
   lastmod: string | null;
 }
+
+const COMMERCIAL_PAGES: SitemapEntry[] = COMMERCIAL_SEO_ROUTE_PAIRS.flatMap(
+  pair =>
+    ([pair.paths.en, pair.paths.he] as const).map(path => ({
+      path,
+      priority: "0.9",
+      changefreq: "monthly",
+      lastmod: null,
+    }))
+);
 
 const STATIC_PAGES = [
   { path: "/", priority: "1.0", changefreq: "weekly", lastmod: null },
@@ -89,18 +103,7 @@ const STATIC_PAGES = [
     changefreq: "weekly",
     lastmod: null,
   },
-  {
-    path: "/kosher-tours",
-    priority: "0.9",
-    changefreq: "monthly",
-    lastmod: null,
-  },
-  {
-    path: "/hebrew-guide",
-    priority: "0.9",
-    changefreq: "monthly",
-    lastmod: null,
-  },
+  ...COMMERCIAL_PAGES,
   {
     path: "/accessible-tours",
     priority: "0.9",
@@ -148,14 +151,17 @@ function formatDate(date: Date | string | null | undefined): string | null {
 
 function buildHreflangLinks(siteUrl: string, path: string): string {
   const escaped = escapeXml(siteUrl);
-  const escapedPath = escapeXml(path);
-  if (path === "/hebrew-guide") {
+  const commercialRoute = getCommercialSeoRoute(path);
+  if (commercialRoute) {
+    const { pair } = commercialRoute;
     return [
-      `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapedPath}"/>`,
-      `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`,
+      `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapeXml(pair.paths.en)}"/>`,
+      `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapeXml(pair.paths.he)}"/>`,
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapeXml(pair.paths.en)}"/>`,
     ].join("\n");
   }
 
+  const escapedPath = escapeXml(path);
   return [
     `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapedPath}"/>`,
     `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapedPath}"/>`,
@@ -180,6 +186,8 @@ ${buildHreflangLinks(siteUrl, path)}
 function uniqueByPath(entries: SitemapEntry[]): SitemapEntry[] {
   const seen = new Set<string>();
   return entries.filter(entry => {
+    // Canonical sitemap URLs never contain query strings or fragments.
+    if (!entry.path.startsWith("/") || /[?#]/.test(entry.path)) return false;
     if (seen.has(entry.path)) return false;
     seen.add(entry.path);
     return true;
