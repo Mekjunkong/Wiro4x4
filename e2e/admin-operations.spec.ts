@@ -458,7 +458,9 @@ test.describe("Admin Dashboard - WhatsApp lead operations", () => {
     await preparePage(page);
     await mockAuthenticatedAdmin(page);
     await page.goto("/admin");
-    await page.getByRole("tab", { name: "Analytics", exact: true }).click();
+    await expect(
+      page.getByRole("tab", { name: "Analytics", exact: true })
+    ).toHaveAttribute("aria-selected", "true");
 
     const attribution = page.getByRole("region", { name: "Lead attribution" });
     await expect(attribution).toBeVisible();
