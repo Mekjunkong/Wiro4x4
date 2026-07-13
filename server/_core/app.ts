@@ -14,9 +14,10 @@ import { registerChatRoute } from "../routes/chat";
 import { registerMosheRoute } from "../routes/moshe";
 import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
+import { seoMiddleware } from "../seoMiddleware";
 import { createContext } from "./context";
 
-export function createApp() {
+export function createApp(options?: { seoHtml?: string }) {
   const app = express();
 
   // CORS whitelist
@@ -37,6 +38,13 @@ export function createApp() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // Serve route-specific metadata from the same app entrypoint used by the
+  // local production build. Development must always fall through to Vite so a
+  // stale dist shell cannot reference assets that the dev server does not own.
+  if (options?.seoHtml || process.env.NODE_ENV === "production") {
+    app.use(seoMiddleware({ html: options?.seoHtml }));
+  }
 
   // Auth routes (register, login, logout, forgot/reset password)
   registerAuthRoutes(app);
