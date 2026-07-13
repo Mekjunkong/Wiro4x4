@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Mail,
 } from "lucide-react";
+import { AttributionAnalytics } from "./AttributionAnalytics";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -521,6 +522,8 @@ export function AnalyticsTab() {
     trpc.analytics.topTours.useQuery();
   const { data: recentActivity, isLoading: loadingActivity } =
     trpc.analytics.recentActivity.useQuery();
+  const { data: attribution, isLoading: loadingAttribution } =
+    trpc.analytics.attribution.useQuery();
 
   const isLoading =
     loadingOverview ||
@@ -528,7 +531,8 @@ export function AnalyticsTab() {
     loadingBookings ||
     loadingFunnel ||
     loadingTours ||
-    loadingActivity;
+    loadingActivity ||
+    loadingAttribution;
 
   const bookingsGrowth = useMemo(() => {
     if (!overview) return null;
@@ -589,6 +593,8 @@ export function AnalyticsTab() {
           iconColor="text-purple-600"
         />
       </div>
+
+      {attribution && <AttributionAnalytics report={attribution} t={t} />}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
