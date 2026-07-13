@@ -5,6 +5,7 @@ import {
   secureProtectedProcedure,
   checkAdminRateLimit,
   logAdminAction,
+  TRPCError,
 } from "./_helpers";
 import {
   getAllActiveTours,
@@ -15,13 +16,34 @@ import {
   deleteTour,
   getTourBySlug,
 } from "../db";
-import { tourInputSchema, paginationInput } from "../../shared/schemas";
+import {
+  tourAndPackageSlugSchema,
+  tourInputSchema,
+  paginationInput,
+} from "../../shared/schemas";
 
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+export function resolveTourCreateSlug(
+  name: string,
+  suppliedSlug?: string
+): string {
+  const result = tourAndPackageSlugSchema.safeParse(
+    suppliedSlug || generateSlug(name)
+  );
+  if (!result.success) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: result.error.issues[0]?.message ?? "Invalid tour slug",
+      cause: result.error,
+    });
+  }
+  return result.data;
 }
 
 export const tourRouter = router({
@@ -57,7 +79,7 @@ export const tourRouter = router({
     .input(tourInputSchema)
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
-      const slug = input.slug || generateSlug(input.name);
+      const slug = resolveTourCreateSlug(input.name, input.slug);
       await createTour({
         ...input,
         slug,

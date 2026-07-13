@@ -5,6 +5,7 @@ import {
   secureProtectedProcedure,
   checkAdminRateLimit,
   logAdminAction,
+  TRPCError,
 } from "./_helpers";
 import {
   getPublishedTourPackages,
@@ -15,7 +16,10 @@ import {
   deleteTourPackage,
   getAllActiveTours,
 } from "../db";
-import { tourPackageInputSchema } from "../../shared/schemas";
+import {
+  tourAndPackageSlugSchema,
+  tourPackageInputSchema,
+} from "../../shared/schemas";
 import { calculatePackageDiscount } from "../../shared/pricing";
 import type { Tour, TourPackage } from "../../drizzle/schema";
 
@@ -24,6 +28,23 @@ function generateSlug(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+export function resolvePackageCreateSlug(
+  name: string,
+  suppliedSlug?: string
+): string {
+  const result = tourAndPackageSlugSchema.safeParse(
+    suppliedSlug || generateSlug(name)
+  );
+  if (!result.success) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: result.error.issues[0]?.message ?? "Invalid package slug",
+      cause: result.error,
+    });
+  }
+  return result.data;
 }
 
 /** Resolve a package's tourSlugs to full tour objects and calculate pricing. */
@@ -90,7 +111,7 @@ export const packageRouter = router({
     .input(tourPackageInputSchema)
     .mutation(async ({ input, ctx }) => {
       checkAdminRateLimit(ctx);
-      const slug = input.slug || generateSlug(input.name);
+      const slug = resolvePackageCreateSlug(input.name, input.slug);
       await createTourPackage({
         name: input.name,
         nameHe: input.nameHe,
