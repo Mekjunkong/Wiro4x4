@@ -10,6 +10,34 @@ import {
 
 const noHtml = (val: string) => !/<[^>]*>/g.test(val);
 
+export const CONTENT_SLUG_PATTERN = /^[a-z0-9-]+$/;
+export const TOUR_AND_PACKAGE_SLUG_MAX_LENGTH = 255;
+export const BLOG_SLUG_MAX_LENGTH = 500;
+
+function canonicalContentSlugSchema(maxLength: number) {
+  return z
+    .string()
+    .min(1, "Slug is required")
+    .max(maxLength, `Slug must be at most ${maxLength} characters`)
+    .regex(
+      CONTENT_SLUG_PATTERN,
+      "Slug may contain only lowercase letters, numbers, and hyphens"
+    );
+}
+
+export const tourAndPackageSlugSchema = canonicalContentSlugSchema(
+  TOUR_AND_PACKAGE_SLUG_MAX_LENGTH
+);
+export const blogSlugSchema = canonicalContentSlugSchema(BLOG_SLUG_MAX_LENGTH);
+
+export function isCanonicalTourOrPackageSlug(slug: unknown): slug is string {
+  return tourAndPackageSlugSchema.safeParse(slug).success;
+}
+
+export function isCanonicalBlogSlug(slug: unknown): slug is string {
+  return blogSlugSchema.safeParse(slug).success;
+}
+
 export const bookingInputSchema = z.object({
   contactName: z
     .string()
@@ -190,7 +218,7 @@ export const financialRecordInputSchema = z.object({
 export const tourInputSchema = z.object({
   name: z.string().min(1, "Name is required"),
   nameHe: z.string().min(1, "Hebrew name is required"),
-  slug: z.string().optional(),
+  slug: tourAndPackageSlugSchema.optional(),
   description: z.string().min(1, "Description is required"),
   descriptionHe: z.string().min(1, "Hebrew description is required"),
   duration: z.string().min(1, "Duration is required"),
@@ -228,7 +256,7 @@ export const reviewInputSchema = z.object({
 export const blogPostInputSchema = z.object({
   title: z.string().min(1),
   titleHe: z.string().optional(),
-  slug: z.string().min(1),
+  slug: blogSlugSchema,
   excerpt: z.string().optional(),
   excerptHe: z.string().optional(),
   content: z.string().min(1),
@@ -244,7 +272,7 @@ export const blogPostInputSchema = z.object({
 export const tourPackageInputSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   nameHe: z.string().min(1, "Hebrew name is required").max(255),
-  slug: z.string().optional(),
+  slug: tourAndPackageSlugSchema.optional(),
   description: z.string().optional(),
   descriptionHe: z.string().optional(),
   tourSlugs: z

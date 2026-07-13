@@ -119,6 +119,64 @@ describe("injectNoindex", () => {
 });
 
 describe("SEO metadata helpers", () => {
+  it("replaces one marked page JSON-LD script without duplicating baked organization data", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+      <script type="application/ld+json">{"@type":"Organization","name":"WIRO 4x4"}</script>
+    </head></html>`;
+
+    const first = renderStaticRouteHtml(shell, "/kosher-tours");
+    expect(first).not.toBeNull();
+    const second = renderStaticRouteHtml(first!, "/kosher-tours");
+
+    expect(second).toBe(first);
+    expect(second?.match(/id="page-json-ld"/g)).toHaveLength(1);
+    expect(second?.match(/"@type":"Organization"/g)).toHaveLength(1);
+    expect(second?.match(/type="application\/ld\+json"/g)).toHaveLength(2);
+  });
+
+  it("serializes hostile metadata without allowing JSON-LD script breakout", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+      <script type="application/ld+json">{"@type":"Organization"}</script>
+    </head></html>`;
+    const hostile = `tour</script><script id="injected">alert(1)</script>`;
+
+    const html = injectMeta(shell, {
+      title: hostile,
+      description: hostile,
+      canonicalPath: "/hostile",
+      jsonLd: { "@type": "WebPage", name: hostile },
+    });
+
+    expect(html).not.toContain('<script id="injected">');
+    expect(html).toContain(
+      'tour\\u003c/script>\\u003cscript id=\\"injected\\"'
+    );
+    expect(html.match(/<script\b/g)).toHaveLength(2);
+    expect(html.match(/<\/script>/g)).toHaveLength(2);
+  });
+
   it("keeps each commercial search snippet unique", () => {
     expect(new Set(commercialRoutes.map(route => route.title)).size).toBe(6);
     expect(new Set(commercialRoutes.map(route => route.description)).size).toBe(

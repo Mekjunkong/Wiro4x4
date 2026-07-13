@@ -7,6 +7,10 @@ import type { Request, Response, NextFunction } from "express";
 import fs from "node:fs";
 import path from "node:path";
 import { COMMERCIAL_SEO_ROUTE_PAIRS } from "../shared/commercialSeo";
+import {
+  isCanonicalBlogSlug,
+  isCanonicalTourOrPackageSlug,
+} from "../shared/schemas";
 import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
@@ -423,6 +427,17 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;");
 }
 
+const PAGE_JSON_LD_ID = "page-json-ld";
+const PAGE_JSON_LD_PATTERN =
+  /<script\b(?=[^>]*\bid=["']page-json-ld["'])[^>]*>[\s\S]*?<\/script>\s*/gi;
+
+function serializeJsonLd(value: JsonLdValue): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function absoluteUrl(url: string): string {
   if (/^https?:\/\//.test(url)) return url;
   return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
@@ -536,7 +551,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
   // Override lang attribute for non-English pages
   if (meta.lang) {
     html = html.replace(
-      /(<html\b[^>]*)\blang="[^"]*"/,
+      /(<html\b[^>]*)\s+lang="[^"]*"/,
       `$1 lang="${meta.lang}"`
     );
   }
@@ -545,7 +560,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
   if (meta.dir) {
     if (/<html\b[^>]*\sdir="[^"]*"/.test(html)) {
       html = html.replace(
-        /(<html\b[^>]*)\bdir="[^"]*"/,
+        /(<html\b[^>]*)\s+dir="[^"]*"/,
         `$1 dir="${meta.dir}"`
       );
     } else {
@@ -553,9 +568,10 @@ export function injectMeta(html: string, meta: PageMeta): string {
     }
   }
 
-  // Inject page-specific JSON-LD before closing </head>
+  // Replace the page-specific JSON-LD while preserving baked organization data.
+  html = html.replace(PAGE_JSON_LD_PATTERN, "");
   if (meta.jsonLd) {
-    const jsonLdScript = `<script type="application/ld+json">${JSON.stringify(meta.jsonLd)}</script>`;
+    const jsonLdScript = `<script id="${PAGE_JSON_LD_ID}" type="application/ld+json">${serializeJsonLd(meta.jsonLd)}</script>`;
     html = html.replace("</head>", `${jsonLdScript}\n</head>`);
   }
 
@@ -587,8 +603,8 @@ export function renderStaticRouteHtml(
 /** Resolve meta for a dynamic route (tour or blog post) */
 async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   // /tours/:slug
-  const tourMatch = urlPath.match(/^\/tours\/([a-z0-9-]+)$/);
-  if (tourMatch) {
+  const tourMatch = urlPath.match(/^\/tours\/([^/]+)$/);
+  if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[1])) {
     const slug = tourMatch[1];
     let tour: Awaited<ReturnType<typeof getTourBySlug>>;
     try {
@@ -641,8 +657,8 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   }
 
   // /packages/:slug
-  const packageMatch = urlPath.match(/^\/packages\/([a-z0-9-]+)$/);
-  if (packageMatch) {
+  const packageMatch = urlPath.match(/^\/packages\/([^/]+)$/);
+  if (packageMatch && isCanonicalTourOrPackageSlug(packageMatch[1])) {
     const slug = packageMatch[1];
     const dbPkg = await getTourPackageBySlug(slug);
     const pkg = dbPkg?.isPublished === 1 ? dbPkg : undefined;
@@ -691,8 +707,8 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   }
 
   // /blog/:slug
-  const blogMatch = urlPath.match(/^\/blog\/([a-z0-9-]+)$/);
-  if (blogMatch) {
+  const blogMatch = urlPath.match(/^\/blog\/([^/]+)$/);
+  if (blogMatch && isCanonicalBlogSlug(blogMatch[1])) {
     const post = await getPublishedBlogPostBySlug(blogMatch[1]);
     if (post) {
       const publishedIso = post.publishedAt
@@ -765,9 +781,6 @@ const CLIENT_ONLY_ROUTES = new Set([
 
 const CLIENT_ONLY_PREFIXES = [/^\/admin(\/|$)/, /^\/album\/[^/]+$/];
 
-/** Content prefixes whose slugs are validated against the DB / fallbacks */
-const CONTENT_SLUG_PATTERN = /^\/(tours|packages|blog)\/[a-z0-9-]+$/;
-
 /** True for SPA-only pages (auth, admin, booking confirmations) that should
  * be served with a noindex signal but a 200 status. Exported for tests. */
 export function isClientOnlyRoute(urlPath: string): boolean {
@@ -779,7 +792,11 @@ export function isClientOnlyRoute(urlPath: string): boolean {
 
 /** True for /tours/:slug, /packages/:slug, /blog/:slug shapes. Exported for tests. */
 export function isContentSlugPath(urlPath: string): boolean {
-  return CONTENT_SLUG_PATTERN.test(urlPath);
+  const match = urlPath.match(/^\/(tours|packages|blog)\/([^/]+)$/);
+  if (!match) return false;
+  return match[1] === "blog"
+    ? isCanonicalBlogSlug(match[2])
+    : isCanonicalTourOrPackageSlug(match[2]);
 }
 
 /** Edge cache for indexable marketing pages (1h fresh, 24h stale) */
