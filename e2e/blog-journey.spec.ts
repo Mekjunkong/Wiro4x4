@@ -167,17 +167,15 @@ test.describe("Blog Reading Journey", () => {
       await expect(shareSection).toBeVisible();
 
       // WhatsApp share link
-      const whatsappLink = page.locator('a[href*="wa.me"]').first();
+      const whatsappLink = page.locator('article a[title="WhatsApp"]');
       await expect(whatsappLink).toBeVisible();
 
       // Facebook share link
-      const facebookLink = page
-        .locator('a[href*="facebook.com/sharer"]')
-        .first();
+      const facebookLink = page.locator('article a[title="Facebook"]');
       await expect(facebookLink).toBeVisible();
 
       // X (Twitter) share link
-      const twitterLink = page.locator('a[href*="twitter.com/intent"]').first();
+      const twitterLink = page.locator('article a[title="X"]');
       await expect(twitterLink).toBeVisible();
 
       // Copy link button
