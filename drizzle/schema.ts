@@ -746,7 +746,7 @@ export type InsertInventoryItem = typeof inventory.$inferInsert;
 export const tourAvailability = mysqlTable(
   "tour_availability",
   {
-    id: int("id").autoincrement().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     tourId: int("tour_id").notNull(),
     date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
     maxSlots: int("max_slots").default(10).notNull(),
@@ -765,7 +765,7 @@ export type InsertTourAvailability = typeof tourAvailability.$inferInsert;
 export const tripPhotoAlbums = mysqlTable(
   "trip_photo_albums",
   {
-    id: int("id").autoincrement().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     bookingId: int("booking_id").notNull(),
     accessToken: varchar("access_token", { length: 64 }).notNull(),
     title: varchar("title", { length: 255 }),
@@ -785,7 +785,7 @@ export type InsertTripPhotoAlbum = typeof tripPhotoAlbums.$inferInsert;
 export const tripPhotos = mysqlTable(
   "trip_photos",
   {
-    id: int("id").autoincrement().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     albumId: int("album_id").notNull(),
     s3Key: varchar("s3_key", { length: 512 }),
     s3Url: varchar("s3_url", { length: 1024 }),
