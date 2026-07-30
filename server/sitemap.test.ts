@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { generateSitemap } from "./routes/sitemap";
+import { generateSitemap, loadSitemapSources } from "./routes/sitemap";
 
 describe("sitemap", () => {
   const commercialPairs = [
@@ -47,6 +47,34 @@ describe("sitemap", () => {
     expect(xml).toContain("/tours/doi-inthanon");
     expect(xml).toContain("/packages/weekend-adventure");
     expect(xml).toContain("/blog/kosher-guide");
+  });
+
+  it("keeps the static sitemap available when dynamic content sources fail", async () => {
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const sources = await loadSitemapSources({
+      tours: async () => {
+        throw new Error("tour database unavailable");
+      },
+      blogs: async () => [{ slug: "kosher-guide", publishedAt: "2026-05-11" }],
+      packages: async () => {
+        throw new Error("package database unavailable");
+      },
+    });
+    const xml = generateSitemap(
+      sources.tours,
+      sources.blogs,
+      sources.packages,
+      "https://www.wiro4x4indochina.com"
+    );
+
+    expect(xml).toContain("<loc>https://www.wiro4x4indochina.com/</loc>");
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/blog/kosher-guide</loc>"
+    );
+    expect(warning).toHaveBeenCalledTimes(2);
+
+    warning.mockRestore();
   });
 
   it("uses accurate lastmod values and omits dynamic lastmod when no date is available", () => {

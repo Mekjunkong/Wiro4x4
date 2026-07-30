@@ -600,8 +600,15 @@ export function renderStaticRouteHtml(
   return meta ? injectMeta(html, meta) : null;
 }
 
-/** Resolve meta for a dynamic route (tour or blog post) */
-async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
+interface DynamicMetaOptions {
+  loadPackageBySlug?: typeof getTourPackageBySlug;
+}
+
+/** Resolve meta for a dynamic route (tour, package, or blog post). */
+export async function resolveDynamicMeta(
+  urlPath: string,
+  options?: DynamicMetaOptions
+): Promise<PageMeta | null> {
   // /tours/:slug
   const tourMatch = urlPath.match(/^\/tours\/([^/]+)$/);
   if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[1])) {
@@ -660,7 +667,12 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   const packageMatch = urlPath.match(/^\/packages\/([^/]+)$/);
   if (packageMatch && isCanonicalTourOrPackageSlug(packageMatch[1])) {
     const slug = packageMatch[1];
-    const dbPkg = await getTourPackageBySlug(slug);
+    let dbPkg: Awaited<ReturnType<typeof getTourPackageBySlug>>;
+    try {
+      dbPkg = await (options?.loadPackageBySlug || getTourPackageBySlug)(slug);
+    } catch {
+      dbPkg = undefined; // DB error — use hardcoded fallback below
+    }
     const pkg = dbPkg?.isPublished === 1 ? dbPkg : undefined;
     const fallback = PACKAGE_META[slug];
     const name = pkg?.name || fallback?.name;
@@ -908,7 +920,7 @@ export function seoMiddleware(options?: { html?: string }) {
 
     let meta: PageMeta | null = null;
     try {
-      meta = await getDynamicMeta(urlPath);
+      meta = await resolveDynamicMeta(urlPath);
     } catch {
       // DB error — fall through to default HTML
     }

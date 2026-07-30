@@ -28,6 +28,18 @@ interface SlugItem {
   publishedAt?: Date | string | null;
 }
 
+interface SitemapSourceLoaders {
+  tours: () => Promise<SlugItem[]>;
+  blogs: () => Promise<SlugItem[]>;
+  packages: () => Promise<SlugItem[]>;
+}
+
+interface SitemapSources {
+  tours: SlugItem[];
+  blogs: SlugItem[];
+  packages: SlugItem[];
+}
+
 interface SitemapEntry {
   path: string;
   priority: string;
@@ -249,42 +261,78 @@ ${urls}
 </urlset>`;
 }
 
+export async function loadSitemapSources(
+  loaders: SitemapSourceLoaders
+): Promise<SitemapSources> {
+  const sourceNames = ["tours", "blogs", "packages"] as const;
+  const results = await Promise.allSettled([
+    loaders.tours(),
+    loaders.blogs(),
+    loaders.packages(),
+  ]);
+
+  const sources: SitemapSources = {
+    tours: [],
+    blogs: [],
+    packages: [],
+  };
+
+  results.forEach((result, index) => {
+    const sourceName = sourceNames[index];
+    if (result.status === "fulfilled") {
+      sources[sourceName] = result.value;
+      return;
+    }
+
+    const message =
+      result.reason instanceof Error
+        ? result.reason.message
+        : String(result.reason);
+    console.warn(
+      `[Sitemap] ${sourceName} unavailable; serving remaining URLs: ${message}`
+    );
+  });
+
+  return sources;
+}
+
 export function registerSitemapRoute(app: Express) {
   app.get("/sitemap.xml", async (_req, res) => {
     try {
-      const [tours, blogs, packages] = await Promise.all([
-        getAllActiveTours(),
-        getAllPublishedBlogPosts(),
-        getPublishedTourPackages(),
-      ]);
+      const { tours, blogs, packages } = await loadSitemapSources({
+        tours: async () =>
+          (await getAllActiveTours()).map(t => ({
+            slug: t.slug,
+            updatedAt: (t as Record<string, unknown>).updatedAt as
+              | string
+              | null
+              | undefined,
+          })),
+        blogs: async () =>
+          (await getAllPublishedBlogPosts()).map(b => ({
+            slug: b.slug,
+            publishedAt: (b as Record<string, unknown>).publishedAt as
+              | string
+              | null
+              | undefined,
+          })),
+        packages: async () =>
+          (await getPublishedTourPackages()).map(p => ({
+            slug: p.slug,
+            updatedAt: (p as Record<string, unknown>).updatedAt as
+              | string
+              | null
+              | undefined,
+          })),
+      });
       const siteUrl =
         process.env.SITE_URL || "https://www.wiro4x4indochina.com";
-      const xml = generateSitemap(
-        tours.map(t => ({
-          slug: t.slug,
-          updatedAt: (t as Record<string, unknown>).updatedAt as
-            | string
-            | null
-            | undefined,
-        })),
-        blogs.map(b => ({
-          slug: b.slug,
-          publishedAt: (b as Record<string, unknown>).publishedAt as
-            | string
-            | null
-            | undefined,
-        })),
-        packages.map(p => ({
-          slug: p.slug,
-          updatedAt: (p as Record<string, unknown>).updatedAt as
-            | string
-            | null
-            | undefined,
-        })),
-        siteUrl
-      );
+      const xml = generateSitemap(tours, blogs, packages, siteUrl);
       res.set("Content-Type", "application/xml; charset=utf-8");
-      res.set("Cache-Control", "public, max-age=3600");
+      res.set(
+        "Cache-Control",
+        "public, s-maxage=3600, stale-while-revalidate=86400"
+      );
       res.send(xml);
     } catch (err) {
       console.error("[Sitemap] Failed to generate:", err);
