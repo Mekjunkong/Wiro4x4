@@ -37,6 +37,21 @@ test.describe("Homepage", () => {
     await expect(hero).toContainText(/4[×x]4|Chiang Mai/i);
   });
 
+  test("renders the cinematic hero without changing its booking actions", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const hero = page.locator("main section").first();
+    await expect(hero.getByTestId("cinematic-hero-background")).toBeVisible();
+    await expect(
+      hero.getByRole("link", { name: /check availability on whatsapp/i })
+    ).toHaveAttribute("href", /wa\.me/);
+    await expect(
+      hero.getByRole("button", { name: "See Route Ideas" })
+    ).toBeVisible();
+  });
+
   test("should display key homepage sections", async ({ page }) => {
     await page.goto("/");
 
@@ -104,6 +119,14 @@ test.describe("Homepage", () => {
     });
     await page.goto("/");
 
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: /טיולי 4×4 כשרים בצ'יאנג מאי/,
+      })
+    ).toBeVisible();
+    await expect(page.getByTestId("cinematic-hero-background")).toBeVisible();
     await expect(
       page.getByRole("heading", {
         name: "תכננו לפי צורכי המשפחה, האוכל והשפה",

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { OptimizedImage } from "@/components/OptimizedImage";
+import { CinematicHeroBackground } from "@/components/CinematicHeroBackground";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function Hero() {
@@ -19,18 +19,11 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden bg-primary">
-      {/* Background image - high quality */}
-      <OptimizedImage
-        src="banner"
+      <CinematicHeroBackground
         alt={t(
           "Travelers with WIRO 4x4 vehicle on jungle road in Chiang Mai",
           "מטיילים עם רכב WIRO 4x4 בדרך ג'ונגל בצ'יאנג מאי"
         )}
-        width={1920}
-        height={1080}
-        className="absolute inset-0 w-full h-full object-cover object-[30%_center] md:object-center"
-        priority
-        sizes="100vw"
       />
 
       {/* Bottom gradient overlay - stronger for better text contrast */}

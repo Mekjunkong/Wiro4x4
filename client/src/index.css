@@ -357,6 +357,156 @@
   animation: subtlePulse 3s ease-in-out infinite;
 }
 
+/* Homepage cinematic still-photo sequence */
+.cinematic-hero {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  background: var(--primary);
+  contain: paint;
+}
+
+.cinematic-hero__layer,
+.cinematic-hero__layer picture {
+  position: absolute;
+  inset: 0;
+}
+
+.cinematic-hero__layer {
+  will-change: opacity;
+}
+
+.cinematic-hero__image {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
+  max-width: none;
+  object-fit: cover;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.cinematic-hero__image--base {
+  object-position: 30% center;
+  filter: saturate(0.88) contrast(1.04) brightness(0.9);
+  animation: cinematicHeroBaseMove 15s ease-in-out infinite;
+}
+
+.cinematic-hero__overlay--landscape {
+  z-index: 1;
+  animation: cinematicHeroLandscapeDissolve 15s ease-in-out infinite;
+}
+
+.cinematic-hero__image--landscape {
+  object-position: 62% center;
+  filter: saturate(0.82) contrast(1.06) brightness(0.86);
+  animation: cinematicHeroLandscapeMove 15s ease-in-out infinite;
+}
+
+.cinematic-hero__overlay--action {
+  z-index: 1;
+  opacity: 0;
+  animation: cinematicHeroActionDissolve 15s ease-in-out infinite;
+}
+
+.cinematic-hero__image--action {
+  object-position: 48% 58%;
+  filter: saturate(0.86) contrast(1.06) brightness(0.86);
+  animation: cinematicHeroActionMove 15s ease-in-out infinite;
+}
+
+.cinematic-hero__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='.65'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: soft-light;
+}
+
+@keyframes cinematicHeroLandscapeDissolve {
+  0%,
+  26.67% {
+    opacity: 1;
+  }
+  33.33%,
+  93.33% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes cinematicHeroActionDissolve {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  66.67%,
+  93.33% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cinematicHeroBaseMove {
+  0%,
+  100% {
+    transform: scale(1.02) translate3d(-1%, 0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate3d(1%, -0.5%, 0);
+  }
+}
+
+@keyframes cinematicHeroLandscapeMove {
+  0% {
+    transform: scale(1.02) translate3d(-1%, 0, 0);
+  }
+  33.33%,
+  89% {
+    transform: scale(1.08) translate3d(1%, -1%, 0);
+  }
+  90% {
+    transform: scale(1.02) translate3d(-1%, 0, 0);
+  }
+  100% {
+    transform: scale(1.04) translate3d(-0.5%, -0.2%, 0);
+  }
+}
+
+@keyframes cinematicHeroActionMove {
+  0%,
+  60% {
+    transform: scale(1.02) translate3d(-0.7%, 0.5%, 0);
+  }
+  100% {
+    transform: scale(1.08) translate3d(0.8%, -0.7%, 0);
+  }
+}
+
+@media (min-width: 768px) {
+  .cinematic-hero__image--base {
+    object-position: center;
+  }
+
+  .cinematic-hero__image--landscape {
+    object-position: center 52%;
+  }
+
+  .cinematic-hero__image--action {
+    object-position: center 60%;
+  }
+}
+
 /* Hero staggered entry animation */
 @keyframes heroReveal {
   from {
@@ -441,6 +591,19 @@
 
 /* Respect prefers-reduced-motion: disable all animations and transitions */
 @media (prefers-reduced-motion: reduce) {
+  .cinematic-hero__overlay {
+    display: none !important;
+  }
+
+  .cinematic-hero__image {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .cinematic-hero__grain {
+    opacity: 0.035;
+  }
+
   *,
   *::before,
   *::after {
