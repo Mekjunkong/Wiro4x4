@@ -17,12 +17,14 @@ import {
   MarkdownRenderer,
   getHardcodedPosts,
 } from "@/components/blog";
+import { getFallbackBlogPost } from "@shared/seoFallbackContent";
 
 export default function BlogPost() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
   const [, params] = useRoute("/blog/:slug");
   const postId = params?.slug;
+  const fallbackMeta = postId ? getFallbackBlogPost(postId) : undefined;
 
   // Try to fetch from DB by slug
   const { data: dbPost } = trpc.blog.getBySlug.useQuery(
@@ -59,13 +61,24 @@ export default function BlogPost() {
       ? hardcodedPosts[postId]
       : null;
 
+  const fallbackExcerpt = fallbackMeta
+    ? isHebrew
+      ? fallbackMeta.excerptHe
+      : fallbackMeta.excerpt
+    : undefined;
+  const metaDescription =
+    (isHebrew && dbPost?.excerptHe ? dbPost.excerptHe : dbPost?.excerpt) ||
+    fallbackExcerpt ||
+    (post?.content
+      ? post.content.replace(/[#*[\]()]/g, "").slice(0, 155)
+      : "Off-road travel stories, kosher tips, and insider guides from Northern Thailand by WIRO 4x4.");
+  const publishedAt = dbPost?.publishedAt ?? fallbackMeta?.publishedAt;
+  const socialImage =
+    dbPost?.coverImage || fallbackMeta?.coverImage || post?.image;
+
   usePageMeta({
     title: post?.title ?? "Blog Post",
-    description:
-      dbPost?.excerpt ??
-      (post?.content
-        ? post.content.slice(0, 155)
-        : "Off-road travel stories, kosher tips, and insider guides from Northern Thailand by WIRO 4x4."),
+    description: metaDescription,
     canonicalPath: `/blog/${postId}`,
     jsonLd: post
       ? {
@@ -76,8 +89,8 @@ export default function BlogPost() {
             "@type": "WebPage",
             "@id": `https://www.wiro4x4indochina.com/blog/${postId}`,
           },
-          datePublished: dbPost?.publishedAt ?? undefined,
-          dateModified: dbPost?.publishedAt ?? undefined,
+          datePublished: publishedAt,
+          dateModified: publishedAt,
           author: {
             "@type": "Person",
             name: "Wiro",
@@ -88,7 +101,7 @@ export default function BlogPost() {
             name: "WIRO 4x4",
             url: "https://www.wiro4x4indochina.com",
           },
-          image: dbPost?.coverImage || undefined,
+          image: socialImage,
         }
       : undefined,
   });
@@ -157,7 +170,7 @@ export default function BlogPost() {
           <ShareButtons
             url={`/blog/${postId}`}
             title={post.title}
-            excerpt={dbPost?.excerpt || ""}
+            excerpt={metaDescription}
           />
         </div>
       </article>

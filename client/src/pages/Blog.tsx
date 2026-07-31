@@ -11,6 +11,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { trpc } from "@/lib/trpc";
 import { BlogCardSkeleton } from "@/components/SkeletonLoader";
+import { FALLBACK_BLOG_POSTS } from "@shared/seoFallbackContent";
 
 // Blog slug → local image override (prevents duplicate/missing DB images)
 const BLOG_IMAGE_MAP: Record<string, string> = {
@@ -35,97 +36,6 @@ const BLOG_IMAGE_MAP: Record<string, string> = {
     "/images/optimized/jungle_waterfall_cascade_rocks-md.webp",
 };
 
-// Hardcoded fallback posts (used when DB returns empty)
-const FALLBACK_POSTS = [
-  {
-    slug: "kosher-dining-guide",
-    title: "Kosher Dining Guide for Northern Thailand",
-    titleHe: "איך שומרים כשרות בצפון תאילנד -- המדריך המלא",
-    excerpt:
-      "Everything you need to know about finding and preparing kosher meals during your Chiang Mai adventure.",
-    excerptHe:
-      "כל מה שצריך לדעת על אוכל כשר בצ'יאנג מאי -- בית חב\"ד, מסעדות, סופרים, וטיפים מהשטח.",
-    coverImage: "/images/optimized/village_hamlet_rice_fields.jpg",
-    category: "Food & Kosher",
-    tags: "kosher,food,chiang-mai,chabad",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-  {
-    slug: "israeli-traveler-tips",
-    title: "Israeli Traveler Tips for Southeast Asia",
-    titleHe: "המדריך השלם למטייל הישראלי בדרום מזרח אסיה",
-    excerpt:
-      "Essential advice from experienced Israeli travelers about navigating Thailand, Laos, and Vietnam.",
-    excerptHe:
-      "טיפים, מידע ועצות מניסיון של שנים -- כסף, בריאות, תחבורה, שבת וקהילה ישראלית.",
-    coverImage: "/images/optimized/waterfall_lush_jungle.jpg",
-    category: "Travel Tips",
-    tags: "travel-tips,israel,southeast-asia,budget",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-  {
-    slug: "cultural-etiquette",
-    title: "Cultural Etiquette Guide for Indochina",
-    titleHe: "איך להתנהג באינדוסין -- המדריך התרבותי",
-    excerpt:
-      "Learn the dos and don'ts of interacting with local communities in Thailand, Laos, and Vietnam.",
-    excerptHe:
-      "שמירת פנים, מקדשים, נזירים, מיקוח ועוד -- כל הכללים שישראלים צריכים להכיר.",
-    coverImage: "/images/optimized/hilltribe_girl_craft_market-md.webp",
-    category: "Culture",
-    tags: "culture,etiquette,temples,thailand",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-  {
-    slug: "off-road-adventure-guide",
-    title: "What to Expect on a 4x4 Off-Road Tour",
-    titleHe:
-      "\u05DE\u05D4 \u05DC\u05E6\u05E4\u05D5\u05EA \u05DE\u05D8\u05D9\u05D5\u05DC \u05E9\u05D8\u05D7 \u05D1-4x4",
-    excerpt:
-      "Your complete guide to off-road adventures in Northern Thailand \u2014 what to wear, what to bring, and what makes it unforgettable.",
-    excerptHe:
-      "\u05D4\u05DE\u05D3\u05E8\u05D9\u05DA \u05D4\u05E9\u05DC\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC\u05D9 \u05E9\u05D8\u05D7 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 \u2014 \u05DE\u05D4 \u05DC\u05DC\u05D1\u05D5\u05E9, \u05DE\u05D4 \u05DC\u05D4\u05D1\u05D9\u05D0, \u05D5\u05DE\u05D4 \u05D4\u05D5\u05E4\u05DA \u05D0\u05EA \u05D6\u05D4 \u05DC\u05D1\u05DC\u05EA\u05D9 \u05E0\u05E9\u05DB\u05D7.",
-    coverImage: "/images/optimized/offroad_trail_driving-md.webp",
-    category: "Adventures",
-    tags: "off-road,4x4,adventure,guide",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-  {
-    slug: "doi-inthanon-experience",
-    title: "Doi Inthanon: Thailand's Highest Peak Experience",
-    titleHe:
-      "\u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF: \u05D7\u05D5\u05D5\u05D9\u05D9\u05EA \u05D4\u05E4\u05E1\u05D2\u05D4 \u05D4\u05D2\u05D1\u05D5\u05D4\u05D4 \u05D1\u05EA\u05D0\u05D9\u05DC\u05E0\u05D3",
-    excerpt:
-      "Discover the breathtaking views, royal pagodas, and hidden waterfalls at Thailand's rooftop.",
-    excerptHe:
-      "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05E0\u05D5\u05E4\u05D9\u05DD \u05E2\u05D5\u05E6\u05E8\u05D9 \u05D4\u05E0\u05E9\u05D9\u05DE\u05D4, \u05D4\u05E4\u05D2\u05D5\u05D3\u05D5\u05EA \u05D4\u05DE\u05DC\u05DB\u05D5\u05EA\u05D9\u05D5\u05EA, \u05D5\u05D4\u05DE\u05E4\u05DC\u05D9\u05DD \u05D4\u05E0\u05E1\u05EA\u05E8\u05D9\u05DD \u05D1\u05D2\u05D2 \u05E9\u05DC \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3.",
-    coverImage: "/images/optimized/doi_inthanon_royal_pagoda-md.webp",
-    category: "Destinations",
-    tags: "doi-inthanon,mountains,pagodas,nature",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-  {
-    slug: "elephant-sanctuary-guide",
-    title: "Ethical Elephant Encounters in Chiang Mai",
-    titleHe:
-      "\u05DE\u05E4\u05D2\u05E9\u05D9\u05DD \u05D0\u05EA\u05D9\u05D9\u05DD \u05E2\u05DD \u05E4\u05D9\u05DC\u05D9\u05DD \u05D1\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9",
-    excerpt:
-      "How to choose a responsible elephant sanctuary and what to expect from an unforgettable day with Thailand's gentle giants.",
-    excerptHe:
-      "\u05D0\u05D9\u05DA \u05DC\u05D1\u05D7\u05D5\u05E8 \u05E9\u05DE\u05D5\u05E8\u05EA \u05E4\u05D9\u05DC\u05D9\u05DD \u05D0\u05D7\u05E8\u05D0\u05D9\u05EA \u05D5\u05DE\u05D4 \u05DC\u05E6\u05E4\u05D5\u05EA \u05DE\u05D9\u05D5\u05DD \u05D1\u05DC\u05EA\u05D9 \u05E0\u05E9\u05DB\u05D7 \u05E2\u05DD \u05D4\u05E2\u05E0\u05E7\u05D9\u05DD \u05D4\u05E2\u05D3\u05D9\u05E0\u05D9\u05DD \u05E9\u05DC \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3.",
-    coverImage: "/images/optimized/elephant_bathing.webp",
-    category: "Activities",
-    tags: "elephants,sanctuary,ethical,animals",
-    publishedAt: "2024-12-01",
-    content: "",
-  },
-];
-
 export default function Blog() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
@@ -143,35 +53,31 @@ export default function Blog() {
   const { data: dbPosts, isLoading } = trpc.blog.list.useQuery();
 
   // Use DB posts if available, otherwise fallback
-  const posts = (dbPosts && dbPosts.length > 0 ? dbPosts : FALLBACK_POSTS).map(
-    post => {
-      const content = (post as { content?: string }).content || "";
-      const wordCount = content.split(/\s+/).filter(Boolean).length;
-      const minutes =
-        wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : 0;
-      return {
-        slug: post.slug,
-        title: isHebrew && post.titleHe ? post.titleHe : post.title,
-        excerpt:
-          isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
-        image:
-          BLOG_IMAGE_MAP[post.slug] ||
-          post.coverImage ||
-          "/images/optimized/village_hamlet_rice_fields.jpg",
-        category: post.category || "",
-        tags: ((post as { tags?: string }).tags || "")
-          .split(",")
-          .filter(Boolean),
-        readTime: minutes > 0 ? `${minutes} ${t("min", "דק'")}` : "",
-        date: post.publishedAt
-          ? new Date(post.publishedAt).toLocaleDateString(
-              isHebrew ? "he-IL" : "en-US",
-              { year: "numeric", month: "long" }
-            )
-          : "",
-      };
-    }
-  );
+  const posts = (
+    dbPosts && dbPosts.length > 0 ? dbPosts : FALLBACK_BLOG_POSTS
+  ).map(post => {
+    const content = (post as { content?: string }).content || "";
+    const wordCount = content.split(/\s+/).filter(Boolean).length;
+    const minutes = wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : 0;
+    return {
+      slug: post.slug,
+      title: isHebrew && post.titleHe ? post.titleHe : post.title,
+      excerpt: isHebrew && post.excerptHe ? post.excerptHe : post.excerpt || "",
+      image:
+        BLOG_IMAGE_MAP[post.slug] ||
+        post.coverImage ||
+        "/images/optimized/village_hamlet_rice_fields.jpg",
+      category: post.category || "",
+      tags: ((post as { tags?: string }).tags || "").split(",").filter(Boolean),
+      readTime: minutes > 0 ? `${minutes} ${t("min", "דק'")}` : "",
+      date: post.publishedAt
+        ? new Date(post.publishedAt).toLocaleDateString(
+            isHebrew ? "he-IL" : "en-US",
+            { year: "numeric", month: "long" }
+          )
+        : "",
+    };
+  });
 
   const categories = Array.from(
     new Set(posts.map(p => p.category).filter(Boolean))

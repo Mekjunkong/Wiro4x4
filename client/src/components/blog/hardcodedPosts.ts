@@ -2,6 +2,7 @@
  * Hardcoded fallback blog posts used when no DB post matches the slug.
  * Each post has English and Hebrew content selected by the translation function.
  */
+import { getAdditionalHardcodedPosts } from "./additionalHardcodedPosts";
 
 type TranslationFn = (en: string, he: string) => string;
 
@@ -95,7 +96,7 @@ While not kosher-certified, these vegetarian restaurants offer meals that align 
 ## Emergency Contacts
 
 - **Chabad Chiang Mai**: [Contact via WhatsApp]
-- **WIRO 4x4 Kosher Coordinator**: +66 123 456 789
+- **WIRO 4x4 Kosher Coordinator**: +972 54-471-5400
 - **Bangkok Kosher Restaurants**: For longer trips
 
 ## Conclusion
@@ -172,7 +173,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
 ## אנשי קשר חשובים
 
 - **חב"ד צ'יאנג מאי**: [שלחו הודעה בוואטסאפ]
-- **אחראי כשרות WIRO 4x4**: ‎+66-819-611-398
+- **אחראי כשרות WIRO 4x4**: ‎+972-54-471-5400
 - **מסעדות כשרות בבנגקוק**: למי שמגיע דרך בנגקוק או מתכנן עצירה
 
 ## לסיכום
@@ -200,7 +201,7 @@ Drawing from years of experience guiding Israeli travelers through Thailand, Lao
 ### Documentation
 
 - **Passport**: Ensure 6+ months validity
-- **Visas**: Check current requirements (Thailand: 30-day visa exemption, Laos & Vietnam: visa on arrival or e-visa)
+- **Entry requirements**: Check official visa and entry rules for every country shortly before departure; requirements can change
 - **Travel Insurance**: Essential for adventure activities
 - **Vaccination Records**: Recommended vaccines for the region
 
@@ -349,7 +350,7 @@ Drawing from years of experience guiding Israeli travelers through Thailand, Lao
 
 - **Israeli Embassy Bangkok**: +66 2 204 9200
 - **Tourist Police**: 1155 (Thailand)
-- **WIRO 4x4 Emergency**: +66 123 456 789
+- **WIRO 4x4 Emergency**: +972 54-471-5400
 - **Chabad Chiang Mai**: [WhatsApp contact]
 
 ## Conclusion
@@ -366,7 +367,7 @@ Southeast Asia offers incredible experiences for Israeli travelers. With proper 
 ### מסמכים -- תבדקו מראש
 
 - **דרכון**: לפחות 6 חודשי תוקף מיום הכניסה למדינה -- בלי זה לא עולים על הטיסה
-- **ויזות**: תאילנד -- פטור ויזה ל-30 יום לישראלים. לאוס ווייטנאם -- ויזה בהגעה או e-visa (תסדרו מראש, זה חוסך עצבים)
+- **תנאי כניסה**: בדקו באתר רשמי את כללי הוויזה והכניסה לכל מדינה סמוך ליציאה, כי הדרישות עשויות להשתנות
 - **ביטוח נסיעות**: חובה, לא המלצה. במיוחד אם מתכננים טיולי שטח או אופנועים
 - **חיסונים**: תתייעצו עם מרפאת מטיילים -- צהבת, טיפוס ועוד
 
@@ -515,7 +516,7 @@ Southeast Asia offers incredible experiences for Israeli travelers. With proper 
 
 - **שגרירות ישראל בבנגקוק**: +66-2-204-9200
 - **משטרת תיירות (תאילנד)**: 1155
-- **חירום WIRO 4x4**: +66-123-456-789
+- **חירום WIRO 4x4**: +972-54-471-5400
 - **חב"ד צ'יאנג מאי**: [וואטסאפ]
 
 ## סיכום
@@ -1022,5 +1023,6 @@ Cultural sensitivity isn't about being perfect - it's about showing respect and 
 **רוצים להגיע מוכנים?** דברו איתנו ונדאג שתכירו את התרבות לעומק לפני שמגיעים.`
       ),
     },
+    ...getAdditionalHardcodedPosts(t),
   };
 }

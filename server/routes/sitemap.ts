@@ -8,6 +8,10 @@ import {
   isCanonicalTourOrPackageSlug,
 } from "../../shared/schemas";
 import {
+  CORE_TOUR_SLUGS,
+  FALLBACK_BLOG_POSTS,
+} from "../../shared/seoFallbackContent";
+import {
   getAllActiveTours,
   getAllPublishedBlogPosts,
   getPublishedTourPackages,
@@ -228,6 +232,12 @@ export function generateSitemap(
         priority: "0.85",
       }))
       .sort((a, b) => a.path.localeCompare(b.path)),
+    ...CORE_TOUR_SLUGS.map(slug => ({
+      path: `/tours/${slug}`,
+      lastmod: null,
+      changefreq: "monthly",
+      priority: "0.85",
+    })),
     ...packages
       .filter(p => isCanonicalTourOrPackageSlug(p.slug))
       .map(p => ({
@@ -246,6 +256,12 @@ export function generateSitemap(
         priority: "0.6",
       }))
       .sort((a, b) => a.path.localeCompare(b.path)),
+    ...FALLBACK_BLOG_POSTS.map(post => ({
+      path: `/blog/${post.slug}`,
+      lastmod: formatDate(post.publishedAt),
+      changefreq: "monthly",
+      priority: "0.6",
+    })),
   ]);
 
   const urls = entries
