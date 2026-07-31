@@ -84,7 +84,7 @@ interface ChatMessage {
   content: string;
 }
 
-type ProviderName = "anthropic" | "openai" | "gemini";
+type ProviderName = "levi" | "anthropic" | "openai" | "gemini";
 type ProviderMessage = {
   role: "user" | "assistant";
   content: string;
@@ -136,9 +136,10 @@ function normalizeMessages(
 
 function getPreferredProviders(): ProviderName[] {
   const preferred = process.env.MOSHE_AI_PROVIDER?.toLowerCase();
-  const defaults: ProviderName[] = ["openai", "anthropic", "gemini"];
+  const defaults: ProviderName[] = ["levi", "openai", "anthropic", "gemini"];
 
   if (
+    preferred === "levi" ||
     preferred === "anthropic" ||
     preferred === "openai" ||
     preferred === "gemini"
@@ -147,6 +148,73 @@ function getPreferredProviders(): ProviderName[] {
   }
 
   return defaults;
+}
+
+export function buildLeviChatRequest(
+  args: {
+    messages: ProviderMessage[];
+    language?: string;
+    visitorId?: string;
+  },
+  secret: string,
+  timestamp = Math.floor(Date.now() / 1000)
+) {
+  const body = JSON.stringify({
+    event_type: "wiro.chat.reply_request",
+    language: normalizeBookingLanguage(args.language),
+    visitor_id: args.visitorId ?? null,
+    messages: args.messages,
+  });
+  const timestampHeader = String(timestamp);
+  const signature = createHmac("sha256", secret)
+    .update(`${timestampHeader}.${body}`)
+    .digest("hex");
+
+  return {
+    body,
+    timestamp: timestampHeader,
+    signature,
+  };
+}
+
+async function getLeviReply(
+  messages: ProviderMessage[],
+  context: { language?: string; visitorId?: string }
+): Promise<string | null> {
+  const url = process.env.LEVI_CHAT_URL?.trim();
+  const secret = process.env.LEVI_WEBHOOK_SECRET?.trim();
+  if (!url || !secret) return null;
+
+  const request = buildLeviChatRequest(
+    { messages, language: context.language, visitorId: context.visitorId },
+    secret
+  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Request-ID": randomUUID(),
+        "X-Webhook-Timestamp": request.timestamp,
+        "X-Webhook-Signature-V2": request.signature,
+      },
+      body: request.body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Levi chat returned HTTP ${response.status}`);
+    }
+
+    const data = (await response.json()) as { reply?: unknown };
+    const reply = typeof data.reply === "string" ? data.reply.trim() : "";
+    return reply ? reply.slice(0, 2000) : null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function getAnthropicReply(
@@ -253,18 +321,23 @@ function logProviderError(provider: ProviderName, err: unknown) {
   );
 }
 
-async function getAiReply(messages: ProviderMessage[]): Promise<{
+async function getAiReply(
+  messages: ProviderMessage[],
+  context: { language?: string; visitorId?: string }
+): Promise<{
   provider: ProviderName | "fallback";
   reply: string | null;
 }> {
   for (const provider of getPreferredProviders()) {
     try {
       const reply =
-        provider === "anthropic"
-          ? await getAnthropicReply(messages)
-          : provider === "openai"
-            ? await getOpenAiReply(messages)
-            : await getGeminiReply(messages);
+        provider === "levi"
+          ? await getLeviReply(messages, context)
+          : provider === "anthropic"
+            ? await getAnthropicReply(messages)
+            : provider === "openai"
+              ? await getOpenAiReply(messages)
+              : await getGeminiReply(messages);
 
       if (reply) return { provider, reply };
     } catch (err) {
@@ -690,7 +763,10 @@ export function registerMosheRoute(app: Express) {
       bookingContext,
       language
     );
-    const { provider, reply } = await getAiReply(providerMessages);
+    const { provider, reply } = await getAiReply(providerMessages, {
+      language,
+      visitorId,
+    });
     const bookingIntent = shouldEscalate(bookingContext);
     const whatsappUrl = buildWhatsAppUrl(
       language,
@@ -704,8 +780,8 @@ export function registerMosheRoute(app: Express) {
 
     // Send the owner alert after the visitor reply is ready so Mike gets the
     // missing booking details and the exact reply the visitor saw. Production
-    // prefers Levi's signed VPS webhook; direct Telegram remains a local/legacy
-    // fallback only when Levi is not configured.
+    // prefers Levi's signed VPS webhook; direct Telegram is the fallback when
+    // Levi is not configured or its delivery fails.
     const alertArgs = {
       latestMessage,
       bookingContext,
@@ -715,23 +791,29 @@ export function registerMosheRoute(app: Express) {
       whatsappUrl,
     };
 
+    let ownerAlertDelivered = false;
     try {
-      const sentViaLevi = await sendLeviLeadAlert(
+      ownerAlertDelivered = await sendLeviLeadAlert(
         buildLeviLeadAlert(alertArgs)
       );
+    } catch (err) {
+      console.error("[Moshe] Levi owner alert failed:", err);
+    }
 
-      if (!sentViaLevi) {
-        const sentViaLegacyTelegram = await sendLegacyTelegramLeadAlert(
+    if (!ownerAlertDelivered) {
+      try {
+        ownerAlertDelivered = await sendLegacyTelegramLeadAlert(
           buildTelegramLeadAlert(alertArgs)
         );
-        if (!sentViaLegacyTelegram) {
-          console.log(
-            `[Moshe] Customer message (${language ?? "en"}): ${latestMessage}`
-          );
-        }
+      } catch (err) {
+        console.error("[Moshe] Telegram owner alert failed:", err);
       }
-    } catch (err) {
-      console.error("[Moshe] Owner alert delivery failed:", err);
+    }
+
+    if (!ownerAlertDelivered) {
+      console.log(
+        `[Moshe] Customer message (${language ?? "en"}): ${latestMessage}`
+      );
     }
 
     res.json({

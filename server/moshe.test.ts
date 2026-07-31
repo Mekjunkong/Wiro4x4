@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildLeviChatRequest,
   buildLeviLeadAlert,
   buildLeviWebhookRequest,
   buildTelegramLeadAlert,
@@ -111,5 +112,47 @@ describe("Moshe booking qualification helpers", () => {
       signature:
         "4fa681ec03d5f201767d2cae5136b256d5912bc54c75b74d52c7560998d2a59f",
     });
+  });
+
+  it("signs Levi chat reply requests with the conversation payload", () => {
+    const request = buildLeviChatRequest(
+      {
+        messages: [{ role: "user", content: "Can you arrange kosher meals?" }],
+        language: "en",
+        visitorId: "visitor-123456789",
+      },
+      "test-secret",
+      1_800_000_000
+    );
+
+    expect(request).toEqual({
+      body: JSON.stringify({
+        event_type: "wiro.chat.reply_request",
+        language: "en",
+        visitor_id: "visitor-123456789",
+        messages: [{ role: "user", content: "Can you arrange kosher meals?" }],
+      }),
+      timestamp: "1800000000",
+      signature:
+        "2d6bfc0f671024d9a9e6951785acfee77f286e766e740a983a6f668decedd14a",
+    });
+  });
+
+  it("normalizes Hebrew language and missing visitor id in Levi chat requests", () => {
+    const request = buildLeviChatRequest(
+      {
+        messages: [{ role: "user", content: "יש אוכל כשר?" }],
+        language: "he-IL",
+      },
+      "test-secret",
+      1_800_000_000
+    );
+
+    const payload = JSON.parse(request.body) as {
+      language: string;
+      visitor_id: string | null;
+    };
+    expect(payload.language).toBe("he");
+    expect(payload.visitor_id).toBeNull();
   });
 });

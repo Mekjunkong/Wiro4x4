@@ -782,3 +782,11 @@
 - [x] Fix homepage og:image/twitter:image to use optimized single_cascade_waterfall-lg.jpg
 - [x] Delete 101 unreferenced images from client/public (37MB deploy weight reduction)
 - [x] Verified: 271 tests pass, TypeScript clean, production build succeeds
+
+## Levi Hermes Agent — Customer Chat Replies (Jul 31, 2026)
+
+- [x] Add "levi" as first-preference chat provider in server/routes/moshe.ts (LEVI_CHAT_URL + shared LEVI_WEBHOOK_SECRET, HMAC-SHA256 signed wiro.chat.reply_request, 10s timeout)
+- [x] Fall back to OpenAI → Anthropic → Gemini when Levi is unconfigured, times out, or errors (keeps 24h answering guarantee)
+- [x] Support MOSHE_AI_PROVIDER=levi and document LEVI_CHAT_URL in .env.example
+- [x] Fix owner-alert fallback: Telegram now fires when the Levi alert webhook errors, not only when it is unconfigured
+- [x] Tests: buildLeviChatRequest signing fixture + Hebrew/visitor-id normalization (8 moshe tests pass)
