@@ -1,3 +1,4 @@
+import { createHmac, randomUUID } from "node:crypto";
 import type { Express } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
@@ -515,6 +516,130 @@ export function buildTelegramLeadAlert(args: {
     .join("\n");
 }
 
+export function buildLeviLeadAlert(args: {
+  latestMessage: string;
+  bookingContext: string;
+  language?: string;
+  visitorId?: string;
+  reply: string;
+  whatsappUrl: string;
+}) {
+  const lang = args.language === "he" ? "🇮🇱 Hebrew" : "🇬🇧 English";
+  const missing = getMissingBookingFields(args.bookingContext, args.language);
+  const urgency = shouldEscalate(args.bookingContext)
+    ? "🔥 Booking / quote intent"
+    : "💬 General chat";
+
+  return [
+    "💬 New Customer Message - WIRO 4x4",
+    "",
+    urgency,
+    `🌐 Language: ${lang}`,
+    args.visitorId
+      ? `🔑 Visitor: ${String(args.visitorId).slice(0, 14)}`
+      : null,
+    "",
+    "📝 Customer message:",
+    args.latestMessage,
+    "",
+    missing.length
+      ? `📋 Missing booking details: ${missing.join(", ")}`
+      : "✅ Booking details: enough info to follow up",
+    "",
+    "💬 Reply shown to visitor:",
+    args.reply.slice(0, 700),
+    "",
+    "📱 Open customer WhatsApp handoff text:",
+    args.whatsappUrl,
+    "🖥️ Admin: https://wiro4x4indochina.com/admin",
+  ]
+    .filter(line => line !== null)
+    .join("\n");
+}
+
+export function buildLeviWebhookRequest(
+  text: string,
+  secret: string,
+  timestamp = Math.floor(Date.now() / 1000)
+) {
+  const body = JSON.stringify({
+    event_type: "wiro.chat.message",
+    text,
+  });
+  const timestampHeader = String(timestamp);
+  const signature = createHmac("sha256", secret)
+    .update(`${timestampHeader}.${body}`)
+    .digest("hex");
+
+  return {
+    body,
+    timestamp: timestampHeader,
+    signature,
+  };
+}
+
+async function sendLeviLeadAlert(text: string): Promise<boolean> {
+  const url = process.env.LEVI_WEBHOOK_URL?.trim();
+  const secret = process.env.LEVI_WEBHOOK_SECRET?.trim();
+
+  if (!url && !secret) return false;
+  if (!url || !secret) {
+    throw new Error(
+      "LEVI_WEBHOOK_URL and LEVI_WEBHOOK_SECRET must be configured together"
+    );
+  }
+
+  const request = buildLeviWebhookRequest(text, secret);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5_000);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Request-ID": randomUUID(),
+        "X-Webhook-Timestamp": request.timestamp,
+        "X-Webhook-Signature-V2": request.signature,
+      },
+      body: request.body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Levi webhook returned HTTP ${response.status}`);
+    }
+    return true;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function sendLegacyTelegramLeadAlert(text: string): Promise<boolean> {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
+  if (!token || !chatId) return false;
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${token}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Telegram returned HTTP ${response.status}`);
+  }
+  return true;
+}
+
 export function registerMosheRoute(app: Express) {
   app.post("/api/moshe/message", async (req, res) => {
     const { message, messages, language, visitorId } = req.body as {
@@ -577,35 +702,36 @@ export function registerMosheRoute(app: Express) {
         ? buildBookingQualificationReply(language, missingBookingFields)
         : (reply ?? buildFallbackReply(language, bookingIntent));
 
-    // Send Telegram notification after the visitor reply is ready, so Mike gets context,
-    // missing booking details, and the exact reply the visitor saw.
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // Send the owner alert after the visitor reply is ready so Mike gets the
+    // missing booking details and the exact reply the visitor saw. Production
+    // prefers Levi's signed VPS webhook; direct Telegram remains a local/legacy
+    // fallback only when Levi is not configured.
+    const alertArgs = {
+      latestMessage,
+      bookingContext,
+      language,
+      visitorId,
+      reply: finalReply,
+      whatsappUrl,
+    };
 
-    if (token && chatId) {
-      const text = buildTelegramLeadAlert({
-        latestMessage,
-        bookingContext,
-        language,
-        visitorId,
-        reply: finalReply,
-        whatsappUrl,
-      });
-
-      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text,
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }),
-      }).catch(err => console.error("[Moshe] Telegram send failed:", err));
-    } else {
-      console.log(
-        `[Moshe] Customer message (${language ?? "en"}): ${latestMessage}`
+    try {
+      const sentViaLevi = await sendLeviLeadAlert(
+        buildLeviLeadAlert(alertArgs)
       );
+
+      if (!sentViaLevi) {
+        const sentViaLegacyTelegram = await sendLegacyTelegramLeadAlert(
+          buildTelegramLeadAlert(alertArgs)
+        );
+        if (!sentViaLegacyTelegram) {
+          console.log(
+            `[Moshe] Customer message (${language ?? "en"}): ${latestMessage}`
+          );
+        }
+      }
+    } catch (err) {
+      console.error("[Moshe] Owner alert delivery failed:", err);
     }
 
     res.json({

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildLeviLeadAlert,
+  buildLeviWebhookRequest,
   buildTelegramLeadAlert,
   buildWhatsAppUrl,
   getBookingFields,
@@ -73,5 +75,41 @@ describe("Moshe booking qualification helpers", () => {
     expect(alert).toContain(
       `href="https://wa.me/972544715400?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
     );
+  });
+
+  it("builds the plain-text alert that Levi delivers from the VPS", () => {
+    const alert = buildLeviLeadAlert({
+      latestMessage: "Can you arrange kosher meals?",
+      bookingContext: "Can you arrange kosher meals?",
+      language: "en",
+      visitorId: "visitor-123456789",
+      reply: "Yes, we can arrange kosher picnic meals.",
+      whatsappUrl: "https://wa.me/972544715400?text=kosher",
+    });
+
+    expect(alert).toContain("💬 New Customer Message - WIRO 4x4");
+    expect(alert).toContain("🔑 Visitor: visitor-123456");
+    expect(alert).toContain("Can you arrange kosher meals?");
+    expect(alert).toContain("Yes, we can arrange kosher picnic meals.");
+    expect(alert).toContain("https://wa.me/972544715400?text=kosher");
+    expect(alert).not.toContain("<b>");
+  });
+
+  it("signs Levi webhook requests with the timestamp and exact body", () => {
+    const request = buildLeviWebhookRequest(
+      "A signed WIRO alert",
+      "test-secret",
+      1_800_000_000
+    );
+
+    expect(request).toEqual({
+      body: JSON.stringify({
+        event_type: "wiro.chat.message",
+        text: "A signed WIRO alert",
+      }),
+      timestamp: "1800000000",
+      signature:
+        "4fa681ec03d5f201767d2cae5136b256d5912bc54c75b74d52c7560998d2a59f",
+    });
   });
 });
