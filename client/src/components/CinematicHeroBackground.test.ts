@@ -25,7 +25,7 @@ describe("CinematicHeroBackground", () => {
 
     expect(markup).toContain('data-testid="cinematic-hero-background"');
     expect(markup).toContain('data-cinematic-hero-layer="base"');
-    expect(markup).toContain('src="banner"');
+    expect(markup).toContain('src="tourists_with_4x4"');
     expect(markup).toContain('alt="Travelers with WIRO 4x4 in Chiang Mai"');
 
     expect(markup).toContain('data-cinematic-hero-layer="landscape"');

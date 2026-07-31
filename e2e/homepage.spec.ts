@@ -52,6 +52,62 @@ test.describe("Homepage", () => {
     ).toBeVisible();
   });
 
+  test("uses the static travelers frame when reduced motion is requested", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+
+    const motionState = await page
+      .getByTestId("cinematic-hero-background")
+      .evaluate(hero => {
+        const overlays = Array.from(
+          hero.querySelectorAll<HTMLElement>(
+            '[data-cinematic-hero-overlay="true"]'
+          )
+        );
+        const baseImage = hero.querySelector<HTMLElement>(
+          ".cinematic-hero__image--base"
+        );
+
+        return {
+          overlayDisplays: overlays.map(
+            overlay => getComputedStyle(overlay).display
+          ),
+          baseAnimation: baseImage
+            ? getComputedStyle(baseImage).animationName
+            : null,
+        };
+      });
+
+    expect(motionState.overlayDisplays).toEqual(["none", "none"]);
+    expect(motionState.baseAnimation).toBe("none");
+    const hero = page.locator("main section").first();
+    await expect(
+      hero.getByRole("link", { name: /check availability on whatsapp/i })
+    ).toBeVisible();
+  });
+
+  test("keeps the fallback frame when decorative scenes fail to load", async ({
+    page,
+  }) => {
+    await page.route(/(?:mountain_sunset_golden|4x4_water_splash)/, route =>
+      route.abort()
+    );
+    await page.goto("/");
+
+    const heroSection = page.locator("main section").first();
+    const hero = heroSection.getByTestId("cinematic-hero-background");
+    await expect(
+      hero.locator(
+        'img[alt="Travelers with WIRO 4x4 vehicle on jungle road in Chiang Mai"]'
+      )
+    ).toBeVisible();
+    await expect(
+      heroSection.getByRole("link", { name: /check availability on whatsapp/i })
+    ).toBeVisible();
+  });
+
   test("should display key homepage sections", async ({ page }) => {
     await page.goto("/");
 

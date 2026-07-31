@@ -30,7 +30,8 @@ acceptance.
 - Cross-dissolves are 1.0 second with no blank or flashing frame.
 - Existing English and Hebrew copy, WhatsApp attribution, CTAs, and scroll
   behavior are unchanged.
-- Reduced-motion users receive the existing static WIRO group banner.
+- Reduced-motion users receive the existing static WIRO
+  travelers-and-vehicle image.
 - All three scenes use successful responsive WebP/JPEG requests in the production
   build.
 - Combined WebP payload stays at or below 250 KB on mobile and 600 KB on
@@ -44,12 +45,12 @@ acceptance.
 
 ## Milestones
 
-| # | Milestone | Target | Owner | Success Criteria |
-| --- | --- | --- | --- | --- |
-| 1 | Component contract locked | End of Task 1 | Implementer | Focused test proves the three assets, semantic base, and decorative overlays |
-| 2 | Cinematic sequence integrated | End of Task 2 | Implementer | Homepage shows the approved timing and retains all existing actions |
-| 3 | Performance and accessibility verified | End of Task 3 | Implementer | Budgets, reduced motion, RTL, and automated gates pass |
-| 4 | Visual acceptance | End of Task 3 | User | User approves desktop and mobile result |
+| #   | Milestone                              | Target        | Owner       | Success Criteria                                                             |
+| --- | -------------------------------------- | ------------- | ----------- | ---------------------------------------------------------------------------- |
+| 1   | Component contract locked              | End of Task 1 | Implementer | Focused test proves the three assets, semantic base, and decorative overlays |
+| 2   | Cinematic sequence integrated          | End of Task 2 | Implementer | Homepage shows the approved timing and retains all existing actions          |
+| 3   | Performance and accessibility verified | End of Task 3 | Implementer | Budgets, reduced motion, RTL, and automated gates pass                       |
+| 4   | Visual acceptance                      | End of Task 3 | User        | User approves desktop and mobile result                                      |
 
 ---
 
@@ -91,7 +92,7 @@ background component.
 Use `renderToStaticMarkup` from `react-dom/server`; no browser DOM dependency is
 needed. Assert:
 
-- the semantic base uses `banner`;
+- the semantic base uses `tourists_with_4x4`;
 - the overlays use `mountain_sunset_golden` and `4x4_water_splash`;
 - the base keeps the localized descriptive alt text;
 - overlay images are decorative with empty alt text and `aria-hidden="true"`;
@@ -112,7 +113,7 @@ Keep static scene data in the component module:
 
 ```ts
 const scenes = {
-  base: "banner",
+  base: "tourists_with_4x4",
   landscape: "mountain_sunset_golden",
   action: "4x4_water_splash",
 } as const;
@@ -120,7 +121,7 @@ const scenes = {
 
 Render:
 
-1. the permanent `banner` layer with the localized alt text;
+1. the permanent `tourists_with_4x4` layer with the localized alt text;
 2. the landscape overlay;
 3. the action overlay;
 4. a non-interactive grain layer.
@@ -190,14 +191,14 @@ Expected: FAIL on the missing cinematic background.
 Use the permanent group layer as the middle scene. Animate only the landscape
 and action overlays:
 
-| Loop percentage | Visible result |
-| --- | --- |
-| 0–26.67% | Landscape holds |
-| 26.67–33.33% | Landscape dissolves to the group |
-| 33.33–60% | Group holds |
-| 60–66.67% | Action dissolves over the group |
-| 66.67–93.33% | Action holds |
-| 93.33–100% | Action dissolves into the next landscape loop |
+| Loop percentage | Visible result                                |
+| --------------- | --------------------------------------------- |
+| 0–26.67%        | Landscape holds                               |
+| 26.67–33.33%    | Landscape dissolves to the group              |
+| 33.33–60%       | Group holds                                   |
+| 60–66.67%       | Action dissolves over the group               |
+| 66.67–93.33%    | Action holds                                  |
+| 93.33–100%      | Action dissolves into the next landscape loop |
 
 Combine opacity with independent `scale(1.02)` to `scale(1.08)` and restrained
 translations. Use scene-specific `object-position` values for mobile and
@@ -262,7 +263,7 @@ desktop and mobile captures.
   `client/src/index.css`, `client/src/components/Hero.tsx`,
   `e2e/homepage.spec.ts`
 - Generated but ignored:
-  `client/public/images/optimized/{banner,mountain_sunset_golden,4x4_water_splash}-{sm,md,lg}.{webp,jpg}`
+  `client/public/images/optimized/{tourists_with_4x4,mountain_sunset_golden,4x4_water_splash}-{sm,md,lg}.{webp,jpg}`
 
 - [ ] **Step 1: Generate the production-responsive variants**
 
@@ -368,15 +369,15 @@ asset verification → manual visual QA → user acceptance.
 
 ## Risks and Mitigation
 
-| Risk | Impact | Probability | Mitigation |
-| --- | --- | --- | --- |
-| Bright landscape or water reduces text contrast | High | Medium | Retain the current bottom-heavy gradient and verify every scene |
-| Mobile crop loses the vehicle or people | High | Medium | Use per-scene mobile `object-position`; adjust crops rather than content layout |
-| Later image is not ready before its first dissolve | Medium | Low | Load above-fold overlays immediately and keep the group base permanently visible |
-| Three hero images regress LCP or bandwidth | High | Medium | One high-priority scene, responsive WebP variants, explicit combined payload budgets |
-| Global reduced-motion reset leaves an overlay visible | Medium | Medium | Explicitly hide animated overlays in the reduced-motion media query |
-| Build pipeline generates unrelated ignored outputs | Low | High | Review Git status and commit only source code; never force-add derived variants |
-| Animation feels like a carousel | Medium | Medium | No controls or captions; slow motion, fixed copy, and one continuous 15-second rhythm |
+| Risk                                                  | Impact | Probability | Mitigation                                                                            |
+| ----------------------------------------------------- | ------ | ----------- | ------------------------------------------------------------------------------------- |
+| Bright landscape or water reduces text contrast       | High   | Medium      | Retain the current bottom-heavy gradient and verify every scene                       |
+| Mobile crop loses the vehicle or people               | High   | Medium      | Use per-scene mobile `object-position`; adjust crops rather than content layout       |
+| Later image is not ready before its first dissolve    | Medium | Low         | Load above-fold overlays immediately and keep the group base permanently visible      |
+| Three hero images regress LCP or bandwidth            | High   | Medium      | One high-priority scene, responsive WebP variants, explicit combined payload budgets  |
+| Global reduced-motion reset leaves an overlay visible | Medium | Medium      | Explicitly hide animated overlays in the reduced-motion media query                   |
+| Build pipeline generates unrelated ignored outputs    | Low    | High        | Review Git status and commit only source code; never force-add derived variants       |
+| Animation feels like a carousel                       | Medium | Medium      | No controls or captions; slow motion, fixed copy, and one continuous 15-second rhythm |
 
 ---
 
