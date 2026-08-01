@@ -36,7 +36,7 @@ import {
   CheckCheck,
   Pencil,
 } from "lucide-react";
-import { formatUSD } from "@shared/pricing";
+import { DEPOSIT_RATE, formatUSD } from "@shared/pricing";
 import { nanoid } from "nanoid";
 
 // ── Destination Database ─────────────────────────────────────
@@ -1348,9 +1348,11 @@ function CostCalculatorDashboard() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>
-                Deposit 30%:{" "}
+                Deposit {Math.round(DEPOSIT_RATE * 100)}%:{" "}
                 {formatUSD(
-                  Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100
+                  Math.round(
+                    (breakdown.totalSellingPrice * DEPOSIT_RATE) / 100
+                  ) * 100
                 )}
               </span>
               <span className="text-green-600 font-semibold">
@@ -2179,10 +2181,12 @@ function SummaryPanel({
 
             <div className="border-t pt-3 space-y-1 text-sm">
               <div className="flex justify-between text-muted-foreground">
-                <span>Deposit (30%)</span>
+                <span>Deposit ({Math.round(DEPOSIT_RATE * 100)}%)</span>
                 <span className="font-medium">
                   {formatUSD(
-                    Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100
+                    Math.round(
+                      (breakdown.totalSellingPrice * DEPOSIT_RATE) / 100
+                    ) * 100
                   )}
                 </span>
               </div>
@@ -2191,7 +2195,9 @@ function SummaryPanel({
                 <span className="font-medium">
                   {formatUSD(
                     breakdown.totalSellingPrice -
-                      Math.round((breakdown.totalSellingPrice * 0.3) / 100) *
+                      Math.round(
+                        (breakdown.totalSellingPrice * DEPOSIT_RATE) / 100
+                      ) *
                         100
                   )}
                 </span>
@@ -2248,7 +2254,8 @@ function WhatsAppQuoteButton({
     })
     .join(" → ");
 
-  const deposit = Math.round((breakdown.totalSellingPrice * 0.3) / 100) * 100;
+  const deposit =
+    Math.round((breakdown.totalSellingPrice * DEPOSIT_RATE) / 100) * 100;
   const balance = breakdown.totalSellingPrice - deposit;
   const hasKosher = days.some(d => d.isKosher);
 
@@ -2278,7 +2285,7 @@ function WhatsAppQuoteButton({
     `💰 *${formatUSD(breakdown.sellingPricePerPerson)} per person*`,
     `📦 Total: *${formatUSD(breakdown.totalSellingPrice)}*`,
     ``,
-    `Deposit (30%): ${formatUSD(deposit)}`,
+    `Deposit (${Math.round(DEPOSIT_RATE * 100)}%): ${formatUSD(deposit)}`,
     `Balance on tour day: ${formatUSD(balance)}`,
     ``,
     `Includes: private 4x4, Hebrew-speaking guide, all entrance fees`,

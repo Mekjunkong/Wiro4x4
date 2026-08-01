@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { CreditCard, Copy, RefreshCw, AlertTriangle } from "lucide-react";
+import { DEPOSIT_RATE } from "@shared/pricing";
 
 const PAYMENT_STATUS_COLORS: Record<string, string> = {
   completed: "bg-green-100 text-green-800",
@@ -90,7 +91,7 @@ export function PaymentSection({
     (sum, p) => sum + p.amount,
     0
   );
-  const depositAmount = Math.round(price * 0.3);
+  const depositAmount = Math.round(price * DEPOSIT_RATE);
   const balanceAmount = price - depositAmount;
 
   const handleSendLink = (type: "deposit" | "balance" | "full") => {

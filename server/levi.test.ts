@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildLeviChatRequest,
   buildLeviLeadAlert,
+  buildLeviSystemPrompt,
   buildLeviWebhookRequest,
   buildWhatsAppUrl,
+  buildBookingState,
   getBookingFields,
   getMissingBookingFields,
   requestLeviReply,
@@ -50,7 +52,7 @@ describe("Levi booking qualification helpers", () => {
     expect(missing).toContain(
       "מספר משתתפים, מבוגרים, ילדים וגילאי הילדים אם יש"
     );
-    expect(decoded).toContain("ההודעה שלי: אני רוצה להזמין");
+    expect(decoded).toContain("ההודעה האחרונה שלי: אני רוצה להזמין");
     expect(decoded).toContain("פרטים חסרים: מסלול או רעיון לטיול");
     expect(decoded).toContain(
       "מספר משתתפים, מבוגרים, ילדים וגילאי הילדים אם יש"
@@ -67,7 +69,7 @@ describe("Levi booking qualification helpers", () => {
       whatsappUrl: "https://wa.me/66816401397?text=kosher",
     });
 
-    expect(alert).toContain("💬 New Customer Message - WIRO 4x4");
+    expect(alert).toContain("🔥 New WIRO Chat Lead");
     expect(alert).toContain("🔑 Visitor: visitor-123456");
     expect(alert).toContain("Can you arrange kosher meals?");
     expect(alert).toContain("Yes, we can arrange kosher picnic meals.");
@@ -108,6 +110,54 @@ describe("Levi booking qualification helpers", () => {
       role: "user",
       content: "Can you arrange kosher meals?",
     });
+  });
+
+  it("builds structured booking progress across a multi-detail inquiry", () => {
+    const state = buildBookingState(
+      "We want Doi Inthanon tomorrow for 2 adults and children aged 5 and 8, pickup at a Nimman hotel, kosher lunch please",
+      "en"
+    );
+
+    expect(state).toMatchObject({
+      intent: "booking",
+      completionPercent: 100,
+      qualified: true,
+      missingKeys: [],
+      fields: {
+        hasTour: true,
+        hasDate: true,
+        hasGroup: true,
+        hasPickup: true,
+        hasKosher: true,
+      },
+      details: {
+        tour: "Doi Inthanon",
+        group: expect.stringContaining("children aged 5 and 8"),
+        pickup: "Nimman",
+        kosher: expect.stringMatching(/kosher/i),
+      },
+    });
+  });
+
+  it("uses the shared WIRO pricing source and avoids stale prompt claims", () => {
+    const bookingState = buildBookingState("How much is a tour?", "en");
+    const prompt = buildLeviSystemPrompt({
+      bookingState,
+      bookingSummary: "No booking details collected yet",
+      availabilityPrompt: "No confirmed availability supplied.",
+      now: new Date("2026-08-01T00:00:00Z"),
+    });
+
+    expect(prompt).toContain("Mae Wang — Jungle Wilderness: from $134");
+    expect(prompt).toContain("Samoeng Loop — Mountain Circuit: from $98");
+    expect(prompt).toContain("2-day Weekend Adventure: from $202");
+    expect(prompt).toContain("A 30% deposit");
+    expect(prompt).toContain("Nov – Feb: approximately +20%");
+    expect(prompt).not.toContain(
+      "Mae Wang - Jungle & River Wilderness** · $154"
+    );
+    expect(prompt).not.toContain("5-day: $588");
+    expect(prompt).not.toContain("18:00");
   });
 
   it("uses only the authenticated Levi VPS reply endpoint", async () => {

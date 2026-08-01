@@ -256,6 +256,7 @@ export function registerChatApiRoute(app: Express) {
           const avail = await checkAvailability(dateStr);
           if (avail.length > 0) {
             availabilityInfo = avail
+              .filter(a => a.status === "confirmed")
               .map(
                 a =>
                   `- ${a.tourName}: ${a.isBlocked ? "❌ Unavailable" : `✅ ${a.available} slots`}`

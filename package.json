@@ -17,6 +17,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
+    "eval:levi": "tsx scripts/evaluate-levi.ts",
     "e2e": "playwright test",
     "build:analyze": "ANALYZE=true vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",

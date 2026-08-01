@@ -15,16 +15,15 @@ import type { Express } from "express";
 import { checkRateLimit } from "../rateLimit";
 import { notifyChatMessage } from "../eliNotify";
 
-const BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ??
-  "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
-const ELI_CHAT_ID = process.env.ELI_CHAT_ID ?? "-1003893672464"; // WIRO group — Eli sees + responds
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const ELI_CHAT_ID = process.env.ELI_CHAT_ID;
 
 // In-memory session store (keyed by visitorId → {chatId, pendingResponses})
 const sessions = new Map<string, { chatId: string; lastUpdate: number }>();
 const pendingReplies = new Map<string, string[]>();
 
 async function telegramPost(method: string, body: object): Promise<unknown> {
+  if (!BOT_TOKEN) throw new Error("TELEGRAM_BOT_TOKEN is not configured");
   const res = await fetch(
     `https://api.telegram.org/bot${BOT_TOKEN}/${method}`,
     {
@@ -40,6 +39,7 @@ async function telegramGet(
   method: string,
   params: Record<string, string | number> = {}
 ): Promise<unknown> {
+  if (!BOT_TOKEN) throw new Error("TELEGRAM_BOT_TOKEN is not configured");
   const qs = new URLSearchParams(
     Object.entries(params).map(([k, v]) => [k, String(v)])
   );
@@ -56,6 +56,7 @@ async function sendToEli(
   message: string,
   language: string
 ): Promise<void> {
+  if (!ELI_CHAT_ID) throw new Error("ELI_CHAT_ID is not configured");
   const langLabel =
     language === "he"
       ? "🇮🇱 Hebrew"
@@ -123,9 +124,15 @@ export function registerEliRelayRoute(app: Express) {
     try {
       const gwUrl =
         process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789";
-      const gwToken =
-        process.env.OPENCLAW_GATEWAY_TOKEN ??
-        "51732cbbbcc9d9e1a9a2db8cd1e6062351615c2c44102e76";
+      const gwToken = process.env.OPENCLAW_GATEWAY_TOKEN;
+      if (!gwToken) {
+        res.status(503).json({
+          ok: false,
+          gateway: "openclaw",
+          reason: "not configured",
+        });
+        return;
+      }
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 3000);
       const result = await fetch(`${gwUrl}/health`, {
@@ -181,7 +188,7 @@ export function registerEliRelayRoute(app: Express) {
 
       // Register session
       sessions.set(shortSession, {
-        chatId: ELI_CHAT_ID,
+        chatId: ELI_CHAT_ID ?? "",
         lastUpdate: Date.now(),
       });
 

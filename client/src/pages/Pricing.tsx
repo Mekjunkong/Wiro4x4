@@ -24,6 +24,7 @@ import {
   applySeasonalPrice,
   getSeasonPricingRows,
   getHolidayPeakWindows,
+  DEPOSIT_RATE,
 } from "@shared/pricing";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
@@ -676,8 +677,8 @@ export default function Pricing() {
                   <h4 className="font-bold mb-2">{t("Payment", "תשלום")}</h4>
                   <p className="text-sm text-muted-foreground">
                     {t(
-                      "50% deposit required to confirm booking. Balance due on tour day. We accept cash (THB, USD, EUR) and bank transfer.",
-                      "מקדמה של 50% לאישור ההזמנה. היתרה ביום הטיול. מקבלים מזומן (באט, דולר, אירו) והעברה בנקאית."
+                      `${Math.round(DEPOSIT_RATE * 100)}% deposit required to confirm booking. Balance due on tour day. We accept cash (THB, USD, EUR) and bank transfer.`,
+                      `מקדמה של ${Math.round(DEPOSIT_RATE * 100)}% לאישור ההזמנה. היתרה ביום הטיול. מקבלים מזומן (באט, דולר, אירו) והעברה בנקאית.`
                     )}
                   </p>
                 </div>

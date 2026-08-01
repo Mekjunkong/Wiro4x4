@@ -1,3 +1,5 @@
+import { WIRO_DEPOSIT_RATE } from "./wiroTourCatalog";
+
 /**
  * Pure pricing calculation functions for Wiro 4x4 tour cost estimation.
  * No database dependency — used by both client (calculator) and server (quotes).
@@ -127,7 +129,7 @@ export function calculatePackageDiscount(
   return { discountedPrice, savings, discountPercent };
 }
 
-export const DEPOSIT_RATE = 0.3;
+export const DEPOSIT_RATE = WIRO_DEPOSIT_RATE;
 
 // ── Seasonal Pricing ────────────────────────────────────────
 

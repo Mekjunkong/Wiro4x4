@@ -36,6 +36,10 @@ describe("analytics event contract", () => {
       "whatsapp_click",
       "booking_start",
       "booking_complete",
+      "chat_open",
+      "chat_message_sent",
+      "chat_reply_received",
+      "chat_handoff_shown",
       "scroll_depth",
     ]);
     expectTypeOf<AnalyticsEventName>().toEqualTypeOf<
@@ -203,6 +207,32 @@ describe("analytics event contract", () => {
 
     trackEvent("not-canonical" as AnalyticsEventName, { page: "/pricing" });
     expect(plausible).toHaveBeenCalledTimes(1);
+  });
+
+  it("forwards bounded Levi performance properties without customer text", () => {
+    const plausible = vi.fn();
+    setWindow(plausible);
+
+    trackEvent("chat_reply_received", {
+      page: "/",
+      placement: "levi-widget",
+      language: "he",
+      provider: "levi-vps",
+      latencyBucket: "3-6s",
+      bookingStage: "qualified",
+      message: "private customer text",
+    } as never);
+
+    expect(plausible).toHaveBeenCalledWith("chat_reply_received", {
+      props: {
+        page: "/",
+        placement: "levi-widget",
+        language: "he",
+        provider: "levi-vps",
+        latencyBucket: "3-6s",
+        bookingStage: "qualified",
+      },
+    });
   });
 
   it("is a no-op without Plausible and never surfaces analytics failures", () => {

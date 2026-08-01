@@ -10,12 +10,14 @@ import {
   getEffectiveGroupSize,
   isCustomQuoteRequired,
   detectShabbatNights,
+  DEPOSIT_RATE,
   SERVICE_PRICES,
   type TourSelection,
   type TripConfig,
   type PriceBreakdown,
   type PriceLineItem,
 } from "../../../shared/pricing";
+import { WIRO_TOUR_CATALOG } from "../../../shared/wiroTourCatalog";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -195,74 +197,10 @@ export default function Packages() {
   // Available tours (from DB or fallback)
   const availableTours = useMemo(() => {
     if (dbTours.length > 0) return dbTours;
-    return [
-      {
-        id: 1,
-        slug: "doi-inthanon-roof-of-thailand",
-        name: "Doi Inthanon — Roof of Thailand",
-        nameHe: "דוי אינתנון — גג תאילנד",
-        price: 5000,
-        duration: "7-8 hours",
-        imageUrl: null,
-        difficulty: "moderate",
-        isKosher: 1,
-      },
-      {
-        id: 2,
-        slug: "mae-kampong-hidden-village",
-        name: "Mae Kampong — Hidden Mountain Village",
-        nameHe: "מאה קמפונג — הכפר הנסתר בהרים",
-        price: 3500,
-        duration: "5-7 hours",
-        imageUrl: null,
-        difficulty: "easy",
-        isKosher: 1,
-      },
-      {
-        id: 3,
-        slug: "maerim-sticky-waterfalls",
-        name: "Maerim & Sticky Waterfalls",
-        nameHe: "מאה רים ומפלים דביקים",
-        price: 4500,
-        duration: "7-8 hours",
-        imageUrl: null,
-        difficulty: "easy",
-        isKosher: 1,
-      },
-      {
-        id: 4,
-        slug: "doi-suthep-pui-beyond-temple",
-        name: "Doi Suthep-Pui — Beyond the Temple",
-        nameHe: "דוי סוטפ-פוי — מעבר למקדש",
-        price: 3500,
-        duration: "6-7 hours",
-        imageUrl: null,
-        difficulty: "moderate",
-        isKosher: 1,
-      },
-      {
-        id: 5,
-        slug: "mae-wang-jungle-wilderness",
-        name: "Mae Wang — Jungle Wilderness",
-        nameHe: "מאה וואנג — פראות הג'ונגל",
-        price: 4800,
-        duration: "8-9 hours",
-        imageUrl: null,
-        difficulty: "challenging",
-        isKosher: 1,
-      },
-      {
-        id: 6,
-        slug: "samoeng-loop-mountain-circuit",
-        name: "Samoeng Loop — Mountain Circuit",
-        nameHe: "לולאת סמואנג — מעגל ההרים",
-        price: 3500,
-        duration: "7-8 hours",
-        imageUrl: null,
-        difficulty: "moderate",
-        isKosher: 1,
-      },
-    ];
+    return WIRO_TOUR_CATALOG.map(tour => ({
+      ...tour,
+      imageUrl: null,
+    }));
   }, [dbTours]);
 
   // ── Selected tours as TourSelection for pricing ───────────
@@ -765,7 +703,7 @@ export default function Packages() {
 
                       return (
                         <Card
-                          key={tour.id ?? tour.slug}
+                          key={tour.id}
                           onClick={() => toggleTour(tour.slug)}
                           className={`cursor-pointer overflow-hidden transition-all ${
                             isSelected
@@ -1333,7 +1271,12 @@ export default function Packages() {
                             </span>
                           </div>
                           <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
+                            <span>
+                              {t(
+                                `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
+                                `מקדמה (${Math.round(DEPOSIT_RATE * 100)}%)`
+                              )}
+                            </span>
                             <span>{formatUSD(breakdown.depositAmount)}</span>
                           </div>
                           <div className="flex justify-between text-sm text-muted-foreground">

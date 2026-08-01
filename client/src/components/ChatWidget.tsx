@@ -10,6 +10,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WHATSAPP_NUMBER } from "@/const";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { trackEvent } from "@/lib/analytics";
 
 interface ChatMessage {
   role: "user" | "levi";
@@ -18,8 +19,30 @@ interface ChatMessage {
 
 interface ChatResponse {
   reply?: string;
+  provider?: "levi-vps" | "fallback";
   escalate?: boolean;
   whatsappUrl?: string;
+  bookingState?: {
+    intent: "general" | "booking";
+    missingLabels: string[];
+    completionPercent: number;
+    qualified: boolean;
+  };
+}
+
+function createMessageId() {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+function latencyBucket(milliseconds: number) {
+  if (milliseconds < 3000) return "under-3s" as const;
+  if (milliseconds < 6000) return "3-6s" as const;
+  if (milliseconds < 12000) return "6-12s" as const;
+  return "over-12s" as const;
 }
 
 function getVisitorId(): string {
@@ -44,7 +67,11 @@ export function ChatWidget() {
   const [chatLanguage, setChatLanguage] = useState<"en" | "he">(appLanguage);
   const [needsHandoff, setNeedsHandoff] = useState(false);
   const [whatsappMessage, setWhatsappMessage] = useState("");
+  const [bookingState, setBookingState] = useState<
+    ChatResponse["bookingState"] | null
+  >(null);
   const [visitorId] = useState(getVisitorId);
+  const trackedOpenRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -113,9 +140,17 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (isOpen) {
+      if (!trackedOpenRef.current) {
+        trackedOpenRef.current = true;
+        trackEvent("chat_open", {
+          page: window.location.pathname,
+          language: chatLanguage,
+          placement: "levi-widget",
+        });
+      }
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen]);
+  }, [isOpen, chatLanguage]);
 
   const sendMessage = useCallback(
     async (overrideMessage?: string) => {
@@ -126,6 +161,13 @@ export function ChatWidget() {
       setNeedsHandoff(false);
       setMessages(prev => [...prev, { role: "user", content: userMessage }]);
       setIsLoading(true);
+      const startedAt = performance.now();
+      const messageId = createMessageId();
+      trackEvent("chat_message_sent", {
+        page: window.location.pathname,
+        language: chatLanguage,
+        placement: "levi-widget",
+      });
 
       try {
         const nextMessages = [
@@ -140,6 +182,7 @@ export function ChatWidget() {
             messages: nextMessages,
             language: chatLanguage,
             visitorId,
+            messageId,
           }),
         });
 
@@ -155,6 +198,7 @@ export function ChatWidget() {
             : "Thanks! Levi received your message. You can continue via WhatsApp.");
 
         setMessages(prev => [...prev, { role: "levi", content: reply }]);
+        setBookingState(data.bookingState ?? null);
         if (data.whatsappUrl) {
           try {
             setWhatsappMessage(
@@ -165,12 +209,34 @@ export function ChatWidget() {
           }
         }
         setNeedsHandoff(Boolean(data.escalate));
+        const stage = data.bookingState?.qualified
+          ? "qualified"
+          : data.bookingState?.intent === "booking"
+            ? "started"
+            : "general";
+        trackEvent("chat_reply_received", {
+          page: window.location.pathname,
+          language: chatLanguage,
+          placement: "levi-widget",
+          provider: data.provider ?? "fallback",
+          latencyBucket: latencyBucket(performance.now() - startedAt),
+          bookingStage: stage,
+        });
+        if (data.escalate) {
+          trackEvent("chat_handoff_shown", {
+            page: window.location.pathname,
+            language: chatLanguage,
+            placement: "levi-widget",
+            bookingStage: stage,
+          });
+        }
       } catch {
         const fallback =
           chatLanguage === "he"
             ? `מצטער, יש בעיה זמנית בצ'אט. אפשר ליצור קשר ישירות ב-WhatsApp: +${WHATSAPP_NUMBER}`
             : `Sorry, the chat is having a temporary issue. You can contact us directly on WhatsApp: +${WHATSAPP_NUMBER}`;
         setMessages(prev => [...prev, { role: "levi", content: fallback }]);
+        setBookingState(null);
         setNeedsHandoff(true);
       } finally {
         setIsLoading(false);
@@ -195,6 +261,7 @@ export function ChatWidget() {
           ? "שלום, אני לוי, העוזר של WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
           : "Hi, I'm Levi, the WIRO 4x4 assistant. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
       setMessages([{ role: "levi", content: newWelcome }]);
+      setBookingState(null);
     }
   };
 
@@ -306,6 +373,37 @@ export function ChatWidget() {
               </div>
             )}
 
+            {bookingState?.intent === "booking" && (
+              <div className="rounded-xl border border-secondary/30 bg-card p-3 shadow-sm">
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-semibold text-card-foreground">
+                    {chatText("Booking details", "פרטי הזמנה")}
+                  </span>
+                  <span className="font-semibold text-secondary-foreground">
+                    {bookingState.completionPercent}%
+                  </span>
+                </div>
+                <div
+                  className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={bookingState.completionPercent}
+                >
+                  <div
+                    className="h-full rounded-full bg-secondary transition-[width] duration-300"
+                    style={{ width: `${bookingState.completionPercent}%` }}
+                  />
+                </div>
+                {bookingState.missingLabels.length > 0 && (
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    {chatText("Next: ", "השלב הבא: ")}
+                    {bookingState.missingLabels.slice(0, 2).join(", ")}
+                  </p>
+                )}
+              </div>
+            )}
+
             {messages.length <= 1 && (
               <div className="grid gap-2 pt-1">
                 {quickPrompts.map(prompt => (
@@ -349,30 +447,38 @@ export function ChatWidget() {
           )}
 
           {/* Input area */}
-          <div className="border-t border-border bg-card p-3 flex items-end gap-2">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={chatText(
-                "Route, date, group size, pickup area...",
-                "מסלול, תאריך, מספר מטיילים ואזור איסוף..."
+          <div className="border-t border-border bg-card p-3">
+            <div className="flex items-end gap-2">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={chatText(
+                  "Route, date, group size, pickup area...",
+                  "מסלול, תאריך, מספר מטיילים ואזור איסוף..."
+                )}
+                disabled={isLoading}
+                rows={1}
+                className="min-h-11 max-h-24 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
+                dir={isRtl ? "rtl" : "ltr"}
+              />
+              <button
+                type="button"
+                onClick={() => void sendMessage()}
+                disabled={!input.trim() || isLoading}
+                className="h-11 w-11 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
+                aria-label={chatText("Send message", "שלח הודעה")}
+              >
+                <Send className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            <p className="mt-2 px-1 text-[11px] leading-4 text-muted-foreground">
+              {chatText(
+                "Do not send passport, card, or payment details here. Booking details may be shared with the WIRO owner for follow-up.",
+                "אין לשלוח כאן פרטי דרכון, כרטיס או תשלום. פרטי ההזמנה עשויים להישלח לבעל העסק לצורך המשך טיפול."
               )}
-              disabled={isLoading}
-              rows={1}
-              className="min-h-11 max-h-24 flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50"
-              dir={isRtl ? "rtl" : "ltr"}
-            />
-            <button
-              type="button"
-              onClick={() => void sendMessage()}
-              disabled={!input.trim() || isLoading}
-              className="h-11 w-11 shrink-0 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
-              aria-label={chatText("Send message", "שלח הודעה")}
-            >
-              <Send className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </p>
           </div>
         </div>
       )}

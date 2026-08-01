@@ -3,12 +3,14 @@
  * Sends real-time Telegram alerts to Mek for key WIRO events
  */
 
-const BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ??
-  "8716271731:AAHDwfQR4mSiI4q4ulu7jqc1M5IzZvZhwHU";
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "8506295306";
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 async function sendTelegram(text: string): Promise<void> {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.warn("[EliNotify] Telegram credentials are not configured");
+    return;
+  }
   try {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",

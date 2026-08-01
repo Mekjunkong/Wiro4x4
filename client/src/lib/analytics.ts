@@ -14,6 +14,10 @@ export const CANONICAL_EVENTS = [
   "whatsapp_click",
   "booking_start",
   "booking_complete",
+  "chat_open",
+  "chat_message_sent",
+  "chat_reply_received",
+  "chat_handoff_shown",
   "scroll_depth",
 ] as const;
 
@@ -30,6 +34,9 @@ export interface AnalyticsEventProperties {
   utmMedium?: string;
   utmCampaign?: string;
   sourceCode?: string;
+  provider?: "levi-vps" | "fallback";
+  latencyBucket?: "under-3s" | "3-6s" | "6-12s" | "over-12s";
+  bookingStage?: "general" | "started" | "qualified";
 }
 
 const PAGE_MAX_LENGTH = 240;
@@ -111,6 +118,27 @@ function sanitizeProperties(
     isWhatsAppSourceCode(source.sourceCode)
   ) {
     safe.sourceCode = source.sourceCode;
+  }
+
+  if (source.provider === "levi-vps" || source.provider === "fallback") {
+    safe.provider = source.provider;
+  }
+
+  if (
+    source.latencyBucket === "under-3s" ||
+    source.latencyBucket === "3-6s" ||
+    source.latencyBucket === "6-12s" ||
+    source.latencyBucket === "over-12s"
+  ) {
+    safe.latencyBucket = source.latencyBucket;
+  }
+
+  if (
+    source.bookingStage === "general" ||
+    source.bookingStage === "started" ||
+    source.bookingStage === "qualified"
+  ) {
+    safe.bookingStage = source.bookingStage;
   }
 
   return safe;

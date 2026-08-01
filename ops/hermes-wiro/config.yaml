@@ -1,0 +1,13 @@
+model:
+  default: gpt-5.6-luna
+  provider: openai-codex
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  provider: none
+platform_toolsets:
+  api_server: []
+mcp_servers: {}
+platforms:
+  api_server:
+    enabled: true

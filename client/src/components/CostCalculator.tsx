@@ -34,6 +34,7 @@ import {
   detectShabbatNights,
   SERVICE_PRICES,
   MULTI_DAY_PACKAGES,
+  DEPOSIT_RATE,
   type TourSelection,
   type TripConfig,
   type PriceBreakdown,
@@ -828,7 +829,12 @@ export function CostCalculator() {
                 </span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
+                <span>
+                  {t(
+                    `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
+                    `מקדמה (${Math.round(DEPOSIT_RATE * 100)}%)`
+                  )}
+                </span>
                 <span>{formatCurrency(breakdown.depositAmount, currency)}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
