@@ -58,7 +58,7 @@ describe("Moshe booking qualification helpers", () => {
       language: "en",
       visitorId: `visitor<&"'>1234567890`,
       reply: `Happy to help <friend> & "confirm" 'soon'`,
-      whatsappUrl: `https://wa.me/972544715400?text=<book>&q="yes"'`,
+      whatsappUrl: `https://wa.me/66816401397?text=<book>&q="yes"'`,
     });
 
     expect(alert).toContain("🔥 Booking / quote intent");
@@ -73,7 +73,7 @@ describe("Moshe booking qualification helpers", () => {
       `Happy to help &lt;friend&gt; &amp; &quot;confirm&quot; &#39;soon&#39;`
     );
     expect(alert).toContain(
-      `href="https://wa.me/972544715400?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
+      `href="https://wa.me/66816401397?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
     );
   });
 
@@ -84,14 +84,14 @@ describe("Moshe booking qualification helpers", () => {
       language: "en",
       visitorId: "visitor-123456789",
       reply: "Yes, we can arrange kosher picnic meals.",
-      whatsappUrl: "https://wa.me/972544715400?text=kosher",
+      whatsappUrl: "https://wa.me/66816401397?text=kosher",
     });
 
     expect(alert).toContain("💬 New Customer Message - WIRO 4x4");
     expect(alert).toContain("🔑 Visitor: visitor-123456");
     expect(alert).toContain("Can you arrange kosher meals?");
     expect(alert).toContain("Yes, we can arrange kosher picnic meals.");
-    expect(alert).toContain("https://wa.me/972544715400?text=kosher");
+    expect(alert).toContain("https://wa.me/66816401397?text=kosher");
     expect(alert).not.toContain("<b>");
   });
 

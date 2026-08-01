@@ -96,7 +96,7 @@ While not kosher-certified, these vegetarian restaurants offer meals that align 
 ## Emergency Contacts
 
 - **Chabad Chiang Mai**: [Contact via WhatsApp]
-- **WIRO 4x4 Kosher Coordinator**: +972 54-471-5400
+- **WIRO 4x4 Kosher Coordinator**: +66 81 640 1397
 - **Bangkok Kosher Restaurants**: For longer trips
 
 ## Conclusion
@@ -173,7 +173,7 @@ With proper planning and the right resources, maintaining kashrut in Northern Th
 ## אנשי קשר חשובים
 
 - **חב"ד צ'יאנג מאי**: [שלחו הודעה בוואטסאפ]
-- **אחראי כשרות WIRO 4x4**: ‎+972-54-471-5400
+- **אחראי כשרות WIRO 4x4**: ‎+66-81-640-1397
 - **מסעדות כשרות בבנגקוק**: למי שמגיע דרך בנגקוק או מתכנן עצירה
 
 ## לסיכום
@@ -350,7 +350,7 @@ Drawing from years of experience guiding Israeli travelers through Thailand, Lao
 
 - **Israeli Embassy Bangkok**: +66 2 204 9200
 - **Tourist Police**: 1155 (Thailand)
-- **WIRO 4x4 Emergency**: +972 54-471-5400
+- **WIRO 4x4 Emergency**: +66 81 640 1397
 - **Chabad Chiang Mai**: [WhatsApp contact]
 
 ## Conclusion
@@ -516,7 +516,7 @@ Southeast Asia offers incredible experiences for Israeli travelers. With proper 
 
 - **שגרירות ישראל בבנגקוק**: +66-2-204-9200
 - **משטרת תיירות (תאילנד)**: 1155
-- **חירום WIRO 4x4**: +972-54-471-5400
+- **חירום WIRO 4x4**: +66-81-640-1397
 - **חב"ד צ'יאנג מאי**: [וואטסאפ]
 
 ## סיכום

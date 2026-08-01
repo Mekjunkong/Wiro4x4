@@ -79,7 +79,7 @@ WIRO 4x4 is the only kosher off-road tour company in Chiang Mai, offering privat
 
 ### Boilerplate (Company Description)
 
-WIRO 4x4 is the first kosher-focused off-road tour company in Chiang Mai, Thailand. Specializing in private 4x4 adventures through Northern Thailand's jungles, waterfalls, and hill tribes, WIRO 4x4 combines authentic off-road experiences with kosher meals, Hebrew-speaking guides, and Shabbat-friendly scheduling. From couples to large groups, every tour is tailored to the traveler. Contact us at wiro.adventures@gmail.com or via WhatsApp at +972544715400.
+WIRO 4x4 is the first kosher-focused off-road tour company in Chiang Mai, Thailand. Specializing in private 4x4 adventures through Northern Thailand's jungles, waterfalls, and hill tribes, WIRO 4x4 combines authentic off-road experiences with kosher meals, Hebrew-speaking guides, and Shabbat-friendly scheduling. From couples to large groups, every tour is tailored to the traveler. Contact us at wiro.adventures@gmail.com or via WhatsApp at +66816401397.
 
 ---
 
@@ -196,7 +196,7 @@ WIRO 4x4 is the first kosher-focused off-road tour company in Chiang Mai, Thaila
 | Hero image   | `/images/optimized/hero-waterfall.webp`        |
 | Color tokens | `client/src/index.css` → `:root` variables     |
 | Fonts        | Google Fonts: Playfair Display, Poppins, Heebo |
-| WhatsApp     | +972544715400                                  |
+| WhatsApp     | +66816401397                                   |
 | Email        | wiro.adventures@gmail.com                      |
 | Website      | wiro4x4.manus.space                            |
 | JSON-LD      | `client/index.html` → structured data          |

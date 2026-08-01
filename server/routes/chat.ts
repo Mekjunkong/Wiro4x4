@@ -35,7 +35,7 @@ About WIRO 4x4:
 - All tours are kosher-friendly with kosher meal options
 - Shabbat hotel options available
 - Self-driving 4x4 rental available ($100-150 USD)
-- WhatsApp: +972544715400
+- WhatsApp: +66816401397
 - Email: wiro.adventures@gmail.com
 - Booking: https://www.wiro4x4indochina.com/book
 
@@ -131,8 +131,8 @@ chatRouter.post("/message", async (req, res) => {
       // Fallback response if API fails
       reply =
         lang === "he"
-          ? "מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +972544715400"
-          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +972544715400";
+          ? "מצטער, אני לא זמין כרגע. אנא צרו קשר דרך וואטסאפ: +66816401397"
+          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +66816401397";
     }
 
     // 6. Save AI response

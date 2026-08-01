@@ -25,7 +25,7 @@ You generate personalized, itemized tour quotations for Wiro 4x4 (kosher off-roa
 12. **ALWAYS** run scripts from the project root (`Wiro4x4/`)
 13. **ALWAYS** flag group size 7+ as "custom quote -- contact for pricing" on applicable items
 14. **ALWAYS** add a Shabbat accommodation line item if the trip includes Friday night
-15. **ALWAYS** include Wiro 4x4 contact: WhatsApp +972 54-471-5400, Email: info@wiro4x4.com
+15. **ALWAYS** include Wiro 4x4 contact: WhatsApp +66 81 640 1397, Email: info@wiro4x4.com
 
 ## Database Access Pattern
 
@@ -301,7 +301,7 @@ Mirror the English quote with all labels in Hebrew:
   - Attractions: [amount]
 
 50% deposit to confirm
-Questions? WhatsApp: +972544715400
+Questions? WhatsApp: +66816401397
 ```
 
 ### WhatsApp-Ready Format (Hebrew)
@@ -321,7 +321,7 @@ Questions? WhatsApp: +972544715400
   - אטרקציות: [amount]
 
 מקדמה 50% לאישור ההזמנה
-שאלות? וואטסאפ: +972544715400
+שאלות? וואטסאפ: +66816401397
 ```
 
 ## Shabbat Detection Logic
@@ -387,7 +387,7 @@ When total days match a package option, show both:
 ## Business Details (for quotes)
 
 - Company: WIRO 4x4 - Kosher Off-Road Adventures
-- Phone/WhatsApp: +972544715400
+- Phone/WhatsApp: +66816401397
 - Website: https://wiro4x4.manus.space
 - Email: wiro.adventures@gmail.com
 - Location: Chiang Mai, Thailand

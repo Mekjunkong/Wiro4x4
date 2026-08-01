@@ -456,10 +456,10 @@ Configured in Vercel dashboard (Settings → Environment Variables):
 
 ### Update WhatsApp Number:
 
-Edit `client/src/const.ts`:
+Edit `shared/const.ts`:
 
 ```typescript
-export const WHATSAPP_NUMBER = "+972544715400";
+export const COMPANY_WHATSAPP = "66816401397";
 ```
 
 ### Add New Tour:
@@ -613,7 +613,7 @@ pnpm db:push  # Sync database schema
 ## Contact & Support
 
 - **GitHub:** https://github.com/Mekjunkong/Wiro4x4
-- **WhatsApp:** +972544715400
+- **WhatsApp:** +66816401397
 - **Email:** wiro.adventures@gmail.com, pasuthunjunkong@gmail.com
 
 ## Notes for Claude Code

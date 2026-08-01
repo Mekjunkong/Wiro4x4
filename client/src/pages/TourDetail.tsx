@@ -1192,7 +1192,7 @@ export default function TourDetail() {
         "@id": `${siteUrl}/#organization`,
         name: "WIRO 4x4 Indochina Adventure",
         url: siteUrl,
-        telephone: "+972544715400",
+        telephone: "+66816401397",
       },
     };
 

@@ -11,7 +11,7 @@
 
 ## ✅ Car Rental Page + SEO Fixes (2026-06-10)
 
-- [x] Fixed stale WhatsApp number (+66 92-989-4495 → +972 54-471-5400) in `client/index.html` JSON-LD, `server/seoMiddleware.ts`, GSC docs
+- [x] Fixed stale WhatsApp number (+66 92-989-4495 → +66 81 640 1397) in `client/index.html` JSON-LD, `server/seoMiddleware.ts`, GSC docs
 - [x] New `/car-rental` partner referral page (Chiang Mai Wheels) — bilingual, fleet cards, inquiry form via `lead.create` (source: `car-rental`), WhatsApp CTA
 - [x] Wired `/car-rental` into App routes, Header (Explore dropdown + mobile menu), Footer, `seoMiddleware.ts` STATIC_ROUTES, sitemap, `vercel.json` rewrites, `robots.txt`
 - [x] Added BreadcrumbList JSON-LD to tour/package/blog detail pages (rich breadcrumbs in Google results)
@@ -334,7 +334,7 @@
 
 ## WhatsApp Number Update
 
-- [x] Update WhatsApp number to +972544715400 in all components (updated 8 files)
+- [x] Update WhatsApp number to +66816401397 in all components (updated 8 files)
 - [x] Update WhatsApp floating button (FloatingActionButtons.tsx)
 - [x] Update booking form WhatsApp redirect (BookingForm.tsx)
 - [x] Update any other WhatsApp references (Footer, Hero, Tours, WhatsAppButton, Pricing, BlogPost)

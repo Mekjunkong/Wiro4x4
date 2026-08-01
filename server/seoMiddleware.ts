@@ -21,9 +21,9 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const BUSINESS_PHONE = "+972544715400";
+const BUSINESS_PHONE = "+66816401397";
 const BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-const BUSINESS_WHATSAPP = "https://wa.me/972544715400";
+const BUSINESS_WHATSAPP = "https://wa.me/66816401397";
 const BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 const BUSINESS_IMAGES = [

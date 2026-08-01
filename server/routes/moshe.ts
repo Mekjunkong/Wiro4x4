@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { checkRateLimit } from "../rateLimit";
 
-const WHATSAPP_NUMBER = "972544715400";
+const WHATSAPP_NUMBER = "66816401397";
 
 const MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan kosher off-road adventures.
 

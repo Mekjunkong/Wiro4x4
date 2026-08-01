@@ -74,7 +74,7 @@ ${tourList}${availNote}
 You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be honest about what works for Shabbat and kosher needs. This matters.
 
 ## Quick Facts
-- WhatsApp: +972 54-471-5400
+- WhatsApp: +66 81 640 1397
 - Website: wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -83,7 +83,7 @@ You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be 
 - If asked for specific group pricing / exact dates / custom routes → say you'll connect them to WhatsApp for a personal quote
 - Suggest the best tour for their situation (family? adventure? short time?)
 - Be concise: bullet points work great
-- For booking/payment: "Message us on WhatsApp +972 54-471-5400 for an instant quote"
+- For booking/payment: "Message us on WhatsApp +66 81 640 1397 for an instant quote"
 
 ## Language
 ${langInstructions[language]}`;
@@ -321,9 +321,9 @@ export function registerEliChatRoute(app: Express) {
     } catch (err) {
       console.error("[EliChat] Error:", err);
       const fallback: Record<ChatLanguage, string> = {
-        en: "I'm having a moment — please WhatsApp us at +972 54-471-5400 for immediate help!",
-        he: "משהו השתבש — אנא כתבו לנו בוואטסאפ: +972 54-471-5400",
-        th: "ขออภัยครับ กรุณาติดต่อ WhatsApp: +972 54-471-5400",
+        en: "I'm having a moment — please WhatsApp us at +66 81 640 1397 for immediate help!",
+        he: "משהו השתבש — אנא כתבו לנו בוואטסאפ: +66 81 640 1397",
+        th: "ขออภัยครับ กรุณาติดต่อ WhatsApp: +66 81 640 1397",
       };
       const lang = detectLanguage(
         (req.body as EliChatRequest)?.message ?? "",
