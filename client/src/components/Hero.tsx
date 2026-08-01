@@ -21,8 +21,8 @@ export function Hero() {
     <section className="relative min-h-[100svh] w-full overflow-hidden bg-primary">
       <CinematicHeroBackground
         alt={t(
-          "Travelers with WIRO 4x4 vehicle on jungle road in Chiang Mai",
-          "מטיילים עם רכב WIRO 4x4 בדרך ג'ונגל בצ'יאנג מאי"
+          "Quiet forest river in Northern Thailand",
+          "נהר שקט ביער בצפון תאילנד"
         )}
       />
 

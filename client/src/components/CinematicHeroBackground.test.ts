@@ -19,14 +19,15 @@ describe("CinematicHeroBackground", () => {
   it("renders one semantic base image and two decorative scene overlays", () => {
     const markup = renderToStaticMarkup(
       createElement(CinematicHeroBackground, {
-        alt: "Travelers with WIRO 4x4 in Chiang Mai",
+        alt: "Quiet forest river in Northern Thailand",
       })
     );
 
     expect(markup).toContain('data-testid="cinematic-hero-background"');
     expect(markup).toContain('data-cinematic-hero-layer="base"');
-    expect(markup).toContain('src="tourists_with_4x4"');
-    expect(markup).toContain('alt="Travelers with WIRO 4x4 in Chiang Mai"');
+    expect(markup).toContain('src="offroad_vehicle_forest_trail"');
+    expect(markup).toContain('alt="Quiet forest river in Northern Thailand"');
+    expect(markup).not.toContain("tourists_with_4x4");
 
     expect(markup).toContain('data-cinematic-hero-layer="landscape"');
     expect(markup).toContain('src="mountain_sunset_golden"');

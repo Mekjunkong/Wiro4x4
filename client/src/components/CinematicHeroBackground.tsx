@@ -7,9 +7,9 @@ type CinematicHeroBackgroundProps = {
 
 const HERO_SCENES = {
   base: {
-    src: "tourists_with_4x4",
-    width: 1200,
-    height: 800,
+    src: "offroad_vehicle_forest_trail",
+    width: 800,
+    height: 1066,
   },
   landscape: {
     src: "mountain_sunset_golden",
