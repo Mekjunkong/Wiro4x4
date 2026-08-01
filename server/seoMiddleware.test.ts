@@ -7,6 +7,7 @@ import {
   truncateDescription,
   injectMeta,
   renderStaticRouteHtml,
+  resolveDynamicMeta,
 } from "./seoMiddleware";
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
@@ -119,6 +120,44 @@ describe("injectNoindex", () => {
 });
 
 describe("SEO metadata helpers", () => {
+  it("keeps core package metadata indexable when the database is unavailable", async () => {
+    const meta = await resolveDynamicMeta("/packages/northern-thailand-3d2n", {
+      loadPackageBySlug: async () => {
+        throw new Error("database unavailable");
+      },
+    });
+
+    expect(meta).toMatchObject({
+      canonicalPath: "/packages/northern-thailand-3d2n",
+      title: expect.stringContaining("Northern Thailand Mountain Loop"),
+    });
+  });
+
+  it("keeps fallback blog posts indexable when the database is unavailable", async () => {
+    const meta = await resolveDynamicMeta("/blog/off-road-adventure-guide", {
+      loadBlogPostBySlug: async () => {
+        throw new Error("database unavailable");
+      },
+    });
+
+    expect(meta).toMatchObject({
+      canonicalPath: "/blog/off-road-adventure-guide",
+      title: "What to Expect on a 4x4 Off-Road Tour",
+      ogType: "article",
+    });
+    expect(meta?.description).toContain("private Chiang Mai 4x4 tour");
+  });
+
+  it("does not invent a blog page for an unknown slug during a database outage", async () => {
+    const meta = await resolveDynamicMeta("/blog/not-a-real-article", {
+      loadBlogPostBySlug: async () => {
+        throw new Error("database unavailable");
+      },
+    });
+
+    expect(meta).toBeNull();
+  });
+
   it("replaces one marked page JSON-LD script without duplicating baked organization data", () => {
     const shell = `<html lang="en"><head>
       <title>App</title>

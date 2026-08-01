@@ -14,15 +14,16 @@ import {
 import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
+import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const BUSINESS_PHONE = "+972544715400";
+const BUSINESS_PHONE = "+66816401397";
 const BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-const BUSINESS_WHATSAPP = "https://wa.me/972544715400";
+const BUSINESS_WHATSAPP = "https://wa.me/66816401397";
 const BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 const BUSINESS_IMAGES = [
@@ -600,8 +601,16 @@ export function renderStaticRouteHtml(
   return meta ? injectMeta(html, meta) : null;
 }
 
-/** Resolve meta for a dynamic route (tour or blog post) */
-async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
+interface DynamicMetaOptions {
+  loadPackageBySlug?: typeof getTourPackageBySlug;
+  loadBlogPostBySlug?: typeof getPublishedBlogPostBySlug;
+}
+
+/** Resolve meta for a dynamic route (tour, package, or blog post). */
+export async function resolveDynamicMeta(
+  urlPath: string,
+  options?: DynamicMetaOptions
+): Promise<PageMeta | null> {
   // /tours/:slug
   const tourMatch = urlPath.match(/^\/tours\/([^/]+)$/);
   if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[1])) {
@@ -660,7 +669,12 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   const packageMatch = urlPath.match(/^\/packages\/([^/]+)$/);
   if (packageMatch && isCanonicalTourOrPackageSlug(packageMatch[1])) {
     const slug = packageMatch[1];
-    const dbPkg = await getTourPackageBySlug(slug);
+    let dbPkg: Awaited<ReturnType<typeof getTourPackageBySlug>>;
+    try {
+      dbPkg = await (options?.loadPackageBySlug || getTourPackageBySlug)(slug);
+    } catch {
+      dbPkg = undefined; // DB error — use hardcoded fallback below
+    }
     const pkg = dbPkg?.isPublished === 1 ? dbPkg : undefined;
     const fallback = PACKAGE_META[slug];
     const name = pkg?.name || fallback?.name;
@@ -709,33 +723,44 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
   // /blog/:slug
   const blogMatch = urlPath.match(/^\/blog\/([^/]+)$/);
   if (blogMatch && isCanonicalBlogSlug(blogMatch[1])) {
-    const post = await getPublishedBlogPostBySlug(blogMatch[1]);
-    if (post) {
-      const publishedIso = post.publishedAt
-        ? new Date(post.publishedAt).toISOString()
+    const slug = blogMatch[1];
+    let dbPost: Awaited<ReturnType<typeof getPublishedBlogPostBySlug>>;
+    try {
+      dbPost = await (
+        options?.loadBlogPostBySlug || getPublishedBlogPostBySlug
+      )(slug);
+    } catch {
+      dbPost = undefined; // DB error — use hardcoded fallback below
+    }
+    const fallback = getFallbackBlogPost(slug);
+    const title = dbPost?.title || fallback?.title;
+    const excerpt = dbPost?.excerpt || fallback?.excerpt;
+    const content = dbPost?.content || "";
+    const coverImage = dbPost?.coverImage || fallback?.coverImage;
+    const publishedAt = dbPost?.publishedAt || fallback?.publishedAt;
+
+    if (title && (dbPost || fallback)) {
+      const publishedIso = publishedAt
+        ? new Date(publishedAt).toISOString()
         : undefined;
       return {
-        title: post.title,
+        title,
         description:
-          truncateDescription(post.excerpt || post.content || "") ||
-          `${post.title} — WIRO 4x4 blog.`,
-        ogImage: post.coverImage ? absoluteUrl(post.coverImage) : undefined,
+          truncateDescription(excerpt || content) ||
+          `${title} — WIRO 4x4 blog.`,
+        ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         ogType: "article",
-        canonicalPath: `/blog/${post.slug}`,
+        canonicalPath: `/blog/${slug}`,
         jsonLd: [
           {
             "@context": "https://schema.org",
             "@type": "BlogPosting",
-            headline: post.title,
-            description: truncateDescription(
-              post.excerpt || post.content || ""
-            ),
-            image: post.coverImage
-              ? absoluteUrl(post.coverImage)
-              : DEFAULT_OG_IMAGE,
+            headline: title,
+            description: truncateDescription(excerpt || content),
+            image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
             mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `${SITE_URL}/blog/${post.slug}`,
+              "@id": `${SITE_URL}/blog/${slug}`,
             },
             author: {
               "@type": "Person",
@@ -752,11 +777,11 @@ async function getDynamicMeta(urlPath: string): Promise<PageMeta | null> {
             },
             datePublished: publishedIso,
             dateModified: publishedIso,
-            url: `${SITE_URL}/blog/${post.slug}`,
+            url: `${SITE_URL}/blog/${slug}`,
           },
           breadcrumbJsonLd([
             { name: "Blog", path: "/blog" },
-            { name: post.title, path: `/blog/${post.slug}` },
+            { name: title, path: `/blog/${slug}` },
           ]),
         ],
       };
@@ -908,7 +933,7 @@ export function seoMiddleware(options?: { html?: string }) {
 
     let meta: PageMeta | null = null;
     try {
-      meta = await getDynamicMeta(urlPath);
+      meta = await resolveDynamicMeta(urlPath);
     } catch {
       // DB error — fall through to default HTML
     }

@@ -252,7 +252,7 @@ test.describe("Homepage Desktop Navigation", () => {
 
     await page
       .locator('[role="group"][aria-label="Quick actions"]')
-      .getByRole("button", { name: /ask moshe/i })
+      .getByRole("button", { name: /ask levi/i })
       .click();
     await expect(
       page.getByRole("log", { name: /chat conversation/i })

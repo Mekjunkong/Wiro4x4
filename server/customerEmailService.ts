@@ -87,7 +87,7 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
       `Email: ${COMPANY_EMAIL}`,
       `Website: ${COMPANY_WEBSITE}`,
       ``,
-      `Questions? WhatsApp us anytime: +972544715400`,
+      `Questions? WhatsApp us anytime: +66816401397`,
       ``,
       `We look forward to your adventure with us!`,
     ];
@@ -132,7 +132,7 @@ function generateCalendarEvent(booking: BookingDetails): string | null {
         },
         {
           action: "display",
-          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +972544715400`,
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66816401397`,
           trigger: { hours: 2, before: true },
         },
       ],

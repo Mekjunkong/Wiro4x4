@@ -39,7 +39,7 @@ Practical, warm, local, and reassuring. The voice should feel like a real Chiang
 - Real images beat decorative graphics.
 - Hebrew and English must both feel native enough for trust.
 - Use “kosher-friendly planning” language unless a specific certified claim is proven.
-- Moshe chat should reduce friction before WhatsApp, not compete with WhatsApp.
+- Levi chat should reduce friction before WhatsApp, not compete with WhatsApp.
 - The site should feel rugged, capable, and personal, with enough polish to reassure families.
 
 ## Anti-References

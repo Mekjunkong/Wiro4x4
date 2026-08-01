@@ -38,7 +38,7 @@ A traveler is checking the site on a phone in Chiang Mai or before a family trip
 
 - Header: compact, fixed, and conversion-oriented.
 - Hero: real full-bleed photo, direct promise, WhatsApp primary, tours secondary.
-- Moshe chat: appears after the user has moved beyond the first hero decision; it helps gather route, date, group size, pickup area, and kosher/Shabbat/Hebrew-guide needs.
+- Levi chat: appears after the user has moved beyond the first hero decision; it helps gather route, date, group size, pickup area, and kosher/Shabbat/Hebrew-guide needs.
 - Cookie consent: compact utility strip, never a modal-like interruption.
 - Tour/package cards: image-led with concise metadata and clear pricing notes.
 

@@ -11,7 +11,7 @@ import { registerChatApiRoute } from "../routes/chatApi";
 import { registerEliChatRoute } from "../routes/eliChatApi";
 import { registerEliRelayRoute } from "../routes/eliRelay";
 import { registerChatRoute } from "../routes/chat";
-import { registerMosheRoute } from "../routes/moshe";
+import { registerLeviRoute } from "../routes/levi";
 import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
 import { productionSecurityMiddleware } from "../productionSecurity";
@@ -81,8 +81,8 @@ export function createApp(options?: CreateAppOptions) {
   // AI Chat API with DB persistence
   registerChatRoute(app);
 
-  // Moshe human-handoff chat → Telegram notification
-  registerMosheRoute(app);
+  // Levi customer chat → isolated VPS replies and signed owner alerts
+  registerLeviRoute(app);
 
   // tRPC API
   app.use(

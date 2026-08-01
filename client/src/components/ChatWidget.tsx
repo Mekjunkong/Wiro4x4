@@ -12,7 +12,7 @@ import { WHATSAPP_NUMBER } from "@/const";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 interface ChatMessage {
-  role: "user" | "moshe";
+  role: "user" | "levi";
   content: string;
 }
 
@@ -54,8 +54,8 @@ export function ChatWidget() {
 
   const welcomeMessage =
     chatLanguage === "he"
-      ? "שלום, אני משה מ-WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
-      : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
+      ? "שלום, אני לוי, העוזר של WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
+      : "Hi, I'm Levi, the WIRO 4x4 assistant. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
 
   const bookingChecklist =
     chatLanguage === "he"
@@ -103,7 +103,7 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([{ role: "moshe", content: welcomeMessage }]);
+      setMessages([{ role: "levi", content: welcomeMessage }]);
     }
   }, [isOpen, messages.length, welcomeMessage]);
 
@@ -132,7 +132,7 @@ export function ChatWidget() {
           ...messages,
           { role: "user" as const, content: userMessage },
         ];
-        const res = await fetch("/api/moshe/message", {
+        const res = await fetch("/api/levi/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -151,10 +151,10 @@ export function ChatWidget() {
         const reply =
           data.reply ??
           (chatLanguage === "he"
-            ? "תודה! משה קיבל את ההודעה שלך ויחזור אליך בהקדם דרך WhatsApp."
-            : "Thanks! Moshe received your message and will reply via WhatsApp shortly.");
+            ? "תודה! לוי קיבל את ההודעה שלך. אפשר להמשיך דרך WhatsApp."
+            : "Thanks! Levi received your message. You can continue via WhatsApp.");
 
-        setMessages(prev => [...prev, { role: "moshe", content: reply }]);
+        setMessages(prev => [...prev, { role: "levi", content: reply }]);
         if (data.whatsappUrl) {
           try {
             setWhatsappMessage(
@@ -170,7 +170,7 @@ export function ChatWidget() {
           chatLanguage === "he"
             ? `מצטער, יש בעיה זמנית בצ'אט. אפשר ליצור קשר ישירות ב-WhatsApp: +${WHATSAPP_NUMBER}`
             : `Sorry, the chat is having a temporary issue. You can contact us directly on WhatsApp: +${WHATSAPP_NUMBER}`;
-        setMessages(prev => [...prev, { role: "moshe", content: fallback }]);
+        setMessages(prev => [...prev, { role: "levi", content: fallback }]);
         setNeedsHandoff(true);
       } finally {
         setIsLoading(false);
@@ -192,9 +192,9 @@ export function ChatWidget() {
     if (messages.length <= 1) {
       const newWelcome =
         newLang === "he"
-          ? "שלום, אני משה מ-WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
-          : "Hi, I'm Moshe from WIRO 4x4. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
-      setMessages([{ role: "moshe", content: newWelcome }]);
+          ? "שלום, אני לוי, העוזר של WIRO 4x4. שלחו לי מסלול, תאריך, מספר מטיילים ואזור איסוף, ואעזור לתכנן את הטיול לפני המעבר ל-WhatsApp."
+          : "Hi, I'm Levi, the WIRO 4x4 assistant. Send your route, date, group size, and pickup area, and I will help check the fit before WhatsApp.";
+      setMessages([{ role: "levi", content: newWelcome }]);
     }
   };
 
@@ -214,7 +214,7 @@ export function ChatWidget() {
               </span>
               <div className="min-w-0">
                 <p className="font-semibold leading-tight truncate">
-                  {chatText("Moshe, WIRO Guide", "משה, מדריך WIRO")}
+                  {chatText("Levi, WIRO Assistant", "לוי, העוזר של WIRO")}
                 </p>
                 <p className="text-xs text-primary-foreground/75">
                   {chatText(
@@ -278,7 +278,7 @@ export function ChatWidget() {
                       className="h-4 w-4 animate-spin text-secondary"
                       aria-hidden="true"
                     />
-                    {chatText("Moshe is checking...", "משה בודק...")}
+                    {chatText("Levi is checking...", "לוי בודק...")}
                   </span>
                 </li>
               )}

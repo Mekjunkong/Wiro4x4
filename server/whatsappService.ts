@@ -452,7 +452,7 @@ Tour prices:
 - Mae Wang: ฿3,500/person
 - Multi-day packages from ฿7,500
 
-Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +972 54-471-5400.`;
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 81 640 1397.`;
 
   let draft =
     "Hi! Thanks for reaching out. A team member will get back to you soon.";

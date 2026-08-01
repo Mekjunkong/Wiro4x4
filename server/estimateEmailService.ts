@@ -154,7 +154,7 @@ export async function sendEstimateEmail({
             </div>
 
             <div style="text-align: center;">
-              <a href="https://wa.me/972544715400?text=${encodeURIComponent(
+              <a href="https://wa.me/66816401397?text=${encodeURIComponent(
                 isHebrew
                   ? `שלום! קיבלתי את הערכת המחיר ל-${total.toLocaleString()} באט. אשמח לפרטים נוספים.`
                   : `Hello! I received the estimate for ฿${total.toLocaleString()}. I'd like more details.`
@@ -174,7 +174,7 @@ export async function sendEstimateEmail({
 
           <div class="footer">
             <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
-            <p>${isHebrew ? "📞 טלפון/וואטסאפ" : "📞 Phone/WhatsApp"}: +972 54-471-5400</p>
+            <p>${isHebrew ? "📞 טלפון/וואטסאפ" : "📞 Phone/WhatsApp"}: +66 81 640 1397</p>
             <p>${isHebrew ? "📧 אימייל" : "📧 Email"}: ${COMPANY_SENDER_EMAIL}</p>
             <p style="margin-top: 15px; font-size: 12px;">
               ${

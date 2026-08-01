@@ -5116,7 +5116,7 @@ Tour prices:
 - Mae Wang: \u0E3F3,500/person
 - Multi-day packages from \u0E3F7,500
 
-Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +972 54-471-5400.`;
+Reply in the SAME LANGUAGE as the customer. Keep the reply short (1-2 sentences), warm, and helpful. If the customer wants to book or asks about specific pricing/availability, politely invite them to WhatsApp: +66 81 640 1397.`;
   let draft =
     "Hi! Thanks for reaching out. A team member will get back to you soon.";
   try {
@@ -5691,9 +5691,9 @@ var COOKIE_NAME = "app_session_id";
 var ONE_YEAR_MS = 1e3 * 60 * 60 * 24 * 365;
 var UNAUTHED_ERR_MSG = "Please login (10001)";
 var NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
-var COMPANY_WHATSAPP = "972544715400";
+var COMPANY_WHATSAPP = "66816401397";
 var COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
-var COMPANY_PHONE = "+972 54-471-5400";
+var COMPANY_PHONE = "+66 81 640 1397";
 var COMPANY_EMAIL = "wiro.adventures@gmail.com";
 var COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 var COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
@@ -6974,7 +6974,7 @@ You are the helpful AI assistant for WIRO 4x4, a kosher off-road tour company ba
 - Can arrange kosher accommodation recommendations
 
 ## Contact:
-- WhatsApp: +972 54-471-5400
+- WhatsApp: +66 81 640 1397
 - Website: www.wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -6995,7 +6995,7 @@ When the user:
 - Requests custom tour arrangements
 - Mentions payment or deposits
 
-\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +972 54-471-5400" and the response should indicate escalation.
+\u2192 Provide helpful context but ALWAYS include: "For booking and personalized pricing, please contact us on WhatsApp: +66 81 640 1397" and the response should indicate escalation.
 `;
 var LANGUAGE_INSTRUCTIONS = {
   en: "Respond in English. Be friendly and professional.",
@@ -7162,9 +7162,9 @@ function registerChatApiRoute(app2) {
       } catch (apiError) {
         console.error("[Chat] API error:", apiError);
         const fallbackMessages = {
-          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +972 54-471-5400 for immediate assistance!",
-          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
-          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +972 54-471-5400 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
+          en: "I apologize, but I'm having trouble right now. Please contact us directly on WhatsApp at +66 81 640 1397 for immediate assistance!",
+          he: "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D9\u05E9 \u05DC\u05D9 \u05D1\u05E2\u05D9\u05D4 \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D9\u05E9\u05D9\u05E8\u05D5\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 81 640 1397 \u05DC\u05E7\u05D1\u05DC\u05EA \u05E2\u05D6\u05E8\u05D4 \u05DE\u05D9\u05D9\u05D3\u05D9\u05EA!",
+          th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E15\u0E2D\u0E19\u0E19\u0E35\u0E49\u0E21\u0E35\u0E1B\u0E31\u0E0D\u0E2B\u0E32\u0E17\u0E32\u0E07\u0E40\u0E17\u0E04\u0E19\u0E34\u0E04 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E40\u0E23\u0E32\u0E42\u0E14\u0E22\u0E15\u0E23\u0E07\u0E17\u0E32\u0E07 WhatsApp: +66 81 640 1397 \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E23\u0E31\u0E1A\u0E04\u0E27\u0E32\u0E21\u0E0A\u0E48\u0E27\u0E22\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E17\u0E31\u0E19\u0E17\u0E35!",
         };
         const chatResponse = {
           reply: fallbackMessages[detectedLanguage],
@@ -7227,7 +7227,7 @@ ${tourList}${availNote}
 You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be honest about what works for Shabbat and kosher needs. This matters.
 
 ## Quick Facts
-- WhatsApp: +972 54-471-5400
+- WhatsApp: +66 81 640 1397
 - Website: wiro4x4indochina.com
 - Email: wiro.adventures@gmail.com
 
@@ -7236,7 +7236,7 @@ You see a LOT of Israeli travelers. They trust you. Be warm, be helpful, and be 
 - If asked for specific group pricing / exact dates / custom routes \u2192 say you'll connect them to WhatsApp for a personal quote
 - Suggest the best tour for their situation (family? adventure? short time?)
 - Be concise: bullet points work great
-- For booking/payment: "Message us on WhatsApp +972 54-471-5400 for an instant quote"
+- For booking/payment: "Message us on WhatsApp +66 81 640 1397 for an instant quote"
 
 ## Language
 ${langInstructions[language]}`;
@@ -7432,9 +7432,9 @@ function registerEliChatRoute(app2) {
     } catch (err) {
       console.error("[EliChat] Error:", err);
       const fallback = {
-        en: "I'm having a moment \u2014 please WhatsApp us at +972 54-471-5400 for immediate help!",
-        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972 54-471-5400",
-        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +972 54-471-5400",
+        en: "I'm having a moment \u2014 please WhatsApp us at +66 81 640 1397 for immediate help!",
+        he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9 \u2014 \u05D0\u05E0\u05D0 \u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66 81 640 1397",
+        th: "\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E04\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D WhatsApp: +66 81 640 1397",
       };
       const lang = detectLanguage4(req.body?.message ?? "", req.body?.language);
       return res.json({
@@ -7630,7 +7630,7 @@ About WIRO 4x4:
 - All tours are kosher-friendly with kosher meal options
 - Shabbat hotel options available
 - Self-driving 4x4 rental available ($100-150 USD)
-- WhatsApp: +972544715400
+- WhatsApp: +66816401397
 - Email: wiro.adventures@gmail.com
 - Booking: https://www.wiro4x4indochina.com/book
 
@@ -7699,8 +7699,8 @@ chatRouter.post("/message", async (req, res) => {
       console.error("[Chat] Claude API error:", apiError);
       reply =
         lang === "he"
-          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +972544715400"
-          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +972544715400";
+          ? "\u05DE\u05E6\u05D8\u05E2\u05E8, \u05D0\u05E0\u05D9 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05DF \u05DB\u05E8\u05D2\u05E2. \u05D0\u05E0\u05D0 \u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05D3\u05E8\u05DA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4: +66816401397"
+          : "Sorry, I am unavailable right now. Please contact us via WhatsApp: +66816401397";
     }
     await addChatMessage({
       sessionId,
@@ -7733,7 +7733,7 @@ function registerChatRoute(app2) {
 // server/routes/moshe.ts
 import Anthropic3 from "@anthropic-ai/sdk";
 import OpenAI3 from "openai";
-var WHATSAPP_NUMBER = "972544715400";
+var WHATSAPP_NUMBER = "66816401397";
 var MOSHE_SYSTEM_PROMPT = `You are Moshe, a warm, knowledgeable tour guide at WIRO 4x4 in Chiang Mai, Thailand. You genuinely help Israeli and English-speaking travelers plan kosher off-road adventures.
 
 ## About WIRO 4x4
@@ -8515,7 +8515,7 @@ function generateCalendarEvent(booking) {
       `Email: ${COMPANY_EMAIL}`,
       `Website: ${COMPANY_WEBSITE}`,
       ``,
-      `Questions? WhatsApp us anytime: +972544715400`,
+      `Questions? WhatsApp us anytime: +66816401397`,
       ``,
       `We look forward to your adventure with us!`,
     ];
@@ -8560,7 +8560,7 @@ function generateCalendarEvent(booking) {
         },
         {
           action: "display",
-          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +972544715400`,
+          description: `Your ${booking.tourType} with WIRO 4x4 starts in 2 hours! Pickup at: ${booking.pickupLocation || "your hotel lobby"}. WhatsApp: +66816401397`,
           trigger: { hours: 2, before: true },
         },
       ],
@@ -14585,7 +14585,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
             </div>
 
             <div style="text-align: center;">
-              <a href="https://wa.me/972544715400?text=${encodeURIComponent(
+              <a href="https://wa.me/66816401397?text=${encodeURIComponent(
                 isHebrew
                   ? `\u05E9\u05DC\u05D5\u05DD! \u05E7\u05D9\u05D1\u05DC\u05EA\u05D9 \u05D0\u05EA \u05D4\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05D9\u05E8 \u05DC-${total.toLocaleString()} \u05D1\u05D0\u05D8. \u05D0\u05E9\u05DE\u05D7 \u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.`
                   : `Hello! I received the estimate for \u0E3F${total.toLocaleString()}. I'd like more details.`
@@ -14601,7 +14601,7 @@ async function sendEstimateEmail({ toEmail, estimateData }) {
 
           <div class="footer">
             <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
-            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +972 54-471-5400</p>
+            <p>${isHebrew ? "\u{1F4DE} \u05D8\u05DC\u05E4\u05D5\u05DF/\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4" : "\u{1F4DE} Phone/WhatsApp"}: +66 81 640 1397</p>
             <p>${isHebrew ? "\u{1F4E7} \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC" : "\u{1F4E7} Email"}: ${COMPANY_SENDER_EMAIL}</p>
             <p style="margin-top: 15px; font-size: 12px;">
               ${isHebrew ? "\u05E6'\u05D9\u05D0\u05E0\u05D2 \u05DE\u05D0\u05D9, \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 | www.wiro4x4indochina.com" : "Chiang Mai, Thailand | www.wiro4x4indochina.com"}
@@ -16671,9 +16671,9 @@ var DEFAULT_OG_IMAGE = `${SITE_URL3}/images/optimized/single_cascade_waterfall-l
 var BRAND_LOGO = `${SITE_URL3}/images/icon-512.png`;
 var BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 var BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-var BUSINESS_PHONE = "+972544715400";
+var BUSINESS_PHONE = "+66816401397";
 var BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-var BUSINESS_WHATSAPP = "https://wa.me/972544715400";
+var BUSINESS_WHATSAPP = "https://wa.me/66816401397";
 var BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 var BUSINESS_IMAGES = [
@@ -17522,7 +17522,7 @@ var public_default = `<!doctype html>
             "email": "wiro.adventures@gmail.com",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+972544715400",
+              "telephone": "+66816401397",
               "contactType": "reservations",
               "availableLanguage": ["English", "Hebrew", "Thai"]
             },
@@ -17569,11 +17569,11 @@ var public_default = `<!doctype html>
               },
               {
                 "@type": "CommunicateAction",
-                "target": "https://wa.me/972544715400",
+                "target": "https://wa.me/66816401397",
                 "name": "Ask WIRO 4x4 on WhatsApp"
               }
             ],
-            "sameAs": ["https://wa.me/972544715400"]
+            "sameAs": ["https://wa.me/66816401397"]
           },
           {
             "@type": "Service",

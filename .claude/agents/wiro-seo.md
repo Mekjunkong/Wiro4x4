@@ -24,7 +24,7 @@ You optimize search visibility for a kosher off-road tour company in Chiang Mai,
 - **Target audience**: Israeli travelers, kosher-observant tourists
 - **Languages**: English (primary), Hebrew (secondary)
 - **Domain**: wiro-4x4.manus.space (Manus platform)
-- **WhatsApp**: +972544715400
+- **WhatsApp**: +66816401397
 - **Email**: wiro.adventures@gmail.com, info@wiro4x4.com
 - **Services**: 4x4 off-road tours, kosher meals, Shabbat-friendly tours, private tours
 

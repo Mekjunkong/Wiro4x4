@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { generateSitemap } from "./routes/sitemap";
+import { generateSitemap, loadSitemapSources } from "./routes/sitemap";
 
 describe("sitemap", () => {
   const commercialPairs = [
@@ -34,6 +34,37 @@ describe("sitemap", () => {
     expect(xml).toContain("https://www.wiro4x4indochina.com/contact");
   });
 
+  it("keeps core tours and fallback articles in the sitemap without the database", () => {
+    const xml = generateSitemap([], [], [], "https://www.wiro4x4indochina.com");
+    const fallbackPaths = [
+      "/tours/doi-inthanon-roof-of-thailand",
+      "/tours/mae-kampong-hidden-village",
+      "/tours/maerim-sticky-waterfalls",
+      "/tours/doi-suthep-pui-beyond-temple",
+      "/tours/mae-wang-jungle-wilderness",
+      "/tours/samoeng-loop-mountain-circuit",
+      "/blog/kosher-dining-guide",
+      "/blog/israeli-traveler-tips",
+      "/blog/cultural-etiquette",
+      "/blog/off-road-adventure-guide",
+      "/blog/doi-inthanon-experience",
+      "/blog/elephant-sanctuary-guide",
+    ];
+
+    for (const path of fallbackPaths) {
+      const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      expect(
+        xml.match(
+          new RegExp(
+            `<loc>https://www\\.wiro4x4indochina\\.com${escapedPath}</loc>`,
+            "g"
+          )
+        ),
+        path
+      ).toHaveLength(1);
+    }
+  });
+
   it("includes tour, package, and blog slugs", () => {
     const tours = [{ slug: "doi-inthanon", updatedAt: "2026-05-10" }];
     const blogs = [{ slug: "kosher-guide", publishedAt: "2026-05-11" }];
@@ -47,6 +78,40 @@ describe("sitemap", () => {
     expect(xml).toContain("/tours/doi-inthanon");
     expect(xml).toContain("/packages/weekend-adventure");
     expect(xml).toContain("/blog/kosher-guide");
+  });
+
+  it("keeps the static sitemap available when dynamic content sources fail", async () => {
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const sources = await loadSitemapSources({
+      tours: async () => {
+        throw new Error("tour database unavailable");
+      },
+      blogs: async () => [{ slug: "kosher-guide", publishedAt: "2026-05-11" }],
+      packages: async () => {
+        throw new Error("package database unavailable");
+      },
+    });
+    const xml = generateSitemap(
+      sources.tours,
+      sources.blogs,
+      sources.packages,
+      "https://www.wiro4x4indochina.com"
+    );
+
+    expect(xml).toContain("<loc>https://www.wiro4x4indochina.com/</loc>");
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/blog/kosher-guide</loc>"
+    );
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/tours/doi-inthanon-roof-of-thailand</loc>"
+    );
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/blog/off-road-adventure-guide</loc>"
+    );
+    expect(warning).toHaveBeenCalledTimes(2);
+
+    warning.mockRestore();
   });
 
   it("uses accurate lastmod values and omits dynamic lastmod when no date is available", () => {
@@ -78,6 +143,41 @@ describe("sitemap", () => {
       /https:\/\/www\.wiro4x4indochina\.com\/packages\/northern-thailand-3d2n/g
     );
     expect(occurrences).toHaveLength(3);
+  });
+
+  it("does not duplicate fallback URLs when the same content comes from the database", () => {
+    const xml = generateSitemap(
+      [
+        {
+          slug: "doi-inthanon-roof-of-thailand",
+          updatedAt: "2026-07-31",
+        },
+      ],
+      [
+        {
+          slug: "off-road-adventure-guide",
+          publishedAt: "2026-07-31",
+        },
+      ],
+      [],
+      "https://www.wiro4x4indochina.com"
+    );
+
+    for (const path of [
+      "/tours/doi-inthanon-roof-of-thailand",
+      "/blog/off-road-adventure-guide",
+    ]) {
+      const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      expect(
+        xml.match(
+          new RegExp(
+            `<loc>https://www\\.wiro4x4indochina\\.com${escapedPath}</loc>`,
+            "g"
+          )
+        ),
+        path
+      ).toHaveLength(1);
+    }
   });
 
   it("includes every commercial canonical once with reciprocal language alternates", () => {
