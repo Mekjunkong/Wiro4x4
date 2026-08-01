@@ -1,14 +1,20 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  buildLeviChatRequest,
   buildLeviLeadAlert,
   buildLeviWebhookRequest,
-  buildTelegramLeadAlert,
   buildWhatsAppUrl,
   getBookingFields,
   getMissingBookingFields,
-} from "./routes/moshe";
+  requestLeviReply,
+} from "./routes/levi";
 
-describe("Moshe booking qualification helpers", () => {
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
+
+describe("Levi booking qualification helpers", () => {
   it("asks for every required booking field on vague English booking intent", () => {
     const missing = getMissingBookingFields("I want to book", "en");
 
@@ -51,32 +57,6 @@ describe("Moshe booking qualification helpers", () => {
     );
   });
 
-  it("builds an escaped Telegram alert with missing fields and exact visitor reply", () => {
-    const alert = buildTelegramLeadAlert({
-      latestMessage: `I want to book <Doi> & "quote" 'now'`,
-      bookingContext: `I want to book <Doi> & "quote" 'now'`,
-      language: "en",
-      visitorId: `visitor<&"'>1234567890`,
-      reply: `Happy to help <friend> & "confirm" 'soon'`,
-      whatsappUrl: `https://wa.me/66816401397?text=<book>&q="yes"'`,
-    });
-
-    expect(alert).toContain("🔥 Booking / quote intent");
-    expect(alert).toContain("🌐 Language: 🇬🇧 English");
-    expect(alert).toContain("🔑 Visitor: visitor&lt;&amp;&quot;&#39;&gt;1");
-    expect(alert).toContain(
-      `I want to book &lt;Doi&gt; &amp; &quot;quote&quot; &#39;now&#39;`
-    );
-    expect(alert).toContain("📋 <b>Missing booking details:</b>");
-    expect(alert).toContain("preferred date/date range");
-    expect(alert).toContain(
-      `Happy to help &lt;friend&gt; &amp; &quot;confirm&quot; &#39;soon&#39;`
-    );
-    expect(alert).toContain(
-      `href="https://wa.me/66816401397?text=&lt;book&gt;&amp;q=&quot;yes&quot;&#39;"`
-    );
-  });
-
   it("builds the plain-text alert that Levi delivers from the VPS", () => {
     const alert = buildLeviLeadAlert({
       latestMessage: "Can you arrange kosher meals?",
@@ -111,5 +91,50 @@ describe("Moshe booking qualification helpers", () => {
       signature:
         "4fa681ec03d5f201767d2cae5136b256d5912bc54c75b74d52c7560998d2a59f",
     });
+  });
+
+  it("builds a Levi-only VPS request with the isolated model", () => {
+    const request = buildLeviChatRequest([
+      { role: "user", content: "Can you arrange kosher meals?" },
+    ]);
+
+    expect(request.model).toBe("levi");
+    expect(request.messages[0]).toMatchObject({
+      role: "system",
+      content: expect.stringContaining("You are Levi"),
+    });
+    expect(request.messages[0]?.content).not.toContain("You are Moshe");
+    expect(request.messages.at(-1)).toEqual({
+      role: "user",
+      content: "Can you arrange kosher meals?",
+    });
+  });
+
+  it("uses only the authenticated Levi VPS reply endpoint", async () => {
+    vi.stubEnv("LEVI_CHAT_URL", "https://levi.example/v1/chat/completions");
+    vi.stubEnv("LEVI_API_KEY", "levi-test-secret");
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: "Levi reply" } }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      )
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      requestLeviReply([{ role: "user", content: "Hello" }])
+    ).resolves.toBe("Levi reply");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://levi.example/v1/chat/completions",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          Authorization: "Bearer levi-test-secret",
+        }),
+      })
+    );
   });
 });
