@@ -52,7 +52,7 @@ test.describe("Homepage", () => {
     ).toBeVisible();
   });
 
-  test("uses the static people-free forest frame when reduced motion is requested", async ({
+  test("uses the static car-only frame when reduced motion is requested", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -99,7 +99,7 @@ test.describe("Homepage", () => {
     const heroSection = page.locator("main section").first();
     const hero = heroSection.getByTestId("cinematic-hero-background");
     await expect(
-      hero.locator('img[alt="Quiet forest river in Northern Thailand"]')
+      hero.locator('img[alt="WIRO 4x4 vehicle on a jungle road in Chiang Mai"]')
     ).toBeVisible();
     await expect(
       heroSection.getByRole("link", { name: /check availability on whatsapp/i })
