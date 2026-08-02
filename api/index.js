@@ -7497,7 +7497,9 @@ function buildBookingStateSummary(state, language) {
   ].join("\n");
 }
 function shouldSendOwnerAlert(current, previous) {
+  if (!previous) return "new";
   if (current.qualified && !previous?.qualified) return "qualified";
+  if (current.completionPercent > previous.completionPercent) return "progress";
   return null;
 }
 

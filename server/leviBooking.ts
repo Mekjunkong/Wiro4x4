@@ -314,9 +314,11 @@ export function shouldSendOwnerAlert(
   current: LeviBookingState,
   previous: LeviBookingState | null
 ): "new" | "progress" | "qualified" | null {
-  // WhatsApp stays available throughout the conversation, but owner Telegram
-  // alerts are reserved for completed booking profiles. This avoids turning a
-  // simple price question into an interrupting lead notification.
+  // The owner needs to see the first customer message even when it is only a
+  // simple question. Later messages are sent again only when they add booking
+  // detail or complete the profile, keeping the alert stream useful.
+  if (!previous) return "new";
   if (current.qualified && !previous?.qualified) return "qualified";
+  if (current.completionPercent > previous.completionPercent) return "progress";
   return null;
 }

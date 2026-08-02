@@ -151,7 +151,7 @@ describe("Levi booking qualification helpers", () => {
     expect(state.qualified).toBe(false);
   });
 
-  it("notifies the owner only when a booking profile becomes qualified", () => {
+  it("notifies the owner about a new customer message and meaningful booking progress", () => {
     const priceQuestion = buildBookingState("How much is a day tour?", "en");
     const partialBooking = buildBookingState(
       "Doi Inthanon tomorrow for 2 adults, pickup at a Nimman hotel",
@@ -162,8 +162,10 @@ describe("Levi booking qualification helpers", () => {
       "en"
     );
 
-    expect(shouldSendOwnerAlert(priceQuestion, null)).toBeNull();
-    expect(shouldSendOwnerAlert(partialBooking, priceQuestion)).toBeNull();
+    expect(shouldSendOwnerAlert(priceQuestion, null)).toBe("new");
+    expect(shouldSendOwnerAlert(partialBooking, priceQuestion)).toBe(
+      "progress"
+    );
     expect(shouldSendOwnerAlert(qualifiedBooking, partialBooking)).toBe(
       "qualified"
     );
