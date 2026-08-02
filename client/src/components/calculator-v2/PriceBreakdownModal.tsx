@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
+  DEPOSIT_RATE,
   formatUSD,
   type PriceBreakdown,
   type PriceLineItem,
@@ -218,7 +219,12 @@ export function PriceBreakdownModal({
               </CurrencyTooltip>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
+              <span>
+                {t(
+                  `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
+                  `מקדמה (${Math.round(DEPOSIT_RATE * 100)}%)`
+                )}
+              </span>
               <span>{formatUSD(breakdown.depositAmount)}</span>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">

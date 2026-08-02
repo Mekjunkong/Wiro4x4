@@ -15,6 +15,13 @@ import { getTourBySlug } from "./db/tours";
 import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
 import { getFallbackBlogPost } from "../shared/seoFallbackContent";
+import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
+
+function catalogPrice(slug: string): number {
+  const tour = getFallbackTourBySlug(slug);
+  if (!tour) throw new Error(`Missing WIRO catalog entry: ${slug}`);
+  return tour.price;
+}
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
@@ -356,42 +363,42 @@ const TOUR_META: Record<
     description:
       "Thailand's highest peak, cloud forest trails, and a hidden Karen village coffee farm. Private 4x4 day trip from Chiang Mai with kosher and Shabbat-friendly options.",
     coverImage: "/images/optimized/mountain_sunset-lg.jpg",
-    price: 5000,
+    price: catalogPrice("doi-inthanon-roof-of-thailand"),
   },
   "mae-kampong-hidden-village": {
     name: "Mae Kampong — Hidden Mountain Village",
     description:
       "A 700-year-old eco-village, wild gibbon spotting, ancient tea ceremony, and panoramic viewpoint hike. Private 4x4 day trip from Chiang Mai.",
     coverImage: "/images/optimized/mountain_village_view-lg.jpg",
-    price: 3500,
+    price: catalogPrice("mae-kampong-hidden-village"),
   },
   "maerim-sticky-waterfalls": {
     name: "Maerim & Sticky Waterfalls",
     description:
       "Climb UP a waterfall barefoot, walk a sky-high canopy walkway, and explore upper waterfall tiers no one reaches. Private 4x4 day trip from Chiang Mai.",
     coverImage: "/images/optimized/sticky_waterfalls-lg.jpg",
-    price: 4500,
+    price: catalogPrice("maerim-sticky-waterfalls"),
   },
   "doi-suthep-pui-beyond-temple": {
     name: "Doi Suthep-Pui — Beyond the Temple",
     description:
       "Hike the ancient Monk's Trail, then keep going where tourists turn back — Hmong village, hidden coffee farm, secluded waterfall. Private 4x4 day trip.",
     coverImage: "/images/optimized/doi_suthep_golden_chedi-lg.jpg",
-    price: 3500,
+    price: catalogPrice("doi-suthep-pui-beyond-temple"),
   },
   "mae-wang-jungle-wilderness": {
     name: "Mae Wang — Jungle & River Wilderness",
     description:
       "Real 4x4 off-road through jungle, Pha Chor canyon, ethical elephants, bamboo rafting, and hidden waterfalls. Private day trip from Chiang Mai.",
     coverImage: "/images/optimized/elephant_encounter-lg.jpg",
-    price: 5500,
+    price: catalogPrice("mae-wang-jungle-wilderness"),
   },
   "samoeng-loop-mountain-circuit": {
     name: "Samoeng Loop — The Mountain Circuit",
     description:
       "100km mountain loop — rare wooden Lanna temple, hilltop farm above the clouds, Hmong village, and lakeside sunset. Private 4x4 day trip from Chiang Mai.",
     coverImage: "/images/optimized/chiang_mai_valley-lg.jpg",
-    price: 5000,
+    price: catalogPrice("samoeng-loop-mountain-circuit"),
   },
 };
 

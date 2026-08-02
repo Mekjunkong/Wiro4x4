@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MULTI_DAY_PACKAGES, formatUSD } from "@shared/pricing";
+import { WIRO_TOUR_CATALOG } from "@shared/wiroTourCatalog";
 import { Check, Package, MessageCircle, BadgePercent } from "lucide-react";
 
 interface Tour {
@@ -14,47 +15,12 @@ interface Tour {
   slug: string;
 }
 
-const FALLBACK_TOURS: Tour[] = [
-  {
-    name: "Doi Inthanon",
-    nameHe: "\u05D3\u05D5\u05D9 \u05D0\u05D9\u05E0\u05EA\u05E0\u05D5\u05DF",
-    price: 4200,
-    slug: "doi-inthanon-roof-of-thailand",
-  },
-  {
-    name: "Mae Kampong",
-    nameHe: "\u05DE\u05D0\u05D4 \u05E7\u05DE\u05E4\u05D5\u05E0\u05D2",
-    price: 3500,
-    slug: "mae-kampong-hidden-village",
-  },
-  {
-    name: "Sticky Waterfalls",
-    nameHe:
-      "\u05DE\u05E4\u05DC\u05D9\u05DD \u05D3\u05D1\u05D9\u05E7\u05D9\u05DD",
-    price: 3800,
-    slug: "maerim-sticky-waterfalls",
-  },
-  {
-    name: "Doi Suthep & Pui",
-    nameHe: "\u05D3\u05D5\u05D9 \u05E1\u05D5\u05D8\u05E4",
-    price: 3200,
-    slug: "doi-suthep-pui-beyond-temple",
-  },
-  {
-    name: "Mae Wang Jungle",
-    nameHe:
-      "\u05D2'\u05D5\u05E0\u05D2\u05DC \u05DE\u05D0\u05D4 \u05D5\u05D5\u05D0\u05E0\u05D2",
-    price: 4800,
-    slug: "mae-wang-jungle-wilderness",
-  },
-  {
-    name: "Samoeng Loop",
-    nameHe:
-      "\u05DC\u05D5\u05DC\u05D0\u05EA \u05E1\u05DE\u05D5\u05D0\u05E0\u05D2",
-    price: 3500,
-    slug: "samoeng-loop-mountain-circuit",
-  },
-];
+const FALLBACK_TOURS: Tour[] = WIRO_TOUR_CATALOG.map(tour => ({
+  name: tour.name,
+  nameHe: tour.nameHe,
+  price: tour.price,
+  slug: tour.slug,
+}));
 
 export function PackageBuilder() {
   const { t, language } = useLanguage();

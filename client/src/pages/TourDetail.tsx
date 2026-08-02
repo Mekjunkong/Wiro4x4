@@ -32,6 +32,14 @@ import { TourSocialProof } from "@/components/TourSocialProof";
 import { TourFAQ } from "@/components/TourFAQ";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
+import { DEPOSIT_RATE } from "@shared/pricing";
+import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
+
+function catalogPrice(slug: string): number {
+  const tour = getFallbackTourBySlug(slug);
+  if (!tour) throw new Error(`Missing WIRO catalog entry: ${slug}`);
+  return tour.price;
+}
 
 /** Hardcoded fallback data matching Tours.tsx + Pricing.tsx */
 const FALLBACK_TOURS: Record<
@@ -72,7 +80,7 @@ const FALLBACK_TOURS: Record<
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "moderate",
-    price: 5000,
+    price: catalogPrice("doi-inthanon-roof-of-thailand"),
     imageUrl: "/images/optimized/mountain_sunset.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -180,7 +188,7 @@ const FALLBACK_TOURS: Record<
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy",
-    price: 3500,
+    price: catalogPrice("mae-kampong-hidden-village"),
     imageUrl: "/images/optimized/mountain_village_view.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -295,7 +303,7 @@ const FALLBACK_TOURS: Record<
     duration: "7-8 hours",
     durationHe: "7-8 שעות",
     difficulty: "easy",
-    price: 4500,
+    price: catalogPrice("maerim-sticky-waterfalls"),
     imageUrl: "/images/optimized/sticky_waterfalls.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -410,7 +418,7 @@ const FALLBACK_TOURS: Record<
     duration: "5-7 hours",
     durationHe: "5-7 שעות",
     difficulty: "easy",
-    price: 3500,
+    price: catalogPrice("doi-suthep-pui-beyond-temple"),
     imageUrl: "/images/optimized/doi_suthep_golden_chedi.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -518,7 +526,7 @@ const FALLBACK_TOURS: Record<
     duration: "8-9 hours",
     durationHe: "8-9 שעות",
     difficulty: "challenging",
-    price: 5500,
+    price: catalogPrice("mae-wang-jungle-wilderness"),
     imageUrl: "/images/optimized/elephant_encounter.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -645,7 +653,7 @@ const FALLBACK_TOURS: Record<
     duration: "8-10 hours",
     durationHe: "8-10 שעות",
     difficulty: "moderate",
-    price: 5000,
+    price: catalogPrice("samoeng-loop-mountain-circuit"),
     imageUrl: "/images/optimized/chiang_mai_valley.jpg",
     isKosher: 1,
     isPrivate: 1,
@@ -1830,8 +1838,8 @@ export default function TourDetail() {
                   <div className="pt-3 border-t text-xs text-muted-foreground space-y-1.5">
                     <p>
                       {t(
-                        "50% deposit to confirm. Balance on tour day.",
-                        "מקדמה 50% לאישור. יתרה ביום הטיול."
+                        `${Math.round(DEPOSIT_RATE * 100)}% deposit to confirm. Balance on tour day.`,
+                        `מקדמה ${Math.round(DEPOSIT_RATE * 100)}% לאישור. יתרה ביום הטיול.`
                       )}
                     </p>
                     <p>

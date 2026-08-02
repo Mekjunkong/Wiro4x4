@@ -15,6 +15,7 @@ export interface AvailabilityResult {
   tourName: string;
   available: number; // slots remaining
   isBlocked: boolean;
+  status: "confirmed" | "unknown";
 }
 
 /**
@@ -51,13 +52,15 @@ export async function checkAvailability(
 
       const record = records[0];
       if (!record) {
-        // No record = default available (10 slots)
+        // No record means unknown. It must never be presented to a customer as
+        // confirmed availability.
         results.push({
           date: dateStr,
           tourId,
           tourName: (tour.name as string) ?? "Unknown Tour",
-          available: 10,
+          available: 0,
           isBlocked: false,
+          status: "unknown",
         });
       } else if (record.isBlocked) {
         results.push({
@@ -66,6 +69,7 @@ export async function checkAvailability(
           tourName: (tour.name as string) ?? "Unknown Tour",
           available: 0,
           isBlocked: true,
+          status: "confirmed",
         });
       } else {
         results.push({
@@ -74,6 +78,7 @@ export async function checkAvailability(
           tourName: (tour.name as string) ?? "Unknown Tour",
           available: record.maxSlots - record.bookedSlots,
           isBlocked: false,
+          status: "confirmed",
         });
       }
     }
@@ -134,7 +139,7 @@ export function extractDateFromMessage(message: string): string | null {
   if (monthNameMatch) {
     const day = parseInt(monthNameMatch[1]);
     const monthNum = thaiMonths[monthNameMatch[2].toLowerCase()];
-    const year = new Date().getFullYear();
+    const year = inferUpcomingYear(monthNum, day);
     return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
@@ -144,9 +149,20 @@ export function extractDateFromMessage(message: string): string | null {
   if (nameDateMatch) {
     const monthNum = thaiMonths[nameDateMatch[1].toLowerCase()];
     const day = parseInt(nameDateMatch[2]);
-    const year = new Date().getFullYear();
+    const year = inferUpcomingYear(monthNum, day);
     return `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
   return null;
+}
+
+function inferUpcomingYear(month: number, day: number, now = new Date()) {
+  const thisYear = now.getFullYear();
+  const candidate = new Date(thisYear, month - 1, day);
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  return candidate < startOfToday ? thisYear + 1 : thisYear;
 }

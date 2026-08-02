@@ -7,10 +7,6 @@ import { registerSitemapRoute } from "../routes/sitemap";
 import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
 import { registerPostTourReviewClickRoute } from "../routes/postTourReviewClick";
 import { registerAgentApiRoutes } from "../routes/agentApi";
-import { registerChatApiRoute } from "../routes/chatApi";
-import { registerEliChatRoute } from "../routes/eliChatApi";
-import { registerEliRelayRoute } from "../routes/eliRelay";
-import { registerChatRoute } from "../routes/chat";
 import { registerLeviRoute } from "../routes/levi";
 import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
@@ -72,14 +68,7 @@ export function createApp(options?: CreateAppOptions) {
   registerPostTourReviewClickRoute(app);
   registerAgentApiRoutes(app);
 
-  // AI Chat API (legacy endpoint)
-  registerChatApiRoute(app);
-  registerEliChatRoute(app);
-  registerEliRelayRoute(app);
   registerN8nRoutes(app);
-
-  // AI Chat API with DB persistence
-  registerChatRoute(app);
 
   // Levi customer chat → isolated VPS replies and signed owner alerts
   registerLeviRoute(app);

@@ -1,5 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatUSD, type PriceBreakdown } from "@shared/pricing";
+import { DEPOSIT_RATE, formatUSD, type PriceBreakdown } from "@shared/pricing";
 import { Receipt } from "lucide-react";
 
 interface Props {
@@ -59,7 +59,10 @@ export function PricingSummary({ breakdown }: Props) {
       <div className="text-xs text-muted-foreground space-y-1">
         <div className="flex justify-between">
           <span>
-            {t("Deposit (30%)", "\u05DE\u05E7\u05D3\u05DE\u05D4 (30%)")}
+            {t(
+              `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
+              `\u05DE\u05E7\u05D3\u05DE\u05D4 (${Math.round(DEPOSIT_RATE * 100)}%)`
+            )}
           </span>
           <span>{formatUSD(breakdown.depositAmount)}</span>
         </div>

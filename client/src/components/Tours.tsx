@@ -8,6 +8,7 @@ import { GoldDivider } from "@/components/GoldDivider";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { TourCardSkeleton } from "@/components/SkeletonLoader";
+import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
 import {
   Clock,
   Mountain,
@@ -16,6 +17,12 @@ import {
   Calendar,
   ArrowRight,
 } from "lucide-react";
+
+function catalogPrice(slug: string): number {
+  const tour = getFallbackTourBySlug(slug);
+  if (!tour) throw new Error(`Missing WIRO catalog entry: ${slug}`);
+  return tour.price;
+}
 
 const HARDCODED_TOURS = [
   {
@@ -34,7 +41,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
-    price: 5000,
+    price: catalogPrice("doi-inthanon-roof-of-thailand"),
   },
   {
     id: 2,
@@ -52,7 +59,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
-    price: 3500,
+    price: catalogPrice("mae-kampong-hidden-village"),
   },
   {
     id: 3,
@@ -70,7 +77,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
-    price: 4500,
+    price: catalogPrice("maerim-sticky-waterfalls"),
   },
   {
     id: 4,
@@ -88,7 +95,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
-    price: 3500,
+    price: catalogPrice("doi-suthep-pui-beyond-temple"),
   },
   {
     id: 5,
@@ -106,7 +113,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: false,
-    price: 5500,
+    price: catalogPrice("mae-wang-jungle-wilderness"),
   },
   {
     id: 6,
@@ -124,7 +131,7 @@ const HARDCODED_TOURS = [
     kosher: true,
     private: true,
     shabbat: true,
-    price: 5000,
+    price: catalogPrice("samoeng-loop-mountain-circuit"),
   },
 ];
 

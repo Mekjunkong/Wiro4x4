@@ -95,17 +95,22 @@ test.describe("Accessibility Basics", () => {
     expect(h1Count).toBeGreaterThanOrEqual(1);
   });
 
-  test("should have alt text on images", async ({ page }) => {
+  test("should give images accessible alt treatment", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // All img elements should have alt attributes
+    // Semantic images need descriptive alt text. Decorative images correctly
+    // use alt="" and must be hidden from assistive technology.
     const images = page.locator("img");
     const count = await images.count();
 
     for (let i = 0; i < Math.min(count, 10); i++) {
-      const alt = await images.nth(i).getAttribute("alt");
-      expect(alt).toBeTruthy();
+      const image = images.nth(i);
+      const alt = await image.getAttribute("alt");
+      expect(alt).not.toBeNull();
+      if (alt === "") {
+        await expect(image).toHaveAttribute("aria-hidden", "true");
+      }
     }
   });
 
