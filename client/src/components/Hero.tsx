@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
+import { Bot, ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CinematicHeroBackground } from "@/components/CinematicHeroBackground";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
@@ -15,6 +15,10 @@ export function Hero() {
 
   const scrollToTours = () => {
     document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const openLevi = () => {
+    window.dispatchEvent(new CustomEvent("chat-toggle"));
   };
 
   return (
@@ -69,6 +73,14 @@ export function Hero() {
             </TrackedWhatsAppLink>
             <button
               type="button"
+              onClick={openLevi}
+              className="min-h-12 border border-white/50 bg-white/10 text-white font-bold px-6 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
+            >
+              <Bot className="w-5 h-5" aria-hidden="true" />
+              {t("Ask Levi first", "שאלו קודם את לוי")}
+            </button>
+            <button
+              type="button"
               onClick={scrollToTours}
               className="min-h-12 text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
             >
@@ -84,8 +96,8 @@ export function Hero() {
               />
               <span>
                 {t(
-                  "A real guide replies personally in English or Hebrew. Send dates, group size, pickup area, and any food or Shabbat needs.",
-                  "מדריך אמיתי עונה אישית בעברית או באנגלית. שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי אוכל או שבת."
+                  "Levi can help with a route idea first; the WIRO team confirms availability in English or Hebrew. Send dates, group size, pickup area, and any food or Shabbat needs.",
+                  "לוי יכול לעזור קודם עם רעיון למסלול; צוות WIRO מאשר זמינות בעברית או באנגלית. שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי אוכל או שבת."
                 )}
               </span>
             </p>

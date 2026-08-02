@@ -28,11 +28,12 @@ export {
   buildBookingState,
   getBookingFields,
   getMissingBookingFields,
+  shouldSendOwnerAlert,
 } from "../leviBooking";
 export { buildLeviSystemPrompt } from "../leviKnowledge";
 
 interface ChatMessage {
-  role: "user" | "levi" | "moshe";
+  role: "user" | "levi";
   content: string;
 }
 
@@ -42,7 +43,7 @@ type ProviderMessage = {
 };
 
 const chatMessageSchema = z.object({
-  role: z.enum(["user", "levi", "moshe"]),
+  role: z.enum(["user", "levi"]),
   content: z.string().trim().min(1).max(2000),
 });
 
@@ -552,12 +553,4 @@ export function registerLeviRoute(app: Express) {
   };
 
   app.post("/api/levi/message", handleLeviMessage);
-  // Short-lived compatibility for previously cached website bundles. This
-  // invokes the same Levi-only handler and will be removed after traffic stops.
-  app.post("/api/moshe/message", (req, res, next) => {
-    res.setHeader("Deprecation", "true");
-    res.setHeader("Sunset", "Sat, 08 Aug 2026 00:00:00 GMT");
-    console.warn("[LeviMetrics] legacy_moshe_alias_used");
-    return handleLeviMessage(req, res, next);
-  });
 }

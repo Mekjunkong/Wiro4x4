@@ -74,6 +74,8 @@ export function ChatWidget() {
   const trackedOpenRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const lastFocusedElementRef = useRef<HTMLElement | null>(null);
 
   const isRtl = chatLanguage === "he";
   const chatText = (en: string, he: string) =>
@@ -138,19 +140,57 @@ export function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const closeChat = useCallback(() => setIsOpen(false), []);
+
   useEffect(() => {
-    if (isOpen) {
-      if (!trackedOpenRef.current) {
-        trackedOpenRef.current = true;
-        trackEvent("chat_open", {
-          page: window.location.pathname,
-          language: chatLanguage,
-          placement: "levi-widget",
-        });
-      }
-      setTimeout(() => inputRef.current?.focus(), 100);
+    if (!isOpen) return;
+
+    lastFocusedElementRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    if (!trackedOpenRef.current) {
+      trackedOpenRef.current = true;
+      trackEvent("chat_open", {
+        page: window.location.pathname,
+        language: chatLanguage,
+        placement: "levi-widget",
+      });
     }
-  }, [isOpen, chatLanguage]);
+
+    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 100);
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeChat();
+        return;
+      }
+      if (event.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", trapFocus);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("keydown", trapFocus);
+      lastFocusedElementRef.current?.focus();
+    };
+  }, [isOpen, chatLanguage, closeChat]);
 
   const sendMessage = useCallback(
     async (overrideMessage?: string) => {
@@ -270,6 +310,10 @@ export function ChatWidget() {
       {/* Chat Panel (open state) */}
       {isOpen && (
         <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="levi-chat-title"
           className={`fixed inset-x-0 bottom-0 md:bottom-6 md:inset-auto w-full md:w-[380px] h-[72dvh] md:h-[560px] max-h-[720px] bg-card md:rounded-lg shadow-2xl border-t md:border border-border flex flex-col z-[9999] overflow-hidden ${isRtl ? "md:left-4 md:right-auto" : "md:right-4 md:left-auto"}`}
           dir={isRtl ? "rtl" : "ltr"}
         >
@@ -280,7 +324,10 @@ export function ChatWidget() {
                 <Sparkles className="h-5 w-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <p className="font-semibold leading-tight truncate">
+                <p
+                  id="levi-chat-title"
+                  className="font-semibold leading-tight truncate"
+                >
                   {chatText("Levi, WIRO Assistant", "לוי, העוזר של WIRO")}
                 </p>
                 <p className="text-xs text-primary-foreground/75">
@@ -302,7 +349,7 @@ export function ChatWidget() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={closeChat}
                 className="h-11 w-11 rounded-full hover:bg-primary-foreground/10 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-primary"
                 aria-label={chatText("Close chat", "סגור צ'אט")}
               >

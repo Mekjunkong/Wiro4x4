@@ -7341,9 +7341,16 @@ function getBookingFields(message) {
   ) || /(?:היום|מחר|הלילה|השבוע|שבוע הבא|חודש הבא|תאריך|ינואר|פברואר|מרץ|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר|ראשון|שני|שלישי|רביעי|חמישי|שישי)/.test(
     message
   );
-  const hasGroup = /\b\d+\s*(?:pax|people|persons|adults|adult|kids|children|child|guests|travelers|travellers)\b/i.test(
+  const mentionsChildren = /\b(?:kids?|children)\b/i.test(message) || /(?:ילדים|ילד)/.test(message);
+  const hasChildAges = /(?:\b\d+\s*)?(?:kids?|children)\s*(?:are\s*)?(?:aged?|ages?)?\s*[:\-]?\s*\d{1,2}(?:\s*(?:,|and|&|-)\s*\d{1,2})*/i.test(
+    message
+  ) || /(?:ילדים|ילד)\s*(?:בגיל(?:אי)?\s*)?\d{1,2}(?:\s*(?:,|ו|-)\s*\d{1,2})*/.test(
+    message
+  );
+  const hasGroupSize = /\b\d+\s*(?:pax|people|persons|adults|adult|kids|children|child|guests|travelers|travellers)\b/i.test(
     message
   ) || /(?:couple|family|families|group|solo|alone)/i.test(message) || /\d+\s*(?:אנשים|איש|מטיילים|מבוגרים|ילדים|ילד|נפשות)/.test(message) || /(?:זוג|משפחה|קבוצה|לבד)/.test(message);
+  const hasGroup = hasGroupSize && (!mentionsChildren || hasChildAges);
   const hasTour = [
     ...WIRO_TOUR_CATALOG.flatMap((tour) => [tour.slug, tour.name]),
     "inthanon",
@@ -7490,12 +7497,7 @@ function buildBookingStateSummary(state, language) {
   ].join("\n");
 }
 function shouldSendOwnerAlert(current, previous) {
-  if (current.intent !== "booking") return null;
-  if (!previous || previous.intent !== "booking") {
-    return current.qualified ? "qualified" : "new";
-  }
-  if (current.qualified && !previous.qualified) return "qualified";
-  if (current.completionPercent > previous.completionPercent) return "progress";
+  if (current.qualified && !previous?.qualified) return "qualified";
   return null;
 }
 
@@ -7783,7 +7785,7 @@ async function persistLeviExchange(args) {
 
 // server/routes/levi.ts
 var chatMessageSchema = z3.object({
-  role: z3.enum(["user", "levi", "moshe"]),
+  role: z3.enum(["user", "levi"]),
   content: z3.string().trim().min(1).max(2e3)
 });
 var leviMessageRequestSchema = z3.object({
@@ -8136,12 +8138,6 @@ function registerLeviRoute(app2) {
     });
   };
   app2.post("/api/levi/message", handleLeviMessage);
-  app2.post("/api/moshe/message", (req, res, next) => {
-    res.setHeader("Deprecation", "true");
-    res.setHeader("Sunset", "Sat, 08 Aug 2026 00:00:00 GMT");
-    console.warn("[LeviMetrics] legacy_moshe_alias_used");
-    return handleLeviMessage(req, res, next);
-  });
 }
 
 // server/routes/n8n.ts
@@ -8506,7 +8502,7 @@ async function sendCustomerConfirmation(booking) {
       <h1>\u{1F699} Booking Confirmed!</h1>
       <p>Your adventure with WIRO 4x4 is confirmed</p>
     </div>
-    
+
     <div class="content">
       <p>Dear ${escapeHtml2(booking.customerName)},</p>
 
@@ -8538,7 +8534,7 @@ async function sendCustomerConfirmation(booking) {
         </div>
         ` : ""}
       </div>
-      
+
       ${icsContent ? `
       <div style="text-align: center; margin: 30px 0;">
         <p style="font-size: 16px; margin-bottom: 15px;"><strong>\u{1F4C5} Add this tour to your calendar:</strong></p>
@@ -8549,7 +8545,7 @@ async function sendCustomerConfirmation(booking) {
         <p style="font-size: 12px; color: #999; margin-top: 10px;">Works with Google Calendar, Apple Calendar, Outlook, and more</p>
       </div>
       ` : ""}
-      
+
       <div class="info-box" style="background: #e3f2fd; border-left-color: #1976d2;">
         <h3 style="margin-top: 0; color: #1976d2;">\u{1F4CD} Meeting Point & Location</h3>
         <p><strong>Location:</strong> Chiang Mai, Thailand</p>
@@ -8586,15 +8582,15 @@ async function sendCustomerConfirmation(booking) {
       </div>
 
       <p>We'll send you a reminder 48 hours before your tour with final details.</p>
-      
+
       <p>Looking forward to your adventure!</p>
-      
+
       <p style="margin-top: 30px;">
         <strong>The WIRO 4x4 Team</strong><br>
         <em>Kosher Off-Road Adventures in Chiang Mai</em>
       </p>
     </div>
-    
+
     <div class="footer">
       <p><strong>WIRO 4x4 - Kosher Off-Road Adventures</strong></p>
       <p>Chiang Mai, Thailand</p>
@@ -10071,7 +10067,7 @@ async function sendNewBookingEmail(data) {
         <h1 style="margin: 0; font-size: 28px;">\u{1F699} WIRO 4x4</h1>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">New Booking Request Received!</p>
       </div>
-      
+
       <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
         <h2 style="color: #1a4d2e; margin-top: 0;">\u{1F4CB} Customer Details</h2>
         <table style="width: 100%; border-collapse: collapse;">
@@ -16622,12 +16618,12 @@ var public_default = `<!doctype html>
       data-domain="www.wiro4x4indochina.com"
       src="https://plausible.io/js/script.js"
     ></script>
-    <script type="module" crossorigin src="/assets/js/index-DN_p7IOF.js"></script>
+    <script type="module" crossorigin src="/assets/js/index-Cb5Dr9NL.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/js/react-vendor-5wom38gs.js">
     <link rel="modulepreload" crossorigin href="/assets/js/router-BPRbBu-F.js">
     <link rel="modulepreload" crossorigin href="/assets/js/ui-vendor-Bslgp3KO.js">
     <link rel="modulepreload" crossorigin href="/assets/js/utils-BNe0Xlio.js">
-    <link rel="stylesheet" crossorigin href="/assets/css/index-D3GXcnnR.css">
+    <link rel="stylesheet" crossorigin href="/assets/css/index-lCFePVaL.css">
   </head>
 
   <body>

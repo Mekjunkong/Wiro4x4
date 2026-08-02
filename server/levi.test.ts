@@ -9,6 +9,7 @@ import {
   getBookingFields,
   getMissingBookingFields,
   requestLeviReply,
+  shouldSendOwnerAlert,
 } from "./routes/levi";
 
 afterEach(() => {
@@ -31,7 +32,7 @@ describe("Levi booking qualification helpers", () => {
 
   it("recognizes booking details across Hebrew text", () => {
     const fields = getBookingFields(
-      "רוצים טיול ג׳יפים מחר, 2 מבוגרים וילד, איסוף ממלון בניממן, צריך כשר ומדריך בעברית"
+      "רוצים טיול ג׳יפים מחר, 2 מבוגרים וילד בגיל 6, איסוף ממלון בניממן, צריך כשר ומדריך בעברית"
     );
 
     expect(fields).toEqual({
@@ -137,6 +138,35 @@ describe("Levi booking qualification helpers", () => {
         kosher: expect.stringMatching(/kosher/i),
       },
     });
+  });
+
+  it("keeps child ages missing until the visitor provides them", () => {
+    const state = buildBookingState(
+      "Doi Inthanon tomorrow for 2 adults and 2 children, pickup at a Nimman hotel, no kosher needed",
+      "en"
+    );
+
+    expect(state.fields.hasGroup).toBe(false);
+    expect(state.missingKeys).toContain("group");
+    expect(state.qualified).toBe(false);
+  });
+
+  it("notifies the owner only when a booking profile becomes qualified", () => {
+    const priceQuestion = buildBookingState("How much is a day tour?", "en");
+    const partialBooking = buildBookingState(
+      "Doi Inthanon tomorrow for 2 adults, pickup at a Nimman hotel",
+      "en"
+    );
+    const qualifiedBooking = buildBookingState(
+      "Doi Inthanon tomorrow for 2 adults, pickup at a Nimman hotel, no kosher needed",
+      "en"
+    );
+
+    expect(shouldSendOwnerAlert(priceQuestion, null)).toBeNull();
+    expect(shouldSendOwnerAlert(partialBooking, priceQuestion)).toBeNull();
+    expect(shouldSendOwnerAlert(qualifiedBooking, partialBooking)).toBe(
+      "qualified"
+    );
   });
 
   it("uses the shared WIRO pricing source and avoids stale prompt claims", () => {

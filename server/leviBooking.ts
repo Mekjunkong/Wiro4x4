@@ -103,13 +103,25 @@ export function getBookingFields(message: string): BookingFields {
     /(?:היום|מחר|הלילה|השבוע|שבוע הבא|חודש הבא|תאריך|ינואר|פברואר|מרץ|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר|ראשון|שני|שלישי|רביעי|חמישי|שישי)/.test(
       message
     );
-  const hasGroup =
+  const mentionsChildren =
+    /\b(?:kids?|children)\b/i.test(message) || /(?:ילדים|ילד)/.test(message);
+  const hasChildAges =
+    /(?:\b\d+\s*)?(?:kids?|children)\s*(?:are\s*)?(?:aged?|ages?)?\s*[:\-]?\s*\d{1,2}(?:\s*(?:,|and|&|-)\s*\d{1,2})*/i.test(
+      message
+    ) ||
+    /(?:ילדים|ילד)\s*(?:בגיל(?:אי)?\s*)?\d{1,2}(?:\s*(?:,|ו|-)\s*\d{1,2})*/.test(
+      message
+    );
+  const hasGroupSize =
     /\b\d+\s*(?:pax|people|persons|adults|adult|kids|children|child|guests|travelers|travellers)\b/i.test(
       message
     ) ||
     /(?:couple|family|families|group|solo|alone)/i.test(message) ||
     /\d+\s*(?:אנשים|איש|מטיילים|מבוגרים|ילדים|ילד|נפשות)/.test(message) ||
     /(?:זוג|משפחה|קבוצה|לבד)/.test(message);
+  // A child changes the quote, so do not treat a group as complete until the
+  // visitor supplies each child's age. Adults-only groups remain valid.
+  const hasGroup = hasGroupSize && (!mentionsChildren || hasChildAges);
   const hasTour = [
     ...WIRO_TOUR_CATALOG.flatMap(tour => [tour.slug, tour.name]),
     "inthanon",
@@ -302,11 +314,9 @@ export function shouldSendOwnerAlert(
   current: LeviBookingState,
   previous: LeviBookingState | null
 ): "new" | "progress" | "qualified" | null {
-  if (current.intent !== "booking") return null;
-  if (!previous || previous.intent !== "booking") {
-    return current.qualified ? "qualified" : "new";
-  }
-  if (current.qualified && !previous.qualified) return "qualified";
-  if (current.completionPercent > previous.completionPercent) return "progress";
+  // WhatsApp stays available throughout the conversation, but owner Telegram
+  // alerts are reserved for completed booking profiles. This avoids turning a
+  // simple price question into an interrupting lead notification.
+  if (current.qualified && !previous?.qualified) return "qualified";
   return null;
 }

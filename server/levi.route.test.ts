@@ -87,14 +87,16 @@ describe("Levi customer route", () => {
     });
   });
 
-  it("does not expose the unused Eli and legacy generic chat providers", async () => {
+  it("does not expose Moshe, Eli, or generic chat providers", async () => {
     const origin = await appOrigin();
-    const [genericChat, eliChat] = await Promise.all([
+    const [genericChat, eliChat, mosheChat] = await Promise.all([
       fetch(`${origin}/api/chat`, { method: "POST" }),
       fetch(`${origin}/api/eli/chat`, { method: "POST" }),
+      fetch(`${origin}/api/moshe/message`, { method: "POST" }),
     ]);
 
     expect(genericChat.status).toBe(404);
     expect(eliChat.status).toBe(404);
+    expect(mosheChat.status).toBe(404);
   });
 });

@@ -48,6 +48,9 @@ test.describe("Homepage", () => {
       hero.getByRole("link", { name: /check availability on whatsapp/i })
     ).toHaveAttribute("href", /wa\.me/);
     await expect(
+      hero.getByRole("button", { name: /ask levi first/i })
+    ).toBeVisible();
+    await expect(
       hero.getByRole("button", { name: "See Route Ideas" })
     ).toBeVisible();
   });
@@ -255,6 +258,23 @@ test.describe("Homepage Desktop Navigation", () => {
     await expect(
       page.getByRole("log", { name: /chat conversation/i })
     ).toBeVisible();
+  });
+
+  test("opens Levi from the hero and supports keyboard dismissal", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const hero = page.locator("main section").first();
+    const askLevi = hero.getByRole("button", { name: /ask levi first/i });
+    await askLevi.click();
+    const dialog = page.getByRole("dialog", { name: /levi, wiro assistant/i });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("textbox")).toBeFocused();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(askLevi).toBeFocused();
   });
 
   test("should navigate to gallery page", async ({ page }) => {
