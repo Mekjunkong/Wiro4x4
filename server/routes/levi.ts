@@ -339,6 +339,15 @@ async function sendLeviLeadAlert(
 }
 
 async function deliverOwnerAlert(text: string, requestId: string) {
+  // The direct Telegram channel is independent of the isolated Levi profile,
+  // so use it first for time-sensitive owner alerts. The signed VPS webhook
+  // remains a fallback if the Vercel notification credentials are unavailable.
+  const sentDirectly = await notifyOwner({
+    title: "WIRO Levi chat lead",
+    content: text,
+  });
+  if (sentDirectly) return "owner-backup" as const;
+
   try {
     if (await sendLeviLeadAlert(text, requestId))
       return "levi-webhook" as const;
@@ -346,11 +355,7 @@ async function deliverOwnerAlert(text: string, requestId: string) {
     console.error("[Levi] Signed owner alert failed:", error);
   }
 
-  const sentByBackup = await notifyOwner({
-    title: "WIRO Levi chat lead",
-    content: text,
-  });
-  return sentByBackup ? ("owner-backup" as const) : ("failed" as const);
+  return "failed" as const;
 }
 
 function previousBookingState(

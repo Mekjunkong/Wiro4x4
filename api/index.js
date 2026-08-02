@@ -7967,17 +7967,18 @@ async function sendLeviLeadAlert(text2, requestId) {
   throw lastError instanceof Error ? lastError : new Error("Levi webhook delivery failed");
 }
 async function deliverOwnerAlert(text2, requestId) {
+  const sentDirectly = await notifyOwner({
+    title: "WIRO Levi chat lead",
+    content: text2
+  });
+  if (sentDirectly) return "owner-backup";
   try {
     if (await sendLeviLeadAlert(text2, requestId))
       return "levi-webhook";
   } catch (error) {
     console.error("[Levi] Signed owner alert failed:", error);
   }
-  const sentByBackup = await notifyOwner({
-    title: "WIRO Levi chat lead",
-    content: text2
-  });
-  return sentByBackup ? "owner-backup" : "failed";
+  return "failed";
 }
 function previousBookingState(chatHistory, latestMessage, language) {
   const previous = [...chatHistory];
