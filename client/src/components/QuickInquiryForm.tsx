@@ -135,7 +135,7 @@ export function QuickInquiryForm() {
     return (
       <section ref={sectionRef} className="py-16 md:py-20 bg-background">
         <div className="container max-w-2xl">
-          <Card className="p-8 text-center border border-accent/30 rounded-2xl shadow-lg bg-card">
+          <Card className="border border-accent/30 bg-card p-8 text-center shadow-lg">
             <CheckCircle
               className="w-12 h-12 text-accent mx-auto mb-4"
               aria-hidden="true"
@@ -156,7 +156,7 @@ export function QuickInquiryForm() {
               humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-[#25D366] px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
             >
               <MessageCircle className="w-4 h-4" aria-hidden="true" />
               {t("Confirm Faster on WhatsApp", "אישור מהיר יותר בוואטסאפ")}
@@ -195,7 +195,7 @@ export function QuickInquiryForm() {
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="border border-accent/30 bg-primary p-6 text-primary-foreground shadow-lg">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-sm bg-[#25D366] text-white">
               <MessageCircle className="h-6 w-6" aria-hidden="true" />
             </div>
             <h3 className="text-2xl font-bold text-white">
@@ -214,12 +214,12 @@ export function QuickInquiryForm() {
               humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-5 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
+              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
             </TrackedWhatsAppLink>
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-white/15 bg-white/10 p-3 text-xs text-white/75">
+            <div className="mt-4 flex items-start gap-2 rounded-sm border border-white/15 bg-white/10 p-3 text-xs text-white/75">
               <Clock3
                 className="mt-0.5 h-4 w-4 text-accent"
                 aria-hidden="true"
@@ -233,7 +233,7 @@ export function QuickInquiryForm() {
             </div>
           </Card>
 
-          <Card className="p-6 md:p-8 border border-accent/30 rounded-2xl shadow-lg bg-card">
+          <Card className="border border-accent/30 bg-card p-6 shadow-lg md:p-8">
             <form
               onSubmit={handleSubmit}
               onFocusCapture={handleInquiryInteraction}
@@ -241,7 +241,7 @@ export function QuickInquiryForm() {
               className="space-y-5"
               noValidate
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-accent/20 bg-accent/5 p-4">
+              <div className="grid grid-cols-1 gap-4 rounded-sm border border-accent/20 bg-accent/5 p-4 md:grid-cols-3">
                 <div>
                   <label
                     htmlFor="inquiry-dates"
@@ -478,7 +478,7 @@ export function QuickInquiryForm() {
                   humanMessage={whatsappMessage}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-[#25D366]/60 px-5 py-2.5 text-sm font-bold text-foreground transition-colors hover:bg-[#25D366]/10 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#25D366]/60 px-5 py-2.5 text-sm font-bold text-foreground transition-colors hover:bg-[#25D366]/10 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50"
                 >
                   <MessageCircle
                     className="h-4 w-4 text-[#25D366]"

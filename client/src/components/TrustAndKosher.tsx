@@ -6,10 +6,7 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   Award,
   MessageSquare,
-  Calendar,
-  Users,
   MapPin,
-  Heart,
   ShieldCheck,
   ChevronDown,
 } from "lucide-react";
@@ -24,43 +21,22 @@ export function TrustAndKosher() {
       icon: Award,
       en: "Kosher-Aware 4x4 Planning",
       he: "תכנון 4x4 מודע כשרות",
-      descEn: "Food logistics discussed before route confirmation",
-      descHe: "לוגיסטיקת אוכל נסגרת לפני אישור מסלול",
+      descEn: "Food and Shabbat logistics are agreed before route confirmation",
+      descHe: "לוגיסטיקת אוכל ושבת נסגרת לפני אישור המסלול",
     },
     {
       icon: MessageSquare,
       en: "Hebrew Speaking Guides",
       he: "מדריכים דוברי עברית",
-      descEn: "Full Hebrew support throughout your trip",
-      descHe: "תמיכה מלאה בעברית לאורך כל הטיול",
-    },
-    {
-      icon: Calendar,
-      en: "Shabbat Friendly",
-      he: "מותאם לשבת",
-      descEn: "Scheduling that respects Shabbat",
-      descHe: "לוח זמנים המכבד את השבת",
-    },
-    {
-      icon: Users,
-      en: "Private Tours",
-      he: "טיולים פרטיים",
-      descEn: "Premium 4x4 experience, just your group",
-      descHe: "חוויית 4x4 מפנקת, רק הקבוצה שלכם",
+      descEn: "Plan and travel with Hebrew support when requested",
+      descHe: "תכנון וטיול עם תמיכה בעברית לפי בקשה",
     },
     {
       icon: MapPin,
-      en: "Real Off-Road",
-      he: "שטח אמיתי",
-      descEn: "Authentic trails, not tourist traps",
-      descHe: "שבילים אותנטיים, לא מלכודות תיירים",
-    },
-    {
-      icon: Heart,
-      en: "WhatsApp Support",
-      he: "תמיכה בוואטסאפ",
-      descEn: "Fastest channel for availability checks",
-      descHe: "הערוץ המהיר לבדיקת זמינות",
+      en: "Private, Real Off-Road Routes",
+      he: "מסלולי שטח אמיתיים ופרטיים",
+      descEn: "Your vehicle, your group, and routes beyond standard tour stops",
+      descHe: "הרכב והקבוצה שלכם, במסלולים שמעבר לתחנות התיירות הרגילות",
     },
   ];
 
@@ -90,7 +66,7 @@ export function TrustAndKosher() {
               <h2 className="text-3xl md:text-4xl font-medium text-foreground mb-4">
                 {t("Why WIRO 4×4?", "?למה WIRO 4×4")}
               </h2>
-              <GoldDivider />
+              <GoldDivider className="mx-0 my-5" />
               <p className="text-lg text-muted-foreground">
                 {t(
                   "Authentic off-road adventures with the comfort and cultural understanding Israeli travelers deserve.",
@@ -99,21 +75,20 @@ export function TrustAndKosher() {
               </p>
             </div>
 
-            {/* Trust Points — 2x3 Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border-y border-border divide-y divide-border">
               {trustPoints.map(point => (
                 <div
                   key={point.en}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+                  className="grid grid-cols-[2.75rem_1fr] gap-4 py-5"
                 >
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                  <div className="flex h-11 w-11 items-center justify-center border border-accent/30 text-accent">
                     <point.icon className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm">
+                    <h3 className="font-semibold text-base">
                       {t(point.en, point.he)}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                       {t(point.descEn, point.descHe)}
                     </p>
                   </div>
@@ -121,8 +96,7 @@ export function TrustAndKosher() {
               ))}
             </div>
 
-            {/* Kosher proof — visible before the details accordion */}
-            <div className="rounded-xl border border-accent/40 bg-accent/10 p-4 text-sm leading-relaxed text-foreground">
+            <div className="rounded-sm border border-accent/35 bg-accent/10 p-5 text-sm leading-relaxed text-foreground">
               <div className="mb-2 flex items-center gap-2 font-heading text-lg font-bold">
                 <ShieldCheck className="h-5 w-5 text-accent" />
                 {t(
@@ -138,7 +112,6 @@ export function TrustAndKosher() {
               </p>
             </div>
 
-            {/* Kosher Accordion */}
             <div id="kosher" className="mt-8 border-t border-accent/30 pt-6">
               <button
                 type="button"
@@ -160,8 +133,8 @@ export function TrustAndKosher() {
                 >
                   <p>
                     {t(
-                      "Before confirming a route, we discuss your kosher level, food source, packaging, handling, serving plan, and Shabbat timing. We do not assume one standard fits every traveler — tell us what you require and we will confirm what is possible for that itinerary.",
-                      "לפני אישור מסלול אנחנו בודקים את רמת הכשרות, מקור האוכל, האריזה, הטיפול, אופן ההגשה ותזמון שבת. לא מניחים שסטנדרט אחד מתאים לכולם — ספרו לנו מה נדרש ונאשר מה אפשרי במסלול."
+                      "Before confirming a route, we discuss your kosher level, food source, packaging, handling, serving plan, and Shabbat timing. Tell us what you require and we will confirm what is possible for that itinerary.",
+                      "לפני אישור מסלול אנחנו בודקים את רמת הכשרות, מקור האוכל, האריזה, הטיפול, אופן ההגשה ותזמון שבת. ספרו לנו מה נדרש ונאשר מה אפשרי במסלול."
                     )}
                   </p>
                 </div>

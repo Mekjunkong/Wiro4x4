@@ -82,50 +82,43 @@
 
 :root {
   --radius: 0.25rem;
-  /* Charcoal primary */
-  --primary: #1c1c1c;
-  --primary-foreground: #ffffff;
-  /* Warm ivory background */
-  --background: #faf7f2;
-  --foreground: #2c2c2c;
-  /* Soft cream cards */
-  --card: #fdfbf7;
-  --card-foreground: #2c2c2c;
-  --popover: #fdfbf7;
-  --popover-foreground: #2c2c2c;
-  /* Bright gold accent */
-  --secondary: #d4af37;
-  --secondary-foreground: #1c1c1c;
-  /* Warm stone muted */
-  --muted: #e8e2da;
-  --muted-foreground: #6b6560;
-  /* Gold accent */
-  --accent: #d4af37;
-  --accent-foreground: #1c1c1c;
-  --accent-readable: #715700;
-  /* CTA button gold — darker for WCAG contrast on white text */
-  --accent-cta: #b8960f;
-  --accent-cta-hover: #a3850e;
+  /* Forest-led travel palette: cool natural surfaces, deep canopy contrast. */
+  --primary: #0b2a22;
+  --primary-foreground: #f8faf7;
+  --background: #f2f4ef;
+  --foreground: #18231f;
+  --card: #fbfcf9;
+  --card-foreground: #18231f;
+  --popover: #fbfcf9;
+  --popover-foreground: #18231f;
+  --secondary: #d0a04a;
+  --secondary-foreground: #172019;
+  --muted: #e2e8e1;
+  --muted-foreground: #59665f;
+  --accent: #c79236;
+  --accent-foreground: #172019;
+  --accent-readable: #765019;
+  --accent-cta: #8b5e18;
+  --accent-cta-hover: #704a12;
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --border: #e8e2da;
-  --input: #e8e2da;
-  --ring: #d4af37;
-  /* Charts — gold gradient */
-  --chart-1: #d4af37;
-  --chart-2: #bf9b30;
-  --chart-3: #a88829;
-  --chart-4: #917422;
-  --chart-5: #7a611b;
+  --border: #d4ddd5;
+  --input: #e5ebe5;
+  --ring: #c79236;
+  --chart-1: #0b2a22;
+  --chart-2: #2d6656;
+  --chart-3: #c79236;
+  --chart-4: #80988d;
+  --chart-5: #765019;
   /* Sidebar */
-  --sidebar: #faf7f2;
-  --sidebar-foreground: #2c2c2c;
-  --sidebar-primary: #1c1c1c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8e2da;
-  --sidebar-accent-foreground: #2c2c2c;
-  --sidebar-border: #e8e2da;
-  --sidebar-ring: #d4af37;
+  --sidebar: #f2f4ef;
+  --sidebar-foreground: #18231f;
+  --sidebar-primary: #0b2a22;
+  --sidebar-primary-foreground: #f8faf7;
+  --sidebar-accent: #e2e8e1;
+  --sidebar-accent-foreground: #18231f;
+  --sidebar-border: #d4ddd5;
+  --sidebar-ring: #c79236;
 }
 
 @layer base {
@@ -144,6 +137,8 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+    line-height: 1.6;
+    letter-spacing: 0.005em;
   }
   h1,
   h2,
@@ -228,17 +223,17 @@
 @layer utilities {
   /* Shadow utilities */
   .shadow-premium {
-    box-shadow: 0 10px 40px rgba(28, 28, 28, 0.08);
+    box-shadow: 0 12px 40px rgba(11, 42, 34, 0.08);
   }
 
   .shadow-premium-lg {
-    box-shadow: 0 20px 60px rgba(28, 28, 28, 0.12);
+    box-shadow: 0 24px 70px rgba(11, 42, 34, 0.13);
   }
 
   .shadow-luxury {
     box-shadow:
-      0 24px 48px -12px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(212, 175, 55, 0.15);
+      0 28px 60px -20px rgba(11, 42, 34, 0.28),
+      0 0 0 1px rgba(199, 146, 54, 0.16);
   }
 
   /* Gold divider — 64px gold rule used under section heads and hero subtitles */
@@ -246,13 +241,13 @@
     display: block;
     height: 1px;
     width: 4rem;
-    background: #d4af37;
+    background: var(--accent);
     margin: 0 auto;
   }
 
   /* Gold text utility — keep emphasis solid, not gradient text */
   .wiro-gold-shimmer {
-    color: #d4af37;
+    color: var(--accent);
   }
 
   /* Smooth scroll behavior */
@@ -691,15 +686,23 @@ textarea {
 .luxury-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 24px 48px -12px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(212, 175, 55, 0.15);
+    0 28px 60px -20px rgba(11, 42, 34, 0.28),
+    0 0 0 1px rgba(199, 146, 54, 0.18);
 }
 
 .glass-card {
-  background: rgba(253, 251, 247, 0.85);
+  background: rgba(251, 252, 249, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(199, 146, 54, 0.22);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .gold-shimmer {

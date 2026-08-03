@@ -69,7 +69,9 @@ test("conversion surfaces meet WCAG AA contrast", async ({ page }) => {
       name: "Check Availability on WhatsApp",
     })
     .first();
-  const journeyLabel = page.getByText("Choose Your Journey", { exact: true });
+  const journeyLabel = page.getByText("Choose your way into the north", {
+    exact: true,
+  });
   const exploreAction = page
     .locator("#tours article .text-accent-readable")
     .first();

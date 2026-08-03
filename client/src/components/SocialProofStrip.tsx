@@ -1,8 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Star,
-  CheckCircle,
-  Clock,
   Languages,
   Utensils,
   Lock,
@@ -54,7 +52,7 @@ export function SocialProofStrip() {
     .filter(review => review.rating >= 4 && review.text?.trim())
     .slice(0, 3);
 
-  // No reviews yet? Don't advertise the absence of proof — skip the
+  // No reviews yet? Don't advertise the absence of proof. Skip the
   // review cards and lead with the trust badges instead.
   const hasReviews = topReviews.length > 0;
 
@@ -87,7 +85,7 @@ export function SocialProofStrip() {
             {topReviews.map(review => (
               <article
                 key={`${review.name}-${review.createdAt ?? review.text}`}
-                className="bg-card rounded-xl p-6 shadow-sm border border-border"
+                className="border border-border bg-card p-6 shadow-sm"
               >
                 <div className="flex items-center justify-between gap-3">
                   <StarRating rating={review.rating} />
@@ -98,10 +96,7 @@ export function SocialProofStrip() {
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-4">
                   &ldquo;{review.text}&rdquo;
                 </p>
-                <div className="mt-4 flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
-                    {review.name?.charAt(0) || "?"}
-                  </div>
+                <div className="mt-5 border-t border-border pt-4">
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {review.name}
@@ -116,14 +111,17 @@ export function SocialProofStrip() {
           </div>
         )}
 
-        <div className="flex flex-wrap justify-center gap-4 mb-10">
+        <div className="mb-10 grid border-y border-border sm:grid-cols-2 lg:grid-cols-4">
           {TRUST_BADGES.map(badge => (
             <div
               key={badge.en}
-              className="flex items-center gap-2 bg-card rounded-full px-4 py-2 border border-accent/20 shadow-sm"
+              className="flex min-h-20 items-center justify-center gap-3 border-border px-5 py-4 text-center sm:border-r last:sm:border-r-0"
             >
-              <badge.icon className="h-4 w-4 text-accent" aria-hidden="true" />
-              <span className="text-sm font-medium">
+              <badge.icon
+                className="h-5 w-5 shrink-0 text-accent"
+                aria-hidden="true"
+              />
+              <span className="text-sm font-semibold text-foreground">
                 {t(badge.en, badge.he)}
               </span>
             </div>
@@ -142,7 +140,7 @@ export function SocialProofStrip() {
                 language,
               })
             }
-            className="mb-5 inline-flex items-center gap-3 rounded-full border border-accent/30 bg-card px-5 py-3 text-sm font-semibold text-accent shadow-sm transition-colors hover:border-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-4 rounded-sm border border-accent/40 bg-card px-6 py-4 text-sm font-semibold text-accent-readable shadow-sm transition-colors hover:border-accent hover:bg-accent/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
             <span className="text-start">
               <span className="block text-base leading-tight">
@@ -160,19 +158,6 @@ export function SocialProofStrip() {
             </span>
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
-          <div className="inline-flex max-w-2xl items-center gap-2 rounded-full border border-accent/30 bg-card px-5 py-2 shadow-sm">
-            <CheckCircle className="w-4 h-4 text-accent" aria-hidden="true" />
-            <span className="text-sm text-muted-foreground">
-              {t(
-                "Ask for route examples, review sources, and recent availability before you book.",
-                "אפשר לבקש דוגמאות מסלול, מקורות ביקורות וזמינות עדכנית לפני ההזמנה."
-              )}
-            </span>
-            <Clock
-              className="hidden h-4 w-4 text-accent sm:block"
-              aria-hidden="true"
-            />
-          </div>
         </div>
       </div>
     </section>

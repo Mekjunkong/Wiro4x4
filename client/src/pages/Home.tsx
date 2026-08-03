@@ -82,7 +82,7 @@ export default function Home() {
     title: "Private Kosher 4x4 Tours from Chiang Mai",
     description:
       "Plan a private WIRO 4x4 trip from Chiang Mai with Hebrew/English support, kosher-aware meal planning, Shabbat-sensitive routing, and WhatsApp-first availability checks.",
-    ogTitle: "WIRO 4x4 Chiang Mai — Private Kosher Off-Road Tours",
+    ogTitle: "WIRO 4x4 Chiang Mai - Private Kosher Off-Road Tours",
     canonicalPath: "/",
     jsonLd: homeJsonLd,
   });
@@ -97,20 +97,23 @@ export default function Home() {
           aria-labelledby="planning-guides-heading"
         >
           <div className="container">
-            <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
+            <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
-                  {t("Start with the right dossier", "התחילו מהמדריך המתאים")}
-                </p>
                 <h2
                   id="planning-guides-heading"
-                  className="mt-3 text-2xl font-medium md:text-3xl"
+                  className="text-2xl font-medium md:text-3xl"
                 >
                   {t(
-                    "Plan for your family, food, and language needs",
-                    "תכננו לפי צורכי המשפחה, האוכל והשפה"
+                    "Plan around what matters to your group",
+                    "תכננו סביב מה שחשוב לקבוצה שלכם"
                   )}
                 </h2>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                  {t(
+                    "Choose a guide for family travel, kosher logistics, or Hebrew support.",
+                    "בחרו מדריך לטיול משפחתי, לוגיסטיקת כשרות או תמיכה בעברית."
+                  )}
+                </p>
               </div>
               <nav
                 className="grid gap-px bg-border sm:grid-cols-3"
@@ -120,7 +123,7 @@ export default function Home() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group flex min-h-24 items-end justify-between gap-3 bg-card p-5 font-semibold hover:bg-muted/50"
+                    className="group flex min-h-24 items-end justify-between gap-3 bg-card p-5 font-semibold transition-colors hover:bg-muted/60"
                   >
                     {item.label}
                     <ArrowUpRight
@@ -134,10 +137,10 @@ export default function Home() {
           </div>
         </section>
         <ProductTiers />
-        <QuickInquiryForm />
         <TrustAndKosher />
         <SocialProofStrip />
         <GalleryShowcase />
+        <QuickInquiryForm />
         <FAQ />
       </main>
       <Footer />

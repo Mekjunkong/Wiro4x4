@@ -46,11 +46,21 @@ export function Header() {
     language === "he" ? "GLOBAL-HEADER-HE" : "GLOBAL-HEADER-EN";
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+    const sentinel = document.createElement("span");
+    sentinel.setAttribute("aria-hidden", "true");
+    sentinel.style.cssText =
+      "position:absolute;top:50px;left:0;width:1px;height:1px;pointer-events:none";
+    document.body.appendChild(sentinel);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => {
+      observer.disconnect();
+      sentinel.remove();
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -79,15 +89,17 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 inset-x-0 transition-all duration-300 ${
-        scrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-accent/20"
-          : "bg-transparent"
+        mobileMenuOpen
+          ? "border-b border-border bg-background"
+          : scrolled
+            ? "bg-background/90 backdrop-blur-xl border-b border-primary/10 shadow-[0_10px_35px_rgba(11,42,34,0.06)]"
+            : "bg-transparent"
       }`}
       style={{ zIndex: 10000 }}
     >
       <div className="container">
         <div
-          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16 md:h-[4.5rem]" : "h-20 md:h-24 lg:h-28"}`}
+          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? "h-16" : "h-20"}`}
         >
           <Link
             href="/"
@@ -98,17 +110,17 @@ export function Header() {
               alt="WIRO 4x4 Logo"
               width={144}
               height={144}
-              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12 md:h-14" : "h-14 md:h-20 lg:h-24"} ${!scrolled && isHomePage ? "drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]" : "drop-shadow-lg"}`}
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12" : "h-16"} ${!scrolled && isHomePage ? "drop-shadow-[0_5px_16px_rgba(0,0,0,0.28)]" : "drop-shadow-md"}`}
             />
           </Link>
 
           <nav
-            className="hidden md:flex items-center gap-6"
+            className="hidden lg:flex items-center gap-5"
             aria-label="Main navigation"
           >
             <Link href="/tours">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/tours") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer ${isActive("/tours") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/tours")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -118,7 +130,7 @@ export function Header() {
             </Link>
             <Link href="/packages">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/packages") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer ${isActive("/packages") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/packages")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -128,7 +140,7 @@ export function Header() {
             </Link>
             <Link href="/pricing">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/pricing") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer ${isActive("/pricing") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/pricing")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -139,7 +151,7 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer inline-flex items-center gap-1 ${isExploreActive ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                  className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer inline-flex items-center gap-1 ${isExploreActive ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                   aria-label={t("Explore more pages", "עמודי מידע נוספים")}
                 >
                   {t("Explore", "עוד")}
@@ -163,7 +175,7 @@ export function Header() {
             </DropdownMenu>
             <Link href="/contact">
               <span
-                className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer ${isActive("/contact") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer ${isActive("/contact") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 {...(isActive("/contact")
                   ? { "aria-current": "page" as const }
                   : {})}
@@ -174,7 +186,7 @@ export function Header() {
             {isAdmin && (
               <Link href="/admin">
                 <span
-                  className={`nav-link text-xs font-medium tracking-[0.2em] uppercase transition-colors cursor-pointer flex items-center gap-1 ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
+                  className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer flex items-center gap-1 ${!scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
                 >
                   <Shield className="h-4 w-4" />
                   {t("Admin", "ניהול")}
@@ -217,11 +229,11 @@ export function Header() {
           </nav>
 
           <div
-            className={`md:hidden flex items-center ${!scrolled && isHomePage ? "text-white" : ""}`}
+            className={`flex items-center lg:hidden ${!mobileMenuOpen && !scrolled && isHomePage ? "text-white" : "text-foreground"}`}
           >
             <button
               onClick={toggleMobileMenu}
-              className="p-3 hover:bg-accent/10 rounded-lg transition-colors touch-manipulation relative z-[10001]"
+              className="relative z-[10001] rounded-sm p-3 transition-colors hover:bg-accent/10 touch-manipulation"
               aria-label={t("Toggle menu", "תפריט")}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
@@ -248,7 +260,7 @@ export function Header() {
       {mobileMenuOpen && (
         <div
           id="mobile-navigation"
-          className="md:hidden fixed inset-0 bg-background overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
+          className="lg:hidden fixed inset-0 bg-background overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-200"
           style={{ zIndex: 9999 }}
           onClick={event => {
             if (event.target === event.currentTarget) {

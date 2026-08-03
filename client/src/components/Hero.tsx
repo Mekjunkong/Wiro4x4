@@ -1,4 +1,4 @@
-import { Bot, ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
+import { Bot, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CinematicHeroBackground } from "@/components/CinematicHeroBackground";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
@@ -11,16 +11,12 @@ export function Hero() {
       ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
       : "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
 
-  const scrollToTours = () => {
-    document.getElementById("tours")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const openLevi = () => {
     window.dispatchEvent(new CustomEvent("chat-toggle"));
   };
 
   return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden bg-primary">
+    <section className="relative min-h-[100dvh] w-full overflow-hidden bg-primary">
       <CinematicHeroBackground
         alt={t(
           "WIRO 4x4 vehicle on a jungle road in Chiang Mai",
@@ -28,43 +24,39 @@ export function Hero() {
         )}
       />
 
-      {/* Bottom gradient overlay - stronger for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/55 to-primary/10 md:from-primary/85 md:via-primary/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/55 to-primary/15 md:from-primary/90 md:via-primary/35" />
 
-      {/* Content — CSS stagger animation (respects prefers-reduced-motion) */}
-      <div className="relative z-10 flex min-h-[100svh] items-end px-5 pb-24 pt-28 text-white sm:pb-16 md:px-12 md:pb-20 lg:px-20">
+      <div className="relative z-10 flex min-h-[100dvh] items-end px-5 pb-16 pt-24 text-white sm:pb-20 md:px-12 lg:px-20 lg:pb-24">
         <div className="w-full max-w-4xl">
-          {/* Brand eyebrow — small, elegant */}
-          <p className="text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-accent mb-3 md:mb-4 animate-hero-reveal [animation-delay:0.1s]">
-            WIRO 4×4 &nbsp;·&nbsp;{" "}
-            {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent md:mb-4 md:text-sm animate-hero-reveal [animation-delay:0.1s]">
+            {t("Private tours from Chiang Mai", "טיולים פרטיים מצ'יאנג מאי")}
           </p>
 
-          <h1 className="text-[clamp(2.5rem,1rem+5vw,4.75rem)] leading-[1.02] mb-4 md:mb-5 max-w-[22rem] sm:max-w-3xl lg:max-w-4xl text-balance drop-shadow-2xl animate-hero-reveal [animation-delay:0.2s]">
+          <h1 className="mb-4 max-w-[22rem] text-balance text-[clamp(2.5rem,1rem+5vw,4.75rem)] leading-[1.03] drop-shadow-2xl sm:max-w-3xl md:mb-5 lg:max-w-4xl animate-hero-reveal [animation-delay:0.2s]">
             {language === "he" ? (
               <>
                 טיולי 4×4 <span className="text-accent">כשרים</span> בצ'יאנג מאי
               </>
             ) : (
-              <>Private 4×4 Adventures, Planned Around Your Trip</>
+              <>Private 4×4 Journeys, Built Around You</>
             )}
           </h1>
 
-          <p className="text-sm min-[380px]:text-base md:text-lg lg:text-xl font-light text-white/90 mb-6 md:mb-8 max-w-[21rem] sm:max-w-xl drop-shadow-lg animate-hero-reveal [animation-delay:0.35s] relative">
+          <p className="relative mb-7 max-w-[21rem] text-sm font-light leading-relaxed text-white/90 drop-shadow-lg min-[380px]:text-base sm:max-w-xl md:text-lg lg:text-xl animate-hero-reveal [animation-delay:0.35s]">
             {t(
-              "Real off-road routes from Chiang Mai with Hebrew support, kosher-aware meal planning, and Shabbat-sensitive scheduling.",
-              "מסלולי שטח אמיתיים מצ'יאנג מאי, עם מענה בעברית, תכנון ארוחות מותאם כשרות ולוחות זמנים המתחשבים בשבת."
+              "Real off-road routes with Hebrew support, kosher-aware meals, and Shabbat-sensitive scheduling.",
+              "מסלולי שטח אמיתיים עם מענה בעברית, ארוחות מותאמות כשרות ולוחות זמנים המתחשבים בשבת."
             )}
             <span className="absolute -bottom-3 start-0 h-[2px] w-14 bg-accent" />
           </p>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 md:mb-6 animate-hero-reveal [animation-delay:0.5s] mt-4">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center animate-hero-reveal [animation-delay:0.5s]">
             <TrackedWhatsAppLink
               sourceCode={language === "he" ? "HOME-HERO-HE" : "HOME-HERO-EN"}
               humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
-              className="min-h-12 bg-[#075E54] hover:bg-[#064C44] active:bg-[#053D37] text-white font-bold px-8 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-2xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#075E54] focus:ring-offset-2 focus:ring-offset-primary"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-[#176b5b] px-7 py-3.5 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,0.24)] transition-all hover:bg-[#11594b] active:translate-y-px focus:outline-none focus:ring-2 focus:ring-[#176b5b] focus:ring-offset-2 focus:ring-offset-primary sm:w-auto md:text-base"
             >
               <MessageCircle className="w-5 h-5" aria-hidden="true" />
               {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
@@ -72,49 +64,14 @@ export function Hero() {
             <button
               type="button"
               onClick={openLevi}
-              className="min-h-12 border border-white/50 bg-white/10 text-white font-bold px-6 py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-xl w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-white/45 bg-white/10 px-6 py-3.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-md transition-all hover:bg-white/20 active:translate-y-px focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary sm:w-auto md:text-base"
             >
               <Bot className="w-5 h-5" aria-hidden="true" />
               {t("Ask Levi first", "שאלו קודם את לוי")}
             </button>
-            <button
-              type="button"
-              onClick={scrollToTours}
-              className="min-h-12 text-white font-bold px-4 py-3 rounded-lg transition-all w-full sm:w-auto tracking-wide uppercase text-sm md:text-base hover:bg-white/10 underline decoration-accent underline-offset-8 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary"
-            >
-              {t("See Route Ideas", "רעיונות למסלולים")}
-            </button>
-          </div>
-
-          <div className="max-w-[22rem] sm:max-w-2xl animate-hero-reveal [animation-delay:0.65s]">
-            <p className="flex items-start gap-2 text-sm md:text-base leading-relaxed text-white/85">
-              <ShieldCheck
-                className="mt-0.5 h-4 w-4 shrink-0 text-accent"
-                aria-hidden="true"
-              />
-              <span>
-                {t(
-                  "Levi can help with a route idea first; the WIRO team confirms availability in English or Hebrew. Send dates, group size, pickup area, and any food or Shabbat needs.",
-                  "לוי יכול לעזור קודם עם רעיון למסלול; צוות WIRO מאשר זמינות בעברית או באנגלית. שלחו תאריכים, מספר מטיילים, אזור איסוף וצרכי אוכל או שבת."
-                )}
-              </span>
-            </p>
           </div>
         </div>
       </div>
-
-      {/* Animated scroll chevron */}
-      <button
-        type="button"
-        aria-label={t("Scroll to route ideas", "גלילה לרעיונות למסלולים")}
-        className="hidden md:flex absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex-col items-center gap-1 cursor-pointer group rounded-sm px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-        onClick={scrollToTours}
-      >
-        <span className="text-white/50 text-xs tracking-[0.2em] uppercase">
-          {t("Scroll", "גלילה")}
-        </span>
-        <ChevronDown className="w-6 h-6 text-accent animate-hero-chevron" />
-      </button>
     </section>
   );
 }

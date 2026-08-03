@@ -37,7 +37,7 @@ test.describe("Homepage", () => {
     await expect(hero).toContainText(/4[×x]4|Chiang Mai/i);
   });
 
-  test("renders the cinematic hero without changing its booking actions", async ({
+  test("renders the cinematic hero with two focused booking actions", async ({
     page,
   }) => {
     await page.goto("/");
@@ -50,12 +50,8 @@ test.describe("Homepage", () => {
     await expect(
       hero.getByRole("button", { name: /ask levi first/i })
     ).toBeVisible();
-    await expect(
-      hero.getByRole("button", { name: "See Route Ideas" })
-    ).toBeVisible();
-    await expect(
-      hero.getByRole("button", { name: /scroll to route ideas/i })
-    ).toBeVisible();
+    await expect(hero.getByRole("link")).toHaveCount(1);
+    await expect(hero.getByRole("button")).toHaveCount(1);
   });
 
   test("uses the static car-only frame when reduced motion is requested", async ({
@@ -189,7 +185,7 @@ test.describe("Homepage", () => {
     await expect(page.getByTestId("cinematic-hero-background")).toBeVisible();
     await expect(
       page.getByRole("heading", {
-        name: "תכננו לפי צורכי המשפחה, האוכל והשפה",
+        name: "תכננו סביב מה שחשוב לקבוצה שלכם",
       })
     ).toBeVisible();
     await expect(

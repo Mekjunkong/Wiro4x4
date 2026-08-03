@@ -71,17 +71,20 @@ const LOCAL_GALLERY_IMAGES = [
 export function GalleryShowcase() {
   const { t } = useLanguage();
   const sectionRef = useScrollReveal<HTMLElement>({ y: 40, duration: 0.6 });
-  // Always use local images — DB gallery photos may have broken/unwanted S3 URLs
-  const images = LOCAL_GALLERY_IMAGES;
+  // Keep the homepage edit selective. The complete collection remains on /gallery.
+  const images = LOCAL_GALLERY_IMAGES.slice(0, 7);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-background">
+    <section ref={sectionRef} className="bg-muted/45 py-20 md:py-28">
       <div className="container">
         <div className="max-w-3xl mx-auto mb-10 md:mb-14 px-4">
           <PremiumSectionHeading
-            eyebrow={t("Visual Stories", "סיפורי חווייה")}
-            heading={t("Adventure Gallery", "גלריית הרפתקאות")}
-            decorativeBgText="GALLERY"
+            eyebrow={t("From the trail", "מהשטח")}
+            heading={t("A glimpse of the journey", "הצצה למסע")}
+            description={t(
+              "Mountain tracks, river crossings, and the people who make northern Thailand memorable.",
+              "שבילי הרים, חציות נהר והאנשים שהופכים את צפון תאילנד לבלתי נשכח."
+            )}
           />
         </div>
 
@@ -89,7 +92,7 @@ export function GalleryShowcase() {
           {images.map(img => (
             <div
               key={img.src}
-              className="relative overflow-hidden rounded-lg group break-inside-avoid"
+              className="group relative break-inside-avoid overflow-hidden rounded-sm"
             >
               <OptimizedImage
                 src={img.src}
@@ -97,9 +100,9 @@ export function GalleryShowcase() {
                 width={800}
                 height={600}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-auto w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-primary/70 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
                 <span className="text-white text-sm font-medium">
                   {t(img.caption, img.captionHe)}
                 </span>
@@ -108,10 +111,10 @@ export function GalleryShowcase() {
           ))}
         </div>
 
-        <div className="text-center mt-10">
+        <div className="mt-10 text-center">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2 text-accent hover:text-accent-cta-hover font-semibold text-lg transition-colors"
+            className="inline-flex items-center gap-2 text-base font-semibold text-accent-readable transition-colors hover:text-accent-cta-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4"
           >
             {t("See Full Gallery", "לגלריה המלאה")}
             <ArrowRight className="w-5 h-5" />
