@@ -16,7 +16,7 @@ vi.mock("@/components/OptimizedImage", async () => {
 });
 
 describe("CinematicHeroBackground", () => {
-  it("renders one semantic base image and two decorative scene overlays", () => {
+  it("renders the semantic LCP frame before decorative scenes hydrate", () => {
     const markup = renderToStaticMarkup(
       createElement(CinematicHeroBackground, {
         alt: "WIRO 4x4 vehicle on a jungle road in Chiang Mai",
@@ -32,13 +32,10 @@ describe("CinematicHeroBackground", () => {
     expect(markup).not.toContain("tourists_with_4x4");
     expect(markup).not.toContain("offroad_vehicle_forest_trail");
 
-    expect(markup).toContain('data-cinematic-hero-layer="landscape"');
-    expect(markup).toContain('src="mountain_sunset_golden"');
-    expect(markup).toContain('data-cinematic-hero-layer="action"');
-    expect(markup).toContain('src="4x4_water_splash"');
-
-    expect(markup.match(/data-cinematic-hero-overlay="true"/g)).toHaveLength(2);
-    expect(markup.match(/aria-hidden="true"/g)).toHaveLength(2);
-    expect(markup.match(/alt=""/g)).toHaveLength(2);
+    expect(markup).not.toContain('data-cinematic-hero-layer="landscape"');
+    expect(markup).not.toContain('src="mountain_sunset_golden"');
+    expect(markup).not.toContain('data-cinematic-hero-layer="action"');
+    expect(markup).not.toContain('src="4x4_water_splash"');
+    expect(markup).not.toContain('data-cinematic-hero-overlay="true"');
   });
 });

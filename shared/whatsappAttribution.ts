@@ -259,6 +259,20 @@ export const WHATSAPP_SOURCES = [
     channelFallback: "organic",
   },
   {
+    code: "BOOKING-QUICK-EN",
+    page: "/book",
+    placement: "quick-availability",
+    language: "en",
+    channelFallback: "direct",
+  },
+  {
+    code: "BOOKING-QUICK-HE",
+    page: "/book",
+    placement: "quick-availability",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
     code: "BOOKING-SUBMIT-EN",
     page: "/book",
     placement: "submit-success",

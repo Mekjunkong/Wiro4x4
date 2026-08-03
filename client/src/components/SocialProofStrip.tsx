@@ -26,6 +26,11 @@ const TRUST_BADGES = [
   { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: Flame },
 ];
 
+const TRIPADVISOR_REVIEW_SNAPSHOT = {
+  rating: "5.0",
+  reviewCount: 7,
+} as const;
+
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5" aria-label={`${rating} out of 5 stars`}>
@@ -68,11 +73,11 @@ export function SocialProofStrip() {
           <p className="mx-auto mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">
             {t(
               hasReviews
-                ? "These approved website submissions come from our guests. You can also check our public review listing."
-                : "No approved website reviews are shown yet. Check our public listing for independent traveler feedback.",
+                ? "Guest-submitted reviews appear here when approved. You can also check our independent Tripadvisor listing."
+                : "Independent traveler feedback is available on Tripadvisor. Guest-submitted reviews will appear here when approved.",
               hasReviews
-                ? "הביקורות המאושרות באתר נשלחו על ידי האורחים שלנו. אפשר לבדוק גם את עמוד הביקורות הציבורי."
-                : "עדיין לא מוצגות ביקורות מאושרות באתר. אפשר לבדוק משוב עצמאי של מטיילים בעמוד הציבורי שלנו."
+                ? "ביקורות אורחים שאושרו מופיעות כאן. אפשר לבדוק גם את עמוד Tripadvisor העצמאי שלנו."
+                : "משוב עצמאי של מטיילים זמין ב-Tripadvisor. ביקורות אורחים יופיעו כאן לאחר אישורן."
             )}
           </p>
         </div>
@@ -137,12 +142,22 @@ export function SocialProofStrip() {
                 language,
               })
             }
-            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
+            className="mb-5 inline-flex items-center gap-3 rounded-full border border-accent/30 bg-card px-5 py-3 text-sm font-semibold text-accent shadow-sm transition-colors hover:border-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
-            {t(
-              "Read public reviews on Tripadvisor",
-              "קראו ביקורות ציבוריות ב-Tripadvisor"
-            )}
+            <span className="text-start">
+              <span className="block text-base leading-tight">
+                {t(
+                  "Tripadvisor public reviews",
+                  "ביקורות ציבוריות ב-Tripadvisor"
+                )}
+              </span>
+              <span className="mt-1 block text-xs font-medium text-muted-foreground">
+                {t(
+                  `${TRIPADVISOR_REVIEW_SNAPSHOT.rating}/5 from ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} reviews`,
+                  `${TRIPADVISOR_REVIEW_SNAPSHOT.rating}/5 מתוך ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} ביקורות`
+                )}
+              </span>
+            </span>
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
           <div className="inline-flex max-w-2xl items-center gap-2 rounded-full border border-accent/30 bg-card px-5 py-2 shadow-sm">

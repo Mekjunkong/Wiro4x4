@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
 type CinematicHeroBackgroundProps = {
@@ -24,6 +24,18 @@ const HERO_SCENES = {
 } as const;
 
 export function CinematicHeroBackground({ alt }: CinematicHeroBackgroundProps) {
+  const [showOverlays, setShowOverlays] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+
+    // Let the LCP frame establish itself before fetching decorative scenes.
+    const timer = window.setTimeout(() => setShowOverlays(true), 1800);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div data-testid="cinematic-hero-background" className="cinematic-hero">
       <div
@@ -37,45 +49,45 @@ export function CinematicHeroBackground({ alt }: CinematicHeroBackgroundProps) {
           height={HERO_SCENES.base.height}
           className="cinematic-hero__image cinematic-hero__image--base"
           sizes="100vw"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
-
-      <div
-        data-cinematic-hero-layer="landscape"
-        data-cinematic-hero-overlay="true"
-        className="cinematic-hero__layer cinematic-hero__overlay cinematic-hero__overlay--landscape"
-      >
-        <OptimizedImage
-          src={HERO_SCENES.landscape.src}
-          alt=""
-          aria-hidden="true"
-          width={HERO_SCENES.landscape.width}
-          height={HERO_SCENES.landscape.height}
-          className="cinematic-hero__image cinematic-hero__image--landscape"
-          sizes="100vw"
           priority
         />
       </div>
 
-      <div
-        data-cinematic-hero-layer="action"
-        data-cinematic-hero-overlay="true"
-        className="cinematic-hero__layer cinematic-hero__overlay cinematic-hero__overlay--action"
-      >
-        <OptimizedImage
-          src={HERO_SCENES.action.src}
-          alt=""
-          aria-hidden="true"
-          width={HERO_SCENES.action.width}
-          height={HERO_SCENES.action.height}
-          className="cinematic-hero__image cinematic-hero__image--action"
-          sizes="100vw"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
+      {showOverlays && (
+        <>
+          <div
+            data-cinematic-hero-layer="landscape"
+            data-cinematic-hero-overlay="true"
+            className="cinematic-hero__layer cinematic-hero__overlay cinematic-hero__overlay--landscape"
+          >
+            <OptimizedImage
+              src={HERO_SCENES.landscape.src}
+              alt=""
+              aria-hidden="true"
+              width={HERO_SCENES.landscape.width}
+              height={HERO_SCENES.landscape.height}
+              className="cinematic-hero__image cinematic-hero__image--landscape"
+              sizes="100vw"
+            />
+          </div>
+
+          <div
+            data-cinematic-hero-layer="action"
+            data-cinematic-hero-overlay="true"
+            className="cinematic-hero__layer cinematic-hero__overlay cinematic-hero__overlay--action"
+          >
+            <OptimizedImage
+              src={HERO_SCENES.action.src}
+              alt=""
+              aria-hidden="true"
+              width={HERO_SCENES.action.width}
+              height={HERO_SCENES.action.height}
+              className="cinematic-hero__image cinematic-hero__image--action"
+              sizes="100vw"
+            />
+          </div>
+        </>
+      )}
 
       <div className="cinematic-hero__grain" />
     </div>

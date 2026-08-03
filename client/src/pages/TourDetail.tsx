@@ -1256,6 +1256,15 @@ export default function TourDetail() {
     });
   }, [language, slug, tour]);
 
+  const handleAvailabilityRequest = () => {
+    trackEvent("booking_start", {
+      page: `/tours/${slug}`,
+      placement: "tour-detail-availability",
+      language,
+      tour: slug,
+    });
+  };
+
   useEffect(() => {
     if (
       !tour ||
@@ -1775,25 +1784,18 @@ export default function TourDetail() {
                   )}
 
                   <div className="space-y-3 pt-2">
-                    <Link href={`/book?tour=${slug}`}>
-                      <Button
-                        className="w-full gap-2"
-                        variant="default"
-                        size="lg"
-                      >
-                        <Calendar className="w-5 h-5" />
-                        {t("Book Now", "הזמינו עכשיו")}
-                      </Button>
-                    </Link>
                     <Button
                       asChild
                       className="w-full gap-2"
-                      variant="outline"
+                      variant="default"
                       size="lg"
                     >
-                      <Link href={`/book?tour=${slug}`}>
+                      <Link
+                        href={`/book?tour=${slug}`}
+                        onClick={handleAvailabilityRequest}
+                      >
                         <Calendar className="w-5 h-5" />
-                        {t("Book Now", "הזמינו עכשיו")}
+                        {t("Check Availability", "בדיקת זמינות")}
                       </Link>
                     </Button>
                     <Button

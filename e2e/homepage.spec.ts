@@ -53,6 +53,9 @@ test.describe("Homepage", () => {
     await expect(
       hero.getByRole("button", { name: "See Route Ideas" })
     ).toBeVisible();
+    await expect(
+      hero.getByRole("button", { name: /scroll to route ideas/i })
+    ).toBeVisible();
   });
 
   test("uses the static car-only frame when reduced motion is requested", async ({
@@ -83,7 +86,7 @@ test.describe("Homepage", () => {
         };
       });
 
-    expect(motionState.overlayDisplays).toEqual(["none", "none"]);
+    expect(motionState.overlayDisplays).toEqual([]);
     expect(motionState.baseAnimation).toBe("none");
     const hero = page.locator("main section").first();
     await expect(

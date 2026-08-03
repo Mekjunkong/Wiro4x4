@@ -9,11 +9,6 @@ import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
-  Calendar,
-  Users,
-  MapPin,
-  Car,
-  User,
   MessageCircle,
   Loader2,
   Save,
@@ -25,6 +20,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { Button } from "@/components/ui/button";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import {
   TripDetailsStep,
   ServicesStep,
@@ -88,9 +84,9 @@ export default function BookingForm() {
   const { language, t } = useLanguage();
   const isHebrew = language === "he";
   usePageMeta({
-    title: "Book Your Tour",
+    title: "Check Tour Availability",
     description:
-      "Book your kosher off-road adventure in Chiang Mai with WIRO 4x4. Hebrew-speaking guides and Shabbat-friendly scheduling.",
+      "Check availability for a private Chiang Mai 4x4 tour with WIRO. Hebrew-speaking guides and Shabbat-friendly scheduling.",
     canonicalPath: "/book",
   });
 
@@ -121,6 +117,10 @@ export default function BookingForm() {
   const [toursParam] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("tours");
+  });
+  const [tourParam] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tour");
   });
 
   // N5: Load draft from localStorage on mount
@@ -171,13 +171,20 @@ export default function BookingForm() {
         : [],
     [toursParam]
   );
+  const selectedTourSlugs = useMemo(
+    () =>
+      Array.from(
+        new Set([...preSelectedSlugs, ...(tourParam ? [tourParam] : [])])
+      ),
+    [preSelectedSlugs, tourParam]
+  );
   const { data: allTours } = trpc.tour.list.useQuery(undefined, {
-    enabled: preSelectedSlugs.length > 0,
+    enabled: selectedTourSlugs.length > 0,
   });
   const [toursApplied, setToursApplied] = useState(false);
   useEffect(() => {
-    if (toursApplied || preSelectedSlugs.length === 0 || !allTours) return;
-    const matched = allTours.filter(t => preSelectedSlugs.includes(t.slug));
+    if (toursApplied || selectedTourSlugs.length === 0 || !allTours) return;
+    const matched = allTours.filter(t => selectedTourSlugs.includes(t.slug));
     if (matched.length === 0) return;
 
     // Map tour slugs to destination region IDs where possible
@@ -202,11 +209,48 @@ export default function BookingForm() {
       ),
       specialRequests: prev.specialRequests
         ? prev.specialRequests
-        : `Package tours: ${tourNames}`,
+        : `Selected route: ${tourNames}`,
       includesTrip: true,
     }));
     setToursApplied(true);
-  }, [allTours, preSelectedSlugs, toursApplied]);
+  }, [allTours, selectedTourSlugs, toursApplied]);
+
+  const selectedTourName = useMemo(
+    () =>
+      allTours?.find(tour => tour.slug === tourParam)?.name ??
+      allTours
+        ?.filter(tour => preSelectedSlugs.includes(tour.slug))
+        .map(tour => tour.name)
+        .join(", ") ??
+      "",
+    [allTours, preSelectedSlugs, tourParam]
+  );
+
+  const quickAvailabilityMessage = useMemo(
+    () =>
+      isHebrew
+        ? [
+            "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי.",
+            selectedTourName ? `מסלול: ${selectedTourName}` : "",
+            "תאריכים: __",
+            "מספר מטיילים: __",
+            "אזור איסוף / מלון: __",
+            "צרכי כשרות / שבת / מדריך בעברית: __",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : [
+            "Hi WIRO 4x4, I'd like to check availability for a private tour.",
+            selectedTourName ? `Tour: ${selectedTourName}` : "",
+            "Dates: __",
+            "Group size: __",
+            "Pickup area / hotel: __",
+            "Kosher / Shabbat / Hebrew-guide needs: __",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+    [isHebrew, selectedTourName]
+  );
 
   // N5: Auto-save draft to localStorage (debounced)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -632,7 +676,7 @@ export default function BookingForm() {
           <div className="absolute inset-0 bg-primary/60" />
           <div className="relative z-10 text-center px-4">
             <h1 className="text-4xl md:text-5xl font-serif font-medium text-white mb-2">
-              {t("Book Your Adventure", "הזמינו את ההרפתקה")}
+              {t("Plan Your Private Adventure", "תכננו את ההרפתקה הפרטית")}
             </h1>
             <GoldDivider />
           </div>
@@ -643,46 +687,49 @@ export default function BookingForm() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Form Column */}
             <div className="lg:col-span-2 bg-card border border-accent/30 rounded-sm shadow-premium p-6 md:p-8">
-              {/* Progress indicator showing form sections */}
-              <div className="mb-8 overflow-x-auto scrollbar-hide">
-                <div className="flex items-center justify-between min-w-[500px] px-2">
-                  {[
-                    {
-                      num: 1,
-                      label: t("Trip Details", "פרטי הטיול"),
-                      icon: Users,
-                    },
-                    { num: 2, label: t("Dates", "תאריכים"), icon: Calendar },
-                    { num: 3, label: t("Services", "שירותים"), icon: Car },
-                    { num: 4, label: t("Destinations", "יעדים"), icon: MapPin },
-                    { num: 5, label: t("Contact", "פרטי קשר"), icon: User },
-                    {
-                      num: 6,
-                      label: t("Submit", "שליחה"),
-                      icon: MessageCircle,
-                    },
-                  ].map((step, idx, arr) => {
-                    const StepIcon = step.icon;
-                    return (
-                      <div
-                        key={step.num}
-                        className="flex items-center flex-1 last:flex-initial"
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center text-sm font-bold border-2 border-accent/30">
-                            <StepIcon className="w-4 h-4 md:w-5 md:h-5" />
-                          </div>
-                          <span className="text-[10px] md:text-xs text-muted-foreground font-medium text-center whitespace-nowrap">
-                            {step.label}
-                          </span>
-                        </div>
-                        {idx < arr.length - 1 && (
-                          <div className="flex-1 h-0.5 bg-accent/20 mx-1 md:mx-2 mt-[-16px]" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="mb-8 rounded-sm border border-accent/30 bg-accent/5 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+                  {t("Fastest path", "הדרך המהירה")}
+                </p>
+                <h2 className="mt-2 text-2xl font-serif font-semibold text-foreground">
+                  {t(
+                    "Check availability before planning every detail",
+                    "בדקו זמינות לפני שמתכננים כל פרט"
+                  )}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {t(
+                    "Send a short WhatsApp message to confirm your date and exact price personally. No payment is taken at this stage.",
+                    "שלחו הודעת וואטסאפ קצרה כדי לאשר אישית את התאריך והמחיר המדויק. בשלב זה לא מתבצע תשלום."
+                  )}
+                </p>
+                <TrackedWhatsAppLink
+                  sourceCode={
+                    language === "he" ? "BOOKING-QUICK-HE" : "BOOKING-QUICK-EN"
+                  }
+                  humanMessage={quickAvailabilityMessage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#25D366] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+                >
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  {t("Check availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
+                </TrackedWhatsAppLink>
+              </div>
+
+              <div className="mb-8 border-b border-border pb-6">
+                <h2 className="text-xl font-serif font-semibold text-foreground">
+                  {t(
+                    "Prefer a detailed trip plan?",
+                    "מעדיפים לתכנן טיול מפורט?"
+                  )}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t(
+                    "Share the details below and we will prepare a tailored private-trip request.",
+                    "שתפו את הפרטים למטה ונכין בקשה מותאמת לטיול פרטי."
+                  )}
+                </p>
               </div>
 
               {/* Error Summary */}
@@ -806,8 +853,8 @@ export default function BookingForm() {
                   <div className="flex items-center gap-1">
                     <RotateCcw className="h-3 w-3" />
                     {t(
-                      "Free cancellation within 48h",
-                      "\u05D1\u05D9\u05D8\u05D5\u05DC \u05D7\u05D9\u05E0\u05DD \u05EA\u05D5\u05DA 48 \u05E9\u05E2\u05D5\u05EA"
+                      "Full refund 7+ days before the tour",
+                      "החזר מלא 7+ ימים לפני הטיול"
                     )}
                   </div>
                   <div className="flex items-center gap-1">

@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Bot, ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CinematicHeroBackground } from "@/components/CinematicHeroBackground";
@@ -6,7 +5,6 @@ import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function Hero() {
   const { t, language } = useLanguage();
-  const chevronRef = useRef<HTMLDivElement>(null);
 
   const whatsappMessage =
     language === "he"
@@ -106,16 +104,17 @@ export function Hero() {
       </div>
 
       {/* Animated scroll chevron */}
-      <div
-        ref={chevronRef}
-        className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 cursor-pointer group"
+      <button
+        type="button"
+        aria-label={t("Scroll to route ideas", "גלילה לרעיונות למסלולים")}
+        className="hidden md:flex absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex-col items-center gap-1 cursor-pointer group rounded-sm px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         onClick={scrollToTours}
       >
         <span className="text-white/50 text-xs tracking-[0.2em] uppercase">
           {t("Scroll", "גלילה")}
         </span>
         <ChevronDown className="w-6 h-6 text-accent animate-hero-chevron" />
-      </div>
+      </button>
     </section>
   );
 }
