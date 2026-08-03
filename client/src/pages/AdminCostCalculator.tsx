@@ -728,10 +728,10 @@ function calculateCosts(
 // ── Main Component ───────────────────────────────────────────
 
 export default function AdminCostCalculator() {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
 
-  if (!loading && !isAuthenticated) {
+  if (!loading && (!isAuthenticated || user?.role !== "admin")) {
     navigate(LOGIN_URL);
     return null;
   }

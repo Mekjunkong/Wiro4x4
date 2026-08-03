@@ -185,7 +185,7 @@ ${args.availabilityPrompt}
 11. Only help with WIRO tours, bookings, and Chiang Mai travel relevant to WIRO. Briefly redirect unrelated requests.
 
 Website: https://www.wiro4x4indochina.com
-Estimator: https://www.wiro4x4indochina.com/estimate
+Pricing: https://www.wiro4x4indochina.com/pricing
 Booking form: https://www.wiro4x4indochina.com/book
 WhatsApp: +${WIRO_WHATSAPP_NUMBER}`;
 }

@@ -178,8 +178,8 @@ const AUTO_REPLY_RULES: AutoReplyRule[] = [
       "עלות",
       "כמה עולה",
     ],
-    replyEn: `Our tour prices start from 3,500 THB per person. Check our full pricing and trip cost estimator here:\n${SITE_URL}/pricing\n${SITE_URL}/estimate`,
-    replyHe: `מחירי הטיולים שלנו מתחילים מ-3,500 בט לאדם. בדקו את המחירון המלא ומחשבון העלויות כאן:\n${SITE_URL}/pricing\n${SITE_URL}/estimate`,
+    replyEn: `Our tour prices start from 3,500 THB per person. Check our full pricing here:\n${SITE_URL}/pricing`,
+    replyHe: `מחירי הטיולים שלנו מתחילים מ-3,500 בט לאדם. בדקו את המחירון המלא כאן:\n${SITE_URL}/pricing`,
   },
   {
     keywords: [

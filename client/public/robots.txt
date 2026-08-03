@@ -6,7 +6,6 @@ Allow: /packages/
 Allow: /gallery
 Allow: /reviews
 Allow: /pricing
-Allow: /estimate
 Allow: /kosher-tours
 Allow: /hebrew-guide
 Allow: /accessible-tours

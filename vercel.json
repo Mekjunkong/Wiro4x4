@@ -6,6 +6,11 @@
   "outputDirectory": "dist/public",
   "redirects": [
     {
+      "source": "/estimate",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "wiro4x4indochina.com" }],
       "destination": "https://www.wiro4x4indochina.com/:path*",

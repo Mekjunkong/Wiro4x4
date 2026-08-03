@@ -131,7 +131,7 @@ steps:
               </ul>
 
               <p style="text-align: center;">
-                <a href="{{base_url}}/estimate" class="cta-button">
+                <a href="{{base_url}}/pricing" class="cta-button">
                   💰 Get a Custom Quote
                 </a>
               </p>

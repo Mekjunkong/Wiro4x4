@@ -417,16 +417,6 @@ export function Tours() {
             ))}
           </div>
         )}
-
-        <div className="text-center mt-12">
-          <Link
-            href="/estimate"
-            className={`inline-flex items-center gap-2 text-accent hover:text-accent/80 font-medium text-lg transition-colors ${isHebrew ? "flex-row-reverse" : ""}`}
-          >
-            {t("Estimate Your Trip Cost", "חשבו את עלות הטיול")}
-            <ArrowRight className={`h-5 w-5 ${isHebrew ? "rotate-180" : ""}`} />
-          </Link>
-        </div>
       </div>
     </section>
   );

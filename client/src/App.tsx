@@ -13,7 +13,6 @@ import { captureUtmParams } from "@/lib/utm";
 import { useBehaviorTracking } from "@/hooks/useBehaviorTracking";
 
 const Pricing = React.lazy(() => import("./pages/Pricing"));
-const Estimate = React.lazy(() => import("./pages/Estimate"));
 const TourDetail = React.lazy(() => import("./pages/TourDetail"));
 const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
@@ -76,6 +75,16 @@ function LoadingSpinner() {
   );
 }
 
+function LegacyEstimateRedirect() {
+  const [, navigate] = useLocation();
+
+  React.useEffect(() => {
+    navigate("/pricing", { replace: true });
+  }, [navigate]);
+
+  return null;
+}
+
 function Router() {
   const [location] = useLocation();
 
@@ -91,7 +100,7 @@ function Router() {
           <Switch>
             <Route path={"/"} component={Home} />
             <Route path={"/pricing"} component={Pricing} />
-            <Route path={"/estimate"} component={Estimate} />
+            <Route path={"/estimate"} component={LegacyEstimateRedirect} />
             <Route path={"/tours"} component={ToursListing} />
             <Route path={"/tours/:slug"} component={TourDetail} />
             <Route path={"/packages"} component={Packages} />

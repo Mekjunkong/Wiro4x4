@@ -243,12 +243,6 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "Transparent group pricing for WIRO 4x4 tours in Chiang Mai. Private tours from $98/group, multi-day packages, kosher meal add-ons, and peak season rates.",
     canonicalPath: "/pricing",
   },
-  "/estimate": {
-    title: "4x4 Tour Price Estimator — Chiang Mai",
-    description:
-      "Get an instant price estimate for your Chiang Mai 4x4 tour. Select tours, group size, children ages, and add-ons to see your exact total.",
-    canonicalPath: "/estimate",
-  },
   "/blog": {
     title: "Chiang Mai Travel Blog & Kosher Travel Tips",
     description:

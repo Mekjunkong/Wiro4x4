@@ -8,7 +8,6 @@ import { GoldDivider } from "@/components/GoldDivider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Calculator,
   Check,
   Users,
   Clock,
@@ -308,15 +307,6 @@ export default function Pricing() {
                   "כל המחירים כוללים רכב פרטי, מדריך דובר עברית, ארוחות כשרות וביטוח. ללא עלויות נסתרות."
                 )}
               </p>
-              <Button
-                onClick={() => (window.location.href = "/estimate")}
-                size="lg"
-                variant="default"
-                className="mb-4 bg-accent-cta hover:bg-accent-cta-hover text-white"
-              >
-                <Calculator className="w-5 h-5 mr-2" />
-                {t("Try the Trip Cost Estimator", "נסו את מחשבון עלות הטיול")}
-              </Button>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-accent" />

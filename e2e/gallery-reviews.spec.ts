@@ -76,9 +76,12 @@ test.describe("Additional Pages Load Test", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("should load estimate page", async ({ page }) => {
+  test("should redirect the retired estimate page to pricing", async ({
+    page,
+  }) => {
     await page.goto("/estimate");
 
+    await expect(page).toHaveURL(/\/pricing$/);
     await expect(page.locator("header")).toBeVisible();
   });
 

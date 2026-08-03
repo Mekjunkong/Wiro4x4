@@ -29,7 +29,7 @@ Kosher meals, Hebrew-speaking guide, and trails most tourists never see.
 **Quick links:**
 
 - See our tours: [website/tours]
-- Estimate your cost: [website/estimate]
+- View pricing: [website/pricing]
 - Chat with us on WhatsApp: [WhatsApp link]
 
 We'll follow up within 24 hours with ideas for your trip. Or if you want to chat now, hit reply or message us on WhatsApp — we respond fast.
@@ -92,7 +92,7 @@ We hear this a lot: people book 2 days and wish they'd booked more. If you're on
 
 - Reply to this email with your dates
 - Or WhatsApp us: +66816401397
-- Or use our cost estimator: [website/estimate]
+- Or view our pricing: [website/pricing]
 
 We'd love to show you the Chiang Mai most tourists never see.
 
