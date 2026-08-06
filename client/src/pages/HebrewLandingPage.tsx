@@ -299,6 +299,38 @@ export function CommercialLandingPage({
           </div>
         </section>
 
+        {content.planningSection ? (
+          <section className="bg-muted/40 py-16 md:py-20">
+            <div className="container max-w-5xl">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
+                {copyFor(content.planningSection.eyebrow, language)}
+              </p>
+              <h2 className="mt-3 max-w-3xl text-3xl font-medium md:text-4xl">
+                {copyFor(content.planningSection.title, language)}
+              </h2>
+              <p className="mt-5 max-w-4xl leading-relaxed text-muted-foreground">
+                {copyFor(content.planningSection.body, language)}
+              </p>
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+                {content.planningSection.links.map(link => (
+                  <Link
+                    key={link.href}
+                    href={
+                      language === "he" && link.hrefHe
+                        ? link.hrefHe
+                        : link.href
+                    }
+                    className="inline-flex items-center gap-2 font-semibold text-accent hover:underline"
+                  >
+                    {copyFor(link.label, language)}
+                    <Arrow className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         <section className="py-16 md:py-20">
           <div className="container grid gap-8 md:grid-cols-2">
             <div>

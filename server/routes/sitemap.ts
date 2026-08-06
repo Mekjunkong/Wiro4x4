@@ -117,6 +117,12 @@ const STATIC_PAGES = [
     changefreq: "weekly",
     lastmod: null,
   },
+  {
+    path: "/about",
+    priority: "0.6",
+    changefreq: "monthly",
+    lastmod: null,
+  },
   ...COMMERCIAL_PAGES,
   {
     path: "/accessible-tours",

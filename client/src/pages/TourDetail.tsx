@@ -34,6 +34,7 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { DEPOSIT_RATE } from "@shared/pricing";
 import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
+import { resolveTourSeoMeta } from "@shared/tourSeoOverrides";
 
 function catalogPrice(slug: string): number {
   const tour = getFallbackTourBySlug(slug);
@@ -831,9 +832,38 @@ const TOUR_ENRICHMENT: Record<
     bestTimeToVisit: { en: string; he: string };
     localTips: { en: string; he: string }[];
     relatedTourSlugs: string[];
+    seoIntro?: {
+      heading: { en: string; he: string };
+      body: { en: string; he: string };
+      links: { href: string; hrefHe?: string; en: string; he: string }[];
+    };
   }
 > = {
   "doi-inthanon-roof-of-thailand": {
+    seoIntro: {
+      heading: {
+        en: "A Private Doi Inthanon Tour from Chiang Mai",
+        he: "טיול פרטי לדוי אינתנון מצ'יאנג מאי",
+      },
+      body: {
+        en: "Travel by private 4x4 from Chiang Mai to Thailand's 2,565m summit, then explore Wachirathan Waterfall, the Pha Dok Siew nature trail, and coffee grown by the Karen community at Mae Klang Luang village.",
+        he: "צאו ברכב 4x4 פרטי מצ'יאנג מאי אל הפסגה הגבוהה בתאילנד, בגובה 2,565 מטר, והמשיכו למפל וצ'יראטאן, לשביל הטבע פה דוק סיו ולקפה שמגדלת קהילת קארן בכפר מאה קלאנג לואנג.",
+      },
+      links: [
+        {
+          href: "/kosher-tours",
+          hrefHe: "/he/kosher-tours-chiang-mai",
+          en: "Kosher-friendly tour planning",
+          he: "תכנון טיול ידידותי לכשרות",
+        },
+        {
+          href: "/hebrew-guide",
+          hrefHe: "/he/hebrew-guide-chiang-mai",
+          en: "Hebrew-speaking guide support",
+          he: "תמיכה של מדריך דובר עברית",
+        },
+      ],
+    },
     whatToBring: [
       {
         en: "Warm layer (10-15C at summit)",
@@ -979,6 +1009,29 @@ const TOUR_ENRICHMENT: Record<
     ],
   },
   "mae-wang-jungle-wilderness": {
+    seoIntro: {
+      heading: {
+        en: "A Private Mae Wang Jungle 4x4 Adventure",
+        he: "הרפתקת ג'ונגל פרטית ב-4x4 במאה וואנג",
+      },
+      body: {
+        en: "This private route combines Pha Chor's sandstone canyon, 4x4 river crossings, a no-riding elephant walk, and bamboo rafting on the Wang River. Because of its remote location, Mae Wang is the only tour not scheduled on Shabbat.",
+        he: "המסלול הפרטי משלב את קניון אבן החול פה צ'ור, חציות נהר ב-4x4, הליכה לצד פילים ללא רכיבה ושיט במבוק בנהר וואנג. בגלל מיקומו המרוחק, מאה וואנג הוא הטיול היחיד שאינו מתוזמן בשבת.",
+      },
+      links: [
+        {
+          href: "/tours",
+          en: "Compare all Chiang Mai 4x4 tours",
+          he: "השוו בין כל טיולי ה-4x4 בצ'יאנג מאי",
+        },
+        {
+          href: "/kosher-tours",
+          hrefHe: "/he/kosher-tours-chiang-mai",
+          en: "Plan kosher-friendly logistics",
+          he: "תכננו לוגיסטיקה ידידותית לכשרות",
+        },
+      ],
+    },
     whatToBring: [
       {
         en: "Sturdy closed-toe shoes (river crossings)",
@@ -1225,13 +1278,20 @@ export default function TourDetail() {
   })();
 
   // SEO: Per-tour meta + JSON-LD structured data
+  const tourSeoMeta = tour
+    ? resolveTourSeoMeta(slug, {
+        title: `${tour.name} — Chiang Mai 4x4 Tour`,
+        description: tour.description.slice(0, 160),
+      })
+    : null;
+
   usePageMeta(
-    tour
+    tour && tourSeoMeta
       ? {
-          title: `${tour.name} — Chiang Mai 4x4 Tour`,
-          description: tour.description.slice(0, 160),
-          ogTitle: `${tour.name} | Kosher Off-Road Tour | WIRO 4x4`,
-          ogDescription: tour.description.slice(0, 200),
+          title: tourSeoMeta.title,
+          description: tourSeoMeta.description,
+          ogTitle: tourSeoMeta.title,
+          ogDescription: tourSeoMeta.description,
           ogImage: tour.imageUrl.startsWith("http")
             ? tour.imageUrl
             : `https://www.wiro4x4indochina.com${tour.imageUrl}`,
@@ -1374,6 +1434,7 @@ export default function TourDetail() {
     DIFFICULTY_LABELS[tour.difficulty] ?? DIFFICULTY_LABELS.moderate;
   const diffColor =
     DIFFICULTY_COLORS[tour.difficulty] ?? DIFFICULTY_COLORS.moderate;
+  const enrichment = getTourEnrichment(slug);
 
   const whatsappMessage = t(
     `Hi WIRO 4x4! I'm interested in the ${tour.name}. Can you share pricing and availability?`,
@@ -1451,6 +1512,38 @@ export default function TourDetail() {
                     {t(tour.description, tour.descriptionHe)}
                   </p>
                 </div>
+
+                {enrichment?.seoIntro && (
+                  <section className="rounded-sm border-s-2 border-accent bg-accent/5 p-5 md:p-6">
+                    <h2 className="mb-3 text-2xl font-medium">
+                      {t(
+                        enrichment.seoIntro.heading.en,
+                        enrichment.seoIntro.heading.he
+                      )}
+                    </h2>
+                    <p className="leading-relaxed text-muted-foreground">
+                      {t(
+                        enrichment.seoIntro.body.en,
+                        enrichment.seoIntro.body.he
+                      )}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                      {enrichment.seoIntro.links.map(link => (
+                        <Link
+                          key={link.href}
+                          href={
+                            language === "he" && link.hrefHe
+                              ? link.hrefHe
+                              : link.href
+                          }
+                          className="font-medium text-accent hover:underline"
+                        >
+                          {t(link.en, link.he)}
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 {/* Social Proof */}
                 <TourSocialProof />

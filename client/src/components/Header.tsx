@@ -35,9 +35,13 @@ export function Header() {
 
   const isActive = (path: string) => currentPath === path;
   const isHomePage = currentPath === "/";
-  const isExploreActive = ["/gallery", "/blog", "/faq", "/car-rental"].some(
-    path => currentPath.startsWith(path)
-  );
+  const isExploreActive = [
+    "/gallery",
+    "/blog",
+    "/faq",
+    "/car-rental",
+    "/about",
+  ].some(path => currentPath.startsWith(path));
   const whatsappMessage = t(
     "Hi WIRO 4x4, I'd like to check availability for a private trip. Dates: __ Group size: __ Pickup area: __",
     "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי. תאריכים: __ מספר מטיילים: __ אזור איסוף: __"
@@ -170,6 +174,9 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/blog">{t("Blog", "בלוג")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/about">{t("About Wiro", "אודות וירו")}</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -311,6 +318,12 @@ export function Header() {
             <Link href="/faq" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
                 {t("FAQ", "שאלות נפוצות")}
+              </span>
+            </Link>
+            <div className="h-px w-12 bg-accent/30" />
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
+              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
+                {t("About Wiro", "אודות וירו")}
               </span>
             </Link>
             <div className="h-px w-12 bg-accent/30" />

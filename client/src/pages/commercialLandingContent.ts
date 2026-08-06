@@ -31,6 +31,12 @@ export interface CommercialLandingContent {
   included: LocalizedCopy[];
   excluded: LocalizedCopy[];
   relatedTours: Array<{ href: string; label: LocalizedCopy }>;
+  planningSection?: {
+    eyebrow: LocalizedCopy;
+    title: LocalizedCopy;
+    body: LocalizedCopy;
+    links: Array<{ href: string; hrefHe?: string; label: LocalizedCopy }>;
+  };
   whatsappMessage: LocalizedCopy;
   whatsappLabel: LocalizedCopy;
 }
@@ -268,6 +274,55 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
         },
       },
     ],
+    planningSection: {
+      eyebrow: {
+        en: "Private planning for Israeli travelers",
+        he: "תכנון פרטי למטיילים ישראלים",
+      },
+      title: {
+        en: "Plan a Private Chiang Mai Tour for Your Group",
+        he: "תכננו טיול פרטי בצ׳אנג מאי לקבוצה שלכם",
+      },
+      body: {
+        en: "WIRO runs private tours only, with route and practical details coordinated on WhatsApp. Wiro is the founder, a fluent Hebrew speaker, and the primary guide for most tours, with extensive experience guiding Israeli travelers. Confirm Hebrew-guide availability for your date, kosher-friendly planning when needed, and Shabbat timing in advance. Mae Wang is the only tour not scheduled on Shabbat because of its remote location.",
+        he: "WIRO מפעילה טיולים פרטיים בלבד, ואת המסלול והפרטים המעשיים מתאמים בוואטסאפ. וירו הוא המייסד, דובר עברית שוטפת והמדריך הראשי ברוב הטיולים, ובעל ניסיון רב בהדרכת מטיילים ישראלים. יש לאשר מראש זמינות מדריך בעברית לתאריך שלכם, תכנון ידידותי לכשרות לפי הצורך ותזמון סביב שבת. מאה וואנג הוא הטיול היחיד שאינו מתוזמן בשבת בגלל מיקומו המרוחק.",
+      },
+      links: [
+        {
+          href: "/tours",
+          label: {
+            en: "Compare all Chiang Mai 4x4 tours",
+            he: "השוו בין כל טיולי ה-4x4 בצ׳אנג מאי",
+          },
+        },
+        {
+          href: "/tours/doi-inthanon-roof-of-thailand",
+          label: {
+            en: "Private Doi Inthanon tour",
+            he: "טיול פרטי לדוי אינתנון",
+          },
+        },
+        {
+          href: "/tours/mae-wang-jungle-wilderness",
+          label: {
+            en: "Mae Wang jungle adventure",
+            he: "הרפתקת הג׳ונגל במאה וואנג",
+          },
+        },
+        {
+          href: "/kosher-tours",
+          hrefHe: "/he/kosher-tours-chiang-mai",
+          label: {
+            en: "Kosher-friendly tour planning",
+            he: "תכנון טיול ידידותי לכשרות",
+          },
+        },
+        {
+          href: "/about",
+          label: { en: "Meet Wiro", he: "הכירו את וירו" },
+        },
+      ],
+    },
     whatsappMessage: {
       en: "Hi WIRO 4x4, we need a Hebrew-speaking guide. Dates: __ Group size and ages: __ Pickup hotel: __ Route ideas: __ Kosher or Shabbat needs: __",
       he: "שלום WIRO 4x4, אנחנו צריכים מדריך דובר עברית. תאריכים: __ מספר מטיילים וגילים: __ מלון לאיסוף: __ רעיונות למסלול: __ צרכי כשרות או שבת: __",

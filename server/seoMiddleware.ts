@@ -16,6 +16,7 @@ import { getPublishedBlogPostBySlug } from "./db/blog";
 import { getTourPackageBySlug } from "./db/packages";
 import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
+import { resolveTourSeoMeta } from "../shared/tourSeoOverrides";
 
 function catalogPrice(slug: string): number {
   const tour = getFallbackTourBySlug(slug);
@@ -232,10 +233,18 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     canonicalPath: "/",
   },
   "/tours": {
-    title: "4x4 Off-Road Tours in Chiang Mai",
+    title: "Chiang Mai 4x4 Tours",
     description:
-      "6 private off-road day trips in Chiang Mai and Northern Thailand. Kosher meals, Hebrew-speaking guides, and Shabbat-friendly scheduling for Israeli travelers.",
+      "6 private off-road day trips in Chiang Mai and Northern Thailand, with kosher-friendly meal planning and Hebrew-speaking guide support available.",
     canonicalPath: "/tours",
+    jsonLd: pageJsonLd({
+      name: "Chiang Mai 4x4 Tours",
+      description:
+        "Private 4x4 day tours from Chiang Mai to mountain, jungle, waterfall, and village destinations across Northern Thailand.",
+      path: "/tours",
+      pageType: "CollectionPage",
+      inLanguage: ["en", "he"],
+    }),
   },
   "/pricing": {
     title: "4x4 Tour Pricing — Chiang Mai, Thailand",
@@ -315,6 +324,33 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       "Get in touch with WIRO 4x4. WhatsApp, email, or booking form. We respond within 24 hours.",
     canonicalPath: "/contact",
     jsonLd: localBusinessJsonLd(),
+  },
+  "/about": {
+    title: "About Wiro — Local Chiang Mai 4x4 Guide",
+    description:
+      "Meet Wiro, founder and primary guide of WIRO 4x4. A fluent Hebrew speaker with extensive experience guiding Israeli travelers on private Chiang Mai 4x4 tours.",
+    canonicalPath: "/about",
+    ogImage: `${SITE_URL}/images/optimized/guide_wiro.webp`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "@id": `${SITE_URL}/about#webpage`,
+      url: `${SITE_URL}/about`,
+      name: "About Wiro — Local Chiang Mai 4x4 Guide",
+      description:
+        "Meet Wiro, founder and primary guide of WIRO 4x4. A fluent Hebrew speaker with extensive experience guiding Israeli travelers on private Chiang Mai 4x4 tours.",
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      about: { "@id": `${SITE_URL}/about#wiro` },
+      inLanguage: ["en", "he"],
+      mainEntity: {
+        "@type": "Person",
+        "@id": `${SITE_URL}/about#wiro`,
+        name: "Wiro",
+        jobTitle: "Founder & Primary Guide",
+        knowsLanguage: ["he"],
+        worksFor: { "@id": `${SITE_URL}/#organization` },
+      },
+    },
   },
   "/packages": {
     title: "Multi-Day Tour Packages — Northern Thailand",
@@ -603,6 +639,7 @@ export function renderStaticRouteHtml(
 }
 
 interface DynamicMetaOptions {
+  loadTourBySlug?: typeof getTourBySlug;
   loadPackageBySlug?: typeof getTourPackageBySlug;
   loadBlogPostBySlug?: typeof getPublishedBlogPostBySlug;
 }
@@ -618,7 +655,7 @@ export async function resolveDynamicMeta(
     const slug = tourMatch[1];
     let tour: Awaited<ReturnType<typeof getTourBySlug>>;
     try {
-      tour = await getTourBySlug(slug);
+      tour = await (options?.loadTourBySlug || getTourBySlug)(slug);
     } catch {
       tour = undefined; // DB error — use hardcoded fallback below
     }
@@ -629,11 +666,15 @@ export async function resolveDynamicMeta(
     const price = tour?.price ?? fallback?.price;
 
     if (name) {
-      return {
+      const seoMeta = resolveTourSeoMeta(slug, {
         title: `${name} — Chiang Mai 4x4 Tour`,
         description:
           truncateDescription(description || "") ||
           `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+      });
+      return {
+        title: seoMeta.title,
+        description: seoMeta.description,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         canonicalPath: `/tours/${slug}`,
         jsonLd: [

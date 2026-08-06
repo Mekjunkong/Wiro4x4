@@ -27,11 +27,13 @@ describe("sitemap", () => {
     expect(xml).toContain("https://www.wiro4x4indochina.com/gallery");
     expect(xml).toContain("https://www.wiro4x4indochina.com/packages");
     expect(xml).toContain("https://www.wiro4x4indochina.com/blog");
+    expect(xml).toContain("https://www.wiro4x4indochina.com/about");
     expect(xml).toContain("https://www.wiro4x4indochina.com/kosher-tours");
     expect(xml).toContain("https://www.wiro4x4indochina.com/hebrew-guide");
     expect(xml).toContain("https://www.wiro4x4indochina.com/accessible-tours");
     expect(xml).toContain("https://www.wiro4x4indochina.com/faq");
     expect(xml).toContain("https://www.wiro4x4indochina.com/contact");
+    expect(xml.match(/<loc>https:\/\/www\.wiro4x4indochina\.com\/about<\/loc>/g)).toHaveLength(1);
   });
 
   it("keeps core tours and fallback articles in the sitemap without the database", () => {

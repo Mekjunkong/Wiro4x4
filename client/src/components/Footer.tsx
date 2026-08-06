@@ -92,6 +92,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/about"
+                  className="hover:text-accent transition-colors"
+                >
+                  {t("About Wiro", "אודות וירו")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/car-rental"
                   className="hover:text-accent transition-colors"
                 >

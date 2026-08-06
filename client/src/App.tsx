@@ -44,6 +44,7 @@ const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
 const CarRental = React.lazy(() => import("./pages/CarRental"));
 const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
+const About = React.lazy(() => import("./pages/About"));
 
 /** Scrolls to top on every route change (N1) */
 function ScrollToTop() {
@@ -131,6 +132,7 @@ function Router() {
             <Route path={"/car-rental"} component={CarRental} />
             <Route path={"/faq"} component={FAQ} />
             <Route path={"/contact"} component={Contact} />
+            <Route path={"/about"} component={About} />
             <Route path={"/terms"} component={TermsOfService} />
             <Route path={"/privacy"} component={PrivacyPolicy} />
             <Route path={"/login"} component={Login} />
