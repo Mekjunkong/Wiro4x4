@@ -54,7 +54,9 @@ export const tourRouter = router({
   getBySlug: securePublicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
-      return await getTourBySlug(input.slug);
+      // TanStack Query rejects `undefined` query data. Return an explicit null
+      // so fallback catalog pages can render without a production console error.
+      return (await getTourBySlug(input.slug)) ?? null;
     }),
 
   listAll: secureProtectedProcedure.query(async () => {
