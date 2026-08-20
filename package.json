@@ -73,6 +73,7 @@
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
+    "gsap": "^3.15.0",
     "helmet": "^8.1.0",
     "ics": "^3.8.1",
     "jose": "6.1.0",
