@@ -1,17 +1,12 @@
-import { useLayoutEffect, useRef } from "react";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const routeMoments = [
   {
-    image: "offroad_vehicle_forest_trail",
+    image: "/media/field/log-bridge.jpeg",
     place: "Mae Wang",
     placeHe: "מאה ואנג",
     title: "Forest tracks, properly off the main road.",
@@ -65,39 +60,10 @@ const expeditions = [
 
 export function ExpeditionNarrative() {
   const { language, t } = useLanguage();
-  const routeRef = useRef<HTMLElement>(null);
   const whatsappMessage = t(
     "Hi WIRO 4x4, I would like to plan a private journey from Chiang Mai. Dates: __ Group size: __ What we want to experience: __",
     "שלום WIRO 4x4, אשמח לתכנן טיול פרטי מצ׳יאנג מאי. תאריכים: __ מספר מטיילים: __ מה נרצה לחוות: __"
   );
-
-  useLayoutEffect(() => {
-    const section = routeRef.current;
-    if (
-      !section ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    )
-      return;
-
-    const context = gsap.context(() => {
-      gsap.fromTo(
-        ".expedition-route__moment",
-        { opacity: 0.22, scale: 0.92 },
-        {
-          opacity: 1,
-          scale: 1,
-          stagger: 0.16,
-          scrollTrigger: {
-            trigger: section,
-            start: "top 72%",
-            end: "bottom 55%",
-            scrub: 0.5,
-          },
-        }
-      );
-    }, section);
-    return () => context.revert();
-  }, []);
 
   return (
     <div className="expedition-narrative overflow-x-clip">
@@ -107,10 +73,7 @@ export function ExpeditionNarrative() {
             {t("Northern Thailand, privately", "צפון תאילנד, בפרטי")}
           </p>
           <h2 id="journey-heading">
-            {t(
-              "Go beyond the roads everyone knows.",
-              "צאו מעבר לדרכים שכולם מכירים."
-            )}
+            {t("A private route through the North.", "מסלול פרטי דרך הצפון.")}
           </h2>
           <p className="expedition-intro__body">
             {t(
@@ -128,7 +91,6 @@ export function ExpeditionNarrative() {
       </section>
 
       <section
-        ref={routeRef}
         className="expedition-route"
         aria-label={t("Route moments", "רגעים בדרך")}
       >
@@ -150,14 +112,26 @@ export function ExpeditionNarrative() {
                 key={moment.image}
                 className={`expedition-route__moment expedition-route__moment--${index + 1}`}
               >
-                <OptimizedImage
-                  src={moment.image}
-                  alt={t(moment.title, moment.titleHe)}
-                  width={1200}
-                  height={900}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="expedition-route__image"
-                />
+                {moment.image.startsWith("/") ? (
+                  <img
+                    src={moment.image}
+                    alt={t(moment.title, moment.titleHe)}
+                    width={1200}
+                    height={1600}
+                    loading="lazy"
+                    decoding="async"
+                    className="expedition-route__image"
+                  />
+                ) : (
+                  <OptimizedImage
+                    src={moment.image}
+                    alt={t(moment.title, moment.titleHe)}
+                    width={1200}
+                    height={900}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="expedition-route__image"
+                  />
+                )}
                 <div className="expedition-route__caption">
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <p>{t(moment.place, moment.placeHe)}</p>
