@@ -356,25 +356,43 @@
 .wiro-hero {
   position: relative;
   min-height: max(46rem, 100svh);
-  overflow: hidden;
+  overflow: clip;
   isolation: isolate;
   color: oklch(0.96 0.012 88);
   background: oklch(0.18 0.018 145);
 }
+.wiro-hero__stage {
+  position: relative;
+  min-height: max(46rem, 100svh);
+  overflow: hidden;
+  isolation: isolate;
+}
 .wiro-hero__media,
 .wiro-hero__image,
+.wiro-hero__video,
 .wiro-hero__wash {
   position: absolute;
   inset: 0;
 }
-.wiro-hero__image {
+.wiro-hero__image,
+.wiro-hero__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: 52% 52%;
   filter: saturate(0.83) contrast(1.06) brightness(0.8);
+}
+.wiro-hero__image {
   transform: scale(1.015);
   animation: wiroHeroSettle 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.wiro-hero__video {
+  opacity: 0;
+  transform: scale(1.012);
+  transition: opacity 700ms ease-out;
+}
+.wiro-hero.has-motion .wiro-hero__video {
+  opacity: 1;
 }
 .wiro-hero__wash {
   background:
@@ -497,6 +515,22 @@
   font-weight: 600;
   letter-spacing: 0.025em;
 }
+.wiro-hero__scroll-cue {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1.45rem 0 0;
+  color: rgba(248, 244, 235, 0.62);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.wiro-hero__scroll-cue span {
+  width: 2.75rem;
+  height: 1px;
+  background: oklch(0.81 0.14 84);
+}
 .wiro-hero__film {
   position: relative;
   width: min(100%, 20rem);
@@ -603,6 +637,10 @@
   .wiro-hero {
     min-height: 100svh;
   }
+  .wiro-hero__stage {
+    position: relative;
+    min-height: 100svh;
+  }
   .wiro-hero__media {
     background: oklch(0.18 0.018 145);
   }
@@ -660,6 +698,12 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .wiro-hero {
+    min-height: max(46rem, 100svh);
+  }
+  .wiro-hero__stage {
+    position: relative;
+  }
   .wiro-hero__image,
   .wiro-hero__content,
   .wiro-hero__film {
@@ -670,6 +714,9 @@
   }
   .wiro-hero__image {
     opacity: 1 !important;
+  }
+  .wiro-hero__video {
+    display: none;
   }
 }
 
