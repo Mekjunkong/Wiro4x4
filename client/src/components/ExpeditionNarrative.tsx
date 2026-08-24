@@ -1,4 +1,5 @@
-import { ArrowUpRight, MessageCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowUpRight, MessageCircle, Pause, Play } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { OptimizedImage } from "@/components/OptimizedImage";
@@ -37,6 +38,10 @@ const expeditions = [
     detail:
       "A full private day through cloud forest, mountain roads, and the highest part of Thailand.",
     detailHe: "יום פרטי מלא דרך יער עננים, דרכי הרים והנקודה הגבוהה בתאילנד.",
+    duration: "Full day · 8–10 hours",
+    durationHe: "יום שלם · 8–10 שעות",
+    highlights: "Cloud forest · mountain roads · summit",
+    highlightsHe: "יער עננים · דרכי הרים · הפסגה",
   },
   {
     href: "/tours/mae-wang-jungle-wilderness",
@@ -46,6 +51,10 @@ const expeditions = [
     detail:
       "Real 4x4 terrain, river country, and a route shaped around the people in your vehicle.",
     detailHe: "שטח 4x4 אמיתי, אזור נהרות ומסלול שנבנה סביב האנשים שברכב.",
+    duration: "6–8 hours",
+    durationHe: "6–8 שעות",
+    highlights: "Jungle tracks · river country · local stops",
+    highlightsHe: "שבילי ג׳ונגל · נהרות · עצירות מקומיות",
   },
   {
     href: "/tours/maerim-sticky-waterfalls",
@@ -55,8 +64,73 @@ const expeditions = [
     detail:
       "A slower day of waterfalls, forest air, and a flexible private rhythm.",
     detailHe: "יום רגוע יותר של מפלים, אוויר יער וקצב פרטי וגמיש.",
+    duration: "4–6 hours",
+    durationHe: "4–6 שעות",
+    highlights: "Waterfall walk · forest air · flexible pace",
+    highlightsHe: "הליכה למפל · אוויר יער · קצב גמיש",
   },
 ];
+
+function FieldVideo({
+  src,
+  poster,
+  label,
+  caption,
+  className = "",
+}: {
+  src: string;
+  poster: string;
+  label: string;
+  caption: string;
+  className?: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  const togglePlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      void video
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => undefined);
+    } else {
+      video.pause();
+      setPlaying(false);
+    }
+  };
+
+  return (
+    <figure className={className}>
+      <div className="expedition-film-frame">
+        <video
+          ref={videoRef}
+          controls={playing}
+          muted
+          playsInline
+          preload="none"
+          poster={poster}
+          aria-label={label}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+        <button
+          type="button"
+          className="expedition-film-play"
+          onClick={togglePlayback}
+          aria-label={playing ? `Pause: ${label}` : `Play: ${label}`}
+        >
+          {playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
+          <span>{playing ? "Pause film" : "Play film"}</span>
+        </button>
+      </div>
+      <figcaption>{caption}</figcaption>
+    </figure>
+  );
+}
 
 export function ExpeditionNarrative() {
   const { language, t } = useLanguage();
@@ -165,27 +239,19 @@ export function ExpeditionNarrative() {
             </p>
           </div>
           <div className="expedition-field-film__grid">
-            <figure className="expedition-field-film__feature">
-              <video
-                controls
-                muted
-                playsInline
-                preload="metadata"
-                poster="/media/field/forest-crossing-poster.jpg"
-                aria-label={t(
-                  "WIRO 4x4 crossing a forest route",
-                  "רכב WIRO 4x4 חוצה מסלול יער"
-                )}
-              >
-                <source
-                  src="/media/field/forest-crossing.mp4"
-                  type="video/mp4"
-                />
-              </video>
-              <figcaption>
-                {t("A forest route after the rain", "מסלול יער אחרי הגשם")}
-              </figcaption>
-            </figure>
+            <FieldVideo
+              className="expedition-field-film__feature"
+              src="/media/field/forest-crossing.mp4"
+              poster="/media/field/forest-crossing-poster.jpg"
+              label={t(
+                "WIRO 4x4 crossing a forest route",
+                "רכב WIRO 4x4 חוצה מסלול יער"
+              )}
+              caption={t(
+                "A forest route after the rain",
+                "מסלול יער אחרי הגשם"
+              )}
+            />
             <div className="expedition-field-film__stack">
               <figure>
                 <img
@@ -215,27 +281,19 @@ export function ExpeditionNarrative() {
               </figure>
             </div>
           </div>
-          <figure className="expedition-field-film__wide">
-            <video
-              controls
-              muted
-              playsInline
-              preload="metadata"
-              poster="/media/field/forest-drive-poster.jpg"
-              aria-label={t(
-                "WIRO 4x4 driving through the forest",
-                "רכב WIRO 4x4 נוסע ביער"
-              )}
-            >
-              <source src="/media/field/forest-drive.mp4" type="video/mp4" />
-            </video>
-            <figcaption>
-              {t(
-                "Keep moving when the road turns wild",
-                "ממשיכים גם כשהדרך נעשית פראית"
-              )}
-            </figcaption>
-          </figure>
+          <FieldVideo
+            className="expedition-field-film__wide"
+            src="/media/field/forest-drive.mp4"
+            poster="/media/field/forest-drive-poster.jpg"
+            label={t(
+              "WIRO 4x4 driving through the forest",
+              "רכב WIRO 4x4 נוסע ביער"
+            )}
+            caption={t(
+              "Keep moving when the road turns wild",
+              "ממשיכים גם כשהדרך נעשית פראית"
+            )}
+          />
         </div>
       </section>
 
@@ -280,6 +338,10 @@ export function ExpeditionNarrative() {
                 <div className="expedition-tour__copy">
                   <h3>{t(tour.title, tour.titleHe)}</h3>
                   <p>{t(tour.detail, tour.detailHe)}</p>
+                  <div className="expedition-tour__meta">
+                    <span>{t(tour.duration, tour.durationHe)}</span>
+                    <span>{t(tour.highlights, tour.highlightsHe)}</span>
+                  </div>
                 </div>
                 <ArrowUpRight
                   className="expedition-tour__arrow"

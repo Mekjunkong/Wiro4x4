@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, MessageCircle, Play } from "lucide-react";
+import { ArrowDown, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
@@ -7,10 +7,12 @@ export function Hero() {
   const { t, language } = useLanguage();
   const heroRef = useRef<HTMLElement>(null);
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
-  const filmRef = useRef<HTMLVideoElement>(null);
   const [backgroundReady, setBackgroundReady] = useState(false);
   const [motionEnabled, setMotionEnabled] = useState(false);
-  const [filmReady, setFilmReady] = useState(false);
+  const [motionReadyToLoad, setMotionReadyToLoad] = useState(false);
+  const [motionSource, setMotionSource] = useState(
+    "/media/hero/wiro-seedance-720p-optimized.mp4"
+  );
   const whatsappMessage =
     language === "he"
       ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nצרכי כשרות / שבת / מדריך בעברית: __"
@@ -28,6 +30,11 @@ export function Hero() {
       const constrainedNetwork =
         connection?.saveData || connection?.effectiveType?.includes("2g");
       setMotionEnabled(!reducedMotion.matches && !constrainedNetwork);
+      setMotionSource(
+        window.matchMedia("(max-width: 720px)").matches
+          ? "/media/hero/wiro-seedance-mobile.mp4"
+          : "/media/hero/wiro-seedance-720p-optimized.mp4"
+      );
     };
 
     updateMotionAvailability();
@@ -38,8 +45,37 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
+    if (!motionEnabled) {
+      setMotionReadyToLoad(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadMotion = () => {
+      if (!cancelled) setMotionReadyToLoad(true);
+    };
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: () => void,
+        options?: { timeout: number }
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const idleHandle = idleWindow.requestIdleCallback
+      ? idleWindow.requestIdleCallback(loadMotion, { timeout: 1200 })
+      : undefined;
+    const timeoutHandle = window.setTimeout(loadMotion, 900);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutHandle);
+      if (idleHandle !== undefined) idleWindow.cancelIdleCallback?.(idleHandle);
+    };
+  }, [motionEnabled]);
+
+  useEffect(() => {
     const video = backgroundVideoRef.current;
-    if (!motionEnabled || !video) return;
+    if (!motionEnabled || !motionReadyToLoad || !video) return;
 
     const updatePlayback = () => {
       video.playbackRate = 0.72;
@@ -55,31 +91,7 @@ export function Hero() {
     return () => {
       document.removeEventListener("visibilitychange", updatePlayback);
     };
-  }, [motionEnabled, backgroundReady]);
-
-  useEffect(() => {
-    const video = filmRef.current;
-    if (!video) return;
-
-    const motionPreference = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
-    const updatePlayback = () => {
-      if (motionPreference.matches || document.hidden) {
-        video.pause();
-        return;
-      }
-      void video.play().catch(() => undefined);
-    };
-
-    updatePlayback();
-    motionPreference.addEventListener("change", updatePlayback);
-    document.addEventListener("visibilitychange", updatePlayback);
-    return () => {
-      motionPreference.removeEventListener("change", updatePlayback);
-      document.removeEventListener("visibilitychange", updatePlayback);
-    };
-  }, []);
+  }, [motionEnabled, motionReadyToLoad, backgroundReady]);
 
   const scrollToJourney = () =>
     document
@@ -101,7 +113,7 @@ export function Hero() {
             decoding="async"
             className="wiro-hero__image"
           />
-          {motionEnabled && (
+          {motionEnabled && motionReadyToLoad && (
             <video
               ref={backgroundVideoRef}
               className="wiro-hero__video"
@@ -109,15 +121,12 @@ export function Hero() {
               autoPlay
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               poster="/media/hero/wiro-seedance-poster.jpg"
               onLoadedMetadata={() => setBackgroundReady(true)}
               tabIndex={-1}
             >
-              <source
-                src="/media/hero/wiro-seedance-2-5-720p.mp4"
-                type="video/mp4"
-              />
+              <source src={motionSource} type="video/mp4" />
             </video>
           )}
           <div className="wiro-hero__wash" />
@@ -174,33 +183,6 @@ export function Hero() {
               {t("Scroll to explore", "גללו כדי לגלות")}
             </p>
           </div>
-
-          <figure className={`wiro-hero__film ${filmReady ? "is-ready" : ""}`}>
-            <video
-              ref={filmRef}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="/media/field/forest-drive-poster.jpg"
-              onCanPlay={() => setFilmReady(true)}
-              aria-label={t(
-                "Real WIRO 4x4 trip crossing a forest log bridge",
-                "טיול אמיתי של WIRO 4x4 חוצה גשר עץ ביער"
-              )}
-            >
-              <source src="/media/field/forest-drive.mp4" type="video/mp4" />
-            </video>
-            <figcaption>
-              <span className="wiro-hero__film-icon" aria-hidden="true">
-                <Play />
-              </span>
-              <span>
-                <strong>{t("Real trip film", "סרטון מטיול אמיתי")}</strong>
-                <small>{t("Mae Wang · 00:31", "מאה ואנג · 00:31")}</small>
-              </span>
-            </figcaption>
-          </figure>
         </div>
       </div>
     </section>

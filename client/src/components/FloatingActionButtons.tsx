@@ -72,13 +72,13 @@ export function FloatingActionButtons() {
       aria-label={t("Quick actions", "פעולות מהירות")}
       style={{ zIndex: 9997 }}
     >
-      <div className="flex flex-col items-end gap-2">
+      <div className="site-floating-actions flex flex-col items-end gap-2">
         <TrackedWhatsAppLink
           sourceCode={language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"}
           humanMessage={whatsappMessage}
           target="_blank"
           rel="noopener noreferrer"
-          className="h-12 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg flex items-center justify-center gap-2 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+          className="flex h-11 items-center justify-center gap-2 rounded-sm bg-[#25D366] px-3.5 text-white shadow-lg transition-all duration-200 hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 sm:px-4"
           aria-label={t(
             "Check availability on WhatsApp",
             "בדיקת זמינות בוואטסאפ"
@@ -92,7 +92,7 @@ export function FloatingActionButtons() {
         <button
           type="button"
           onClick={handleChatClick}
-          className="h-12 rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg flex items-center justify-center gap-2 px-3.5 sm:px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+          className="flex h-11 items-center justify-center gap-2 rounded-sm border border-[#f0bd3f]/45 bg-[#10231c]/95 px-3.5 text-[#f5f0e7] shadow-lg transition-all duration-200 hover:bg-[#1a3428] focus:outline-none focus:ring-2 focus:ring-[#f0bd3f] focus:ring-offset-2 sm:px-4"
           aria-label={t("Ask Levi", "שאלו את לוי")}
         >
           <Bot className="h-5 w-5" aria-hidden="true" />

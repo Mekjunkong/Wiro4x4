@@ -1,7 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { Button } from "@/components/ui/button";
 import {
   Menu,
   X,
@@ -92,11 +91,11 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 transition-all duration-300 ${
+      className={`site-header fixed top-0 inset-x-0 transition-all duration-300 ${
         mobileMenuOpen
           ? "border-b border-border bg-background"
           : scrolled
-            ? "bg-background/90 backdrop-blur-xl border-b border-primary/10 shadow-[0_10px_35px_rgba(11,42,34,0.06)]"
+            ? "bg-[#10231c]/92 text-[#f5f0e7] backdrop-blur-xl border-b border-[#f0bd3f]/20 shadow-[0_10px_35px_rgba(11,42,34,0.2)]"
             : "bg-transparent"
       }`}
       style={{ zIndex: 10000 }}
@@ -205,15 +204,10 @@ export function Header() {
               humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 rounded-sm bg-accent-cta px-4 text-sm font-bold text-white transition-colors hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2"
             >
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
-              >
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                {t("Check Availability", "בדיקת זמינות")}
-              </Button>
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              {t("Check Availability", "בדיקת זמינות")}
             </TrackedWhatsAppLink>
             {switchable && toggleTheme && (
               <button
@@ -349,15 +343,10 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
+              className="mt-6 inline-flex min-h-12 w-full max-w-xs items-center justify-center gap-2 rounded-sm bg-accent-cta px-5 text-base font-bold text-white transition-colors hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2"
             >
-              <Button
-                variant="default"
-                size="lg"
-                className="w-full max-w-xs mt-6 bg-accent-cta hover:bg-accent-cta-hover text-white font-bold border-accent-cta hover:border-accent-cta-hover"
-              >
-                <MessageCircle className="h-5 w-5" aria-hidden="true" />
-                {t("Check Availability", "בדיקת זמינות")}
-              </Button>
+              <MessageCircle className="h-5 w-5" aria-hidden="true" />
+              {t("Check Availability", "בדיקת זמינות")}
             </TrackedWhatsAppLink>
             <div className="flex items-center gap-4 mt-8">
               {switchable && toggleTheme && (
