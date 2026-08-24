@@ -431,10 +431,10 @@
   text-transform: uppercase;
 }
 .wiro-hero h1 {
-  max-width: 48rem;
+  max-width: 39rem;
   margin: 0;
   font-family: "DM Serif Display", Georgia, serif;
-  font-size: clamp(4rem, 7.4vw, 8rem);
+  font-size: clamp(3.8rem, 6.3vw, 6.6rem);
   font-weight: 400;
   line-height: 0.89;
   letter-spacing: -0.048em;
@@ -513,6 +513,9 @@
   font-weight: 600;
   letter-spacing: 0.025em;
 }
+.wiro-trust-bar {
+  padding: 1rem 0;
+}
 .wiro-hero__scroll-cue {
   display: flex;
   align-items: center;
@@ -582,16 +585,16 @@
     align-content: end;
     min-height: 100svh;
     padding-top: 7rem;
-    padding-bottom: 2rem;
+    padding-bottom: 1.5rem;
   }
   .wiro-hero__content {
     position: relative;
     z-index: 2;
   }
   .wiro-hero h1 {
-    max-width: 12ch;
-    font-size: clamp(3.15rem, 14.5vw, 5rem);
-    line-height: 0.92;
+    max-width: 10ch;
+    font-size: clamp(2.75rem, 13vw, 4.25rem);
+    line-height: 0.94;
   }
   .wiro-hero__lede {
     max-width: 34rem;
@@ -612,6 +615,9 @@
   .wiro-hero__trust {
     font-size: 0.74rem;
     line-height: 1.45;
+  }
+  .wiro-hero__scroll-cue {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -647,7 +653,7 @@
   text-transform: uppercase;
 }
 .expedition-intro {
-  padding: clamp(7rem, 15vw, 15rem) 0 clamp(8rem, 17vw, 17rem);
+  padding: clamp(5rem, 10vw, 9rem) 0 clamp(5.5rem, 11vw, 10rem);
   background:
     radial-gradient(
       circle at 75% 10%,
@@ -669,7 +675,7 @@
 .expedition-final h2 {
   max-width: 58rem;
   margin: 0;
-  font-size: clamp(3rem, 6vw, 6.5rem);
+  font-size: clamp(2.7rem, 5vw, 5.4rem);
   line-height: 0.92;
   letter-spacing: -0.045em;
   text-wrap: balance;
@@ -691,7 +697,7 @@
   letter-spacing: 0.04em;
 }
 .expedition-route {
-  padding: clamp(6rem, 12vw, 13rem) 0;
+  padding: clamp(5rem, 9vw, 9rem) 0;
   overflow: hidden;
   background: #20342a;
   color: #f5f0e7;
@@ -781,7 +787,7 @@
   line-height: 0.95;
 }
 .expedition-field-film {
-  padding: clamp(6rem, 12vw, 13rem) 0;
+  padding: clamp(5rem, 9vw, 9rem) 0;
   background: #e3dbcc;
 }
 .expedition-field-film__heading {
@@ -884,7 +890,7 @@
   aspect-ratio: 16 / 9;
 }
 .expedition-featured {
-  padding: clamp(7rem, 14vw, 15rem) 0;
+  padding: clamp(5rem, 10vw, 10rem) 0;
 }
 .expedition-featured__topline {
   display: flex;
@@ -978,7 +984,7 @@
   color: #7a4f15;
 }
 .expedition-wiro {
-  padding: clamp(7rem, 14vw, 15rem) 0;
+  padding: clamp(5rem, 10vw, 10rem) 0;
   background: #dac8a9;
 }
 .expedition-wiro__grid {
@@ -1035,7 +1041,7 @@
   width: 1.05rem;
 }
 .expedition-planning {
-  padding: clamp(6rem, 12vw, 12rem) 0;
+  padding: clamp(5rem, 9vw, 9rem) 0;
   background: #26352d;
   color: #f5f0e7;
 }
@@ -1068,7 +1074,7 @@
   text-underline-offset: 0.3rem;
 }
 .expedition-process {
-  padding: clamp(7rem, 14vw, 14rem) 0;
+  padding: clamp(5rem, 10vw, 10rem) 0;
 }
 .expedition-process h2 {
   max-width: 48rem;
@@ -1129,7 +1135,7 @@
 .expedition-final__copy {
   position: relative;
   z-index: 1;
-  padding-top: 8rem;
+  padding-top: 6rem;
   padding-bottom: clamp(3rem, 8vw, 7rem);
 }
 .expedition-final h2 {

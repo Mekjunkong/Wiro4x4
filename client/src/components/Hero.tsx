@@ -136,20 +136,20 @@ export function Hero() {
           <div className="wiro-hero__content">
             <p className="wiro-hero__eyebrow">
               {t(
-                "Private 4×4 journeys · Chiang Mai",
+                "Private access · Northern Thailand",
                 "טיולי 4×4 פרטיים · צ׳יאנג מאי"
               )}
             </p>
             <h1 id="home-hero-title">
               {t(
-                "Go beyond the roads everyone knows.",
-                "צאו מעבר לדרכים שכולם מכירים."
+                "Private access to Northern Thailand.",
+                "הגישה הפרטית שלכם לצפון תאילנד."
               )}
             </h1>
             <p className="wiro-hero__lede">
               {t(
-                "Private journeys through mountain roads, villages and forest routes, personally planned with WIRO.",
-                "מסעות פרטיים בדרכי הרים, כפרים ושבילי יער, בתכנון אישי עם WIRO."
+                "WIRO plans the route, pickup, food and pace around your group.",
+                "WIRO מתכנן את המסלול, האיסוף, האוכל והקצב סביב הקבוצה שלכם."
               )}
             </p>
             <div className="wiro-hero__actions">
@@ -161,7 +161,7 @@ export function Hero() {
                 className="wiro-hero__primary"
               >
                 <MessageCircle aria-hidden="true" />
-                {t("Plan your journey", "תכננו את המסע")}
+                {t("Plan with WIRO", "תכננו עם WIRO")}
               </TrackedWhatsAppLink>
               <button
                 type="button"
@@ -174,8 +174,8 @@ export function Hero() {
             </div>
             <p className="wiro-hero__trust">
               {t(
-                "Private tours · Chiang Mai pickup · Hebrew-speaking guide",
-                "טיולים פרטיים · איסוף מצ׳יאנג מאי · מדריך דובר עברית"
+                "Private vehicle · Chiang Mai pickup · Hebrew planning",
+                "רכב פרטי · איסוף מצ׳יאנג מאי · תכנון בעברית"
               )}
             </p>
             <p className="wiro-hero__scroll-cue" aria-hidden="true">

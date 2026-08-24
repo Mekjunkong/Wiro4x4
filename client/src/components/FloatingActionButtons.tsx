@@ -73,22 +73,26 @@ export function FloatingActionButtons() {
       style={{ zIndex: 9997 }}
     >
       <div className="site-floating-actions flex flex-col items-end gap-2">
-        <TrackedWhatsAppLink
-          sourceCode={language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"}
-          humanMessage={whatsappMessage}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex h-11 items-center justify-center gap-2 rounded-sm bg-[#25D366] px-3.5 text-white shadow-lg transition-all duration-200 hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 sm:px-4"
-          aria-label={t(
-            "Check availability on WhatsApp",
-            "בדיקת זמינות בוואטסאפ"
-          )}
-        >
-          <MessageCircle className="h-5 w-5" aria-hidden="true" />
-          <span className="text-sm font-semibold">
-            {t("WhatsApp", "וואטסאפ")}
-          </span>
-        </TrackedWhatsAppLink>
+        {!isHomePage && (
+          <TrackedWhatsAppLink
+            sourceCode={
+              language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"
+            }
+            humanMessage={whatsappMessage}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-11 items-center justify-center gap-2 rounded-sm bg-[#25D366] px-3.5 text-white shadow-lg transition-all duration-200 hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 sm:px-4"
+            aria-label={t(
+              "Check availability on WhatsApp",
+              "בדיקת זמינות בוואטסאפ"
+            )}
+          >
+            <MessageCircle className="h-5 w-5" aria-hidden="true" />
+            <span className="text-sm font-semibold">
+              {t("WhatsApp", "וואטסאפ")}
+            </span>
+          </TrackedWhatsAppLink>
+        )}
         <button
           type="button"
           onClick={handleChatClick}
