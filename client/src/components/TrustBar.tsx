@@ -5,27 +5,27 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const TRUST_ITEMS = [
   {
     icon: Star,
-    value: "Tripadvisor",
-    en: "Public Reviews",
+    value: "Real guests",
+    en: "Public Tripadvisor reviews",
     he: "ביקורות ציבוריות",
     href: COMPANY_TRIPADVISOR_URL,
   },
   {
     icon: MessageCircle,
-    value: "Private",
-    en: "Trip Planning",
+    value: "Private route",
+    en: "Planned around your group",
     he: "תכנון טיול פרטי",
   },
   {
     icon: Languages,
     value: "עברית",
-    en: "Hebrew Speaking",
+    en: "Hebrew planning available",
     he: "דוברי עברית",
   },
   {
     icon: Utensils,
-    value: "Kosher-aware",
-    en: "Meal Coordination",
+    value: "Food + Shabbat",
+    en: "Discussed before confirmation",
     he: "תיאום ארוחות",
   },
 ] as const;
@@ -34,7 +34,7 @@ export function TrustBar() {
   const { t } = useLanguage();
 
   return (
-    <section className="py-6 md:py-8 bg-primary border-y border-accent/20">
+    <section className="wiro-trust-bar bg-primary border-y border-accent/20">
       <div className="container">
         <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:flex md:items-center md:justify-center md:gap-0">
           {TRUST_ITEMS.map((item, index) => {
@@ -42,10 +42,10 @@ export function TrustBar() {
               <>
                 <item.icon className="w-5 h-5 text-accent flex-shrink-0" />
                 <div className="flex flex-col">
-                  <span className="font-bold text-2xl md:text-3xl text-white leading-tight">
+                  <span className="font-bold text-base md:text-lg text-white leading-tight">
                     {item.value}
                   </span>
-                  <span className="text-xs text-white/60 uppercase tracking-wider">
+                  <span className="text-[0.68rem] leading-tight text-white/60">
                     {t(item.en, item.he)}
                   </span>
                 </div>

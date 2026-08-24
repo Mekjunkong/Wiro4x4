@@ -147,12 +147,15 @@ export function ExpeditionNarrative() {
             {t("Northern Thailand, privately", "צפון תאילנד, בפרטי")}
           </p>
           <h2 id="journey-heading">
-            {t("A private route through the North.", "מסלול פרטי דרך הצפון.")}
+            {t(
+              "A better way into the North.",
+              "דרך טובה יותר להיכנס אל הצפון."
+            )}
           </h2>
           <p className="expedition-intro__body">
             {t(
-              "Private 4x4 journeys through mountains, villages, waterfalls and forest routes — personally planned with WIRO from Chiang Mai.",
-              "טיולי 4x4 פרטיים בין הרים, כפרים, מפלים ודרכי יער — בתכנון אישי עם WIRO מצ׳יאנג מאי."
+              "A private vehicle, a local guide, and a day shaped around your people, pace and practical needs.",
+              "רכב פרטי, מדריך מקומי ויום שנבנה סביב האנשים, הקצב והצרכים המעשיים שלכם."
             )}
           </p>
           <div className="expedition-intro__trust">
@@ -171,12 +174,12 @@ export function ExpeditionNarrative() {
         <div className="container">
           <div className="expedition-route__heading">
             <p className="expedition-kicker">
-              {t("The journey begins", "המסע מתחיל")}
+              {t("Choose your terrain", "בחרו את השטח שלכם")}
             </p>
             <p>
               {t(
-                "A route is not a checklist. It is the pace, the weather, the road, and the people you came with.",
-                "מסלול אינו רשימת משימות. הוא הקצב, מזג האוויר, הדרך והאנשים שאיתם הגעתם."
+                "Start with a direction. WIRO adjusts the day around the weather, the road and the people in your vehicle.",
+                "מתחילים בכיוון. WIRO מתאים את היום למזג האוויר, לדרך ולאנשים שברכב."
               )}
             </p>
           </div>
@@ -281,19 +284,6 @@ export function ExpeditionNarrative() {
               </figure>
             </div>
           </div>
-          <FieldVideo
-            className="expedition-field-film__wide"
-            src="/media/field/forest-drive.mp4"
-            poster="/media/field/forest-drive-poster.jpg"
-            label={t(
-              "WIRO 4x4 driving through the forest",
-              "רכב WIRO 4x4 נוסע ביער"
-            )}
-            caption={t(
-              "Keep moving when the road turns wild",
-              "ממשיכים גם כשהדרך נעשית פראית"
-            )}
-          />
         </div>
       </section>
 
@@ -308,10 +298,7 @@ export function ExpeditionNarrative() {
                 {t("Featured expeditions", "מסעות נבחרים")}
               </p>
               <h2 id="featured-heading">
-                {t(
-                  "Choose a direction. Then make it yours.",
-                  "בחרו כיוון. אחר כך הפכו אותו לשלכם."
-                )}
+                {t("Three ways into the North.", "שלוש דרכים אל הצפון.")}
               </h2>
             </div>
             <Link href="/tours" className="expedition-text-link">
@@ -374,14 +361,14 @@ export function ExpeditionNarrative() {
             </p>
             <h2 id="wiro-heading">
               {t(
-                "Not just a driver. Your local way into the North.",
-                "לא רק נהג. הדרך המקומית שלכם אל הצפון."
+                "A local guide, before you arrive.",
+                "מדריך מקומי, עוד לפני שאתם מגיעים."
               )}
             </h2>
             <p>
               {t(
-                "WIRO founded WIRO 4x4 and is the primary guide for most tours. He speaks fluent Hebrew and plans each private day directly with the travelers taking it.",
-                "WIRO הקים את WIRO 4x4 והוא המדריך הראשי ברוב הטיולים. הוא דובר עברית שוטפת ומתכנן כל יום פרטי ישירות עם המטיילים שיוצאים אליו."
+                "WIRO founded the company and plans most private days himself. He speaks fluent Hebrew and works through the details before pickup, so your group arrives knowing what the day can hold.",
+                "WIRO הקים את החברה ומתכנן בעצמו את רוב הימים הפרטיים. הוא דובר עברית שוטפת ועובר על הפרטים לפני האיסוף, כדי שתגיעו כשאתם יודעים מה היום יכול לכלול."
               )}
             </p>
             <div className="expedition-wiro__actions">
@@ -418,15 +405,15 @@ export function ExpeditionNarrative() {
             </p>
             <h2 id="planning-heading">
               {t(
-                "The details are part of the journey.",
-                "הפרטים הם חלק מהמסע."
+                "The practical details come first.",
+                "הפרטים המעשיים קודמים לכל."
               )}
             </h2>
           </div>
           <div className="expedition-planning__copy">
             <p>
               {t(
-                "Hebrew communication, private planning, kosher-aware meal logistics and Shabbat-sensitive routing are discussed before your route is confirmed. Tell WIRO what matters to your group and he will confirm what is possible.",
+                "Tell WIRO your dates, group, pickup area and what matters around Hebrew, food or Shabbat. He will explain what is possible before you confirm the route.",
                 "תקשורת בעברית, תכנון פרטי, לוגיסטיקת אוכל מודעת כשרות ותכנון רגיש לשבת נבדקים לפני אישור המסלול. ספרו ל-WIRO מה חשוב לקבוצה שלכם והוא יאשר מה אפשרי."
               )}
             </p>
@@ -470,8 +457,8 @@ export function ExpeditionNarrative() {
           </p>
           <h2 id="process-heading">
             {t(
-              "Start the conversation. Let the road take shape.",
-              "התחילו שיחה. תנו לדרך לקבל צורה."
+              "Tell us what the day needs to hold.",
+              "ספרו לנו מה היום צריך לכלול."
             )}
           </h2>
           <ol>
@@ -505,8 +492,8 @@ export function ExpeditionNarrative() {
         <div className="container expedition-final__copy">
           <h2>
             {t(
-              "Northern Thailand is better beyond the main road.",
-              "צפון תאילנד טוב יותר מעבר לדרך הראשית."
+              "Start with the people, not a package.",
+              "מתחילים באנשים, לא בחבילה."
             )}
           </h2>
           <p>
@@ -526,9 +513,6 @@ export function ExpeditionNarrative() {
               <MessageCircle aria-hidden="true" />
               {t("Plan on WhatsApp", "תכנון בוואטסאפ")}
             </TrackedWhatsAppLink>
-            <Link href="/tours" className="expedition-final__secondary">
-              {t("View all tours", "לכל הטיולים")}
-            </Link>
           </div>
         </div>
       </section>
