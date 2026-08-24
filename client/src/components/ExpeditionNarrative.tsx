@@ -7,11 +7,11 @@ import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 const routeMoments = [
   {
-    image: "/media/field/log-bridge.jpeg",
+    image: "/media/field/today-route-bridge.jpg",
     place: "Mae Wang",
     placeHe: "מאה ואנג",
-    title: "Forest tracks, properly off the main road.",
-    titleHe: "שבילי יער, באמת מחוץ לדרך הראשית.",
+    title: "A day feels different when the route leaves room to look around.",
+    titleHe: "יום מרגיש אחרת כשהמסלול משאיר מקום להסתכל סביב.",
   },
   {
     image: "sticky_waterfalls",
