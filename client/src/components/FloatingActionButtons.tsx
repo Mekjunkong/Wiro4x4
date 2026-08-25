@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Bot, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
@@ -11,7 +11,7 @@ export function FloatingActionButtons() {
   const isBookingPage = location === "/book";
 
   const [scrolledPast, setScrolledPast] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+
   const [isMobile, setIsMobile] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => {
     try {
@@ -20,12 +20,6 @@ export function FloatingActionButtons() {
       return false;
     }
   });
-
-  useEffect(() => {
-    const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
-    window.addEventListener("chat-open", handler);
-    return () => window.removeEventListener("chat-open", handler);
-  }, []);
 
   useEffect(() => {
     const onConsent = () => setConsentGiven(true);
@@ -47,10 +41,6 @@ export function FloatingActionButtons() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleChatClick = () => {
-    window.dispatchEvent(new CustomEvent("chat-toggle"));
-  };
-
   const whatsappMessage =
     language === "he"
       ? "שלום WIRO 4x4, נשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
@@ -58,7 +48,7 @@ export function FloatingActionButtons() {
   const isHomePage = location === "/";
   const hideUntilUsefulOnHome = isHomePage && (!scrolledPast || !consentGiven);
 
-  if (isBookingPage || hideUntilUsefulOnHome || chatOpen) return null;
+  if (isBookingPage || hideUntilUsefulOnHome) return null;
 
   const isRtl = language === "he";
   const bottomClass =
@@ -93,20 +83,6 @@ export function FloatingActionButtons() {
             </span>
           </TrackedWhatsAppLink>
         )}
-        <button
-          type="button"
-          onClick={handleChatClick}
-          className="flex h-11 items-center justify-center gap-2 rounded-sm border border-[#f0bd3f]/45 bg-[#10231c]/95 px-3.5 text-[#f5f0e7] shadow-lg transition-all duration-200 hover:bg-[#1a3428] focus:outline-none focus:ring-2 focus:ring-[#f0bd3f] focus:ring-offset-2 sm:px-4"
-          aria-label={t("Ask Levi", "שאלו את לוי")}
-        >
-          <Bot className="h-5 w-5" aria-hidden="true" />
-          <span className="text-sm font-semibold sm:hidden">
-            {t("Levi", "לוי")}
-          </span>
-          <span className="hidden text-sm font-semibold sm:inline">
-            {t("Ask Levi", "שאלו את לוי")}
-          </span>
-        </button>
       </div>
     </div>
   );

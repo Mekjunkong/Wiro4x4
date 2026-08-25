@@ -29,14 +29,7 @@ export function StickyBookBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const [chatOpen, setChatOpen] = useState(false);
-  useEffect(() => {
-    const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
-    window.addEventListener("chat-open", handler);
-    return () => window.removeEventListener("chat-open", handler);
-  }, []);
-
-  const visible = scrolled && consentGiven && !chatOpen;
+  const visible = scrolled && consentGiven;
 
   return (
     <div
