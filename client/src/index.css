@@ -182,6 +182,477 @@
   }
 }
 
+/* Premium Indochina journey. The page alternates editorial devices so the
+   route feels discovered, not presented as a stack of identical cards. */
+.indochina-journey {
+  --journey-ink: #f5f1e8;
+  --journey-muted: #b7c1b8;
+  --journey-green: #0b2a22;
+  --journey-gold: #d0a04a;
+  background: var(--journey-green);
+  color: var(--journey-ink);
+}
+.journey-label {
+  color: var(--journey-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.journey-threshold {
+  min-height: 68vh;
+  display: grid;
+  align-items: end;
+  padding: 10rem 0 7rem;
+  background: #0b2a22;
+}
+.journey-threshold__grid,
+.journey-confidence__grid,
+.journey-close__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: clamp(3rem, 11vw, 12rem);
+  align-items: end;
+}
+.journey-threshold h2,
+.journey-confidence h2,
+.journey-regions h2,
+.journey-close h2 {
+  max-width: 850px;
+  margin: 0.8rem 0 1.4rem;
+  font-size: clamp(3.5rem, 8vw, 8rem);
+  letter-spacing: -0.045em;
+  line-height: 0.91;
+}
+.journey-threshold__copy > p:last-child {
+  max-width: 560px;
+  color: var(--journey-muted);
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  line-height: 1.45;
+}
+.journey-threshold__note {
+  border-top: 1px solid rgba(245, 241, 232, 0.35);
+  padding-top: 1.2rem;
+  color: var(--journey-muted);
+}
+.journey-threshold__note span {
+  color: var(--journey-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.journey-threshold__note p {
+  max-width: 220px;
+  margin-top: 0.65rem;
+  font-family: "DM Serif Display", serif;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+.journey-chapters {
+  min-height: 160vh;
+  padding: 12rem 0 10rem;
+  background: #f2f4ef;
+  color: #18231f;
+}
+.journey-chapters__inner {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.journey-chapters__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+.journey-chapters__heading > p:last-child {
+  max-width: 290px;
+  margin: 0;
+  color: #59665f;
+  line-height: 1.35;
+}
+.journey-chapters__rail {
+  position: relative;
+  height: 2.7rem;
+  margin-bottom: 3rem;
+}
+.journey-chapters__track,
+.journey-chapters__progress {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform-origin: left center;
+}
+.journey-chapters__track {
+  background: #cdd7cf;
+}
+.journey-chapters__progress {
+  width: calc(var(--journey-progress) * 100%);
+  background: var(--journey-green);
+}
+.journey-chapters__marker {
+  position: absolute;
+  top: calc(50% - 0.35rem);
+  left: calc(var(--journey-progress) * (100% - 0.7rem));
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--journey-gold);
+  box-shadow: 0 0 0 0.35rem rgba(208, 160, 74, 0.2);
+}
+.journey-chapters__stops {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  inset: 1.4rem 0 auto;
+  color: #59665f;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.journey-chapters__cards {
+  display: grid;
+  grid-template-columns: 1.12fr 0.78fr 0.92fr;
+  align-items: start;
+  gap: 1.25rem;
+}
+.journey-chapter--2 {
+  margin-top: 5rem;
+}
+.journey-chapter--3 {
+  margin-top: 1.5rem;
+}
+.journey-chapter__image-wrap {
+  aspect-ratio: 1 / 1.15;
+  overflow: hidden;
+  background: #d8e0d8;
+}
+.journey-chapter--2 .journey-chapter__image-wrap {
+  aspect-ratio: 1 / 1.35;
+}
+.journey-chapter--3 .journey-chapter__image-wrap {
+  aspect-ratio: 1 / 1.05;
+}
+.journey-chapter img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.65, 0.2, 1);
+}
+.journey-chapter:hover img {
+  transform: scale(1.04);
+}
+.journey-chapter__copy {
+  padding-top: 1rem;
+}
+.journey-chapter__copy p {
+  margin: 0 0 0.6rem;
+  color: #765019;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.journey-chapter h3 {
+  max-width: 280px;
+  margin: 0;
+  font-size: clamp(1.5rem, 2.3vw, 2.25rem);
+  line-height: 1;
+}
+.journey-peak {
+  position: relative;
+  min-height: 115vh;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  background: #0b2a22;
+}
+.journey-peak__image-wrap,
+.journey-peak__scrim {
+  position: absolute;
+  inset: 0;
+}
+.journey-peak__image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(calc(1.04 + var(--journey-progress) * 0.04));
+}
+.journey-peak__scrim {
+  background:
+    linear-gradient(90deg, rgba(4, 18, 13, 0.78), rgba(4, 18, 13, 0.15) 70%),
+    linear-gradient(0deg, rgba(4, 18, 13, 0.72), transparent 55%);
+}
+.journey-peak__content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 8rem;
+}
+.journey-peak h2 {
+  max-width: 700px;
+  margin: 0.8rem 0 1.2rem;
+  font-size: clamp(4rem, 11vw, 11rem);
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+}
+.journey-peak p:last-child {
+  max-width: 410px;
+  color: #dce3db;
+  font-size: 1.15rem;
+}
+.journey-confidence {
+  padding: 10rem 0;
+  background: #102f25;
+}
+.journey-confidence h2 {
+  font-size: clamp(3rem, 6vw, 6rem);
+}
+.journey-confidence__list {
+  border-top: 1px solid rgba(245, 241, 232, 0.25);
+}
+.journey-confidence article {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(245, 241, 232, 0.25);
+}
+.journey-confidence article span {
+  color: var(--journey-gold);
+  font-size: 0.75rem;
+}
+.journey-confidence h3 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 400;
+}
+.journey-confidence article p {
+  grid-column: 2;
+  max-width: 420px;
+  margin: 0.35rem 0 0;
+  color: var(--journey-muted);
+  line-height: 1.4;
+}
+.journey-regions {
+  padding: 10rem 0 11rem;
+  background: #f2f4ef;
+  color: #18231f;
+}
+.journey-regions__heading {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 4rem;
+  align-items: end;
+  margin-bottom: 4rem;
+}
+.journey-regions h2 {
+  max-width: 700px;
+  margin-bottom: 0;
+  font-size: clamp(3rem, 6vw, 6.2rem);
+}
+.journey-regions__heading > p {
+  max-width: 330px;
+  margin: 0;
+  color: #59665f;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+.journey-regions__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.journey-regions article {
+  background: #e5ebe5;
+}
+.journey-regions article img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.15 / 1;
+  object-fit: cover;
+}
+.journey-regions article div {
+  padding: 1.2rem 1.25rem 1.5rem;
+}
+.journey-regions h3 {
+  margin: 0 0 0.45rem;
+  font-size: 2rem;
+}
+.journey-regions article p {
+  max-width: 280px;
+  margin: 0;
+  color: #59665f;
+  line-height: 1.35;
+}
+.journey-close {
+  padding: 10rem 0;
+  background: #d0a04a;
+  color: #18231f;
+}
+.journey-close h2 {
+  max-width: 700px;
+  margin-bottom: 0;
+  font-size: clamp(3.2rem, 7vw, 7rem);
+}
+.journey-close__action {
+  max-width: 350px;
+}
+.journey-close__action > p {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.journey-cta,
+.journey-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.25rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.journey-cta {
+  background: #0b2a22;
+  color: #f5f1e8;
+}
+.journey-cta:hover {
+  background: #163f30;
+}
+.journey-cta svg,
+.journey-secondary svg {
+  width: 1rem;
+}
+.journey-secondary {
+  margin-left: 0.5rem;
+  color: #18231f;
+  border-bottom: 1px solid currentColor;
+}
+@media (max-width: 760px) {
+  .journey-threshold {
+    min-height: 74vh;
+    padding: 8rem 0 5rem;
+  }
+  .journey-threshold__grid,
+  .journey-confidence__grid,
+  .journey-close__grid,
+  .journey-regions__heading {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .journey-threshold h2,
+  .journey-confidence h2,
+  .journey-regions h2,
+  .journey-close h2 {
+    font-size: clamp(3rem, 16vw, 5rem);
+  }
+  .journey-chapters {
+    min-height: auto;
+    padding: 7rem 0 6rem;
+  }
+  .journey-chapters__inner {
+    position: relative;
+    min-height: 0;
+  }
+  .journey-chapters__heading {
+    display: block;
+    margin-bottom: 2rem;
+  }
+  .journey-chapters__heading > p:last-child {
+    margin-top: 1rem;
+  }
+  .journey-chapters__rail {
+    margin-bottom: 2rem;
+  }
+  .journey-chapters__cards {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .journey-chapter--2,
+  .journey-chapter--3 {
+    margin-top: 0;
+  }
+  .journey-chapter__image-wrap,
+  .journey-chapter--2 .journey-chapter__image-wrap,
+  .journey-chapter--3 .journey-chapter__image-wrap {
+    aspect-ratio: 1.15 / 1;
+  }
+  .journey-peak {
+    min-height: 78vh;
+  }
+  .journey-peak__content {
+    padding-bottom: 5rem;
+  }
+  .journey-peak h2 {
+    font-size: clamp(4rem, 18vw, 7rem);
+  }
+  .journey-confidence,
+  .journey-regions,
+  .journey-close {
+    padding: 6rem 0;
+  }
+  .journey-regions__heading {
+    margin-bottom: 2.5rem;
+  }
+  .journey-regions__cards {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .journey-regions article {
+    display: grid;
+    grid-template-columns: 42% 1fr;
+  }
+  .journey-regions article img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+  .journey-close__action {
+    max-width: none;
+  }
+  .journey-secondary {
+    margin-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-chapter img,
+  .journey-peak__image-wrap img {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Critique refinement: the regional triptych should feel like a route atlas,
+   not three interchangeable destination cards. */
+.journey-regions article:nth-child(2) {
+  margin-top: 3rem;
+}
+.journey-regions article:nth-child(1) img {
+  aspect-ratio: 1 / 1.18;
+}
+.journey-regions article:nth-child(2) img {
+  aspect-ratio: 1 / 0.92;
+}
+.journey-regions article:nth-child(3) img {
+  aspect-ratio: 1 / 1.05;
+}
+@media (max-width: 760px) {
+  .journey-regions article:nth-child(2) {
+    margin-top: 0;
+  }
+  .journey-regions article:nth-child(1) img,
+  .journey-regions article:nth-child(2) img,
+  .journey-regions article:nth-child(3) img {
+    aspect-ratio: auto;
+  }
+}
+
 @layer components {
   /**
    * Custom container utility that centers content and adds responsive padding.

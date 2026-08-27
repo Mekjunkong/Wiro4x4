@@ -178,10 +178,6 @@ export function Hero() {
                 "רכב פרטי · איסוף מצ׳יאנג מאי · תכנון בעברית"
               )}
             </p>
-            <p className="wiro-hero__scroll-cue" aria-hidden="true">
-              <span />
-              {t("Scroll to explore", "גללו כדי לגלות")}
-            </p>
           </div>
         </div>
       </div>

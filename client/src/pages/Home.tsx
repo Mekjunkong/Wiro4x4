@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { TrustBar } from "@/components/TrustBar";
-import { ExpeditionNarrative } from "@/components/ExpeditionNarrative";
+import { IndochinaJourney } from "@/components/IndochinaJourney";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -66,7 +66,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <TrustBar />
-        <ExpeditionNarrative />
+        <IndochinaJourney />
         <FAQ />
       </main>
       <Footer />
