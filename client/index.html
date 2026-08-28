@@ -250,7 +250,10 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <!-- Crawlable fallback is replaced when the React app mounts. -->
+    <div id="root">
+      <h1 class="sr-only">Private Chiang Mai 4x4 Tours into Northern Thailand</h1>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- Analytics: loaded from React app when env vars are configured -->
   </body>
