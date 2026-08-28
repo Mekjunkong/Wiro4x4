@@ -37,16 +37,17 @@ export function FloatingActionButtons() {
 
   useEffect(() => {
     const handleScroll = () => setScrolledPast(window.scrollY > 600);
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [location]);
 
   const whatsappMessage =
     language === "he"
       ? "שלום WIRO 4x4, נשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
       : "Hi WIRO 4x4, I'd like to check availability for a private tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
   const isHomePage = location === "/";
-  const hideUntilUsefulOnHome = isHomePage && (!scrolledPast || !consentGiven);
+  const hideUntilUsefulOnHome = isHomePage && !scrolledPast;
 
   if (isBookingPage || hideUntilUsefulOnHome) return null;
 

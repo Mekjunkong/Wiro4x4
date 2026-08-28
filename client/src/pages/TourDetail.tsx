@@ -34,7 +34,10 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { DEPOSIT_RATE } from "@shared/pricing";
 import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
-import { resolveTourSeoMeta } from "@shared/tourSeoOverrides";
+import {
+  resolveTourDisplayHeading,
+  resolveTourSeoMeta,
+} from "@shared/tourSeoOverrides";
 
 function catalogPrice(slug: string): number {
   const tour = getFallbackTourBySlug(slug);
@@ -1284,6 +1287,9 @@ export default function TourDetail() {
         description: tour.description.slice(0, 160),
       })
     : null;
+  const tourDisplayHeading = tour
+    ? resolveTourDisplayHeading(slug, { en: tour.name, he: tour.nameHe })
+    : null;
 
   usePageMeta(
     tour && tourSeoMeta
@@ -1473,8 +1479,10 @@ export default function TourDetail() {
                 <ArrowLeft className="w-4 h-4" />
                 {t("All Tours", "כל הטיולים")}
               </button>
-              <h1 className="text-4xl md:text-5xl font-medium text-white mb-3">
-                {t(tour.name, tour.nameHe)}
+              <h1 className="text-3xl leading-tight sm:text-4xl md:text-5xl font-medium text-white mb-3">
+                {tourDisplayHeading
+                  ? t(tourDisplayHeading.en, tourDisplayHeading.he)
+                  : t(tour.name, tour.nameHe)}
               </h1>
               <div className="flex flex-wrap items-center gap-3 text-white/90 text-sm">
                 <span className="flex items-center gap-1.5">

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { resolveTourSeoMeta, TOUR_SEO_OVERRIDES } from "./tourSeoOverrides";
+import {
+  resolveTourDisplayHeading,
+  resolveTourSeoMeta,
+  TOUR_DISPLAY_HEADING_OVERRIDES,
+  TOUR_SEO_OVERRIDES,
+} from "./tourSeoOverrides";
 
 describe("tour SEO overrides", () => {
   it.each([
@@ -29,5 +34,22 @@ describe("tour SEO overrides", () => {
     expect(resolveTourSeoMeta("mae-kampong-hidden-village", fallback)).toBe(
       fallback
     );
+  });
+
+  it.each([
+    "doi-inthanon-roof-of-thailand",
+    "mae-wang-jungle-wilderness",
+  ])("resolves a localized display heading independently for %s", slug => {
+    expect(
+      resolveTourDisplayHeading(slug, { en: "Fallback EN", he: "Fallback HE" })
+    ).toEqual(TOUR_DISPLAY_HEADING_OVERRIDES[slug]);
+    expect(TOUR_DISPLAY_HEADING_OVERRIDES[slug].en).not.toBe(
+      TOUR_SEO_OVERRIDES[slug].title
+    );
+  });
+
+  it("preserves the localized fallback for other tours", () => {
+    const fallback = { en: "Fallback EN", he: "Fallback HE" };
+    expect(resolveTourDisplayHeading("unknown-tour", fallback)).toBe(fallback);
   });
 });
