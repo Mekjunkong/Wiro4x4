@@ -17,6 +17,11 @@ import { getTourPackageBySlug } from "./db/packages";
 import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
 import { resolveTourSeoMeta } from "../shared/tourSeoOverrides";
+import {
+  COMPANY_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_WHATSAPP_URL,
+} from "../shared/const";
 
 function catalogPrice(slug: string): number {
   const tour = getFallbackTourBySlug(slug);
@@ -29,9 +34,9 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
 const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
-const BUSINESS_PHONE = "+66816401397";
-const BUSINESS_EMAIL = "wiro.adventures@gmail.com";
-const BUSINESS_WHATSAPP = "https://wa.me/66816401397";
+const BUSINESS_PHONE = COMPANY_PHONE;
+const BUSINESS_EMAIL = COMPANY_EMAIL;
+const BUSINESS_WHATSAPP = COMPANY_WHATSAPP_URL;
 const BUSINESS_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=Wiro%204x4%20Indochina%20Adventure%20Tours%20Chiang%20Mai";
 const BUSINESS_IMAGES = [
@@ -227,9 +232,9 @@ function localBusinessJsonLd(): Record<string, unknown> {
 // Static route meta data
 const STATIC_ROUTES: Record<string, PageMeta> = {
   "/": {
-    title: "WIRO 4x4 - Kosher Off-Road Adventures in Chiang Mai, Thailand",
+    title: "Chiang Mai 4x4 Tours & Private Off-Road Adventures | WIRO 4x4",
     description:
-      "Explore Chiang Mai with Hebrew-speaking guides, kosher meals, and custom 4x4 off-road tours. Shabbat-friendly adventures for Israeli travelers in Northern Thailand.",
+      "Explore Northern Thailand with WIRO 4x4. Private off-road tours, customized Jeep adventures and multi-day expeditions from Chiang Mai.",
     canonicalPath: "/",
   },
   "/tours": {
