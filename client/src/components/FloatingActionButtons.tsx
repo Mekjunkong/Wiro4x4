@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MessageCircle } from "lucide-react";
-import { useLocation } from "wouter";
+import { Calendar, MessageCircle } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
@@ -64,6 +64,16 @@ export function FloatingActionButtons() {
       style={{ zIndex: 9997 }}
     >
       <div className="site-floating-actions flex flex-col items-end gap-2">
+        {isHomePage && (
+          <Link
+            href="/book"
+            className="flex h-11 items-center justify-center gap-2 rounded-sm bg-accent-cta px-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2 sm:px-4"
+            aria-label={t("Book a tour", "הזמינו טיול")}
+          >
+            <Calendar className="h-5 w-5" aria-hidden="true" />
+            <span>{t("Book Now", "הזמינו עכשיו")}</span>
+          </Link>
+        )}
         {!isHomePage && (
           <TrackedWhatsAppLink
             sourceCode={

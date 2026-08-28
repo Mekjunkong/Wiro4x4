@@ -980,7 +980,7 @@
 .wiro-hero__trust {
   margin: 1.25rem 0 0;
   color: rgba(248, 244, 235, 0.68);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.025em;
 }
@@ -1084,7 +1084,7 @@
     font-size: 0.72rem;
   }
   .wiro-hero__trust {
-    font-size: 0.74rem;
+    font-size: 0.875rem;
     line-height: 1.45;
   }
   .wiro-hero__scroll-cue {
