@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Calendar, MessageCircle } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Bot, MessageCircle } from "lucide-react";
+import { useLocation } from "wouter";
 import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
@@ -11,7 +11,7 @@ export function FloatingActionButtons() {
   const isBookingPage = location === "/book";
 
   const [scrolledPast, setScrolledPast] = useState(false);
-
+  const [chatOpen, setChatOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [consentGiven, setConsentGiven] = useState(() => {
     try {
@@ -20,6 +20,12 @@ export function FloatingActionButtons() {
       return false;
     }
   });
+
+  useEffect(() => {
+    const handler = (e: Event) => setChatOpen((e as CustomEvent).detail);
+    window.addEventListener("chat-open", handler);
+    return () => window.removeEventListener("chat-open", handler);
+  }, []);
 
   useEffect(() => {
     const onConsent = () => setConsentGiven(true);
@@ -37,19 +43,22 @@ export function FloatingActionButtons() {
 
   useEffect(() => {
     const handleScroll = () => setScrolledPast(window.scrollY > 600);
-    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [location]);
+  }, []);
+
+  const handleChatClick = () => {
+    window.dispatchEvent(new CustomEvent("chat-toggle"));
+  };
 
   const whatsappMessage =
     language === "he"
       ? "שלום WIRO 4x4, נשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
       : "Hi WIRO 4x4, I'd like to check availability for a private tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
   const isHomePage = location === "/";
-  const hideUntilUsefulOnHome = isHomePage && !scrolledPast;
+  const hideUntilUsefulOnHome = isHomePage && (!scrolledPast || !consentGiven);
 
-  if (isBookingPage || hideUntilUsefulOnHome) return null;
+  if (isBookingPage || hideUntilUsefulOnHome || chatOpen) return null;
 
   const isRtl = language === "he";
   const bottomClass =
@@ -63,37 +72,37 @@ export function FloatingActionButtons() {
       aria-label={t("Quick actions", "פעולות מהירות")}
       style={{ zIndex: 9997 }}
     >
-      <div className="site-floating-actions flex flex-col items-end gap-2">
-        {isHomePage && (
-          <Link
-            href="/book"
-            className="flex h-11 items-center justify-center gap-2 rounded-sm bg-accent-cta px-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-accent-cta-hover focus:outline-none focus:ring-2 focus:ring-accent-cta focus:ring-offset-2 sm:px-4"
-            aria-label={t("Book a tour", "הזמינו טיול")}
-          >
-            <Calendar className="h-5 w-5" aria-hidden="true" />
-            <span>{t("Book Now", "הזמינו עכשיו")}</span>
-          </Link>
-        )}
-        {!isHomePage && (
-          <TrackedWhatsAppLink
-            sourceCode={
-              language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"
-            }
-            humanMessage={whatsappMessage}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-11 items-center justify-center gap-2 rounded-sm bg-[#25D366] px-3.5 text-white shadow-lg transition-all duration-200 hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 sm:px-4"
-            aria-label={t(
-              "Check availability on WhatsApp",
-              "בדיקת זמינות בוואטסאפ"
-            )}
-          >
-            <MessageCircle className="h-5 w-5" aria-hidden="true" />
-            <span className="text-sm font-semibold">
-              {t("WhatsApp", "וואטסאפ")}
-            </span>
-          </TrackedWhatsAppLink>
-        )}
+      <div className="flex flex-col items-end gap-2">
+        <TrackedWhatsAppLink
+          sourceCode={language === "he" ? "GLOBAL-FLOAT-HE" : "GLOBAL-FLOAT-EN"}
+          humanMessage={whatsappMessage}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-12 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg flex items-center justify-center gap-2 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+          aria-label={t(
+            "Check availability on WhatsApp",
+            "בדיקת זמינות בוואטסאפ"
+          )}
+        >
+          <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          <span className="text-sm font-semibold">
+            {t("WhatsApp", "וואטסאפ")}
+          </span>
+        </TrackedWhatsAppLink>
+        <button
+          type="button"
+          onClick={handleChatClick}
+          className="h-12 rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg flex items-center justify-center gap-2 px-3.5 sm:px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+          aria-label={t("Ask Levi", "שאלו את לוי")}
+        >
+          <Bot className="h-5 w-5" aria-hidden="true" />
+          <span className="text-sm font-semibold sm:hidden">
+            {t("Levi", "לוי")}
+          </span>
+          <span className="hidden text-sm font-semibold sm:inline">
+            {t("Ask Levi", "שאלו את לוי")}
+          </span>
+        </button>
       </div>
     </div>
   );

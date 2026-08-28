@@ -1,183 +1,74 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown, MessageCircle } from "lucide-react";
+import { Bot, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CinematicHeroBackground } from "@/components/CinematicHeroBackground";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function Hero() {
   const { t, language } = useLanguage();
-  const heroRef = useRef<HTMLElement>(null);
-  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
-  const [backgroundReady, setBackgroundReady] = useState(false);
-  const [motionEnabled, setMotionEnabled] = useState(false);
-  const [motionReadyToLoad, setMotionReadyToLoad] = useState(false);
-  const [motionSource, setMotionSource] = useState(
-    "/media/hero/wiro-seedance-720p-optimized.mp4"
-  );
+
   const whatsappMessage =
     language === "he"
-      ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nצרכי כשרות / שבת / מדריך בעברית: __"
-      : "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nKosher / Shabbat / Hebrew-guide needs: __";
+      ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
+      : "Hi WIRO 4x4, I'd like to plan a private off-road trip from Chiang Mai.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
 
-  useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const connection = (
-      navigator as Navigator & {
-        connection?: { effectiveType?: string; saveData?: boolean };
-      }
-    ).connection;
-
-    const updateMotionAvailability = () => {
-      const constrainedNetwork =
-        connection?.saveData || connection?.effectiveType?.includes("2g");
-      setMotionEnabled(!reducedMotion.matches && !constrainedNetwork);
-      setMotionSource(
-        window.matchMedia("(max-width: 720px)").matches
-          ? "/media/hero/wiro-seedance-mobile.mp4"
-          : "/media/hero/wiro-seedance-720p-optimized.mp4"
-      );
-    };
-
-    updateMotionAvailability();
-    reducedMotion.addEventListener("change", updateMotionAvailability);
-    return () => {
-      reducedMotion.removeEventListener("change", updateMotionAvailability);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!motionEnabled) {
-      setMotionReadyToLoad(false);
-      return;
-    }
-
-    let cancelled = false;
-    const loadMotion = () => {
-      if (!cancelled) setMotionReadyToLoad(true);
-    };
-    const idleWindow = window as Window & {
-      requestIdleCallback?: (
-        callback: () => void,
-        options?: { timeout: number }
-      ) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-    const idleHandle = idleWindow.requestIdleCallback
-      ? idleWindow.requestIdleCallback(loadMotion, { timeout: 1200 })
-      : undefined;
-    const timeoutHandle = window.setTimeout(loadMotion, 900);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutHandle);
-      if (idleHandle !== undefined) idleWindow.cancelIdleCallback?.(idleHandle);
-    };
-  }, [motionEnabled]);
-
-  useEffect(() => {
-    const video = backgroundVideoRef.current;
-    if (!motionEnabled || !motionReadyToLoad || !video) return;
-
-    const updatePlayback = () => {
-      video.playbackRate = 0.72;
-      if (document.hidden) {
-        video.pause();
-        return;
-      }
-      void video.play().catch(() => undefined);
-    };
-
-    updatePlayback();
-    document.addEventListener("visibilitychange", updatePlayback);
-    return () => {
-      document.removeEventListener("visibilitychange", updatePlayback);
-    };
-  }, [motionEnabled, motionReadyToLoad, backgroundReady]);
-
-  const scrollToJourney = () =>
-    document
-      .getElementById("journey-heading")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const openLevi = () => {
+    window.dispatchEvent(new CustomEvent("chat-toggle"));
+  };
 
   return (
-    <section
-      ref={heroRef}
-      className={`wiro-hero ${backgroundReady ? "has-motion" : ""}`}
-      aria-labelledby="home-hero-title"
-    >
-      <div className="wiro-hero__stage">
-        <div className="wiro-hero__media" aria-hidden="true">
-          <img
-            src="/media/hero/wiro-seedance-poster.jpg"
-            alt=""
-            fetchPriority="high"
-            decoding="async"
-            className="wiro-hero__image"
-          />
-          {motionEnabled && motionReadyToLoad && (
-            <video
-              ref={backgroundVideoRef}
-              className="wiro-hero__video"
-              muted
-              autoPlay
-              loop
-              playsInline
-              preload="metadata"
-              poster="/media/hero/wiro-seedance-poster.jpg"
-              onLoadedMetadata={() => setBackgroundReady(true)}
-              tabIndex={-1}
-            >
-              <source src={motionSource} type="video/mp4" />
-            </video>
-          )}
-          <div className="wiro-hero__wash" />
-        </div>
+    <section className="relative min-h-[100dvh] w-full overflow-hidden bg-primary">
+      <CinematicHeroBackground
+        alt={t(
+          "WIRO 4x4 vehicle on a jungle road in Chiang Mai",
+          "רכב WIRO 4x4 בדרך ג'ונגל בצ'יאנג מאי"
+        )}
+      />
 
-        <div className="container wiro-hero__layout">
-          <div className="wiro-hero__content">
-            <p className="wiro-hero__eyebrow">
-              {t(
-                "Private access · Northern Thailand",
-                "טיולי 4×4 פרטיים · צ׳יאנג מאי"
-              )}
-            </p>
-            <h1 id="home-hero-title">
-              {t(
-                "Private Chiang Mai 4x4 tours into Northern Thailand.",
-                "טיולי 4x4 פרטיים מצ׳יאנג מאי אל צפון תאילנד."
-              )}
-            </h1>
-            <p className="wiro-hero__lede">
-              {t(
-                "Explore Northern Thailand by Jeep with a route, pickup and pace planned around your group.",
-                "גלו את צפון תאילנד בג׳יפ, עם מסלול, איסוף וקצב שמתוכננים סביב הקבוצה שלכם."
-              )}
-            </p>
-            <div className="wiro-hero__actions">
-              <TrackedWhatsAppLink
-                sourceCode={language === "he" ? "HOME-HERO-HE" : "HOME-HERO-EN"}
-                humanMessage={whatsappMessage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="wiro-hero__primary"
-              >
-                <MessageCircle aria-hidden="true" />
-                {t("Plan with WIRO", "תכננו עם WIRO")}
-              </TrackedWhatsAppLink>
-              <button
-                type="button"
-                onClick={scrollToJourney}
-                className="wiro-hero__secondary"
-              >
-                {t("Explore the routes", "גלו את המסלולים")}
-                <ArrowDown aria-hidden="true" />
-              </button>
-            </div>
-            <p className="wiro-hero__trust">
-              {t(
-                "Private vehicle · Chiang Mai pickup · Hebrew planning",
-                "רכב פרטי · איסוף מצ׳יאנג מאי · תכנון בעברית"
-              )}
-            </p>
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/55 to-primary/15 md:from-primary/90 md:via-primary/35" />
+
+      <div className="relative z-10 flex min-h-[100dvh] items-end px-5 pb-16 pt-24 text-white sm:pb-20 md:px-12 lg:px-20 lg:pb-24">
+        <div className="w-full max-w-4xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent md:mb-4 md:text-sm animate-hero-reveal [animation-delay:0.1s]">
+            {t("Private tours from Chiang Mai", "טיולים פרטיים מצ'יאנג מאי")}
+          </p>
+
+          <h1 className="mb-4 max-w-[22rem] text-balance text-[clamp(2.5rem,1rem+5vw,4.75rem)] leading-[1.03] drop-shadow-2xl sm:max-w-3xl md:mb-5 lg:max-w-4xl animate-hero-reveal [animation-delay:0.2s]">
+            {language === "he" ? (
+              <>
+                טיולי 4×4 <span className="text-accent">כשרים</span> בצ'יאנג מאי
+              </>
+            ) : (
+              <>Private Chiang Mai 4x4 Tours into Northern Thailand</>
+            )}
+          </h1>
+
+          <p className="relative mb-7 max-w-[21rem] text-sm font-light leading-relaxed text-white/90 drop-shadow-lg min-[380px]:text-base sm:max-w-xl md:text-lg lg:text-xl animate-hero-reveal [animation-delay:0.35s]">
+            {t(
+              "Real off-road routes with Hebrew support, kosher-aware meals, and Shabbat-sensitive scheduling.",
+              "מסלולי שטח אמיתיים עם מענה בעברית, ארוחות מותאמות כשרות ולוחות זמנים המתחשבים בשבת."
+            )}
+            <span className="absolute -bottom-3 start-0 h-[2px] w-14 bg-accent" />
+          </p>
+
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center animate-hero-reveal [animation-delay:0.5s]">
+            <TrackedWhatsAppLink
+              sourceCode={language === "he" ? "HOME-HERO-HE" : "HOME-HERO-EN"}
+              humanMessage={whatsappMessage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-[#176b5b] px-7 py-3.5 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,0.24)] transition-all hover:bg-[#11594b] active:translate-y-px focus:outline-none focus:ring-2 focus:ring-[#176b5b] focus:ring-offset-2 focus:ring-offset-primary sm:w-auto md:text-base"
+            >
+              <MessageCircle className="w-5 h-5" aria-hidden="true" />
+              {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
+            </TrackedWhatsAppLink>
+            <button
+              type="button"
+              onClick={openLevi}
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-white/45 bg-white/10 px-6 py-3.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-md transition-all hover:bg-white/20 active:translate-y-px focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary sm:w-auto md:text-base"
+            >
+              <Bot className="w-5 h-5" aria-hidden="true" />
+              {t("Ask Levi first", "שאלו קודם את לוי")}
+            </button>
           </div>
         </div>
       </div>
