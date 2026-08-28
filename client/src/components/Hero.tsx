@@ -142,14 +142,14 @@ export function Hero() {
             </p>
             <h1 id="home-hero-title">
               {t(
-                "Private access to Northern Thailand.",
-                "הגישה הפרטית שלכם לצפון תאילנד."
+                "Private Chiang Mai 4x4 tours into Northern Thailand.",
+                "טיולי 4x4 פרטיים מצ׳יאנג מאי אל צפון תאילנד."
               )}
             </h1>
             <p className="wiro-hero__lede">
               {t(
-                "WIRO plans the route, pickup, food and pace around your group.",
-                "WIRO מתכנן את המסלול, האיסוף, האוכל והקצב סביב הקבוצה שלכם."
+                "Explore Northern Thailand by Jeep with a route, pickup and pace planned around your group.",
+                "גלו את צפון תאילנד בג׳יפ, עם מסלול, איסוף וקצב שמתוכננים סביב הקבוצה שלכם."
               )}
             </p>
             <div className="wiro-hero__actions">

@@ -52,10 +52,10 @@ const homeJsonLd = [
 
 export default function Home() {
   usePageMeta({
-    title: "Private Kosher 4x4 Tours from Chiang Mai",
+    title: "Chiang Mai 4x4 Tours & Private Off-Road Adventures | WIRO 4x4",
     description:
-      "Plan a private WIRO 4x4 trip from Chiang Mai with Hebrew/English support, kosher-aware meal planning, Shabbat-sensitive routing, and WhatsApp-first availability checks.",
-    ogTitle: "WIRO 4x4 Chiang Mai - Private Kosher Off-Road Tours",
+      "Explore Northern Thailand with WIRO 4x4. Private off-road tours, customized Jeep adventures and multi-day expeditions from Chiang Mai.",
+    ogTitle: "Chiang Mai 4x4 Tours & Private Off-Road Adventures | WIRO 4x4",
     canonicalPath: "/",
     jsonLd: homeJsonLd,
   });
