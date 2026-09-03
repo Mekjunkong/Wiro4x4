@@ -27,6 +27,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
 import { trackEvent } from "@/lib/analytics";
+import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
 import {
   Package,
   Check,
@@ -219,6 +220,15 @@ export default function Packages() {
       })
       .filter(Boolean) as TourSelection[];
   }, [selectedTourSlugs, availableTours]);
+
+  const bookingUrl = useMemo(
+    () =>
+      buildSelectedToursBookingUrl(
+        selectedTourSlugs,
+        availableTours.map(tour => tour.slug)
+      ),
+    [selectedTourSlugs, availableTours]
+  );
 
   // ── Pricing calculations ──────────────────────────────────
   const totalTourDays = selectedTourSlugs.length;
@@ -1439,7 +1449,7 @@ export default function Packages() {
                       <ArrowLeft className="w-4 h-4 mr-1" />
                       {t("Back", "חזרה")}
                     </Button>
-                    <Link href="/book">
+                    <Link href={bookingUrl}>
                       <Button className="bg-accent-cta hover:bg-accent-cta-hover text-white">
                         {t("Book Now", "להזמנה")}
                         <ArrowRight className="w-4 h-4 ml-1" />

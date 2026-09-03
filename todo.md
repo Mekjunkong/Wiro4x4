@@ -1,5 +1,26 @@
 # Wiro 4x4 Website TODO
 
+## 📝 Bilingual Content Draft Pack (2026-09-03)
+
+- [x] Created approval-safe EN/HE high-intent concepts, metadata/CTA variants, claim-source register, and editorial checklist: `docs/agency-content/t_391a94e6-bilingual-draft-pack.md`
+- [ ] Reviewer/Mike/client approval required before publication, customer-facing use, ads, pricing/proposal release, or deployment
+
+## ✅ Public-Source Market and Competitor Research Refresh (2026-09-03)
+
+- [x] Created dated evidence brief covering Chiang Mai private 4x4/tour, kosher/Jewish travel, Hebrew/Israeli traveler, and family/private-tour signals.
+- [x] Separated FACT, HYPOTHESIS, RECOMMENDATION, unknowns, risks, approval gate, and next-owner actions; no competitor prices or performance claims added.
+- [ ] Mike/client approval required before publishing, outreach, proposals/pricing, ads/spend, funnel edits, or production changes.
+
+## ⏸️ Paid Ads Strategy Package (2026-09-03)
+
+- [x] Prepared approval-ready, no-spend paid-search/paid-social strategy package with EN/HE draft copy, intent structure, negatives, route mapping, future measurement, citations, claim checklist, and exact Mike/client gates: `docs/agency-marketing/t_61b55443-paid-ads-strategy-package.md`
+- [ ] Obtain explicit Mike/client approval before any public copy, account/platform work, budget entry, customer-facing message, campaign creation, or launch
+
+## ✅ Booking Tour Context Recovery (2026-09-03)
+
+- [x] Preserve only known package-builder and DB package-detail tour slugs in final `/book?tours=` handoffs.
+- [x] Parse and deduplicate `tour`/`tours` booking query values, ignore unmatched slugs, and show matched selected tours bilingually.
+
 ## ✅ First Website Improvement Batch (2026-07-11)
 
 - [x] Replaced synthetic review profiles and unsourced trust counters with transparent public-review links

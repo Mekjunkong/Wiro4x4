@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { parseRequestedTourSlugs } from "@/lib/bookingTourContext";
 import {
   TripDetailsStep,
   ServicesStep,
@@ -161,31 +162,21 @@ export default function BookingForm() {
   }, [serverDraft]);
 
   // Pre-fill from ?tours= query param (package booking flow)
-  const preSelectedSlugs = useMemo(
-    () =>
-      toursParam
-        ? toursParam
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean)
-        : [],
-    [toursParam]
-  );
   const selectedTourSlugs = useMemo(
-    () =>
-      Array.from(
-        new Set([...preSelectedSlugs, ...(tourParam ? [tourParam] : [])])
-      ),
-    [preSelectedSlugs, tourParam]
+    () => parseRequestedTourSlugs(toursParam, tourParam),
+    [toursParam, tourParam]
   );
   const { data: allTours } = trpc.tour.list.useQuery(undefined, {
     enabled: selectedTourSlugs.length > 0,
   });
+  const matchedTours = useMemo(
+    () => allTours?.filter(tour => selectedTourSlugs.includes(tour.slug)) ?? [],
+    [allTours, selectedTourSlugs]
+  );
   const [toursApplied, setToursApplied] = useState(false);
   useEffect(() => {
     if (toursApplied || selectedTourSlugs.length === 0 || !allTours) return;
-    const matched = allTours.filter(t => selectedTourSlugs.includes(t.slug));
-    if (matched.length === 0) return;
+    if (matchedTours.length === 0) return;
 
     // Map tour slugs to destination region IDs where possible
     const SLUG_TO_DEST: Record<string, string> = {
@@ -193,7 +184,7 @@ export default function BookingForm() {
     };
     const destIds = Array.from(
       new Set(
-        matched
+        matchedTours
           .map(t => SLUG_TO_DEST[t.slug])
           .filter((id): id is string => !!id)
       )
@@ -201,7 +192,7 @@ export default function BookingForm() {
     // Always include chiang-mai since all tours are Chiang Mai area
     if (!destIds.includes("chiang-mai")) destIds.push("chiang-mai");
 
-    const tourNames = matched.map(t => t.name).join(", ");
+    const tourNames = matchedTours.map(t => t.name).join(", ");
     setFormData(prev => ({
       ...prev,
       suggestedDestinations: Array.from(
@@ -213,17 +204,11 @@ export default function BookingForm() {
       includesTrip: true,
     }));
     setToursApplied(true);
-  }, [allTours, selectedTourSlugs, toursApplied]);
+  }, [allTours, matchedTours, selectedTourSlugs, toursApplied]);
 
   const selectedTourName = useMemo(
-    () =>
-      allTours?.find(tour => tour.slug === tourParam)?.name ??
-      allTours
-        ?.filter(tour => preSelectedSlugs.includes(tour.slug))
-        .map(tour => tour.name)
-        .join(", ") ??
-      "",
-    [allTours, preSelectedSlugs, tourParam]
+    () => matchedTours.map(tour => tour.name).join(", "),
+    [matchedTours]
   );
 
   const quickAvailabilityMessage = useMemo(
@@ -716,6 +701,21 @@ export default function BookingForm() {
                   {t("Check availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}
                 </TrackedWhatsAppLink>
               </div>
+
+              {matchedTours.length > 0 && (
+                <div className="mb-8 rounded-sm border border-accent/30 bg-muted/30 p-5">
+                  <h2 className="text-sm font-semibold text-foreground">
+                    {t("Selected tours", "הטיולים שנבחרו")}
+                  </h2>
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {matchedTours.map(tour => (
+                      <li key={tour.slug}>
+                        {t(tour.name, tour.nameHe || tour.name)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="mb-8 border-b border-border pb-6">
                 <h2 className="text-xl font-serif font-semibold text-foreground">

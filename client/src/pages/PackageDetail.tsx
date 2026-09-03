@@ -26,6 +26,7 @@ import {
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trackEvent } from "@/lib/analytics";
+import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
 
 /* ─── Fallback itinerary day type ─── */
 interface ItineraryDay {
@@ -846,7 +847,10 @@ export default function PackageDetail() {
   const coverSlug = pkg.tourSlugs[0];
   const coverImgName = coverSlug ? TOUR_IMAGE_MAP[coverSlug] : null;
   const coverSrc = pkg.coverImage || coverImgName || "samoeng_valley";
-  const bookUrl = `/book?tours=${pkg.tourSlugs.join(",")}`;
+  const bookUrl = buildSelectedToursBookingUrl(
+    pkg.tourSlugs,
+    pkg.resolvedTours.map(tour => tour.slug)
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
