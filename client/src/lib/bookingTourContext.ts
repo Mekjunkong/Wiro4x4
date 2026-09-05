@@ -1,3 +1,14 @@
+export function parseRequestedPackageName(packageParam: string | null): string {
+  return packageParam?.trim() ?? "";
+}
+
+export function buildPackageBookingUrl(packageName: string): string {
+  const safePackageName = packageName.trim();
+  return safePackageName
+    ? `/book?package=${encodeURIComponent(safePackageName)}`
+    : "/book";
+}
+
 export function parseRequestedTourSlugs(
   toursParam: string | null,
   tourParam: string | null

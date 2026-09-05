@@ -1,11 +1,25 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildPackageBookingUrl,
   buildSelectedToursBookingUrl,
+  parseRequestedPackageName,
   parseRequestedTourSlugs,
 } from "./bookingTourContext";
 
 describe("booking tour context", () => {
+  it("preserves a fallback package name in the booking handoff", () => {
+    const packageName = "3 Days / 2 Nights — Northern Thailand";
+    const url = buildPackageBookingUrl(packageName);
+
+    expect(url).toBe(
+      "/book?package=3%20Days%20%2F%202%20Nights%20%E2%80%94%20Northern%20Thailand"
+    );
+    expect(parseRequestedPackageName("  " + packageName + "  ")).toBe(
+      packageName
+    );
+    expect(buildPackageBookingUrl("  ")).toBe("/book");
+  });
   it("trims and deduplicates combined tour and tours query values", () => {
     expect(
       parseRequestedTourSlugs(

@@ -26,7 +26,10 @@ import {
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trackEvent } from "@/lib/analytics";
-import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
+import {
+  buildPackageBookingUrl,
+  buildSelectedToursBookingUrl,
+} from "@/lib/bookingTourContext";
 
 /* ─── Fallback itinerary day type ─── */
 interface ItineraryDay {
@@ -818,7 +821,7 @@ export default function PackageDetail() {
                     </TrackedWhatsAppLink>
                   </Button>
 
-                  <Link href="/book">
+                  <Link href={buildPackageBookingUrl(pkg.name)}>
                     <Button variant="outline" className="w-full" size="lg">
                       {t("Book Online", "הזמנה אונליין")}
                     </Button>

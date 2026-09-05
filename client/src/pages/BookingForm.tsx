@@ -21,7 +21,10 @@ import { Button } from "@/components/ui/button";
 import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
-import { parseRequestedTourSlugs } from "@/lib/bookingTourContext";
+import {
+  parseRequestedPackageName,
+  parseRequestedTourSlugs,
+} from "@/lib/bookingTourContext";
 import {
   TripDetailsStep,
   ServicesStep,
@@ -123,6 +126,10 @@ export default function BookingForm() {
     const params = new URLSearchParams(window.location.search);
     return params.get("tour");
   });
+  const [packageParam] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("package");
+  });
 
   // N5: Load draft from localStorage on mount
   const [formData, setFormData] = useState<FormData>(() => {
@@ -166,6 +173,10 @@ export default function BookingForm() {
     () => parseRequestedTourSlugs(toursParam, tourParam),
     [toursParam, tourParam]
   );
+  const selectedPackageName = useMemo(
+    () => parseRequestedPackageName(packageParam),
+    [packageParam]
+  );
   const { data: allTours } = trpc.tour.list.useQuery(undefined, {
     enabled: selectedTourSlugs.length > 0,
   });
@@ -175,8 +186,27 @@ export default function BookingForm() {
   );
   const [toursApplied, setToursApplied] = useState(false);
   useEffect(() => {
-    if (toursApplied || selectedTourSlugs.length === 0 || !allTours) return;
-    if (matchedTours.length === 0) return;
+    if (toursApplied) return;
+
+    if (selectedTourSlugs.length === 0 && selectedPackageName) {
+      setFormData(prev => ({
+        ...prev,
+        specialRequests: prev.specialRequests
+          ? prev.specialRequests
+          : `Selected package: ${selectedPackageName}`,
+        includesTrip: true,
+      }));
+      setToursApplied(true);
+      return;
+    }
+
+    if (
+      selectedTourSlugs.length === 0 ||
+      !allTours ||
+      matchedTours.length === 0
+    ) {
+      return;
+    }
 
     // Map tour slugs to destination region IDs where possible
     const SLUG_TO_DEST: Record<string, string> = {
@@ -204,19 +234,26 @@ export default function BookingForm() {
       includesTrip: true,
     }));
     setToursApplied(true);
-  }, [allTours, matchedTours, selectedTourSlugs, toursApplied]);
+  }, [
+    allTours,
+    matchedTours,
+    selectedPackageName,
+    selectedTourSlugs,
+    toursApplied,
+  ]);
 
   const selectedTourName = useMemo(
     () => matchedTours.map(tour => tour.name).join(", "),
     [matchedTours]
   );
+  const selectedBookingContext = selectedTourName || selectedPackageName;
 
   const quickAvailabilityMessage = useMemo(
     () =>
       isHebrew
         ? [
             "שלום WIRO 4x4, אשמח לבדוק זמינות לטיול פרטי.",
-            selectedTourName ? `מסלול: ${selectedTourName}` : "",
+            selectedBookingContext ? `מסלול: ${selectedBookingContext}` : "",
             "תאריכים: __",
             "מספר מטיילים: __",
             "אזור איסוף / מלון: __",
@@ -226,7 +263,7 @@ export default function BookingForm() {
             .join("\n")
         : [
             "Hi WIRO 4x4, I'd like to check availability for a private tour.",
-            selectedTourName ? `Tour: ${selectedTourName}` : "",
+            selectedBookingContext ? `Tour: ${selectedBookingContext}` : "",
             "Dates: __",
             "Group size: __",
             "Pickup area / hotel: __",
@@ -234,7 +271,7 @@ export default function BookingForm() {
           ]
             .filter(Boolean)
             .join("\n"),
-    [isHebrew, selectedTourName]
+    [isHebrew, selectedBookingContext]
   );
 
   // N5: Auto-save draft to localStorage (debounced)
@@ -702,7 +739,7 @@ export default function BookingForm() {
                 </TrackedWhatsAppLink>
               </div>
 
-              {matchedTours.length > 0 && (
+              {(matchedTours.length > 0 || selectedPackageName) && (
                 <div className="mb-8 rounded-sm border border-accent/30 bg-muted/30 p-5">
                   <h2 className="text-sm font-semibold text-foreground">
                     {t("Selected tours", "הטיולים שנבחרו")}
@@ -713,6 +750,9 @@ export default function BookingForm() {
                         {t(tour.name, tour.nameHe || tour.name)}
                       </li>
                     ))}
+                    {matchedTours.length === 0 && selectedPackageName && (
+                      <li>{selectedPackageName}</li>
+                    )}
                   </ul>
                 </div>
               )}
