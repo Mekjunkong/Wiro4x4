@@ -446,13 +446,13 @@ export default function PackageDetail() {
   const { t, language } = useLanguage();
   const params = useParams<{ slug: string }>();
   const slug = params.slug ?? "";
+  const fallback = FALLBACK_PACKAGES[slug];
 
   const { data: dbPkg, isLoading } = trpc.package.getBySlug.useQuery(
     { slug },
-    { enabled: slug.length > 0 }
+    { enabled: slug.length > 0 && !fallback }
   );
 
-  const fallback = FALLBACK_PACKAGES[slug];
   const hasFallback = !dbPkg && !!fallback;
   const hasData = !!dbPkg || hasFallback;
   const pricingSectionRef = useRef<HTMLDivElement>(null);
