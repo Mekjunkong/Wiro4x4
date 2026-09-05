@@ -107,6 +107,7 @@ export function Header() {
           <Link
             href="/"
             className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
+            aria-label="WIRO 4x4 home"
           >
             <img
               src={APP_LOGO}

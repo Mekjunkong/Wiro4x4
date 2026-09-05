@@ -30,7 +30,7 @@ export function CookieConsent() {
 
   return (
     <div
-      className="site-cookie-consent fixed bottom-0 inset-x-0 z-[9997] animate-fade-in-up px-3 pb-3 sm:px-4"
+      className="site-cookie-consent fixed bottom-16 inset-x-0 z-[9997] animate-fade-in-up px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:bottom-0 sm:px-4"
       role="region"
       aria-label={t("Cookie consent", "הסכמה לעוגיות")}
     >
@@ -50,6 +50,7 @@ export function CookieConsent() {
           </p>
           <button
             onClick={handleAccept}
+            type="button"
             className="whitespace-nowrap rounded-sm bg-[#f0bd3f] px-4 py-2 text-xs font-semibold text-[#10231c] transition-colors hover:bg-[#ffd36b] sm:text-sm"
           >
             {t("Accept", "אישור")}

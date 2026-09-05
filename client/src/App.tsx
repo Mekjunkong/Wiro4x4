@@ -86,6 +86,16 @@ function LegacyEstimateRedirect() {
   return null;
 }
 
+function LegacyBookingRedirect() {
+  const [, navigate] = useLocation();
+
+  React.useEffect(() => {
+    navigate("/book", { replace: true });
+  }, [navigate]);
+
+  return null;
+}
+
 function Router() {
   const [location] = useLocation();
 
@@ -102,6 +112,7 @@ function Router() {
             <Route path={"/"} component={Home} />
             <Route path={"/pricing"} component={Pricing} />
             <Route path={"/estimate"} component={LegacyEstimateRedirect} />
+            <Route path={"/booking"} component={LegacyBookingRedirect} />
             <Route path={"/tours"} component={ToursListing} />
             <Route path={"/tours/:slug"} component={TourDetail} />
             <Route path={"/packages"} component={Packages} />
