@@ -214,7 +214,7 @@ export function QuickInquiryForm() {
               humanMessage={whatsappMessage}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-[#20BA5A] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-primary"
+              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-[#087f3a] px-5 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-[#066b31] focus:outline-none focus:ring-2 focus:ring-[#087f3a] focus:ring-offset-2 focus:ring-offset-primary"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {t("Check Availability on WhatsApp", "בדיקת זמינות בוואטסאפ")}

@@ -809,6 +809,13 @@
   .wiro-gold-shimmer {
     color: #d4af37;
   }
+
+  .wiro-hero__image,
+  .wiro-hero__video,
+  .wiro-hero__content {
+    animation: none;
+    transition: none;
+  }
 }
 
 .animate-ken-burns {

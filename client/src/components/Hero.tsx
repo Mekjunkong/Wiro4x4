@@ -109,6 +109,7 @@ export function Hero() {
           <img
             src="/media/hero/wiro-seedance-poster.jpg"
             alt=""
+            aria-hidden="true"
             fetchPriority="high"
             decoding="async"
             className="wiro-hero__image"
