@@ -14,6 +14,11 @@ describe("Vercel canonical host routing", () => {
       destination: "https://www.wiro4x4indochina.com/:path*",
       permanent: true,
     });
+    expect(config.redirects).toContainEqual({
+      source: "/booking",
+      destination: "/book",
+      permanent: true,
+    });
     expect(config.rewrites).toEqual(
       expect.arrayContaining([
         { source: "/api/(.*)", destination: "/api" },
