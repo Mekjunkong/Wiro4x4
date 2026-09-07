@@ -858,7 +858,7 @@
   height: 100%;
   object-fit: cover;
   object-position: 52% 52%;
-  filter: saturate(0.83) contrast(1.06) brightness(0.8);
+  filter: saturate(0.83) contrast(1.06) brightness(0.86);
 }
 .wiro-hero__image {
   transform: scale(1.015);
@@ -873,19 +873,12 @@
   opacity: 1;
 }
 .wiro-hero__wash {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(12, 22, 17, 0.88) 0%,
-      rgba(12, 22, 17, 0.69) 38%,
-      rgba(12, 22, 17, 0.14) 72%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(12, 22, 17, 0.32) 0%,
-      rgba(12, 22, 17, 0.03) 40%,
-      rgba(12, 22, 17, 0.76) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(12, 22, 17, 0.2) 0%,
+    rgba(12, 22, 17, 0.08) 42%,
+    rgba(12, 22, 17, 0.7) 100%
+  );
 }
 .wiro-hero__layout {
   position: relative;

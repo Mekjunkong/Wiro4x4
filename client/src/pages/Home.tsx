@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { ServiceBanners } from "@/components/ServiceBanners";
 import { TrustBar } from "@/components/TrustBar";
 import { ProductTiers } from "@/components/ProductTiers";
 import { GalleryShowcase } from "@/components/GalleryShowcase";
@@ -92,6 +93,7 @@ export default function Home() {
       <main id="main-content">
         <Hero />
         <TrustBar />
+        <ServiceBanners />
         <section
           className="border-y border-border bg-card py-10"
           aria-labelledby="planning-guides-heading"

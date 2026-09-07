@@ -142,9 +142,18 @@ export function Hero() {
               )}
             </p>
             <h1 id="home-hero-title">
-              {t(
-                "Private Chiang Mai 4x4 tours into Northern Thailand.",
-                "טיולי 4x4 פרטיים מצ׳יאנג מאי אל צפון תאילנד."
+              {language === "en" ? (
+                <>
+                  Your Journey in the North
+                  <br />
+                  Starts with us
+                </>
+              ) : (
+                <>
+                  המסע שלכם בצפון
+                  <br />
+                  מתחיל איתנו
+                </>
               )}
             </h1>
             <p className="wiro-hero__lede">
