@@ -19,7 +19,6 @@ function exact(path: string): (page: string) => boolean {
 
 export const COMMERCIAL_ROUTES: readonly CommercialRoute[] = [
   { id: "home", matches: exact("/") },
-  { id: "pricing", matches: exact("/pricing") },
   { id: "tours", matches: exact("/tours") },
   { id: "tour-detail", matches: page => /^\/tours\/[^/]+$/.test(page) },
   { id: "packages", matches: exact("/packages") },

@@ -1,18 +1,15 @@
+import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { Mail, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import {
-  COMPANY_EMAIL,
-  COMPANY_WHATSAPP_URL,
-  COMPANY_PHONE,
-} from "@shared/const";
+import { COMPANY_EMAIL, COMPANY_PHONE } from "@shared/const";
 
 export function ContactOptions({
   topic = "group",
 }: {
   topic?: "group" | "motorcycle";
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const subject =
     topic === "motorcycle"
       ? "Motorcycle tour inquiry"
@@ -24,14 +21,23 @@ export function ContactOptions({
   return (
     <div className="flex flex-col gap-3">
       <Button asChild className="h-auto min-h-12 whitespace-normal py-3">
-        <a
-          href={`${COMPANY_WHATSAPP_URL}?text=${encodeURIComponent(message)}`}
+        <TrackedWhatsAppLink
+          sourceCode={
+            topic === "motorcycle"
+              ? language === "he"
+                ? "MOTORCYCLE-CONTACT-HE"
+                : "MOTORCYCLE-CONTACT-EN"
+              : language === "he"
+                ? "GROUP-CONTACT-HE"
+                : "GROUP-CONTACT-EN"
+          }
+          humanMessage={message}
           target="_blank"
           rel="noopener noreferrer"
         >
           <MessageCircle aria-hidden="true" />
           {t("WhatsApp", "וואטסאפ")} <span dir="ltr">{COMPANY_PHONE}</span>
-        </a>
+        </TrackedWhatsAppLink>
       </Button>
       <Button
         asChild

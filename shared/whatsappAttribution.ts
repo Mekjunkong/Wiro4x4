@@ -14,6 +14,34 @@ export interface WhatsAppSource {
  */
 export const WHATSAPP_SOURCES = [
   {
+    code: "GROUP-CONTACT-EN",
+    page: "/",
+    placement: "contact-options",
+    language: "en",
+    channelFallback: "direct",
+  },
+  {
+    code: "GROUP-CONTACT-HE",
+    page: "/",
+    placement: "contact-options",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
+    code: "MOTORCYCLE-CONTACT-EN",
+    page: "/motorcycle-tours",
+    placement: "contact-options",
+    language: "en",
+    channelFallback: "direct",
+  },
+  {
+    code: "MOTORCYCLE-CONTACT-HE",
+    page: "/motorcycle-tours",
+    placement: "contact-options",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
     code: "HOME-HERO-EN",
     page: "/",
     placement: "hero",

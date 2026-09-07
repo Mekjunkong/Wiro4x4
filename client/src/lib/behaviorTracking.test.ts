@@ -95,18 +95,17 @@ describe("once-only behavior state", () => {
     expect(quickInquiry).toContain("onFocusCapture={handleInquiryInteraction}");
   });
 
-  it("guards the pricing-page visibility event across language rerenders", () => {
-    const pricingPage = readFileSync(
-      resolve("client/src/pages/Pricing.tsx"),
-      "utf8"
-    );
-
-    expect(pricingPage).toContain("pricingViewTrackedRef.current");
+  it("redirects the retired pricing page to tours", () => {
+    const config = JSON.parse(readFileSync(resolve("vercel.json"), "utf8"));
+    expect(config.redirects).toContainEqual({
+      source: "/pricing",
+      destination: "/tours",
+      permanent: false,
+    });
   });
 
   it("does not construct pricing observers after visibility is already claimed", () => {
     const cases = [
-      ["client/src/pages/Pricing.tsx", "pricingViewTrackedRef.current"],
       ["client/src/pages/TourDetail.tsx", "pricingViewKeyRef.current === slug"],
       [
         "client/src/pages/PackageDetail.tsx",
@@ -126,7 +125,7 @@ describe("once-only behavior state", () => {
 
 describe("commercial route configuration", () => {
   it("matches configured static and dynamic commercial routes only", () => {
-    expect(getCommercialRoute("/pricing")?.id).toBe("pricing");
+    expect(getCommercialRoute("/pricing")).toBeUndefined();
     expect(getCommercialRoute("/tours/doi-inthanon")?.id).toBe("tour-detail");
     expect(getCommercialRoute("/packages/family")?.id).toBe("package-detail");
     expect(getCommercialRoute("/admin")).toBeUndefined();

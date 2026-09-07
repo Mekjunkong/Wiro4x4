@@ -14,7 +14,7 @@ const PUBLIC_INQUIRY_SURFACES = [
   "client/src/components/blog/BlogPostCta.tsx",
   "client/src/pages/HebrewLandingPage.tsx",
   "client/src/pages/TourDetail.tsx",
-  "client/src/pages/Pricing.tsx",
+  "client/src/components/ContactOptions.tsx",
   "client/src/pages/Packages.tsx",
   "client/src/pages/PackageDetail.tsx",
   "client/src/pages/BookingForm.tsx",
