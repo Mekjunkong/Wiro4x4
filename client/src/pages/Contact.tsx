@@ -67,7 +67,6 @@ export default function Contact() {
         opens: "08:00",
         closes: "18:00",
       },
-      priceRange: "$$",
       image:
         "https://www.wiro4x4indochina.com/images/optimized/wiro_with_colleague.jpg",
     },

@@ -3,7 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
 import { useParams, Link } from "wouter";
-import { formatUSD } from "../../../shared/pricing";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -490,12 +489,6 @@ export default function PackageDetail() {
             fallback?.description ||
             "Multi-day tour package",
           touristType: "Adventure travelers",
-          offers: {
-            "@type": "Offer",
-            price: dbPkg?.discountedPrice || fallback?.price || 0,
-            priceCurrency: "THB",
-            availability: "https://schema.org/InStock",
-          },
           provider: {
             "@type": "TourOperator",
             name: "WIRO 4x4",
@@ -788,18 +781,6 @@ export default function PackageDetail() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <div className="text-sm text-muted-foreground">
-                      {t("Starting from", "החל מ-")}
-                    </div>
-                    <div className="text-3xl font-heading font-bold text-accent">
-                      {formatUSD(pkg.price)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t("per person", "לאדם")}
-                    </div>
-                  </div>
-
                   <Button
                     asChild
                     className="w-full bg-accent-cta hover:bg-accent-cta-hover text-white font-bold"
@@ -904,12 +885,6 @@ export default function PackageDetail() {
                   <MapPin className="w-4 h-4 text-primary" />
                   {pkg.tourSlugs.length} {t("destinations", "יעדים")}
                 </div>
-                {pkg.discountPercent > 0 && (
-                  <div className="flex items-center gap-2 text-sm bg-green-100 text-green-700 px-3 py-2 rounded-lg font-medium">
-                    <Tag className="w-4 h-4" />
-                    {t("Save", "חסכו")} {pkg.discountPercent}%
-                  </div>
-                )}
               </div>
 
               <section>
@@ -1025,7 +1000,7 @@ export default function PackageDetail() {
               >
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Tag className="w-5 h-5 text-primary" />
-                  {t("Package Price", "מחיר החבילה")}
+                  {t("Your Package", "החבילה שלכם")}
                 </h3>
 
                 <ul className="space-y-2">
@@ -1037,41 +1012,16 @@ export default function PackageDetail() {
                       <span className="truncate mr-2">
                         {t(tour.name, tour.nameHe)}
                       </span>
-                      <span className="text-muted-foreground whitespace-nowrap">
-                        {formatUSD(tour.price)}
-                      </span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="border-t pt-3 space-y-2">
-                  {pkg.savings > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>{t("Original Price", "מחיר מקורי")}</span>
-                      <span className="line-through text-muted-foreground">
-                        {formatUSD(pkg.originalPrice)}
-                      </span>
-                    </div>
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    "Contact us for a proposal tailored to your group.",
+                    "צרו קשר להצעה המותאמת לקבוצה שלכם."
                   )}
-                  {pkg.savings > 0 && (
-                    <div className="flex justify-between text-sm text-green-600 font-medium">
-                      <span>
-                        {t("You Save", "אתם חוסכים")} (-{pkg.discountPercent}
-                        %)
-                      </span>
-                      <span>-{formatUSD(pkg.savings)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>{t("Total", "סה״כ")}</span>
-                    <span className="text-primary">
-                      {formatUSD(pkg.discountedPrice)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    {t("Price per person", "מחיר לאדם")}
-                  </p>
-                </div>
+                </p>
 
                 <Link href={bookUrl}>
                   <Button className="w-full" size="lg">

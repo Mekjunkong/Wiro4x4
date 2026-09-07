@@ -142,16 +142,6 @@ export function Header() {
                 {t("Packages", "חבילות")}
               </span>
             </Link>
-            <Link href="/pricing">
-              <span
-                className={`nav-link text-sm font-semibold tracking-[0.04em] transition-colors cursor-pointer ${isActive("/pricing") ? "text-accent border-b border-accent pb-1" : !scrolled && isHomePage ? "text-white drop-shadow-md" : ""}`}
-                {...(isActive("/pricing")
-                  ? { "aria-current": "page" as const }
-                  : {})}
-              >
-                {t("Pricing", "מחירים")}
-              </span>
-            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -286,11 +276,6 @@ export function Header() {
               </span>
             </Link>
             <div className="h-px w-12 bg-accent/30" />
-            <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-              <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">
-                {t("Pricing", "מחירים")}
-              </span>
-            </Link>
             <div className="h-px w-12 bg-accent/30" />
             <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>
               <span className="block py-3 text-center text-2xl font-light hover:text-accent transition-colors cursor-pointer">

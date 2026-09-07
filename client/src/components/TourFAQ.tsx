@@ -12,8 +12,8 @@ const TOUR_FAQS = [
   {
     q: "Is this tour suitable for children?",
     qHe: "האם הטיול מתאים לילדים?",
-    a: "Yes! Our tours are family-friendly. Children under 3 ride free, ages 3-10 at 50% price. We adjust the itinerary pace for families.",
-    aHe: "כן! הטיולים שלנו מתאימים למשפחות. ילדים מתחת לגיל 3 ללא תשלום, גילאי 3-10 ב-50%. אנחנו מתאימים את קצב הטיול למשפחות.",
+    a: "Yes! Our tours are family-friendly. Tell us the ages of your children so we can plan accordingly. We adjust the itinerary pace for families.",
+    aHe: "כן! הטיולים שלנו מתאימים למשפחות. ספרו לנו את גילאי הילדים כדי שנוכל לתכנן בהתאם. אנחנו מתאימים את קצב הטיול למשפחות.",
   },
   {
     q: "What happens if it rains?",

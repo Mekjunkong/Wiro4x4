@@ -23,7 +23,7 @@ describe("sitemap", () => {
     expect(xml).toContain('<?xml version="1.0"');
     expect(xml).toContain("<urlset");
     expect(xml).toContain("https://www.wiro4x4indochina.com/");
-    expect(xml).toContain("https://www.wiro4x4indochina.com/pricing");
+    expect(xml).not.toContain("https://www.wiro4x4indochina.com/pricing");
     expect(xml).toContain("https://www.wiro4x4indochina.com/gallery");
     expect(xml).toContain("https://www.wiro4x4indochina.com/packages");
     expect(xml).toContain("https://www.wiro4x4indochina.com/blog");
@@ -33,7 +33,9 @@ describe("sitemap", () => {
     expect(xml).toContain("https://www.wiro4x4indochina.com/accessible-tours");
     expect(xml).toContain("https://www.wiro4x4indochina.com/faq");
     expect(xml).toContain("https://www.wiro4x4indochina.com/contact");
-    expect(xml.match(/<loc>https:\/\/www\.wiro4x4indochina\.com\/about<\/loc>/g)).toHaveLength(1);
+    expect(
+      xml.match(/<loc>https:\/\/www\.wiro4x4indochina\.com\/about<\/loc>/g)
+    ).toHaveLength(1);
   });
 
   it("keeps core tours and fallback articles in the sitemap without the database", () => {

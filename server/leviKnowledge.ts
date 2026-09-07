@@ -1,9 +1,4 @@
-import {
-  DEPOSIT_RATE,
-  MULTI_DAY_PACKAGES,
-  formatUSD,
-  getSeasonPricingRows,
-} from "../shared/pricing";
+import { DEPOSIT_RATE, MULTI_DAY_PACKAGES } from "../shared/pricing";
 import {
   WIRO_TOUR_CATALOG,
   WIRO_WHATSAPP_NUMBER,
@@ -89,26 +84,15 @@ function formatTourCatalog(tours: readonly WiroTourCatalogEntry[]) {
   return tours
     .map(
       tour =>
-        `- ${tour.name}: from ${formatUSD(tour.price)} per private group of 1-4, ${tour.duration}. Best for ${tour.bestFor}. Highlights: ${tour.highlights.join(", ")}.`
+        `- ${tour.name}: ${tour.duration}. Best for ${tour.bestFor}. Highlights: ${tour.highlights.join(", ")}.`
     )
     .join("\n");
 }
 
 function formatPackages() {
   return MULTI_DAY_PACKAGES.map(
-    pkg =>
-      `- ${pkg.days}-day ${pkg.nameEn}: from ${formatUSD(pkg.price)} per group`
+    pkg => `- ${pkg.days}-day ${pkg.nameEn}: personalized proposal on request`
   ).join("\n");
-}
-
-function formatSeasonRules(year: number) {
-  return getSeasonPricingRows(year)
-    .filter(row => row.multiplier > 1)
-    .map(
-      row =>
-        `- ${row.periodEn}: approximately +${Math.round((row.multiplier - 1) * 100)}% (${row.labelEn})`
-    )
-    .join("\n");
 }
 
 export function buildAvailabilityPrompt(
@@ -142,7 +126,6 @@ export function buildLeviSystemPrompt(args: {
   now?: Date;
 }) {
   const tours = args.tours ?? WIRO_TOUR_CATALOG;
-  const year = (args.now ?? new Date()).getFullYear();
   const depositPercent = Math.round(DEPOSIT_RATE * 100);
 
   return `You are Levi, the warm, knowledgeable public customer assistant for WIRO 4x4 in Chiang Mai, Thailand. You help Israeli and English-speaking travelers choose and prepare kosher-friendly private off-road tours.
@@ -150,15 +133,14 @@ export function buildLeviSystemPrompt(args: {
 ## Approved WIRO tour catalog
 ${formatTourCatalog(tours)}
 
-## Multi-day estimates
+## Multi-day options
 ${formatPackages()}
 
 ## Pricing and policy rules
-- Displayed prices are estimates from the shared WIRO calculator, not binding quotes.
-- Base day-tour prices are per private group of 1-4. Groups of 5-6 are normally estimated at +20%; groups of 7+ require a custom quote.
+- Do not display or estimate tour prices, rental rates, package amounts, discounts or seasonal surcharges. All prices are provided personally by the WIRO team.
+- For pricing questions, collect dates, group size, children’s ages and route preferences, then offer WhatsApp contact for a personalized quote.
 - A ${depositPercent}% deposit is normally required to confirm; the owner confirms the final amount and payment method.
 - Children's ages affect the quote. Do not invent a child price; collect every child's age for the owner or calculator.
-${formatSeasonRules(year)}
 - Kosher meals can be arranged. Certification, provider, menu, and the customer's required kashrut standard must be confirmed for the requested date.
 - WIRO plans observant trips around Shabbat. Exact candle-lighting, travel cutoff, lodging, and support are date-dependent and must be confirmed; never use a fixed sunset time.
 - Elephant visits or other third-party activities are optional requests, never guaranteed inclusions. The owner confirms current availability and welfare standards.
@@ -185,7 +167,7 @@ ${args.availabilityPrompt}
 11. Only help with WIRO tours, bookings, and Chiang Mai travel relevant to WIRO. Briefly redirect unrelated requests.
 
 Website: https://www.wiro4x4indochina.com
-Pricing: https://www.wiro4x4indochina.com/pricing
+Trip planning: https://www.wiro4x4indochina.com/contact
 Booking form: https://www.wiro4x4indochina.com/book
 WhatsApp: +${WIRO_WHATSAPP_NUMBER}`;
 }

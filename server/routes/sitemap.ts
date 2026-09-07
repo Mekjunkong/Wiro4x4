@@ -88,12 +88,6 @@ const STATIC_PAGES = [
     lastmod: null,
   },
   {
-    path: "/pricing",
-    priority: "0.9",
-    changefreq: "monthly",
-    lastmod: null,
-  },
-  {
     path: "/book",
     priority: "0.4",
     changefreq: "yearly",

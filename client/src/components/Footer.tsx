@@ -60,14 +60,6 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
-                  className="hover:text-accent transition-colors"
-                >
-                  {t("Pricing", "מחירים")}
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/gallery"
                   className="hover:text-accent transition-colors"
                 >

@@ -276,10 +276,12 @@ export function CommercialLandingPage({
             <div className="mt-8 grid gap-8 border border-border bg-primary p-7 text-white md:grid-cols-[0.65fr_1.35fr] md:p-10">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
-                  {language === "he" ? "מחיר התחלתי" : "Starting price"}
+                  {language === "he" ? "תכנון אישי" : "Personal planning"}
                 </p>
                 <p className="mt-3 text-2xl font-medium">
-                  {copyFor(content.startingPrice, language)}
+                  {language === "he"
+                    ? "בקשו הצעה מותאמת אישית"
+                    : "Request your tailored quote"}
                 </p>
               </div>
               <div className="border-t border-white/20 pt-6 md:border-s md:border-t-0 md:ps-8 md:pt-0">
@@ -316,9 +318,7 @@ export function CommercialLandingPage({
                   <Link
                     key={link.href}
                     href={
-                      language === "he" && link.hrefHe
-                        ? link.hrefHe
-                        : link.href
+                      language === "he" && link.hrefHe ? link.hrefHe : link.href
                     }
                     className="inline-flex items-center gap-2 font-semibold text-accent hover:underline"
                   >

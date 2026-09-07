@@ -171,7 +171,7 @@ describe("Levi booking qualification helpers", () => {
     );
   });
 
-  it("uses the shared WIRO pricing source and avoids stale prompt claims", () => {
+  it("keeps the public assistant quote-only while retaining tour and policy information", () => {
     const bookingState = buildBookingState("How much is a tour?", "en");
     const prompt = buildLeviSystemPrompt({
       bookingState,
@@ -180,11 +180,14 @@ describe("Levi booking qualification helpers", () => {
       now: new Date("2026-08-01T00:00:00Z"),
     });
 
-    expect(prompt).toContain("Mae Wang — Jungle Wilderness: from $134");
-    expect(prompt).toContain("Samoeng Loop — Mountain Circuit: from $98");
-    expect(prompt).toContain("2-day Weekend Adventure: from $202");
+    expect(prompt).toContain("Mae Wang — Jungle Wilderness:");
+    expect(prompt).toContain("Samoeng Loop — Mountain Circuit:");
+    expect(prompt).toContain(
+      "2-day Weekend Adventure: personalized proposal on request"
+    );
     expect(prompt).toContain("A 30% deposit");
-    expect(prompt).toContain("Nov – Feb: approximately +20%");
+    expect(prompt).toContain("Do not display or estimate tour prices");
+    expect(prompt).not.toMatch(/\$\d|approximately \+\d+%/);
     expect(prompt).not.toContain(
       "Mae Wang - Jungle & River Wilderness** · $154"
     );

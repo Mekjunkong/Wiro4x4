@@ -205,7 +205,6 @@ function localBusinessJsonLd(): Record<string, unknown> {
       opens: "08:00:00",
       closes: "18:00:00",
     },
-    priceRange: "$$-$$$",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: BUSINESS_PHONE,
@@ -251,11 +250,11 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       inLanguage: ["en", "he"],
     }),
   },
-  "/pricing": {
-    title: "4x4 Tour Pricing — Chiang Mai, Thailand",
+  "/motorcycle-tours": {
+    title: "Motorcycle Tours in Northern Thailand | WIRO 4x4",
     description:
-      "Transparent group pricing for WIRO 4x4 tours in Chiang Mai. Private tours from $98/group, multi-day packages, kosher meal add-ons, and peak season rates.",
-    canonicalPath: "/pricing",
+      "Plan a motorcycle tour in Northern Thailand for five or more riders, with a route tailored to your group.",
+    canonicalPath: "/motorcycle-tours",
   },
   "/blog": {
     title: "Chiang Mai Travel Blog & Kosher Travel Tips",
@@ -304,9 +303,9 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     }),
   },
   "/car-rental": {
-    title: "Car Rental Chiang Mai — Self-Drive Cars & 4x4 from ฿990/Day",
+    title: "Car Rental Chiang Mai — Self-Drive Cars & 4x4",
     description:
-      "Rent a car in Chiang Mai from ฿990/day. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English booking support.",
+      "Rent a car in Chiang Mai. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English booking support.",
     canonicalPath: "/car-rental",
     jsonLd: serviceJsonLd({
       name: "Car Rental in Chiang Mai",
@@ -668,7 +667,6 @@ export async function resolveDynamicMeta(
     const name = tour?.name || fallback?.name;
     const description = tour?.description || fallback?.description;
     const coverImage = tour?.imageUrl || fallback?.coverImage;
-    const price = tour?.price ?? fallback?.price;
 
     if (name) {
       const seoMeta = resolveTourSeoMeta(slug, {
@@ -693,15 +691,6 @@ export async function resolveDynamicMeta(
               name: "WIRO 4x4",
               url: SITE_URL,
             },
-            offers:
-              price !== undefined && price !== null
-                ? {
-                    "@type": "Offer",
-                    price: String(price),
-                    priceCurrency: "THB",
-                    availability: "https://schema.org/InStock",
-                  }
-                : undefined,
           },
           breadcrumbJsonLd([
             { name: "Tours", path: "/tours" },
@@ -727,7 +716,6 @@ export async function resolveDynamicMeta(
     const name = pkg?.name || fallback?.name;
     const description = pkg?.description || fallback?.description;
     const coverImage = pkg?.coverImage || fallback?.coverImage;
-    const price = fallback?.price;
 
     if (name && (pkg || fallback)) {
       return {
@@ -749,14 +737,6 @@ export async function resolveDynamicMeta(
               name: "WIRO 4x4",
               url: SITE_URL,
             },
-            offers: price
-              ? {
-                  "@type": "Offer",
-                  price: String(price),
-                  priceCurrency: "THB",
-                  availability: "https://schema.org/InStock",
-                }
-              : undefined,
           },
           breadcrumbJsonLd([
             { name: "Packages", path: "/packages" },

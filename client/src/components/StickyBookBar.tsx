@@ -45,7 +45,7 @@ export function StickyBookBar() {
             {t("Chiang Mai Off-Road Tours", "טיולי שטח בצ'יאנג מאי")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t("From $81/person", "החל מ-$81 לאדם")}
+            {t("Your trip, personally planned", "הטיול שלכם, בתכנון אישי")}
           </p>
         </div>
         <Link href="/book">

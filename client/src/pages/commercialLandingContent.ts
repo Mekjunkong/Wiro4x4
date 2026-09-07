@@ -22,7 +22,6 @@ export interface CommercialLandingContent {
   heroImage: string;
   heroAlt: LocalizedCopy;
   duration: LocalizedCopy;
-  startingPrice: LocalizedCopy;
   pickup: LocalizedCopy;
   groupSize: LocalizedCopy;
   familySuitability: LocalizedCopy;
@@ -109,10 +108,6 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       he: "אפשרויות אוכל ארוזות וידידותיות לכשרות לטיול יום של WIRO 4x4",
     },
     duration: { en: "5–10 hours", he: "5–10 שעות" },
-    startingPrice: {
-      en: "From ฿3,500 per private vehicle; the route, group, date, and food plan determine the final quote.",
-      he: "החל מ־3,500 באט לרכב פרטי; המסלול, גודל הקבוצה, התאריך ותכנון האוכל קובעים את ההצעה הסופית.",
-    },
     pickup: {
       en: "Chiang Mai city-centre hotels and most nearby areas; ask us to confirm an address outside the usual zone.",
       he: "מלונות במרכז צ׳אנג מאי ורוב האזורים הקרובים; לכתובת מחוץ לאזור הרגיל נבדוק מראש.",
@@ -213,10 +208,6 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       he: "המדריך WIRO ליד רכב 4x4 בצפון תאילנד",
     },
     duration: { en: "5–10 hours", he: "5–10 שעות" },
-    startingPrice: {
-      en: "Private day routes start at ฿3,500; confirm Hebrew-guide availability and the final quote for your date.",
-      he: "מסלולי יום פרטיים מתחילים ב־3,500 באט; יש לאשר זמינות מדריך בעברית והצעה סופית לתאריך שלכם.",
-    },
     pickup: {
       en: "Chiang Mai city centre and most nearby hotels, with the exact time set after the route is chosen.",
       he: "מרכז צ׳אנג מאי ורוב המלונות הקרובים; השעה המדויקת נקבעת אחרי בחירת המסלול.",
@@ -366,10 +357,6 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       he: "משפחה מטיילת ליד רכב WIRO 4x4 בצפון תאילנד",
     },
     duration: { en: "5–10 hours", he: "5–10 שעות" },
-    startingPrice: {
-      en: "From ฿3,500 per private vehicle. Group size, date, route, and extras determine the final quote.",
-      he: "החל מ־3,500 באט לרכב פרטי. גודל הקבוצה, התאריך, המסלול והתוספות קובעים את ההצעה הסופית.",
-    },
     pickup: {
       en: "Pickup and drop-off at Chiang Mai city-centre hotels and most surrounding areas.",
       he: "איסוף והחזרה במלונות במרכז צ׳אנג מאי וברוב האזורים הסמוכים.",

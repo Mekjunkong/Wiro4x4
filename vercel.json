@@ -6,8 +6,13 @@
   "outputDirectory": "dist/public",
   "redirects": [
     {
+      "source": "/pricing",
+      "destination": "/tours",
+      "permanent": false
+    },
+    {
       "source": "/estimate",
-      "destination": "/pricing",
+      "destination": "/tours",
       "permanent": true
     },
     {
@@ -17,7 +22,12 @@
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "wiro4x4indochina.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "wiro4x4indochina.com"
+        }
+      ],
       "destination": "https://www.wiro4x4indochina.com/:path*",
       "permanent": true
     }
@@ -40,7 +50,10 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
       ]
     },
     {
@@ -64,8 +77,14 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ]

@@ -1244,14 +1244,6 @@ export default function TourDetail() {
       url: tourUrl,
       duration: isoDuration,
       maximumAttendeeCapacity: tour.groupMaxSize,
-      offers: {
-        "@type": "Offer",
-        price: String(tour.price),
-        priceCurrency: "THB",
-        availability: "https://schema.org/InStock",
-        validFrom: new Date().toISOString().split("T")[0],
-        url: tourUrl,
-      },
       provider: {
         "@type": ["TravelAgency", "LocalBusiness"],
         "@id": `${siteUrl}/#organization`,
@@ -1783,7 +1775,7 @@ export default function TourDetail() {
                                     {rt.duration}
                                   </span>
                                   <span className="text-accent font-bold">
-                                    &#3647;{rt.price.toLocaleString()}
+                                    {t("Request a quote", "בקשו הצעה")}
                                   </span>
                                 </div>
                               </div>
@@ -1827,18 +1819,15 @@ export default function TourDetail() {
                   className="p-6 sticky top-24 space-y-5 rounded-sm"
                 >
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">
-                      {t("Starting from", "החל מ-")}
-                    </div>
-                    <div className="text-4xl font-bold text-accent">
-                      &#3647;{tour.price.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
+                    <h2 className="text-2xl font-semibold">
+                      {t("Your private adventure", "ההרפתקה הפרטית שלכם")}
+                    </h2>
+                    <p className="mt-2 text-sm text-muted-foreground">
                       {t(
-                        `per group (${tour.groupMinSize}-${tour.groupMaxSize} people)`,
-                        `לקבוצה (${tour.groupMinSize}-${tour.groupMaxSize} אנשים)`
+                        "Tell us your dates and group size for a personalized quote.",
+                        "שלחו לנו תאריכים ומספר מטיילים לקבלת הצעה אישית."
                       )}
-                    </div>
+                    </p>
                   </div>
 
                   <div className="space-y-3 text-sm">
@@ -1971,7 +1960,7 @@ export default function TourDetail() {
                 "השוו את כל הטיולים שלנו כדי למצוא את ההרפתקה המושלמת"
               )}
             </p>
-            <Link href="/pricing">
+            <Link href="/tours">
               <button className="border-2 border-accent text-accent hover:bg-accent hover:text-primary font-semibold px-6 py-2 rounded-full transition-all">
                 {t("Compare All Tours", "השוו את כל הטיולים")}
               </button>

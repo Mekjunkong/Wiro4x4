@@ -142,10 +142,10 @@ export default function CarRental() {
   usePageMeta({
     title: "Car Rental Chiang Mai — Self-Drive Cars & 4x4",
     description:
-      "Rent a car in Chiang Mai from ฿990/day. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English support via our trusted partner.",
+      "Rent a car in Chiang Mai. No credit card needed, first-class insurance, unlimited mileage, free hotel & airport delivery. Hebrew/English support via our trusted partner.",
     ogTitle: "Car Rental Chiang Mai | WIRO 4x4",
     ogDescription:
-      "Self-drive car rental in Chiang Mai from ฿990/day — automatic cars and 4x4 SUVs with insurance included, no credit card required, free delivery.",
+      "Self-drive car rental in Chiang Mai — automatic cars and 4x4 SUVs with insurance included, no credit card required, free delivery.",
     canonicalPath: "/car-rental",
     jsonLd: {
       "@context": "https://schema.org",
@@ -159,13 +159,6 @@ export default function CarRental() {
         "@type": "Organization",
         name: "WIRO 4x4",
         url: "https://www.wiro4x4indochina.com",
-      },
-      offers: {
-        "@type": "AggregateOffer",
-        priceCurrency: "THB",
-        lowPrice: 990,
-        highPrice: 2590,
-        offerCount: RENTAL_CARS.length,
       },
     },
   });
@@ -229,7 +222,7 @@ export default function CarRental() {
       source: "car-rental",
       interestedTours: `Car rental: ${selectedCar.name}`,
       message: [
-        `Car: ${selectedCar.name} (฿${selectedCar.pricePerDay}/day)`,
+        `Car: ${selectedCar.name}`,
         form.rentalDates && `Rental dates: ${form.rentalDates}`,
         form.notes && `Notes: ${form.notes}`,
         "Source page: /car-rental (Chiang Mai Wheels partner referral)",
@@ -268,8 +261,8 @@ export default function CarRental() {
               </h1>
               <p className="text-white/90 text-lg md:text-xl max-w-2xl">
                 {t(
-                  "Prefer to explore Northern Thailand at your own pace? Rent a reliable automatic car or 4x4 SUV from ฿990/day through our trusted local rental partner — with Hebrew/English booking support from WIRO 4x4.",
-                  "מעדיפים לטייל בצפון תאילנד בקצב שלכם? שכרו רכב אוטומטי אמין או רכב שטח החל מ-990 באט ליום דרך שותף ההשכרה המקומי המהימן שלנו — עם תמיכה בהזמנה בעברית ובאנגלית מ-WIRO 4x4."
+                  "Prefer to explore Northern Thailand at your own pace? Rent a reliable automatic car or 4x4 SUV through our trusted local rental partner — with Hebrew/English booking support from WIRO 4x4.",
+                  "מעדיפים לטייל בצפון תאילנד בקצב שלכם? שכרו רכב אוטומטי אמין או רכב שטח דרך שותף ההשכרה המקומי המהימן שלנו — עם תמיכה בהזמנה בעברית ובאנגלית מ-WIRO 4x4."
                 )}
               </p>
             </div>
@@ -334,13 +327,6 @@ export default function CarRental() {
                   <p className="text-sm text-muted-foreground mb-3">
                     {t(car.category[0], car.category[1])} ·{" "}
                     {t(`${car.seats} seats`, `${car.seats} מושבים`)}
-                  </p>
-                  <p className="text-accent font-bold text-xl">
-                    ฿{car.pricePerDay.toLocaleString()}
-                    <span className="text-sm text-muted-foreground font-normal">
-                      {" "}
-                      {t("/day", "/יום")}
-                    </span>
                   </p>
                 </Card>
               ))}
@@ -491,9 +477,7 @@ export default function CarRental() {
                         >
                           {RENTAL_CARS.map(car => (
                             <option key={car.id} value={car.id}>
-                              {t(car.name, car.nameHe)} — ฿
-                              {car.pricePerDay.toLocaleString()}
-                              {t("/day", "/יום")}
+                              {t(car.name, car.nameHe)}
                             </option>
                           ))}
                         </select>

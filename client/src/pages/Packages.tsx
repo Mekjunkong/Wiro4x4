@@ -4,18 +4,10 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import {
-  calculatePackageDiscount,
-  calculateTripTotal,
-  formatUSD,
   getEffectiveGroupSize,
   isCustomQuoteRequired,
   detectShabbatNights,
-  DEPOSIT_RATE,
-  SERVICE_PRICES,
   type TourSelection,
-  type TripConfig,
-  type PriceBreakdown,
-  type PriceLineItem,
 } from "../../../shared/pricing";
 import { WIRO_TOUR_CATALOG } from "../../../shared/wiroTourCatalog";
 import { Header } from "@/components/Header";
@@ -45,7 +37,6 @@ import {
   Mountain,
   MessageCircle,
   Baby,
-  BadgePercent,
   Star,
   ChevronRight,
   Send,
@@ -83,10 +74,10 @@ const TOUR_IMAGE_MAP: Record<string, { webp: string; jpg: string }> = {
 
 // ── Duration options ────────────────────────────────────────
 const DURATION_OPTIONS = [
-  { days: 2, discountPct: 10, labelEn: "2-Day", labelHe: "2 ימים" },
-  { days: 3, discountPct: 15, labelEn: "3-Day", labelHe: "3 ימים" },
-  { days: 5, discountPct: 20, labelEn: "5-Day", labelHe: "5 ימים" },
-  { days: 7, discountPct: 25, labelEn: "7-Day", labelHe: "7 ימים" },
+  { days: 2, labelEn: "2-Day", labelHe: "2 ימים" },
+  { days: 3, labelEn: "3-Day", labelHe: "3 ימים" },
+  { days: 5, labelEn: "5-Day", labelHe: "5 ימים" },
+  { days: 7, labelEn: "7-Day", labelHe: "7 ימים" },
 ];
 
 // ── Pre-built suggested packages ────────────────────────────
@@ -166,8 +157,8 @@ export default function Packages() {
       "חבילות סיור רב-יומיות | WIRO 4x4"
     ),
     description: t(
-      "Build your dream multi-day adventure package. Save up to 25% with 2-day, 3-day, 5-day, or 7-day tour packages in Chiang Mai.",
-      "בנו את חבילת ההרפתקה הרב-יומית שלכם. חסכו עד 25% עם חבילות 2, 3, 5 או 7 ימים בצ'יאנג מאי."
+      "Build your multi-day adventure with 2-day, 3-day, 5-day, or 7-day tour packages in Chiang Mai.",
+      "בנו את חבילת ההרפתקה הרב-יומית שלכם עם חבילות 2, 3, 5 או 7 ימים בצ'יאנג מאי."
     ),
     canonicalPath: "/packages",
   });
@@ -239,50 +230,6 @@ export default function Packages() {
     return d.toISOString().split("T")[0];
   }, [startDate, selectedDuration]);
 
-  const canCalculate =
-    selectedTours.length > 0 && startDate && endDate && endDate > startDate;
-
-  const breakdown: PriceBreakdown | null = useMemo(() => {
-    if (!canCalculate) return null;
-
-    const config: TripConfig = {
-      tours: selectedTours,
-      group: {
-        adults,
-        children: children.map(age => ({ age })),
-      },
-      arrivalDate: new Date(startDate),
-      departureDate: new Date(endDate),
-      services: {
-        includesHotels,
-        includesFood,
-        includesAttractions,
-        attractionCount,
-      },
-      needsShabbatHotel,
-    };
-    return calculateTripTotal(config);
-  }, [
-    canCalculate,
-    selectedTours,
-    adults,
-    children,
-    startDate,
-    endDate,
-    includesHotels,
-    includesFood,
-    includesAttractions,
-    attractionCount,
-    needsShabbatHotel,
-  ]);
-
-  // Package discount for selected tours
-  const packageDiscount = useMemo(() => {
-    if (selectedTours.length < 2) return null;
-    const total = selectedTours.reduce((sum, t) => sum + t.basePrice, 0);
-    return calculatePackageDiscount(selectedTours.length, total);
-  }, [selectedTours]);
-
   const shabbatAutoDetected = useMemo(() => {
     if (!startDate || !endDate) return 0;
     return detectShabbatNights(new Date(startDate), new Date(endDate));
@@ -352,15 +299,9 @@ export default function Packages() {
     if (includesAttractions) addons.push(isHebrew ? "אטרקציות" : "Attractions");
     if (needsShabbatHotel) addons.push(isHebrew ? "מלון שבת" : "Shabbat Hotel");
 
-    const total = breakdown ? formatUSD(breakdown.total) : "";
-    const discount =
-      packageDiscount && packageDiscount.savings > 0
-        ? ` (${packageDiscount.discountPercent}% ${isHebrew ? "הנחה" : "discount"})`
-        : "";
-
     const message = isHebrew
-      ? `היי WIRO 4x4! בניתי חבילה של ${selectedDuration} ימים באתר:\n\n${tourNames}\n\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריך: ${startDate}\n${addons.length > 0 ? `תוספות: ${addons.join(", ")}\n` : ""}${total ? `הערכת מחיר: ${total}${discount}\n` : ""}\nאשמח לקבל הצעת מחיר מדויקת!`
-      : `Hi WIRO 4x4! I built a ${selectedDuration}-day package on your site:\n\n${tourNames}\n\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nStart date: ${startDate}\n${addons.length > 0 ? `Add-ons: ${addons.join(", ")}\n` : ""}${total ? `Estimated price: ${total}${discount}\n` : ""}\nPlease send me an exact quote!`;
+      ? `היי WIRO 4x4! בניתי חבילה של ${selectedDuration} ימים באתר:\n\n${tourNames}\n\nקבוצה: ${adults} מבוגרים${children.length > 0 ? `, ${children.length} ילדים` : ""}\nתאריך: ${startDate}\n${addons.length > 0 ? `תוספות: ${addons.join(", ")}\n` : ""}\nאשמח לקבל הצעת מחיר מדויקת!`
+      : `Hi WIRO 4x4! I built a ${selectedDuration}-day package on your site:\n\n${tourNames}\n\nGroup: ${adults} adults${children.length > 0 ? `, ${children.length} children` : ""}\nStart date: ${startDate}\n${addons.length > 0 ? `Add-ons: ${addons.join(", ")}\n` : ""}\nPlease send me an exact quote!`;
 
     const tracked = buildTrackedWhatsAppLink({
       sourceCode: isHebrew ? "PACKAGES-REQUEST-HE" : "PACKAGES-REQUEST-EN",
@@ -378,7 +319,7 @@ export default function Packages() {
     const tourNames = selectedTours
       .map((t, i) => `${i + 1}. ${t.nameEn}`)
       .join(", ");
-    const total = breakdown ? formatUSD(breakdown.total) : "N/A";
+    const total = "To be confirmed personally";
 
     try {
       await leadMutation.mutateAsync({
@@ -466,8 +407,8 @@ export default function Packages() {
             </h1>
             <p className="text-white/80 mt-2 max-w-xl text-lg">
               {t(
-                "Save up to 25% when you combine multiple days. Choose a ready-made package or build your own.",
-                "חסכו עד 25% כשאתם משלבים מספר ימים. בחרו חבילה מוכנה או בנו משלכם."
+                "Combine multiple days. Choose a ready-made package or build your own.",
+                "שלבו מספר ימים. בחרו חבילה מוכנה או בנו משלכם."
               )}
             </p>
           </div>
@@ -494,18 +435,6 @@ export default function Packages() {
 
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {SUGGESTED_PACKAGES.map(pkg => {
-                const discountPct =
-                  DURATION_OPTIONS.find(d => d.days === pkg.days)
-                    ?.discountPct ?? 0;
-                const tourPrices = pkg.tourSlugs.reduce((sum, slug) => {
-                  const tour = availableTours.find(t => t.slug === slug);
-                  return sum + (tour?.price ?? 3500);
-                }, 0);
-                const discounted = calculatePackageDiscount(
-                  pkg.tourSlugs.length,
-                  tourPrices
-                );
-
                 return (
                   <Card
                     key={pkg.nameEn}
@@ -518,9 +447,6 @@ export default function Packages() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
-                      <span className="absolute top-3 right-3 bg-red-500 text-white text-sm font-bold px-2.5 py-1 rounded">
-                        -{discountPct}%
-                      </span>
                       <span className="absolute top-3 left-3 bg-primary/60 text-white text-xs font-medium px-2.5 py-1 rounded">
                         {pkg.days} {t("days", "ימים")}
                       </span>
@@ -535,18 +461,6 @@ export default function Packages() {
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                         <MapPin className="w-3.5 h-3.5" />
                         {pkg.tourSlugs.length} {t("tours", "סיורים")}
-                      </div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          {discounted.savings > 0 && (
-                            <span className="text-sm text-muted-foreground line-through mr-2">
-                              {formatUSD(tourPrices)}
-                            </span>
-                          )}
-                          <span className="text-xl font-bold text-primary">
-                            {formatUSD(discounted.discountedPrice)}
-                          </span>
-                        </div>
                       </div>
                       <Button
                         onClick={() => selectSuggestedPackage(pkg)}
@@ -657,10 +571,7 @@ export default function Packages() {
                           {t(opt.labelEn, opt.labelHe)}
                         </div>
                         <div className="mt-2 inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                          {t(
-                            `Save ${opt.discountPct}%`,
-                            `${opt.discountPct}% הנחה`
-                          )}
+                          {t("Personally planned", "בתכנון אישי")}
                         </div>
                         {selectedDuration === opt.days && (
                           <div className="absolute top-2 right-2 bg-accent text-white rounded-full p-0.5">
@@ -743,9 +654,6 @@ export default function Packages() {
                                 <Clock className="w-3 h-3" />
                                 {tour.duration}
                               </span>
-                              <span className="font-medium text-foreground">
-                                {formatUSD(tour.price)}
-                              </span>
                             </div>
                           </div>
                         </Card>
@@ -817,17 +725,6 @@ export default function Packages() {
                           );
                         })}
                       </div>
-                    </div>
-                  )}
-
-                  {/* Package discount hint */}
-                  {packageDiscount && packageDiscount.savings > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
-                      <BadgePercent className="w-4 h-4 shrink-0" />
-                      {t(
-                        `${packageDiscount.discountPercent}% package discount applied — save ${formatUSD(packageDiscount.savings)}!`,
-                        `הנחת חבילה ${packageDiscount.discountPercent}% — חסכו ${formatUSD(packageDiscount.savings)}!`
-                      )}
                     </div>
                   )}
 
@@ -935,8 +832,8 @@ export default function Packages() {
                           ))}
                           <p className="text-xs text-muted-foreground mt-1">
                             {t(
-                              "Under 3: free | Ages 3-10: 50% surcharge | 11+: full price",
-                              "מתחת ל-3: חינם | גילאי 3-10: 50% תוספת | 11+: מחיר מלא"
+                              "Share each child’s age so we can tailor the trip.",
+                              "ציינו את גיל כל ילד כדי שנוכל להתאים את הטיול."
                             )}
                           </p>
                         </div>
@@ -964,20 +861,14 @@ export default function Packages() {
                       <ServiceToggle
                         icon={Hotel}
                         label={t("Hotel Accommodation", "לינה במלון")}
-                        detail={t(
-                          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/night`,
-                          `~${formatUSD(SERVICE_PRICES.hotelPerNight)}/לילה`
-                        )}
+                        detail={t("Tailored to your trip", "בהתאמה לטיול שלכם")}
                         checked={includesHotels}
                         onChange={setIncludesHotels}
                       />
                       <ServiceToggle
                         icon={Utensils}
                         label={t("Kosher Meals", "ארוחות כשרות")}
-                        detail={t(
-                          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/day`,
-                          `~${formatUSD(SERVICE_PRICES.foodPerDay)}/יום`
-                        )}
+                        detail={t("Tailored to your trip", "בהתאמה לטיול שלכם")}
                         checked={includesFood}
                         onChange={setIncludesFood}
                       />
@@ -987,10 +878,7 @@ export default function Packages() {
                           "Attractions & Activities",
                           "אטרקציות ופעילויות"
                         )}
-                        detail={t(
-                          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/attraction`,
-                          `~${formatUSD(SERVICE_PRICES.attractionPerItem)}/אטרקציה`
-                        )}
+                        detail={t("Tailored to your trip", "בהתאמה לטיול שלכם")}
                         checked={includesAttractions}
                         onChange={setIncludesAttractions}
                       />
@@ -1026,10 +914,7 @@ export default function Packages() {
                           "Shabbat Hotel (near Chabad)",
                           'מלון שבת (ליד חב"ד)'
                         )}
-                        detail={t(
-                          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/night`,
-                          `${formatUSD(SERVICE_PRICES.shabbatHotelPerNight)}/לילה`
-                        )}
+                        detail={t("Tailored to your trip", "בהתאמה לטיול שלכם")}
                         checked={needsShabbatHotel}
                         onChange={setNeedsShabbatHotel}
                       />
@@ -1123,9 +1008,6 @@ export default function Packages() {
                                 {tour.duration}
                               </div>
                             </div>
-                            <div className="text-sm font-medium shrink-0">
-                              {formatUSD(tour.price)}
-                            </div>
                           </div>
                         );
                       })}
@@ -1178,178 +1060,12 @@ export default function Packages() {
                     </div>
                   </Card>
 
-                  {/* Price Breakdown */}
-                  <Card className="p-5 border-2 border-accent/30 rounded-lg">
-                    <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
-                      <BadgePercent className="w-5 h-5 text-accent" />
-                      {t("Price Breakdown", "פירוט מחיר")}
-                    </h4>
-
-                    {breakdown ? (
-                      <div className="space-y-3">
-                        {/* Tour items */}
-                        <div>
-                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                            {t("Tours", "טיולים")}
-                          </h5>
-                          {breakdown.tourItems.map(
-                            (item: PriceLineItem, idx: number) => (
-                              <LineItem
-                                key={idx}
-                                label={isHebrew ? item.labelHe : item.labelEn}
-                                amount={item.amount}
-                              />
-                            )
-                          )}
-                          {breakdown.groupMultiplier > 1 && (
-                            <LineItem
-                              label={t(
-                                `Group surcharge (x${breakdown.groupMultiplier})`,
-                                `תוספת קבוצה (x${breakdown.groupMultiplier})`
-                              )}
-                              amount={
-                                breakdown.groupAdjustedTotal -
-                                breakdown.tourSubtotal
-                              }
-                              className="text-amber-600"
-                            />
-                          )}
-                          {breakdown.childrenSurcharge > 0 && (
-                            <LineItem
-                              label={t("Children surcharge", "תוספת ילדים")}
-                              amount={breakdown.childrenSurcharge}
-                              className="text-amber-600"
-                            />
-                          )}
-                        </div>
-
-                        {/* Package discount */}
-                        {breakdown.packageOption && (
-                          <div className="px-3 py-2.5 bg-green-50 border border-green-200 rounded-sm">
-                            <div className="flex items-center gap-2 text-green-800 font-medium text-sm mb-1">
-                              <BadgePercent className="w-4 h-4" />
-                              {t(
-                                "Package Discount Applied!",
-                                "הנחת חבילה הוחלה!"
-                              )}
-                            </div>
-                            <p className="text-xs text-green-700">
-                              {isHebrew
-                                ? `${breakdown.packageOption.nameHe}: ${formatUSD(breakdown.packageOption.packagePrice)} (חיסכון ${formatUSD(breakdown.packageOption.savings)})`
-                                : `${breakdown.packageOption.nameEn}: ${formatUSD(breakdown.packageOption.packagePrice)} (save ${formatUSD(breakdown.packageOption.savings)})`}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Services */}
-                        {breakdown.serviceItems.length > 0 && (
-                          <div>
-                            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 mt-4">
-                              {t("Services & Add-ons", "שירותים ותוספות")}
-                            </h5>
-                            {breakdown.serviceItems.map(
-                              (item: PriceLineItem, idx: number) => (
-                                <LineItem
-                                  key={idx}
-                                  label={isHebrew ? item.labelHe : item.labelEn}
-                                  amount={item.amount}
-                                />
-                              )
-                            )}
-                          </div>
-                        )}
-
-                        {/* Shabbat */}
-                        {breakdown.shabbatCost > 0 && (
-                          <LineItem
-                            label={t(
-                              `Shabbat Hotel (${breakdown.shabbatNights} night${breakdown.shabbatNights > 1 ? "s" : ""})`,
-                              `מלון שבת (${breakdown.shabbatNights} ${breakdown.shabbatNights > 1 ? "לילות" : "לילה"})`
-                            )}
-                            amount={breakdown.shabbatCost}
-                          />
-                        )}
-
-                        {/* Total */}
-                        <div className="border-t-2 border-accent/20 pt-3 mt-4">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xl font-bold">
-                              {t("Estimated Total", "סה״כ הערכה")}
-                            </span>
-                            <span className="text-2xl font-bold text-accent">
-                              {formatUSD(breakdown.total)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>
-                              {t(
-                                `Deposit (${Math.round(DEPOSIT_RATE * 100)}%)`,
-                                `מקדמה (${Math.round(DEPOSIT_RATE * 100)}%)`
-                              )}
-                            </span>
-                            <span>{formatUSD(breakdown.depositAmount)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>
-                              {t("Balance on tour day", "יתרה ביום הטיול")}
-                            </span>
-                            <span>{formatUSD(breakdown.balanceAmount)}</span>
-                          </div>
-                        </div>
-
-                        {breakdown.isCustomQuote && (
-                          <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-sm text-sm text-amber-800">
-                            {t(
-                              "Group of 7+ — prices are estimates. Contact us for exact pricing.",
-                              "קבוצה של 7+ — המחירים הם הערכה. צרו קשר לקבלת מחיר מדויק."
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center text-muted-foreground py-4">
-                        <p className="text-sm">
-                          {t(
-                            "Set a start date in Step 3 to see your full price breakdown.",
-                            "קבעו תאריך התחלה בשלב 3 כדי לראות פירוט מחיר מלא."
-                          )}
-                        </p>
-                        {/* Show tour-only pricing */}
-                        {packageDiscount && (
-                          <div className="mt-4 space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>{t("Tours subtotal", "סה״כ טיולים")}</span>
-                              <span className="line-through text-muted-foreground">
-                                {formatUSD(
-                                  selectedTours.reduce(
-                                    (sum, t) => sum + t.basePrice,
-                                    0
-                                  )
-                                )}
-                              </span>
-                            </div>
-                            {packageDiscount.savings > 0 && (
-                              <div className="flex justify-between text-sm text-green-600 font-medium">
-                                <span>
-                                  {t("Package discount", "הנחת חבילה")} (-
-                                  {packageDiscount.discountPercent}%)
-                                </span>
-                                <span>
-                                  -{formatUSD(packageDiscount.savings)}
-                                </span>
-                              </div>
-                            )}
-                            <div className="flex justify-between font-bold text-lg border-t pt-2">
-                              <span>{t("Tours total", "סה״כ טיולים")}</span>
-                              <span className="text-accent">
-                                {formatUSD(packageDiscount.discountedPrice)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                  <p className="rounded-lg border p-5">
+                    {t(
+                      "Send your itinerary to receive a personalized proposal from our team.",
+                      "שלחו את המסלול לקבלת הצעה אישית מהצוות שלנו."
                     )}
-                  </Card>
+                  </p>
 
                   {/* CTA Buttons */}
                   <div className="space-y-4">
@@ -1439,8 +1155,8 @@ export default function Packages() {
 
                   <p className="text-xs text-muted-foreground text-center">
                     {t(
-                      "Prices are estimates. Final pricing confirmed upon booking.",
-                      "המחירים הם הערכה. המחיר הסופי יאושר בעת ההזמנה."
+                      "Your proposal will be confirmed personally before booking.",
+                      "ההצעה שלכם תאושר אישית לפני ההזמנה."
                     )}
                   </p>
 
@@ -1495,22 +1211,5 @@ function ServiceToggle({
       <span className="font-medium flex-1">{label}</span>
       <span className="text-xs text-muted-foreground">{detail}</span>
     </label>
-  );
-}
-
-function LineItem({
-  label,
-  amount,
-  className = "",
-}: {
-  label: string;
-  amount: number;
-  className?: string;
-}) {
-  return (
-    <div className={`flex justify-between text-sm py-1 ${className}`}>
-      <span>{label}</span>
-      <span className="font-medium">{formatUSD(amount)}</span>
-    </div>
   );
 }

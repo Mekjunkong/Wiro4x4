@@ -60,8 +60,8 @@ export function ServicesStep({
           {
             key: "selfDriving4x4",
             icon: Car,
-            en: "Self-Driving 4x4 Rental ($100-150/day)?",
-            he: "השכרת רכב 4x4 לנהיגה עצמית ($100-150 ליום)?",
+            en: "Self-Driving 4x4 Rental?",
+            he: "השכרת רכב 4x4 לנהיגה עצמית?",
           },
         ].map(({ key, icon: Icon, en, he }) => (
           <label

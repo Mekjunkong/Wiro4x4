@@ -8,11 +8,9 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
-import { ChatWidget } from "./components/ChatWidget";
 import { captureUtmParams } from "@/lib/utm";
 import { useBehaviorTracking } from "@/hooks/useBehaviorTracking";
 
-const Pricing = React.lazy(() => import("./pages/Pricing"));
 const TourDetail = React.lazy(() => import("./pages/TourDetail"));
 const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
@@ -42,6 +40,7 @@ const Login = React.lazy(() => import("./pages/Login"));
 const Register = React.lazy(() => import("./pages/Register"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
+const MotorcycleTours = React.lazy(() => import("./pages/MotorcycleTours"));
 const CarRental = React.lazy(() => import("./pages/CarRental"));
 const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
 const About = React.lazy(() => import("./pages/About"));
@@ -80,7 +79,7 @@ function LegacyEstimateRedirect() {
   const [, navigate] = useLocation();
 
   React.useEffect(() => {
-    navigate("/pricing", { replace: true });
+    navigate("/tours", { replace: true });
   }, [navigate]);
 
   return null;
@@ -110,7 +109,7 @@ function Router() {
         <div key={location} className="animate-page-enter w-full">
           <Switch>
             <Route path={"/"} component={Home} />
-            <Route path={"/pricing"} component={Pricing} />
+            <Route path={"/pricing"} component={LegacyEstimateRedirect} />
             <Route path={"/estimate"} component={LegacyEstimateRedirect} />
             <Route path={"/booking"} component={LegacyBookingRedirect} />
             <Route path={"/tours"} component={ToursListing} />
@@ -140,6 +139,7 @@ function Router() {
               <HebrewLandingPage intent="family" />
             </Route>
             <Route path={"/accessible-tours"} component={AccessibleTours} />
+            <Route path="/motorcycle-tours" component={MotorcycleTours} />
             <Route path={"/car-rental"} component={CarRental} />
             <Route path={"/faq"} component={FAQ} />
             <Route path={"/contact"} component={Contact} />
@@ -188,7 +188,6 @@ function AppContent() {
         <Router />
       </ErrorBoundary>
       <CookieConsent />
-      <ChatWidget />
     </TooltipProvider>
   );
 }

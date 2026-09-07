@@ -31,16 +31,9 @@ import {
   DestinationsStep,
   ContactStep,
   BookingFormSuccess,
-  PricingSummary,
   DESTINATIONS,
   type FormData,
 } from "@/components/booking";
-import {
-  calculateTripTotal,
-  type TripConfig,
-  type PriceBreakdown,
-} from "@shared/pricing";
-
 const DRAFT_KEY = "wiro-booking-draft";
 
 const defaultFormData: FormData = {
@@ -295,55 +288,6 @@ export default function BookingForm() {
   // Unsaved changes warning — only when form has been modified
   const hasUnsavedChanges = useMemo(() => {
     return JSON.stringify(formData) !== JSON.stringify(defaultFormData);
-  }, [formData]);
-
-  // Live pricing estimate from form data
-  const priceBreakdown = useMemo((): PriceBreakdown | null => {
-    try {
-      if (!formData.arrivalDate || !formData.departureDate) return null;
-
-      const arrival = new Date(formData.arrivalDate);
-      const departure = new Date(formData.departureDate);
-      if (isNaN(arrival.getTime()) || isNaN(departure.getTime())) return null;
-      if (departure <= arrival) return null;
-
-      // Parse children ages from comma-separated string
-      const children: { age: number }[] = [];
-      if (formData.hasChildren && formData.childrenAges) {
-        formData.childrenAges.split(",").forEach(a => {
-          const age = parseInt(a.trim(), 10);
-          if (!isNaN(age) && age >= 0) children.push({ age });
-        });
-      }
-
-      // Use number of selected destinations as tours, default to 1
-      const numTours = Math.max(formData.suggestedDestinations.length, 1);
-      const tours = Array.from({ length: numTours }, (_, i) => ({
-        slug: `tour-${i + 1}`,
-        nameEn: `Tour ${i + 1}`,
-        nameHe: `\u05D8\u05D9\u05D5\u05DC ${i + 1}`,
-        basePrice: 4500,
-        bookingCount: 0,
-      }));
-
-      const config: TripConfig = {
-        tours,
-        group: { adults: formData.numberOfAdults, children },
-        arrivalDate: arrival,
-        departureDate: departure,
-        services: {
-          includesHotels: formData.includesHotels,
-          includesFood: formData.includesFood,
-          includesAttractions: formData.includesAttractions,
-          attractionCount: formData.selectedAttractions.length,
-        },
-        needsShabbatHotel: formData.needsShabbatHotel,
-      };
-
-      return calculateTripTotal(config);
-    } catch {
-      return null;
-    }
   }, [formData]);
 
   // Ref for scrolling to error summary
@@ -917,7 +861,12 @@ export default function BookingForm() {
 
             {/* Pricing Sidebar (desktop only) */}
             <div className="hidden lg:block">
-              <PricingSummary breakdown={priceBreakdown} />
+              <p className="rounded-xl border p-5 text-sm">
+                {t(
+                  "Your itinerary and quote will be confirmed personally before booking.",
+                  "המסלול וההצעה שלכם יאושרו אישית לפני ההזמנה."
+                )}
+              </p>
             </div>
           </div>
         </div>

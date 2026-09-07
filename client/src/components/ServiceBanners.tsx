@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ContactOptions } from "@/components/ContactOptions";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -51,8 +52,7 @@ const services = [
       "Close support for the organizer, from planning to return home",
     ],
     cta: "Let's customize a trip for your group",
-    // Placeholder: wire to the organized group trips page when it exists.
-    href: "#",
+    href: "/contact?subject=group_booking",
     image: "tour_group_photo.webp",
     alt: "WIRO group standing beside a 4x4 on a forest trail",
   },
@@ -85,7 +85,7 @@ const services = [
       "Hotels, pace and activities to match your family or group",
     ],
     cta: "Plan your own private trip",
-    href: "/private-family-tours",
+    href: "/tours",
     image: "couple_with_4x4.webp",
     alt: "A couple beside their private WIRO 4x4 in the mountains",
   },
@@ -122,8 +122,7 @@ const services = [
       "Optional chef, kosher menu, riding lessons, equipment and professional riding guide",
     ],
     cta: "Assemble a group — we'll plan the route",
-    // Placeholder: wire to the motorcycle tours page when it exists.
-    href: "#",
+    href: "/motorcycle-tours",
     // AI-generated service illustration; not a photograph of WIRO guests.
     image: "motorcycle-touring-illustration.webp",
     alt: "Illustration of motorcycle riders touring a mountain road in Northern Thailand",
@@ -277,10 +276,7 @@ export function ServiceBanners() {
           <CarouselContent className={rtl ? "ml-0 -mr-5" : "-ml-5"}>
             {services.map((original, index) => {
               const service = { ...original, ...(rtl ? original.he : {}) };
-              const href =
-                rtl && service.id === "private-tours"
-                  ? "/he/private-family-tours-chiang-mai"
-                  : service.href;
+              const href = service.href;
               return (
                 <CarouselItem
                   key={service.id}
@@ -361,15 +357,43 @@ export function ServiceBanners() {
                           <li key={bullet}>{bullet}</li>
                         ))}
                       </ul>
-                      <Button
-                        asChild
-                        className="mt-2 h-auto min-h-12 whitespace-normal py-3"
-                      >
-                        <a href={href}>
-                          {service.cta}
-                          <Forward aria-hidden="true" />
-                        </a>
-                      </Button>
+                      {service.id === "organized-groups" ? (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button className="mt-2 h-auto min-h-12 whitespace-normal py-3">
+                              {service.cta}
+                              <Forward aria-hidden="true" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent dir={rtl ? "rtl" : "ltr"}>
+                            <DialogHeader>
+                              <DialogTitle>
+                                {t(
+                                  "Let's plan your group trip",
+                                  "בואו נתכנן את הטיול הקבוצתי שלכם"
+                                )}
+                              </DialogTitle>
+                              <DialogDescription>
+                                {t(
+                                  "Contact us with your dates, group size and destinations.",
+                                  "שלחו לנו תאריכים, מספר מטיילים ויעדים רצויים."
+                                )}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <ContactOptions topic="group" />
+                          </DialogContent>
+                        </Dialog>
+                      ) : (
+                        <Button
+                          asChild
+                          className="mt-2 h-auto min-h-12 whitespace-normal py-3"
+                        >
+                          <a href={href}>
+                            {service.cta}
+                            <Forward aria-hidden="true" />
+                          </a>
+                        </Button>
+                      )}
                     </DialogContent>
                   </Dialog>
                 </CarouselItem>

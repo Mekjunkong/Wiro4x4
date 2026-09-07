@@ -139,8 +139,8 @@ export default function TermsOfService() {
                 </li>
                 <li>
                   {t(
-                    "All prices are listed in Thai Baht (THB) unless otherwise stated.",
-                    "כל המחירים מוצגים בבאט תאילנדי (THB) אלא אם צוין אחרת."
+                    "The currency and amount are specified in your personalized quote.",
+                    "המטבע והסכום מפורטים בהצעת המחיר האישית שלכם."
                   )}
                 </li>
                 <li>
