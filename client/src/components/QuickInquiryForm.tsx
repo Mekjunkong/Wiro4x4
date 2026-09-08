@@ -213,6 +213,12 @@ export function QuickInquiryForm() {
                 "שלחו לנו את הפרטים שלכם ונאשר איתכם אישית את הזמינות ואת המחיר הסופי."
               )}
             </p>
+            <p className="mt-3 text-sm leading-relaxed text-white/80">
+              {t(
+                "We usually reply within one business day.",
+                "בדרך כלל אנחנו משיבים תוך יום עסקים אחד."
+              )}
+            </p>
             <TrackedWhatsAppLink
               sourceCode={
                 language === "he" ? "HOME-INQUIRY-HE" : "HOME-INQUIRY-EN"
@@ -232,8 +238,8 @@ export function QuickInquiryForm() {
               />
               <span>
                 {t(
-                  "We usually reply within one business day.",
-                  "בדרך כלל אנחנו משיבים תוך יום עסקים אחד."
+                  "Your message goes directly to the WIRO team.",
+                  "ההודעה שלכם מגיעה ישירות לצוות WIRO."
                 )}
               </span>
             </div>
