@@ -24,6 +24,9 @@ describe("sitemap", () => {
     expect(xml).toContain("<urlset");
     expect(xml).toContain("https://www.wiro4x4indochina.com/");
     expect(xml).not.toContain("https://www.wiro4x4indochina.com/pricing");
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/motorcycle-tours</loc>"
+    );
     expect(xml).toContain("https://www.wiro4x4indochina.com/gallery");
     expect(xml).toContain("https://www.wiro4x4indochina.com/packages");
     expect(xml).toContain("https://www.wiro4x4indochina.com/blog");

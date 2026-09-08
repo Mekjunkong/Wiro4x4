@@ -10,9 +10,7 @@ export function Hero() {
   const [backgroundReady, setBackgroundReady] = useState(false);
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motionReadyToLoad, setMotionReadyToLoad] = useState(false);
-  const [motionSource, setMotionSource] = useState(
-    "/media/hero/wiro-seedance-720p-optimized.mp4"
-  );
+  const motionSource = "/media/hero/wiro-seedance-720p-optimized.mp4";
   const whatsappMessage =
     language === "he"
       ? "שלום WIRO 4x4, אשמח לתכנן טיול שטח פרטי מצ'יאנג מאי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nצרכי כשרות / שבת / מדריך בעברית: __"
@@ -20,6 +18,7 @@ export function Hero() {
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobileViewport = window.matchMedia("(max-width: 720px)");
     const connection = (
       navigator as Navigator & {
         connection?: { effectiveType?: string; saveData?: boolean };
@@ -29,18 +28,18 @@ export function Hero() {
     const updateMotionAvailability = () => {
       const constrainedNetwork =
         connection?.saveData || connection?.effectiveType?.includes("2g");
-      setMotionEnabled(!reducedMotion.matches && !constrainedNetwork);
-      setMotionSource(
-        window.matchMedia("(max-width: 720px)").matches
-          ? "/media/hero/wiro-seedance-mobile.mp4"
-          : "/media/hero/wiro-seedance-720p-optimized.mp4"
+      setMotionEnabled(
+        !reducedMotion.matches && !mobileViewport.matches && !constrainedNetwork
       );
+      setBackgroundReady(false);
     };
 
     updateMotionAvailability();
     reducedMotion.addEventListener("change", updateMotionAvailability);
+    mobileViewport.addEventListener("change", updateMotionAvailability);
     return () => {
       reducedMotion.removeEventListener("change", updateMotionAvailability);
+      mobileViewport.removeEventListener("change", updateMotionAvailability);
     };
   }, []);
 
@@ -94,9 +93,12 @@ export function Hero() {
   }, [motionEnabled, motionReadyToLoad, backgroundReady]);
 
   const scrollToJourney = () =>
-    document
-      .getElementById("journey-heading")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("journey-heading")?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
 
   return (
     <section

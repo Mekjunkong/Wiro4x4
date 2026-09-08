@@ -280,7 +280,7 @@ export function ServiceBanners() {
               return (
                 <CarouselItem
                   key={service.id}
-                  className={`basis-[88%] sm:basis-1/2 lg:basis-1/4 ${rtl ? "pl-0 pr-5" : "pl-5"}`}
+                  className={`basis-full sm:basis-1/2 lg:basis-1/4 ${rtl ? "pl-0 pr-5" : "pl-5"}`}
                   aria-label={`${index + 1} / ${services.length}: ${service.label}`}
                 >
                   <Dialog>

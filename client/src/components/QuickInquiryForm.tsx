@@ -203,8 +203,14 @@ export function QuickInquiryForm() {
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-white/80">
               {t(
-                "Open a prefilled message with the key details Mike needs: dates, group size, pickup area, route idea, and kosher or Shabbat needs.",
-                "פתחו הודעה מוכנה עם הפרטים החשובים: תאריכים, מספר מטיילים, אזור איסוף, רעיון למסלול וצרכי כשרות או שבת."
+                "Every trip is quoted personally. Group size, dates, route, vehicle, hotels, food, and Shabbat planning can change what your journey needs.",
+                "לכל טיול ניתנת הצעת מחיר אישית. גודל הקבוצה, התאריכים, המסלול, הרכב, המלונות, האוכל ותכנון השבת יכולים להשפיע על צורכי הטיול שלכם."
+              )}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-white/80">
+              {t(
+                "Send us your details and we’ll confirm availability and the final price personally.",
+                "שלחו לנו את הפרטים שלכם ונאשר איתכם אישית את הזמינות ואת המחיר הסופי."
               )}
             </p>
             <TrackedWhatsAppLink
@@ -226,8 +232,8 @@ export function QuickInquiryForm() {
               />
               <span>
                 {t(
-                  "Availability and price are confirmed personally after we see your route and group details.",
-                  "זמינות ומחיר מאושרים אישית אחרי שנראה את פרטי המסלול והקבוצה."
+                  "We usually reply within one business day.",
+                  "בדרך כלל אנחנו משיבים תוך יום עסקים אחד."
                 )}
               </span>
             </div>

@@ -11,6 +11,7 @@ import {
   COMPANY_INSTAGRAM_URL,
 } from "@/const";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { COMMERCIAL_SEO_ROUTE_PAIRS } from "@shared/commercialSeo";
 export function Footer() {
   const { t, language } = useLanguage();
   const whatsappMessage = t(
@@ -42,6 +43,31 @@ export function Footer() {
                 "טיולי 4x4 בצפון תאילנד עם אוכל כשר ומדריכים דוברי עברית."
               )}
             </p>
+            <nav aria-label={t("Tour planning guides", "מדריכים לתכנון הטיול")}>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/motorcycle-tours"
+                    className="hover:text-accent transition-colors"
+                  >
+                    {t(
+                      "Motorcycle tours in Northern Thailand",
+                      "טיולי אופנועים בצפון תאילנד"
+                    )}
+                  </Link>
+                </li>
+                {COMMERCIAL_SEO_ROUTE_PAIRS.map(pair => (
+                  <li key={pair.intent}>
+                    <Link
+                      href={pair.paths[language]}
+                      className="hover:text-accent transition-colors"
+                    >
+                      {pair.metadata[language].title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
           {/* Quick Links */}

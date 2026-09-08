@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
-import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/cookieConsent";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 
 export function FloatingActionButtons() {
@@ -12,19 +11,6 @@ export function FloatingActionButtons() {
 
   const [scrolledPast, setScrolledPast] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [consentGiven, setConsentGiven] = useState(() => {
-    try {
-      return !!localStorage.getItem(COOKIE_CONSENT_KEY);
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    const onConsent = () => setConsentGiven(true);
-    window.addEventListener(COOKIE_CONSENT_EVENT, onConsent);
-    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onConsent);
-  }, []);
 
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 767px)");
@@ -46,13 +32,13 @@ export function FloatingActionButtons() {
       ? "שלום WIRO 4x4, נשמח לבדוק זמינות לטיול פרטי.\nתאריכים: __\nמספר מטיילים: __\nמלון או אזור איסוף: __\nרעיון למסלול: __\nצרכי כשרות / שבת / מדריך בעברית: __"
       : "Hi WIRO 4x4, I'd like to check availability for a private tour.\nDates: __\nGroup size: __\nPickup area or hotel: __\nRoute idea: __\nKosher / Shabbat / Hebrew-guide needs: __";
   const isHomePage = location === "/";
-  const hideUntilUsefulOnHome = isHomePage && !scrolledPast;
+  const hideUntilUsefulOnHome = isHomePage && !isMobile && !scrolledPast;
 
   if (isBookingPage || hideUntilUsefulOnHome) return null;
 
   const isRtl = language === "he";
   const bottomClass =
-    isMobile && !consentGiven ? "bottom-36 md:bottom-6" : "bottom-6";
+    "bottom-[calc(1rem+env(safe-area-inset-bottom))] md:bottom-6";
   const sideClass = isRtl ? "left-4 md:left-6" : "right-4 md:right-6";
 
   return (

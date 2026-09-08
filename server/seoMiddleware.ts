@@ -17,6 +17,7 @@ import { getTourPackageBySlug } from "./db/packages";
 import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
 import { resolveTourSeoMeta } from "../shared/tourSeoOverrides";
+import { injectPageContent } from "./seoPageContent";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
@@ -255,6 +256,13 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
     description:
       "Plan a motorcycle tour in Northern Thailand for five or more riders, with a route tailored to your group.",
     canonicalPath: "/motorcycle-tours",
+    ogImage: "/images/optimized/motorcycle-touring-illustration.webp",
+    jsonLd: pageJsonLd({
+      name: "Motorcycle Tours in Northern Thailand",
+      description:
+        "Organized motorcycle tours for groups of five or more riders, with routes and support planned personally by WIRO.",
+      path: "/motorcycle-tours",
+    }),
   },
   "/blog": {
     title: "Chiang Mai Travel Blog & Kosher Travel Tips",
@@ -359,7 +367,7 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
   "/packages": {
     title: "Multi-Day Tour Packages — Northern Thailand",
     description:
-      "Multi-day tour packages in Northern Thailand and Indochina. 2–5 day all-inclusive 4x4 adventures with kosher meals and accommodation.",
+      "Plan a private multi-day journey in Northern Thailand and Indochina. Choose your route, pace, hotels and meal needs for a personalized proposal.",
     canonicalPath: "/packages",
   },
   "/terms": {
@@ -544,6 +552,11 @@ export function injectMeta(html: string, meta: PageMeta): string {
   );
 
   // Replace OG tags
+  const localeTag = `<meta property="og:locale" content="${meta.lang === "he" ? "he_IL" : "en_US"}" />`;
+  const localePattern = /<meta\s+property="og:locale"\s+content="[^"]*"\s*\/?>/;
+  html = localePattern.test(html)
+    ? html.replace(localePattern, localeTag)
+    : html.replace("</head>", `${localeTag}\n</head>`);
   html = html.replace(
     /<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/,
     `<meta property="og:type" content="${ogType}" />`
@@ -630,7 +643,7 @@ export function injectMeta(html: string, meta: PageMeta): string {
     );
   }
 
-  return html;
+  return injectPageContent(html, meta);
 }
 
 /** Render a known static route from the same metadata used by the middleware. */

@@ -16,6 +16,8 @@ export default function MotorcycleTours() {
       "תכנון טיול אופנועים בצפון תאילנד לקבוצות של חמישה רוכבים ומעלה, עם תכנון וליווי של WIRO."
     ),
     canonicalPath: "/motorcycle-tours",
+    ogImage:
+      "https://www.wiro4x4indochina.com/images/optimized/motorcycle-touring-illustration.webp",
   });
   const sections = [
     [

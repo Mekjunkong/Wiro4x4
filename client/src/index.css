@@ -1056,7 +1056,7 @@
     align-content: end;
     min-height: 100svh;
     padding-top: 7rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
   .wiro-hero__content {
     position: relative;
