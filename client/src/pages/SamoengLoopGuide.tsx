@@ -21,10 +21,12 @@ import {
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { SamoengMapOverview } from "@/components/SamoengMapOverview";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   SAMOENG_CATEGORIES,
+  SAMOENG_MY_MAPS_EMBED_URL,
   SAMOENG_ROUTE_STAGES,
   SAMOENG_ROUTE_URL,
   SAMOENG_SAVED_PLACES_URL,
@@ -195,6 +197,13 @@ export default function SamoengLoopGuide() {
             </div>
           </div>
         </section>
+
+        <SamoengMapOverview
+          embedUrl={SAMOENG_MY_MAPS_EMBED_URL}
+          routeUrl={SAMOENG_ROUTE_URL}
+          onMapFocus={() => trackMapOpen("overview-map")}
+          onRouteOpen={() => trackMapOpen("overview-full-route")}
+        />
 
         <section
           className="border-y border-border bg-muted/70 py-14 md:py-18"

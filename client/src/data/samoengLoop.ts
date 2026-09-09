@@ -22,6 +22,9 @@ export const SAMOENG_ROUTE_URL =
 export const SAMOENG_SAVED_PLACES_URL =
   "https://maps.app.goo.gl/XuxDp3u1DMJjUYxH8?g_st=ac";
 
+export const SAMOENG_MY_MAPS_EMBED_URL =
+  "https://www.google.com/maps/d/u/0/embed?mid=1370duP6xIB-BoHfqmXMkmeCihoxRdrY&ehbc=2E312F&noprof=1";
+
 export const SAMOENG_CATEGORIES: Array<{
   id: "all" | SamoengCategory;
   label: BilingualCopy;
