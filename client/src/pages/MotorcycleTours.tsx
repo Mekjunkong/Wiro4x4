@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Check, ChevronDown, Clock3, Gauge, MapPin, Route } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  Clock3,
+  Gauge,
+  Map,
+  MapPin,
+  Route,
+} from "lucide-react";
+import { Link } from "wouter";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
@@ -220,6 +230,61 @@ export default function MotorcycleTours() {
               >
                 www.OffTrailThailand.com
               </a>
+            </div>
+          </div>
+        </section>
+        <section
+          className="container max-w-6xl mt-16"
+          aria-labelledby="samoeng-guide-heading"
+        >
+          <div className="grid overflow-hidden rounded-sm border border-accent/35 bg-muted lg:grid-cols-[0.82fr_1.18fr]">
+            <img
+              src="/images/optimized/samoeng_valley.webp"
+              alt={t(
+                "Green mountain valley along the Samoeng Loop",
+                "עמק הררי ירוק לאורך לולאת סמואנג"
+              )}
+              width={1200}
+              height={800}
+              loading="lazy"
+              className="h-full min-h-[260px] w-full object-cover"
+            />
+            <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-12">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+                {t("WIRO local route guide", "מדריך מסלול מקומי של WIRO")}
+              </p>
+              <h2
+                id="samoeng-guide-heading"
+                className="mt-2 text-3xl font-heading md:text-4xl"
+              >
+                {t(
+                  "Ride the Samoeng Loop in one day",
+                  "רוכבים את לולאת סמואנג ביום אחד"
+                )}
+              </h2>
+              <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+                {t(
+                  "Open WIRO’s complete Google Maps route, then choose waterfalls, viewpoints, temples, activities and cafe stops that match your pace.",
+                  "פתחו את מסלול Google Maps המלא של WIRO ובחרו מפלים, תצפיות, מקדשים, אטרקציות ובתי קפה שמתאימים לקצב שלכם."
+                )}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-2">
+                  <Route className="size-4 text-primary" aria-hidden="true" />
+                  {t("About 130 km", "כ-130 ק״מ")}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Map className="size-4 text-primary" aria-hidden="true" />
+                  {t("38 saved places", "38 מקומות שמורים")}
+                </span>
+              </div>
+              <Link
+                href="/motorcycle-tours/samoeng-loop"
+                className="mt-7 inline-flex min-h-12 w-fit items-center justify-center rounded-sm bg-primary px-5 py-3 font-bold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              >
+                {t("Explore the Samoeng Loop", "גלו את לולאת סמואנג")}
+                <ArrowUpRight className="ms-2 size-4" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>

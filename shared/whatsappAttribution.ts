@@ -42,6 +42,20 @@ export const WHATSAPP_SOURCES = [
     channelFallback: "direct",
   },
   {
+    code: "SAMOENG-GUIDE-EN",
+    page: "/motorcycle-tours/samoeng-loop",
+    placement: "route-guide",
+    language: "en",
+    channelFallback: "organic",
+  },
+  {
+    code: "SAMOENG-GUIDE-HE",
+    page: "/motorcycle-tours/samoeng-loop",
+    placement: "route-guide",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
     code: "HOME-HERO-EN",
     page: "/",
     placement: "hero",

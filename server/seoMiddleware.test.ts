@@ -123,8 +123,7 @@ describe("SEO metadata helpers", () => {
   it.each([
     {
       path: "/tours/doi-inthanon-roof-of-thailand",
-      title:
-        "Private Doi Inthanon Tour from Chiang Mai — Roof of Thailand 4x4",
+      title: "Private Doi Inthanon Tour from Chiang Mai — Roof of Thailand 4x4",
     },
     {
       path: "/tours/mae-wang-jungle-wilderness",
@@ -142,15 +141,13 @@ describe("SEO metadata helpers", () => {
   });
 
   it("keeps generic tour metadata for non-overridden routes", async () => {
-    const meta = await resolveDynamicMeta(
-      "/tours/mae-kampong-hidden-village",
-      { loadTourBySlug: async () => undefined }
-    );
+    const meta = await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
+      loadTourBySlug: async () => undefined,
+    });
 
     expect(meta).toMatchObject({
       canonicalPath: "/tours/mae-kampong-hidden-village",
-      title:
-        "Mae Kampong — Hidden Mountain Village — Chiang Mai 4x4 Tour",
+      title: "Mae Kampong — Hidden Mountain Village — Chiang Mai 4x4 Tour",
     });
   });
 
@@ -179,6 +176,36 @@ describe("SEO metadata helpers", () => {
     );
     expect(tours).toContain('"@type":"CollectionPage"');
     expect(tours).toContain('"name":"Chiang Mai 4x4 Tours"');
+  });
+
+  it("keeps the Samoeng motorcycle guide indexable and distinct from the 4x4 tour", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+    </head><body><div id="root"></div></body></html>`;
+
+    const result = renderStaticRouteHtml(
+      shell,
+      "/motorcycle-tours/samoeng-loop"
+    );
+
+    expect(result).toContain(
+      '<link rel="canonical" href="https://www.wiro4x4indochina.com/motorcycle-tours/samoeng-loop" />'
+    );
+    expect(result).toContain("Samoeng Loop Motorcycle Route Guide");
+    expect(result).toContain("samoeng_valley.webp");
+    expect(result).not.toContain(
+      '<link rel="canonical" href="https://www.wiro4x4indochina.com/tours/samoeng-loop-mountain-circuit" />'
+    );
   });
 
   it("keeps core package metadata indexable when the database is unavailable", async () => {

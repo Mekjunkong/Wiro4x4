@@ -9,6 +9,7 @@ export const CANONICAL_EVENTS = [
   "pricing_view",
   "itinerary_expand",
   "proof_open",
+  "map_open",
   "faq_expand",
   "inquiry_start",
   "whatsapp_click",

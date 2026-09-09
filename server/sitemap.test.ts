@@ -27,6 +27,9 @@ describe("sitemap", () => {
     expect(xml).toContain(
       "<loc>https://www.wiro4x4indochina.com/motorcycle-tours</loc>"
     );
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/motorcycle-tours/samoeng-loop</loc>"
+    );
     expect(xml).toContain("https://www.wiro4x4indochina.com/gallery");
     expect(xml).toContain("https://www.wiro4x4indochina.com/packages");
     expect(xml).toContain("https://www.wiro4x4indochina.com/blog");

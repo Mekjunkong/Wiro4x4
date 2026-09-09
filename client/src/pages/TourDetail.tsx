@@ -22,6 +22,7 @@ import {
   Sun,
   Lightbulb,
   ArrowRight,
+  Bike,
   BookOpen,
   XCircle,
 } from "lucide-react";
@@ -1542,6 +1543,44 @@ export default function TourDetail() {
                           {t(link.en, link.he)}
                         </Link>
                       ))}
+                    </div>
+                  </section>
+                )}
+
+                {slug === "samoeng-loop-mountain-circuit" && (
+                  <section className="rounded-sm border border-accent/35 bg-muted p-5 md:p-6">
+                    <div className="flex items-start gap-3">
+                      <Bike
+                        className="mt-1 size-6 shrink-0 text-primary"
+                        aria-hidden="true"
+                      />
+                      <div>
+                        <h2 className="text-2xl font-medium">
+                          {t(
+                            "Riding the loop independently?",
+                            "רוכבים את הלולאה באופן עצמאי?"
+                          )}
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                          {t(
+                            "Use WIRO’s motorcycle guide to open the complete Google Maps course and choose waterfalls, viewpoints, temples and cafe stops.",
+                            "השתמשו במדריך האופנועים של WIRO כדי לפתוח את מסלול Google Maps המלא ולבחור מפלים, תצפיות, מקדשים ובתי קפה."
+                          )}
+                        </p>
+                        <Link
+                          href="/motorcycle-tours/samoeng-loop"
+                          className="mt-4 inline-flex min-h-11 items-center font-semibold text-primary underline decoration-accent decoration-2 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                        >
+                          {t(
+                            "Explore the motorcycle route guide",
+                            "גלו את מדריך מסלול האופנועים"
+                          )}
+                          <ArrowRight
+                            className="ms-2 size-4 rtl:rotate-180"
+                            aria-hidden="true"
+                          />
+                        </Link>
+                      </div>
                     </div>
                   </section>
                 )}
