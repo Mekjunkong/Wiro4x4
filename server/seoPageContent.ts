@@ -43,6 +43,12 @@ export function injectPageContent(html: string, page: SearchPage): string {
         ? "טיולי אופנועים בצפון תאילנד"
         : "Northern Thailand motorcycle tours",
     },
+    {
+      path: "/motorcycle-tours/samoeng-loop",
+      label: he
+        ? "מדריך אופנועים ללולאת סמואנג"
+        : "Samoeng Loop motorcycle route guide",
+    },
     ...COMMERCIAL_SEO_ROUTE_PAIRS.map(pair => ({
       path: pair.paths[he ? "he" : "en"],
       label: pair.metadata[he ? "he" : "en"].title,

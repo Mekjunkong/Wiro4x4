@@ -264,6 +264,29 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       path: "/motorcycle-tours",
     }),
   },
+  "/motorcycle-tours/samoeng-loop": {
+    title: "Samoeng Loop Motorcycle Route Guide | WIRO 4x4",
+    description:
+      "Open the complete Samoeng Loop motorcycle route from Chiang Mai and explore WIRO’s curated waterfalls, viewpoints, temples, activities and cafe stops.",
+    canonicalPath: "/motorcycle-tours/samoeng-loop",
+    ogImage: "/images/optimized/samoeng_valley.webp",
+    jsonLd: [
+      pageJsonLd({
+        name: "Samoeng Loop Motorcycle Route Guide",
+        description:
+          "A practical motorcycle route guide to the Samoeng Loop from Chiang Mai, with a complete Google Maps route and curated places to stop.",
+        path: "/motorcycle-tours/samoeng-loop",
+        inLanguage: ["en", "he"],
+      }),
+      breadcrumbJsonLd([
+        { name: "Motorcycle Tours", path: "/motorcycle-tours" },
+        {
+          name: "Samoeng Loop Motorcycle Route Guide",
+          path: "/motorcycle-tours/samoeng-loop",
+        },
+      ]),
+    ],
+  },
   "/blog": {
     title: "Chiang Mai Travel Blog & Kosher Travel Tips",
     description:

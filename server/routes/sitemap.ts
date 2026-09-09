@@ -137,6 +137,12 @@ const STATIC_PAGES = [
     lastmod: null,
   },
   {
+    path: "/motorcycle-tours/samoeng-loop",
+    priority: "0.9",
+    changefreq: "monthly",
+    lastmod: null,
+  },
+  {
     path: "/faq",
     priority: "0.8",
     changefreq: "monthly",
