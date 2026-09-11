@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ContactOptions } from "@/components/ContactOptions";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
+import { getServiceCoverFlowPosition } from "@/lib/serviceCoverFlow";
 
 const services = [
   {
@@ -208,6 +210,7 @@ export function ServiceBanners() {
   const [snaps, setSnaps] = useState<number[]>([]);
   const [canPrevious, setCanPrevious] = useState(false);
   const [canNext, setCanNext] = useState(false);
+  const [openServiceId, setOpenServiceId] = useState<string | null>(null);
   useEffect(() => {
     if (!api) return;
     const update = () => {
@@ -261,7 +264,13 @@ export function ServiceBanners() {
         <Carousel
           key={language}
           setApi={setApi}
-          opts={{ align: "start", direction: rtl ? "rtl" : "ltr" }}
+          opts={{
+            align: "center",
+            direction: rtl ? "rtl" : "ltr",
+            loop: true,
+            slidesToScroll: 1,
+          }}
+          className="service-coverflow"
           aria-label={t("WIRO travel services", "אפשרויות הטיול של WIRO")}
           onKeyDownCapture={event => {
             if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -273,30 +282,52 @@ export function ServiceBanners() {
             else api?.scrollPrev(jump());
           }}
         >
-          <CarouselContent className={rtl ? "ml-0 -mr-5" : "-ml-5"}>
+          <CarouselContent className="service-coverflow__track ml-0">
             {services.map((original, index) => {
               const service = { ...original, ...(rtl ? original.he : {}) };
               const href = service.href;
+              const visualPosition = getServiceCoverFlowPosition(
+                index,
+                position,
+                services.length
+              );
+              const isActive = visualPosition === "active";
               return (
                 <CarouselItem
                   key={service.id}
-                  className={`basis-full sm:basis-1/2 lg:basis-1/4 ${rtl ? "pl-0 pr-5" : "pl-5"}`}
+                  className="service-coverflow__slide pl-0"
+                  data-coverflow-position={visualPosition}
+                  data-service-id={service.id}
+                  aria-current={isActive ? "true" : undefined}
                   aria-label={`${index + 1} / ${services.length}: ${service.label}`}
                 >
-                  <Dialog>
-                    <Card className="group relative aspect-[2/3] overflow-hidden rounded-sm border-0 p-0 shadow-sm">
-                      <img
-                        src={`/images/optimized/${service.image}`}
+                  <Dialog
+                    open={openServiceId === service.id}
+                    onOpenChange={open => {
+                      if (open && !isActive) {
+                        api?.scrollTo(index, jump());
+                        return;
+                      }
+                      setOpenServiceId(open ? service.id : null);
+                    }}
+                  >
+                    <Card className="service-coverflow__card group relative gap-0 overflow-hidden rounded-sm border-0 p-0 py-0">
+                      <OptimizedImage
+                        src={service.image}
                         alt={service.alt}
                         width={600}
                         height={900}
-                        loading="lazy"
-                        decoding="async"
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 motion-safe:group-hover:scale-105 motion-reduce:transition-none"
+                        sizes="(min-width: 1440px) 60vw, (min-width: 1024px) 64vw, (min-width: 640px) 72vw, 84vw"
+                        className="service-coverflow__image absolute inset-0 h-full w-full object-cover"
+                        style={
+                          service.id === "motorcycle-tours"
+                            ? { objectPosition: "50% 42%" }
+                            : undefined
+                        }
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent" />
+                      <div className="service-coverflow__shade absolute inset-0" />
                       <span
-                        className="absolute start-5 top-5 rounded-full border border-white/30 bg-primary/30 px-3 py-1 text-xs font-medium tabular-nums text-white backdrop-blur-sm"
+                        className="absolute start-5 top-5 rounded-full border border-[#f5f0e7]/30 bg-primary/45 px-3 py-1 text-xs font-medium tabular-nums text-[#f5f0e7]"
                         aria-hidden="true"
                       >
                         0{index + 1}
@@ -304,21 +335,29 @@ export function ServiceBanners() {
                       <DialogTrigger asChild>
                         <button
                           type="button"
-                          className="relative flex h-full w-full flex-col justify-end p-5 text-start text-white outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-accent xl:p-6"
-                          aria-label={`${t("Explore", "לפרטים על")} ${service.label}`}
+                          className="service-coverflow__content relative flex h-full w-full flex-col justify-end p-5 text-start text-[#f5f0e7] outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-accent sm:p-6 lg:p-8"
+                          aria-label={`${t(
+                            isActive ? "Explore" : "Show",
+                            isActive ? "לפרטים על" : "הצגת"
+                          )} ${service.label}`}
+                          onClick={event => {
+                            if (isActive) return;
+                            event.preventDefault();
+                            api?.scrollTo(index, jump());
+                          }}
                         >
-                          <span className="mb-3 text-xs font-medium text-white/85">
+                          <span className="mb-2 text-xs font-medium text-[#f5f0e7]/85 sm:mb-3">
                             {service.audience}
                           </span>
-                          <h3 className="text-2xl font-semibold leading-tight">
+                          <h3 className="max-w-[22ch] text-2xl font-semibold leading-[1.05] sm:text-3xl lg:text-4xl">
                             {service.label}
                           </h3>
-                          <span className="mt-3 min-h-12 text-sm leading-relaxed text-white/85">
+                          <span className="mt-3 max-w-[48ch] text-sm leading-relaxed text-[#f5f0e7]/85 sm:text-base">
                             {service.summary}
                           </span>
-                          <span className="mt-6 flex w-full items-center justify-between border-t border-white/25 pt-4 text-sm font-semibold">
+                          <span className="mt-5 flex w-full items-center justify-between border-t border-[#f5f0e7]/25 pt-4 text-sm font-semibold sm:mt-6">
                             {t("Discover more", "לגלות עוד")}
-                            <span className="flex size-8 items-center justify-center rounded-full border border-white/40 transition-colors group-hover:bg-white/15">
+                            <span className="flex size-9 items-center justify-center rounded-full border border-[#f5f0e7]/40 transition-colors group-hover:bg-[#f5f0e7]/15">
                               <Forward className="h-4 w-4" aria-hidden="true" />
                             </span>
                           </span>
@@ -400,6 +439,11 @@ export function ServiceBanners() {
               );
             })}
           </CarouselContent>
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {`${position + 1} / ${services.length}: ${
+              rtl ? services[position]?.he.label : services[position]?.label
+            }`}
+          </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-5 md:justify-between">
             <p className="hidden text-xs text-muted-foreground md:block">
               {t("Find your kind of adventure", "מצאו את ההרפתקה שלכם")}
@@ -411,8 +455,8 @@ export function ServiceBanners() {
               <Button
                 variant="outline"
                 size="icon"
-                className="size-11 rounded-full"
-                disabled={!canPrevious}
+                className="size-11 rounded-full border-primary/20 bg-background/90 shadow-sm hover:bg-primary hover:text-primary-foreground"
+                disabled={!api || !canPrevious}
                 onClick={() => api?.scrollPrev(jump())}
                 aria-label={t("Previous services", "לאפשרויות הקודמות")}
               >
@@ -425,7 +469,9 @@ export function ServiceBanners() {
                     type="button"
                     className="flex h-11 min-w-6 items-center justify-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
                     onClick={() => api?.scrollTo(index, jump())}
-                    aria-label={`${t("Go to service group", "מעבר לקבוצת אפשרויות")} ${index + 1}`}
+                    aria-label={`${t("Go to journey", "מעבר למסע")} ${index + 1}: ${
+                      rtl ? services[index].he.label : services[index].label
+                    }`}
                     aria-current={position === index ? "true" : undefined}
                   >
                     <span
@@ -437,8 +483,8 @@ export function ServiceBanners() {
               <Button
                 variant="outline"
                 size="icon"
-                className="size-11 rounded-full"
-                disabled={!canNext}
+                className="size-11 rounded-full border-primary/20 bg-background/90 shadow-sm hover:bg-primary hover:text-primary-foreground"
+                disabled={!api || !canNext}
                 onClick={() => api?.scrollNext(jump())}
                 aria-label={t("Next services", "לאפשרויות הבאות")}
               >

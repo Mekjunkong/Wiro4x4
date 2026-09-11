@@ -1835,6 +1835,238 @@ textarea {
 
 /* Lazy load image fade-in - removed to ensure images display immediately */
 
+/* Cinematic service cover flow */
+.service-coverflow {
+  isolation: isolate;
+}
+
+.service-coverflow [data-slot="carousel-content"] {
+  overflow: clip;
+  padding-block: clamp(1.5rem, 4vw, 3.5rem);
+  perspective: 1400px;
+  perspective-origin: 50% 44%;
+  touch-action: pan-y pinch-zoom;
+}
+
+.service-coverflow__track {
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  transform-style: preserve-3d;
+}
+
+.service-coverflow__slide {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 min(84vw, 23rem);
+}
+
+.service-coverflow__slide[data-coverflow-position="active"] {
+  z-index: 5;
+}
+
+.service-coverflow__slide[data-coverflow-position="previous"],
+.service-coverflow__slide[data-coverflow-position="next"] {
+  z-index: 3;
+}
+
+.service-coverflow__card {
+  aspect-ratio: 4 / 5;
+  cursor: pointer;
+  background: oklch(0.2 0.025 155);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  transition:
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.service-coverflow__slide[data-coverflow-position="active"]
+  .service-coverflow__card {
+  opacity: 1;
+  filter: saturate(0.98) brightness(1.02);
+  transform: translate3d(0, 0, 0) rotateY(0) scale(1);
+  box-shadow:
+    0 34px 70px -34px rgba(11, 42, 34, 0.72),
+    0 0 0 1px rgba(199, 146, 54, 0.18);
+}
+
+.service-coverflow__slide[data-coverflow-position="previous"]
+  .service-coverflow__card {
+  opacity: 0.7;
+  filter: saturate(0.78) brightness(0.74);
+  transform: translate3d(6%, 0, -24px) rotateY(7deg) scale(0.92);
+  transform-origin: 100% 50%;
+}
+
+.service-coverflow__slide[data-coverflow-position="next"]
+  .service-coverflow__card {
+  opacity: 0.7;
+  filter: saturate(0.78) brightness(0.74);
+  transform: translate3d(-6%, 0, -24px) rotateY(-7deg) scale(0.92);
+  transform-origin: 0 50%;
+}
+
+.service-coverflow__slide[data-coverflow-position="far-previous"]
+  .service-coverflow__card {
+  opacity: 0.34;
+  filter: saturate(0.58) brightness(0.58);
+  transform: translate3d(10%, 0, -70px) rotateY(9deg) scale(0.84);
+  transform-origin: 100% 50%;
+}
+
+.service-coverflow__slide[data-coverflow-position="far-next"]
+  .service-coverflow__card {
+  opacity: 0.34;
+  filter: saturate(0.58) brightness(0.58);
+  transform: translate3d(-10%, 0, -70px) rotateY(-9deg) scale(0.84);
+  transform-origin: 0 50%;
+}
+
+[dir="rtl"]
+  .service-coverflow__slide[data-coverflow-position="previous"]
+  .service-coverflow__card {
+  transform: translate3d(-6%, 0, -24px) rotateY(-7deg) scale(0.92);
+  transform-origin: 0 50%;
+}
+
+[dir="rtl"]
+  .service-coverflow__slide[data-coverflow-position="next"]
+  .service-coverflow__card {
+  transform: translate3d(6%, 0, -24px) rotateY(7deg) scale(0.92);
+  transform-origin: 100% 50%;
+}
+
+[dir="rtl"]
+  .service-coverflow__slide[data-coverflow-position="far-previous"]
+  .service-coverflow__card {
+  transform: translate3d(-10%, 0, -70px) rotateY(-9deg) scale(0.84);
+  transform-origin: 0 50%;
+}
+
+[dir="rtl"]
+  .service-coverflow__slide[data-coverflow-position="far-next"]
+  .service-coverflow__card {
+  transform: translate3d(10%, 0, -70px) rotateY(9deg) scale(0.84);
+  transform-origin: 100% 50%;
+}
+
+.service-coverflow__image {
+  transform: scale(1.015);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.service-coverflow__shade {
+  background: linear-gradient(
+    180deg,
+    rgba(7, 26, 21, 0.05) 6%,
+    rgba(7, 26, 21, 0.16) 42%,
+    rgba(7, 26, 21, 0.92) 100%
+  );
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .service-coverflow__slide[data-coverflow-position="active"]
+    .service-coverflow__card:hover
+    .service-coverflow__image {
+    transform: scale(1.045);
+  }
+}
+
+@media (min-width: 640px) {
+  .service-coverflow__slide {
+    flex-basis: min(72vw, 44rem);
+  }
+
+  .service-coverflow__card {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .service-coverflow [data-slot="carousel-content"] {
+    perspective: 1800px;
+  }
+
+  .service-coverflow__slide {
+    flex-basis: min(64vw, 58rem);
+  }
+
+  .service-coverflow__card {
+    aspect-ratio: 16 / 9;
+  }
+
+  .service-coverflow__slide[data-coverflow-position="previous"]
+    .service-coverflow__card {
+    opacity: 0.66;
+    transform: translate3d(11%, 0, -90px) rotateY(18deg) scale(0.86);
+  }
+
+  .service-coverflow__slide[data-coverflow-position="next"]
+    .service-coverflow__card {
+    opacity: 0.66;
+    transform: translate3d(-11%, 0, -90px) rotateY(-18deg) scale(0.86);
+  }
+
+  .service-coverflow__slide[data-coverflow-position="far-previous"]
+    .service-coverflow__card {
+    opacity: 0.28;
+    transform: translate3d(17%, 0, -150px) rotateY(24deg) scale(0.78);
+  }
+
+  .service-coverflow__slide[data-coverflow-position="far-next"]
+    .service-coverflow__card {
+    opacity: 0.28;
+    transform: translate3d(-17%, 0, -150px) rotateY(-24deg) scale(0.78);
+  }
+
+  [dir="rtl"]
+    .service-coverflow__slide[data-coverflow-position="previous"]
+    .service-coverflow__card {
+    transform: translate3d(-11%, 0, -90px) rotateY(-18deg) scale(0.86);
+  }
+
+  [dir="rtl"]
+    .service-coverflow__slide[data-coverflow-position="next"]
+    .service-coverflow__card {
+    transform: translate3d(11%, 0, -90px) rotateY(18deg) scale(0.86);
+  }
+
+  [dir="rtl"]
+    .service-coverflow__slide[data-coverflow-position="far-previous"]
+    .service-coverflow__card {
+    transform: translate3d(-17%, 0, -150px) rotateY(-24deg) scale(0.78);
+  }
+
+  [dir="rtl"]
+    .service-coverflow__slide[data-coverflow-position="far-next"]
+    .service-coverflow__card {
+    transform: translate3d(17%, 0, -150px) rotateY(24deg) scale(0.78);
+  }
+}
+
+@media (min-width: 1440px) {
+  .service-coverflow__slide {
+    flex-basis: min(60vw, 60rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-coverflow__card,
+  .service-coverflow__image {
+    transition: none !important;
+  }
+
+  .service-coverflow__slide:not([data-coverflow-position="active"])
+    .service-coverflow__card {
+    opacity: 0.7;
+    filter: saturate(0.8) brightness(0.78);
+    transform: scale(0.92) !important;
+  }
+}
+
 /* Hero carousel fade effect */
 .hero-carousel-fade .embla__container {
   display: grid;
