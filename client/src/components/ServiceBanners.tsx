@@ -317,6 +317,11 @@ export function ServiceBanners() {
                         alt={service.alt}
                         width={600}
                         height={900}
+                        priority={
+                          isActive ||
+                          visualPosition === "previous" ||
+                          visualPosition === "next"
+                        }
                         sizes="(min-width: 1440px) 60vw, (min-width: 1024px) 64vw, (min-width: 640px) 72vw, 84vw"
                         className="service-coverflow__image absolute inset-0 h-full w-full object-cover"
                         style={
