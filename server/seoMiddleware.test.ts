@@ -264,6 +264,36 @@ describe("SEO metadata helpers", () => {
     expect(meta?.description).toContain("private Chiang Mai 4x4 tour");
   });
 
+  it("serves the new route guides as crawlable fallback articles", async () => {
+    const samoeng = await resolveDynamicMeta(
+      "/blog/samoeng-loop-guide-chiang-mai",
+      {
+        loadBlogPostBySlug: async () => {
+          throw new Error("database unavailable");
+        },
+      }
+    );
+    const maeHongSon = await resolveDynamicMeta(
+      "/blog/mae-hong-son-loop-guide-chiang-mai",
+      {
+        loadBlogPostBySlug: async () => {
+          throw new Error("database unavailable");
+        },
+      }
+    );
+
+    expect(samoeng).toMatchObject({
+      canonicalPath: "/blog/samoeng-loop-guide-chiang-mai",
+      title: "Samoeng Loop from Chiang Mai: A Practical Mountain Route Guide",
+      ogType: "article",
+    });
+    expect(maeHongSon).toMatchObject({
+      canonicalPath: "/blog/mae-hong-son-loop-guide-chiang-mai",
+      title: "Mae Hong Son Loop from Chiang Mai: How to Plan 4, 5 or 6 Days",
+      ogType: "article",
+    });
+  });
+
   it("does not invent a blog page for an unknown slug during a database outage", async () => {
     const meta = await resolveDynamicMeta("/blog/not-a-real-article", {
       loadBlogPostBySlug: async () => {

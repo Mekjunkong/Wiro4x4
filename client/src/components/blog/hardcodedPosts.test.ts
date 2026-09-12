@@ -11,6 +11,10 @@ describe("fallback blog posts", () => {
       "off-road-adventure-guide",
       "doi-inthanon-experience",
       "elephant-sanctuary-guide",
+      "samoeng-loop-guide-chiang-mai",
+      "mae-hong-son-loop-guide-chiang-mai",
+      "mae-kampong-or-samoeng",
+      "chiang-mai-4x4-day-trips-by-interest",
     ];
 
     expect(Object.keys(posts)).toEqual(expectedSlugs);

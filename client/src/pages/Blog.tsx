@@ -34,6 +34,12 @@ const BLOG_IMAGE_MAP: Record<string, string> = {
     "/images/optimized/doi_inthanon_royal_pagoda.jpg",
   "waterfalls-northern-thailand":
     "/images/optimized/jungle_waterfall_cascade_rocks-md.webp",
+  "samoeng-loop-guide-chiang-mai": "/images/optimized/samoeng_valley.webp",
+  "mae-hong-son-loop-guide-chiang-mai":
+    "/images/optimized/mae-hong-son-loop-route.webp",
+  "mae-kampong-or-samoeng": "/images/optimized/mae-kampong-village.webp",
+  "chiang-mai-4x4-day-trips-by-interest":
+    "/images/optimized/chiang_mai_tour_photo.webp",
 };
 
 export default function Blog() {
@@ -52,10 +58,21 @@ export default function Blog() {
   const gridRef = useScrollReveal<HTMLDivElement>({ stagger: 0.1 });
   const { data: dbPosts, isLoading } = trpc.blog.list.useQuery();
 
-  // Use DB posts if available, otherwise fallback
-  const posts = (
-    dbPosts && dbPosts.length > 0 ? dbPosts : FALLBACK_BLOG_POSTS
-  ).map(post => {
+  // Keep database posts authoritative for duplicate slugs, while surfacing
+  // only explicitly curated static guides when the database has other content.
+  const sourcePosts =
+    dbPosts && dbPosts.length > 0
+      ? [
+          ...dbPosts,
+          ...FALLBACK_BLOG_POSTS.filter(
+            fallback =>
+              fallback.showWhenDatabaseHasContent &&
+              !dbPosts.some(post => post.slug === fallback.slug)
+          ),
+        ]
+      : FALLBACK_BLOG_POSTS;
+
+  const posts = sourcePosts.map(post => {
     const content = (post as { content?: string }).content || "";
     const wordCount = content.split(/\s+/).filter(Boolean).length;
     const minutes = wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : 0;
