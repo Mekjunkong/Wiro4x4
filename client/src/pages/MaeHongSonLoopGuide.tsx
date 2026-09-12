@@ -51,17 +51,6 @@ const categoryIcons = {
   detours: Route,
 } satisfies Record<MaeHongSonCategory, typeof Leaf>;
 
-const routePoints = [
-  { x: 74, y: 169 },
-  { x: 32, y: 123 },
-  { x: 45, y: 83 },
-  { x: 70, y: 48 },
-  { x: 120, y: 48 },
-  { x: 151, y: 85 },
-  { x: 151, y: 133 },
-  { x: 103, y: 170 },
-];
-
 export default function MaeHongSonLoopGuide() {
   const { t, language } = useLanguage();
   const [pace, setPace] = useState<MaeHongSonPace>("6");
@@ -91,7 +80,7 @@ export default function MaeHongSonLoopGuide() {
     canonicalPath: "/motorcycle-tours/mae-hong-son-loop",
     language,
     ogImage:
-      "https://www.wiro4x4indochina.com/images/optimized/motorcycle-touring-illustration.webp",
+      "https://www.wiro4x4indochina.com/images/optimized/mae-hong-son-loop-route.webp",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -319,130 +308,60 @@ export default function MaeHongSonLoopGuide() {
               </h2>
               <p className="mt-4 leading-relaxed text-muted-foreground">
                 {t(
-                  "This atlas sketch explains the journey; use the stage buttons for live Google Maps directions. WIRO will add an editable public My Map after the final route is approved.",
-                  "תרשים האטלס מסביר את המסע; השתמשו בכפתורי המקטעים לניווט עדכני ב-Google Maps. WIRO יוסיף My Map ציבורית וניתנת לעריכה לאחר אישור המסלול הסופי."
+                  "The loop is best understood as a sequence of landscapes. Use the stage buttons for live Google Maps directions; this image is here to set the pace, not replace navigation.",
+                  "את הלולאה מבינים דרך רצף הנופים. השתמשו בכפתורי המקטעים לניווט עדכני ב-Google Maps; התמונה נועדה להמחיש את הקצב, לא להחליף ניווט."
                 )}
               </p>
 
-              <div className="relative mt-7 aspect-square max-w-[460px] overflow-hidden border border-[#d6c79d] bg-[#efe9d8] p-5 shadow-[0_22px_55px_rgba(11,42,34,0.14)]">
-                <div
-                  className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(23,53,44,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(23,53,44,0.12)_1px,transparent_1px)] [background-size:24px_24px]"
-                  aria-hidden="true"
-                />
-                <svg
-                  viewBox="0 0 190 205"
-                  className="relative h-full w-full"
-                  role="img"
-                  aria-label={t(
-                    "Schematic clockwise Mae Hong Son Loop route",
-                    "תרשים סכמטי של לולאת מאה הונג סון בכיוון השעון"
-                  )}
-                >
-                  <path
-                    d="M74 169 C40 165 21 143 32 123 C41 109 30 95 45 83 C54 74 55 56 70 48 C86 39 106 39 120 48 C138 57 145 69 151 85 C158 104 161 120 151 133 C138 150 122 164 103 170 C92 173 82 173 74 169Z"
-                    fill="none"
-                    stroke="#17352c"
-                    strokeWidth="3"
-                    strokeDasharray="2 4"
-                    strokeLinecap="round"
+              <figure className="relative mt-7 max-w-[560px] pb-10">
+                <div className="relative aspect-[3/2] overflow-hidden bg-[#17352c] shadow-[0_22px_55px_rgba(11,42,34,0.18)]">
+                  <img
+                    src="/images/optimized/mae-hong-son-loop-route.webp"
+                    alt={t(
+                      "Misty mountain road winding above the Mae Hong Son valleys",
+                      "דרך הררית ערפילית המתפתלת מעל עמקי מאה הונג סון"
+                    )}
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
-                  {routePoints.map((point, index) => (
-                    <g key={`${point.x}-${point.y}`}>
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r={
-                          index === 0 || index === routePoints.length - 1
-                            ? 6
-                            : 4.7
-                        }
-                        fill={
-                          index === 0 || index === routePoints.length - 1
-                            ? "#d5a53d"
-                            : "#17352c"
-                        }
-                      />
-                      <text
-                        x={point.x}
-                        y={point.y + 1.7}
-                        textAnchor="middle"
-                        fontSize="4.5"
-                        fill={
-                          index === 0 || index === routePoints.length - 1
-                            ? "#17352c"
-                            : "white"
-                        }
-                        fontWeight="700"
-                      >
-                        {index === 0 || index === routePoints.length - 1
-                          ? "C"
-                          : index}
-                      </text>
-                    </g>
-                  ))}
-                  <text
-                    x="103"
-                    y="187"
-                    textAnchor="middle"
-                    fontSize="8"
-                    fill="#17352c"
-                    fontWeight="700"
-                  >
-                    CHIANG MAI
-                  </text>
-                  <text
-                    x="18"
-                    y="119"
-                    textAnchor="middle"
-                    fontSize="6"
-                    fill="#17352c"
-                  >
-                    MAE SARIANG
-                  </text>
-                  <text
-                    x="38"
-                    y="70"
-                    textAnchor="middle"
-                    fontSize="6"
-                    fill="#17352c"
-                  >
-                    KHUN YUAM
-                  </text>
-                  <text
-                    x="92"
-                    y="28"
-                    textAnchor="middle"
-                    fontSize="6"
-                    fill="#17352c"
-                  >
-                    MAE HONG SON
-                  </text>
-                  <text
-                    x="164"
-                    y="80"
-                    textAnchor="middle"
-                    fontSize="6"
-                    fill="#17352c"
-                  >
-                    PANG MAPHA
-                  </text>
-                  <text
-                    x="167"
-                    y="139"
-                    textAnchor="middle"
-                    fontSize="7"
-                    fill="#17352c"
-                  >
-                    PAI
-                  </text>
-                </svg>
-                <p className="absolute bottom-3 start-4 text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[#52645d]">
+                  <div
+                    className="absolute inset-0 bg-gradient-to-t from-[#081f19]/80 via-transparent to-transparent"
+                    aria-hidden="true"
+                  />
+                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-[#f8f5ec] md:p-6">
+                    <span className="max-w-[13rem] text-sm font-semibold leading-snug md:text-base">
+                      {t(
+                        "Long bends. Layered valleys. One unhurried loop.",
+                        "פיתולים ארוכים. עמקים בשכבות. לולאה אחת בקצב רגוע."
+                      )}
+                    </span>
+                    <span className="shrink-0 text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#e2b65d]">
+                      {t("Route atmosphere", "אווירת המסלול")}
+                    </span>
+                  </figcaption>
+                </div>
+                <div className="absolute bottom-0 end-4 w-[43%] min-w-[150px] max-w-[230px] overflow-hidden border-4 border-[#f8f5ec] bg-[#17352c] shadow-[0_16px_35px_rgba(11,42,34,0.22)] md:end-6">
+                  <img
+                    src="/images/optimized/mae-hong-son-loop-temple.webp"
+                    alt={t(
+                      "Hilltop temple glowing above a Mae Hong Son valley at blue hour",
+                      "מקדש בראש גבעה המואר מעל עמק במאה הונג סון בשעת הדמדומים"
+                    )}
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                </div>
+                <p className="mt-3 text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[#52645d]">
                   {t(
-                    "Route sketch · not for navigation",
-                    "תרשים מסלול · לא לניווט"
+                    "Photography sets the scene · stage links handle navigation",
+                    "התמונות יוצרות את האווירה · הקישורים למקטעים מובילים לניווט"
                   )}
                 </p>
-              </div>
+              </figure>
             </div>
 
             <ol className="grid gap-4">
