@@ -287,6 +287,29 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       ]),
     ],
   },
+  "/motorcycle-tours/mae-hong-son-loop": {
+    title: "Mae Hong Son Loop Motorcycle & 4x4 Guide | WIRO 4x4",
+    description:
+      "Plan the Mae Hong Son Loop from Chiang Mai with 4, 5 or 6-day route ideas, stage maps, local highlights and live road and weather checks.",
+    canonicalPath: "/motorcycle-tours/mae-hong-son-loop",
+    ogImage: "/images/optimized/motorcycle-touring-illustration.webp",
+    jsonLd: [
+      pageJsonLd({
+        name: "Mae Hong Son Loop Motorcycle & 4x4 Guide",
+        description:
+          "A practical local guide to the Mae Hong Son Loop from Chiang Mai, with staged Google Maps links, itinerary ideas and curated places to stop.",
+        path: "/motorcycle-tours/mae-hong-son-loop",
+        inLanguage: ["en", "he"],
+      }),
+      breadcrumbJsonLd([
+        { name: "Motorcycle Tours", path: "/motorcycle-tours" },
+        {
+          name: "Mae Hong Son Loop Guide",
+          path: "/motorcycle-tours/mae-hong-son-loop",
+        },
+      ]),
+    ],
+  },
   "/blog": {
     title: "Chiang Mai Travel Blog & Kosher Travel Tips",
     description:

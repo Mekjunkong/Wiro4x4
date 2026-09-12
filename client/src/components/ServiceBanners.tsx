@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ContactOptions } from "@/components/ContactOptions";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,6 +21,10 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { getServiceCoverFlowPosition } from "@/lib/serviceCoverFlow";
+import {
+  canServiceCarouselAutoplay,
+  SERVICE_CAROUSEL_AUTOPLAY_DELAY_MS,
+} from "@/lib/serviceCarouselAutoplay";
 
 const services = [
   {
@@ -211,6 +215,16 @@ export function ServiceBanners() {
   const [canPrevious, setCanPrevious] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const [openServiceId, setOpenServiceId] = useState<string | null>(null);
+  const [userPaused, setUserPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [documentHidden, setDocumentHidden] = useState(false);
+  const [inViewport, setInViewport] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [settleVersion, setSettleVersion] = useState(0);
+  const carouselRootRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!api) return;
     const update = () => {
@@ -219,15 +233,84 @@ export function ServiceBanners() {
       setCanPrevious(api.canScrollPrev());
       setCanNext(api.canScrollNext());
     };
+    const handlePointerDown = () => setDragging(true);
+    const handlePointerUp = () => setDragging(false);
+    const handleSettle = () => {
+      setDragging(false);
+      setSettleVersion(version => version + 1);
+    };
     update();
     api.on("select", update);
     api.on("reInit", update);
+    api.on("pointerDown", handlePointerDown);
+    api.on("pointerUp", handlePointerUp);
+    api.on("settle", handleSettle);
     return () => {
       api.off("select", update);
       api.off("reInit", update);
+      api.off("pointerDown", handlePointerDown);
+      api.off("pointerUp", handlePointerUp);
+      api.off("settle", handleSettle);
     };
   }, [api]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setReducedMotion(mediaQuery.matches);
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+    return () =>
+      mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    const updateVisibility = () => setDocumentHidden(document.hidden);
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    const root = carouselRootRef.current;
+    if (!root) return;
+    if (!("IntersectionObserver" in window)) {
+      setInViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      entries => setInViewport(entries[0]?.isIntersecting ?? false),
+      { threshold: 0.35 }
+    );
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [language]);
+
+  const autoplayRunning = canServiceCarouselAutoplay({
+    hasMultipleSlides: snaps.length > 1,
+    userPaused,
+    reducedMotion,
+    documentHidden,
+    inViewport,
+    hovered,
+    focusWithin,
+    dragging,
+    dialogOpen: openServiceId !== null,
+  });
+
+  useEffect(() => {
+    if (!api || !autoplayRunning) return;
+
+    const timer = window.setTimeout(
+      () => api.scrollNext(),
+      SERVICE_CAROUSEL_AUTOPLAY_DELAY_MS
+    );
+    return () => window.clearTimeout(timer);
+  }, [api, autoplayRunning, position, settleVersion]);
+
   const jump = () =>
+    reducedMotion ||
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const Forward = rtl ? ArrowLeft : ArrowRight;
   const Back = rtl ? ArrowRight : ArrowLeft;
@@ -263,6 +346,7 @@ export function ServiceBanners() {
         </div>
         <Carousel
           key={language}
+          ref={carouselRootRef}
           setApi={setApi}
           opts={{
             align: "center",
@@ -271,7 +355,27 @@ export function ServiceBanners() {
             slidesToScroll: 1,
           }}
           className="service-coverflow"
+          data-autoplay-state={autoplayRunning ? "playing" : "paused"}
           aria-label={t("WIRO travel services", "אפשרויות הטיול של WIRO")}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onFocusCapture={event => {
+            const target = event.target;
+            setFocusWithin(
+              target instanceof HTMLElement
+                ? target.matches(":focus-visible")
+                : true
+            );
+          }}
+          onBlurCapture={event => {
+            const nextTarget = event.relatedTarget;
+            if (
+              !(nextTarget instanceof Node) ||
+              !event.currentTarget.contains(nextTarget)
+            ) {
+              setFocusWithin(false);
+            }
+          }}
           onKeyDownCapture={event => {
             if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
             event.preventDefault();
@@ -361,7 +465,9 @@ export function ServiceBanners() {
                             {service.summary}
                           </span>
                           <span className="mt-5 flex w-full items-center justify-between border-t border-[#f5f0e7]/25 pt-4 text-sm font-semibold sm:mt-6">
-                            {t("Discover more", "לגלות עוד")}
+                            {isActive
+                              ? t("Open full journey", "לכל פרטי המסע")
+                              : t("Bring into view", "להצגת המסע")}
                             <span className="flex size-9 items-center justify-center rounded-full border border-[#f5f0e7]/40 transition-colors group-hover:bg-[#f5f0e7]/15">
                               <Forward className="h-4 w-4" aria-hidden="true" />
                             </span>
@@ -444,17 +550,24 @@ export function ServiceBanners() {
               );
             })}
           </CarouselContent>
-          <p className="sr-only" aria-live="polite" aria-atomic="true">
+          <p
+            className="sr-only"
+            aria-live={autoplayRunning ? "off" : "polite"}
+            aria-atomic="true"
+          >
             {`${position + 1} / ${services.length}: ${
               rtl ? services[position]?.he.label : services[position]?.label
             }`}
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-5 md:justify-between">
-            <p className="hidden text-xs text-muted-foreground md:block">
-              {t("Find your kind of adventure", "מצאו את ההרפתקה שלכם")}
+            <p className="max-w-sm text-center text-xs leading-relaxed text-muted-foreground md:text-start">
+              {t(
+                "Swipe or use the arrows. Select the active journey for full details.",
+                "החליקו או השתמשו בחצים. בחרו במסע הפעיל כדי לראות את כל הפרטים."
+              )}
             </p>
             <div
-              className="flex items-center gap-4"
+              className="flex items-center gap-2 sm:gap-4"
               aria-label={t("Carousel navigation", "ניווט בקרוסלה")}
             >
               <Button
@@ -494,6 +607,36 @@ export function ServiceBanners() {
                 aria-label={t("Next services", "לאפשרויות הבאות")}
               >
                 <Forward aria-hidden="true" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-11 rounded-full text-primary/75 hover:bg-primary/10 hover:text-primary"
+                disabled={reducedMotion}
+                aria-pressed={userPaused}
+                aria-label={
+                  reducedMotion
+                    ? t(
+                        "Automatic rotation disabled by reduced motion preference",
+                        "הסיבוב האוטומטי מושבת בהתאם להעדפת הפחתת תנועה"
+                      )
+                    : userPaused
+                      ? t(
+                          "Resume automatic journey rotation",
+                          "הפעלת הסיבוב האוטומטי של המסעות"
+                        )
+                      : t(
+                          "Pause automatic journey rotation",
+                          "השהיית הסיבוב האוטומטי של המסעות"
+                        )
+                }
+                onClick={() => setUserPaused(paused => !paused)}
+              >
+                {userPaused ? (
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Pause className="h-4 w-4" aria-hidden="true" />
+                )}
               </Button>
             </div>
           </div>

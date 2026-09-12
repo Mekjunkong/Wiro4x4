@@ -31,6 +31,15 @@ describe("initial HTML available without JavaScript", () => {
       'hreflang="en" href="https://www.wiro4x4indochina.com/kosher-tours"'
     );
     expect(html).toContain('href="/he/hebrew-guide-chiang-mai"');
+    expect(html).toContain('href="/motorcycle-tours/mae-hong-son-loop"');
+    expect(html).toContain("מדריך ללולאת מאה הונג סון");
+  });
+
+  it("exposes the Mae Hong Son guide in English fallback navigation", () => {
+    const html = renderStaticRouteHtml(shell, "/motorcycle-tours")!;
+
+    expect(html).toContain('href="/motorcycle-tours/mae-hong-son-loop"');
+    expect(html).toContain("Mae Hong Son Loop motorcycle and 4x4 guide");
   });
 
   it("preserves route content when the tour database is unavailable", async () => {

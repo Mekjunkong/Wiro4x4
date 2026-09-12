@@ -5,7 +5,6 @@ import {
   ChevronDown,
   Clock3,
   Gauge,
-  Map,
   MapPin,
   Route,
 } from "lucide-react";
@@ -235,57 +234,94 @@ export default function MotorcycleTours() {
         </section>
         <section
           className="container max-w-6xl mt-16"
-          aria-labelledby="samoeng-guide-heading"
+          aria-labelledby="local-guides-heading"
         >
-          <div className="grid overflow-hidden rounded-sm border border-accent/35 bg-muted lg:grid-cols-[0.82fr_1.18fr]">
-            <img
-              src="/images/optimized/samoeng_valley.webp"
-              alt={t(
-                "Green mountain valley along the Samoeng Loop",
-                "עמק הררי ירוק לאורך לולאת סמואנג"
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+              {t("WIRO local route guides", "מדריכי המסלולים המקומיים של WIRO")}
+            </p>
+            <h2
+              id="local-guides-heading"
+              className="mt-2 text-3xl font-heading md:text-4xl"
+            >
+              {t(
+                "Understand the road before you choose",
+                "מכירים את הדרך לפני שבוחרים"
               )}
-              width={1200}
-              height={800}
-              loading="lazy"
-              className="h-full min-h-[260px] w-full object-cover"
-            />
-            <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-12">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
-                {t("WIRO local route guide", "מדריך מסלול מקומי של WIRO")}
-              </p>
-              <h2
-                id="samoeng-guide-heading"
-                className="mt-2 text-3xl font-heading md:text-4xl"
+            </h2>
+          </div>
+          <div className="mt-7 grid gap-5 lg:grid-cols-2">
+            {[
+              {
+                href: "/motorcycle-tours/samoeng-loop",
+                image: "/images/optimized/samoeng_valley.webp",
+                alt: t(
+                  "Green mountain valley along the Samoeng Loop",
+                  "עמק הררי ירוק לאורך לולאת סמואנג"
+                ),
+                title: t("Samoeng Loop", "לולאת סמואנג"),
+                description: t(
+                  "A one-day mountain circuit with WIRO’s complete Google Maps route and 38 saved places.",
+                  "מסלול הררי ליום אחד עם מסלול Google Maps המלא של WIRO ו-38 מקומות שמורים."
+                ),
+                meta: t("1 day · Motorcycle", "יום אחד · אופנוע"),
+                cta: t("Explore Samoeng", "גלו את סמואנג"),
+              },
+              {
+                href: "/motorcycle-tours/mae-hong-son-loop",
+                image: "/images/optimized/motorcycle-touring-illustration.webp",
+                alt: t(
+                  "Motorcycles on a mountain road in Northern Thailand",
+                  "אופנועים בדרך הררית בצפון תאילנד"
+                ),
+                title: t("Mae Hong Son Loop", "לולאת מאה הונג סון"),
+                description: t(
+                  "A cinematic expedition atlas with 4, 5 and 6-day ideas, stage maps and curated local highlights.",
+                  "אטלס מסע קולנועי עם רעיונות ל-4, 5 ו-6 ימים, מפות לפי מקטע ונקודות עניין מקומיות."
+                ),
+                meta: t(
+                  "4–6 days · Motorcycle or 4x4",
+                  "4–6 ימים · אופנוע או 4x4"
+                ),
+                cta: t("Explore Mae Hong Son", "גלו את מאה הונג סון"),
+              },
+            ].map(guide => (
+              <article
+                key={guide.href}
+                className="group overflow-hidden rounded-sm border border-accent/35 bg-muted"
               >
-                {t(
-                  "Ride the Samoeng Loop in one day",
-                  "רוכבים את לולאת סמואנג ביום אחד"
-                )}
-              </h2>
-              <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-                {t(
-                  "Open WIRO’s complete Google Maps route, then choose waterfalls, viewpoints, temples, activities and cafe stops that match your pace.",
-                  "פתחו את מסלול Google Maps המלא של WIRO ובחרו מפלים, תצפיות, מקדשים, אטרקציות ובתי קפה שמתאימים לקצב שלכם."
-                )}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-2">
-                  <Route className="size-4 text-primary" aria-hidden="true" />
-                  {t("About 130 km", "כ-130 ק״מ")}
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Map className="size-4 text-primary" aria-hidden="true" />
-                  {t("38 saved places", "38 מקומות שמורים")}
-                </span>
-              </div>
-              <Link
-                href="/motorcycle-tours/samoeng-loop"
-                className="mt-7 inline-flex min-h-12 w-fit items-center justify-center rounded-sm bg-primary px-5 py-3 font-bold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-              >
-                {t("Explore the Samoeng Loop", "גלו את לולאת סמואנג")}
-                <ArrowUpRight className="ms-2 size-4" aria-hidden="true" />
-              </Link>
-            </div>
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={guide.image}
+                    alt={guide.alt}
+                    width={1200}
+                    height={800}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+                  />
+                  <div
+                    className="absolute inset-0 bg-gradient-to-t from-[#0b2a22]/75 via-transparent to-transparent"
+                    aria-hidden="true"
+                  />
+                  <span className="absolute bottom-4 start-4 text-xs font-bold uppercase tracking-[0.13em] text-white">
+                    {guide.meta}
+                  </span>
+                </div>
+                <div className="p-6 md:p-8">
+                  <h3 className="text-3xl font-heading">{guide.title}</h3>
+                  <p className="mt-3 min-h-[4.5rem] leading-relaxed text-muted-foreground">
+                    {guide.description}
+                  </p>
+                  <Link
+                    href={guide.href}
+                    className="mt-6 inline-flex min-h-12 items-center justify-center rounded-sm bg-primary px-5 py-3 font-bold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                  >
+                    {guide.cta}
+                    <ArrowUpRight className="ms-2 size-4" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
         <section
