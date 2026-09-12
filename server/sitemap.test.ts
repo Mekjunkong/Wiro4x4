@@ -62,6 +62,10 @@ describe("sitemap", () => {
       "/blog/off-road-adventure-guide",
       "/blog/doi-inthanon-experience",
       "/blog/elephant-sanctuary-guide",
+      "/blog/samoeng-loop-guide-chiang-mai",
+      "/blog/mae-hong-son-loop-guide-chiang-mai",
+      "/blog/mae-kampong-or-samoeng",
+      "/blog/chiang-mai-4x4-day-trips-by-interest",
     ];
 
     for (const path of fallbackPaths) {

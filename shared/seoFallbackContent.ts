@@ -17,6 +17,7 @@ export interface FallbackBlogPostMeta {
   category: string;
   tags: string;
   publishedAt: string;
+  showWhenDatabaseHasContent?: boolean;
 }
 
 export const FALLBACK_BLOG_POSTS: readonly FallbackBlogPostMeta[] = [
@@ -97,6 +98,63 @@ export const FALLBACK_BLOG_POSTS: readonly FallbackBlogPostMeta[] = [
     category: "Activities",
     tags: "elephants,animal-welfare,chiang-mai,family-travel",
     publishedAt: "2024-12-07",
+  },
+  {
+    slug: "samoeng-loop-guide-chiang-mai",
+    title: "Samoeng Loop from Chiang Mai: A Practical Mountain Route Guide",
+    titleHe: "לולאת סמואנג מצ'יאנג מאי: מדריך מעשי למסלול ההרים",
+    excerpt:
+      "Plan a flexible Samoeng Loop day from Chiang Mai with forest roads, viewpoints, farms, village stops, route stages, weather checks, and private 4x4 or motorcycle options.",
+    excerptHe:
+      "תכננו יום גמיש בלולאת סמואנג מצ'יאנג מאי עם דרכי יער, תצפיות, חוות, כפרים, מקטעי מסלול, בדיקות מזג אוויר ואפשרויות 4x4 או אופנוע.",
+    coverImage: "/images/optimized/samoeng_valley.webp",
+    category: "Destinations",
+    tags: "samoeng-loop,chiang-mai,4x4,motorcycle,mountains,travel-guide",
+    publishedAt: "2026-09-13",
+    showWhenDatabaseHasContent: true,
+  },
+  {
+    slug: "mae-hong-son-loop-guide-chiang-mai",
+    title: "Mae Hong Son Loop from Chiang Mai: How to Plan 4, 5 or 6 Days",
+    titleHe: "לולאת מאה הונג סון מצ'יאנג מאי: איך לתכנן 4, 5 או 6 ימים",
+    excerpt:
+      "Use this route-planning guide to choose a realistic Mae Hong Son Loop pace, compare motorcycle and private 4x4 travel, and decide which stops deserve more time.",
+    excerptHe:
+      "בחרו קצב מציאותי ללולאת מאה הונג סון, השוו בין אופנוע ל-4x4 פרטי והחליטו אילו עצירות ראויות ליותר זמן.",
+    coverImage: "/images/optimized/mae-hong-son-loop-route.webp",
+    category: "Destinations",
+    tags: "mae-hong-son-loop,northern-thailand,motorcycle,4x4,pai,route-planning",
+    publishedAt: "2026-09-13",
+    showWhenDatabaseHasContent: true,
+  },
+  {
+    slug: "mae-kampong-or-samoeng",
+    title:
+      "Mae Kampong or Samoeng Loop? Choosing the Right Chiang Mai Mountain Day",
+    titleHe: "מאה קמפונג או לולאת סמואנג? איך לבחור יום הרים בצ'יאנג מאי",
+    excerpt:
+      "Compare Mae Kampong's slower village-and-forest rhythm with the wider Samoeng mountain circuit, then choose the WIRO route that matches your group.",
+    excerptHe:
+      "השוו בין הקצב הרגוע של מאה קמפונג לבין מעגל ההרים הרחב של סמואנג ובחרו את מסלול WIRO שמתאים לקבוצה שלכם.",
+    coverImage: "/images/optimized/mae-kampong-village.webp",
+    category: "Trip Planning",
+    tags: "mae-kampong,samoeng-loop,chiang-mai-day-trip,family-travel,4x4",
+    publishedAt: "2026-09-13",
+    showWhenDatabaseHasContent: true,
+  },
+  {
+    slug: "chiang-mai-4x4-day-trips-by-interest",
+    title: "6 Chiang Mai Places to Visit That Fit a Private WIRO 4x4 Tour",
+    titleHe: "6 מקומות לבקר בהם בצ'יאנג מאי שמתאימים לטיול 4x4 פרטי של WIRO",
+    excerpt:
+      "Match your Chiang Mai day to the places your group wants to experience: Thailand's highest peak, villages, waterfalls, temple viewpoints, jungle tracks, or the Samoeng circuit.",
+    excerptHe:
+      "התאימו את היום בצ'יאנג מאי למקומות שהקבוצה רוצה לחוות: ההר הגבוה בתאילנד, כפרים, מפלים, תצפיות, דרכי ג'ונגל או מעגל סמואנג.",
+    coverImage: "/images/optimized/chiang_mai_tour_photo.webp",
+    category: "Trip Planning",
+    tags: "chiang-mai,day-trips,4x4,tour-planning,doi-inthanon,mae-kampong",
+    publishedAt: "2026-09-13",
+    showWhenDatabaseHasContent: true,
   },
 ] as const;
 
