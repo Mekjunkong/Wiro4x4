@@ -45,6 +45,20 @@ describe("WHATSAPP_SOURCES", () => {
           channelFallback: "direct",
         },
         {
+          code: "MAE-HONG-SON-GUIDE-EN",
+          page: "/motorcycle-tours/mae-hong-son-loop",
+          placement: "route-guide",
+          language: "en",
+          channelFallback: "organic",
+        },
+        {
+          code: "MAE-HONG-SON-GUIDE-HE",
+          page: "/motorcycle-tours/mae-hong-son-loop",
+          placement: "route-guide",
+          language: "he",
+          channelFallback: "direct",
+        },
+        {
           code: "FAMILY-PAGE-EN",
           page: "/private-family-tours",
           placement: "page",

@@ -49,6 +49,12 @@ export function injectPageContent(html: string, page: SearchPage): string {
         ? "מדריך אופנועים ללולאת סמואנג"
         : "Samoeng Loop motorcycle route guide",
     },
+    {
+      path: "/motorcycle-tours/mae-hong-son-loop",
+      label: he
+        ? "מדריך ללולאת מאה הונג סון באופנוע או 4x4"
+        : "Mae Hong Son Loop motorcycle and 4x4 guide",
+    },
     ...COMMERCIAL_SEO_ROUTE_PAIRS.map(pair => ({
       path: pair.paths[he ? "he" : "en"],
       label: pair.metadata[he ? "he" : "en"].title,

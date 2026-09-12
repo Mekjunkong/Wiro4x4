@@ -42,6 +42,9 @@ const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
 const MotorcycleTours = React.lazy(() => import("./pages/MotorcycleTours"));
 const SamoengLoopGuide = React.lazy(() => import("./pages/SamoengLoopGuide"));
+const MaeHongSonLoopGuide = React.lazy(
+  () => import("./pages/MaeHongSonLoopGuide")
+);
 const CarRental = React.lazy(() => import("./pages/CarRental"));
 const TripAlbum = React.lazy(() => import("./pages/TripAlbum"));
 const About = React.lazy(() => import("./pages/About"));
@@ -143,6 +146,10 @@ function Router() {
             <Route
               path="/motorcycle-tours/samoeng-loop"
               component={SamoengLoopGuide}
+            />
+            <Route
+              path="/motorcycle-tours/mae-hong-son-loop"
+              component={MaeHongSonLoopGuide}
             />
             <Route path="/motorcycle-tours" component={MotorcycleTours} />
             <Route path={"/car-rental"} component={CarRental} />

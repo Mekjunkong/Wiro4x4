@@ -208,6 +208,34 @@ describe("SEO metadata helpers", () => {
     );
   });
 
+  it("keeps the Mae Hong Son local guide indexable without presenting a product page", () => {
+    const shell = `<html lang="en"><head>
+      <title>App</title>
+      <meta name="description" content="default" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="default" />
+      <meta property="og:description" content="default" />
+      <meta property="og:image" content="/default.jpg" />
+      <meta property="og:url" content="https://example.com" />
+      <meta name="twitter:title" content="default" />
+      <meta name="twitter:description" content="default" />
+      <meta name="twitter:image" content="/default.jpg" />
+      <link rel="canonical" href="https://example.com" />
+    </head><body><div id="root"></div></body></html>`;
+
+    const result = renderStaticRouteHtml(
+      shell,
+      "/motorcycle-tours/mae-hong-son-loop"
+    );
+
+    expect(result).toContain(
+      '<link rel="canonical" href="https://www.wiro4x4indochina.com/motorcycle-tours/mae-hong-son-loop" />'
+    );
+    expect(result).toContain("Mae Hong Son Loop Motorcycle &amp; 4x4 Guide");
+    expect(result).toContain("motorcycle-touring-illustration.webp");
+    expect(result).not.toContain('"@type":"Product"');
+  });
+
   it("keeps core package metadata indexable when the database is unavailable", async () => {
     const meta = await resolveDynamicMeta("/packages/northern-thailand-3d2n", {
       loadPackageBySlug: async () => {
