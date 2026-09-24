@@ -30,6 +30,19 @@ export function createApp(options?: CreateAppOptions) {
   // and static fallbacks so every production response carries the same policy.
   if (isProductionEntry) {
     app.use(productionSecurityMiddleware());
+    // Backstop the edge's explicit apex-home redirect. Serving the shell on
+    // the apex while its assets redirect to www breaks the strict self CSP.
+    app.use((req, res, next) => {
+      if (
+        (req.method === "GET" || req.method === "HEAD") &&
+        req.path === "/" &&
+        req.hostname.toLowerCase() === "wiro4x4indochina.com"
+      ) {
+        res.redirect(308, `https://www.wiro4x4indochina.com${req.originalUrl}`);
+        return;
+      }
+      next();
+    });
   }
 
   // CORS whitelist
