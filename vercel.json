@@ -6,6 +6,17 @@
   "outputDirectory": "dist/public",
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "wiro4x4indochina.com"
+        }
+      ],
+      "destination": "https://www.wiro4x4indochina.com/",
+      "permanent": true
+    },
+    {
       "source": "/pricing",
       "destination": "/tours",
       "permanent": false

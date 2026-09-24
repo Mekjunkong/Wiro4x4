@@ -8,6 +8,14 @@ describe("Vercel canonical host routing", () => {
       rewrites?: Array<{ source: string; destination: string }>;
     };
 
+    // Keep root explicit: the live apex homepage previously reached the API
+    // shell even while the wildcard redirected its JS and CSS to www.
+    expect(config.redirects?.[0]).toEqual({
+      source: "/",
+      has: [{ type: "host", value: "wiro4x4indochina.com" }],
+      destination: "https://www.wiro4x4indochina.com/",
+      permanent: true,
+    });
     expect(config.redirects).toContainEqual({
       source: "/:path*",
       has: [{ type: "host", value: "wiro4x4indochina.com" }],
