@@ -26,69 +26,58 @@ async function openExploreMenu(page: Page) {
 }
 
 test.describe("Homepage", () => {
-  test("should load and display the hero section with WIRO 4x4 heading", async ({
-    page,
-  }) => {
+  test("should load and display the night-drive hero", async ({ page }) => {
     await page.goto("/");
 
-    // Hero h1 contains "WIRO 4x4" branding
-    const hero = page.locator("h1");
-    await expect(hero).toBeVisible();
-    await expect(hero).toContainText(/4[×x]4|Chiang Mai/i);
+    const hero = page.locator("main section").first();
+    await expect(hero.getByRole("heading", { level: 1 })).toContainText(
+      /journey in the North/i
+    );
+    await expect(hero.getByText("WIRO 4×4", { exact: true })).toBeVisible();
   });
 
-  test("renders the parallax hero with WhatsApp first and tours second", async ({
+  test("renders the hero with WhatsApp first and routes second", async ({
     page,
   }) => {
     await page.goto("/");
 
     const hero = page.locator("main section").first();
-    await expect(hero.getByRole("heading", { level: 1 })).toContainText(
-      "WIRO 4×4"
-    );
-    const whatsapp = hero.getByRole("link", {
-      name: /check availability on whatsapp/i,
-    });
+    const whatsapp = hero.getByRole("link", { name: /plan with wiro/i });
     await expect(whatsapp).toHaveAttribute("href", /wa\.me/);
     await expect(whatsapp).toHaveAttribute("href", /HOME-HERO-EN/);
     await expect(
-      hero.getByRole("link", { name: /explore tours/i })
-    ).toHaveAttribute("href", "/tours");
+      hero.getByRole("link", { name: /explore the routes/i })
+    ).toHaveAttribute("href", "#wx-trail-title");
     await expect(hero.getByRole("link")).toHaveCount(2);
     await expect(hero.getByRole("button")).toHaveCount(0);
   });
 
-  test("keeps the hero still when reduced motion is requested", async ({
+  test("skips the scroll zoom and video when reduced motion is requested", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
 
-    const background = page.locator(".wx-hero__bg");
-    await page.mouse.move(40, 40);
-    await page.mouse.move(600, 500);
-    await expect(background).toHaveAttribute("style", /scale\(1\.06\)/);
+    const hero = page.locator("main section").first();
+    await expect(hero.locator("video")).toHaveCount(0);
+    await expect(hero.locator(".wx-night__end")).toHaveCSS("opacity", "1");
     await expect(
-      page
-        .locator("main section")
-        .first()
-        .getByRole("link", { name: /check availability on whatsapp/i })
+      hero.getByRole("link", { name: /plan with wiro/i })
     ).toBeVisible();
   });
 
-  test("keeps the hero usable when its photos fail to load", async ({
+  test("keeps the hero usable when the video and poster fail to load", async ({
     page,
   }) => {
-    await page.route(
-      /(?:wiro_4x4_river_splash|single_cascade_waterfall|hilltribe_community_visit)/,
-      route => route.abort()
-    );
+    await page.route(/wiro-seedance/, route => route.abort());
     await page.goto("/");
 
     const hero = page.locator("main section").first();
-    await expect(hero.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(hero.getByRole("heading", { level: 1 })).toBeAttached();
+    await page.evaluate(() => window.scrollTo(0, window.innerHeight * 1.6));
+    await expect(hero.locator(".wx-night__end")).toHaveCSS("opacity", "1");
     await expect(
-      hero.getByRole("link", { name: /check availability on whatsapp/i })
+      hero.getByRole("link", { name: /plan with wiro/i })
     ).toBeVisible();
   });
 
@@ -169,7 +158,7 @@ test.describe("Homepage", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /טיולי 4x4 פרטיים מצ'יאנג מאי/,
+        name: /המסע שלכם בצפון/,
       })
     ).toBeVisible();
     await expect(
@@ -201,12 +190,15 @@ test.describe("Homepage Desktop Navigation", () => {
     await page.goto("/");
 
     const nav = page.locator('nav[aria-label="Main navigation"]');
-    for (const name of ["Tours", "Packages", "Gallery", "Book"]) {
+    for (const name of ["Tours", "Gallery", "Book"]) {
       await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
     }
     await expect(nav.getByRole("button", { name: /explore/i })).toBeVisible();
 
     await openExploreMenu(page);
+    await expect(
+      page.getByRole("menuitem", { name: /packages/i })
+    ).toBeVisible();
     await expect(page.getByRole("menuitem", { name: /blog/i })).toBeVisible();
     await expect(
       page.getByRole("menuitem", { name: /contact/i })

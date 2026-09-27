@@ -1475,7 +1475,11 @@ export default function TourDetail() {
     <div className="wx" style={{ minHeight: "100vh" }}>
       <Header />
       <main id="main-content">
-        <section className="wx-dhero" aria-labelledby="wx-tour-title">
+        <section
+          className="wx-dhero"
+          aria-labelledby="wx-tour-title"
+          data-header-dark
+        >
           <img
             ref={heroImgRef}
             src={heroImage}
@@ -1505,9 +1509,15 @@ export default function TourDetail() {
                 textShadow: "0 8px 40px rgba(0,0,0,0.4)",
               }}
             >
-              {tourDisplayHeading
-                ? t(tourDisplayHeading.en, tourDisplayHeading.he)
-                : displayName}
+              {displayName}
+              {tourDisplayHeading && (
+                // Keep the full SEO heading for search and screen readers
+                // while showing the short design title.
+                <span className="sr-only">
+                  {" — "}
+                  {t(tourDisplayHeading.en, tourDisplayHeading.he)}
+                </span>
+              )}
             </h1>
             {story && (
               <p
@@ -1564,8 +1574,23 @@ export default function TourDetail() {
                   textWrap: "pretty",
                 }}
               >
-                {t(tour.description, tour.descriptionHe)}
+                {story
+                  ? t(story.desc[0], story.desc[1])
+                  : t(tour.description, tour.descriptionHe)}
               </p>
+              {story && (
+                <p
+                  style={{
+                    fontSize: 17,
+                    lineHeight: 1.7,
+                    color: "var(--wx-ink-2)",
+                    margin: "-24px 0 0",
+                    maxWidth: 720,
+                  }}
+                >
+                  {t(tour.description, tour.descriptionHe)}
+                </p>
+              )}
 
               {enrichment?.seoIntro && (
                 <div>

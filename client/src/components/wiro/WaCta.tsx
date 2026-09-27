@@ -24,6 +24,7 @@ interface WaCtaProps {
   className?: string;
   tour?: string;
   icon?: boolean;
+  ariaLabel?: string;
   children: ReactNode;
 }
 
@@ -34,6 +35,7 @@ export function WaCta({
   className = "wx-btn wx-btn--gold",
   tour,
   icon = true,
+  ariaLabel,
   children,
 }: WaCtaProps) {
   const { language } = useLanguage();
@@ -47,6 +49,7 @@ export function WaCta({
       target="_blank"
       rel="noopener noreferrer"
       className={className}
+      aria-label={ariaLabel}
     >
       {icon && <WhatsAppIcon />}
       {children}

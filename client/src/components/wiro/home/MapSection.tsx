@@ -65,7 +65,7 @@ export function MapSection() {
 
   return (
     <section
-      className="wx wx-dark"
+      className="wx"
       aria-labelledby="wx-map-title"
       style={{ padding: "clamp(80px,10vw,128px) 0" }}
     >
@@ -114,9 +114,7 @@ export function MapSection() {
                     >
                       {t(p.name[0], p.name[1])}
                     </span>
-                    <span
-                      style={{ fontSize: 14, color: "rgba(251,248,241,0.7)" }}
-                    >
+                    <span style={{ fontSize: 14, color: "var(--wx-muted)" }}>
                       {t(p.line[0], p.line[1])}
                     </span>
                     <span
@@ -125,7 +123,7 @@ export function MapSection() {
                         alignItems: "center",
                         gap: 6,
                         fontSize: 13,
-                        color: "var(--wx-gold)",
+                        color: "var(--wx-gold-ink)",
                         marginTop: 2,
                       }}
                     >
@@ -140,7 +138,7 @@ export function MapSection() {
               <Link
                 href={`/tours/${sel.slug}`}
                 className="wx-link wx-caps"
-                style={{ marginTop: 20, color: "var(--wx-light)" }}
+                style={{ marginTop: 20, color: "var(--wx-ink)" }}
               >
                 {t("See the tour:", "לטיול:")}{" "}
                 {t(story.shortName[0], story.shortName[1])}

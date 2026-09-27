@@ -93,7 +93,7 @@ export function MachineSection() {
   }, []);
 
   return (
-    <section className="wx wx-dark" aria-labelledby="wx-machine-title">
+    <section className="wx" aria-labelledby="wx-machine-title">
       <div className="wx-wrap wx-machine__intro">
         <div>
           <p className="wx-caps wx-eyebrow" style={{ margin: 0 }}>
@@ -106,7 +106,7 @@ export function MachineSection() {
           >
             {t("Your private 4×4.", "4×4 פרטי.")}
             <br />
-            <em style={{ color: "var(--wx-gold)" }}>
+            <em style={{ color: "var(--wx-gold-ink)" }}>
               {t("Your pace.", "הקצב שלכם.")}
             </em>
           </h2>
@@ -116,7 +116,7 @@ export function MachineSection() {
             style={{
               fontSize: 18,
               lineHeight: 1.65,
-              color: "rgba(251,248,241,0.85)",
+              color: "var(--wx-ink-2)",
               margin: 0,
             }}
           >
@@ -133,7 +133,7 @@ export function MachineSection() {
               gap: 10,
               marginTop: 18,
               fontSize: 11,
-              color: "var(--wx-gold)",
+              color: "var(--wx-gold-ink)",
             }}
           >
             <span
@@ -223,7 +223,7 @@ export function MachineSection() {
           style={{
             fontSize: 15,
             lineHeight: 1.5,
-            color: "rgba(251,248,241,0.85)",
+            color: "var(--wx-ink-2)",
             margin: "6px 0 0",
           }}
         >
