@@ -1135,13 +1135,17 @@ a.wx-trust__card:hover {
   padding-inline-start: clamp(18px, 2.5vw, 32px);
   max-width: 480px;
 }
+/* The source photo is 800px wide: keep it inside the page width and
+   shorter than the screen instead of stretching it edge to edge. */
 .wx-machine__photo {
   position: relative;
-  width: 100%;
+  width: min(100% - 2 * var(--wx-gutter), 1080px);
+  margin-inline: auto;
   aspect-ratio: 3 / 2;
-  max-height: 115vh;
-  min-height: 320px;
+  max-height: 78vh;
+  min-height: 300px;
   overflow: hidden;
+  border-radius: 6px;
 }
 .wx-machine__photo > img {
   position: absolute;
@@ -1155,9 +1159,11 @@ a.wx-trust__card:hover {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(to bottom, var(--wx-night) 0%, rgba(20, 20, 20, 0) 14%),
-    linear-gradient(to top, var(--wx-night) 0%, rgba(20, 20, 20, 0) 22%);
+  background: linear-gradient(
+    to top,
+    rgba(20, 20, 20, 0.45) 0%,
+    rgba(20, 20, 20, 0) 30%
+  );
 }
 .wx-spot {
   position: absolute;
