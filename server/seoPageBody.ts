@@ -3,7 +3,23 @@ import {
   COMMERCIAL_LANDING_CONTENT,
   type LocalizedCopy,
 } from "../shared/commercialLandingContent";
+import { COMPANY_EMAIL, COMPANY_PHONE } from "../shared/const";
 import { FAQ_ITEMS } from "../shared/faqItems";
+import {
+  MAE_HONG_SON_HIGHLIGHTS,
+  MAE_HONG_SON_PACES,
+  MAE_HONG_SON_STAGES,
+  MAE_HONG_SON_VEHICLE_NOTES,
+} from "../shared/maeHongSonLoop";
+import {
+  MOTORCYCLE_HIGHLIGHTS,
+  MOTORCYCLE_TOUR_OPTIONS,
+} from "../shared/motorcycleTours";
+import {
+  SAMOENG_ATTRACTIONS,
+  SAMOENG_CATEGORIES,
+  SAMOENG_ROUTE_STAGES,
+} from "../shared/samoengLoop";
 import { getHardcodedPosts } from "../shared/blog/hardcodedPosts";
 import { WIRO_TOUR_CATALOG } from "../shared/wiroTourCatalog";
 import {
@@ -218,4 +234,87 @@ export function commercialBody(path: string, lang: Lang): string {
   }<h2>${he ? "טיולים קשורים" : "Related tours"}</h2><ul>${page.relatedTours
     .map(r => `<li><a href="${escapeHtml(r.href)}">${c(r.label)}</a></li>`)
     .join("")}</ul></section>`;
+}
+
+type Copy = { en: string; he: string };
+const tx = (lang: Lang, copy: Copy) =>
+  escapeHtml(lang === "he" ? copy.he : copy.en);
+
+/** Motorcycle hub: the trip options day by day plus highlights. */
+export function motorcycleToursBody(lang: Lang): string {
+  const he = lang === "he";
+  return `<section>${MOTORCYCLE_TOUR_OPTIONS.map(
+    o =>
+      `<h2>${tx(lang, o.title)}</h2><p>${tx(lang, o.summary)}</p><p>${tx(lang, o.meta)}</p><ul>${o.details
+        .map(d => `<li>${tx(lang, d)}</li>`)
+        .join("")}</ul>`
+  ).join(
+    ""
+  )}<h2>${he ? "נקודות עיקריות בדרך" : "Highlights on the way"}</h2><ul>${MOTORCYCLE_HIGHLIGHTS.map(
+    h => `<li>${tx(lang, h)}</li>`
+  ).join(
+    ""
+  )}</ul><p><a href="/motorcycle-tours/samoeng-loop">${he ? "מדריך לולאת סמואנג" : "Samoeng Loop route guide"}</a> · <a href="/motorcycle-tours/mae-hong-son-loop">${he ? "מדריך לולאת מאה הונג סון" : "Mae Hong Son Loop guide"}</a></p></section>`;
+}
+
+/** Samoeng Loop guide: route stages and every saved place. */
+export function samoengBody(lang: Lang): string {
+  const he = lang === "he";
+  const categories = new Map(
+    SAMOENG_CATEGORIES.map(c => [c.id, c.label] as const)
+  );
+  return `<section><h2>${he ? "המסלול, שלב אחר שלב" : "The route, stage by stage"}</h2><ol>${SAMOENG_ROUTE_STAGES.map(
+    s =>
+      `<li><strong>${tx(lang, s.name)}</strong> ${tx(lang, s.description)}</li>`
+  ).join(
+    ""
+  )}</ol><h2>${he ? "מקומות לעצור בהם" : "Places to stop"}</h2><ul>${SAMOENG_ATTRACTIONS.map(
+    a => {
+      const cat = categories.get(a.category);
+      return `<li><strong>${escapeHtml(a.name)}</strong>${cat ? ` (${tx(lang, cat)})` : ""}: ${tx(lang, a.description)}</li>`;
+    }
+  ).join("")}</ul></section>`;
+}
+
+/** Mae Hong Son Loop guide: stages, paces, highlights and vehicle notes. */
+export function maeHongSonBody(lang: Lang): string {
+  const he = lang === "he";
+  const notes = (
+    Object.keys(MAE_HONG_SON_VEHICLE_NOTES) as Array<
+      keyof typeof MAE_HONG_SON_VEHICLE_NOTES
+    >
+  )
+    .map(
+      v =>
+        `<h3>${v === "4x4" ? "4x4" : he ? "אופנוע" : "Motorcycle"}</h3><ul>${MAE_HONG_SON_VEHICLE_NOTES[
+          v
+        ]
+          .map(n => `<li>${tx(lang, n)}</li>`)
+          .join("")}</ul>`
+    )
+    .join("");
+  return `<section><h2>${he ? "שלבי הלולאה" : "The loop, stage by stage"}</h2><ol>${MAE_HONG_SON_STAGES.map(
+    s =>
+      `<li><strong>${tx(lang, s.name)}</strong> (${tx(lang, s.route)}): ${tx(lang, s.description)}</li>`
+  ).join(
+    ""
+  )}</ol><h2>${he ? "4, 5 או 6 ימים" : "4, 5 or 6 days"}</h2>${MAE_HONG_SON_PACES.map(
+    p =>
+      `<h3>${tx(lang, p.label)}: ${tx(lang, p.eyebrow)}</h3><p>${tx(lang, p.summary)}</p><ol>${p.days
+        .map(d => `<li>${tx(lang, d)}</li>`)
+        .join("")}</ol>`
+  ).join(
+    ""
+  )}<h2>${he ? "מה לראות בדרך" : "What to see on the way"}</h2><ul>${MAE_HONG_SON_HIGHLIGHTS.map(
+    h =>
+      `<li><strong>${tx(lang, h.name)}</strong>: ${tx(lang, h.description)}</li>`
+  ).join(
+    ""
+  )}</ul><h2>${he ? "אופנוע או 4x4" : "Motorcycle or 4x4"}</h2>${notes}</section>`;
+}
+
+/** Contact: the same channels the page lists. */
+export function contactBody(lang: Lang): string {
+  const he = lang === "he";
+  return `<section><ul><li>${he ? "וואטסאפ / טלפון" : "WhatsApp / phone"}: <a href="tel:${escapeHtml(COMPANY_PHONE.replace(/\s/g, ""))}">${escapeHtml(COMPANY_PHONE)}</a></li><li>${he ? "אימייל" : "Email"}: <a href="mailto:${escapeHtml(COMPANY_EMAIL)}">${escapeHtml(COMPANY_EMAIL)}</a></li><li>${he ? "מיקום: צ׳יאנג מאי, תאילנד" : "Location: Chiang Mai, Thailand"}</li></ul></section>`;
 }
