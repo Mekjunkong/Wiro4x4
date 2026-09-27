@@ -118,6 +118,8 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const moreCloseTimer = useRef<number | undefined>(undefined);
+  const lastPointer = useRef("");
   const isAdmin = isAuthenticated && user?.role === "admin";
   // Light header while it sits over a dark hero (marked data-header-dark),
   // or at the top of pages that open on a dark photo.
@@ -198,13 +200,36 @@ export function Header() {
               {t(item.en, item.he)}
             </Link>
           ))}
-          <div className="wx-more" ref={moreRef}>
+          <div
+            className="wx-more"
+            ref={moreRef}
+            onPointerEnter={e => {
+              if (e.pointerType !== "mouse") return;
+              window.clearTimeout(moreCloseTimer.current);
+              setMoreOpen(true);
+            }}
+            onPointerLeave={e => {
+              if (e.pointerType !== "mouse") return;
+              moreCloseTimer.current = window.setTimeout(
+                () => setMoreOpen(false),
+                180
+              );
+            }}
+          >
             <button
               type="button"
               className="wx-nav__item"
               aria-haspopup="menu"
               aria-expanded={moreOpen}
-              onClick={() => setMoreOpen(o => !o)}
+              onPointerDown={e => {
+                lastPointer.current = e.pointerType;
+              }}
+              onClick={() => {
+                // Hover already opened it for mice; a click there shouldn't close it.
+                if (lastPointer.current === "mouse") setMoreOpen(true);
+                else setMoreOpen(o => !o);
+                lastPointer.current = "";
+              }}
             >
               {t("Explore", "עוד")}
               <svg

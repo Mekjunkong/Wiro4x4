@@ -121,6 +121,35 @@
   --sidebar-border: #d4ddd5;
   --sidebar-ring: #c79236;
 }
+/* Dark theme for the older (non-wx) pages. */
+.dark {
+  --primary: #1f4a3d;
+  --primary-foreground: #f3efe6;
+  --background: #121211;
+  --foreground: #f3efe6;
+  --card: #1e1d1b;
+  --card-foreground: #f3efe6;
+  --popover: #1e1d1b;
+  --popover-foreground: #f3efe6;
+  --secondary: #d0a04a;
+  --secondary-foreground: #141414;
+  --muted: #262420;
+  --muted-foreground: #a9a197;
+  --accent: #d4af37;
+  --accent-foreground: #141414;
+  --accent-readable: #e0bf4f;
+  --accent-cta: #d4af37;
+  --accent-cta-hover: #e0bf4f;
+  --border: #34312c;
+  --input: #34312c;
+  --sidebar: #1a1917;
+  --sidebar-foreground: #f3efe6;
+  --sidebar-primary: #1f4a3d;
+  --sidebar-primary-foreground: #f3efe6;
+  --sidebar-accent: #262420;
+  --sidebar-accent-foreground: #f3efe6;
+  --sidebar-border: #34312c;
+}
 
 @layer base {
   * {

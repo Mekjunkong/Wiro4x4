@@ -31,7 +31,35 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
   const lastTouch = useRef(0);
   const downX = useRef<number | null>(null);
   const dragged = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
   const n = tours.length;
+  const dirxRef = useRef(1);
+  dirxRef.current = language === "he" ? -1 : 1;
+
+  // Laptop trackpads move the carousel with a two-finger horizontal swipe,
+  // which arrives as wheel deltaX. Non-passive so the swipe doesn't also
+  // trigger the browser's back/forward gesture.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || n < 2) return undefined;
+    let acc = 0;
+    let lockedUntil = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      acc += e.deltaX;
+      if (Math.abs(acc) < 40) return;
+      const d = (acc > 0 ? 1 : -1) * dirxRef.current;
+      acc = 0;
+      lockedUntil = now + 600;
+      lastTouch.current = now;
+      setIdx(i => (i + d + n) % n);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [n]);
 
   useEffect(() => {
     if (n < 2) return;
@@ -136,19 +164,36 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
         style={{ height: Math.round((cw * 4) / 3) + 20 }}
         onMouseEnter={() => (hover.current = true)}
         onMouseLeave={() => (hover.current = false)}
+        ref={stageRef}
         onPointerDown={e => {
+          if (e.button !== 0) return;
           downX.current = e.clientX;
           dragged.current = false;
+        }}
+        onPointerMove={e => {
+          if (downX.current == null || dragged.current) return;
+          if (Math.abs(e.clientX - downX.current) > 8) {
+            // Capture only once it's really a drag, so plain clicks still
+            // land on the card underneath.
+            dragged.current = true;
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }
         }}
         onPointerUp={e => {
           if (downX.current == null) return;
           const dx = e.clientX - downX.current;
           downX.current = null;
-          if (Math.abs(dx) > 40) {
-            dragged.current = true;
-            step((dx < 0 ? 1 : -1) * dirx);
+          if (Math.abs(dx) > 40) step((dx < 0 ? 1 : -1) * dirx);
+          if (dragged.current)
             window.setTimeout(() => (dragged.current = false), 50);
-          }
+        }}
+        onPointerCancel={() => {
+          downX.current = null;
+          dragged.current = false;
+        }}
+        onKeyDown={e => {
+          if (e.key === "ArrowRight") step(dirx);
+          else if (e.key === "ArrowLeft") step(-dirx);
         }}
       >
         {tours.map((tour, i) => {
