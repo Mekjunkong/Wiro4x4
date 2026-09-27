@@ -308,7 +308,11 @@ test.describe("Commercial route dossiers", () => {
       await expect(
         page.getByRole("heading", { name: route.included, exact: true })
       ).toBeVisible();
-      await expect(page.locator("main")).toContainText("3,500");
+      // Public prices were removed (d092240); the dossier asks for a quote.
+      await expect(page.locator("main")).toContainText(
+        /Request your tailored quote|בקשו הצעה מותאמת אישית/
+      );
+      await expect(page.locator("main")).not.toContainText("3,500");
       await expect(page.locator("main img").first()).toHaveJSProperty(
         "complete",
         true

@@ -24,6 +24,10 @@ const PUBLIC_INQUIRY_SURFACES = [
   "client/src/pages/Contact.tsx",
   "client/src/pages/CarRental.tsx",
   "client/src/pages/AccessibleTours.tsx",
+  "client/src/pages/Book.tsx",
+  "client/src/components/wiro/WaCta.tsx",
+  "client/src/components/wiro/home/HeroParallax.tsx",
+  "client/src/components/wiro/home/ClosingCta.tsx",
 ] as const;
 
 const DELEGATED_INQUIRY_SURFACES = [
@@ -50,7 +54,7 @@ const EXCLUDED_SURFACES = [
 
 describe("public WhatsApp inquiry source scan", () => {
   it("enumerates every public inquiry surface separately from explicit exclusions", () => {
-    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(19);
+    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(23);
     expect(DELEGATED_INQUIRY_SURFACES).toHaveLength(3);
     expect(EXCLUDED_SURFACES).not.toContain(
       "client/src/components/calculator-v2/SaveEstimateModal.tsx"
@@ -68,8 +72,10 @@ describe("public WhatsApp inquiry source scan", () => {
         source,
         "must not consume legacy WhatsApp URL constants"
       ).not.toMatch(/\b(?:WHATSAPP_URL|COMPANY_WHATSAPP_URL)\b/);
+      // `WaCta` (components/wiro/WaCta.tsx) is itself scanned above and
+      // wraps TrackedWhatsAppLink, so using it counts as the shared path.
       expect(source, "must route inquiries through the shared builder").toMatch(
-        /\b(?:TrackedWhatsAppLink|buildTrackedWhatsApp(?:Url|Link))\b/
+        /\b(?:TrackedWhatsAppLink|buildTrackedWhatsApp(?:Url|Link)|WaCta)\b/
       );
       if (/\bbuildTrackedWhatsApp(?:Url|Link)\b/.test(source)) {
         expect(

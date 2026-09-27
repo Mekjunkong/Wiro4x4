@@ -44,7 +44,9 @@ test.describe("Mobile Responsiveness", () => {
     const mobileNav = await openMobileMenu(page);
 
     // Tours link should be visible inside mobile nav
-    await expect(mobileNav.getByText("Tours")).toBeVisible();
+    await expect(
+      mobileNav.getByRole("link", { name: "Tours", exact: true })
+    ).toBeVisible();
   });
 
   test("should navigate from mobile menu", async ({ page }) => {
@@ -55,7 +57,7 @@ test.describe("Mobile Responsiveness", () => {
     const mobileNav = await openMobileMenu(page);
 
     // Click Tours link inside mobile nav
-    await mobileNav.getByText("Tours").click();
+    await mobileNav.getByRole("link", { name: "Tours", exact: true }).click();
 
     await expect(page).toHaveURL(/\/tours/);
   });
@@ -68,7 +70,7 @@ test.describe("Mobile Responsiveness", () => {
     const mobileNav = await openMobileMenu(page);
 
     // Navigate via mobile menu
-    await mobileNav.getByText("Gallery").click();
+    await mobileNav.getByRole("link", { name: "Gallery", exact: true }).click();
 
     // Menu should close after navigation
     await expect(mobileNav).not.toBeVisible();
@@ -109,7 +111,7 @@ test.describe("Mobile Responsiveness", () => {
 
   test("should load booking form correctly on mobile", async ({ page }) => {
     await preparePage(page);
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Form should be usable on mobile
     await expect(page.locator("#contactName")).toBeVisible();

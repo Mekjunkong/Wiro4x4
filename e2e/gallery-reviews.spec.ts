@@ -76,12 +76,13 @@ test.describe("Additional Pages Load Test", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("should redirect the retired estimate page to pricing", async ({
+  test("should redirect the retired estimate page to tours", async ({
     page,
   }) => {
     await page.goto("/estimate");
 
-    await expect(page).toHaveURL(/\/pricing$/);
+    // Public pricing was retired; legacy estimate links land on the tours list.
+    await expect(page).toHaveURL(/\/tours$/);
     await expect(page.locator("header")).toBeVisible();
   });
 

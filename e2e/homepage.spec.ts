@@ -37,74 +37,58 @@ test.describe("Homepage", () => {
     await expect(hero).toContainText(/4[×x]4|Chiang Mai/i);
   });
 
-  test("renders the cinematic hero with two focused booking actions", async ({
+  test("renders the parallax hero with WhatsApp first and tours second", async ({
     page,
   }) => {
     await page.goto("/");
 
     const hero = page.locator("main section").first();
-    await expect(hero.getByTestId("cinematic-hero-background")).toBeVisible();
+    await expect(hero.getByRole("heading", { level: 1 })).toContainText(
+      "WIRO 4×4"
+    );
+    const whatsapp = hero.getByRole("link", {
+      name: /check availability on whatsapp/i,
+    });
+    await expect(whatsapp).toHaveAttribute("href", /wa\.me/);
+    await expect(whatsapp).toHaveAttribute("href", /HOME-HERO-EN/);
     await expect(
-      hero.getByRole("link", { name: /check availability on whatsapp/i })
-    ).toHaveAttribute("href", /wa\.me/);
-    await expect(
-      hero.getByRole("button", { name: /ask levi first/i })
-    ).toBeVisible();
-    await expect(hero.getByRole("link")).toHaveCount(1);
-    await expect(hero.getByRole("button")).toHaveCount(1);
+      hero.getByRole("link", { name: /explore tours/i })
+    ).toHaveAttribute("href", "/tours");
+    await expect(hero.getByRole("link")).toHaveCount(2);
+    await expect(hero.getByRole("button")).toHaveCount(0);
   });
 
-  test("uses the static car-only frame when reduced motion is requested", async ({
+  test("keeps the hero still when reduced motion is requested", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
 
-    const motionState = await page
-      .getByTestId("cinematic-hero-background")
-      .evaluate(hero => {
-        const overlays = Array.from(
-          hero.querySelectorAll<HTMLElement>(
-            '[data-cinematic-hero-overlay="true"]'
-          )
-        );
-        const baseImage = hero.querySelector<HTMLElement>(
-          ".cinematic-hero__image--base"
-        );
-
-        return {
-          overlayDisplays: overlays.map(
-            overlay => getComputedStyle(overlay).display
-          ),
-          baseAnimation: baseImage
-            ? getComputedStyle(baseImage).animationName
-            : null,
-        };
-      });
-
-    expect(motionState.overlayDisplays).toEqual([]);
-    expect(motionState.baseAnimation).toBe("none");
-    const hero = page.locator("main section").first();
+    const background = page.locator(".wx-hero__bg");
+    await page.mouse.move(40, 40);
+    await page.mouse.move(600, 500);
+    await expect(background).toHaveAttribute("style", /scale\(1\.06\)/);
     await expect(
-      hero.getByRole("link", { name: /check availability on whatsapp/i })
+      page
+        .locator("main section")
+        .first()
+        .getByRole("link", { name: /check availability on whatsapp/i })
     ).toBeVisible();
   });
 
-  test("keeps the fallback frame when decorative scenes fail to load", async ({
+  test("keeps the hero usable when its photos fail to load", async ({
     page,
   }) => {
-    await page.route(/(?:mountain_sunset_golden|4x4_water_splash)/, route =>
-      route.abort()
+    await page.route(
+      /(?:wiro_4x4_river_splash|single_cascade_waterfall|hilltribe_community_visit)/,
+      route => route.abort()
     );
     await page.goto("/");
 
-    const heroSection = page.locator("main section").first();
-    const hero = heroSection.getByTestId("cinematic-hero-background");
+    const hero = page.locator("main section").first();
+    await expect(hero.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(
-      hero.locator('img[alt="WIRO 4x4 vehicle on a jungle road in Chiang Mai"]')
-    ).toBeVisible();
-    await expect(
-      heroSection.getByRole("link", { name: /check availability on whatsapp/i })
+      hero.getByRole("link", { name: /check availability on whatsapp/i })
     ).toBeVisible();
   });
 
@@ -157,13 +141,19 @@ test.describe("Homepage", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("link", { name: "Private family 4x4 tours" })
+      page.getByRole("link", { name: "Private family 4x4 tours", exact: true })
     ).toHaveAttribute("href", "/private-family-tours");
     await expect(
-      page.getByRole("link", { name: "Kosher-friendly tour planning" })
+      page.getByRole("link", {
+        name: "Kosher-friendly tour planning",
+        exact: true,
+      })
     ).toHaveAttribute("href", "/kosher-tours");
     await expect(
-      page.getByRole("link", { name: "Hebrew-speaking guide options" })
+      page.getByRole("link", {
+        name: "Hebrew-speaking guide options",
+        exact: true,
+      })
     ).toHaveAttribute("href", "/hebrew-guide");
   });
 
@@ -179,23 +169,23 @@ test.describe("Homepage", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /טיולי 4×4 כשרים בצ'יאנג מאי/,
-      })
-    ).toBeVisible();
-    await expect(page.getByTestId("cinematic-hero-background")).toBeVisible();
-    await expect(
-      page.getByRole("heading", {
-        name: "תכננו סביב מה שחשוב לקבוצה שלכם",
+        name: /טיולי 4x4 פרטיים מצ'יאנג מאי/,
       })
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "טיולי 4x4 פרטיים למשפחות" })
+      page.getByRole("navigation", { name: "מדריכי תכנון לטיולים" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "טיולי 4x4 פרטיים למשפחות", exact: true })
     ).toHaveAttribute("href", "/he/private-family-tours-chiang-mai");
     await expect(
-      page.getByRole("link", { name: "תכנון טיול ידידותי לכשרות" })
+      page.getByRole("link", { name: "תכנון טיול ידידותי לכשרות", exact: true })
     ).toHaveAttribute("href", "/he/kosher-tours-chiang-mai");
     await expect(
-      page.getByRole("link", { name: "אפשרויות למדריך דובר עברית" })
+      page.getByRole("link", {
+        name: "אפשרויות למדריך דובר עברית",
+        exact: true,
+      })
     ).toHaveAttribute("href", "/he/hebrew-guide-chiang-mai");
   });
 });
@@ -211,26 +201,30 @@ test.describe("Homepage Desktop Navigation", () => {
     await page.goto("/");
 
     const nav = page.locator('nav[aria-label="Main navigation"]');
-    await expect(nav.getByText("Tours")).toBeVisible();
-    await expect(nav.getByText("Pricing")).toBeVisible();
+    for (const name of ["Tours", "Packages", "Gallery", "Book"]) {
+      await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
+    }
     await expect(nav.getByRole("button", { name: /explore/i })).toBeVisible();
-    await expect(nav.getByText("Contact")).toBeVisible();
 
     await openExploreMenu(page);
-    await expect(
-      page.getByRole("menuitem", { name: /gallery/i })
-    ).toBeVisible();
     await expect(page.getByRole("menuitem", { name: /blog/i })).toBeVisible();
+    await expect(
+      page.getByRole("menuitem", { name: /contact/i })
+    ).toBeVisible();
   });
 
   test("should display the availability action in header", async ({ page }) => {
     await page.goto("/");
 
     const availabilityAction = page
-      .locator('nav[aria-label="Main navigation"]')
+      .locator("header")
       .getByRole("link", { name: /check availability/i });
     await expect(availabilityAction).toBeVisible();
     await expect(availabilityAction).toHaveAttribute("href", /wa\.me/);
+    await expect(availabilityAction).toHaveAttribute(
+      "href",
+      /GLOBAL-HEADER-EN/
+    );
   });
 
   test("should navigate to tours page when clicking Tours nav link", async ({
@@ -240,47 +234,18 @@ test.describe("Homepage Desktop Navigation", () => {
 
     await page
       .locator('nav[aria-label="Main navigation"]')
-      .getByText("Tours")
+      .getByRole("link", { name: "Tours", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/tours/);
-  });
-
-  test("should open the guide chat from the floating actions", async ({
-    page,
-  }) => {
-    await showHomeQuickActions(page);
-
-    await page
-      .locator('[role="group"][aria-label="Quick actions"]')
-      .getByRole("button", { name: /ask levi/i })
-      .click();
-    await expect(
-      page.getByRole("log", { name: /chat conversation/i })
-    ).toBeVisible();
-  });
-
-  test("opens Levi from the hero and supports keyboard dismissal", async ({
-    page,
-  }) => {
-    await page.goto("/");
-
-    const hero = page.locator("main section").first();
-    const askLevi = hero.getByRole("button", { name: /ask levi first/i });
-    await askLevi.click();
-    const dialog = page.getByRole("dialog", { name: /levi, wiro assistant/i });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("textbox")).toBeFocused();
-
-    await page.keyboard.press("Escape");
-    await expect(dialog).toBeHidden();
-    await expect(askLevi).toBeFocused();
+    await expect(page).toHaveURL(/\/tours$/);
   });
 
   test("should navigate to gallery page", async ({ page }) => {
     await page.goto("/");
 
-    await openExploreMenu(page);
-    await page.getByRole("menuitem", { name: /gallery/i }).click();
+    await page
+      .locator('nav[aria-label="Main navigation"]')
+      .getByRole("link", { name: "Gallery", exact: true })
+      .click();
     await expect(page).toHaveURL(/\/gallery/);
   });
 
@@ -292,13 +257,16 @@ test.describe("Homepage Desktop Navigation", () => {
     await expect(page).toHaveURL(/\/blog/);
   });
 
-  test("should navigate to pricing page", async ({ page }) => {
+  test("should navigate to the booking stepper", async ({ page }) => {
     await page.goto("/");
 
     await page
       .locator('nav[aria-label="Main navigation"]')
-      .getByText("Pricing")
+      .getByRole("link", { name: "Book", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/pricing/);
+    await expect(page).toHaveURL(/\/book$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Book your day" })
+    ).toBeVisible();
   });
 });

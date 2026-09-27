@@ -1,38 +1,29 @@
 import { useEffect, useRef } from "react";
+import { useParams, useLocation, Link } from "wouter";
 import { trackEvent } from "@/lib/analytics";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { GoldDivider } from "@/components/GoldDivider";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import {
-  Clock,
-  Users,
-  Utensils,
-  Calendar,
-  Check,
-  ArrowLeft,
-  MessageCircle,
-  MapPin,
-  Backpack,
-  Sun,
-  Lightbulb,
-  ArrowRight,
-  Bike,
-  BookOpen,
-  XCircle,
-} from "lucide-react";
-import { useParams, useLocation, Link } from "wouter";
-import { FloatingActionButtons } from "@/components/FloatingActionButtons";
+import { ArrowLeft } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourSocialProof } from "@/components/TourSocialProof";
 import { TourFAQ } from "@/components/TourFAQ";
-import { OptimizedImage } from "@/components/OptimizedImage";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
+import { WiroMap } from "@/components/wiro/WiroMap";
+import { TourCard } from "@/components/wiro/TourCard";
+import { WaCta } from "@/components/wiro/WaCta";
+import { ArrowIcon, CheckIcon } from "@/components/wiro/icons";
+import {
+  DIFFICULTY_LABEL,
+  DURATION_HE,
+  formatBaht,
+  getWiroTourStory,
+  getWiroTours,
+  photo,
+} from "@/data/wiroTours";
 import { DEPOSIT_RATE } from "@shared/pricing";
 import { COMPANY_PHONE } from "@/const";
 import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
@@ -817,18 +808,6 @@ const NOT_INCLUDED: { en: string; he: string }[] = [
   },
 ];
 
-const DIFFICULTY_LABELS: Record<string, { en: string; he: string }> = {
-  easy: { en: "Easy", he: "קל" },
-  moderate: { en: "Moderate", he: "בינוני" },
-  challenging: { en: "Challenging", he: "מאתגר" },
-};
-
-const DIFFICULTY_COLORS: Record<string, string> = {
-  easy: "bg-green-100 text-green-700",
-  moderate: "bg-yellow-100 text-yellow-700",
-  challenging: "bg-red-100 text-red-700",
-};
-
 /** Per-tour content enrichment data for SEO */
 const TOUR_ENRICHMENT: Record<
   string,
@@ -1301,7 +1280,28 @@ export default function TourDetail() {
       : { title: "Tour Details" }
   );
 
-  const pricingSectionRef = useRef<HTMLDivElement>(null);
+  const pricingSectionRef = useRef<HTMLElement>(null);
+  const heroImgRef = useRef<HTMLImageElement>(null);
+  const hasTour = !!tour;
+
+  useEffect(() => {
+    if (!hasTour) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (heroImgRef.current)
+          heroImgRef.current.style.transform = `translate3d(0, ${(Math.min(window.scrollY, 900) * 0.35).toFixed(1)}px, 0) scale(1.05)`;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [hasTour, slug]);
   const tourViewKeyRef = useRef("");
   const pricingViewKeyRef = useRef("");
 
@@ -1430,584 +1430,605 @@ export default function TourDetail() {
     }
   }
 
-  const diffLabel =
-    DIFFICULTY_LABELS[tour.difficulty] ?? DIFFICULTY_LABELS.moderate;
-  const diffColor =
-    DIFFICULTY_COLORS[tour.difficulty] ?? DIFFICULTY_COLORS.moderate;
   const enrichment = getTourEnrichment(slug);
 
-  const whatsappMessage = t(
+  const story = getWiroTourStory(slug);
+  const heroImage = story ? photo(story.image).lg : tour.imageUrl;
+  const displayName = story
+    ? t(story.shortName[0], story.shortName[1])
+    : t(tour.name, tour.nameHe);
+  const durationText =
+    language === "he"
+      ? (DURATION_HE[tour.duration] ?? tour.duration)
+      : tour.duration;
+  const diffKey = (
+    ["easy", "moderate", "challenging"].includes(tour.difficulty)
+      ? tour.difficulty
+      : "moderate"
+  ) as keyof typeof DIFFICULTY_LABEL;
+  const diffText = t(...DIFFICULTY_LABEL[diffKey]);
+  const deposit = Math.round(tour.price * DEPOSIT_RATE);
+  const timeline: { time: string; text: string }[] = story
+    ? story.itinerary.map(([time, en, he]) => ({ time, text: t(en, he) }))
+    : itinerary.map((item, i) => ({
+        time: String(i + 1).padStart(2, "0"),
+        text: `${t(item.title, item.titleHe)} — ${t(item.description, item.descriptionHe)}`,
+      }));
+  const featureTags = [
+    tour.isKosher === 1 ? t("Kosher-friendly meals", "תכנון אוכל כשר") : null,
+    tour.isPrivate === 1 ? t("Private tour", "טיול פרטי") : null,
+    tour.isShabbatOk === 1 ? t("Shabbat-aware", "מותאם שבת") : null,
+    t(
+      `Groups of ${tour.groupMinSize}-${tour.groupMaxSize}`,
+      `קבוצות של ${tour.groupMinSize}-${tour.groupMaxSize}`
+    ),
+  ].filter((x): x is string => !!x);
+  const relatedTours = enrichment
+    ? getWiroTours().filter(rt => enrichment.relatedTourSlugs.includes(rt.slug))
+    : [];
+  const waMessage = [
     `Hi WIRO 4x4! I'm interested in the ${tour.name}. Can you share pricing and availability?`,
-    `היי WIRO 4x4! מתעניינים ב${t(tour.name, tour.nameHe)}. אפשר לשמוע על מחירים וזמינות?`
-  );
+    `היי WIRO 4x4! מתעניינים ב${tour.nameHe}. אפשר לשמוע על מחירים וזמינות?`,
+  ] as const;
 
   return (
-    <div className="min-h-screen">
+    <div className="wx" style={{ minHeight: "100vh" }}>
       <Header />
-      <Breadcrumb
-        items={[
-          {
-            label: t("Tours", "\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD"),
-            href: "/#tours",
-          },
-          { label: t(tour.name, tour.nameHe) },
-        ]}
-      />
       <main id="main-content">
-        {/* Full-bleed Hero Image (60vh) */}
-        <section className="relative min-h-[60vh] overflow-hidden">
-          <OptimizedImage
-            src={tour.imageUrl}
+        <section className="wx-dhero" aria-labelledby="wx-tour-title">
+          <img
+            ref={heroImgRef}
+            src={heroImage}
             alt={t(tour.name, tour.nameHe)}
-            priority
-            sizes="100vw"
-            className="w-full h-full absolute inset-0 object-cover"
+            fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-            <div className="container">
-              <button
-                onClick={() => navigate("/")}
-                className="inline-flex items-center gap-1.5 text-white/80 hover:text-white text-sm mb-4 transition-colors"
+          <div className="wx-dhero__shade" />
+          <div className="wx-dhero__copy">
+            <Link href="/tours" className="wx-back">
+              <ArrowIcon size={14} back />
+              {t("All tours", "כל הטיולים")}
+            </Link>
+            <p
+              className="wx-caps"
+              style={{ color: "var(--wx-gold)", margin: 0 }}
+            >
+              {story ? `${t(story.badge[0], story.badge[1])} · ` : ""}
+              {durationText} · {diffText}
+            </p>
+            <h1
+              id="wx-tour-title"
+              className="wx-serif"
+              style={{
+                fontSize: "clamp(54px,9vw,128px)",
+                lineHeight: 0.92,
+                margin: "14px 0 0",
+                textShadow: "0 8px 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              {tourDisplayHeading
+                ? t(tourDisplayHeading.en, tourDisplayHeading.he)
+                : displayName}
+            </h1>
+            {story && (
+              <p
+                className="wx-serif"
+                style={{
+                  fontStyle: "italic",
+                  fontSize: "clamp(22px,2.6vw,34px)",
+                  margin: "10px 0 0",
+                  color: "rgba(251,248,241,0.9)",
+                }}
               >
-                <ArrowLeft className="w-4 h-4" />
-                {t("All Tours", "כל הטיולים")}
-              </button>
-              <h1 className="text-3xl leading-tight sm:text-4xl md:text-5xl font-medium text-white mb-3">
-                {tourDisplayHeading
-                  ? t(tourDisplayHeading.en, tourDisplayHeading.he)
-                  : t(tour.name, tour.nameHe)}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 text-white/90 text-sm">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  {tour.duration}
-                </span>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${diffColor}`}
-                >
-                  {t(diffLabel.en, diffLabel.he)}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" />
-                  {t("Chiang Mai, Thailand", "צ'יאנג מאי, תאילנד")}
-                </span>
-              </div>
-            </div>
+                {t(story.tag[0], story.tag[1])}
+              </p>
+            )}
+            <ul
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginTop: 24,
+                padding: 0,
+                listStyle: "none",
+              }}
+            >
+              {featureTags.map(f => (
+                <li key={f} className="wx-chip">
+                  {f}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        {/* Overlapping Content Card */}
-        <div className="container -mt-20 relative z-10 pb-10 md:pb-14">
-          <div className="bg-card rounded-sm shadow-premium p-6 md:p-10">
-            <GoldDivider className="mx-0 mt-0 mb-8" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Description */}
-                <div>
-                  <h2 className="text-2xl font-medium mb-4">
-                    {t("About This Tour", "אודות הטיול")}
-                  </h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {t(tour.description, tour.descriptionHe)}
-                  </p>
-                </div>
-
-                {enrichment?.seoIntro && (
-                  <section className="rounded-sm border-s-2 border-accent bg-accent/5 p-5 md:p-6">
-                    <h2 className="mb-3 text-2xl font-medium">
-                      {t(
-                        enrichment.seoIntro.heading.en,
-                        enrichment.seoIntro.heading.he
-                      )}
-                    </h2>
-                    <p className="leading-relaxed text-muted-foreground">
-                      {t(
-                        enrichment.seoIntro.body.en,
-                        enrichment.seoIntro.body.he
-                      )}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-                      {enrichment.seoIntro.links.map(link => (
-                        <Link
-                          key={link.href}
-                          href={
-                            language === "he" && link.hrefHe
-                              ? link.hrefHe
-                              : link.href
-                          }
-                          className="font-medium text-accent hover:underline"
-                        >
-                          {t(link.en, link.he)}
-                        </Link>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {slug === "samoeng-loop-mountain-circuit" && (
-                  <section className="rounded-sm border border-accent/35 bg-muted p-5 md:p-6">
-                    <div className="flex items-start gap-3">
-                      <Bike
-                        className="mt-1 size-6 shrink-0 text-primary"
-                        aria-hidden="true"
-                      />
-                      <div>
-                        <h2 className="text-2xl font-medium">
-                          {t(
-                            "Riding the loop independently?",
-                            "רוכבים את הלולאה באופן עצמאי?"
-                          )}
-                        </h2>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                          {t(
-                            "Use WIRO’s motorcycle guide to open the complete Google Maps course and choose waterfalls, viewpoints, temples and cafe stops.",
-                            "השתמשו במדריך האופנועים של WIRO כדי לפתוח את מסלול Google Maps המלא ולבחור מפלים, תצפיות, מקדשים ובתי קפה."
-                          )}
-                        </p>
-                        <Link
-                          href="/motorcycle-tours/samoeng-loop"
-                          className="mt-4 inline-flex min-h-11 items-center font-semibold text-primary underline decoration-accent decoration-2 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                        >
-                          {t(
-                            "Explore the motorcycle route guide",
-                            "גלו את מדריך מסלול האופנועים"
-                          )}
-                          <ArrowRight
-                            className="ms-2 size-4 rtl:rotate-180"
-                            aria-hidden="true"
-                          />
-                        </Link>
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Social Proof */}
-                <TourSocialProof />
-
-                {/* Badges */}
-                <div className="flex flex-wrap gap-3">
-                  {tour.isKosher === 1 && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent text-sm rounded-sm font-medium">
-                      <Utensils className="h-4 w-4" />
-                      {t("Kosher Meals Included", "ארוחות כשרות כלולות")}
-                    </span>
-                  )}
-                  {tour.isPrivate === 1 && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-secondary/10 text-secondary-foreground text-sm rounded-sm font-medium">
-                      <Users className="h-4 w-4" />
-                      {t("Private Tour", "טיול פרטי")}
-                    </span>
-                  )}
-                  {tour.isShabbatOk === 1 && (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent-foreground text-sm rounded-sm font-medium">
-                      <Calendar className="h-4 w-4" />
-                      {t("Shabbat Friendly", "מתאים לשבת")}
-                    </span>
-                  )}
-                </div>
-
-                {/* What's Included */}
-                {includedItems.length > 0 && (
-                  <div>
-                    <h2 className="text-2xl font-medium mb-4">
-                      {t("What's Included", "מה כלול")}
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {includedItems.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 p-3 rounded-sm bg-accent/5"
-                        >
-                          <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                          <span className="text-sm">{t(item.en, item.he)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Not Included */}
-                <div>
-                  <h2 className="text-2xl font-medium mb-4">
-                    {t("Not Included", "הסיול לא כולל")}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {NOT_INCLUDED.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 rounded-sm bg-muted/50"
-                      >
-                        <XCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground">
-                          {t(item.en, item.he)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Itinerary */}
-                {itinerary.length > 0 && (
-                  <div>
-                    <h2 className="text-2xl font-medium mb-4">
-                      {t("Day-by-Day Itinerary", "מסלול מפורט")}
-                    </h2>
-                    <div className="space-y-4">
-                      {itinerary.map((step, idx) => (
-                        <details
-                          key={idx}
-                          className="group p-4 border border-border rounded-sm"
-                          onToggle={event => {
-                            if (!event.currentTarget.open) return;
-                            trackEvent("itinerary_expand", {
-                              page: `/tours/${slug}`,
-                              placement: `step-${idx + 1}`,
-                              language,
-                              tour: slug,
-                            });
-                          }}
-                        >
-                          <summary className="flex cursor-pointer list-none items-center gap-4">
-                            <span className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-2xl shrink-0">
-                              {idx + 1}
-                            </span>
-                            <h4 className="font-semibold">
-                              {t(step.title, step.titleHe)}
-                            </h4>
-                          </summary>
-                          <p className="mt-3 ps-14 text-sm text-muted-foreground">
-                            {t(step.description, step.descriptionHe)}
-                          </p>
-                        </details>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Availability Calendar */}
-                <AvailabilityCalendar
-                  tourId={tour.dbId}
-                  tourSlug={slug}
-                  tourName={tour.name}
-                  tourNameHe={tour.nameHe}
-                />
-
-                {/* What to Bring */}
-                {(() => {
-                  const enrichment = getTourEnrichment(slug);
-                  if (!enrichment) return null;
-                  return (
-                    <div>
-                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Backpack className="w-6 h-6 text-accent" />
-                        {t("What to Bring", "מה להביא")}
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {enrichment.whatToBring.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start gap-3 p-3 rounded-sm bg-muted/50"
-                          >
-                            <Check className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                            <span className="text-sm">
-                              {t(item.en, item.he)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Best Time to Visit */}
-                {(() => {
-                  const enrichment = getTourEnrichment(slug);
-                  if (!enrichment) return null;
-                  return (
-                    <div>
-                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Sun className="w-6 h-6 text-accent" />
-                        {t("Best Time to Visit", "הזמן הטוב ביותר לביקור")}
-                      </h2>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {t(
-                          enrichment.bestTimeToVisit.en,
-                          enrichment.bestTimeToVisit.he
-                        )}
-                      </p>
-                    </div>
-                  );
-                })()}
-
-                {/* Local Tips */}
-                {(() => {
-                  const enrichment = getTourEnrichment(slug);
-                  if (!enrichment) return null;
-                  return (
-                    <div>
-                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <Lightbulb className="w-6 h-6 text-accent" />
-                        {t("Local Tips", "טיפים מקומיים")}
-                      </h2>
-                      <div className="space-y-3">
-                        {enrichment.localTips.map((tip, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start gap-3 p-3 rounded-sm border border-accent/20 bg-accent/5"
-                          >
-                            <span className="text-accent font-bold shrink-0">
-                              #{idx + 1}
-                            </span>
-                            <span className="text-sm">{t(tip.en, tip.he)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Related Tours */}
-                {(() => {
-                  const enrichment = getTourEnrichment(slug);
-                  if (!enrichment) return null;
-                  const relatedTours = enrichment.relatedTourSlugs
-                    .map(s => {
-                      const fb = FALLBACK_TOURS[s];
-                      return fb ? { slug: s, ...fb } : null;
-                    })
-                    .filter(Boolean) as ((typeof FALLBACK_TOURS)[string] & {
-                    slug: string;
-                  })[];
-                  if (relatedTours.length === 0) return null;
-                  return (
-                    <div>
-                      <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                        <ArrowRight className="w-6 h-6 text-accent" />
-                        {t("Related Tours", "טיולים קשורים")}
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {relatedTours.map(rt => (
-                          <Link key={rt.slug} href={`/tours/${rt.slug}`}>
-                            <Card className="overflow-hidden rounded-sm hover:shadow-premium transition-shadow cursor-pointer group">
-                              <div className="relative h-32 overflow-hidden">
-                                <OptimizedImage
-                                  src={rt.imageUrl}
-                                  alt={t(
-                                    `${rt.name} - Related off-road tour`,
-                                    `${rt.nameHe} - טיול שטח קשור`
-                                  )}
-                                  sizes="(max-width: 640px) 100vw, 50vw"
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              </div>
-                              <div className="p-4">
-                                <h3 className="font-semibold text-sm mb-1">
-                                  {t(rt.name, rt.nameHe)}
-                                </h3>
-                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {rt.duration}
-                                  </span>
-                                  <span className="text-accent font-bold">
-                                    {t("Request a quote", "בקשו הצעה")}
-                                  </span>
-                                </div>
-                              </div>
-                            </Card>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Related Blog Posts Placeholder */}
-                <div>
-                  <h2 className="text-2xl font-medium mb-4 flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-accent" />
-                    {t("Read More", "קראו עוד")}
-                  </h2>
-                  <div className="p-4 rounded-sm border border-border bg-muted/30 text-center">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {t(
-                        "Explore our blog for travel tips, guides, and stories from Chiang Mai.",
-                        "גלו את הבלוג שלנו לטיפים, מדריכים וסיפורים מצ'יאנג מאי."
-                      )}
-                    </p>
-                    <Link href="/blog">
-                      <span className="text-accent text-sm font-medium hover:underline cursor-pointer">
-                        {t("Visit our Blog", "בקרו בבלוג שלנו")} &rarr;
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Tour FAQ */}
-                <TourFAQ />
-              </div>
-
-              {/* Sidebar - Booking Card */}
-              <div>
-                <Card
-                  ref={pricingSectionRef}
-                  className="p-6 sticky top-24 space-y-5 rounded-sm"
-                >
-                  <div>
-                    <h2 className="text-2xl font-semibold">
-                      {t("Your private adventure", "ההרפתקה הפרטית שלכם")}
-                    </h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {t(
-                        "Tell us your dates and group size for a personalized quote.",
-                        "שלחו לנו תאריכים ומספר מטיילים לקבלת הצעה אישית."
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        {t("Duration", "משך")}
-                      </span>
-                      <span className="font-medium">{tour.duration}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        {t("Difficulty", "רמת קושי")}
-                      </span>
-                      <span className="font-medium">
-                        {t(diffLabel.en, diffLabel.he)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        {t("Group Size", "גודל קבוצה")}
-                      </span>
-                      <span className="font-medium">
-                        {tour.groupMinSize}-{tour.groupMaxSize}{" "}
-                        {t("people", "אנשים")}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* What's Included (pricing clarity) */}
-                  {includedItems.length > 0 && (
-                    <div className="border-t pt-4 space-y-2">
-                      <p className="text-sm font-semibold text-foreground">
-                        {t("Includes:", "כולל:")}
-                      </p>
-                      {includedItems.slice(0, 5).map((item, i) => (
-                        <div
-                          key={i}
-                          className="flex items-start gap-2 text-sm text-muted-foreground"
-                        >
-                          <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                          <span>{t(item.en, item.he)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="space-y-3 pt-2">
-                    <Button
-                      asChild
-                      className="w-full gap-2"
-                      variant="default"
-                      size="lg"
-                    >
-                      <Link
-                        href={`/book?tour=${slug}`}
-                        onClick={handleAvailabilityRequest}
-                      >
-                        <Calendar className="w-5 h-5" />
-                        {t("Check Availability", "בדיקת זמינות")}
-                      </Link>
-                    </Button>
-                    <Button
-                      asChild
-                      className="w-full gap-2"
-                      variant="outline"
-                      size="lg"
-                    >
-                      <TrackedWhatsAppLink
-                        sourceCode={
-                          language === "he"
-                            ? "TOUR-DETAIL-HE"
-                            : "TOUR-DETAIL-EN"
-                        }
-                        humanMessage={whatsappMessage}
-                        tour={slug}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <MessageCircle className="w-5 h-5" />
-                        {t("Book via WhatsApp", "הזמינו בוואטסאפ")}
-                      </TrackedWhatsAppLink>
-                    </Button>
-                    <a
-                      href="#inquiry"
-                      onClick={e => {
-                        e.preventDefault();
-                        navigate("/");
-                        // Small delay so the homepage loads then scrolls
-                        setTimeout(() => {
-                          document
-                            .getElementById("inquiry")
-                            ?.scrollIntoView({ behavior: "smooth" });
-                        }, 300);
-                      }}
-                      className="block text-center text-sm text-accent hover:underline"
-                    >
-                      {t("Or request a free quote", "או בקשו הצעת מחיר חינם")}
-                    </a>
-                  </div>
-
-                  <div className="pt-3 border-t text-xs text-muted-foreground space-y-1.5">
-                    <p>
-                      {t(
-                        `${Math.round(DEPOSIT_RATE * 100)}% deposit to confirm. Balance on tour day.`,
-                        `מקדמה ${Math.round(DEPOSIT_RATE * 100)}% לאישור. יתרה ביום הטיול.`
-                      )}
-                    </p>
-                    <p>
-                      {t(
-                        "Free cancellation 7+ days before.",
-                        "ביטול חינם 7+ ימים לפני."
-                      )}
-                    </p>
-                  </div>
-                </Card>
-              </div>
-            </div>
+        <div style={{ padding: "16px clamp(16px,3vw,32px) 0" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <Breadcrumb
+              items={[
+                { label: t("Tours", "טיולים"), href: "/tours" },
+                { label: t(tour.name, tour.nameHe) },
+              ]}
+            />
           </div>
         </div>
 
-        {/* Compare with other tours */}
-        <section className="py-12 bg-muted/30">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h3 className="text-xl font-semibold mb-2">
-              {t("Not sure yet?", "עדיין לא בטוחים?")}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {t(
-                "Compare all our tours to find your perfect adventure",
-                "השוו את כל הטיולים שלנו כדי למצוא את ההרפתקה המושלמת"
+        <section className="wx-detail">
+          <div className="wx-detail__grid">
+            <div className="wx-detail__main">
+              <p
+                className="wx-serif"
+                style={{
+                  fontSize: "clamp(24px,2.8vw,36px)",
+                  lineHeight: 1.3,
+                  margin: 0,
+                  textWrap: "pretty",
+                }}
+              >
+                {t(tour.description, tour.descriptionHe)}
+              </p>
+
+              {enrichment?.seoIntro && (
+                <div>
+                  <h2
+                    className="wx-h3"
+                    style={{ marginTop: 0, marginBottom: 12 }}
+                  >
+                    {t(
+                      enrichment.seoIntro.heading.en,
+                      enrichment.seoIntro.heading.he
+                    )}
+                  </h2>
+                  <p
+                    style={{
+                      fontSize: 17,
+                      lineHeight: 1.65,
+                      color: "var(--wx-ink-2)",
+                      margin: 0,
+                    }}
+                  >
+                    {t(
+                      enrichment.seoIntro.body.en,
+                      enrichment.seoIntro.body.he
+                    )}
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "8px 20px",
+                      marginTop: 16,
+                    }}
+                  >
+                    {enrichment.seoIntro.links.map(link => (
+                      <Link
+                        key={link.href}
+                        href={
+                          language === "he" && link.hrefHe
+                            ? link.hrefHe
+                            : link.href
+                        }
+                        className="wx-link"
+                      >
+                        {t(link.en, link.he)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               )}
-            </p>
-            <Link href="/tours">
-              <button className="border-2 border-accent text-accent hover:bg-accent hover:text-primary font-semibold px-6 py-2 rounded-full transition-all">
-                {t("Compare All Tours", "השוו את כל הטיולים")}
-              </button>
-            </Link>
+
+              {slug === "samoeng-loop-mountain-circuit" && (
+                <div className="wx-panel">
+                  <h2>
+                    {t(
+                      "Riding the loop independently?",
+                      "רוכבים את הלולאה באופן עצמאי?"
+                    )}
+                  </h2>
+                  <p
+                    style={{
+                      fontSize: 15,
+                      lineHeight: 1.6,
+                      color: "var(--wx-muted)",
+                      margin: "0 0 14px",
+                    }}
+                  >
+                    {t(
+                      "Use WIRO’s motorcycle guide to open the complete Google Maps course and choose waterfalls, viewpoints, temples and cafe stops.",
+                      "השתמשו במדריך האופנועים של WIRO כדי לפתוח את מסלול Google Maps המלא ולבחור מפלים, תצפיות, מקדשים ובתי קפה."
+                    )}
+                  </p>
+                  <Link
+                    href="/motorcycle-tours/samoeng-loop"
+                    className="wx-link"
+                  >
+                    {t(
+                      "Explore the motorcycle route guide",
+                      "גלו את מדריך מסלול האופנועים"
+                    )}
+                    <ArrowIcon />
+                  </Link>
+                </div>
+              )}
+
+              {timeline.length > 0 && (
+                <div>
+                  <p
+                    className="wx-caps"
+                    style={{ color: "var(--wx-gold-ink)", margin: 0 }}
+                  >
+                    {t("Itinerary", "מסלול היום")}
+                  </p>
+                  <h2 className="wx-h3">
+                    {t("The day, hour by hour", "היום, שעה אחר שעה")}
+                  </h2>
+                  <ol className="wx-timeline">
+                    {timeline.map((st, i) => (
+                      <li key={i}>
+                        <span
+                          className="wx-latin"
+                          style={{ fontSize: 20, paddingTop: 1 }}
+                          dir="ltr"
+                        >
+                          {st.time}
+                        </span>
+                        <span className="wx-timeline__rail">
+                          <span className="wx-timeline__dot" />
+                          <span className="wx-timeline__line" />
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 17,
+                            lineHeight: 1.55,
+                            color: "var(--wx-ink-2)",
+                          }}
+                        >
+                          {st.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                  {story && (
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "var(--wx-muted)",
+                        margin: 0,
+                      }}
+                    >
+                      {t(
+                        "Times are a typical day — we adjust pickup and pace to your group.",
+                        "השעות מתארות יום טיפוסי — אנחנו מתאימים את האיסוף והקצב לקבוצה שלכם."
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {story && (
+                <div>
+                  <p
+                    className="wx-caps"
+                    style={{ color: "var(--wx-gold-ink)", margin: 0 }}
+                  >
+                    {t("Route", "מסלול")}
+                  </p>
+                  <h2 className="wx-h3" style={{ marginBottom: 24 }}>
+                    {t("Your route from Chiang Mai", "המסלול שלכם מצ'יאנג מאי")}
+                  </h2>
+                  <WiroMap
+                    only={story.places}
+                    active={story.places[0] ?? null}
+                    className="wx-mapbox--route"
+                    label={t(
+                      `Route map for ${tour.name}`,
+                      `מפת המסלול של ${tour.nameHe}`
+                    )}
+                  />
+                </div>
+              )}
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+                  gap: 24,
+                }}
+              >
+                {includedItems.length > 0 && (
+                  <div>
+                    <h2
+                      className="wx-serif"
+                      style={{
+                        fontSize: 32,
+                        lineHeight: 1.1,
+                        margin: "0 0 18px",
+                      }}
+                    >
+                      {t("What's included", "מה כלול")}
+                    </h2>
+                    <ul className="wx-checks" style={{ marginTop: 0 }}>
+                      {includedItems.map((item, idx) => (
+                        <li key={idx}>
+                          <CheckIcon />
+                          <span>{t(item.en, item.he)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div>
+                  <h2
+                    className="wx-serif"
+                    style={{
+                      fontSize: 32,
+                      lineHeight: 1.1,
+                      margin: "0 0 18px",
+                    }}
+                  >
+                    {t("Not included", "לא כלול")}
+                  </h2>
+                  <ul
+                    style={{
+                      margin: 0,
+                      paddingInlineStart: 18,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                      fontSize: 15,
+                      lineHeight: 1.55,
+                      color: "var(--wx-muted)",
+                    }}
+                  >
+                    {NOT_INCLUDED.map((item, idx) => (
+                      <li key={idx}>{t(item.en, item.he)}</li>
+                    ))}
+                  </ul>
+                </div>
+                {story && (
+                  <div className="wx-panel-dark">
+                    <p
+                      className="wx-caps"
+                      style={{
+                        color: "var(--wx-gold)",
+                        margin: 0,
+                        fontSize: 11,
+                      }}
+                    >
+                      {t("Lunch", "ארוחת צהריים")}
+                    </p>
+                    <h3
+                      className="wx-serif"
+                      style={{
+                        fontSize: 26,
+                        lineHeight: 1.15,
+                        margin: "10px 0",
+                      }}
+                    >
+                      {t(
+                        "Kosher-friendly meal planning",
+                        "תכנון אוכל ידידותי לכשרות"
+                      )}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: 16,
+                        lineHeight: 1.6,
+                        color: "rgba(251,248,241,0.85)",
+                        margin: 0,
+                      }}
+                    >
+                      {t(story.meal[0], story.meal[1])}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        lineHeight: 1.6,
+                        color: "rgba(251,248,241,0.7)",
+                        margin: "14px 0 0",
+                      }}
+                    >
+                      {t(
+                        "Tell us your kashrut level when you book so we can confirm what is feasible.",
+                        "ספרו לנו את רמת הכשרות בהזמנה כדי שנאשר מה אפשרי."
+                      )}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <AvailabilityCalendar
+                tourId={tour.dbId}
+                tourSlug={slug}
+                tourName={tour.name}
+                tourNameHe={tour.nameHe}
+              />
+
+              {enrichment && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+                    gap: 32,
+                  }}
+                >
+                  <div>
+                    <h2
+                      className="wx-serif"
+                      style={{ fontSize: 28, margin: "0 0 14px" }}
+                    >
+                      {t("What to bring", "מה להביא")}
+                    </h2>
+                    <ul className="wx-checks" style={{ marginTop: 0 }}>
+                      {enrichment.whatToBring.map((item, idx) => (
+                        <li key={idx}>
+                          <CheckIcon />
+                          <span>{t(item.en, item.he)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h2
+                      className="wx-serif"
+                      style={{ fontSize: 28, margin: "0 0 14px" }}
+                    >
+                      {t("Local tips", "טיפים מקומיים")}
+                    </h2>
+                    <p
+                      style={{
+                        fontSize: 15,
+                        lineHeight: 1.6,
+                        color: "var(--wx-ink-2)",
+                        margin: "0 0 12px",
+                      }}
+                    >
+                      <strong>{t("Best time: ", "הזמן הטוב ביותר: ")}</strong>
+                      {t(
+                        enrichment.bestTimeToVisit.en,
+                        enrichment.bestTimeToVisit.he
+                      )}
+                    </p>
+                    <ul
+                      style={{
+                        margin: 0,
+                        paddingInlineStart: 18,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                        fontSize: 15,
+                        lineHeight: 1.55,
+                        color: "var(--wx-ink-2)",
+                      }}
+                    >
+                      {enrichment.localTips.map((tip, idx) => (
+                        <li key={idx}>{t(tip.en, tip.he)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              <TourSocialProof />
+
+              {relatedTours.length > 0 && (
+                <div>
+                  <h2 className="wx-h3" style={{ marginTop: 0 }}>
+                    {t("Pair it with", "שלבו עם")}
+                  </h2>
+                  <div className="wx-cards">
+                    {relatedTours.map(rt => (
+                      <TourCard key={rt.slug} tour={rt} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <TourFAQ />
+            </div>
+
+            <aside
+              ref={pricingSectionRef}
+              className="wx-aside"
+              aria-label={t("Price and booking", "מחיר והזמנה")}
+            >
+              <p
+                className="wx-caps"
+                style={{
+                  fontSize: 11,
+                  color: "rgba(251,248,241,0.7)",
+                  margin: 0,
+                }}
+              >
+                {t("Price", "מחיר")}
+              </p>
+              <div
+                className="wx-latin"
+                style={{
+                  fontSize: 56,
+                  lineHeight: 1,
+                  color: "var(--wx-gold)",
+                  marginTop: 8,
+                }}
+              >
+                {formatBaht(tour.price)}
+              </div>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "rgba(251,248,241,0.75)",
+                  margin: "6px 0 0",
+                }}
+              >
+                {t("per vehicle · private group", "לרכב · קבוצה פרטית")}
+              </p>
+              <div className="wx-aside__rows">
+                <div>
+                  <span>{t("Duration", "משך")}</span>
+                  <span>{durationText}</span>
+                </div>
+                <div>
+                  <span>{t("Difficulty", "רמת קושי")}</span>
+                  <span>{diffText}</span>
+                </div>
+                <div>
+                  <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
+                  <span>{formatBaht(deposit)}</span>
+                </div>
+              </div>
+              <Link
+                href={`/book?tour=${slug}`}
+                onClick={handleAvailabilityRequest}
+                className="wx-btn wx-btn--gold wx-btn--block"
+              >
+                {t("Book this tour", "הזמינו את הטיול")}
+              </Link>
+              <div style={{ marginTop: 10 }}>
+                <WaCta
+                  source="TOUR-DETAIL"
+                  tour={slug}
+                  message={waMessage}
+                  className="wx-btn wx-btn--ghost-light wx-btn--block"
+                >
+                  {t("Ask on WhatsApp", "שאלו בוואטסאפ")}
+                </WaCta>
+              </div>
+              <p
+                style={{
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  color: "rgba(251,248,241,0.7)",
+                  margin: "18px 0 0",
+                }}
+              >
+                {t(
+                  "No payment now — we confirm availability with you on WhatsApp first.",
+                  "אין תשלום עכשיו — קודם נאשר איתכם זמינות בוואטסאפ."
+                )}
+              </p>
+            </aside>
           </div>
         </section>
       </main>
-      <FloatingActionButtons />
+
+      <div className="wx-mobilebar">
+        <div>
+          <div className="wx-latin" style={{ fontSize: 26, lineHeight: 1 }}>
+            {formatBaht(tour.price)}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--wx-muted)" }}>
+            {t("per vehicle", "לרכב")}
+          </div>
+        </div>
+        <Link
+          href={`/book?tour=${slug}`}
+          onClick={handleAvailabilityRequest}
+          className="wx-btn wx-btn--solid"
+        >
+          {t("Book this tour", "הזמינו את הטיול")}
+        </Link>
+      </div>
       <Footer />
     </div>
   );

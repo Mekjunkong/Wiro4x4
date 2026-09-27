@@ -15,6 +15,7 @@ const TourDetail = React.lazy(() => import("./pages/TourDetail"));
 const Blog = React.lazy(() => import("./pages/Blog"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
 const BookingForm = React.lazy(() => import("./pages/BookingForm"));
+const Book = React.lazy(() => import("./pages/Book"));
 const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
 const AdminCostCalculator = React.lazy(
   () => import("./pages/AdminCostCalculator")
@@ -124,7 +125,8 @@ function Router() {
             <Route path={"/blog/:slug"} component={BlogPost} />
             <Route path={"/gallery"} component={Gallery} />
             <Route path={"/reviews"} component={Reviews} />
-            <Route path={"/book"} component={BookingForm} />
+            <Route path={"/book"} component={Book} />
+            <Route path={"/plan-trip"} component={BookingForm} />
             <Route path={"/booking/success"} component={BookingSuccess} />
             <Route path={"/booking/cancel"} component={BookingCancel} />
             <Route path={"/kosher-tours"} component={KosherTours} />

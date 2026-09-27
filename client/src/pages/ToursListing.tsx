@@ -1,15 +1,35 @@
+import { useMemo, useState } from "react";
+import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
-import { Tours } from "@/components/Tours";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { TourCard } from "@/components/wiro/TourCard";
+import { getWiroTours } from "@/data/wiroTours";
+
+type Diff = "all" | "easy" | "moderate" | "challenging";
+type Dur = "all" | "half" | "full";
+
+const DIFFS: readonly [Diff, string, string][] = [
+  ["all", "All", "הכל"],
+  ["easy", "Easy", "קל"],
+  ["moderate", "Moderate", "בינוני"],
+  ["challenging", "Challenging", "מאתגר"],
+];
+const DURS: readonly [Dur, string, string][] = [
+  ["all", "All durations", "כל הזמנים"],
+  ["half", "Half day (5-7h)", "חצי יום (5-7 שעות)"],
+  ["full", "Full day (7-10h)", "יום שלם (7-10 שעות)"],
+];
 
 export default function ToursListing() {
   const { t } = useLanguage();
+  const [diff, setDiff] = useState<Diff>("all");
+  const [dur, setDur] = useState<Dur>("all");
+  const { data: dbTours } = trpc.tour.list.useQuery();
 
   usePageMeta({
     title: t("Chiang Mai 4x4 Tours", "טיולי 4x4 בצ'יאנג מאי"),
@@ -26,68 +46,171 @@ export default function ToursListing() {
       name: "Chiang Mai 4x4 Tours",
       description:
         "Private 4x4 day tours from Chiang Mai to mountain, jungle, waterfall, and village destinations across Northern Thailand.",
-      isPartOf: {
-        "@id": "https://www.wiro4x4indochina.com/#website",
-      },
-      about: {
-        "@id": "https://www.wiro4x4indochina.com/#organization",
-      },
+      isPartOf: { "@id": "https://www.wiro4x4indochina.com/#website" },
+      about: { "@id": "https://www.wiro4x4indochina.com/#organization" },
       inLanguage: ["en", "he"],
     },
   });
 
+  const tours = useMemo(
+    () =>
+      getWiroTours(
+        (dbTours ?? []).map(r => ({
+          slug: r.slug,
+          price: r.price,
+          duration: r.duration,
+          difficulty: r.difficulty,
+        }))
+      ),
+    [dbTours]
+  );
+  const filtered = tours.filter(
+    x =>
+      (diff === "all" || x.difficulty === diff) &&
+      (dur === "all" || (dur === "half" ? x.hours <= 6 : x.hours > 6))
+  );
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="wx" style={{ minHeight: "100vh" }}>
       <Header />
-      <main id="main-content" className="flex-1">
-        {/* Hero section */}
-        <section className="bg-gradient-to-b from-background to-white dark:from-background dark:to-card pt-36 pb-8">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+      <main id="main-content">
+        <section className="wx-pagehead">
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <Breadcrumb items={[{ label: t("One-Day Tours", "טיולי יום") }]} />
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1 text-sm text-accent hover:underline mt-2 mb-4"
+            <p
+              className="wx-caps"
+              style={{ color: "var(--wx-gold-ink)", margin: "12px 0 0" }}
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              {t("All Adventures", "כל ההרפתקאות")}
-            </Link>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-primary dark:text-primary-foreground">
-              {t("Chiang Mai 4x4 Tours", "טיולי 4x4 בצ'יאנג מאי")}
-            </h1>
-            <p className="text-muted-foreground mt-3 max-w-2xl text-lg">
-              {t(
-                "Explore Northern Thailand on a private Chiang Mai 4x4 tour, with mountain, jungle, waterfall, and village routes for different interests and group needs.",
-                "גלו את צפון תאילנד בטיול 4x4 פרטי מצ'יאנג מאי, עם מסלולי הרים, ג'ונגל, מפלים וכפרים שמתאימים לתחומי עניין ולקבוצות שונות."
-              )}
+              {t("Six routes from Chiang Mai", "שישה מסלולים מצ'יאנג מאי")}
             </p>
-            <p className="text-muted-foreground mt-3 max-w-2xl leading-relaxed">
+            <h1>{t("Chiang Mai 4x4 Tours", "טיולי 4x4 בצ'יאנג מאי")}</h1>
+            <p className="wx-lede" style={{ margin: "18px 0 0" }}>
               {t(
-                "Start with the high mountain landscapes of ",
-                "התחילו בנופי ההרים הגבוהים של "
+                "Every day is private — your group, your vehicle, your guide — with kosher-friendly meal planning on all of them. Start with the high mountains of ",
+                "כל יום הוא פרטי — הקבוצה שלכם, הרכב שלכם, המדריך שלכם — עם תכנון אוכל כשר בכולם. התחילו בהרים הגבוהים של "
               )}
               <Link
                 href="/tours/doi-inthanon-roof-of-thailand"
-                className="text-accent font-medium hover:underline"
+                style={{ color: "var(--wx-gold-ink)" }}
               >
                 {t("Doi Inthanon", "דוי אינתנון")}
               </Link>
               {t(
-                " or compare them with the jungle and river route in ",
-                " או השוו אותם למסלול הג'ונגל והנהרות של "
+                " or compare them with the jungle and rivers of ",
+                " או השוו אותם לג'ונגל ולנהרות של "
               )}
               <Link
                 href="/tours/mae-wang-jungle-wilderness"
-                className="text-accent font-medium hover:underline"
+                style={{ color: "var(--wx-gold-ink)" }}
               >
                 {t("Mae Wang", "מאה וואנג")}
               </Link>
-              {t(".", ".")}
+              .
             </p>
+            <div
+              role="group"
+              aria-label={t("Filter tours", "סינון טיולים")}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginTop: 32,
+                alignItems: "center",
+              }}
+            >
+              {DIFFS.map(([k, en, he]) => (
+                <button
+                  key={k}
+                  type="button"
+                  className={`wx-filter ${diff === k ? "is-on" : ""}`}
+                  aria-pressed={diff === k}
+                  onClick={() => setDiff(k)}
+                >
+                  {t(en, he)}
+                </button>
+              ))}
+              <span
+                style={{
+                  width: 1,
+                  height: 28,
+                  background: "var(--wx-line)",
+                  margin: "0 6px",
+                }}
+              />
+              {DURS.map(([k, en, he]) => (
+                <button
+                  key={k}
+                  type="button"
+                  className={`wx-filter ${dur === k ? "is-on" : ""}`}
+                  aria-pressed={dur === k}
+                  onClick={() => setDur(k)}
+                >
+                  {t(en, he)}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Tours grid */}
-        <Tours />
+        <section
+          id="tours"
+          style={{
+            padding:
+              "clamp(40px,6vw,72px) clamp(16px,3vw,32px) clamp(80px,10vw,128px)",
+          }}
+        >
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            {filtered.length ? (
+              <div className="wx-cards">
+                {filtered.map(tour => (
+                  <TourCard key={tour.slug} tour={tour} />
+                ))}
+              </div>
+            ) : (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "64px 0",
+                  color: "var(--wx-muted)",
+                }}
+              >
+                <p style={{ margin: 0 }}>
+                  {t(
+                    "No tours match the selected filters.",
+                    "לא נמצאו טיולים התואמים לסינון שנבחר."
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDiff("all");
+                    setDur("all");
+                  }}
+                  style={{
+                    marginTop: 12,
+                    background: "none",
+                    border: 0,
+                    color: "var(--wx-gold-ink)",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    fontSize: 15,
+                    minHeight: 44,
+                  }}
+                >
+                  {t("Clear filters", "נקה סינונים")}
+                </button>
+              </div>
+            )}
+            <p
+              style={{ marginTop: 40, fontSize: 15, color: "var(--wx-muted)" }}
+            >
+              {t("Planning several days? ", "מתכננים כמה ימים? ")}
+              <Link href="/packages" style={{ color: "var(--wx-gold-ink)" }}>
+                {t("See multi-day packages", "לחבילות רב־יומיות")}
+              </Link>
+            </p>
+          </div>
+        </section>
       </main>
       <Footer />
       <FloatingActionButtons />

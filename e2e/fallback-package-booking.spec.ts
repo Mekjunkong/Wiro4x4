@@ -12,7 +12,8 @@ test.describe("fallback package booking handoff", () => {
 
     await page.getByRole("link", { name: "Book Online" }).click();
 
-    await expect(page).toHaveURL(/\/book\?package=/);
+    // Package links hand off from /book to the full planner at /plan-trip.
+    await expect(page).toHaveURL(/\/plan-trip\?package=/);
     await expect(page.getByText("Selected tours")).toBeVisible();
     await expect(
       page.getByText("3 Days / 2 Nights — Northern Thailand Mountain Loop", {
