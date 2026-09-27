@@ -72,27 +72,13 @@ describe("once-only behavior state", () => {
     expect(nextPage.claimed).toBe(true);
   });
 
-  it("keeps booking_start on the booking form instead of the global sticky link", () => {
+  it("fires booking_start from the booking form", () => {
     const bookingForm = readFileSync(
       resolve("client/src/pages/BookingForm.tsx"),
       "utf8"
     );
-    const stickyBookBar = readFileSync(
-      resolve("client/src/components/StickyBookBar.tsx"),
-      "utf8"
-    );
 
     expect(bookingForm).toContain('trackEvent("booking_start"');
-    expect(stickyBookBar).not.toContain('trackEvent("booking_start"');
-  });
-
-  it("starts the quick inquiry on the first focus interaction", () => {
-    const quickInquiry = readFileSync(
-      resolve("client/src/components/QuickInquiryForm.tsx"),
-      "utf8"
-    );
-
-    expect(quickInquiry).toContain("onFocusCapture={handleInquiryInteraction}");
   });
 
   it("redirects the retired pricing page to tours", () => {

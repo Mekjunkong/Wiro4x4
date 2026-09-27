@@ -2,13 +2,29 @@ import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from "@shared/const";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
+import {
+  REMOTE_DB_WRITE_MESSAGE,
+  remoteDbWritesBlocked,
+} from "./devWriteGuard";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
 });
 
+// Every procedure below starts from `base`, so the dev write guard covers
+// all mutations (public forms and admin actions alike).
+const base = t.procedure.use(({ type, next }) => {
+  if (type === "mutation" && remoteDbWritesBlocked()) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: REMOTE_DB_WRITE_MESSAGE,
+    });
+  }
+  return next();
+});
+
 export const router = t.router;
-export const publicProcedure = t.procedure;
+export const publicProcedure = base;
 
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
@@ -25,9 +41,9 @@ const requireUser = t.middleware(async opts => {
   });
 });
 
-export const protectedProcedure = t.procedure.use(requireUser);
+export const protectedProcedure = base.use(requireUser);
 
-export const adminProcedure = t.procedure.use(
+export const adminProcedure = base.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
@@ -51,7 +67,7 @@ const MANAGER_ROLES = ["admin", "owner", "manager"];
 /** Roles that have at least "agent" access. */
 const AGENT_ROLES = ["admin", "owner", "manager", "agent"];
 
-export const ownerProcedure = t.procedure.use(
+export const ownerProcedure = base.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !OWNER_ROLES.includes(ctx.user.role)) {
@@ -64,7 +80,7 @@ export const ownerProcedure = t.procedure.use(
   })
 );
 
-export const managerProcedure = t.procedure.use(
+export const managerProcedure = base.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !MANAGER_ROLES.includes(ctx.user.role)) {
@@ -77,7 +93,7 @@ export const managerProcedure = t.procedure.use(
   })
 );
 
-export const agentProcedure = t.procedure.use(
+export const agentProcedure = base.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
     if (!ctx.user || !AGENT_ROLES.includes(ctx.user.role)) {
