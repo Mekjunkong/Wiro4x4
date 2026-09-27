@@ -1,4 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import {
+  GalleryFlyThrough,
+  type FlyPhoto,
+} from "@/components/wiro/GalleryFlyThrough";
+import { TRAIL_PHOTOS } from "@/data/wiroGallery";
+import { photo } from "@/data/wiroTours";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -17,10 +23,8 @@ import {
   Check,
 } from "lucide-react";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
-import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { GoldDivider } from "@/components/GoldDivider";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { toast } from "sonner";
@@ -391,63 +395,60 @@ export default function Gallery() {
     [closeLightbox, goToNext, goToPrev]
   );
 
-  return (
-    <div className="min-h-screen">
-      <Header />
-      <Breadcrumb
-        items={[{ label: t("Gallery", "\u05D2\u05DC\u05E8\u05D9\u05D4") }]}
-      />
-      <main id="main-content">
-        {/* Hero Banner with Photo */}
-        <section className="relative h-[50vh] min-h-[320px] max-h-[500px] mt-20 overflow-hidden">
-          <OptimizedImage
-            src="forest_waterfall_pool"
-            alt={t(
-              "Northern Thailand jungle waterfall",
-              "מפל ג'ונגל בצפון תאילנד"
-            )}
-            className="absolute inset-0 w-full h-full object-cover"
-            sizes="100vw"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/70" />
-          <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
-            <Camera className="w-10 h-10 mb-3 opacity-90 drop-shadow-lg" />
-            <h1 className="text-3xl md:text-5xl font-serif font-medium mb-3 drop-shadow-lg">
-              {t(
-                "Photo Gallery",
-                "\u05D2\u05DC\u05E8\u05D9\u05D9\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA"
-              )}
-            </h1>
-            <GoldDivider />
-            <p className="text-lg md:text-xl opacity-95 max-w-2xl mx-auto drop-shadow-md">
-              {t(
-                "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
-                "\u05D2\u05DC\u05D5 \u05D0\u05EA \u05D4\u05D4\u05E8\u05E4\u05EA\u05E7\u05D0\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5 \u05D1\u05E6\u05E4\u05D5\u05DF \u05EA\u05D0\u05D9\u05DC\u05E0\u05D3 - \u05DE\u05E9\u05D1\u05D9\u05DC\u05D9 \u05D4\u05E8\u05D9\u05DD \u05D5\u05E2\u05D3 \u05DE\u05E4\u05DC\u05D9\u05DD \u05E0\u05E1\u05EA\u05E8\u05D9\u05DD"
-              )}
-            </p>
-          </div>
-        </section>
+  const flyPhotos: FlyPhoto[] =
+    featuredPhotos && featuredPhotos.length >= 6
+      ? featuredPhotos.map((p, i) => ({
+          key: p.id,
+          src: p.imageUrl,
+          caption: p.title,
+          ratio: ["4/5", "3/2", "1/1"][i % 3],
+        }))
+      : TRAIL_PHOTOS.map(p => ({
+          key: p.stem,
+          src: photo(p.stem).lg,
+          caption: isHebrew ? p.he : p.en,
+          ratio: p.ratio,
+        }));
+  const initialFly = (() => {
+    const raw = new URLSearchParams(window.location.search).get("photo");
+    const q = raw == null || raw === "" ? NaN : Number(raw);
+    return Number.isInteger(q) && q >= 0 && q < flyPhotos.length ? q : -1;
+  })();
 
-        {/* Featured Photos Carousel */}
-        {featuredPhotos && featuredPhotos.length > 0 && (
-          <FeaturedCarousel
-            photos={featuredPhotos}
-            onPhotoClick={index => {
-              // Find this featured photo in the main grid to open lightbox at correct index
-              const photo = featuredPhotos[index];
-              const gridIndex = filteredPhotos.findIndex(
-                p => p.id === photo.id
-              );
-              if (gridIndex >= 0) {
-                openLightbox(gridIndex);
-              } else {
-                // Photo might not be in current grid filter — just open first
-                openLightbox(0);
-              }
-            }}
+  return (
+    <div className="wx" style={{ minHeight: "100vh" }}>
+      <Header />
+      <main id="main-content">
+        <GalleryFlyThrough photos={flyPhotos} initialIndex={initialFly} />
+
+        <div className="container" style={{ paddingTop: 16 }}>
+          <Breadcrumb
+            items={[{ label: t("Gallery", "\u05D2\u05DC\u05E8\u05D9\u05D4") }]}
           />
-        )}
+          <h2
+            className="wx-serif"
+            style={{
+              fontSize: "clamp(32px,4vw,48px)",
+              margin: "24px 0 0",
+              textAlign: "center",
+            }}
+          >
+            {t("Every photo", "כל התמונות")}
+          </h2>
+          <p
+            style={{
+              textAlign: "center",
+              color: "var(--wx-muted)",
+              margin: "8px auto 0",
+              maxWidth: 560,
+            }}
+          >
+            {t(
+              "Explore our adventures through Northern Thailand - from mountain trails to hidden waterfalls",
+              "גלו את ההרפתקאות שלנו בצפון תאילנד - משבילי הרים ועד מפלים נסתרים"
+            )}
+          </p>
+        </div>
 
         <div className="container py-8 md:py-12">
           {/* Category Filters */}

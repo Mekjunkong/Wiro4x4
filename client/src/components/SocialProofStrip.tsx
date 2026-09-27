@@ -24,7 +24,7 @@ const TRUST_BADGES = [
   { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: Flame },
 ];
 
-const TRIPADVISOR_REVIEW_SNAPSHOT = {
+export const TRIPADVISOR_REVIEW_SNAPSHOT = {
   rating: "5.0",
   reviewCount: 7,
 } as const;

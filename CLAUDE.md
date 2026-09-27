@@ -40,7 +40,7 @@ Tests that need MySQL use the `itWithDb` helper from `server/test-helpers.ts`, w
 
 **Data access.** `server/db/` is split by domain (`bookings.ts`, `tours.ts`, …). `server/db/index.ts` re-exports everything, so import from `server/db`. `getDb()` in `db/connection.ts` returns null without `DATABASE_URL`, and callers are expected to degrade.
 
-**Tour data has a DB-independent fallback.** `shared/wiroTourCatalog.ts` is the single hand-written source of tour facts and prices, used by the package UI, the SEO content and Levi. Database rows override it when the DB is healthy. Never add a second hard-coded price list. Tour card images are forced from `TOUR_IMAGE_MAP` (`client/src/components/Tours.tsx`), overriding DB `imageUrl`.
+**Tour data has a DB-independent fallback.** `shared/wiroTourCatalog.ts` is the single hand-written source of tour facts and prices, used by the package UI, the SEO content and Levi. Database rows override it when the DB is healthy. Never add a second hard-coded price list. Tour card images are forced from `TOUR_IMAGE_MAP` (`client/src/data/wiroTours.ts`), overriding DB `imageUrl`. That module also holds each tour's editorial copy (tagline, itinerary, map pins) but never prices.
 
 **SEO is server-rendered for crawlers.** In production, `server/seoMiddleware.ts` injects per-route meta and JSON-LD into the SPA shell (`STATIC_ROUTES`, plus `server/seoPageContent.ts`). Client pages also call `usePageMeta()`. A new public page needs its `<Route>` in `client/src/App.tsx`, `usePageMeta` in the page, an entry in `STATIC_ROUTES`, and an entry in `STATIC_PAGES` in `server/routes/sitemap.ts`.
 

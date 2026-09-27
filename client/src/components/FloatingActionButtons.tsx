@@ -7,7 +7,7 @@ import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 export function FloatingActionButtons() {
   const { t, language } = useLanguage();
   const [location] = useLocation();
-  const isBookingPage = location === "/book";
+  const isBookingPage = location === "/book" || location === "/plan-trip";
 
   const [scrolledPast, setScrolledPast] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

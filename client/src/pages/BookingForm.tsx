@@ -84,7 +84,7 @@ export default function BookingForm() {
     title: "Check Tour Availability",
     description:
       "Check availability for a private Chiang Mai 4x4 tour with WIRO. Hebrew-speaking guides and Shabbat-friendly scheduling.",
-    canonicalPath: "/book",
+    canonicalPath: "/plan-trip",
   });
 
   const bookingStartedRef = useRef(false);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TOUR_IMAGE_MAP } from "@/data/wiroTours";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
@@ -136,14 +137,6 @@ const HARDCODED_TOURS = [
 ];
 
 // Local image overrides — always used instead of DB imageUrl
-const TOUR_IMAGE_MAP: Record<string, string> = {
-  "doi-inthanon-roof-of-thailand": "mountain_sunset",
-  "mae-kampong-hidden-village": "mountain_village_view",
-  "maerim-sticky-waterfalls": "sticky_waterfalls",
-  "doi-suthep-pui-beyond-temple": "doi_suthep_golden_chedi",
-  "mae-wang-jungle-wilderness": "elephant_encounter",
-  "samoeng-loop-mountain-circuit": "chiang_mai_valley",
-};
 
 const DIFFICULTY_FILTERS = [
   { value: "all", en: "All", he: "הכל" },
