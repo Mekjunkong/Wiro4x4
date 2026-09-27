@@ -29,7 +29,7 @@ The Husky pre-commit hook runs `lint-staged` (eslint --fix + prettier) and then 
 
 Tests that need MySQL use the `itWithDb` helper from `server/test-helpers.ts`, which skips them when `DATABASE_URL` is unset, so a local run without a database passes with skips.
 
-**The local `.env` `DATABASE_URL` points at the production database.** `server/_core/devWriteGuard.ts` therefore blocks every tRPC mutation when the server runs outside production/test against a non-local DB host (reads still work); `ALLOW_REMOTE_DB_WRITES=1` overrides it deliberately. Plain Express routes (Levi, webhooks, n8n) are not covered. For browser checks and E2E runs, override it with a dead URL. Pages still render, and queries fail fast:
+**The local `.env` `DATABASE_URL` points at the production database.** `server/_core/devWriteGuard.ts` therefore blocks every tRPC mutation when the server runs outside production/test against a non-local DB host (reads still work); `ALLOW_REMOTE_DB_WRITES=1` overrides it deliberately. Plain Express routes (WhatsApp webhook, n8n, agent API) are not covered. For browser checks and E2E runs, override it with a dead URL. Pages still render, and queries fail fast:
 
 ```bash
 DATABASE_URL="mysql://offline:offline@127.0.0.1:9/offline" pnpm dev
