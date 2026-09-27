@@ -3,6 +3,7 @@ import { createServer } from "http";
 import net from "net";
 import { createApp } from "./app";
 import { serveStatic, setupVite } from "./vite";
+import { databaseHost, remoteDbWritesBlocked } from "./devWriteGuard";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -43,6 +44,11 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    if (remoteDbWritesBlocked()) {
+      console.warn(
+        `[dev] DATABASE_URL points at ${databaseHost(process.env.DATABASE_URL)}: reads work, writes are blocked (ALLOW_REMOTE_DB_WRITES=1 to override).`
+      );
+    }
   });
 }
 
