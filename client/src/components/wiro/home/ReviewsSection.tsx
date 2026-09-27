@@ -1,16 +1,20 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { COMPANY_TRIPADVISOR_URL } from "@/const";
-import { TRIPADVISOR_REVIEW_SNAPSHOT } from "@/components/SocialProofStrip";
+import {
+  TRIPADVISOR_REVIEWS,
+  TRIPADVISOR_REVIEW_SNAPSHOT,
+  formatCheckedOn,
+} from "@/data/tripadvisorReviews";
 import { Stars } from "../icons";
 
 /**
- * Reviews come only from approved guest reviews (`review.listPublic`) plus
- * the public Tripadvisor listing. With no approved reviews we show the
- * Tripadvisor proof instead of sample quotes.
+ * Every claim here can be checked: verbatim Tripadvisor excerpts, each
+ * linking to that review on Tripadvisor, and a dated rating snapshot.
+ * Approved on-site reviews (`review.listPublic`) follow, labelled as such.
  */
 export function ReviewsSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data } = trpc.review.listPublic.useQuery();
   const reviews = (data ?? [])
     .filter(r => r.rating >= 4 && r.text?.trim())
@@ -65,65 +69,78 @@ export function ReviewsSection() {
                 }}
               >
                 {t(
-                  `Read ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} public reviews on Tripadvisor`,
-                  `קראו ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} ביקורות ציבוריות ב-Tripadvisor`
+                  `Read all ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} public reviews on Tripadvisor ↗`,
+                  `קראו את כל ${TRIPADVISOR_REVIEW_SNAPSHOT.reviewCount} הביקורות הציבוריות ב-Tripadvisor ↗`
                 )}
+                <span style={{ display: "block", fontSize: 12, marginTop: 2 }}>
+                  {t(
+                    `Rating as shown on Tripadvisor, checked ${formatCheckedOn(language)}`,
+                    `הדירוג כפי שמופיע ב-Tripadvisor, נבדק ב${formatCheckedOn(language)}`
+                  )}
+                </span>
               </span>
             </span>
           </a>
         </div>
 
-        {reviews.length > 0 ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-              gap: 20,
-            }}
-          >
-            {reviews.map(r => (
-              <figure key={r.id} className="wx-quote">
-                <Stars />
-                <blockquote>“{r.text}”</blockquote>
-                <figcaption>
-                  <span className="wx-avatar">{r.name.trim().charAt(0)}</span>
-                  <span
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                      minWidth: 0,
-                    }}
-                  >
-                    <strong style={{ fontWeight: 600, fontSize: 15 }}>
-                      {r.name}
-                    </strong>
-                    {r.tourType && (
-                      <span style={{ fontSize: 13, color: "var(--wx-muted)" }}>
-                        {r.tourType}
-                      </span>
+        <div className="wx-quotes">
+          {TRIPADVISOR_REVIEWS.map(r => (
+            <figure key={r.id} className="wx-quote">
+              <Stars />
+              <blockquote cite={r.url} lang="en" dir="ltr">
+                <strong style={{ display: "block", fontWeight: 600 }}>
+                  {r.title}
+                </strong>
+                “{r.excerpt}”
+              </blockquote>
+              <figcaption>
+                <span className="wx-avatar" aria-hidden="true">
+                  {r.author.trim().charAt(0)}
+                </span>
+                <span className="wx-quote__who">
+                  <strong>{r.author}</strong>
+                  <span>{[r.from, r.visited].filter(Boolean).join(" · ")}</span>
+                  <a href={r.url} target="_blank" rel="noopener noreferrer">
+                    {t(
+                      "Read this review on Tripadvisor ↗",
+                      "לביקורת המלאה ב-Tripadvisor ↗"
                     )}
-                  </span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        ) : (
-          <p
-            style={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: "var(--wx-muted)",
-              maxWidth: 640,
-              margin: 0,
-            }}
-          >
-            {t(
-              "Independent traveler feedback is on our public Tripadvisor listing. Guest-submitted reviews appear here once approved.",
-              "משוב עצמאי של מטיילים נמצא בעמוד ה-Tripadvisor הציבורי שלנו. ביקורות אורחים יופיעו כאן לאחר אישורן."
-            )}
-          </p>
+                  </a>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="wx-quotes__note">
+          {t(
+            "Short excerpts quoted word for word from Tripadvisor; “…” marks a cut.",
+            "קטעים קצרים מצוטטים מילה במילה מ-Tripadvisor (באנגלית); ״…״ מסמן קיצור."
+          )}
+        </p>
+
+        {reviews.length > 0 && (
+          <>
+            <h3 className="wx-quotes__sub">
+              {t("Sent to us directly", "נשלחו אלינו ישירות")}
+            </h3>
+            <div className="wx-quotes">
+              {reviews.map(r => (
+                <figure key={r.id} className="wx-quote">
+                  <Stars />
+                  <blockquote>“{r.text}”</blockquote>
+                  <figcaption>
+                    <span className="wx-avatar" aria-hidden="true">
+                      {r.name.trim().charAt(0)}
+                    </span>
+                    <span className="wx-quote__who">
+                      <strong>{r.name}</strong>
+                      {r.tourType && <span>{r.tourType}</span>}
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>
