@@ -887,6 +887,8 @@ const CLIENT_ONLY_ROUTES = new Set([
   "/forgot-password",
   "/booking/success",
   "/booking/cancel",
+  // Full multi-day trip planner; /book (the day-tour stepper) is canonical.
+  "/plan-trip",
   "/404",
 ]);
 

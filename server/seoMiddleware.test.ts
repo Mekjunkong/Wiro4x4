@@ -85,6 +85,7 @@ describe("seoMiddleware route classification", () => {
     expect(isClientOnlyRoute("/admin/cost-calculator")).toBe(true);
     expect(isClientOnlyRoute("/album/abc123")).toBe(true);
     expect(isClientOnlyRoute("/404")).toBe(true);
+    expect(isClientOnlyRoute("/plan-trip")).toBe(true);
   });
 
   it("does not flag marketing pages or content slugs as client-only", () => {
