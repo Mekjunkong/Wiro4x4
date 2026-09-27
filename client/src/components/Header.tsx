@@ -19,12 +19,12 @@ function isDarkTop(path: string) {
 
 const MAIN = [
   { href: "/tours", en: "Tours", he: "טיולים" },
-  { href: "/packages", en: "Packages", he: "חבילות" },
   { href: "/gallery", en: "Gallery", he: "גלריה" },
   { href: "/book", en: "Book", he: "הזמנה" },
 ] as const;
 
 const MORE = [
+  { href: "/packages", en: "Packages", he: "חבילות" },
   { href: "/motorcycle-tours", en: "Motorcycle tours", he: "טיולי אופנוע" },
   { href: "/car-rental", en: "Car rental", he: "השכרת רכב" },
   { href: "/reviews", en: "Reviews", he: "ביקורות" },
@@ -119,10 +119,17 @@ export function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const isAdmin = isAuthenticated && user?.role === "admin";
-  const dark = isDarkTop(path);
+  // Light header while it sits over a dark hero (marked data-header-dark),
+  // or at the top of pages that open on a dark photo.
+  const [overDark, setOverDark] = useState(false);
+  const dark = overDark || (isDarkTop(path) && !scrolled);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 50);
+      const hero = document.querySelector("[data-header-dark]");
+      setOverDark(!!hero && hero.getBoundingClientRect().bottom > 72);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -131,6 +138,11 @@ export function Header() {
   useEffect(() => {
     setMenuOpen(false);
     setMoreOpen(false);
+    const id = window.setTimeout(
+      () => window.dispatchEvent(new Event("scroll")),
+      50
+    );
+    return () => window.clearTimeout(id);
   }, [path]);
 
   useEffect(() => {
@@ -168,7 +180,7 @@ export function Header() {
 
   return (
     <header
-      className={`wx-header site-header ${scrolled || menuOpen ? "is-scrolled" : ""} ${dark ? "is-dark" : ""}`}
+      className={`wx-header site-header ${scrolled || menuOpen ? "is-scrolled" : ""} ${menuOpen ? "is-menu" : ""} ${dark ? "is-dark" : ""}`}
     >
       <div className="wx-header__bar">
         <Link href="/" className="wx-header__logo" aria-label="WIRO 4x4 home">
@@ -259,8 +271,15 @@ export function Header() {
             </span>
           </button>
           <span className="wx-desk">
-            <WaCta source="GLOBAL-HEADER" className="wx-btn wx-btn--solid">
-              {t("Check availability", "בדיקת זמינות")}
+            <WaCta
+              source="GLOBAL-HEADER"
+              className="wx-btn wx-btn--gold wx-btn--pill"
+              ariaLabel={t(
+                "Check availability on WhatsApp",
+                "בדיקת זמינות בוואטסאפ"
+              )}
+            >
+              WhatsApp
             </WaCta>
           </span>
           <button

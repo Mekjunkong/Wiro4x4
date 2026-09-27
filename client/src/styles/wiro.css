@@ -202,6 +202,12 @@
   background: rgba(28, 28, 28, 0.06);
   color: var(--wx-ink);
 }
+.wx-btn--pill {
+  border-radius: 9999px;
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 12px;
+}
 .wx-btn--sharp {
   border-radius: 2px;
   font-size: 12px;
@@ -294,12 +300,13 @@
     border-color 300ms,
     box-shadow 300ms;
 }
-.wx-header.is-scrolled .wx-header__bar {
-  background: rgba(250, 247, 242, 0.94);
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: 0 10px 30px -12px rgba(28, 28, 28, 0.25);
+/* Like the design, the bar itself stays transparent; only the ink colour
+   flips once the page scrolls off the dark hero. The open mobile menu still
+   gets a solid bar so its close button stays readable. */
+.wx-header.is-menu .wx-header__bar {
+  background: rgba(250, 247, 242, 0.96);
 }
-.wx-header.is-dark:not(.is-scrolled) {
+.wx-header.is-dark:not(.is-menu) {
   color: var(--wx-light);
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
 }
@@ -317,7 +324,7 @@
 .wx-header.is-scrolled .wx-header__logo img {
   height: 52px;
 }
-.wx-header.is-dark:not(.is-scrolled) .wx-header__logo img {
+.wx-header.is-dark:not(.is-menu) .wx-header__logo img {
   filter: drop-shadow(0 5px 16px rgba(0, 0, 0, 0.35));
 }
 .wx-nav {
@@ -360,7 +367,7 @@
   background: var(--wx-ink);
   color: var(--wx-light);
 }
-.wx-header.is-dark:not(.is-scrolled) .wx-nav__item.is-active {
+.wx-header.is-dark:not(.is-menu) .wx-nav__item.is-active {
   background: var(--wx-gold);
   color: var(--wx-ink);
 }
@@ -388,7 +395,7 @@
   cursor: pointer;
   text-decoration: none;
 }
-.wx-header.is-dark:not(.is-scrolled) .wx-iconbtn {
+.wx-header.is-dark:not(.is-menu) .wx-iconbtn {
   border-color: rgba(251, 248, 241, 0.45);
 }
 .wx-iconbtn--plain {
@@ -530,77 +537,115 @@
   color: var(--wx-muted);
 }
 
-/* ---------- Home: parallax hero ---------- */
-.wx-hero {
+/* ---------- Home: night-drive hero (video inside the wordmark) ---------- */
+.wx-night {
   position: relative;
-  height: 100vh;
-  height: 100svh;
-  min-height: 640px;
-  overflow: hidden;
-  background: var(--wx-night);
+  background: var(--wx-night-2);
   color: var(--wx-light);
 }
-.wx-hero__bg {
-  position: absolute;
-  inset: -6%;
-  background-size: cover;
-  background-position: center;
-  will-change: transform;
+.wx-night__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--wx-night-2);
 }
-.wx-hero__shade {
+.wx-night__media {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(17, 17, 16, 0.9) 0%,
-    rgba(17, 17, 16, 0.5) 45%,
-    rgba(17, 17, 16, 0.12) 100%
-  );
-}
-.wx-hero__stack {
-  position: absolute;
-  inset-inline-end: 6vw;
-  top: 18vh;
-  width: 34vw;
-  max-width: 520px;
-  height: 62vh;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   will-change: transform;
 }
-.wx-hero__stack img {
+.wx-night__mask {
   position: absolute;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: var(--wx-night-2);
+  mix-blend-mode: multiply;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
-.wx-hero__copy {
+.wx-night__word {
+  font-family: var(--wx-serif);
+  font-weight: 400;
+  font-size: clamp(60px, 21vw, 360px);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: #fbf8f1;
+  transform-origin: 45% 55%;
+  will-change: transform;
+}
+.wx-night__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 45%,
+      rgba(17, 17, 16, 0) 35%,
+      rgba(17, 17, 16, 0.7) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(17, 17, 16, 0.9) 0%,
+      rgba(17, 17, 16, 0.35) 45%,
+      rgba(17, 17, 16, 0.2) 100%
+    );
+}
+.wx-night__intro {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% + clamp(56px, 11vw, 190px));
+  text-align: center;
+  pointer-events: none;
+}
+.wx-night__end {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 var(--wx-gutter) clamp(56px, 11vh, 120px);
+  padding: 0 var(--wx-gutter) clamp(56px, 10vh, 110px);
 }
-.wx-hero__title {
-  font-family: var(--wx-serif) !important;
-  font-weight: 400 !important;
-  font-size: clamp(76px, 14vw, 192px);
-  line-height: 0.88;
-  letter-spacing: -0.02em !important;
-  margin: 0;
-  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
-  will-change: transform;
+.wx-night__title {
+  font-family: var(--wx-serif);
+  font-weight: 400;
+  font-size: clamp(52px, 7.6vw, 120px);
+  line-height: 0.94;
+  margin: 18px 0 0;
+  max-width: 1000px;
+  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  text-wrap: balance;
 }
-.wx-hero__sub {
-  font-size: clamp(18px, 2vw, 24px);
-  line-height: 1.45;
+.wx-night__title em {
+  color: var(--wx-gold);
+}
+.wx-night__lede {
+  font-size: clamp(18px, 1.9vw, 22px);
+  line-height: 1.55;
   max-width: 560px;
-  margin: 20px 0 0;
+  margin: 22px 0 0;
+  color: rgba(251, 248, 241, 0.9);
 }
-@media (max-width: 899px) {
-  .wx-hero__stack {
-    display: none;
-  }
+.wx-night__progress {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: clamp(14px, 3vw, 36px);
+  transform: translateY(-50%);
+  width: 2px;
+  height: 140px;
+  background: rgba(251, 248, 241, 0.2);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.wx-night__progress > div {
+  width: 100%;
+  background: var(--wx-gold);
 }
 
 /* ---------- Trust band ---------- */
@@ -620,7 +665,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-@media (min-width: 1440px) {
+@media (min-width: 1100px) {
   .wx-trust__cards {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1164,7 +1209,7 @@ a.wx-trust__card:hover {
   border: 0;
   padding: 22px 0 0;
   cursor: pointer;
-  color: var(--wx-light);
+  color: var(--wx-ink);
 }
 .wx-stat::before {
   content: "";
@@ -1172,7 +1217,7 @@ a.wx-trust__card:hover {
   top: 0;
   inset-inline: 0;
   height: 1px;
-  background: rgba(251, 248, 241, 0.18);
+  background: rgba(28, 28, 28, 0.18);
 }
 .wx-stat::after {
   content: "";
@@ -1194,16 +1239,16 @@ a.wx-trust__card:hover {
   transition: color 400ms;
 }
 .wx-stat.is-on .wx-stat__num {
-  color: var(--wx-gold);
+  color: var(--wx-gold-ink);
 }
 .wx-stat__label {
   font-size: 14px;
   margin-top: 10px;
   line-height: 1.45;
-  color: rgba(251, 248, 241, 0.62);
+  color: rgba(28, 28, 28, 0.6);
 }
 .wx-stat.is-on .wx-stat__label {
-  color: rgba(251, 248, 241, 0.88);
+  color: rgba(28, 28, 28, 0.85);
 }
 
 .wx-machine__caption {
@@ -1257,20 +1302,20 @@ a.wx-trust__card:hover {
 .wx-places {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid rgba(251, 248, 241, 0.15);
+  border-top: 1px solid rgba(28, 28, 28, 0.15);
 }
 .wx-place {
   text-align: start;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(251, 248, 241, 0.15);
+  border-bottom: 1px solid rgba(28, 28, 28, 0.15);
   padding: 18px 16px;
   cursor: pointer;
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
-  color: var(--wx-light);
+  color: var(--wx-ink);
   transition: background 200ms;
 }
 .wx-place.is-on {
@@ -1279,10 +1324,10 @@ a.wx-trust__card:hover {
 .wx-place__num {
   font-family: var(--wx-serif);
   font-size: 20px;
-  color: rgba(251, 248, 241, 0.5);
+  color: rgba(28, 28, 28, 0.45);
 }
 .wx-place.is-on .wx-place__num {
-  color: var(--wx-gold);
+  color: var(--wx-gold-ink);
 }
 
 /* ---------- Kosher ---------- */
@@ -1461,10 +1506,10 @@ a.wx-trust__card:hover {
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    var(--wx-night) 0%,
-    rgba(20, 20, 20, 0) 18%,
-    rgba(20, 20, 20, 0) 82%,
-    var(--wx-night) 100%
+    var(--wx-paper) 0%,
+    rgba(250, 247, 242, 0) 18%,
+    rgba(250, 247, 242, 0) 82%,
+    var(--wx-paper) 100%
   );
 }
 

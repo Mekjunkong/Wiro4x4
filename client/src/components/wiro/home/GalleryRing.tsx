@@ -57,7 +57,7 @@ export function GalleryRing() {
 
   return (
     <section
-      className="wx wx-dark"
+      className="wx"
       aria-labelledby="wx-ring-title"
       style={{ padding: "clamp(56px,6vw,88px) 0", overflow: "hidden" }}
     >
@@ -128,7 +128,7 @@ export function GalleryRing() {
       >
         <span
           className="wx-caps"
-          style={{ fontSize: 11, color: "rgba(251,248,241,0.6)" }}
+          style={{ fontSize: 11, color: "var(--wx-muted)" }}
         >
           {t("Drag to spin", "גררו כדי לסובב")}
         </span>

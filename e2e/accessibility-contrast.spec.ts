@@ -67,7 +67,7 @@ test("conversion surfaces meet WCAG AA contrast", async ({ page }) => {
   const heroWhatsApp = page
     .locator("main section")
     .first()
-    .getByRole("link", { name: "Check availability on WhatsApp" });
+    .getByRole("link", { name: "Plan with WIRO" });
   const trailEyebrow = page.getByText("Six routes from Chiang Mai", {
     exact: true,
   });

@@ -46,9 +46,9 @@ export function TrustBand() {
       ),
     },
     {
-      num: t("Private", "פרטי"),
-      label: t("Your group only", "רק הקבוצה שלכם"),
-      sub: t("One group per vehicle, all day", "קבוצה אחת לרכב, כל היום"),
+      num: "1",
+      label: t("Group per vehicle", "קבוצה לרכב"),
+      sub: t("Private all day, never shared", "פרטי כל היום, בלי זרים"),
     },
     {
       num: "עב",
@@ -60,9 +60,9 @@ export function TrustBand() {
       hebrewNum: true,
     },
     {
-      num: t("Food", "אוכל"),
-      label: t("+ Shabbat", "+ שבת"),
-      sub: t("Discussed before you confirm", "מתואמים לפני האישור"),
+      num: "6",
+      label: t("Routes from Chiang Mai", "מסלולים מצ'יאנג מאי"),
+      sub: t("Doi Inthanon to Mae Wang", "מדוי אינתנון ועד מאה וואנג"),
     },
   ];
 

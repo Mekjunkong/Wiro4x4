@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { FAQ } from "@/components/FAQ";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
-import { HeroParallax } from "@/components/wiro/home/HeroParallax";
+import { NightDriveHero } from "@/components/wiro/home/NightDriveHero";
 import { TrustBand } from "@/components/wiro/home/TrustBand";
 import { TrailCarousel } from "@/components/wiro/home/TrailCarousel";
 import { MachineSection } from "@/components/wiro/home/MachineSection";
@@ -74,7 +74,7 @@ export default function Home() {
     <div className="wx" style={{ minHeight: "100vh" }}>
       <Header />
       <main id="main-content">
-        <HeroParallax />
+        <NightDriveHero />
         <TrustBand />
         <TrailCarousel tours={tours} />
         <MachineSection />

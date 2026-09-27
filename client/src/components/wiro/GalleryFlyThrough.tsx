@@ -89,6 +89,7 @@ export function GalleryFlyThrough({
       <section
         ref={trackRef}
         className="wx-fly"
+        data-header-dark
         aria-labelledby="wx-gallery-title"
       >
         <div className="wx-fly__stage">

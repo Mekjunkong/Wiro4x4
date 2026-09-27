@@ -26,7 +26,6 @@ const PUBLIC_INQUIRY_SURFACES = [
   "client/src/pages/AccessibleTours.tsx",
   "client/src/pages/Book.tsx",
   "client/src/components/wiro/WaCta.tsx",
-  "client/src/components/wiro/home/HeroParallax.tsx",
   "client/src/components/wiro/home/ClosingCta.tsx",
 ] as const;
 
@@ -54,7 +53,7 @@ const EXCLUDED_SURFACES = [
 
 describe("public WhatsApp inquiry source scan", () => {
   it("enumerates every public inquiry surface separately from explicit exclusions", () => {
-    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(23);
+    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(22);
     expect(DELEGATED_INQUIRY_SURFACES).toHaveLength(3);
     expect(EXCLUDED_SURFACES).not.toContain(
       "client/src/components/calculator-v2/SaveEstimateModal.tsx"
