@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Booking Flow", () => {
+// The full multi-day trip planner (hotels, services, packages) moved from
+// /book to /plan-trip when /book became the day-tour stepper.
+test.describe("Full trip planner", () => {
   test("should load the booking form page", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Header is visible
     await expect(page.locator("header")).toBeVisible();
@@ -19,10 +21,10 @@ test.describe("Booking Flow", () => {
 
     if (isMobile) {
       // On mobile, navigate directly
-      await page.goto("/book");
+      await page.goto("/plan-trip");
     } else {
       const availabilityLink = page
-        .locator('nav[aria-label="Main navigation"]')
+        .locator("header")
         .getByRole("link", { name: /check availability/i });
       await expect(availabilityLink).toBeVisible();
       await expect(availabilityLink).toHaveAttribute("href", /wa\.me\//);
@@ -30,17 +32,17 @@ test.describe("Booking Flow", () => {
         "href",
         /GLOBAL-HEADER-EN/
       );
-      await page.goto("/book");
+      await page.goto("/plan-trip");
     }
 
-    await expect(page).toHaveURL(/\/book/);
+    await expect(page).toHaveURL(/\/plan-trip/);
     await expect(page.locator("#contactName")).toBeVisible();
   });
 
   test("should have required form fields with proper labels", async ({
     page,
   }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Customer Details fieldset
     await expect(page.locator("#contactName")).toBeVisible();
@@ -53,7 +55,7 @@ test.describe("Booking Flow", () => {
   test("should show validation errors on empty submission", async ({
     page,
   }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Clear localStorage draft to ensure clean state
     await page.evaluate(() => localStorage.removeItem("wiro-booking-draft"));
@@ -78,7 +80,7 @@ test.describe("Booking Flow", () => {
   });
 
   test("should accept valid name input", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     await page.locator("#contactName").fill("Test User");
 
@@ -87,7 +89,7 @@ test.describe("Booking Flow", () => {
   });
 
   test("should validate phone number format", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Clear localStorage draft to ensure clean state
     await page.evaluate(() => localStorage.removeItem("wiro-booking-draft"));
@@ -112,7 +114,7 @@ test.describe("Booking Flow", () => {
   });
 
   test("should allow selecting number of adults", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     const adultsInput = page.locator("#numberOfAdults");
     await adultsInput.fill("4");
@@ -124,7 +126,7 @@ test.describe("Booking Flow", () => {
   test("should toggle children checkbox and show children fields", async ({
     page,
   }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     const childrenCheckbox = page.locator("#hasChildren");
     await childrenCheckbox.check();
@@ -134,7 +136,7 @@ test.describe("Booking Flow", () => {
   });
 
   test("should auto-save draft to localStorage", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Fill some data
     await page.locator("#contactName").fill("Draft Test User");
@@ -153,7 +155,7 @@ test.describe("Booking Flow", () => {
   test("should restore draft from localStorage on page reload", async ({
     page,
   }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Set draft data
     await page.evaluate(() => {
@@ -175,7 +177,7 @@ test.describe("Booking Flow", () => {
   });
 
   test("should have consent checkbox before submission", async ({ page }) => {
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Look for consent/terms checkbox
     const consentCheckbox = page.locator('input[type="checkbox"]').last();

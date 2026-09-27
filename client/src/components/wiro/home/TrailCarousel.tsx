@@ -193,6 +193,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
               <img
                 src={photo(tour.image).md}
                 alt=""
+                aria-hidden="true"
                 draggable={false}
                 style={{ transform: `scale(${on ? 1.06 : 1})` }}
               />

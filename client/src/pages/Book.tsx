@@ -479,6 +479,7 @@ export default function Book() {
                               <img
                                 src={photo(x.image).sm}
                                 alt=""
+                                aria-hidden="true"
                                 style={{
                                   width: 64,
                                   height: 64,
@@ -1044,6 +1045,7 @@ export default function Book() {
                         <img
                           src={photo(selTour.image).md}
                           alt=""
+                          aria-hidden="true"
                           style={{
                             position: "absolute",
                             inset: 0,

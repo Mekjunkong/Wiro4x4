@@ -134,21 +134,24 @@ test.describe("Tour Discovery to Booking", () => {
     await page.waitForLoadState("networkidle");
 
     const bookButton = page
-      .locator(`a[href="/book?tour=doi-inthanon-roof-of-thailand"]`)
+      .locator(`a[href="/book?tour=doi-inthanon-roof-of-thailand"]:visible`)
       .first();
-    if (await bookButton.isVisible().catch(() => false)) {
-      await bookButton.scrollIntoViewIfNeeded();
-      await bookButton.click();
-      await expect(page).toHaveURL(/\/book/);
+    await bookButton.scrollIntoViewIfNeeded();
+    await bookButton.click();
+    await expect(page).toHaveURL(/\/book\?tour=doi-inthanon-roof-of-thailand/);
 
-      // Booking form should be loaded
-      await expect(page.locator("#contactName")).toBeVisible();
-    }
+    // The stepper opens on the date step with the tour already chosen.
+    await expect(
+      page.getByRole("heading", { name: "When, and who's coming?" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("complementary", { name: "Your day" })
+    ).toContainText("Doi Inthanon");
   });
 
   test("should fill out booking form with valid data", async ({ page }) => {
     await preparePage(page);
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Fill contact details
     await page.locator("#contactName").fill("Test Traveler");
@@ -176,7 +179,7 @@ test.describe("Tour Discovery to Booking", () => {
     page,
   }) => {
     await preparePage(page);
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     // Clear any draft data
     await page.evaluate(() => localStorage.removeItem("wiro-booking-draft"));
@@ -200,7 +203,7 @@ test.describe("Tour Discovery to Booking", () => {
     page,
   }) => {
     await preparePage(page);
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     await page.evaluate(() => localStorage.removeItem("wiro-booking-draft"));
     await page.reload();
@@ -271,7 +274,7 @@ test.describe("Tour Booking - Mobile", () => {
     page,
   }) => {
     await preparePage(page);
-    await page.goto("/book");
+    await page.goto("/plan-trip");
 
     await expect(page.locator("#contactName")).toBeVisible();
 

@@ -104,6 +104,7 @@ export function GalleryRing() {
                 <img
                   src={photo(p.stem).md}
                   alt=""
+                  aria-hidden="true"
                   draggable={false}
                   loading="lazy"
                 />

@@ -7,7 +7,12 @@ export function ClosingCta() {
   const { t } = useLanguage();
   return (
     <section className="wx wx-cta" aria-labelledby="wx-cta-title">
-      <img src={photo("mountain_sunset_golden").lg} alt="" loading="lazy" />
+      <img
+        src={photo("mountain_sunset_golden").lg}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+      />
       <div className="wx-cta__shade" />
       <div
         style={{

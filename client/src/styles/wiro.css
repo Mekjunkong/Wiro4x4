@@ -267,13 +267,14 @@
   top: 0;
   inset-inline: 0;
   z-index: 10000;
-  padding: 18px clamp(12px, 2.5vw, 28px) 0;
+  /* Keep the resting header under ~80px: older pages reserve that much. */
+  padding: 12px clamp(12px, 2.5vw, 28px) 0;
   transition: padding 400ms var(--wx-ease);
   pointer-events: none;
   color: var(--wx-ink);
 }
 .wx-header.is-scrolled {
-  padding-top: 10px;
+  padding-top: 8px;
 }
 .wx-header__bar {
   position: relative;
@@ -308,7 +309,7 @@
   margin: -8px 0;
 }
 .wx-header__logo img {
-  height: 68px;
+  height: 60px;
   width: auto;
   display: block;
   transition: height 400ms var(--wx-ease);
@@ -524,7 +525,7 @@
   margin: 40px auto 0;
   padding-top: 22px;
   border-top: 1px solid rgba(212, 175, 55, 0.25);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--wx-muted);
 }

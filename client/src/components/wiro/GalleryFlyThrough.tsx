@@ -114,6 +114,7 @@ export function GalleryFlyThrough({
                 <img
                   src={ph.src}
                   alt=""
+                  aria-hidden="true"
                   loading={i < 6 ? "eager" : "lazy"}
                   style={{ aspectRatio: ph.ratio }}
                 />

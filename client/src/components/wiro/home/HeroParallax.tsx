@@ -69,6 +69,7 @@ export function HeroParallax() {
         <img
           src={photo("single_cascade_waterfall").md}
           alt=""
+          aria-hidden="true"
           style={{
             width: "56%",
             aspectRatio: "3 / 4",
@@ -81,6 +82,7 @@ export function HeroParallax() {
           ref={backRef}
           src={photo("hilltribe_community_visit").md}
           alt=""
+          aria-hidden="true"
           style={{
             width: "48%",
             aspectRatio: "4 / 5",

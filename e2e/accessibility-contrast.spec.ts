@@ -65,24 +65,22 @@ test("conversion surfaces meet WCAG AA contrast", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
   const heroWhatsApp = page
-    .getByRole("link", {
-      name: "Check Availability on WhatsApp",
-    })
-    .first();
-  const journeyLabel = page.getByText("Choose your way into the north", {
+    .locator("main section")
+    .first()
+    .getByRole("link", { name: "Check availability on WhatsApp" });
+  const trailEyebrow = page.getByText("Six routes from Chiang Mai", {
     exact: true,
   });
-  const exploreAction = page
-    .locator("#tours article .text-accent-readable")
-    .first();
+  const trailAction = page.getByRole("link", { name: "View the trail" });
 
   await expect(heroWhatsApp).toBeVisible();
-  await expect(journeyLabel).toBeVisible();
-  await expect(exploreAction).toBeVisible();
+  await trailEyebrow.scrollIntoViewIfNeeded();
+  await expect(trailEyebrow).toBeVisible();
+  await expect(trailAction).toBeVisible();
 
   expect(await contrastRatio(page, heroWhatsApp)).toBeGreaterThanOrEqual(4.5);
-  expect(await contrastRatio(page, journeyLabel)).toBeGreaterThanOrEqual(4.5);
-  expect(await contrastRatio(page, exploreAction)).toBeGreaterThanOrEqual(4.5);
+  expect(await contrastRatio(page, trailEyebrow)).toBeGreaterThanOrEqual(4.5);
+  expect(await contrastRatio(page, trailAction)).toBeGreaterThanOrEqual(4.5);
 
   const newsletterText = page.getByText(
     "Get the latest tour updates and special offers",
