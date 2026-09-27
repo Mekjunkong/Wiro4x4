@@ -956,7 +956,7 @@ a.wx-trust__card:hover {
 }
 .wx-dots {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   justify-content: center;
   margin-top: 28px;
 }
@@ -974,10 +974,11 @@ a.wx-trust__card:hover {
   /* keep a 44px hit area without changing the visual */
   position: relative;
 }
+/* 24px-wide tap target per dot (WCAG 2.5.8) without overlapping neighbours */
 .wx-dots button::before {
   content: "";
   position: absolute;
-  inset: -20px -4px;
+  inset: -20px -8px;
 }
 .wx-dots button.is-on {
   width: 28px;
@@ -1292,10 +1293,10 @@ a.wx-trust__card:hover {
   font-size: 14px;
   margin-top: 10px;
   line-height: 1.45;
-  color: rgba(28, 28, 28, 0.6);
+  color: var(--wx-muted);
 }
 .wx-stat.is-on .wx-stat__label {
-  color: rgba(28, 28, 28, 0.85);
+  color: var(--wx-ink-2);
 }
 
 .wx-machine__caption {
@@ -1371,7 +1372,7 @@ a.wx-trust__card:hover {
 .wx-place__num {
   font-family: var(--wx-serif);
   font-size: 20px;
-  color: rgba(28, 28, 28, 0.45);
+  color: var(--wx-muted);
 }
 .wx-place.is-on .wx-place__num {
   color: var(--wx-gold-ink);

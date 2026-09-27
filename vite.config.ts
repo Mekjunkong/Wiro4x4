@@ -8,10 +8,14 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 const isAnalyze = process.env.ANALYZE === "true";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const plugins = [
   react(),
   tailwindcss(),
-  jsxLocPlugin(),
+  // Source-location attributes are a dev aid; in production they leak file
+  // paths into the HTML and add bytes to every element.
+  ...(isDev ? [jsxLocPlugin()] : []),
   ...(isAnalyze
     ? [
         visualizer({

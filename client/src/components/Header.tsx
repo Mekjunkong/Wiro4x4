@@ -284,10 +284,11 @@ export function Header() {
             type="button"
             className="wx-iconbtn"
             onClick={() => setLanguage(language === "en" ? "he" : "en")}
+            // Starts with the visible word so the spoken name matches it.
             aria-label={
               language === "en"
-                ? "Switch language to Hebrew"
-                : "Switch language to English"
+                ? "עברית: switch language to Hebrew"
+                : "English: switch language to English"
             }
           >
             {language === "en" ? <FlagIL /> : <FlagUK />}
