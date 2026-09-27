@@ -1467,6 +1467,45 @@ a.wx-trust__card:hover {
   color: var(--wx-ink-2);
   flex: 1;
 }
+.wx-quotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+.wx-quote blockquote[dir="ltr"] {
+  text-align: left;
+}
+.wx-quotes__note {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: var(--wx-muted);
+}
+.wx-quotes__sub {
+  margin: 48px 0 20px;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wx-gold-ink);
+}
+.wx-quote__who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--wx-muted);
+}
+.wx-quote__who strong {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--wx-ink);
+  overflow-wrap: anywhere;
+}
+.wx-quote__who a {
+  color: var(--wx-gold-ink);
+  margin-top: 4px;
+  min-height: 24px;
+}
 .wx-quote figcaption {
   display: flex;
   align-items: center;

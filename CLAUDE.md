@@ -30,6 +30,16 @@ The Husky pre-commit hook runs `lint-staged` (eslint --fix + prettier) and then 
 
 Tests that need MySQL use the `itWithDb` helper from `server/test-helpers.ts`, which skips them when `DATABASE_URL` is unset, so a local run without a database passes with skips.
 
+**The local `.env` `DATABASE_URL` points at the production database.** Any form you submit against `pnpm dev` (bookings, reviews, newsletter) writes real rows. For browser checks and E2E runs, override it with a dead URL. Pages still render, and queries fail fast:
+
+```bash
+DATABASE_URL="mysql://offline:offline@127.0.0.1:9/offline" pnpm dev
+DATABASE_URL="mysql://offline:offline@127.0.0.1:9/offline" E2E_PORT=3219 \
+  npx playwright test e2e/booking-flow.spec.ts --project=chromium --project="Mobile Chrome"
+```
+
+With the dead URL, `pnpm vitest run client/src shared` passes; many `server/` tests fail rather than skip, because `DATABASE_URL` is set, so run those in CI.
+
 ## Architecture
 
 **Stack:** React 19 + Wouter + Tailwind 4 (client) · Express 4 + tRPC 11 (server) · Drizzle ORM on MySQL/TiDB (`drizzle/schema.ts`, ~30 tables) · pnpm. Path aliases: `@/` → `client/src`, `@shared/` → `shared`.
@@ -42,7 +52,7 @@ Tests that need MySQL use the `itWithDb` helper from `server/test-helpers.ts`, w
 
 **Tour data has a DB-independent fallback.** `shared/wiroTourCatalog.ts` is the single hand-written source of tour facts and prices, used by the package UI, the SEO content and Levi. Database rows override it when the DB is healthy. Never add a second hard-coded price list. Tour card images are forced from `TOUR_IMAGE_MAP` (`client/src/data/wiroTours.ts`), overriding DB `imageUrl`. That module also holds each tour's editorial copy (tagline, itinerary, map pins) but never prices.
 
-**SEO is server-rendered for crawlers.** In production, `server/seoMiddleware.ts` injects per-route meta and JSON-LD into the SPA shell (`STATIC_ROUTES`, plus `server/seoPageContent.ts`). Client pages also call `usePageMeta()`. A new public page needs its `<Route>` in `client/src/App.tsx`, `usePageMeta` in the page, an entry in `STATIC_ROUTES`, and an entry in `STATIC_PAGES` in `server/routes/sitemap.ts`.
+**SEO is server-rendered for crawlers.** In production, `server/seoMiddleware.ts` injects per-route meta and JSON-LD into the SPA shell (`STATIC_ROUTES`, plus `server/seoPageContent.ts`). Client pages also call `usePageMeta()`. A new public page needs its `<Route>` in `client/src/App.tsx`, `usePageMeta` in the page, an entry in `STATIC_ROUTES`, and an entry in `STATIC_PAGES` in `server/routes/sitemap.ts`. Any path the middleware doesn't know returns a real 404, so a client-only utility route (for example `/plan-trip`, the long multi-day planner behind the `/book` stepper) must be added to `CLIENT_ONLY_ROUTES` in `server/seoMiddleware.ts`. Those routes are served with `noindex`.
 
 **Levi (customer chat).** `client/src/components/ChatWidget.tsx` posts to `server/routes/levi.ts`, which forwards the conversation to an external Levi service (`LEVI_CHAT_URL` / `LEVI_API_KEY`), builds booking state (`server/leviBooking.ts`) and prompts (`server/leviKnowledge.ts`), and sends signed owner alerts (`LEVI_WEBHOOK_URL` / `LEVI_WEBHOOK_SECRET`). Per PRODUCT.md, Levi must reduce friction before WhatsApp, not compete with it. `eliRelay.ts` / `eliChatApi.ts` are older chat paths and are not mounted in `createApp`.
 
@@ -50,13 +60,20 @@ Tests that need MySQL use the `itWithDb` helper from `server/test-helpers.ts`, w
 
 **Bilingual UI.** `useLanguage()` from `client/src/contexts/LanguageContext.tsx` provides `t("English", "עברית")`. Hebrew sets `dir="rtl"` on `<html>`. Every user-facing string needs both languages, and layouts must not break mirrored.
 
-**Styling.** Use the semantic tokens and CSS variables in `client/src/index.css` (Tailwind theme mappings) rather than hard-coded hex values.
+**Styling: two systems.**
+
+- The redesigned public pages (Home, Tours, tour detail, `/book`, Gallery) plus `Header` and `Footer` use plain CSS in `client/src/styles/wiro.css`, not Tailwind. Every class is `wx-` prefixed, and the page root carries `className="wx"`, which also remaps the shadcn tokens so older components nested inside match. That CSS is unlayered, so it beats Tailwind's layered utilities. For responsive visibility inside `wx` markup, use `.wx-desk` / `.wx-mob` / `.wx-sm-up`, not `lg:hidden`.
+- The older pages and admin use Tailwind with the shadcn tokens in `client/src/index.css`.
+- **Dark mode** is class-based: the header toggles `.dark` on `<html>` and stores it in `localStorage["wiro-theme"]`. Light is the default and system preference is ignored. Both files redefine their tokens under `.dark`.
+- In `wiro.css`, `--wx-ink` is the text colour, which turns light in dark mode. Solid dark fills (active pills, dark panels, summaries) must use `--wx-solid`, and translucent ivory must use `rgba(var(--wx-paper-rgb), …)`.
+- Photo heroes add `data-header-dark` to their section so the header switches to light text while it sits over them.
 
 ## Conventions that bite
 
 - **Lazy clients.** Resend and Anthropic clients are created inside a getter on first use, never at module load. The getter returns `null` and logs a warning when the key is missing, so the app and tests run without those keys.
 - **Email senders.** `shared/const.ts` has `COMPANY_EMAIL` (public Gmail contact) and `COMPANY_SENDER_EMAIL` (the Resend-verified `@wiro4x4indochina.com` domain). Every outbound email must send from the verified domain: `bookings@` for booking, confirmation and payment mail; `updates@` for newsletters and abandoned-booking recovery.
-- **WhatsApp number** lives only in `shared/const.ts` (`COMPANY_WHATSAPP`, `COMPANY_WHATSAPP_URL`); `client/src/const.ts` re-exports it.
+- **WhatsApp number** lives only in `shared/const.ts` (`COMPANY_WHATSAPP`, `COMPANY_WHATSAPP_URL`); `client/src/const.ts` re-exports it. Links to it go through `TrackedWhatsAppLink` (or `WaCta` in the redesign) with a source code such as `HOME-HERO`; `client/src/lib/whatsappSourceScan.test.ts` fails if a raw `wa.me` link is added.
+- **Claims must be checkable** (PRODUCT.md; guarded by `e2e/trust-integrity.spec.ts`). The Tripadvisor rating, review count and quoted excerpts live only in `client/src/data/tripadvisorReviews.ts`, dated by `checkedOn`, with each quote linking to its review. Re-read the listing before changing any number or quote. Never add sample reviews, invented stats or aggregate-rating JSON-LD.
 - **Environment variables:** `.env.example` is the reference list. Production values are set in the Vercel dashboard.
 - **Images:** `pnpm images:optimize` (also run by `build:frontend`) writes `-sm/-md/-lg` WebP/JPG variants to `client/public/images/optimized/`. Originals are in `assets-source/images/`, whose filenames do not reliably match what the photo shows.
 

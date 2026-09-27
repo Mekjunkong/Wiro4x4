@@ -24,10 +24,8 @@ const TRUST_BADGES = [
   { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: Flame },
 ];
 
-export const TRIPADVISOR_REVIEW_SNAPSHOT = {
-  rating: "5.0",
-  reviewCount: 7,
-} as const;
+export { TRIPADVISOR_REVIEW_SNAPSHOT } from "@/data/tripadvisorReviews";
+import { TRIPADVISOR_REVIEW_SNAPSHOT } from "@/data/tripadvisorReviews";
 
 function StarRating({ rating }: { rating: number }) {
   return (
