@@ -7,7 +7,6 @@ import { registerSitemapRoute } from "../routes/sitemap";
 import { registerWhatsAppWebhookRoute } from "../routes/whatsapp";
 import { registerPostTourReviewClickRoute } from "../routes/postTourReviewClick";
 import { registerAgentApiRoutes } from "../routes/agentApi";
-import { registerLeviRoute } from "../routes/levi";
 import { registerN8nRoutes } from "../routes/n8n";
 import { appRouter } from "../routers";
 import { productionSecurityMiddleware } from "../productionSecurity";
@@ -82,9 +81,6 @@ export function createApp(options?: CreateAppOptions) {
   registerAgentApiRoutes(app);
 
   registerN8nRoutes(app);
-
-  // Levi customer chat → isolated VPS replies and signed owner alerts
-  registerLeviRoute(app);
 
   // tRPC API
   app.use(

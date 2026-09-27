@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-WIRO 4x4 (https://www.wiro4x4indochina.com): private off-road tours from Chiang Mai for Israeli / kosher-observant travelers. A bilingual (English / Hebrew with RTL) booking site plus an admin back office (bookings, CRM, accounting, inventory, gallery, blog, reviews) and the Levi customer chat assistant. The conversion goal is a WhatsApp conversation or a booking inquiry.
+WIRO 4x4 (https://www.wiro4x4indochina.com): private off-road tours from Chiang Mai for Israeli / kosher-observant travelers. A bilingual (English / Hebrew with RTL) booking site plus an admin back office (bookings, CRM, accounting, inventory, gallery, blog, reviews). The conversion goal is a WhatsApp conversation or a booking inquiry.
 
 Read `PRODUCT.md` (audience, voice, claims policy) and `DESIGN.md` (the "Expedition Dossier" visual system and its bans) before any UI or copy change. Key rules from them: real photos over decorative graphics; say "kosher-friendly planning" unless a certification is proven; no pure `#000` or `#fff`, no gradient text, no decorative glassmorphism; WhatsApp is the primary CTA.
 
@@ -22,7 +22,6 @@ pnpm test:e2e            # Playwright (e2e/); starts its own `pnpm dev` on an e2
 pnpm build               # local production build → dist/index.js (+ dist/public)
 pnpm build:frontend      # what Vercel runs (see Deployment)
 pnpm db:push             # drizzle-kit generate && migrate
-pnpm eval:levi           # evaluate Levi chat prompts
 pnpm n8n:validate        # also n8n:doctor / readiness / smoke, for workflows/
 ```
 
@@ -44,17 +43,17 @@ With the dead URL, `pnpm vitest run client/src shared` passes; many `server/` te
 
 **Stack:** React 19 + Wouter + Tailwind 4 (client) · Express 4 + tRPC 11 (server) · Drizzle ORM on MySQL/TiDB (`drizzle/schema.ts`, ~30 tables) · pnpm. Path aliases: `@/` → `client/src`, `@shared/` → `shared`.
 
-**One Express app for every entrypoint.** `server/_core/app.ts` `createApp()` owns middleware order: production security headers → body parsers → SEO middleware (production only) → plain Express routes (auth, RSS, sitemap, WhatsApp webhook, n8n, agent API, Levi) → tRPC at `/api/trpc`. `server/_core/index.ts` (dev/local) and `server/vercel-entry.ts` (serverless) both call it. `_core/` is project code despite the name and is edited regularly.
+**One Express app for every entrypoint.** `server/_core/app.ts` `createApp()` owns middleware order: production security headers → body parsers → SEO middleware (production only) → plain Express routes (auth, RSS, sitemap, WhatsApp webhook, n8n, agent API) → tRPC at `/api/trpc`. `server/_core/index.ts` (dev/local) and `server/vercel-entry.ts` (serverless) both call it. `_core/` is project code despite the name and is edited regularly.
 
-**tRPC composition.** `server/routers.ts` is a thin aggregator. Each domain router lives in `server/routes/<domain>.ts`, and shared procedure builders, the rate-limit guard and the admin logger live in `server/routes/_helpers.ts`. Some files in `server/routes/` are plain Express routes, not tRPC (`levi.ts`, `n8n.ts`, `rss.ts`, `sitemap.ts`, `whatsapp.ts`, `authRoutes.ts`, `agentApi.ts`). Zod input schemas live in `shared/schemas.ts`.
+**tRPC composition.** `server/routers.ts` is a thin aggregator. Each domain router lives in `server/routes/<domain>.ts`, and shared procedure builders, the rate-limit guard and the admin logger live in `server/routes/_helpers.ts`. Some files in `server/routes/` are plain Express routes, not tRPC (`n8n.ts`, `rss.ts`, `sitemap.ts`, `whatsapp.ts`, `authRoutes.ts`, `agentApi.ts`). Zod input schemas live in `shared/schemas.ts`.
 
 **Data access.** `server/db/` is split by domain (`bookings.ts`, `tours.ts`, …). `server/db/index.ts` re-exports everything, so import from `server/db`. `getDb()` in `db/connection.ts` returns null without `DATABASE_URL`, and callers are expected to degrade.
 
-**Tour data has a DB-independent fallback.** `shared/wiroTourCatalog.ts` is the single hand-written source of tour facts and prices, used by the package UI, the SEO content and Levi. Database rows override it when the DB is healthy. Never add a second hard-coded price list. Tour card images are forced from `TOUR_IMAGE_MAP` (`shared/wiroTourStories.ts`, re-exported by `client/src/data/wiroTours.ts`), overriding DB `imageUrl`. That module also holds each tour's editorial copy (tagline, itinerary, map pins) but never prices.
+**Tour data has a DB-independent fallback.** `shared/wiroTourCatalog.ts` is the single hand-written source of tour facts and prices, used by the package UI, and the SEO content. Database rows override it when the DB is healthy. Never add a second hard-coded price list. Tour card images are forced from `TOUR_IMAGE_MAP` (`shared/wiroTourStories.ts`, re-exported by `client/src/data/wiroTours.ts`), overriding DB `imageUrl`. That module also holds each tour's editorial copy (tagline, itinerary, map pins) but never prices.
 
 **SEO is server-rendered for crawlers.** Beyond meta tags, `server/seoPageContent.ts` + `server/seoPageBody.ts` put real page text into `#root` (tour facts and itinerary, blog articles, FAQ, landing-page copy) for crawlers that never run JavaScript; React replaces it on mount. That text must come from the same shared modules the React pages render (`shared/wiroTourStories.ts`, `shared/blog/`, `shared/faqItems.ts`, `shared/commercialLandingContent.ts`), never a copy, and prices only where the server has loaded the live DB row (tour detail), not on `/tours`. Titles go through `withBrandSuffix` (`shared/pageTitle.ts`) on both server and client. In production, `server/seoMiddleware.ts` injects per-route meta and JSON-LD into the SPA shell (`STATIC_ROUTES`, plus `server/seoPageContent.ts`). Client pages also call `usePageMeta()`. A new public page needs its `<Route>` in `client/src/App.tsx`, `usePageMeta` in the page, an entry in `STATIC_ROUTES`, and an entry in `STATIC_PAGES` in `server/routes/sitemap.ts`. Any path the middleware doesn't know returns a real 404, so a client-only utility route (for example `/plan-trip`, the long multi-day planner behind the `/book` stepper) must be added to `CLIENT_ONLY_ROUTES` in `server/seoMiddleware.ts`. Those routes are served with `noindex`.
 
-**Levi (customer chat).** `client/src/components/ChatWidget.tsx` posts to `server/routes/levi.ts`, which forwards the conversation to an external Levi service (`LEVI_CHAT_URL` / `LEVI_API_KEY`), builds booking state (`server/leviBooking.ts`) and prompts (`server/leviKnowledge.ts`), and sends signed owner alerts (`LEVI_WEBHOOK_URL` / `LEVI_WEBHOOK_SECRET`). Per PRODUCT.md, Levi must reduce friction before WhatsApp, not compete with it. `eliRelay.ts` / `eliChatApi.ts` are older chat paths and are not mounted in `createApp`.
+**Customer chat.** There is no live chat widget; customers are routed to WhatsApp. The Levi chat (widget, `/api/levi/message`, VPS profile) was removed in Sep 2026. `eliRelay.ts` / `eliChatApi.ts` are older chat paths and are not mounted in `createApp`.
 
 **Background work.** `routers.ts` starts the Stripe session checker and the reminder scheduler, but not under `NODE_ENV=test` or on Vercel. On Vercel, scheduled and automated work runs through n8n (`workflows/`, `server/n8nAutomation.ts`, `server/routes/n8n.ts`, `docker-compose.n8n.yml`).
 
