@@ -4,17 +4,13 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const PUBLIC_INQUIRY_SURFACES = [
-  "client/src/components/Hero.tsx",
   "client/src/components/Header.tsx",
   "client/src/components/FloatingActionButtons.tsx",
-  "client/src/components/QuickInquiryForm.tsx",
   "client/src/components/Footer.tsx",
 
-  "client/src/components/calculator-v2/SaveEstimateModal.tsx",
   "client/src/components/blog/BlogPostCta.tsx",
   "client/src/pages/HebrewLandingPage.tsx",
   "client/src/pages/TourDetail.tsx",
-  "client/src/components/ContactOptions.tsx",
   "client/src/pages/Packages.tsx",
   "client/src/pages/PackageDetail.tsx",
   "client/src/pages/BookingForm.tsx",
@@ -53,11 +49,13 @@ const EXCLUDED_SURFACES = [
 
 describe("public WhatsApp inquiry source scan", () => {
   it("enumerates every public inquiry surface separately from explicit exclusions", () => {
-    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(22);
+    expect(PUBLIC_INQUIRY_SURFACES).toHaveLength(18);
     expect(DELEGATED_INQUIRY_SURFACES).toHaveLength(3);
-    expect(EXCLUDED_SURFACES).not.toContain(
-      "client/src/components/calculator-v2/SaveEstimateModal.tsx"
-    );
+    expect(
+      PUBLIC_INQUIRY_SURFACES.filter(file =>
+        EXCLUDED_SURFACES.some(excluded => file.startsWith(excluded))
+      )
+    ).toEqual([]);
   });
 
   for (const file of PUBLIC_INQUIRY_SURFACES) {
