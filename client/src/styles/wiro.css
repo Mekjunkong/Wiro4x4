@@ -6,6 +6,8 @@
  */
 :root {
   --wx-paper: #faf7f2;
+  --wx-paper-rgb: 250, 247, 242;
+  --wx-solid: #1c1c1c;
   --wx-paper-2: #f3ede3;
   --wx-card: #fdfbf7;
   --wx-ink: #1c1c1c;
@@ -24,6 +26,32 @@
   --wx-sans: "Source Sans 3", system-ui, sans-serif;
   --wx-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --wx-gutter: clamp(20px, 4vw, 48px);
+}
+
+/* Dark theme (header toggle). Ink becomes the light text colour; solid
+   fills (active pill, dark panels, summaries) keep --wx-solid. Warm near-
+   black and warm off-white per DESIGN.md — never pure #000/#fff. */
+.dark {
+  --wx-paper: #121211;
+  --wx-paper-rgb: 18, 18, 17;
+  --wx-paper-2: #1a1917;
+  --wx-card: #1e1d1b;
+  --wx-solid: #262420;
+  --wx-ink: #f3efe6;
+  --wx-ink-2: #e2ddd2;
+  --wx-muted: #a9a197;
+  --wx-line: #34312c;
+  --wx-gold-ink: #d4af37;
+  --wx-gold-ink-hi: #e0bf4f;
+  color-scheme: dark;
+}
+.dark .wx-nav__item.is-active,
+.dark .wx-btn--ink {
+  background: var(--wx-gold);
+  color: #1c1c1c;
+}
+.dark .wx-day.is-on {
+  border-color: var(--wx-gold);
 }
 
 .wx {
@@ -177,7 +205,7 @@
   color: var(--wx-light);
 }
 .wx-btn--ink {
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
 }
 .wx-btn--ink:hover {
@@ -304,7 +332,7 @@
    flips once the page scrolls off the dark hero. The open mobile menu still
    gets a solid bar so its close button stays readable. */
 .wx-header.is-menu .wx-header__bar {
-  background: rgba(250, 247, 242, 0.96);
+  background: rgba(var(--wx-paper-rgb), 0.96);
 }
 .wx-header.is-dark:not(.is-menu) {
   color: var(--wx-light);
@@ -364,7 +392,7 @@
   background: rgba(212, 175, 55, 0.16);
 }
 .wx-nav__item.is-active {
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
 }
 .wx-header.is-dark:not(.is-menu) .wx-nav__item.is-active {
@@ -404,6 +432,15 @@
 .wx-more {
   position: relative;
 }
+/* Invisible bridge over the gap so hovering from the button to the panel
+   doesn't close it. */
+.wx-more__panel::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 12px;
+}
 .wx-more__panel {
   position: absolute;
   top: calc(100% + 10px);
@@ -437,7 +474,7 @@
   position: fixed;
   inset: 0;
   z-index: 1;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
   display: flex;
   flex-direction: column;
@@ -747,8 +784,8 @@ a.wx-trust__card:hover {
   pointer-events: none;
   background: radial-gradient(
     ellipse at 50% 55%,
-    rgba(250, 247, 242, 0.72) 0%,
-    rgba(250, 247, 242, 0.94) 65%,
+    rgba(var(--wx-paper-rgb), 0.72) 0%,
+    rgba(var(--wx-paper-rgb), 0.94) 65%,
     var(--wx-paper) 100%
   );
 }
@@ -816,6 +853,10 @@ a.wx-trust__card:hover {
   perspective-origin: 50% 45%;
   touch-action: pan-y;
   user-select: none;
+  cursor: grab;
+}
+.wx-stage:active {
+  cursor: grabbing;
 }
 .wx-stage__card {
   position: absolute;
@@ -824,7 +865,7 @@ a.wx-trust__card:hover {
   aspect-ratio: 3 / 4;
   border-radius: 4px;
   overflow: hidden;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
   cursor: pointer;
   border: 0;
@@ -1437,7 +1478,7 @@ a.wx-trust__card:hover {
   width: 44px;
   height: 44px;
   border-radius: 9999px;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-gold);
   display: flex;
   align-items: center;
@@ -1469,7 +1510,7 @@ a.wx-trust__card:hover {
   position: absolute;
   padding: 0;
   border: 0;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   border-radius: 3px;
   overflow: hidden;
   cursor: pointer;
@@ -1507,8 +1548,8 @@ a.wx-trust__card:hover {
   background: linear-gradient(
     90deg,
     var(--wx-paper) 0%,
-    rgba(250, 247, 242, 0) 18%,
-    rgba(250, 247, 242, 0) 82%,
+    rgba(var(--wx-paper-rgb), 0) 18%,
+    rgba(var(--wx-paper-rgb), 0) 82%,
     var(--wx-paper) 100%
   );
 }
@@ -1519,7 +1560,7 @@ a.wx-trust__card:hover {
   padding: clamp(100px, 14vw, 180px) clamp(16px, 3vw, 32px);
   color: var(--wx-light);
   overflow: hidden;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
 }
 .wx-cta > img {
   position: absolute;
@@ -1572,7 +1613,7 @@ a.wx-trust__card:hover {
   height: 84vh;
   min-height: 560px;
   overflow: hidden;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
 }
 .wx-dhero > img {
@@ -1696,7 +1737,7 @@ a.wx-trust__card:hover {
   display: none;
 }
 .wx-panel-dark {
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
   border-radius: 4px;
   padding: 28px;
@@ -1707,7 +1748,7 @@ a.wx-trust__card:hover {
 .wx-aside {
   position: sticky;
   top: 96px;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
   border-radius: 4px;
   padding: 32px;
@@ -1735,7 +1776,7 @@ a.wx-trust__card:hover {
   inset-inline: 0;
   bottom: 0;
   z-index: 90;
-  background: rgba(250, 247, 242, 0.97);
+  background: rgba(var(--wx-paper-rgb), 0.97);
   border-top: 1px solid rgba(212, 175, 55, 0.3);
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
   display: flex;
@@ -1838,8 +1879,8 @@ a.wx-trust__card:hover {
   cursor: pointer;
 }
 .wx-day.is-on {
-  background: var(--wx-ink);
-  border-color: var(--wx-ink);
+  background: var(--wx-solid);
+  border-color: var(--wx-solid);
   color: var(--wx-gold);
 }
 .wx-day[disabled] {
@@ -1908,7 +1949,7 @@ a.wx-trust__card:hover {
 .wx-summary {
   position: sticky;
   top: 96px;
-  background: var(--wx-ink);
+  background: var(--wx-solid);
   color: var(--wx-light);
   border-radius: 4px;
   overflow: hidden;

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { WhatsAppIcon } from "@/components/wiro/icons";
 
 export function FloatingActionButtons() {
   const { t, language } = useLanguage();
@@ -60,7 +60,7 @@ export function FloatingActionButtons() {
             "בדיקת זמינות בוואטסאפ"
           )}
         >
-          <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          <WhatsAppIcon size={20} />
           <span className="text-sm font-semibold">
             {t("WhatsApp", "וואטסאפ")}
           </span>

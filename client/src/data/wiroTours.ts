@@ -45,7 +45,7 @@ export interface WiroTourStory {
  */
 export const TOUR_IMAGE_MAP: Record<string, string> = {
   "doi-inthanon-roof-of-thailand": "mountain_sunset",
-  "mae-kampong-hidden-village": "hilltribe_community_visit",
+  "mae-kampong-hidden-village": "mae-kampong-village",
   "maerim-sticky-waterfalls": "sticky_waterfalls",
   "doi-suthep-pui-beyond-temple": "mountain_sunset_golden",
   "mae-wang-jungle-wilderness": "elephant_sanctuary_chiangmai",
