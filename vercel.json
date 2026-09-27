@@ -4,6 +4,7 @@
   "installCommand": "pnpm install",
   "framework": null,
   "outputDirectory": "dist/public",
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/",

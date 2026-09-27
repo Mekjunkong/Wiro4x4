@@ -1,11 +1,13 @@
 import { COMMERCIAL_SEO_ROUTE_PAIRS } from "../shared/commercialSeo";
-import { WIRO_TOUR_CATALOG } from "../shared/wiroTourCatalog";
+import { commercialBody, faqBody, toursListBody } from "./seoPageBody";
 
 interface SearchPage {
   title: string;
   description: string;
   canonicalPath: string;
   lang?: string;
+  /** Pre-escaped page body from `seoPageBody.ts` (tour, blog, package). */
+  bodyHtml?: string;
 }
 
 function escapeHtml(value: string): string {
@@ -75,15 +77,15 @@ export function injectPageContent(html: string, page: SearchPage): string {
         `<li><a href="${escapeHtml(link.path)}">${escapeHtml(link.label)}</a></li>`
     )
     .join("");
-  // The tours page already presents these six catalog routes in the React UI.
-  const tours =
-    page.canonicalPath === "/tours"
-      ? `<section><h2>Private day tour routes from Chiang Mai</h2><ul>${WIRO_TOUR_CATALOG.map(
-          tour =>
-            `<li><a href="/tours/${escapeHtml(tour.slug)}">${escapeHtml(tour.name)}</a><p>${escapeHtml(tour.highlights.join(", "))}.</p></li>`
-        ).join("")}</ul></section>`
-      : "";
-  const content = `<main id="main-content" lang="${he ? "he" : "en"}" dir="${he ? "rtl" : "ltr"}" class="container py-16"><a href="/">WIRO 4x4</a><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(page.description)}</p>${tours}<nav aria-label="${he ? "טיולים ותכנון" : "Tours and planning"}"><ul>${linkList}</ul></nav></main>`;
+  const lang = he ? "he" : "en";
+  const body =
+    page.bodyHtml ??
+    (page.canonicalPath === "/" || page.canonicalPath === "/tours"
+      ? toursListBody(lang)
+      : page.canonicalPath === "/faq"
+        ? faqBody(lang)
+        : commercialBody(page.canonicalPath, lang));
+  const content = `<main id="main-content" lang="${he ? "he" : "en"}" dir="${he ? "rtl" : "ltr"}" class="container py-16"><a href="/">WIRO 4x4</a><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(page.description)}</p>${body}<nav aria-label="${he ? "טיולים ותכנון" : "Tours and planning"}"><ul>${linkList}</ul></nav></main>`;
   // The shell and this fallback contain no nested divs; replacing it is idempotent.
   return html.replace(
     /(<div\s+id="root"\s*>)[\s\S]*?<\/div>/,

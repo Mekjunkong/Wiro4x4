@@ -18,6 +18,8 @@ describe("initial HTML available without JavaScript", () => {
     for (const tour of WIRO_TOUR_CATALOG) {
       expect(html).toContain(`href="/tours/${tour.slug}"`);
     }
+    // /tours renders without a DB lookup, so it must not state prices that
+    // could contradict the live ones.
     expect(html).not.toMatch(/priceCurrency|฿|\$\d/);
     expect(html).toContain('src="/src/main.tsx"');
   });
@@ -73,5 +75,53 @@ describe("initial HTML available without JavaScript", () => {
     expect(second.match(/<main /g)).toHaveLength(1);
     expect(second).toContain("<h1>Another route</h1>");
     expect(second).not.toContain("&lt;img src=x");
+  });
+
+  it("gives crawlers the full tour day: facts, price, itinerary, booking link", async () => {
+    const meta = await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
+      loadTourBySlug: async () => {
+        throw new Error("database unavailable");
+      },
+    });
+    const html = injectMeta(shell, meta!);
+    expect(html).toContain("The day, hour by hour");
+    expect(html).toContain("From ฿3,500 per vehicle");
+    expect(html).toContain('href="/book?tour=mae-kampong-hidden-village"');
+    expect(html).toContain('"priceCurrency":"THB"');
+    expect(html).toContain('"price":3500');
+    expect(html).toContain('property="og:type" content="product"');
+  });
+
+  it("uses the database price in both the page body and the offer", async () => {
+    const meta = await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
+      loadTourBySlug: async () =>
+        ({
+          name: "Mae Kampong — Hidden Mountain Village",
+          price: 3900,
+          description: "DB **story** line",
+        }) as never,
+    });
+    const html = injectMeta(shell, meta!);
+    expect(html).toContain("From ฿3,900 per vehicle");
+    expect(html).toContain('"price":3900');
+    expect(html).toContain("<strong>story</strong>");
+  });
+
+  it("renders a hardcoded blog article body for crawlers", async () => {
+    const meta = await resolveDynamicMeta("/blog/mae-kampong-or-samoeng", {
+      loadBlogPostBySlug: async () => undefined,
+    });
+    const html = injectMeta(shell, meta!);
+    const words = html
+      .replace(/<script[\s\S]*?<\/script>/g, "")
+      .replace(/<[^>]+>/g, " ")
+      .split(/\s+/).length;
+    expect(html).toContain("<article>");
+    expect(words).toBeGreaterThan(400);
+  });
+
+  it("renders the FAQ questions and answers", () => {
+    const html = renderStaticRouteHtml(shell, "/faq")!;
+    expect(html).toContain("What is your cancellation policy?");
   });
 });

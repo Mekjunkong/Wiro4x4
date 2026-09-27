@@ -18,6 +18,8 @@ import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
 import { resolveTourSeoMeta } from "../shared/tourSeoOverrides";
 import { injectPageContent } from "./seoPageContent";
+import { withBrandSuffix } from "../shared/pageTitle";
+import { blogBody, markdownToHtml, tourBody } from "./seoPageBody";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
@@ -33,7 +35,6 @@ function catalogPrice(slug: string): number {
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
 const BRAND_LOGO = `${SITE_URL}/images/icon-512.png`;
-const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
 const BUSINESS_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";
 const BUSINESS_PHONE = COMPANY_PHONE;
 const BUSINESS_EMAIL = COMPANY_EMAIL;
@@ -83,6 +84,8 @@ interface PageMeta {
   appendBrandSuffix?: boolean;
   alternateLanguages?: Partial<Record<"en" | "he" | "x-default", string>>;
   jsonLd?: JsonLdValue;
+  /** Pre-escaped page body for the no-JavaScript first paint. */
+  bodyHtml?: string;
 }
 
 function pageJsonLd(meta: {
@@ -579,9 +582,7 @@ function buildAlternateTags(meta: PageMeta, canonicalUrl: string): string {
 
 export function injectMeta(html: string, meta: PageMeta): string {
   const fullTitle =
-    meta.appendBrandSuffix === false || meta.title.includes("WIRO 4x4")
-      ? meta.title
-      : meta.title + BRAND_SUFFIX;
+    meta.appendBrandSuffix === false ? meta.title : withBrandSuffix(meta.title);
   const safeTitle = escapeHtml(fullTitle);
   const safeDesc = escapeHtml(truncateDescription(meta.description));
   const ogImage = absoluteUrl(meta.ogImage || DEFAULT_OG_IMAGE);
@@ -734,17 +735,43 @@ export async function resolveDynamicMeta(
           truncateDescription(description || "") ||
           `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
       });
+      // Same price the tour page shows: the DB row, else the catalog.
+      const price = tour?.price ?? getFallbackTourBySlug(slug)?.price;
       return {
         title: seoMeta.title,
         description: seoMeta.description,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
+        ogType: "product",
         canonicalPath: `/tours/${slug}`,
+        bodyHtml: tourBody(
+          slug,
+          {
+            price,
+            duration: tour?.duration,
+            difficulty: tour?.difficulty,
+            description: tour?.description,
+          },
+          "en"
+        ),
         jsonLd: [
           {
             "@context": "https://schema.org",
             "@type": "TouristTrip",
             name,
             description,
+            image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
+            ...(price
+              ? {
+                  offers: {
+                    "@type": "Offer",
+                    price,
+                    priceCurrency: "THB",
+                    url: `${SITE_URL}/tours/${slug}`,
+                    availability: "https://schema.org/InStock",
+                    description: "Per vehicle, private group",
+                  },
+                }
+              : {}),
             provider: {
               "@type": "TravelAgency",
               name: "WIRO 4x4",
@@ -778,12 +805,19 @@ export async function resolveDynamicMeta(
 
     if (name && (pkg || fallback)) {
       return {
-        title: `${name} — Private 4x4 Package`,
+        // Keep titles inside Google's ~60 characters.
+        title:
+          `${name} — Private 4x4 Package`.length <= 60
+            ? `${name} — Private 4x4 Package`
+            : name,
         description:
           truncateDescription(description || "") ||
           `${name} — private multi-day 4x4 tour package with WIRO 4x4.`,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         canonicalPath: `/packages/${slug}`,
+        bodyHtml: description
+          ? `<section>${markdownToHtml(description)}</section>`
+          : undefined,
         jsonLd: [
           {
             "@context": "https://schema.org",
@@ -837,6 +871,7 @@ export async function resolveDynamicMeta(
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         ogType: "article",
         canonicalPath: `/blog/${slug}`,
+        bodyHtml: blogBody(slug, content, title, "en") || undefined,
         jsonLd: [
           {
             "@context": "https://schema.org",

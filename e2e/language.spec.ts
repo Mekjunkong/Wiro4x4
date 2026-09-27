@@ -179,7 +179,8 @@ test.describe("English commercial routes", () => {
       );
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
       await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-      await expect(page).toHaveTitle(/\| WIRO 4x4 Kosher Adventures$/);
+      // Brand suffix only while the title fits Google's ~60 characters.
+      await expect(page).toHaveTitle(/^.{1,60}$/);
 
       const firstRender = await page.evaluate(
         () =>

@@ -61,7 +61,7 @@ describe("createApp commercial SEO", () => {
     expect(response.status).toBe(200);
     expect(html).toContain('<html lang="he" dir="rtl">');
     expect(html).toContain(
-      "<title>טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי | WIRO 4x4 Kosher Adventures</title>"
+      "<title>טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי | WIRO 4x4</title>"
     );
     expect(html).toContain(
       '<link rel="canonical" href="https://www.wiro4x4indochina.com/he/private-family-tours-chiang-mai" />'
@@ -87,7 +87,7 @@ describe("createApp commercial SEO", () => {
 
     expect(response.status).toBe(200);
     expect(html).toContain(
-      "<title>Kosher-Friendly Tours in Chiang Mai for Families | WIRO 4x4 Kosher Adventures</title>"
+      "<title>Kosher-Friendly Tours in Chiang Mai for Families | WIRO 4x4</title>"
     );
     expect(html).toContain(
       '<link rel="canonical" href="https://www.wiro4x4indochina.com/kosher-tours" />'
