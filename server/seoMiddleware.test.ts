@@ -1,3 +1,4 @@
+import { withBrandSuffix } from "../shared/pageTitle";
 import { describe, it, expect } from "vitest";
 import {
   injectNoindex,
@@ -431,9 +432,7 @@ describe("SEO metadata helpers", () => {
       const html = renderStaticRouteHtml(shell, route.path);
 
       expect(html).not.toBeNull();
-      expect(html).toContain(
-        `<title>${route.title} | WIRO 4x4 Kosher Adventures</title>`
-      );
+      expect(html).toContain(`<title>${withBrandSuffix(route.title)}</title>`);
       expect(html).toContain(
         `<meta name="description" content="${route.description}" />`
       );

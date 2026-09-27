@@ -2,10 +2,10 @@ import { useEffect } from "react";
 
 const SITE_URL = "https://www.wiro4x4indochina.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/optimized/single_cascade_waterfall-lg.jpg`;
-const BRAND_SUFFIX = " | WIRO 4x4 Kosher Adventures";
+import { withBrandSuffix } from "@shared/pageTitle";
 
 export interface PageMetaOptions {
-  /** Page title (will be suffixed with "| WIRO 4x4 Kosher Adventures") */
+  /** Page title (suffixed with " | WIRO 4x4" when it fits in 60 chars) */
   title: string;
   /** Meta description */
   description?: string;
@@ -127,9 +127,7 @@ export function usePageMeta(
       : titleOrOptions;
 
   useEffect(() => {
-    const fullTitle = options.title.includes("WIRO 4x4")
-      ? options.title
-      : `${options.title}${BRAND_SUFFIX}`;
+    const fullTitle = withBrandSuffix(options.title);
     document.title = fullTitle;
 
     // Meta description

@@ -12,7 +12,10 @@
     <link
       rel="preload"
       as="image"
-      href="/media/hero/wiro-seedance-poster.jpg"
+      href="/media/hero/wiro-seedance-poster.webp"
+      imagesrcset="/media/hero/wiro-seedance-poster-sm.webp 828w, /media/hero/wiro-seedance-poster.webp 1536w"
+      imagesizes="100vw"
+      type="image/webp"
       fetchpriority="high"
     />
 
@@ -239,6 +242,26 @@
       data-domain="www.wiro4x4indochina.com"
       src="https://plausible.io/js/script.js"
     ></script>
+    <style>
+      /* Server-rendered first paint (server/seoPageContent.ts), replaced when
+         React mounts. Keep it readable rather than a raw text dump. */
+      #root > main#main-content {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 96px 20px 48px;
+        font: 17px/1.6 "Source Sans 3", system-ui, sans-serif;
+        color: #2c2c2c;
+      }
+      #root > main#main-content h1 {
+        font: 400 clamp(34px, 6vw, 56px) / 1.05 "DM Serif Display", Georgia, serif;
+      }
+      #root > main#main-content a {
+        color: #7a6208;
+      }
+      #root > main#main-content dt {
+        font-weight: 600;
+      }
+    </style>
   </head>
 
   <body>

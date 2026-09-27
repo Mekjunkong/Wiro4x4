@@ -3,7 +3,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { WaCta } from "../WaCta";
 import { prefersReducedMotion } from "../useViewport";
 
-const POSTER = "/media/hero/wiro-seedance-poster.jpg";
+const POSTER = "/media/hero/wiro-seedance-poster.webp";
+const POSTER_SRCSET =
+  "/media/hero/wiro-seedance-poster-sm.webp 828w, /media/hero/wiro-seedance-poster.webp 1536w";
 const VIDEO_DESKTOP = "/media/hero/wiro-seedance-720p-optimized.mp4";
 const VIDEO_MOBILE = "/media/hero/wiro-seedance-mobile.mp4";
 
@@ -101,6 +103,8 @@ export function NightDriveHero() {
       <div className="wx-night__stage">
         <img
           src={POSTER}
+          srcSet={POSTER_SRCSET}
+          sizes="100vw"
           alt=""
           aria-hidden="true"
           fetchPriority="high"
