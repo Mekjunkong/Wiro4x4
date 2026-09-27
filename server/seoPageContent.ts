@@ -1,5 +1,25 @@
 import { COMMERCIAL_SEO_ROUTE_PAIRS } from "../shared/commercialSeo";
-import { commercialBody, faqBody, toursListBody } from "./seoPageBody";
+import {
+  commercialBody,
+  contactBody,
+  faqBody,
+  maeHongSonBody,
+  motorcycleToursBody,
+  samoengBody,
+  toursListBody,
+} from "./seoPageBody";
+
+type BodyBuilder = (lang: "en" | "he") => string;
+const STATIC_BODIES: Record<string, BodyBuilder> = {
+  "/": toursListBody,
+  "/tours": toursListBody,
+  "/book": toursListBody,
+  "/faq": faqBody,
+  "/contact": contactBody,
+  "/motorcycle-tours": motorcycleToursBody,
+  "/motorcycle-tours/samoeng-loop": samoengBody,
+  "/motorcycle-tours/mae-hong-son-loop": maeHongSonBody,
+};
 
 interface SearchPage {
   title: string;
@@ -80,11 +100,8 @@ export function injectPageContent(html: string, page: SearchPage): string {
   const lang = he ? "he" : "en";
   const body =
     page.bodyHtml ??
-    (page.canonicalPath === "/" || page.canonicalPath === "/tours"
-      ? toursListBody(lang)
-      : page.canonicalPath === "/faq"
-        ? faqBody(lang)
-        : commercialBody(page.canonicalPath, lang));
+    STATIC_BODIES[page.canonicalPath]?.(lang) ??
+    commercialBody(page.canonicalPath, lang);
   const content = `<main id="main-content" lang="${he ? "he" : "en"}" dir="${he ? "rtl" : "ltr"}" class="container py-16"><a href="/">WIRO 4x4</a><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(page.description)}</p>${body}<nav aria-label="${he ? "טיולים ותכנון" : "Tours and planning"}"><ul>${linkList}</ul></nav></main>`;
   // The shell and this fallback contain no nested divs; replacing it is idempotent.
   return html.replace(

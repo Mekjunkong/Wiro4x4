@@ -124,4 +124,20 @@ describe("initial HTML available without JavaScript", () => {
     const html = renderStaticRouteHtml(shell, "/faq")!;
     expect(html).toContain("What is your cancellation policy?");
   });
+
+  it("renders the motorcycle route guides from their shared data", () => {
+    const hub = renderStaticRouteHtml(shell, "/motorcycle-tours")!;
+    expect(hub).toContain("Ride Beyond Borders");
+    const samoeng = renderStaticRouteHtml(
+      shell,
+      "/motorcycle-tours/samoeng-loop"
+    )!;
+    expect(samoeng).toContain("Chiang Mai to Mae Rim");
+    const mhs = renderStaticRouteHtml(
+      shell,
+      "/motorcycle-tours/mae-hong-son-loop"
+    )!;
+    expect(mhs).toContain("Mae Sariang");
+    expect(mhs).toContain("Motorcycle or 4x4");
+  });
 });
