@@ -68,10 +68,12 @@ test("conversion surfaces meet WCAG AA contrast", async ({ page }) => {
     .locator("main section")
     .first()
     .getByRole("link", { name: "Plan with WIRO" });
-  const trailEyebrow = page.getByText("Six routes from Chiang Mai", {
+  const trailEyebrow = page.getByText("The WIRO way", {
     exact: true,
   });
-  const trailAction = page.getByRole("link", { name: "View the trail" });
+  const trailAction = page.getByRole("link", {
+    name: "Let's customize a trip for your group",
+  });
 
   await expect(heroWhatsApp).toBeVisible();
   await trailEyebrow.scrollIntoViewIfNeeded();
