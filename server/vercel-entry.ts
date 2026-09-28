@@ -1,3 +1,5 @@
+// Must stay the first import: see forceProduction.ts.
+import "./_core/forceProduction";
 import "dotenv/config";
 import { createApp } from "./_core/app";
 // Embedded at build time by esbuild (--loader:.html=text) so the serverless
