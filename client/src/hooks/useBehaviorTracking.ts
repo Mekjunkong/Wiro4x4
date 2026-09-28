@@ -28,7 +28,11 @@ export function useBehaviorTracking(language: string): void {
       });
     }
 
-    const handleScroll = () => {
+    // Only real user scrolls count. The header dispatches a synthetic scroll
+    // right after navigation, and measuring at mount (before the lazy page
+    // renders, while the document is short) logged 25/50/90% for every view.
+    const handleScroll = (event: Event) => {
+      if (!event.isTrusted) return;
       const documentHeight = document.documentElement.scrollHeight;
       if (documentHeight <= 0) return;
       const percentage = Math.min(
@@ -47,7 +51,6 @@ export function useBehaviorTracking(language: string): void {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [page]);
 }
