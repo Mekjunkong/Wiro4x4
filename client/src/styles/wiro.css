@@ -2159,6 +2159,15 @@ a.wx-trust__card:hover {
 .wx-mapbox--route {
   aspect-ratio: 16 / 10;
 }
+/* Multi-day loops cover all of Northern Thailand: taller on phones. */
+.wx-mapbox--loop {
+  aspect-ratio: 16 / 10;
+}
+@media (max-width: 640px) {
+  .wx-mapbox--loop {
+    aspect-ratio: 4 / 5;
+  }
+}
 
 /* ---------- Timed WhatsApp invitation (WhatsAppInvite.tsx) ---------- */
 .wx-invite {
