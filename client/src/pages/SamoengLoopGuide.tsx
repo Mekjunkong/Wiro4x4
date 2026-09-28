@@ -18,15 +18,16 @@ import {
   Route,
 } from "lucide-react";
 
+import { Link } from "wouter";
+
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { SamoengMapOverview } from "@/components/SamoengMapOverview";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   SAMOENG_CATEGORIES,
-  SAMOENG_MY_MAPS_EMBED_URL,
   SAMOENG_ROUTE_STAGES,
   SAMOENG_ROUTE_URL,
   SAMOENG_SAVED_PLACES_URL,
@@ -34,6 +35,7 @@ import {
   filterSamoengAttractions,
   type SamoengCategory,
 } from "@/data/samoengLoop";
+import { SAMOENG_LOOP_ROUTE } from "@/data/motorcycleRoutes";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trackEvent } from "@/lib/analytics";
 
@@ -91,6 +93,8 @@ export default function SamoengLoopGuide() {
       inLanguage: language,
     },
   });
+
+  const [mapChapter, setMapChapter] = useState<number | null>(null);
 
   const trackMapOpen = (placement: string, attractionId?: string) => {
     trackEvent("map_open", {
@@ -198,12 +202,41 @@ export default function SamoengLoopGuide() {
           </div>
         </section>
 
-        <SamoengMapOverview
-          embedUrl={SAMOENG_MY_MAPS_EMBED_URL}
-          routeUrl={SAMOENG_ROUTE_URL}
-          onMapFocus={() => trackMapOpen("overview-map")}
-          onRouteOpen={() => trackMapOpen("overview-full-route")}
-        />
+        <section className="container max-w-6xl pb-16 md:pb-20">
+          <Link
+            href="/motorcycle-tours/samoeng-loop/map"
+            onClick={() => trackMapOpen("map-page")}
+            className="group grid items-center gap-5 rounded-sm border border-accent/35 bg-card p-6 transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:grid-cols-[auto_1fr_auto] md:p-8"
+          >
+            <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Map className="size-6" aria-hidden="true" />
+            </span>
+            <span>
+              <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+                {t("Route overview", "סקירת המסלול")}
+              </span>
+              <span className="mt-1 block text-2xl font-heading md:text-3xl">
+                {t(
+                  "Explore the complete Samoeng Loop map",
+                  "גלו את המפה המלאה של לולאת סמואנג"
+                )}
+              </span>
+              <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
+                {t(
+                  "WIRO's interactive Google map with every saved place, plus the highlights grouped by waterfalls, views, temples, activities and cafes.",
+                  "המפה האינטראקטיבית של WIRO עם כל המקומות השמורים, וההמלצות לפי מפלים, תצפיות, מקדשים, אטרקציות ובתי קפה."
+                )}
+              </span>
+            </span>
+            <span className="inline-flex items-center font-bold text-primary">
+              {t("Open the map", "פתחו את המפה")}
+              <ArrowUpRight
+                className="ms-2 size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </span>
+          </Link>
+        </section>
 
         <section
           className="border-y border-border bg-muted/70 py-14 md:py-18"
@@ -222,7 +255,46 @@ export default function SamoengLoopGuide() {
               </h2>
             </div>
 
-            <ol className="relative mt-9 grid gap-0 md:grid-cols-4">
+            <div className="mt-9">
+              <WiroRouteMap
+                stops={SAMOENG_LOOP_ROUTE.stops}
+                loop
+                focus={
+                  mapChapter === null
+                    ? null
+                    : SAMOENG_LOOP_ROUTE.stages[String(mapChapter)]
+                }
+                className="wx-mapbox--loop"
+                label={t(
+                  "3D map of the Samoeng Loop from Chiang Mai",
+                  "מפה תלת־ממדית של לולאת סמואנג מצ׳יאנג מאי"
+                )}
+              />
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <p
+                  className="text-sm font-semibold text-foreground"
+                  aria-live="polite"
+                >
+                  {mapChapter === null
+                    ? t(
+                        "The full loop · pick a chapter to follow it on the map",
+                        "הלולאה המלאה · בחרו פרק כדי לעקוב אחריו במפה"
+                      )
+                    : `${mapChapter + 1} · ${t(SAMOENG_ROUTE_STAGES[mapChapter].name.en, SAMOENG_ROUTE_STAGES[mapChapter].name.he)}`}
+                </p>
+                {mapChapter !== null && (
+                  <button
+                    type="button"
+                    onClick={() => setMapChapter(null)}
+                    className="text-sm font-bold text-primary underline underline-offset-4"
+                  >
+                    {t("Show the whole loop", "הציגו את כל הלולאה")}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <ol className="relative mt-10 grid gap-0 md:grid-cols-4">
               {SAMOENG_ROUTE_STAGES.map((stage, index) => (
                 <li
                   key={stage.name.en}
@@ -231,12 +303,31 @@ export default function SamoengLoopGuide() {
                   <span className="absolute -start-[0.7rem] top-0 flex size-[1.4rem] items-center justify-center rounded-full bg-primary text-[0.65rem] font-bold text-primary-foreground md:-top-[0.7rem] md:start-0">
                     {index + 1}
                   </span>
-                  <h3 className="text-lg font-semibold">
-                    {t(stage.name.en, stage.name.he)}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {t(stage.description.en, stage.description.he)}
-                  </p>
+                  <button
+                    type="button"
+                    aria-pressed={mapChapter === index}
+                    onClick={() =>
+                      setMapChapter(current =>
+                        current === index ? null : index
+                      )
+                    }
+                    className="group/chapter text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <h3
+                      className={`text-lg font-semibold underline-offset-4 group-hover/chapter:underline ${mapChapter === index ? "text-primary underline" : ""}`}
+                    >
+                      {t(stage.name.en, stage.name.he)}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {t(stage.description.en, stage.description.he)}
+                    </p>
+                    <span className="mt-3 inline-flex items-center text-xs font-bold uppercase tracking-[0.12em] text-primary">
+                      <MapPin className="me-1.5 size-3.5" aria-hidden="true" />
+                      {mapChapter === index
+                        ? t("Showing on map", "מוצג במפה")
+                        : t("Show on map", "הציגו במפה")}
+                    </span>
+                  </button>
                 </li>
               ))}
             </ol>

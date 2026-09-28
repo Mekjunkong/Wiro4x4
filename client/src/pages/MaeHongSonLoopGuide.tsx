@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Landmark,
   Leaf,
+  MapPin,
   MessageCircle,
   Mountain,
   Route,
@@ -22,6 +23,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
+import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   MAE_HONG_SON_CATEGORIES,
@@ -37,6 +39,7 @@ import {
   type MaeHongSonPace,
   type MaeHongSonVehicle,
 } from "@/data/maeHongSonLoop";
+import { MAE_HONG_SON_LOOP_ROUTE } from "@/data/motorcycleRoutes";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trackEvent } from "@/lib/analytics";
 
@@ -56,6 +59,8 @@ export default function MaeHongSonLoopGuide() {
   const [pace, setPace] = useState<MaeHongSonPace>("6");
   const [vehicle, setVehicle] = useState<MaeHongSonVehicle>("motorcycle");
   const [activeCategory, setActiveCategory] = useState<FilterId>("all");
+  const [mapStage, setMapStage] = useState<string | null>(null);
+  const mapStageInfo = MAE_HONG_SON_STAGES.find(stage => stage.id === mapStage);
 
   const activePace =
     MAE_HONG_SON_PACES.find(option => option.id === pace) ??
@@ -308,67 +313,54 @@ export default function MaeHongSonLoopGuide() {
               </h2>
               <p className="mt-4 leading-relaxed text-muted-foreground">
                 {t(
-                  "The loop is best understood as a sequence of landscapes. Use the stage buttons for live Google Maps directions; this image is here to set the pace, not replace navigation.",
-                  "את הלולאה מבינים דרך רצף הנופים. השתמשו בכפתורי המקטעים לניווט עדכני ב-Google Maps; התמונה נועדה להמחיש את הקצב, לא להחליף ניווט."
+                  "The loop is best understood as a sequence of landscapes. Pick a stage to see where it runs; use the stage buttons for live Google Maps directions when you ride.",
+                  "את הלולאה מבינים דרך רצף הנופים. בחרו מקטע כדי לראות היכן הוא עובר; השתמשו בכפתורי המקטעים לניווט עדכני ב-Google Maps בזמן הרכיבה."
                 )}
               </p>
 
-              <figure className="relative mt-7 max-w-[560px] pb-10">
-                <div className="relative aspect-[3/2] overflow-hidden bg-[#17352c] shadow-[0_22px_55px_rgba(11,42,34,0.18)]">
-                  <img
-                    src="/images/optimized/mae-hong-son-loop-route.webp"
-                    alt={t(
-                      "Misty mountain road winding above the Mae Hong Son valleys",
-                      "דרך הררית ערפילית המתפתלת מעל עמקי מאה הונג סון"
-                    )}
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div
-                    className="absolute inset-0 bg-gradient-to-t from-[#081f19]/80 via-transparent to-transparent"
-                    aria-hidden="true"
-                  />
-                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-[#f8f5ec] md:p-6">
-                    <span className="max-w-[13rem] text-sm font-semibold leading-snug md:text-base">
-                      {t(
-                        "Long bends. Layered valleys. One unhurried loop.",
-                        "פיתולים ארוכים. עמקים בשכבות. לולאה אחת בקצב רגוע."
-                      )}
-                    </span>
-                    <span className="shrink-0 text-[0.64rem] font-bold uppercase tracking-[0.14em] text-[#e2b65d]">
-                      {t("Route atmosphere", "אווירת המסלול")}
-                    </span>
-                  </figcaption>
-                </div>
-                <div className="absolute bottom-0 end-4 w-[43%] min-w-[150px] max-w-[230px] overflow-hidden border-4 border-[#f8f5ec] bg-[#17352c] shadow-[0_16px_35px_rgba(11,42,34,0.22)] md:end-6">
-                  <img
-                    src="/images/optimized/mae-hong-son-loop-temple.webp"
-                    alt={t(
-                      "Hilltop temple glowing above a Mae Hong Son valley at blue hour",
-                      "מקדש בראש גבעה המואר מעל עמק במאה הונג סון בשעת הדמדומים"
-                    )}
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                    className="aspect-[4/3] w-full object-cover"
-                  />
-                </div>
-                <p className="mt-3 text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[#52645d]">
-                  {t(
-                    "Photography sets the scene · stage links handle navigation",
-                    "התמונות יוצרות את האווירה · הקישורים למקטעים מובילים לניווט"
+              <div className="mt-7">
+                <WiroRouteMap
+                  stops={MAE_HONG_SON_LOOP_ROUTE.stops}
+                  loop
+                  focus={
+                    mapStage ? MAE_HONG_SON_LOOP_ROUTE.stages[mapStage] : null
+                  }
+                  className="wx-mapbox--square"
+                  label={t(
+                    "3D map of the Mae Hong Son Loop from Chiang Mai",
+                    "מפה תלת־ממדית של לולאת מאה הונג סון מצ׳יאנג מאי"
                   )}
-                </p>
-              </figure>
+                />
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <p
+                    className="text-sm font-semibold text-foreground"
+                    aria-live="polite"
+                  >
+                    {mapStageInfo
+                      ? `${String(mapStageInfo.number).padStart(2, "0")} · ${t(mapStageInfo.route.en, mapStageInfo.route.he)}`
+                      : t(
+                          "The full loop from Chiang Mai",
+                          "הלולאה המלאה מצ׳יאנג מאי"
+                        )}
+                  </p>
+                  {mapStage && (
+                    <button
+                      type="button"
+                      onClick={() => setMapStage(null)}
+                      className="text-sm font-bold text-primary underline underline-offset-4"
+                    >
+                      {t("Show the whole loop", "הציגו את כל הלולאה")}
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             <ol className="grid gap-4">
               {MAE_HONG_SON_STAGES.map(stage => (
                 <li
                   key={stage.id}
-                  className="group border border-border bg-card p-5 transition-colors hover:border-accent md:p-7"
+                  className={`group border bg-card p-5 transition-colors hover:border-accent md:p-7 ${mapStage === stage.id ? "border-primary" : "border-border"}`}
                 >
                   <div className="grid gap-4 sm:grid-cols-[3.5rem_1fr_auto] sm:items-start">
                     <span className="text-3xl font-heading text-primary">
@@ -385,25 +377,40 @@ export default function MaeHongSonLoopGuide() {
                         {t(stage.description.en, stage.description.he)}
                       </p>
                     </div>
-                    <a
-                      href={buildGoogleMapsDirectionsUrl(
-                        stage.origin,
-                        stage.destination,
-                        vehicle === "motorcycle" ? "two-wheeler" : "driving"
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        trackMapOpen(`stage-${stage.number}`, stage.id)
-                      }
-                      className="inline-flex min-h-11 w-fit items-center justify-center border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                    >
-                      {t(stage.mapLabel.en, stage.mapLabel.he)}
-                      <ArrowUpRight
-                        className="ms-2 size-4"
-                        aria-hidden="true"
-                      />
-                    </a>
+                    <div className="flex flex-wrap gap-2 sm:flex-col">
+                      <button
+                        type="button"
+                        aria-pressed={mapStage === stage.id}
+                        onClick={() =>
+                          setMapStage(current =>
+                            current === stage.id ? null : stage.id
+                          )
+                        }
+                        className={`inline-flex min-h-11 w-fit items-center justify-center border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${mapStage === stage.id ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:border-primary"}`}
+                      >
+                        <MapPin className="me-2 size-4" aria-hidden="true" />
+                        {t("Show on map", "הציגו במפה")}
+                      </button>
+                      <a
+                        href={buildGoogleMapsDirectionsUrl(
+                          stage.origin,
+                          stage.destination,
+                          vehicle === "motorcycle" ? "two-wheeler" : "driving"
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          trackMapOpen(`stage-${stage.number}`, stage.id)
+                        }
+                        className="inline-flex min-h-11 w-fit items-center justify-center border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        {t(stage.mapLabel.en, stage.mapLabel.he)}
+                        <ArrowUpRight
+                          className="ms-2 size-4"
+                          aria-hidden="true"
+                        />
+                      </a>
+                    </div>
                   </div>
                 </li>
               ))}

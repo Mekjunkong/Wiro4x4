@@ -44,6 +44,7 @@ const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
 const MotorcycleTours = React.lazy(() => import("./pages/MotorcycleTours"));
 const SamoengLoopGuide = React.lazy(() => import("./pages/SamoengLoopGuide"));
+const SamoengLoopMap = React.lazy(() => import("./pages/SamoengLoopMap"));
 const MaeHongSonLoopGuide = React.lazy(
   () => import("./pages/MaeHongSonLoopGuide")
 );
@@ -147,6 +148,10 @@ function Router() {
               <HebrewLandingPage intent="family" />
             </Route>
             <Route path={"/accessible-tours"} component={AccessibleTours} />
+            <Route
+              path="/motorcycle-tours/samoeng-loop/map"
+              component={SamoengLoopMap}
+            />
             <Route
               path="/motorcycle-tours/samoeng-loop"
               component={SamoengLoopGuide}

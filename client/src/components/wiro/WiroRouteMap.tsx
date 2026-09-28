@@ -7,6 +7,8 @@ interface WiroRouteMapProps {
   stops: readonly RouteStop[];
   /** Draw the line through the stops in order (false = pins only). */
   loop: boolean;
+  /** Highlight only the stops between these indices (inclusive). */
+  focus?: readonly [from: number, to: number] | null;
   className?: string;
   label: string;
 }
@@ -28,14 +30,15 @@ function hasWebGL(): boolean {
 export function WiroRouteMap({
   stops,
   loop,
+  focus = null,
   className = "",
   label,
 }: WiroRouteMapProps) {
   const { language, t } = useLanguage();
   const hostRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<RouteMapHandle | null>(null);
-  const optsRef = useRef({ stops, loop, lang: language });
-  optsRef.current = { stops, loop, lang: language };
+  const optsRef = useRef({ stops, loop, focus, lang: language });
+  optsRef.current = { stops, loop, focus, lang: language };
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -72,9 +75,15 @@ export function WiroRouteMap({
   }, []);
 
   // `stops` arrays are module constants, so identity is a safe change signal.
+  const [focusFrom, focusTo] = focus ?? [-1, -1];
   useEffect(() => {
-    handleRef.current?.update({ stops, loop, lang: language });
-  }, [stops, loop, language]);
+    handleRef.current?.update({
+      stops,
+      loop,
+      focus: focusFrom < 0 ? null : [focusFrom, focusTo],
+      lang: language,
+    });
+  }, [stops, loop, focusFrom, focusTo, language]);
 
   return (
     <div

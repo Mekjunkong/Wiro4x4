@@ -13,6 +13,8 @@ export interface RouteMapOptions {
   stops: readonly RouteStop[];
   /** Draw the line through the stops in order (false = pins only). */
   loop: boolean;
+  /** Highlight only the stops between these indices (inclusive). */
+  focus?: readonly [from: number, to: number] | null;
   lang: "en" | "he";
 }
 
@@ -30,7 +32,7 @@ const toXZ = (lat: number, lon: number) => ({
 
 // Terrain covers Mae Hong Son to the Golden Triangle with a margin.
 const NW = toXZ(20.6, 97.45);
-const SE = toXZ(18.2, 100.4);
+const SE = toXZ(17.95, 100.4);
 const TW = SE.x - NW.x,
   TD = SE.z - NW.z,
   TCX = (NW.x + SE.x) / 2,
@@ -75,8 +77,8 @@ interface Built {
   curve: THREE.CatmullRomCurve3 | null;
   tg: THREE.TubeGeometry | null;
   total: number;
-  /** Arc-length position of each named stop on the loop. */
-  marks: { u: number; label: HTMLSpanElement; base: THREE.Vector3 }[];
+  /** Arc-length position of each named stop the dot passes. */
+  marks: { u: number; key: string; base: THREE.Vector3 }[];
 }
 
 export function createRouteMap(
@@ -160,21 +162,13 @@ export function createRouteMap(
   });
   scene.add(new THREE.Mesh(geo, reliefMat));
 
-  // Ping river through Chiang Mai.
-  const rp: THREE.Vector3[] = [];
-  for (let z = 16; z >= -34; z -= 2) {
-    const x = PING_X(z);
-    rp.push(new THREE.Vector3(x, HM(x, z) + 0.25, z));
-  }
-  scene.add(
-    new THREE.Mesh(
-      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp), 160, 0.28, 5),
-      new THREE.MeshBasicMaterial({
-        color: "#7fb0c2",
-        transparent: true,
-        opacity: 0.55,
-      })
-    )
+  // Ping river through Chiang Mai (rebuilt per update at the marker scale).
+  const riverCurve = new THREE.CatmullRomCurve3(
+    Array.from({ length: 26 }, (_, i) => {
+      const z = 16 - i * 2,
+        x = PING_X(z);
+      return new THREE.Vector3(x, HM(x, z) + 0.25, z);
+    })
   );
 
   const additive = {
@@ -301,6 +295,7 @@ export function createRouteMap(
     "position:absolute;inset:0;pointer-events:none;overflow:hidden";
   host.appendChild(lab);
   let labelTops: { el: HTMLSpanElement; top: THREE.Vector3 }[] = [];
+  const labels = new Map<string, { el: HTMLSpanElement; city: boolean }>();
 
   let built: Built = {
     objects: [],
@@ -360,6 +355,7 @@ export function createRouteMap(
     head.position.y = 5.6;
     pin.add(stem, head);
     pin.position.set(p.x, y, p.z);
+    pin.scale.setScalar(K);
     scene.add(pin);
     built.objects.push(pin);
     return y;
@@ -376,25 +372,53 @@ export function createRouteMap(
   let drawT = 1,
     lapU = 0,
     hotIdx = -1;
+  /** Marker scale: pins, line and dot shrink when framing a short loop. */
+  let K = 1;
   const v = new THREE.Vector3();
+
+  function tube(
+    curve: THREE.CatmullRomCurve3,
+    n: number,
+    r: number,
+    color: string,
+    opacity: number
+  ) {
+    const tg = new THREE.TubeGeometry(curve, n, r, 6);
+    const mesh = new THREE.Mesh(
+      tg,
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity })
+    );
+    scene.add(mesh);
+    built.objects.push(mesh);
+    return tg;
+  }
 
   function update(opts: RouteMapOptions) {
     clearRoute();
     built = { objects: [], curve: null, tg: null, total: 0, marks: [] };
     const he = opts.lang === "he";
     const xz = opts.stops.map(s => toXZ(s.lat, s.lon));
+    const focus = opts.loop && opts.focus ? opts.focus : null;
+    const inFocus = (i: number) => !focus || (i >= focus[0] && i <= focus[1]);
 
-    // Frame every stop.
-    const xs = xz.map(p => p.x),
-      zs = xz.map(p => p.z);
+    // Frame the focused stage, or every stop.
+    const framed = xz.filter((_, i) => inFocus(i));
+    const xs = framed.map(p => p.x),
+      zs = framed.map(p => p.z);
     const minX = Math.min(...xs),
       maxX = Math.max(...xs),
       minZ = Math.min(...zs),
       maxZ = Math.max(...zs);
+    const span = Math.max(maxX - minX, maxZ - minZ, 8);
+    K = clamp(span / 110, 0.4, 1);
     tgt.set((minX + maxX) / 2, 0, (minZ + maxZ) / 2 - 3);
-    distT = 50 + Math.max(maxX - minX, maxZ - minZ) * 1.2;
+    distT = Math.max(span * 1.5 + 45 * K, 52);
+    glow.scale.setScalar(K);
+    [dot, beam].forEach(o => o.scale.setScalar(K));
 
-    // Road-like line through the stops, sampled every ~0.8 units.
+    tube(riverCurve, 160, 0.28 * K, "#7fb0c2", 0.55);
+
+    // Road-like line through the stops, sampled every ~0.4 units.
     const pts: THREE.Vector3[] = [];
     const stopIdx: number[] = [];
     if (opts.loop && xz.length > 1) {
@@ -410,7 +434,7 @@ export function createRouteMap(
           len = Math.hypot(dx, dz) || 1,
           nx = -dz / len,
           nz = dx / len,
-          N = Math.max(4, Math.ceil(len / 0.8));
+          N = Math.max(4, Math.ceil(len / 0.4));
         for (let j = 0; j < N; j++) {
           const t = j / N,
             w =
@@ -422,52 +446,60 @@ export function createRouteMap(
           pts.push(new THREE.Vector3(x, HM(x, z) + 0.5, z));
         }
       });
-      const curve = new THREE.CatmullRomCurve3(pts);
-      const tg = new THREE.TubeGeometry(curve, pts.length * 2, 0.34, 6);
-      const route = new THREE.Mesh(
-        tg,
-        new THREE.MeshBasicMaterial({
-          color: "#f2d060",
-          transparent: true,
-          opacity: 0.95,
-        })
+      const full = tube(
+        new THREE.CatmullRomCurve3(pts),
+        pts.length * 2,
+        0.34 * K,
+        focus ? "#d4af37" : "#f2d060",
+        focus ? 0.3 : 0.95
       );
-      scene.add(route);
-      built.objects.push(route);
+      // The focused stage gets its own bright line that the dot drives.
+      const from = focus ? stopIdx[focus[0]] : 0;
+      const seg = focus ? pts.slice(from, stopIdx[focus[1]] + 1) : pts;
+      const curve = new THREE.CatmullRomCurve3(seg);
+      const tg = focus
+        ? tube(curve, seg.length * 2, 0.4 * K, "#f2d060", 1)
+        : full;
       built.curve = curve;
       built.tg = tg;
       built.total = tg.index ? tg.index.count : 0;
+
+      // Arc-length position of every stop on the driven curve.
+      const cum = [0];
+      for (let i = 1; i < seg.length; i++)
+        cum.push(cum[i - 1] + seg[i].distanceTo(seg[i - 1]));
+      const total = cum[cum.length - 1] || 1;
+      const uOf = (i: number) => cum[stopIdx[i] - from] / total;
+
+      opts.stops.forEach((s, i) => {
+        if (!s.name || !inFocus(i)) return;
+        if (focus ? i === focus[0] : i === 0) return;
+        built.marks.push({
+          u: uOf(i),
+          key: s.name[0],
+          base: new THREE.Vector3(
+            xz[i].x,
+            HM(xz[i].x, xz[i].z) + 0.15,
+            xz[i].z
+          ),
+        });
+      });
     }
 
-    // Arc-length fraction of each sample, to place stops on the curve.
-    const cum = [0];
-    for (let i = 1; i < pts.length; i++)
-      cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
-    const total = cum[cum.length - 1] || 1;
-
-    const seen = new Set<string>();
+    // One pin and label per named place (loops revisit some of them).
+    labels.clear();
     opts.stops.forEach((s, i) => {
-      if (!s.name) return;
+      if (!s.name || labels.has(s.name[0])) return;
       const p = xz[i];
       const city = s.name[0] === "Chiang Mai";
-      const key = s.name[0];
-      const first = !seen.has(key);
-      seen.add(key);
-      if (first) {
-        const y = addPin(p, city);
-        const el = document.createElement("span");
-        el.textContent = s.name[he ? 1 : 0];
-        styleLabel(el, he, false, city);
-        lab.appendChild(el);
-        labelTops.push({ el, top: new THREE.Vector3(p.x, y + 7.4, p.z) });
-        if (opts.loop && !city) {
-          built.marks.push({
-            u: cum[stopIdx[i]] / total,
-            label: el,
-            base: new THREE.Vector3(p.x, y + 0.15, p.z),
-          });
-        }
-      }
+      const y = addPin(p, city);
+      const el = document.createElement("span");
+      el.textContent = s.name[he ? 1 : 0];
+      styleLabel(el, he, false, city);
+      el.style.opacity = "0";
+      lab.appendChild(el);
+      labels.set(s.name[0], { el, city });
+      labelTops.push({ el, top: new THREE.Vector3(p.x, y + 7.4 * K, p.z) });
     });
 
     drawT = reduce ? 1 : 0;
@@ -555,9 +587,9 @@ export function createRouteMap(
       else if (!reduce) lapU = (lapU + dt / LAP) % 1;
       curve.getPointAt(clamp(lapU, 0, 0.999), v);
       dot.position.copy(v);
-      dot.position.y += 0.6;
+      dot.position.y += 0.6 * K;
       halo.position.copy(dot.position);
-      halo.scale.setScalar(1 + Math.sin(t * 6) * 0.12);
+      halo.scale.setScalar(K * (1 + Math.sin(t * 6) * 0.12));
       trailPts.unshift(dot.position.clone());
       if (trailPts.length > TRAIL) trailPts.length = TRAIL;
       const ta = trailLine.geometry.attributes.position;
@@ -571,9 +603,12 @@ export function createRouteMap(
       let next = marks.findIndex(m => m.u > lapU + 0.002);
       if (next < 0) next = marks.length ? 0 : -1;
       if (next !== hotIdx) {
-        if (hotIdx >= 0 && marks[hotIdx])
-          paintLabel(marks[hotIdx].label, false, false);
-        if (next >= 0) paintLabel(marks[next].label, true, false);
+        const paint = (i: number, hot: boolean) => {
+          const l = marks[i] && labels.get(marks[i].key);
+          if (l) paintLabel(l.el, hot, l.city);
+        };
+        if (hotIdx >= 0) paint(hotIdx, false);
+        if (next >= 0) paint(next, true);
         hotIdx = next;
       }
       const hot = marks[hotIdx];
@@ -583,7 +618,7 @@ export function createRouteMap(
         rings.forEach((r, i) => {
           const ph = (t * 0.6 + i / 3) % 1;
           r.position.copy(hot.base);
-          r.scale.setScalar(1 + ph * 3.5);
+          r.scale.setScalar(K * (1 + ph * 3.5));
           (r.material as THREE.MeshBasicMaterial).opacity = (1 - ph) * 0.8;
         });
         beam.position.copy(hot.base);

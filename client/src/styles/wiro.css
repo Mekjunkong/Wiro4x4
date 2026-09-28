@@ -2168,6 +2168,10 @@ a.wx-trust__card:hover {
     aspect-ratio: 4 / 5;
   }
 }
+/* North–south loops in a narrow column (Mae Hong Son guide). */
+.wx-mapbox--square {
+  aspect-ratio: 1 / 1;
+}
 
 /* ---------- Timed WhatsApp invitation (WhatsAppInvite.tsx) ---------- */
 .wx-invite {

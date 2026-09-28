@@ -104,3 +104,64 @@ export const MOTORCYCLE_ROUTES: Record<
 export const MOTORCYCLE_PLACES: readonly RouteStop[] = Array.from(
   new Set(Object.values(MOTORCYCLE_ROUTES).flat())
 ).filter(stop => stop.name);
+
+/** A loop with named stages: each stage is a range of stop indices. */
+export interface StagedRoute {
+  stops: readonly RouteStop[];
+  stages: Record<string, readonly [from: number, to: number]>;
+}
+
+/**
+ * Mae Hong Son Loop (counter-clockwise, as the guide runs it). Stage ids
+ * match `MAE_HONG_SON_STAGES` in shared/maeHongSonLoop.ts.
+ */
+export const MAE_HONG_SON_LOOP_ROUTE: StagedRoute = {
+  stops: [
+    CHIANG_MAI, // 0
+    { lat: 18.63, lon: 98.9 }, // San Pa Tong
+    { lat: 18.42, lon: 98.68 }, // Chom Thong
+    { lat: 18.19, lon: 98.61 }, // Hot
+    { lat: 18.158, lon: 97.934, name: ["Mae Sariang", "מאה סאריאנג"] }, // 4
+    { lat: 18.39, lon: 97.94 }, // Mae La Noi
+    { ...KHUN_YUAM, name: ["Khun Yuam", "קון יואם"] }, // 6
+    MAE_HONG_SON, // 7
+    { lat: 19.535, lon: 97.92, name: ["Ban Rak Thai", "באן רק תאי"] }, // 8
+    MAE_HONG_SON, // 9
+    { ...THAM_LOD, name: ["Pang Mapha", "פאנג מאפה"] }, // 10
+    PAI, // 11
+    MOK_FA,
+    MAE_TAENG,
+    CHIANG_MAI, // 14
+  ],
+  stages: {
+    "mae-sariang": [0, 4],
+    "khun-yuam": [4, 6],
+    "mae-hong-son-town": [6, 7],
+    "northern-detours": [7, 9],
+    "pang-mapha-pai": [9, 11],
+    "return-chiang-mai": [11, 14],
+  },
+};
+
+/** Samoeng Loop: Route 1096 out through Mae Rim, Route 1269 back. */
+export const SAMOENG_LOOP_ROUTE: StagedRoute = {
+  stops: [
+    CHIANG_MAI, // 0
+    { lat: 18.915, lon: 98.945, name: ["Mae Rim", "מאה רים"] }, // 1
+    { lat: 18.906, lon: 98.897 }, // Mae Sa Waterfall
+    { lat: 18.878, lon: 98.822, name: ["Pong Yaeng", "פונג יאנג"] }, // 3
+    { lat: 18.88, lon: 98.76 },
+    { lat: 18.85, lon: 98.73, name: ["Samoeng", "סמואנג"] }, // 5
+    { lat: 18.79, lon: 98.8 },
+    { lat: 18.72, lon: 98.87 },
+    { lat: 18.759, lon: 98.919, name: ["Doi Kham", "דוי קאם"] }, // 8
+    CHIANG_MAI, // 9
+  ],
+  // Same order as SAMOENG_ROUTE_STAGES (the guide's four chapters).
+  stages: {
+    "0": [0, 1],
+    "1": [1, 3],
+    "2": [3, 8],
+    "3": [8, 9],
+  },
+};
