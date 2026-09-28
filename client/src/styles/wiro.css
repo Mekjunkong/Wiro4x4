@@ -588,6 +588,20 @@
   overflow: hidden;
   background: var(--wx-night-2);
 }
+/* With the video fully visible, a soft fade at the very top keeps the
+   header links readable over bright frames. */
+.wx-night__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 160px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 17, 16, 0.55) 0%,
+    rgba(17, 17, 16, 0) 100%
+  );
+}
 .wx-night__media {
   position: absolute;
   inset: 0;
@@ -599,8 +613,6 @@
 .wx-night__mask {
   position: absolute;
   inset: 0;
-  background: var(--wx-night-2);
-  mix-blend-mode: multiply;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -614,8 +626,24 @@
   letter-spacing: -0.03em;
   white-space: nowrap;
   color: #fbf8f1;
+  text-shadow:
+    0 2px 6px rgba(17, 17, 16, 0.35),
+    0 12px 60px rgba(17, 17, 16, 0.45);
   transform-origin: 45% 55%;
   will-change: transform;
+}
+/* A soft shade only behind the wordmark, so the white type reads over the
+   bright video without dimming the rest of the frame. */
+.wx-night__mask::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 62% 34% at 50% 52%,
+    rgba(17, 17, 16, 0.32) 0%,
+    rgba(17, 17, 16, 0.12) 55%,
+    rgba(17, 17, 16, 0) 100%
+  );
 }
 .wx-night__wash {
   position: absolute;
@@ -640,6 +668,7 @@
   top: calc(50% + clamp(56px, 11vw, 190px));
   text-align: center;
   pointer-events: none;
+  text-shadow: 0 1px 12px rgba(17, 17, 16, 0.75);
 }
 .wx-night__end {
   position: absolute;
