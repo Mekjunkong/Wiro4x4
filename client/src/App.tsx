@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 const Home = React.lazy(() => import("./pages/Home"));
 import { CookieConsent } from "./components/CookieConsent";
+import { WhatsAppInvite } from "./components/wiro/WhatsAppInvite";
 import { captureUtmParams } from "@/lib/utm";
 import { useBehaviorTracking } from "@/hooks/useBehaviorTracking";
 
@@ -203,6 +204,7 @@ function AppContent() {
         <Router />
       </ErrorBoundary>
       <CookieConsent />
+      <WhatsAppInvite />
     </TooltipProvider>
   );
 }

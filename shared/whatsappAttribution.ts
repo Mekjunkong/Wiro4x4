@@ -147,6 +147,20 @@ export const WHATSAPP_SOURCES = [
     channelFallback: "direct",
   },
   {
+    code: "GLOBAL-INVITE-EN",
+    page: "global",
+    placement: "timed-invite",
+    language: "en",
+    channelFallback: "direct",
+  },
+  {
+    code: "GLOBAL-INVITE-HE",
+    page: "global",
+    placement: "timed-invite",
+    language: "he",
+    channelFallback: "direct",
+  },
+  {
     code: "ESTIMATE-V2-SAVE-EN",
     page: "/estimate-v2",
     placement: "save-estimate",
