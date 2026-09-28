@@ -1,32 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  DIFFICULTY_LABEL,
-  DURATION_HE,
-  photo,
-  type WiroTour,
-} from "@/data/wiroTours";
+import { photo } from "@/data/wiroTours";
+import { WIRO_SERVICES } from "@/data/wiroServices";
 import { ArrowIcon } from "../icons";
 import { useViewportWidth } from "../useViewport";
-import { tourPath } from "@shared/tourPaths";
 
-const MARQUEE = [
-  "Doi Inthanon",
-  "Sticky Waterfalls",
-  "Mae Kampong",
-  "Pha Chor Canyon",
-  "Mae Wang",
-  "Samoeng Loop",
-  "Doi Suthep",
-];
-
-/** "Pick your trail" — a 3D cover-flow of the six day tours. */
-export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
+/** "Your journey, your way" — a 3D cover-flow of the five WIRO services. */
+export function TrailCarousel() {
+  const tours = WIRO_SERVICES;
   const { t, language } = useLanguage();
   const [, navigate] = useLocation();
   const w = useViewportWidth();
-  const he = language === "he";
   const [idx, setIdx] = useState(0);
   const hover = useRef(false);
   const lastTouch = useRef(0);
@@ -80,7 +65,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
   const narrow = w < 900;
   const cw = Math.round(Math.min(420, w * (narrow ? 0.7 : 0.3)));
   const sp = Math.round(Math.min(w * (narrow ? 0.5 : 0.26), 380));
-  const dirx = he ? -1 : 1;
+  const dirx = language === "he" ? -1 : 1;
   const active = tours[idx];
 
   return (
@@ -91,7 +76,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
     >
       {tours.map((tour, i) => (
         <img
-          key={tour.slug}
+          key={tour.id}
           src={photo(tour.image).sm}
           alt=""
           aria-hidden="true"
@@ -102,7 +87,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
 
       <div className="wx-marquee" aria-hidden="true" dir="ltr">
         <div className="wx-marquee__track">
-          {[...MARQUEE, ...MARQUEE].map((m, i) => (
+          {[...tours, ...tours].map((m, i) => (
             <span
               key={i}
               className="wx-marquee__item"
@@ -111,7 +96,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
                 fontStyle: i % 2 ? "italic" : "normal",
               }}
             >
-              {m}
+              {t(...m.label)}
             </span>
           ))}
         </div>
@@ -120,10 +105,10 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
       <div className="wx-wrap wx-trail__head">
         <div>
           <p className="wx-caps wx-eyebrow" style={{ margin: 0 }}>
-            {t("Six routes from Chiang Mai", "שישה מסלולים מצ'יאנג מאי")}
+            {t("The WIRO way", "הדרך של WIRO")}
           </p>
           <h2 id="wx-trail-title" className="wx-h2">
-            {t("Pick your trail", "בחרו את השביל")}
+            {t("Your journey, your way", "המסע שלכם, בדרך שלכם")}
           </h2>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -131,7 +116,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
             type="button"
             className="wx-round"
             onClick={() => step(-1)}
-            aria-label={t("Previous tour", "הטיול הקודם")}
+            aria-label={t("Previous services", "לאפשרויות הקודמות")}
           >
             <ArrowIcon size={20} back />
           </button>
@@ -153,7 +138,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
             type="button"
             className="wx-round"
             onClick={() => step(1)}
-            aria-label={t("Next tour", "הטיול הבא")}
+            aria-label={t("Next services", "לאפשרויות הבאות")}
           >
             <ArrowIcon size={20} />
           </button>
@@ -203,16 +188,16 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
           if (d < -n / 2) d += n;
           const ad = Math.abs(d);
           const on = d === 0;
-          const name = t(tour.shortName[0], tour.shortName[1]);
+          const name = t(...tour.label);
           return (
             <button
-              key={tour.slug}
+              key={tour.id}
               type="button"
               className="wx-stage__card"
               tabIndex={ad > 1 ? -1 : 0}
               onClick={() => {
                 if (dragged.current) return;
-                if (on) navigate(tourPath(tour.slug, language));
+                if (on) navigate(tour.href);
                 else {
                   lastTouch.current = Date.now();
                   setIdx(i);
@@ -252,9 +237,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
                 style={{ opacity: on ? 1 : 0 }}
               />
               <span className="wx-stage__top">
-                <span className="wx-badge">
-                  {t(tour.badge[0], tour.badge[1])}
-                </span>
+                <span className="wx-badge">{t(...tour.badge)}</span>
                 <span
                   className="wx-latin"
                   style={{ fontSize: 20, color: "var(--wx-gold)" }}
@@ -267,14 +250,11 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
                   className="wx-caps"
                   style={{ color: "var(--wx-gold)", fontSize: 11 }}
                 >
-                  {t(tour.tag[0], tour.tag[1])}
+                  {t(...tour.audience)}
                 </span>
                 <h3>{name}</h3>
                 <span className="wx-stage__meta" style={{ display: "block" }}>
-                  {he
-                    ? (DURATION_HE[tour.duration] ?? tour.duration)
-                    : tour.duration}{" "}
-                  · {t(...DIFFICULTY_LABEL[tour.difficulty])}
+                  {t(...tour.summary)}
                 </span>
               </span>
             </button>
@@ -291,18 +271,33 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
           textAlign: "center",
         }}
       >
-        <p
+        <h3
+          className="wx-h3"
           style={{
-            fontSize: 19,
-            lineHeight: 1.6,
-            fontWeight: 500,
             margin: 0,
-            minHeight: 58,
+            fontSize: 24,
+            lineHeight: 1.3,
             textWrap: "balance",
           }}
         >
-          {t(active.desc[0], active.desc[1])}
+          {t(...active.heading)}
+        </h3>
+        <p
+          style={{
+            fontSize: 17,
+            lineHeight: 1.6,
+            margin: "12px 0 0",
+            color: "var(--wx-muted)",
+            textWrap: "balance",
+          }}
+        >
+          {t(...active.subheading)}
         </p>
+        <ul className="wx-trail__bullets">
+          {active.bullets.map(b => (
+            <li key={b[0]}>{t(...b)}</li>
+          ))}
+        </ul>
         <div
           style={{
             display: "flex",
@@ -313,26 +308,20 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
           }}
         >
           <Link
-            href={tourPath(active.slug, language)}
+            href={active.href}
             className="wx-btn wx-btn--gold wx-btn--sharp"
           >
-            {t("View the trail", "לפרטי המסלול")}
+            {t(...active.cta)}
             <ArrowIcon />
-          </Link>
-          <Link
-            href={`/book?tour=${active.slug}`}
-            className="wx-btn wx-btn--ghost wx-btn--sharp"
-          >
-            {t("Book this day", "הזמינו את היום")}
           </Link>
         </div>
         <div className="wx-dots">
           {tours.map((tour, i) => (
             <button
-              key={tour.slug}
+              key={tour.id}
               type="button"
               className={i === idx ? "is-on" : ""}
-              aria-label={t(tour.shortName[0], tour.shortName[1])}
+              aria-label={t(...tour.label)}
               aria-current={i === idx}
               onClick={() => {
                 lastTouch.current = Date.now();
@@ -346,7 +335,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
           className="wx-link wx-caps"
           style={{ marginTop: 28, color: "var(--wx-ink)" }}
         >
-          {t("All six tours", "כל ששת הטיולים")}
+          {t("See the day tours", "לכל טיולי היום")}
         </Link>
       </div>
     </section>

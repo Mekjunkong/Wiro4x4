@@ -983,6 +983,31 @@ a.wx-trust__card:hover {
   font-size: 14px;
   color: rgba(251, 248, 241, 0.88);
 }
+.wx-trail__bullets {
+  list-style: none;
+  margin: 22px auto 0;
+  padding: 0;
+  max-width: 560px;
+  display: grid;
+  gap: 10px;
+  text-align: start;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.wx-trail__bullets li {
+  position: relative;
+  padding-inline-start: 22px;
+}
+.wx-trail__bullets li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 2px;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  background: var(--wx-gold);
+  transform: rotate(45deg);
+}
 .wx-dots {
   display: flex;
   gap: 16px;

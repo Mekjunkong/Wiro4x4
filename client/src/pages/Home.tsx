@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FAQ } from "@/components/FAQ";
@@ -13,7 +12,6 @@ import { ReviewsSection } from "@/components/wiro/home/ReviewsSection";
 import { GalleryRing } from "@/components/wiro/home/GalleryRing";
 import { ClosingCta } from "@/components/wiro/home/ClosingCta";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { getWiroTours } from "@/data/wiroTours";
 import {
   COMPANY_EMAIL,
   COMPANY_NAME,
@@ -67,7 +65,6 @@ export default function Home() {
     canonicalPath: "/",
     jsonLd: homeJsonLd,
   });
-  const tours = useMemo(() => getWiroTours(), []);
 
   return (
     <div className="wx" style={{ minHeight: "100vh" }}>
@@ -75,7 +72,7 @@ export default function Home() {
       <main id="main-content">
         <NightDriveHero />
         <TrustBand />
-        <TrailCarousel tours={tours} />
+        <TrailCarousel />
         <MachineSection />
         <MapSection />
         <KosherSection />
