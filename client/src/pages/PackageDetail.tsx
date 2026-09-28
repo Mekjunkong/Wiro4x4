@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
@@ -25,6 +25,10 @@ import {
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { trackEvent } from "@/lib/analytics";
+import { WiroMap } from "@/components/wiro/WiroMap";
+import { WiroRouteMap, revealMap } from "@/components/wiro/WiroRouteMap";
+import { PACKAGE_ROUTES } from "@/data/packageRoutes";
+import { WIRO_TOUR_STORIES, type MapPlaceKey } from "@/data/wiroTours";
 import {
   buildPackageBookingUrl,
   buildSelectedToursBookingUrl,
@@ -456,6 +460,10 @@ export default function PackageDetail() {
   const hasFallback = !dbPkg && !!fallback;
   const hasData = !!dbPkg || hasFallback;
   const pricingSectionRef = useRef<HTMLDivElement>(null);
+  const routeMapRef = useRef<HTMLDivElement>(null);
+  const [mapDay, setMapDay] = useState<number | null>(null);
+  // A highlighted day belongs to one package; start fresh on another.
+  useEffect(() => setMapDay(null), [slug]);
   const tourViewKeyRef = useRef("");
   const pricingViewKeyRef = useRef("");
 
@@ -639,6 +647,70 @@ export default function PackageDetail() {
                   </div>
                 </div>
 
+                {/* Route map: an opened day highlights its leg */}
+                {PACKAGE_ROUTES[slug] && (
+                  <section ref={routeMapRef}>
+                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+                      {t("Route", "מסלול")}
+                    </p>
+                    <h2 className="text-2xl md:text-3xl font-heading font-bold mt-1 mb-5">
+                      {t("Your route, day by day", "המסלול שלכם, יום אחר יום")}
+                    </h2>
+                    <WiroRouteMap
+                      stops={PACKAGE_ROUTES[slug].stops}
+                      loop
+                      focus={
+                        mapDay === null
+                          ? null
+                          : (PACKAGE_ROUTES[slug].stages[String(mapDay)] ??
+                            null)
+                      }
+                      className="wx-mapbox--loop"
+                      label={t(
+                        `Route map for ${pkg.name}`,
+                        `מפת המסלול של ${pkg.nameHe}`
+                      )}
+                    />
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                      <p
+                        className="flex gap-2 text-sm font-semibold text-foreground"
+                        aria-live="polite"
+                      >
+                        {mapDay === null ? (
+                          t(
+                            "The full route · open a day to see its leg",
+                            "המסלול המלא · פתחו יום כדי לראות את הקטע שלו"
+                          )
+                        ) : (
+                          <>
+                            <span>
+                              {t("Day", "יום")} {mapDay}
+                            </span>
+                            <span aria-hidden="true">·</span>
+                            <span>
+                              {(() => {
+                                const d = pkg.itinerary.find(
+                                  x => x.day === mapDay
+                                );
+                                return d ? t(d.title, d.titleHe) : "";
+                              })()}
+                            </span>
+                          </>
+                        )}
+                      </p>
+                      {mapDay !== null && (
+                        <button
+                          type="button"
+                          onClick={() => setMapDay(null)}
+                          className="text-sm font-bold text-primary underline underline-offset-4"
+                        >
+                          {t("Show the whole route", "הציגו את כל המסלול")}
+                        </button>
+                      )}
+                    </div>
+                  </section>
+                )}
+
                 {/* Day-by-Day Itinerary */}
                 <section>
                   <h2 className="text-2xl md:text-3xl font-heading font-bold mb-6">
@@ -666,6 +738,7 @@ export default function PackageDetail() {
                             className="p-5 flex-1"
                             onToggle={event => {
                               if (!event.currentTarget.open) return;
+                              setMapDay(day.day);
                               trackEvent("itinerary_expand", {
                                 page: `/packages/${slug}`,
                                 placement: `day-${day.day}`,
@@ -693,6 +766,23 @@ export default function PackageDetail() {
                                 </span>
                               ))}
                             </div>
+                            {PACKAGE_ROUTES[slug] && (
+                              <button
+                                type="button"
+                                aria-pressed={mapDay === day.day}
+                                onClick={() => {
+                                  setMapDay(day.day);
+                                  revealMap(routeMapRef.current);
+                                }}
+                                className="mt-4 inline-flex items-center text-xs font-bold uppercase tracking-[0.12em] text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                              >
+                                <MapPin
+                                  className="me-1.5 size-3.5"
+                                  aria-hidden="true"
+                                />
+                                {t("Show on map", "הציגו במפה")}
+                              </button>
+                            )}
                           </details>
                         </div>
                       </Card>
@@ -829,6 +919,15 @@ export default function PackageDetail() {
 
   /* ─── DB-based package rendering (existing behavior) ─── */
   const pkg = dbPkg!;
+  // Map places of the day tours in this package, in itinerary order.
+  const packagePlaces = Array.from(
+    new Set(
+      pkg.tourSlugs.flatMap(
+        tourSlug =>
+          WIRO_TOUR_STORIES.find(story => story.slug === tourSlug)?.places ?? []
+      )
+    )
+  ) as MapPlaceKey[];
   const coverSlug = pkg.tourSlugs[0];
   const coverImgName = coverSlug ? TOUR_IMAGE_MAP[coverSlug] : null;
   const coverSrc = pkg.coverImage || coverImgName || "samoeng_valley";
@@ -887,6 +986,29 @@ export default function PackageDetail() {
                   {pkg.tourSlugs.length} {t("destinations", "יעדים")}
                 </div>
               </div>
+
+              {packagePlaces.length > 0 && (
+                <section>
+                  <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+                    {t("Route", "מסלול")}
+                  </p>
+                  <h2 className="text-2xl font-bold mt-1 mb-4">
+                    {t(
+                      "Every day starts in Chiang Mai",
+                      "כל יום מתחיל בצ׳יאנג מאי"
+                    )}
+                  </h2>
+                  <WiroMap
+                    only={packagePlaces}
+                    active={null}
+                    className="wx-mapbox--route"
+                    label={t(
+                      `Map of the day trips in ${packageName}`,
+                      `מפת טיולי היום ב${packageName}`
+                    )}
+                  />
+                </section>
+              )}
 
               <section>
                 <h2 className="text-2xl font-bold mb-4">

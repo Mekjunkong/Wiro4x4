@@ -30,13 +30,36 @@ const toXZ = (lat: number, lon: number) => ({
   z: -(lat - 18.788) * 111 * S,
 });
 
-// Terrain covers Mae Hong Son to the Golden Triangle with a margin.
-const NW = toXZ(20.6, 97.45);
-const SE = toXZ(17.95, 100.4);
-const TW = SE.x - NW.x,
-  TD = SE.z - NW.z,
-  TCX = (NW.x + SE.x) / 2,
-  TCZ = (NW.z + SE.z) / 2;
+/**
+ * Terrain bounds: Mae Hong Son to the Golden Triangle by default, stretched
+ * to cover every stop of the first route plus a margin (the Laos grand tour
+ * reaches Vientiane and Phitsanulok).
+ */
+function terrainBounds(stops: readonly RouteStop[]) {
+  const M = 0.5;
+  let n = 20.6,
+    s = 17.95,
+    w = 97.45,
+    e = 100.4;
+  for (const st of stops) {
+    n = Math.max(n, st.lat + M);
+    s = Math.min(s, st.lat - M);
+    w = Math.min(w, st.lon - M);
+    e = Math.max(e, st.lon + M);
+  }
+  const nw = toXZ(n, w),
+    se = toXZ(s, e);
+  return {
+    NW: nw,
+    TW: se.x - nw.x,
+    TD: se.z - nw.z,
+    TCX: (nw.x + se.x) / 2,
+    TCZ: (nw.z + se.z) / 2,
+    east: e,
+  };
+}
+/** Size of the default terrain, for scaling grid resolution and fireflies. */
+const BASE = terrainBounds([]);
 
 // Flat valley floors around the towns, so the roads run through basins.
 const BASINS = [
@@ -45,7 +68,27 @@ const BASINS = [
   { ...toXZ(19.91, 99.84), r: 11 }, // Chiang Rai
   { ...toXZ(19.92, 99.21), r: 8 }, // Fang
   { ...toXZ(20.3, 100.05), r: 6 }, // Mekong plain
+  // Lowlands that only appear on the stretched Laos terrain.
+  { ...toXZ(17.97, 102.6), r: 16 }, // Vientiane plain
+  { ...toXZ(16.82, 100.26), r: 22 }, // Phitsanulok plain
+  { ...toXZ(17.02, 99.8), r: 14 }, // Sukhothai plain
+  { ...toXZ(19.886, 102.135), r: 5 }, // Luang Prabang
 ];
+
+/** The Mekong from the Golden Triangle to Nong Khai (rough course). */
+const MEKONG = [
+  [20.354, 100.083],
+  [20.26, 100.41],
+  [19.9, 101.13],
+  [19.89, 102.13],
+  [19.3, 101.8],
+  [18.6, 101.45],
+  [18.2, 101.41],
+  [17.9, 101.67],
+  [18.02, 101.9],
+  [17.95, 102.6],
+  [17.88, 102.75],
+] as const;
 const PEAKS = [
   { ...toXZ(18.588, 98.487), h: 12, s: 60 }, // Doi Inthanon
   { ...toXZ(19.4, 98.93), h: 7, s: 30 }, // Doi Chiang Dao
@@ -113,9 +156,11 @@ export function createRouteMap(
   sun.position.set(-70, 90, 40);
   scene.add(sun);
 
-  // Terrain with the same contour-line shader as the day-trip map.
-  const SX = 220,
-    SZ = 200;
+  // Terrain with the same contour-line shader as the day-trip map. The grid
+  // keeps the default cell size when the terrain stretches, up to a cap.
+  const { NW, TW, TD, TCX, TCZ, east } = terrainBounds(initial.stops);
+  const SX = Math.min(420, Math.round((220 * TW) / BASE.TW)),
+    SZ = Math.min(400, Math.round((200 * TD) / BASE.TD));
   const geo = new THREE.PlaneGeometry(TW, TD, SX, SZ);
   geo.rotateX(-Math.PI / 2);
   geo.translate(TCX, 0, TCZ);
@@ -153,8 +198,9 @@ export function createRouteMap(
       "  float sw = fract((vXZ.x * 0.7 + vXZ.y * 0.3) / 170.0 - uTime * 0.07);",
       "  float band = smoothstep(0.0, 0.06, sw) * (1.0 - smoothstep(0.06, 0.16, sw));",
       "  col += gold * band * (minor * 0.9 + major * 1.2 + 0.05);",
-      "  float d = length((vXZ - uC) / uR);",
-      "  col = mix(col, vec3(0.075,0.072,0.065), smoothstep(0.7, 1.0, d));",
+      // Squarish fade (superellipse) so route corners stay lit.
+      "  vec2 q = abs((vXZ - uC) / uR); float d = pow(pow(q.x, 4.0) + pow(q.y, 4.0), 0.25);",
+      "  col = mix(col, vec3(0.075,0.072,0.065), smoothstep(0.78, 1.0, d));",
       "  if (vH < -0.5) col = vec3(0.075,0.072,0.065);",
       "  gl_FragColor = vec4(col, 1.0);",
       "}",
@@ -170,6 +216,22 @@ export function createRouteMap(
       return new THREE.Vector3(x, HM(x, z) + 0.25, z);
     })
   );
+
+  // The Mekong, only when the terrain stretches east into Laos.
+  const mekongCurve =
+    east > 101
+      ? new THREE.CatmullRomCurve3(
+          // Sampled densely so the river drapes over the terrain.
+          MEKONG.slice(1).flatMap(([lat, lon], i) => {
+            const [lat0, lon0] = MEKONG[i];
+            return Array.from({ length: 12 }, (_, j) => {
+              const f = j / 12,
+                p = toXZ(lat0 + (lat - lat0) * f, lon0 + (lon - lon0) * f);
+              return new THREE.Vector3(p.x, HM(p.x, p.z) + 0.25, p.z);
+            });
+          })
+        )
+      : null;
 
   const additive = {
     transparent: true,
@@ -265,8 +327,8 @@ export function createRouteMap(
   const beam = new THREE.Mesh(bg2, beamMat);
   scene.add(dot, halo, trailLine, beam, ...rings);
 
-  // Fireflies over the whole terrain.
-  const NP = 560,
+  // Fireflies over the whole terrain, at the same density when it stretches.
+  const NP = Math.min(1600, Math.round((560 * TW * TD) / (BASE.TW * BASE.TD))),
     pp = new Float32Array(NP * 3),
     pSeed: number[] = [];
   for (let i = 0; i < NP; i++) {
@@ -431,6 +493,7 @@ export function createRouteMap(
     [dot, beam].forEach(o => o.scale.setScalar(K));
 
     tube(riverCurve, 160, 0.28 * K, "#7fb0c2", 0.55);
+    if (mekongCurve) tube(mekongCurve, 400, 0.45 * K, "#7fb0c2", 0.6);
 
     // Road-like line through the stops, sampled every ~0.4 units.
     const pts: THREE.Vector3[] = [];
@@ -617,7 +680,7 @@ export function createRouteMap(
           .addScaledVector(fwd, clamp((y0 + y1) / 2, -2, 2) * g * 1.3);
         tgt.y = 0;
         const ext = Math.max((x1 - x0) / 2, (y1 - y0) / 2);
-        distT = clamp(dist * (1 + clamp(ext - FIT, -0.5, 0.5)), MIN_DIST, 420);
+        distT = clamp(dist * (1 + clamp(ext - FIT, -0.5, 0.5)), MIN_DIST, 700);
       }
     }
     reliefMat.uniforms.uTime.value = reduce ? 0 : t;
@@ -699,8 +762,12 @@ export function createRouteMap(
       const y = ((1 - v.y) / 2) * H;
       el.style.left = x.toFixed(1) + "px";
       el.style.top = y.toFixed(1) + "px";
-      el.style.opacity = v.z < 1 ? "1" : "0";
-      placed.push({ el, x, y, w: el.offsetWidth, h: el.offsetHeight });
+      // Labels just past the edge are nudged in; far-off places are hidden
+      // rather than pinned to the frame edge.
+      const inView = v.z < 1 && Math.abs(v.x) < 1.12 && Math.abs(v.y) < 1.12;
+      el.style.opacity = inView ? "1" : "0";
+      if (inView)
+        placed.push({ el, x, y, w: el.offsetWidth, h: el.offsetHeight });
     });
     placed.sort((a, c) => c.y - a.y);
     for (let i = 0; i < placed.length; i++)
