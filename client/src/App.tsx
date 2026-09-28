@@ -119,6 +119,7 @@ function Router() {
             <Route path={"/booking"} component={LegacyBookingRedirect} />
             <Route path={"/tours"} component={ToursListing} />
             <Route path={"/tours/:slug"} component={TourDetail} />
+            <Route path={"/he/tours/:slug"} component={TourDetail} />
             <Route path={"/packages"} component={Packages} />
             <Route path={"/packages/:slug"} component={PackageDetail} />
             <Route path={"/blog"} component={Blog} />

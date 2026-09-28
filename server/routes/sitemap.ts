@@ -16,6 +16,11 @@ import {
   getAllPublishedBlogPosts,
   getPublishedTourPackages,
 } from "../db";
+import {
+  hebrewTourSlug,
+  tourAlternates,
+  tourPath,
+} from "../../shared/tourPaths";
 
 function escapeXml(str: string): string {
   return str
@@ -193,6 +198,17 @@ function buildHreflangLinks(siteUrl: string, path: string): string {
     ].join("\n");
   }
 
+  const tourSlug =
+    hebrewTourSlug(path) ?? path.match(/^\/tours\/([^/]+)$/)?.[1] ?? null;
+  if (tourSlug) {
+    const alt = tourAlternates(tourSlug);
+    return [
+      `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapeXml(alt.en)}"/>`,
+      `    <xhtml:link rel="alternate" hreflang="he" href="${escaped}${escapeXml(alt.he)}"/>`,
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${escaped}${escapeXml(alt["x-default"])}"/>`,
+    ].join("\n");
+  }
+
   const escapedPath = escapeXml(path);
   return [
     `    <xhtml:link rel="alternate" hreflang="en" href="${escaped}${escapedPath}"/>`,
@@ -246,6 +262,13 @@ export function generateSitemap(
       .sort((a, b) => a.path.localeCompare(b.path)),
     ...CORE_TOUR_SLUGS.map(slug => ({
       path: `/tours/${slug}`,
+      lastmod: null,
+      changefreq: "monthly",
+      priority: "0.85",
+    })),
+    // Hebrew twins of the core tours (/he/tours/:slug).
+    ...CORE_TOUR_SLUGS.map(slug => ({
+      path: tourPath(slug, "he"),
       lastmod: null,
       changefreq: "monthly",
       priority: "0.85",

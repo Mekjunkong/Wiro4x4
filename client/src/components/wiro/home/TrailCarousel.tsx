@@ -9,6 +9,7 @@ import {
 } from "@/data/wiroTours";
 import { ArrowIcon } from "../icons";
 import { useViewportWidth } from "../useViewport";
+import { tourPath } from "@shared/tourPaths";
 
 const MARQUEE = [
   "Doi Inthanon",
@@ -211,7 +212,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
               tabIndex={ad > 1 ? -1 : 0}
               onClick={() => {
                 if (dragged.current) return;
-                if (on) navigate(`/tours/${tour.slug}`);
+                if (on) navigate(tourPath(tour.slug, language));
                 else {
                   lastTouch.current = Date.now();
                   setIdx(i);
@@ -312,7 +313,7 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
           }}
         >
           <Link
-            href={`/tours/${active.slug}`}
+            href={tourPath(active.slug, language)}
             className="wx-btn wx-btn--gold wx-btn--sharp"
           >
             {t("View the trail", "לפרטי המסלול")}

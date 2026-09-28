@@ -7,6 +7,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { hebrewTourSeoMeta, tourAlternates, tourPath } from "@shared/tourPaths";
 import { ArrowLeft } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourSocialProof } from "@/components/TourSocialProof";
@@ -1119,8 +1120,17 @@ interface NormalizedTour {
 export default function TourDetail() {
   const { t, language } = useLanguage();
   const params = useParams<{ slug: string }>();
-  const [, navigate] = useLocation();
+  const [path, navigate] = useLocation();
   const slug = params.slug ?? "";
+  const hebrewUrl = path.startsWith("/he/");
+
+  // A visitor who prefers Hebrew on an English tour URL (old links) moves to
+  // the Hebrew page, so each URL shows one language. Crawlers have no stored
+  // preference and stay on the English page.
+  useEffect(() => {
+    if (language === "he" && !hebrewUrl && slug)
+      navigate(tourPath(slug, "he"), { replace: true });
+  }, [language, hebrewUrl, slug, navigate]);
 
   const { data: dbTour, isLoading } = trpc.tour.getBySlug.useQuery(
     { slug },
@@ -1255,7 +1265,8 @@ export default function TourDetail() {
 
   // SEO: Per-tour meta + JSON-LD structured data
   const tourSeoMeta = tour
-    ? resolveTourSeoMeta(slug, {
+    ? (hebrewUrl && hebrewTourSeoMeta(slug)) ||
+      resolveTourSeoMeta(slug, {
         title: `${tour.name} — Chiang Mai 4x4 Tour`,
         description: tour.description.slice(0, 160),
       })
@@ -1274,7 +1285,9 @@ export default function TourDetail() {
           ogImage: tour.imageUrl.startsWith("http")
             ? tour.imageUrl
             : `https://www.wiro4x4indochina.com${tour.imageUrl}`,
-          canonicalPath: `/tours/${slug}`,
+          canonicalPath: tourPath(slug, hebrewUrl ? "he" : "en"),
+          language: hebrewUrl ? "he" : "en",
+          alternates: tourAlternates(slug),
           jsonLd: tourJsonLd,
         }
       : { title: "Tour Details" }
