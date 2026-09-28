@@ -22,6 +22,9 @@ import { trackEvent } from "@/lib/analytics";
 import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
 import { WiroMap } from "@/components/wiro/WiroMap";
 import { WIRO_TOUR_STORIES, type MapPlaceKey } from "@/data/wiroTours";
+import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
+import { FALLBACK_PACKAGES } from "@/data/multiDayPackages";
+import { PACKAGE_ROUTES } from "@/data/packageRoutes";
 import {
   Package,
   Check,
@@ -497,6 +500,87 @@ export default function Packages() {
                   </Card>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Multi-day expeditions ─────────────────────────── */}
+        <section className="py-12" aria-labelledby="expeditions-heading">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-3">
+                <Mountain className="w-4 h-4" />
+                {t("Multi-day expeditions", "מסעות רב-יומיים")}
+              </div>
+              <h2
+                id="expeditions-heading"
+                className="text-2xl md:text-3xl font-bold"
+              >
+                {t("Go further than a day trip", "יוצאים רחוק יותר מטיול יום")}
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                {t(
+                  "Overnight routes planned by WIRO, with lodges on the way. Open one to follow it day by day.",
+                  "מסלולים עם לינה שתוכננו על ידי WIRO, עם לודג׳ים בדרך. פתחו מסלול כדי לעקוב אחריו יום אחר יום."
+                )}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {Object.values(FALLBACK_PACKAGES).map(pkg => (
+                <Card
+                  key={pkg.slug}
+                  className="overflow-hidden flex flex-col gap-0 py-0"
+                >
+                  {PACKAGE_ROUTES[pkg.slug] && (
+                    <WiroRouteMap
+                      stops={PACKAGE_ROUTES[pkg.slug].stops}
+                      loop
+                      cullLabels
+                      className="wx-mapbox--card"
+                      label={t(
+                        `Route map for ${pkg.name}`,
+                        `מפת המסלול של ${pkg.nameHe}`
+                      )}
+                    />
+                  )}
+                  <div className="p-5 flex flex-1 flex-col">
+                    <h3 className="text-lg font-bold mb-2">
+                      {t(pkg.name, pkg.nameHe)}
+                    </h3>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {t(pkg.duration, pkg.durationHe)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5" />
+                        {t(pkg.location, pkg.locationHe)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5" />
+                        {t(pkg.groupSize, pkg.groupSizeHe)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                      {t(pkg.description, pkg.descriptionHe)}
+                    </p>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="mt-auto w-full border-accent text-accent hover:bg-accent/10"
+                    >
+                      <Link href={`/packages/${pkg.slug}`}>
+                        {t(
+                          "See the day-by-day route",
+                          "לצפייה במסלול יום אחר יום"
+                        )}
+                        <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
+                      </Link>
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
