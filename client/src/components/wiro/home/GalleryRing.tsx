@@ -102,7 +102,7 @@ export function GalleryRing() {
                 }}
               >
                 <img
-                  src={photo(p.stem).md}
+                  src={photo(p.stem).lg}
                   alt=""
                   aria-hidden="true"
                   draggable={false}
