@@ -12,10 +12,10 @@ const VIDEO_MOBILE = "/media/hero/wiro-seedance-mobile.mp4";
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
 /**
- * Home hero — the design's "night drive": the WIRO video plays inside the
- * giant "WIRO 4×4" letters; scrolling zooms through them into the full video,
- * then the "Your journey in the North" banner rises in. With reduced motion
- * the banner is shown straight away.
+ * Home hero — the design's "night drive": the WIRO video plays full-frame
+ * behind the giant white "WIRO 4×4" wordmark; scrolling rides through the
+ * letters (they zoom past and fade), then the "Your journey in the North"
+ * banner rises in. With reduced motion the banner is shown straight away.
  */
 export function NightDriveHero() {
   const { t, language } = useLanguage();
@@ -87,7 +87,7 @@ export function NightDriveHero() {
   const e = z * z * z;
   const end = reduce ? 1 : clamp((p - 0.42) / 0.14, 0, 1);
   const textScale = 1 + e * 42;
-  const maskOp = clamp(1 - (z - 0.88) / 0.12, 0, 1);
+  const maskOp = clamp(1 - (z - 0.2) / 0.45, 0, 1);
   const vidScale = 1.18 - p * 0.12;
   const washOp = reduce ? 1 : clamp((z - 0.7) / 0.3, 0, 1);
   const introOp = reduce ? 0 : clamp(1 - p / 0.06, 0, 1);
