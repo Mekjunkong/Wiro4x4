@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
 import { trackEvent } from "@/lib/analytics";
 import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
+import { WiroMap } from "@/components/wiro/WiroMap";
+import { WIRO_TOUR_STORIES, type MapPlaceKey } from "@/data/wiroTours";
 import {
   Package,
   Check,
@@ -220,6 +222,27 @@ export default function Packages() {
       ),
     [selectedTourSlugs, availableTours]
   );
+
+  // ── Map places: every tour until the guest starts picking ───
+  const placesFor = (slugs: readonly string[]) =>
+    Array.from(
+      new Set(
+        slugs.flatMap(
+          slug =>
+            WIRO_TOUR_STORIES.find(story => story.slug === slug)?.places ?? []
+        )
+      )
+    ) as MapPlaceKey[];
+  const allPlaces = useMemo(
+    () => placesFor(availableTours.map(tour => tour.slug)),
+    [availableTours]
+  );
+  const selectedPlaces = useMemo(
+    () => placesFor(selectedTourSlugs),
+    [selectedTourSlugs]
+  );
+  // The newest pick is the one the map draws.
+  const newestPlace = placesFor(selectedTourSlugs.slice(-1))[0] ?? null;
 
   // ── Pricing calculations ──────────────────────────────────
   const totalTourDays = selectedTourSlugs.length;
@@ -607,6 +630,32 @@ export default function Packages() {
                       {totalTourDays} / {selectedDuration ?? "?"}{" "}
                       {t("days selected", "ימים נבחרו")}
                     </span>
+                  </div>
+
+                  {/* Package map: all day trips, then only the chosen ones */}
+                  <div>
+                    <WiroMap
+                      only={
+                        selectedPlaces.length > 0 ? selectedPlaces : allPlaces
+                      }
+                      active={newestPlace}
+                      className="wx-mapbox--route"
+                      label={t(
+                        "Map of the day trips in your package",
+                        "מפת טיולי היום בחבילה שלכם"
+                      )}
+                    />
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {selectedPlaces.length > 0
+                        ? t(
+                            "Your package on the map · every day starts with pickup in Chiang Mai",
+                            "החבילה שלכם במפה · כל יום מתחיל באיסוף בצ׳יאנג מאי"
+                          )
+                        : t(
+                            "All day trips from Chiang Mai · pick tours below to build your package",
+                            "כל טיולי היום מצ׳יאנג מאי · בחרו טיולים למטה כדי לבנות את החבילה"
+                          )}
+                    </p>
                   </div>
 
                   {/* Tour grid */}
