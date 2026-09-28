@@ -44,7 +44,7 @@ export const TOUR_IMAGE_MAP: Record<string, string> = {
   "mae-kampong-hidden-village": "mae-kampong-village",
   "maerim-sticky-waterfalls": "sticky_waterfalls",
   "doi-suthep-pui-beyond-temple": "mountain_sunset_golden",
-  "mae-wang-jungle-wilderness": "elephant_sanctuary_chiangmai",
+  "mae-wang-jungle-wilderness": "elephant_group_wash",
   "samoeng-loop-mountain-circuit": "wiro_vehicle_scenic_stop",
 };
 
