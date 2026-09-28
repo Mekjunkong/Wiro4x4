@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getWiroTourStory, type MapPlaceKey } from "@/data/wiroTours";
 import { WiroMap } from "../WiroMap";
 import { ArrowIcon, ClockIcon } from "../icons";
+import { tourPath } from "@shared/tourPaths";
 
 type Bi = readonly [string, string];
 const PLACES: readonly {
@@ -58,7 +59,7 @@ const PLACES: readonly {
 
 /** "Every trail starts in Chiang Mai" — place list + 3D relief map. */
 export function MapSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [active, setActive] = useState<MapPlaceKey>("inthanon");
   const sel = PLACES.find(p => p.k === active) ?? PLACES[0];
   const story = getWiroTourStory(sel.slug);
@@ -136,7 +137,7 @@ export function MapSection() {
             </div>
             {story && (
               <Link
-                href={`/tours/${sel.slug}`}
+                href={tourPath(sel.slug, language)}
                 className="wx-link wx-caps"
                 style={{ marginTop: 20, color: "var(--wx-ink)" }}
               >

@@ -140,4 +140,38 @@ describe("initial HTML available without JavaScript", () => {
     expect(mhs).toContain("Mae Sariang");
     expect(mhs).toContain("Motorcycle or 4x4");
   });
+
+  it("serves Hebrew tour pages with Hebrew content and reciprocal hreflang", async () => {
+    const fail = async () => {
+      throw new Error("database unavailable");
+    };
+    const he = injectMeta(
+      shell,
+      (await resolveDynamicMeta("/he/tours/mae-kampong-hidden-village", {
+        loadTourBySlug: fail,
+      }))!
+    );
+    expect(he).toContain('lang="he" dir="rtl"');
+    expect(he).toMatch(/<h1>[^<]*מאה קמפונג/);
+    expect(he).toContain("היום, שעה אחר שעה");
+    expect(he).toContain(
+      'rel="canonical" href="https://www.wiro4x4indochina.com/he/tours/mae-kampong-hidden-village"'
+    );
+    expect(he).toContain(
+      'hreflang="en" href="https://www.wiro4x4indochina.com/tours/mae-kampong-hidden-village"'
+    );
+
+    const en = injectMeta(
+      shell,
+      (await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
+        loadTourBySlug: fail,
+      }))!
+    );
+    expect(en).toContain(
+      'hreflang="he" href="https://www.wiro4x4indochina.com/he/tours/mae-kampong-hidden-village"'
+    );
+    expect(
+      await resolveDynamicMeta("/he/tours/not-a-tour", { loadTourBySlug: fail })
+    ).toBeNull();
+  });
 });

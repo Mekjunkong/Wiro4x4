@@ -20,6 +20,7 @@ import {
   Phone,
   Heart,
 } from "lucide-react";
+import { tourPath } from "@shared/tourPaths";
 
 const ACCESSIBILITY_FEATURES = [
   {
@@ -256,7 +257,7 @@ export default function AccessibleTours() {
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                         {t(tour.access[0], tour.access[1])}
                       </p>
-                      <Link href={`/tours/${tour.slug}`}>
+                      <Link href={tourPath(tour.slug, language)}>
                         <span className="text-accent text-sm font-medium hover:underline cursor-pointer">
                           {t("View Full Tour Details", "ראו פרטי טיול מלאים")}{" "}
                           &rarr;

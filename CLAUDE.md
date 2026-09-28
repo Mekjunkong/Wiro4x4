@@ -57,6 +57,8 @@ With the dead URL, `pnpm vitest run client/src shared` passes; many `server/` te
 
 **Background work.** `routers.ts` starts the Stripe session checker and the reminder scheduler, but not under `NODE_ENV=test` or on Vercel. On Vercel, scheduled and automated work runs through n8n (`workflows/`, `server/n8nAutomation.ts`, `server/routes/n8n.ts`, `docker-compose.n8n.yml`).
 
+**Hebrew tour URLs.** Each tour has an English page at `/tours/:slug` and a Hebrew one at `/he/tours/:slug` (hreflang-linked, both in the sitemap). Build tour links with `tourPath(slug, language)` from `shared/tourPaths.ts`, never a hard-coded `/tours/...`. Visitors who prefer Hebrew are moved from `/tours/:slug` to the Hebrew URL, and the header language button uses `languagePairPath` to switch pages whose language is fixed by the URL.
+
 **Bilingual UI.** `useLanguage()` from `client/src/contexts/LanguageContext.tsx` provides `t("English", "עברית")`. Hebrew sets `dir="rtl"` on `<html>`. Every user-facing string needs both languages, and layouts must not break mirrored.
 
 **Styling: two systems.**

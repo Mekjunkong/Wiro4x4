@@ -9,6 +9,7 @@ import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { TourCard } from "@/components/wiro/TourCard";
 import { getWiroTours } from "@/data/wiroTours";
+import { tourPath } from "@shared/tourPaths";
 
 type Diff = "all" | "easy" | "moderate" | "challenging";
 type Dur = "all" | "half" | "full";
@@ -26,7 +27,7 @@ const DURS: readonly [Dur, string, string][] = [
 ];
 
 export default function ToursListing() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [diff, setDiff] = useState<Diff>("all");
   const [dur, setDur] = useState<Dur>("all");
   const { data: dbTours } = trpc.tour.list.useQuery();
@@ -90,7 +91,7 @@ export default function ToursListing() {
                 "כל יום הוא פרטי — הקבוצה שלכם, הרכב שלכם, המדריך שלכם — עם תכנון אוכל כשר בכולם. התחילו בהרים הגבוהים של "
               )}
               <Link
-                href="/tours/doi-inthanon-roof-of-thailand"
+                href={tourPath("doi-inthanon-roof-of-thailand", language)}
                 style={{ color: "var(--wx-gold-ink)" }}
               >
                 {t("Doi Inthanon", "דוי אינתנון")}
@@ -100,7 +101,7 @@ export default function ToursListing() {
                 " או השוו אותם לג'ונגל ולנהרות של "
               )}
               <Link
-                href="/tours/mae-wang-jungle-wilderness"
+                href={tourPath("mae-wang-jungle-wilderness", language)}
                 style={{ color: "var(--wx-gold-ink)" }}
               >
                 {t("Mae Wang", "מאה וואנג")}

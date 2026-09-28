@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Moon, Shield, Sun } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { languagePairPath } from "@shared/tourPaths";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { APP_LOGO } from "@/const";
@@ -113,7 +114,15 @@ export function Header() {
   const { t, language, setLanguage } = useLanguage();
   const { theme, toggleTheme, switchable } = useTheme();
   const { user, isAuthenticated } = useAuth();
-  const [path] = useLocation();
+  const [path, navigate] = useLocation();
+  // Pages whose language is fixed by the URL (tours, landing pages) switch by
+  // moving to their counterpart; elsewhere only the preference changes.
+  const switchLanguage = () => {
+    const next = language === "en" ? "he" : "en";
+    setLanguage(next);
+    const pair = languagePairPath(path, next);
+    if (pair) navigate(pair);
+  };
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -283,7 +292,7 @@ export function Header() {
           <button
             type="button"
             className="wx-iconbtn"
-            onClick={() => setLanguage(language === "en" ? "he" : "en")}
+            onClick={() => switchLanguage()}
             // Starts with the visible word so the spoken name matches it.
             aria-label={
               language === "en"

@@ -29,6 +29,7 @@ import {
   buildPackageBookingUrl,
   buildSelectedToursBookingUrl,
 } from "@/lib/bookingTourContext";
+import { tourPath } from "@shared/tourPaths";
 
 /* ─── Fallback itinerary day type ─── */
 interface ItineraryDay {
@@ -952,7 +953,7 @@ export default function PackageDetail() {
                             </div>
                             <div className="mt-2">
                               <Link
-                                href={`/tours/${tour.slug}`}
+                                href={tourPath(tour.slug, language)}
                                 className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1"
                               >
                                 {t("View tour details", "פרטי הסיור")}

@@ -336,4 +336,19 @@ describe("sitemap", () => {
       expect(rewrite.destination).toBe("/api");
     }
   });
+
+  it("lists the Hebrew tour pages with reciprocal hreflang", () => {
+    const xml = generateSitemap([], [], [], "https://www.wiro4x4indochina.com");
+    expect(xml).toContain(
+      "<loc>https://www.wiro4x4indochina.com/he/tours/doi-inthanon-roof-of-thailand</loc>"
+    );
+    const enEntry = xml.slice(
+      xml.indexOf(
+        "<loc>https://www.wiro4x4indochina.com/tours/doi-inthanon-roof-of-thailand</loc>"
+      )
+    );
+    expect(enEntry.slice(0, enEntry.indexOf("</url>"))).toContain(
+      'hreflang="he" href="https://www.wiro4x4indochina.com/he/tours/doi-inthanon-roof-of-thailand"'
+    );
+  });
 });

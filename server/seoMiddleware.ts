@@ -19,6 +19,11 @@ import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
 import { resolveTourSeoMeta } from "../shared/tourSeoOverrides";
 import { injectPageContent } from "./seoPageContent";
 import { withBrandSuffix } from "../shared/pageTitle";
+import {
+  hebrewTourSeoMeta,
+  tourAlternates,
+  tourPath,
+} from "../shared/tourPaths";
 import { blogBody, markdownToHtml, tourBody } from "./seoPageBody";
 import {
   COMPANY_EMAIL,
@@ -51,7 +56,8 @@ type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
 
 /** BreadcrumbList JSON-LD for rich breadcrumb trails in search results */
 function breadcrumbJsonLd(
-  items: { name: string; path: string }[]
+  items: { name: string; path: string }[],
+  homeName = "Home"
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
@@ -60,7 +66,7 @@ function breadcrumbJsonLd(
       {
         "@type": "ListItem",
         position: 1,
-        name: "Home",
+        name: homeName,
         item: SITE_URL,
       },
       ...items.map((item, idx) => ({
@@ -713,10 +719,11 @@ export async function resolveDynamicMeta(
   urlPath: string,
   options?: DynamicMetaOptions
 ): Promise<PageMeta | null> {
-  // /tours/:slug
-  const tourMatch = urlPath.match(/^\/tours\/([^/]+)$/);
-  if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[1])) {
-    const slug = tourMatch[1];
+  // /tours/:slug and its Hebrew twin /he/tours/:slug
+  const tourMatch = urlPath.match(/^(\/he)?\/tours\/([^/]+)$/);
+  if (tourMatch && isCanonicalTourOrPackageSlug(tourMatch[2])) {
+    const he = Boolean(tourMatch[1]);
+    const slug = tourMatch[2];
     let tour: Awaited<ReturnType<typeof getTourBySlug>>;
     try {
       tour = await (options?.loadTourBySlug || getTourBySlug)(slug);
@@ -724,34 +731,51 @@ export async function resolveDynamicMeta(
       tour = undefined; // DB error — use hardcoded fallback below
     }
     const fallback = TOUR_META[slug];
-    const name = tour?.name || fallback?.name;
-    const description = tour?.description || fallback?.description;
+    const catalog = getFallbackTourBySlug(slug);
+    const englishName = tour?.name || fallback?.name;
+    const name = he
+      ? tour?.nameHe || catalog?.nameHe || englishName
+      : englishName;
+    const englishDescription = tour?.description || fallback?.description;
     const coverImage = tour?.imageUrl || fallback?.coverImage;
+    const hebrewMeta = he ? hebrewTourSeoMeta(slug) : null;
 
-    if (name) {
-      const seoMeta = resolveTourSeoMeta(slug, {
-        title: `${name} — Chiang Mai 4x4 Tour`,
-        description:
-          truncateDescription(description || "") ||
-          `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
-      });
+    if (name && (!he || hebrewMeta)) {
+      const seoMeta = hebrewMeta
+        ? hebrewMeta
+        : resolveTourSeoMeta(slug, {
+            title: `${name} — Chiang Mai 4x4 Tour`,
+            description:
+              truncateDescription(englishDescription || "") ||
+              `${name} — private off-road 4x4 tour in Chiang Mai with WIRO 4x4.`,
+          });
+      const description = he ? seoMeta.description : englishDescription;
+      const path = tourPath(slug, he ? "he" : "en");
+      const alternates = tourAlternates(slug);
       // Same price the tour page shows: the DB row, else the catalog.
-      const price = tour?.price ?? getFallbackTourBySlug(slug)?.price;
+      const price = tour?.price ?? catalog?.price;
       return {
         title: seoMeta.title,
         description: seoMeta.description,
         ogImage: coverImage ? absoluteUrl(coverImage) : undefined,
         ogType: "product",
-        canonicalPath: `/tours/${slug}`,
+        canonicalPath: path,
+        ...(he ? { lang: "he" as const, dir: "rtl" as const } : {}),
+        alternateLanguages: {
+          en: `${SITE_URL}${alternates.en}`,
+          he: `${SITE_URL}${alternates.he}`,
+          "x-default": `${SITE_URL}${alternates["x-default"]}`,
+        },
         bodyHtml: tourBody(
           slug,
           {
             price,
             duration: tour?.duration,
             difficulty: tour?.difficulty,
-            description: tour?.description,
+            // The long DB description is English-only.
+            description: he ? undefined : tour?.description,
           },
-          "en"
+          he ? "he" : "en"
         ),
         jsonLd: [
           {
@@ -759,6 +783,7 @@ export async function resolveDynamicMeta(
             "@type": "TouristTrip",
             name,
             description,
+            inLanguage: he ? "he" : "en",
             image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
             ...(price
               ? {
@@ -766,9 +791,11 @@ export async function resolveDynamicMeta(
                     "@type": "Offer",
                     price,
                     priceCurrency: "THB",
-                    url: `${SITE_URL}/tours/${slug}`,
+                    url: `${SITE_URL}${path}`,
                     availability: "https://schema.org/InStock",
-                    description: "Per vehicle, private group",
+                    description: he
+                      ? "לרכב, קבוצה פרטית"
+                      : "Per vehicle, private group",
                   },
                 }
               : {}),
@@ -778,10 +805,13 @@ export async function resolveDynamicMeta(
               url: SITE_URL,
             },
           },
-          breadcrumbJsonLd([
-            { name: "Tours", path: "/tours" },
-            { name, path: `/tours/${slug}` },
-          ]),
+          breadcrumbJsonLd(
+            [
+              { name: he ? "טיולים" : "Tours", path: "/tours" },
+              { name, path },
+            ],
+            he ? "דף הבית" : "Home"
+          ),
         ],
       };
     }

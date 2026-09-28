@@ -10,6 +10,7 @@ import {
 } from "@/data/wiroTours";
 import { ArrowIcon, ClockIcon, MountainIcon } from "./icons";
 import { prefersReducedMotion } from "./useViewport";
+import { tourPath } from "@shared/tourPaths";
 
 function onTilt(e: MouseEvent<HTMLAnchorElement>) {
   if (prefersReducedMotion()) return;
@@ -53,7 +54,7 @@ export function TourCard({ tour }: { tour: WiroTour }) {
   ];
   return (
     <Link
-      href={`/tours/${tour.slug}`}
+      href={tourPath(tour.slug, language)}
       className="wx-card"
       onMouseMove={onTilt}
       onMouseLeave={offTilt}
