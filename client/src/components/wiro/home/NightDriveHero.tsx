@@ -7,7 +7,6 @@ const POSTER = "/media/hero/wiro-seedance-poster.webp";
 const POSTER_SRCSET =
   "/media/hero/wiro-seedance-poster-sm.webp 828w, /media/hero/wiro-seedance-poster.webp 1536w";
 const VIDEO_DESKTOP = "/media/hero/wiro-seedance-720p-optimized.mp4";
-const VIDEO_MOBILE = "/media/hero/wiro-seedance-mobile.mp4";
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
@@ -30,7 +29,9 @@ export function NightDriveHero() {
       navigator as Navigator & { connection?: { saveData?: boolean } }
     ).connection;
     if (reduce || connection?.saveData) return null;
-    return window.innerWidth < 720 ? VIDEO_MOBILE : VIDEO_DESKTOP;
+    // The 640x360 mobile cut is stretched ~7x to fill a portrait screen and
+    // looks blurry; the 1 MB 720p cut holds up on phones.
+    return VIDEO_DESKTOP;
   });
 
   useEffect(() => {
@@ -88,7 +89,10 @@ export function NightDriveHero() {
   const end = reduce ? 1 : clamp((p - 0.42) / 0.14, 0, 1);
   const textScale = 1 + e * 42;
   const maskOp = clamp(1 - (z - 0.2) / 0.45, 0, 1);
-  const vidScale = 1.18 - p * 0.12;
+  // Phones already crop the landscape clip to fill a tall screen, so extra
+  // zoom only blurs it into a close-up of the grille.
+  const narrow = typeof window !== "undefined" && window.innerWidth < 720;
+  const vidScale = narrow ? 1 : 1.18 - p * 0.12;
   const washOp = reduce ? 1 : clamp((z - 0.7) / 0.3, 0, 1);
   const introOp = reduce ? 0 : clamp(1 - p / 0.06, 0, 1);
 
@@ -150,7 +154,10 @@ export function NightDriveHero() {
         >
           <div
             className="wx-caps"
-            style={{ color: "var(--wx-gold)", letterSpacing: "0.3em" }}
+            style={{
+              color: "var(--wx-gold)",
+              letterSpacing: language === "he" ? 0 : "0.3em",
+            }}
           >
             {t(
               "Private access · Northern Thailand",
@@ -160,8 +167,8 @@ export function NightDriveHero() {
           <div
             className="wx-caps"
             style={{
-              fontSize: 11,
-              letterSpacing: "0.3em",
+              fontSize: language === "he" ? 14 : 11,
+              letterSpacing: language === "he" ? 0 : "0.3em",
               color: "rgba(251,248,241,0.7)",
               marginTop: 36,
             }}
@@ -181,7 +188,10 @@ export function NightDriveHero() {
         >
           <p
             className="wx-caps wx-eyebrow wx-eyebrow--light"
-            style={{ margin: 0, letterSpacing: "0.24em" }}
+            style={{
+              margin: 0,
+              letterSpacing: language === "he" ? 0 : "0.24em",
+            }}
           >
             {t("Private 4×4 · Chiang Mai", "4×4 פרטי · צ׳יאנג מאי")}
           </p>

@@ -4,7 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import {
   DIFFICULTY_LABEL,
   DURATION_HE,
-  formatBaht,
   photo,
   type WiroTour,
 } from "@/data/wiroTours";
@@ -64,9 +63,6 @@ export function TourCard({ tour }: { tour: WiroTour }) {
         <span className="wx-card__badge">
           {t(tour.badge[0], tour.badge[1])}
         </span>
-        {tour.price != null && (
-          <span className="wx-card__price">{formatBaht(tour.price)}</span>
-        )}
       </div>
       <span data-glare className="wx-card__glare" />
       <div className="wx-card__body">

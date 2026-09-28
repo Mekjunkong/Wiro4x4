@@ -11,13 +11,7 @@ import { buildTrackedWhatsAppLink } from "@/lib/whatsappAttribution";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { WhatsAppIcon } from "@/components/wiro/icons";
-import {
-  DURATION_HE,
-  depositFor,
-  formatBaht,
-  getWiroTours,
-  photo,
-} from "@/data/wiroTours";
+import { DURATION_HE, getWiroTours, photo } from "@/data/wiroTours";
 import { COMPANY_EMAIL } from "@/const";
 
 type Level = "none" | "friendly" | "glatt" | "mehadrin";
@@ -311,7 +305,6 @@ export default function Book() {
     t("Kosher", "כשרות"),
     t("Details", "פרטים"),
   ];
-  const deposit = depositFor(selTour?.price);
 
   return (
     <div className="wx" style={{ minHeight: "100vh" }}>
@@ -509,8 +502,7 @@ export default function Book() {
                                 >
                                   {he
                                     ? (DURATION_HE[x.duration] ?? x.duration)
-                                    : x.duration}{" "}
-                                  · {formatBaht(x.price)}
+                                    : x.duration}
                                 </span>
                               </span>
                             </button>
@@ -1095,34 +1087,14 @@ export default function Book() {
                           <span style={{ textAlign: "end" }}>{r.v}</span>
                         </div>
                       ))}
-                      <div
-                        style={{
-                          borderTop: "1px solid rgba(212,175,55,0.3)",
-                          marginTop: 8,
-                          paddingTop: 14,
-                          alignItems: "baseline",
-                        }}
-                      >
-                        <span>{t("From, per vehicle", "החל מ־, לרכב")}</span>
-                        <span
-                          className="wx-latin"
-                          style={{ fontSize: 36, color: "var(--wx-gold)" }}
-                        >
-                          {formatBaht(selTour?.price)}
-                        </span>
-                      </div>
-                      {deposit != null && (
-                        <div style={{ fontSize: 14 }}>
-                          <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
-                          <span>{formatBaht(deposit)}</span>
-                        </div>
-                      )}
                       <p
                         style={{
                           fontSize: 13,
                           lineHeight: 1.55,
                           color: "rgba(251,248,241,0.65)",
                           margin: "8px 0 0",
+                          paddingTop: 14,
+                          borderTop: "1px solid rgba(212,175,55,0.3)",
                         }}
                       >
                         {t(

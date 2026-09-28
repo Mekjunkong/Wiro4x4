@@ -20,12 +20,10 @@ import { ArrowIcon, CheckIcon } from "@/components/wiro/icons";
 import {
   DIFFICULTY_LABEL,
   DURATION_HE,
-  formatBaht,
   getWiroTourStory,
   getWiroTours,
   photo,
 } from "@/data/wiroTours";
-import { DEPOSIT_RATE } from "@shared/pricing";
 import { COMPANY_PHONE } from "@/const";
 import { getFallbackTourBySlug } from "@shared/wiroTourCatalog";
 import {
@@ -1460,7 +1458,6 @@ export default function TourDetail() {
       : "moderate"
   ) as keyof typeof DIFFICULTY_LABEL;
   const diffText = t(...DIFFICULTY_LABEL[diffKey]);
-  const deposit = Math.round(tour.price * DEPOSIT_RATE);
   const timeline: { time: string; text: string }[] = story
     ? story.itinerary.map(([time, en, he]) => ({ time, text: t(en, he) }))
     : itinerary.map((item, i) => ({
@@ -1969,7 +1966,7 @@ export default function TourDetail() {
             <aside
               ref={pricingSectionRef}
               className="wx-aside"
-              aria-label={t("Price and booking", "מחיר והזמנה")}
+              aria-label={t("Book this tour", "הזמנת הטיול")}
             >
               <p
                 className="wx-caps"
@@ -1979,27 +1976,20 @@ export default function TourDetail() {
                   margin: 0,
                 }}
               >
-                {t("Price", "מחיר")}
+                {t("Private group", "קבוצה פרטית")}
               </p>
-              <div
-                className="wx-latin"
-                style={{
-                  fontSize: 56,
-                  lineHeight: 1,
-                  color: "var(--wx-gold)",
-                  marginTop: 8,
-                }}
-              >
-                {formatBaht(tour.price)}
-              </div>
               <p
                 style={{
-                  fontSize: 14,
-                  color: "rgba(251,248,241,0.75)",
-                  margin: "6px 0 0",
+                  fontSize: 15,
+                  lineHeight: 1.55,
+                  color: "rgba(251,248,241,0.85)",
+                  margin: "8px 0 0",
                 }}
               >
-                {t("per vehicle · private group", "לרכב · קבוצה פרטית")}
+                {t(
+                  "Price on request — we quote for your group on WhatsApp.",
+                  "מחיר לפי בקשה — נשלח הצעה לקבוצה שלכם בוואטסאפ."
+                )}
               </p>
               <div className="wx-aside__rows">
                 <div>
@@ -2009,10 +1999,6 @@ export default function TourDetail() {
                 <div>
                   <span>{t("Difficulty", "רמת קושי")}</span>
                   <span>{diffText}</span>
-                </div>
-                <div>
-                  <span>{t("Deposit (30%)", "מקדמה (30%)")}</span>
-                  <span>{formatBaht(deposit)}</span>
                 </div>
               </div>
               <Link
@@ -2052,11 +2038,11 @@ export default function TourDetail() {
 
       <div className="wx-mobilebar">
         <div>
-          <div className="wx-latin" style={{ fontSize: 26, lineHeight: 1 }}>
-            {formatBaht(tour.price)}
+          <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.2 }}>
+            {displayName}
           </div>
           <div style={{ fontSize: 12, color: "var(--wx-muted)" }}>
-            {t("per vehicle", "לרכב")}
+            {t("Price on request", "מחיר לפי בקשה")}
           </div>
         </div>
         <Link
