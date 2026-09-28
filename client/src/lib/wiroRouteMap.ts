@@ -374,6 +374,11 @@ export function createRouteMap(
     hotIdx = -1;
   /** Marker scale: pins, line and dot shrink when framing a short loop. */
   let K = 1;
+  /** Points the camera keeps centred and in frame (route bases and pin tops). */
+  let fitPts: THREE.Vector3[] = [];
+  const FIT = 0.78;
+  const right = new THREE.Vector3(),
+    fwd = new THREE.Vector3();
   const v = new THREE.Vector3();
 
   function tube(
@@ -403,6 +408,13 @@ export function createRouteMap(
 
     // Frame the focused stage, or every stop.
     const framed = xz.filter((_, i) => inFocus(i));
+    fitPts = framed.flatMap(p => {
+      const y = HM(p.x, p.z);
+      return [
+        new THREE.Vector3(p.x, y, p.z),
+        new THREE.Vector3(p.x, y + 10 * K, p.z),
+      ];
+    });
     const xs = framed.map(p => p.x),
       zs = framed.map(p => p.z);
     const minX = Math.min(...xs),
@@ -572,6 +584,31 @@ export function createRouteMap(
       target.z + d * Math.sin(phi) * Math.cos(th)
     );
     cam.lookAt(target);
+    // Auto-fit: nudge the target toward the route's on-screen centre and
+    // ease the distance until the route fills about FIT of the frame.
+    if (fitPts.length && !down) {
+      let x0 = Infinity,
+        x1 = -Infinity,
+        y0 = Infinity,
+        y1 = -Infinity;
+      for (const p of fitPts) {
+        v.copy(p).project(cam);
+        x0 = Math.min(x0, v.x);
+        x1 = Math.max(x1, v.x);
+        y0 = Math.min(y0, v.y);
+        y1 = Math.max(y1, v.y);
+      }
+      const g = dist * 0.02;
+      right.setFromMatrixColumn(cam.matrixWorld, 0).setY(0).normalize();
+      fwd
+        .set(target.x - cam.position.x, 0, target.z - cam.position.z)
+        .normalize();
+      tgt
+        .addScaledVector(right, ((x0 + x1) / 2) * g)
+        .addScaledVector(fwd, ((y0 + y1) / 2) * g * 1.3);
+      const ext = Math.max((x1 - x0) / 2, (y1 - y0) / 2);
+      distT = clamp(distT * (1 + (ext - FIT) * 0.03), 30, 420);
+    }
     reliefMat.uniforms.uTime.value = reduce ? 0 : t;
 
     const { curve, tg, total, marks } = built;

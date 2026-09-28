@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ArrowUpRight,
   Bike,
@@ -24,7 +24,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
-import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
+import { WiroRouteMap, revealMap } from "@/components/wiro/WiroRouteMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   SAMOENG_CATEGORIES,
@@ -95,6 +95,7 @@ export default function SamoengLoopGuide() {
   });
 
   const [mapChapter, setMapChapter] = useState<number | null>(null);
+  const routeMapRef = useRef<HTMLDivElement>(null);
 
   const trackMapOpen = (placement: string, attractionId?: string) => {
     trackEvent("map_open", {
@@ -215,12 +216,12 @@ export default function SamoengLoopGuide() {
               <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-primary">
                 {t("Route overview", "סקירת המסלול")}
               </span>
-              <span className="mt-1 block text-2xl font-heading md:text-3xl">
+              <h2 className="mt-1 text-2xl font-heading md:text-3xl">
                 {t(
                   "Explore the complete Samoeng Loop map",
                   "גלו את המפה המלאה של לולאת סמואנג"
                 )}
-              </span>
+              </h2>
               <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
                 {t(
                   "WIRO's interactive Google map with every saved place, plus the highlights grouped by waterfalls, views, temples, activities and cafes.",
@@ -255,7 +256,7 @@ export default function SamoengLoopGuide() {
               </h2>
             </div>
 
-            <div className="mt-9">
+            <div ref={routeMapRef} className="mt-9">
               <WiroRouteMap
                 stops={SAMOENG_LOOP_ROUTE.stops}
                 loop
@@ -306,11 +307,12 @@ export default function SamoengLoopGuide() {
                   <button
                     type="button"
                     aria-pressed={mapChapter === index}
-                    onClick={() =>
+                    onClick={() => {
                       setMapChapter(current =>
                         current === index ? null : index
-                      )
-                    }
+                      );
+                      revealMap(routeMapRef.current);
+                    }}
                     className="group/chapter text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <h3

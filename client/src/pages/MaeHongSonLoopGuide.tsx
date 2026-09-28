@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Bike,
@@ -23,7 +23,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
-import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
+import { WiroRouteMap, revealMap } from "@/components/wiro/WiroRouteMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   MAE_HONG_SON_CATEGORIES,
@@ -60,6 +60,7 @@ export default function MaeHongSonLoopGuide() {
   const [vehicle, setVehicle] = useState<MaeHongSonVehicle>("motorcycle");
   const [activeCategory, setActiveCategory] = useState<FilterId>("all");
   const [mapStage, setMapStage] = useState<string | null>(null);
+  const routeMapRef = useRef<HTMLDivElement>(null);
   const mapStageInfo = MAE_HONG_SON_STAGES.find(stage => stage.id === mapStage);
 
   const activePace =
@@ -318,7 +319,7 @@ export default function MaeHongSonLoopGuide() {
                 )}
               </p>
 
-              <div className="mt-7">
+              <div ref={routeMapRef} className="mt-7">
                 <WiroRouteMap
                   stops={MAE_HONG_SON_LOOP_ROUTE.stops}
                   loop
@@ -381,11 +382,12 @@ export default function MaeHongSonLoopGuide() {
                       <button
                         type="button"
                         aria-pressed={mapStage === stage.id}
-                        onClick={() =>
+                        onClick={() => {
                           setMapStage(current =>
                             current === stage.id ? null : stage.id
-                          )
-                        }
+                          );
+                          revealMap(routeMapRef.current);
+                        }}
                         className={`inline-flex min-h-11 w-fit items-center justify-center border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${mapStage === stage.id ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:border-primary"}`}
                       >
                         <MapPin className="me-2 size-4" aria-hidden="true" />

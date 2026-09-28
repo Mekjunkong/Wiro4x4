@@ -13,6 +13,20 @@ interface WiroRouteMapProps {
   label: string;
 }
 
+/**
+ * Bring a map into view when a stage button far down the page changes it
+ * (on phones the map is not sticky). Does nothing if the map is visible.
+ */
+export function revealMap(el: HTMLElement | null) {
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (r.top >= 0 && r.bottom <= window.innerHeight) return;
+  const reduce = window.matchMedia?.(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+  el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+}
+
 function hasWebGL(): boolean {
   try {
     const c = document.createElement("canvas");
