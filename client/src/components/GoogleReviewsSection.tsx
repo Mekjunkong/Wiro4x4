@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
+import { useAutoScroller } from "@/hooks/useAutoScroller";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink } from "lucide-react";
 import { COMPANY_TRIPADVISOR_URL } from "@/const";
@@ -82,7 +83,10 @@ function ReviewCard({ review }: { review: ReviewData }) {
     isLong && !expanded ? review.text.slice(0, 180) + "..." : review.text;
 
   return (
-    <Card className="rounded-sm border border-border min-w-[300px] max-w-[400px] snap-start shrink-0 lg:min-w-0 lg:max-w-none lg:shrink">
+    <Card
+      data-slide
+      className="rounded-sm border border-border w-[min(85vw,400px)] snap-center shrink-0 lg:w-auto lg:shrink"
+    >
       <CardContent className="pt-5 pb-4 px-5 flex flex-col gap-3">
         <div className="flex items-start gap-3">
           {review.profilePhoto ? (
@@ -130,6 +134,9 @@ export function GoogleReviewsSection() {
 
   const reviews = googleReviews ?? [];
   const hasGoogleReviews = reviews.length > 0;
+  // Phones: the review strip scrolls and auto-advances (a grid on desktop).
+  const stripRef = useRef<HTMLDivElement>(null);
+  useAutoScroller(stripRef, reviews.length);
 
   const avgRating = useMemo(() => {
     if (reviews.length === 0) return 0;
@@ -181,7 +188,10 @@ export function GoogleReviewsSection() {
       </div>
 
       {hasGoogleReviews && (
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0">
+        <div
+          ref={stripRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide lg:grid lg:grid-cols-3 lg:overflow-x-visible lg:pb-0"
+        >
           {reviews.map((review, i) => (
             <ReviewCard key={`${review.author}-${i}`} review={review} />
           ))}
