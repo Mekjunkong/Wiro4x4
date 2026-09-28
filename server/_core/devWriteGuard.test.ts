@@ -9,7 +9,6 @@ describe("remoteDbWritesBlocked", () => {
     expect(
       remoteDbWritesBlocked({ NODE_ENV: "development", DATABASE_URL: remote })
     ).toBe(true);
-    expect(remoteDbWritesBlocked({ DATABASE_URL: remote })).toBe(true);
   });
 
   it("allows local databases, production, tests and the explicit override", () => {
@@ -37,6 +36,18 @@ describe("remoteDbWritesBlocked", () => {
       })
     ).toBe(false);
     expect(remoteDbWritesBlocked({ NODE_ENV: "development" })).toBe(false);
+    // Vercel production must never be blocked, whatever its NODE_ENV.
+    expect(
+      remoteDbWritesBlocked({
+        NODE_ENV: "development",
+        VERCEL: "1",
+        DATABASE_URL: remote,
+      })
+    ).toBe(false);
+    expect(remoteDbWritesBlocked({ VERCEL: "1", DATABASE_URL: remote })).toBe(
+      false
+    );
+    expect(remoteDbWritesBlocked({ DATABASE_URL: remote })).toBe(false);
   });
 
   it("reads the host without exposing credentials", () => {
