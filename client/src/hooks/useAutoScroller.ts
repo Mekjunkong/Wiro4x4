@@ -23,7 +23,9 @@ const smooth = () =>
  * `data-slide` inside it. Positions are measured with getBoundingClientRect, so it works
  * the same in LTR and RTL. Auto-advance is off for reduced motion and pauses
  * while the strip is hovered, focused, touched, dragged or off screen.
- * Desktop mouse users can drag the strip.
+ * Desktop mouse users can drag the strip. Nothing moves when the slides
+ * already fit, and listeners re-attach when `count` changes, so a strip
+ * that renders after data loads is picked up.
  */
 export function useAutoScroller(
   stripRef: RefObject<HTMLElement | null>,
@@ -35,6 +37,12 @@ export function useAutoScroller(
   const focused = useRef(false);
   const visible = useRef(false);
   const pausedUntil = useRef(0);
+
+  /** False when every slide already fits (e.g. a desktop grid layout). */
+  const overflows = () => {
+    const strip = stripRef.current;
+    return !!strip && strip.scrollWidth > strip.clientWidth + 1;
+  };
 
   const slides = () =>
     Array.from(
@@ -103,7 +111,7 @@ export function useAutoScroller(
       cancelAnimationFrame(raf);
       strip.removeEventListener("scroll", onScroll);
     };
-  }, [stripRef, nearest]);
+  }, [stripRef, nearest, count]);
 
   // Pause triggers and visibility.
   useEffect(() => {
@@ -130,7 +138,7 @@ export function useAutoScroller(
       offs.forEach(off => off());
       io.disconnect();
     };
-  }, [stripRef, pause]);
+  }, [stripRef, pause, count]);
 
   // Auto-advance, looping back to the first slide.
   useEffect(() => {
@@ -146,7 +154,7 @@ export function useAutoScroller(
         Date.now() < pausedUntil.current
       )
         return;
-      goTo(nearest() + 1);
+      if (overflows()) goTo(nearest() + 1);
     }, interval);
     return () => window.clearInterval(id);
   }, [count, interval, goTo, nearest]);
@@ -161,7 +169,7 @@ export function useAutoScroller(
       dragging = false,
       moved = false;
     const down = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      if (e.pointerType !== "mouse" || e.button !== 0 || !overflows()) return;
       dragging = true;
       moved = false;
       startX = e.clientX;
@@ -206,7 +214,7 @@ export function useAutoScroller(
       window.removeEventListener("pointercancel", up);
       strip.removeEventListener("click", click, true);
     };
-  }, [stripRef, goTo, nearest, pause]);
+  }, [stripRef, goTo, nearest, pause, count]);
 
   /** For dots: jump to a slide and pause auto-advance. */
   const jump = useCallback(

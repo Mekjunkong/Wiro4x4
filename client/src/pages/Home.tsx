@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FAQ } from "@/components/FAQ";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
 import { NightDriveHero } from "@/components/wiro/home/NightDriveHero";
 import { TrustBand } from "@/components/wiro/home/TrustBand";
@@ -83,6 +84,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingActionButtons />
+      <NewsletterPopup />
     </div>
   );
 }
