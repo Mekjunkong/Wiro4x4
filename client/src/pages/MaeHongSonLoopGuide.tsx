@@ -5,6 +5,8 @@ import {
   CalendarDays,
   CarFront,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CircleAlert,
   Clock3,
   ExternalLink,
@@ -41,6 +43,7 @@ import {
 } from "@/data/maeHongSonLoop";
 import { MAE_HONG_SON_LOOP_ROUTE } from "@/data/motorcycleRoutes";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useAutoScroller } from "@/hooks/useAutoScroller";
 import { trackEvent } from "@/lib/analytics";
 
 type FilterId = "all" | MaeHongSonCategory;
@@ -61,6 +64,11 @@ export default function MaeHongSonLoopGuide() {
   const [activeCategory, setActiveCategory] = useState<FilterId>("all");
   const [mapStage, setMapStage] = useState<string | null>(null);
   const routeMapRef = useRef<HTMLDivElement>(null);
+  const momentsRef = useRef<HTMLDivElement>(null);
+  const moments = useAutoScroller(
+    momentsRef,
+    MAE_HONG_SON_ROUTE_MOMENTS.length
+  );
   const mapStageInfo = MAE_HONG_SON_STAGES.find(stage => stage.id === mapStage);
 
   const activePace =
@@ -446,7 +454,10 @@ export default function MaeHongSonLoopGuide() {
                 {t("What the road feels like", "איך הדרך מרגישה")}
               </h2>
               <p className="text-sm text-white/65">
-                {t("Swipe to explore", "החליקו כדי לגלות")}
+                {t(
+                  "Swipe, drag or use the arrows",
+                  "החליקו, גררו או השתמשו בחצים"
+                )}
               </p>
             </div>
           </div>
@@ -457,13 +468,15 @@ export default function MaeHongSonLoopGuide() {
               "תמונות מסע ממאה הונג סון"
             )}
             tabIndex={0}
+            ref={momentsRef}
             data-route-moments-carousel
-            className="mt-9 scroll-smooth overflow-x-auto overscroll-x-contain px-[max(1.5rem,calc((100vw-80rem)/2))] pb-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e2b65d] motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-9 cursor-grab snap-x snap-mandatory scroll-smooth overflow-x-auto overscroll-x-contain px-[max(1.5rem,calc((100vw-80rem)/2))] pb-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e2b65d] motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <div className="flex w-max snap-x snap-mandatory gap-4 md:gap-6">
+            <div className="flex w-max gap-4 md:gap-6">
               {MAE_HONG_SON_ROUTE_MOMENTS.map((moment, index) => (
                 <figure
                   key={moment.id}
+                  data-slide
                   className="relative h-[440px] w-[82vw] max-w-[680px] snap-center overflow-hidden border border-white/15 bg-black md:h-[500px] md:w-[62vw]"
                 >
                   <img
@@ -472,6 +485,7 @@ export default function MaeHongSonLoopGuide() {
                     width={1200}
                     height={800}
                     loading={index === 0 ? "eager" : "lazy"}
+                    draggable={false}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
                   />
                   <div
@@ -494,6 +508,45 @@ export default function MaeHongSonLoopGuide() {
                     </p>
                   </figcaption>
                 </figure>
+              ))}
+            </div>
+          </div>
+          <div className="container max-w-7xl mt-4 flex items-center justify-between gap-4">
+            <div className="flex gap-2">
+              {MAE_HONG_SON_ROUTE_MOMENTS.map((moment, i) => (
+                <button
+                  key={moment.id}
+                  type="button"
+                  onClick={() => moments.jump(i)}
+                  aria-label={t(
+                    `Show photo ${i + 1}: ${moment.title.en}`,
+                    `הציגו תמונה ${i + 1}: ${moment.title.he}`
+                  )}
+                  aria-current={moments.index === i}
+                  className="flex h-11 items-center px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e2b65d]"
+                >
+                  <span
+                    className={`block h-1.5 rounded-full transition-all ${moments.index === i ? "w-8 bg-[#e2b65d]" : "w-3 bg-white/35"}`}
+                  />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              {(
+                [
+                  [-1, t("Previous photo", "התמונה הקודמת"), ChevronLeft],
+                  [1, t("Next photo", "התמונה הבאה"), ChevronRight],
+                ] as const
+              ).map(([dir, label, Icon]) => (
+                <button
+                  key={dir}
+                  type="button"
+                  onClick={() => moments.step(dir)}
+                  aria-label={label}
+                  className="flex size-11 items-center justify-center rounded-full border border-white/30 text-white transition-colors hover:border-[#e2b65d] hover:text-[#e2b65d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e2b65d]"
+                >
+                  <Icon className="size-5 rtl:rotate-180" aria-hidden="true" />
+                </button>
               ))}
             </div>
           </div>
