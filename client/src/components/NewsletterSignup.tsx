@@ -26,9 +26,9 @@ export function NewsletterSignup() {
 
   return (
     <div className="mt-6 pt-6 border-t border-accent/20">
-      <h4 className="text-lg font-semibold text-accent-readable mb-3">
+      <h3 className="text-lg font-semibold text-accent-readable mb-3">
         {t("Stay Updated", "הישארו מעודכנים")}
-      </h4>
+      </h3>
       <p className="text-sm text-muted-foreground mb-3">
         {t(
           "Get the latest tour updates and special offers",

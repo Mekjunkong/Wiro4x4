@@ -209,11 +209,6 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
               type="button"
               className="wx-stage__card"
               tabIndex={ad > 1 ? -1 : 0}
-              aria-label={
-                on
-                  ? t(`Open ${name}`, `פתחו את ${name}`)
-                  : t(`Show ${name}`, `הציגו את ${name}`)
-              }
               onClick={() => {
                 if (dragged.current) return;
                 if (on) navigate(`/tours/${tour.slug}`);
@@ -235,6 +230,10 @@ export function TrailCarousel({ tours }: { tours: WiroTour[] }) {
                   : "0 30px 60px -20px rgba(0,0,0,0.7)",
               }}
             >
+              {/* The verb joins the visible text so the spoken name contains it. */}
+              <span className="sr-only">
+                {on ? t("Open", "פתחו") : t("Show", "הציגו")}{" "}
+              </span>
               <img
                 src={photo(tour.image).md}
                 alt=""

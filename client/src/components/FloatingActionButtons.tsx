@@ -54,7 +54,7 @@ export function FloatingActionButtons() {
           humanMessage={whatsappMessage}
           target="_blank"
           rel="noopener noreferrer"
-          className="h-12 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-lg flex items-center justify-center gap-2 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+          className="h-12 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-[#1c1c1c] shadow-lg flex items-center justify-center gap-2 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
           aria-label={t(
             "Check availability on WhatsApp",
             "בדיקת זמינות בוואטסאפ"

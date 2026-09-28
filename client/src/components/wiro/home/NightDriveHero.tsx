@@ -23,15 +23,15 @@ export function NightDriveHero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [reduce] = useState(prefersReducedMotion);
   const [p, setP] = useState(reduce ? 1 : 0);
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
-
-  useEffect(() => {
+  // Chosen during the first render (not in an effect) so the video request
+  // starts as soon as the hero mounts; it is the page's largest element.
+  const [videoSrc] = useState<string | null>(() => {
     const connection = (
       navigator as Navigator & { connection?: { saveData?: boolean } }
     ).connection;
-    if (reduce || connection?.saveData) return;
-    setVideoSrc(window.innerWidth < 720 ? VIDEO_MOBILE : VIDEO_DESKTOP);
-  }, [reduce]);
+    if (reduce || connection?.saveData) return null;
+    return window.innerWidth < 720 ? VIDEO_MOBILE : VIDEO_DESKTOP;
+  });
 
   useEffect(() => {
     const v = videoRef.current;
