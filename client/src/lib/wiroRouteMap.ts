@@ -16,6 +16,11 @@ export interface RouteMapOptions {
   /** Highlight only the stops between these indices (inclusive). */
   focus?: readonly [from: number, to: number] | null;
   lang: "en" | "he";
+  /**
+   * Small maps: hide a label that would overlap one already shown (earlier
+   * stops win) instead of stacking labels upward.
+   */
+  cullLabels?: boolean;
 }
 
 export interface RouteMapHandle {
@@ -462,7 +467,9 @@ export function createRouteMap(
     return tg;
   }
 
+  let cull = !!initial.cullLabels;
   function update(opts: RouteMapOptions) {
+    cull = !!opts.cullLabels;
     clearRoute();
     built = { objects: [], curve: null, tg: null, total: 0, marks: [] };
     const he = opts.lang === "he";
@@ -769,6 +776,25 @@ export function createRouteMap(
       if (inView)
         placed.push({ el, x, y, w: el.offsetWidth, h: el.offsetHeight });
     });
+    if (cull) {
+      // Keep labels in route order; drop any that would collide.
+      const shown: typeof placed = [];
+      for (const a of placed) {
+        // A hidden label needs extra clearance to come back, so labels at
+        // the edge of a collision don't flicker as the camera drifts.
+        const pad = a.el.dataset.culled === "1" ? 10 : 4;
+        const hit = shown.some(
+          c =>
+            Math.abs(a.x - c.x) < (a.w + c.w) / 2 + pad &&
+            Math.abs(a.y - c.y) < a.h + pad - 1
+        );
+        const hide = hit || a.y - a.h < pad - 4;
+        a.el.dataset.culled = hide ? "1" : "0";
+        if (hide) a.el.style.opacity = "0";
+        else shown.push(a);
+      }
+      return;
+    }
     placed.sort((a, c) => c.y - a.y);
     for (let i = 0; i < placed.length; i++)
       for (let j = 0; j < i; j++) {

@@ -2168,6 +2168,13 @@ a.wx-trust__card:hover {
     aspect-ratio: 4 / 5;
   }
 }
+/* Map as the top of a card (packages page expedition cards). */
+.wx-mapbox--card {
+  aspect-ratio: 16 / 10;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
 /* North–south loops in a narrow column (Mae Hong Son guide). */
 .wx-mapbox--square {
   aspect-ratio: 1 / 1;

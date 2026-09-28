@@ -9,6 +9,8 @@ interface WiroRouteMapProps {
   loop: boolean;
   /** Highlight only the stops between these indices (inclusive). */
   focus?: readonly [from: number, to: number] | null;
+  /** Hide overlapping labels instead of stacking them (small maps). */
+  cullLabels?: boolean;
   className?: string;
   label: string;
 }
@@ -45,14 +47,15 @@ export function WiroRouteMap({
   stops,
   loop,
   focus = null,
+  cullLabels = false,
   className = "",
   label,
 }: WiroRouteMapProps) {
   const { language, t } = useLanguage();
   const hostRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<RouteMapHandle | null>(null);
-  const optsRef = useRef({ stops, loop, focus, lang: language });
-  optsRef.current = { stops, loop, focus, lang: language };
+  const optsRef = useRef({ stops, loop, focus, cullLabels, lang: language });
+  optsRef.current = { stops, loop, focus, cullLabels, lang: language };
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -95,9 +98,10 @@ export function WiroRouteMap({
       stops,
       loop,
       focus: focusFrom < 0 ? null : [focusFrom, focusTo],
+      cullLabels,
       lang: language,
     });
-  }, [stops, loop, focusFrom, focusTo, language]);
+  }, [stops, loop, focusFrom, focusTo, cullLabels, language]);
 
   return (
     <div
