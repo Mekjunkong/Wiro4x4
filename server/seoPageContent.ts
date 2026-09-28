@@ -18,6 +18,7 @@ const STATIC_BODIES: Record<string, BodyBuilder> = {
   "/contact": contactBody,
   "/motorcycle-tours": motorcycleToursBody,
   "/motorcycle-tours/samoeng-loop": samoengBody,
+  "/motorcycle-tours/samoeng-loop/map": samoengBody,
   "/motorcycle-tours/mae-hong-son-loop": maeHongSonBody,
 };
 

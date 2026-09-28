@@ -296,6 +296,33 @@ const STATIC_ROUTES: Record<string, PageMeta> = {
       ]),
     ],
   },
+  "/motorcycle-tours/samoeng-loop/map": {
+    title: "Samoeng Loop Map & Saved Places | WIRO 4x4",
+    description:
+      "WIRO's interactive Google map of the Samoeng Loop from Chiang Mai, with every saved waterfall, viewpoint, temple, activity and cafe stop.",
+    canonicalPath: "/motorcycle-tours/samoeng-loop/map",
+    ogImage: "/images/optimized/samoeng_valley.webp",
+    jsonLd: [
+      pageJsonLd({
+        name: "Samoeng Loop Map & Saved Places",
+        description:
+          "An interactive map of the Samoeng Loop motorcycle route with WIRO's saved places to stop.",
+        path: "/motorcycle-tours/samoeng-loop/map",
+        inLanguage: ["en", "he"],
+      }),
+      breadcrumbJsonLd([
+        { name: "Motorcycle Tours", path: "/motorcycle-tours" },
+        {
+          name: "Samoeng Loop Motorcycle Route Guide",
+          path: "/motorcycle-tours/samoeng-loop",
+        },
+        {
+          name: "Samoeng Loop Map",
+          path: "/motorcycle-tours/samoeng-loop/map",
+        },
+      ]),
+    ],
+  },
   "/motorcycle-tours/mae-hong-son-loop": {
     title: "Mae Hong Son Loop Motorcycle & 4x4 Guide | WIRO 4x4",
     description:

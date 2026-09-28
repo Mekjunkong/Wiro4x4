@@ -148,6 +148,12 @@ const STATIC_PAGES = [
     lastmod: null,
   },
   {
+    path: "/motorcycle-tours/samoeng-loop/map",
+    priority: "0.7",
+    changefreq: "monthly",
+    lastmod: null,
+  },
+  {
     path: "/motorcycle-tours/mae-hong-son-loop",
     priority: "0.9",
     changefreq: "monthly",

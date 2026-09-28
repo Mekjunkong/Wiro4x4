@@ -405,15 +405,15 @@ export const MAE_HONG_SON_HIGHLIGHTS: MaeHongSonHighlight[] = [
 export const MAE_HONG_SON_ROUTE_MOMENTS: MaeHongSonRouteMoment[] = [
   {
     id: "mountain-road",
-    image: "/images/optimized/motorcycle-touring-illustration.webp",
+    image: "/images/optimized/mae-hong-son-loop-route.webp",
     title: { en: "Roads above the mist", he: "כבישים מעל הערפל" },
     description: {
       en: "Long mountain transitions are the heart of the loop, not empty space between attractions.",
       he: "קטעי ההרים הארוכים הם לב המסלול, לא זמן ריק בין אטרקציות.",
     },
     alt: {
-      en: "Motorcyclists riding a winding mountain road in Northern Thailand",
-      he: "רוכבי אופנוע בדרך הררית מפותלת בצפון תאילנד",
+      en: "Misty mountain road winding above the Mae Hong Son valleys",
+      he: "דרך הררית ערפילית המתפתלת מעל עמקי מאה הונג סון",
     },
   },
   {

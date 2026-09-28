@@ -2159,6 +2159,19 @@ a.wx-trust__card:hover {
 .wx-mapbox--route {
   aspect-ratio: 16 / 10;
 }
+/* Multi-day loops cover all of Northern Thailand: taller on phones. */
+.wx-mapbox--loop {
+  aspect-ratio: 16 / 10;
+}
+@media (max-width: 640px) {
+  .wx-mapbox--loop {
+    aspect-ratio: 4 / 5;
+  }
+}
+/* North–south loops in a narrow column (Mae Hong Son guide). */
+.wx-mapbox--square {
+  aspect-ratio: 1 / 1;
+}
 
 /* ---------- Timed WhatsApp invitation (WhatsAppInvite.tsx) ---------- */
 .wx-invite {

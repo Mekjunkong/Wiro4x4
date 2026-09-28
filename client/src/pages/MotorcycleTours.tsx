@@ -14,6 +14,8 @@ import { Footer } from "@/components/Footer";
 import { TrackedWhatsAppLink } from "@/components/TrackedWhatsAppLink";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
+import { MOTORCYCLE_PLACES, MOTORCYCLE_ROUTES } from "@/data/motorcycleRoutes";
 import {
   MOTORCYCLE_HIGHLIGHTS as highlights,
   MOTORCYCLE_TOUR_OPTIONS as options,
@@ -24,6 +26,8 @@ export default function MotorcycleTours() {
   const { t, language } = useLanguage();
   const [selected, setSelected] = useState<TourOption["id"]>("five");
   const active = options.find(option => option.id === selected) ?? options[1];
+  const routeStops =
+    active.id === "custom" ? MOTORCYCLE_PLACES : MOTORCYCLE_ROUTES[active.id];
   const requestMessage = t(
     `Hello WIRO! I want a motorcycle tour quotation. Selected option: ${active.title.en}. Please connect me with the Off Trail Thailand / Adventurer Moto Tours plan. Dates: __ Group size: __ Riding experience: __`,
     `שלום WIRO! אני רוצה הצעת מחיר לטיול אופנועים. האפשרות שנבחרה: ${active.title.he}. אשמח לפרטים על תכנית Off Trail Thailand / Adventurer Moto Tours. תאריכים: __ מספר רוכבים: __ ניסיון רכיבה: __`
@@ -257,6 +261,25 @@ export default function MotorcycleTours() {
                 </span>
               </button>
             ))}
+          </div>
+          <div className="mt-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary">
+              {t("Route", "מסלול")}
+            </p>
+            <h3 className="mt-2 mb-5 text-3xl font-heading md:text-4xl">
+              {active.id === "custom"
+                ? t("Where your route can go", "לאן המסלול שלכם יכול להגיע")
+                : t("Your route from Chiang Mai", "המסלול שלכם מצ׳יאנג מאי")}
+            </h3>
+            <WiroRouteMap
+              stops={routeStops}
+              loop={active.id !== "custom"}
+              className="wx-mapbox--loop"
+              label={t(
+                `Route map for ${active.title.en}`,
+                `מפת המסלול של ${active.title.he}`
+              )}
+            />
           </div>
           <article className="mt-6 rounded-sm border border-accent/30 bg-muted p-6 md:p-8">
             <h3 className="text-2xl font-semibold">
