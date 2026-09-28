@@ -1,0 +1,56 @@
+name: Post-deploy smoke test
+
+# Runs against the live domain after every successful Vercel production
+# deploy (Vercel reports deployments to GitHub), or on demand. A failure opens
+# (or comments on) a "Live site smoke test failed" issue so it reaches the
+# owner by email.
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: post-deploy-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Smoke test https://www.wiro4x4indochina.com
+        id: smoke
+        run: node scripts/smoke-live.mjs 2>&1 | tee smoke.log
+        # tee hides the script's exit code without pipefail
+        shell: bash -o pipefail {0}
+
+      - name: Report failure as an issue
+        if: failure() && steps.smoke.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.deployment.sha || github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Live site smoke test failed"
+          body="$(printf 'Deploy `%s` failed the post-deploy smoke test.\n\nRun: %s\n\n```\n%s\n```\n' "$SHA" "$RUN_URL" "$(tail -n 25 smoke.log)")"
+          existing="$(gh issue list --state open --search "in:title \"$title\"" --json number -q '.[0].number')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
