@@ -78,7 +78,7 @@ With the dead URL, `pnpm vitest run client/src shared` passes; many `server/` te
 
 ## Deployment
 
-Vercel auto-deploys `main`. `pnpm build:frontend` optimizes images, runs `vite build` into `dist/public`, then esbuild-bundles `server/vercel-entry.ts` into `api/index.js` with the SPA `index.html` embedded as text. `vercel.json` rewrites every non-static path (including `/`) to that one function, so static files in `dist/public` are served first and everything else goes through Express. The apex domain redirects to `www`.
+Vercel auto-deploys `main`. `pnpm build:frontend` optimizes images, runs `vite build` into `dist/public`, then esbuild-bundles `server/vercel-entry.ts` into `api/index.js` with the SPA `index.html` embedded as text. `vercel.json` rewrites every non-static path (including `/`) to that one function, so static files in `dist/public` are served first and everything else goes through Express. The apex domain redirects to `www`. After every production deploy, `.github/workflows/post-deploy-smoke.yml` runs `scripts/smoke-live.mjs` against the live domain (pages, production bundle, forms accepting input, DB reachable, crawler HTML) and opens a "Live site smoke test failed" issue on failure; run it by hand with `node scripts/smoke-live.mjs`. The Vercel project's NODE_ENV is not "production": production mode is forced in `build:frontend` and by `server/_core/forceProduction.ts`, so never gate live behavior on NODE_ENV alone.
 
 ## Other folders
 
