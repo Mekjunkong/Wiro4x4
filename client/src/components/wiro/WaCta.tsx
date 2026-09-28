@@ -9,7 +9,6 @@ type SourceStem =
   | "HOME-INQUIRY"
   | "GLOBAL-HEADER"
   | "GLOBAL-FOOTER"
-  | "GLOBAL-INVITE"
   | "TOUR-DETAIL"
   | "BOOKING-QUICK"
   | "TRIP-ALBUM";
