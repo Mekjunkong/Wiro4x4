@@ -273,15 +273,26 @@ export default function SamoengLoopGuide() {
               />
               <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <p
-                  className="text-sm font-semibold text-foreground"
+                  className="flex gap-2 text-sm font-semibold text-foreground"
                   aria-live="polite"
                 >
-                  {mapChapter === null
-                    ? t(
-                        "The full loop · pick a chapter to follow it on the map",
-                        "הלולאה המלאה · בחרו פרק כדי לעקוב אחריו במפה"
-                      )
-                    : `${mapChapter + 1} · ${t(SAMOENG_ROUTE_STAGES[mapChapter].name.en, SAMOENG_ROUTE_STAGES[mapChapter].name.he)}`}
+                  {mapChapter === null ? (
+                    t(
+                      "The full loop · pick a chapter to follow it on the map",
+                      "הלולאה המלאה · בחרו פרק כדי לעקוב אחריו במפה"
+                    )
+                  ) : (
+                    <>
+                      <span>{mapChapter + 1}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>
+                        {t(
+                          SAMOENG_ROUTE_STAGES[mapChapter].name.en,
+                          SAMOENG_ROUTE_STAGES[mapChapter].name.he
+                        )}
+                      </span>
+                    </>
+                  )}
                 </p>
                 {mapChapter !== null && (
                   <button

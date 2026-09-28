@@ -334,15 +334,25 @@ export default function MaeHongSonLoopGuide() {
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <p
-                    className="text-sm font-semibold text-foreground"
+                    className="flex gap-2 text-sm font-semibold text-foreground"
                     aria-live="polite"
                   >
-                    {mapStageInfo
-                      ? `${String(mapStageInfo.number).padStart(2, "0")} · ${t(mapStageInfo.route.en, mapStageInfo.route.he)}`
-                      : t(
-                          "The full loop from Chiang Mai",
-                          "הלולאה המלאה מצ׳יאנג מאי"
-                        )}
+                    {mapStageInfo ? (
+                      <>
+                        <span>
+                          {String(mapStageInfo.number).padStart(2, "0")}
+                        </span>
+                        <span aria-hidden="true">·</span>
+                        <span>
+                          {t(mapStageInfo.route.en, mapStageInfo.route.he)}
+                        </span>
+                      </>
+                    ) : (
+                      t(
+                        "The full loop from Chiang Mai",
+                        "הלולאה המלאה מצ׳יאנג מאי"
+                      )
+                    )}
                   </p>
                   {mapStage && (
                     <button

@@ -377,6 +377,8 @@ export function createRouteMap(
   /** Points the camera keeps centred and in frame (route bases and pin tops). */
   let fitPts: THREE.Vector3[] = [];
   const FIT = 0.78;
+  /** Closest the camera gets, so a short stage still shows its valley. */
+  const MIN_DIST = 52;
   const right = new THREE.Vector3(),
     fwd = new THREE.Vector3();
   const v = new THREE.Vector3();
@@ -424,7 +426,7 @@ export function createRouteMap(
     const span = Math.max(maxX - minX, maxZ - minZ, 8);
     K = clamp(span / 110, 0.4, 1);
     tgt.set((minX + maxX) / 2, 0, (minZ + maxZ) / 2 - 3);
-    distT = Math.max(span * 1.5 + 45 * K, 52);
+    distT = Math.max(span * 1.5 + 45 * K, MIN_DIST);
     glow.scale.setScalar(K);
     [dot, beam].forEach(o => o.scale.setScalar(K));
 
@@ -584,30 +586,39 @@ export function createRouteMap(
       target.z + d * Math.sin(phi) * Math.cos(th)
     );
     cam.lookAt(target);
-    // Auto-fit: nudge the target toward the route's on-screen centre and
-    // ease the distance until the route fills about FIT of the frame.
+    // Auto-fit: aim the target at the route's on-screen centre and the
+    // distance at a size where the route fills about FIT of the frame.
+    // Both goals are recomputed from the current view every frame (never
+    // accumulated), and the eased target/dist above smooth the motion.
     if (fitPts.length && !down) {
+      cam.updateMatrixWorld();
       let x0 = Infinity,
         x1 = -Infinity,
         y0 = Infinity,
-        y1 = -Infinity;
+        y1 = -Infinity,
+        behind = false;
       for (const p of fitPts) {
         v.copy(p).project(cam);
+        if (v.z < -1 || v.z > 1) behind = true;
         x0 = Math.min(x0, v.x);
         x1 = Math.max(x1, v.x);
         y0 = Math.min(y0, v.y);
         y1 = Math.max(y1, v.y);
       }
-      const g = dist * 0.02;
-      right.setFromMatrixColumn(cam.matrixWorld, 0).setY(0).normalize();
-      fwd
-        .set(target.x - cam.position.x, 0, target.z - cam.position.z)
-        .normalize();
-      tgt
-        .addScaledVector(right, ((x0 + x1) / 2) * g)
-        .addScaledVector(fwd, ((y0 + y1) / 2) * g * 1.3);
-      const ext = Math.max((x1 - x0) / 2, (y1 - y0) / 2);
-      distT = clamp(distT * (1 + (ext - FIT) * 0.03), 30, 420);
+      if (!behind) {
+        const g = dist * 0.5;
+        right.setFromMatrixColumn(cam.matrixWorld, 0).setY(0).normalize();
+        fwd
+          .set(target.x - cam.position.x, 0, target.z - cam.position.z)
+          .normalize();
+        tgt
+          .copy(target)
+          .addScaledVector(right, clamp((x0 + x1) / 2, -2, 2) * g)
+          .addScaledVector(fwd, clamp((y0 + y1) / 2, -2, 2) * g * 1.3);
+        tgt.y = 0;
+        const ext = Math.max((x1 - x0) / 2, (y1 - y0) / 2);
+        distT = clamp(dist * (1 + clamp(ext - FIT, -0.5, 0.5)), MIN_DIST, 420);
+      }
     }
     reliefMat.uniforms.uTime.value = reduce ? 0 : t;
 
