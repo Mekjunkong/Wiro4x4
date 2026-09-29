@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { COMPANY_TRIPADVISOR_URL } from "@/const";
@@ -6,6 +7,7 @@ import {
   TRIPADVISOR_REVIEW_SNAPSHOT,
   formatCheckedOn,
 } from "@/data/tripadvisorReviews";
+import { useAutoScroller } from "@/hooks/useAutoScroller";
 import { Stars } from "../icons";
 
 /**
@@ -19,6 +21,10 @@ export function ReviewsSection() {
   const reviews = (data ?? [])
     .filter(r => r.rating >= 4 && r.text?.trim())
     .slice(0, 3);
+  // Phones show the quotes as a swipe strip (see .wx-quotes); on wider
+  // screens they fit as a grid and the scroller stays idle.
+  const stripRef = useRef<HTMLDivElement>(null);
+  useAutoScroller(stripRef, TRIPADVISOR_REVIEWS.length, { interval: 6000 });
 
   return (
     <section
@@ -83,9 +89,9 @@ export function ReviewsSection() {
           </a>
         </div>
 
-        <div className="wx-quotes">
+        <div ref={stripRef} className="wx-quotes">
           {TRIPADVISOR_REVIEWS.map(r => (
-            <figure key={r.id} className="wx-quote">
+            <figure key={r.id} className="wx-quote" data-slide>
               <Stars />
               <blockquote cite={r.url} lang="en" dir="ltr">
                 <strong style={{ display: "block", fontWeight: 600 }}>

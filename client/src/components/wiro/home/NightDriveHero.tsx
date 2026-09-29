@@ -4,31 +4,25 @@ import { WaCta } from "../WaCta";
 import { prefersReducedMotion } from "../useViewport";
 
 const POSTER = "/media/hero/wiro-seedance-poster.webp";
-const POSTER_SRCSET =
-  "/media/hero/wiro-seedance-poster-sm.webp 828w, /media/hero/wiro-seedance-poster.webp 1536w";
+const POSTER_SM = "/media/hero/wiro-seedance-poster-sm.webp";
+const POSTER_SRCSET = `${POSTER_SM} 828w, ${POSTER} 1536w`;
 const VIDEO_DESKTOP = "/media/hero/wiro-seedance-720p-optimized.mp4";
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-
 /**
- * Home hero — the design's "night drive": the WIRO video plays full-frame
- * behind the giant white "WIRO 4×4" wordmark; scrolling rides through the
- * letters (they zoom past and fade), then the "Your journey in the North"
- * banner rises in. With reduced motion the banner is shown straight away.
+ * Home hero: the WIRO video plays full-frame behind the "Your journey in
+ * the North" banner, which is visible from the first frame (no scroll-scrub).
+ * With reduced motion or Save-Data only the poster is shown.
  */
 export function NightDriveHero() {
   const { t, language } = useLanguage();
-  const trackRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [reduce] = useState(prefersReducedMotion);
-  const [p, setP] = useState(reduce ? 1 : 0);
   // Chosen during the first render (not in an effect) so the video request
   // starts as soon as the hero mounts; it is the page's largest element.
   const [videoSrc] = useState<string | null>(() => {
     const connection = (
       navigator as Navigator & { connection?: { saveData?: boolean } }
     ).connection;
-    if (reduce || connection?.saveData) return null;
+    if (prefersReducedMotion() || connection?.saveData) return null;
     // The 640x360 mobile cut is stretched ~7x to fill a portrait screen and
     // looks blurry; the 1 MB 720p cut holds up on phones.
     return VIDEO_DESKTOP;
@@ -52,59 +46,20 @@ export function NightDriveHero() {
     };
   }, [videoSrc]);
 
-  useEffect(() => {
-    if (reduce) return undefined;
-    let raf = 0;
-    const read = () => {
-      raf = 0;
-      const el = trackRef.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const span = r.height - window.innerHeight;
-      setP(span > 0 ? clamp(-r.top / span, 0, 1) : 0);
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(read);
-    };
-    read();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [reduce]);
-
-  // Keyboard users tabbing into the (still hidden) banner jump to its end state.
-  const revealBanner = () => {
-    const el = trackRef.current;
-    if (reduce || !el || p > 0.56) return;
-    const span = el.offsetHeight - window.innerHeight;
-    window.scrollTo(0, el.offsetTop + span * 0.6);
-  };
-
-  const z = clamp(p / 0.34, 0, 1);
-  const e = z * z * z;
-  const end = reduce ? 1 : clamp((p - 0.42) / 0.14, 0, 1);
-  const textScale = 1 + e * 42;
-  const maskOp = clamp(1 - (z - 0.2) / 0.45, 0, 1);
-  // Phones already crop the landscape clip to fill a tall screen, so extra
-  // zoom only blurs it into a close-up of the grille.
-  const narrow = typeof window !== "undefined" && window.innerWidth < 720;
-  const vidScale = narrow ? 1 : 1.18 - p * 0.12;
-  const washOp = reduce ? 1 : clamp((z - 0.7) / 0.3, 0, 1);
-  const introOp = reduce ? 0 : clamp(1 - p / 0.06, 0, 1);
-
   return (
     <section
-      ref={trackRef}
       className="wx-night"
       data-header-dark
-      style={{ height: reduce ? "100vh" : "340vh" }}
       aria-labelledby="wx-night-title"
     >
       <div className="wx-night__stage">
+        <img
+          src={POSTER_SM}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className="wx-night__backdrop"
+        />
         <img
           src={POSTER}
           srcSet={POSTER_SRCSET}
@@ -113,7 +68,6 @@ export function NightDriveHero() {
           aria-hidden="true"
           fetchPriority="high"
           className="wx-night__media"
-          style={{ transform: `scale(${vidScale.toFixed(3)})` }}
         />
         {videoSrc && (
           <video
@@ -128,64 +82,11 @@ export function NightDriveHero() {
             preload="auto"
             tabIndex={-1}
             aria-hidden="true"
-            style={{ transform: `scale(${vidScale.toFixed(3)})` }}
           />
         )}
-        {maskOp > 0.001 && (
-          <div
-            className="wx-night__mask"
-            aria-hidden="true"
-            style={{ opacity: maskOp }}
-          >
-            <div
-              dir="ltr"
-              className="wx-night__word"
-              style={{ transform: `scale(${textScale.toFixed(3)})` }}
-            >
-              WIRO 4×4
-            </div>
-          </div>
-        )}
-        <div className="wx-night__wash" style={{ opacity: washOp }} />
-        <div
-          className="wx-night__intro"
-          style={{ opacity: introOp }}
-          aria-hidden="true"
-        >
-          <div
-            className="wx-caps"
-            style={{
-              color: "var(--wx-gold)",
-              letterSpacing: language === "he" ? 0 : "0.3em",
-            }}
-          >
-            {t(
-              "Private access · Northern Thailand",
-              "טיולי 4×4 פרטיים · צ׳יאנג מאי"
-            )}
-          </div>
-          <div
-            className="wx-caps"
-            style={{
-              fontSize: language === "he" ? 14 : 11,
-              letterSpacing: language === "he" ? 0 : "0.3em",
-              color: "rgba(251,248,241,0.7)",
-              marginTop: 36,
-            }}
-          >
-            {t("Scroll to ride in", "גללו כדי לעלות לרכב")}
-          </div>
-        </div>
+        <div className="wx-night__wash" />
 
-        <div
-          className="wx-night__end"
-          onFocusCapture={revealBanner}
-          style={{
-            opacity: end,
-            pointerEvents: end > 0.5 ? "auto" : "none",
-            transform: `translateY(${((1 - end) * 40).toFixed(1)}px)`,
-          }}
-        >
+        <div className="wx-night__end">
           <p
             className="wx-caps wx-eyebrow wx-eyebrow--light"
             style={{
@@ -242,12 +143,6 @@ export function NightDriveHero() {
             )}
           </p>
         </div>
-
-        {!reduce && (
-          <div className="wx-night__progress" aria-hidden="true">
-            <div style={{ height: `${(p * 100).toFixed(1)}%` }} />
-          </div>
-        )}
       </div>
     </section>
   );

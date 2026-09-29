@@ -33,7 +33,8 @@ test.describe("Homepage", () => {
     await expect(hero.getByRole("heading", { level: 1 })).toContainText(
       /journey in the North/i
     );
-    await expect(hero.getByText("WIRO 4×4", { exact: true })).toBeVisible();
+    // The banner is shown from the first frame; no scroll needed.
+    await expect(hero.getByRole("heading", { level: 1 })).toBeInViewport();
   });
 
   test("renders the hero with WhatsApp first and routes second", async ({
