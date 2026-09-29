@@ -334,6 +334,16 @@
 .wx-header.is-menu .wx-header__bar {
   background: rgba(var(--wx-paper-rgb), 0.96);
 }
+/* Phones: the logo and round buttons are large relative to the screen and
+   sat right on top of headings once the page scrolled onto light sections.
+   Give the scrolled bar a solid paper backing there. */
+@media (max-width: 959px) {
+  .wx-header.is-scrolled:not(.is-dark):not(.is-menu) .wx-header__bar {
+    background: rgba(var(--wx-paper-rgb), 0.96);
+    border-color: var(--wx-line);
+    box-shadow: 0 8px 24px -12px rgba(28, 28, 28, 0.25);
+  }
+}
 .wx-header.is-dark:not(.is-menu) {
   color: var(--wx-light);
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
@@ -610,40 +620,35 @@
   object-fit: cover;
   will-change: transform;
 }
-.wx-night__mask {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+.wx-night__backdrop {
+  display: none;
 }
-.wx-night__word {
-  font-family: var(--wx-serif);
-  font-weight: 400;
-  font-size: clamp(60px, 21vw, 360px);
-  line-height: 0.85;
-  letter-spacing: -0.03em;
-  white-space: nowrap;
-  color: #fbf8f1;
-  text-shadow:
-    0 2px 6px rgba(17, 17, 16, 0.35),
-    0 12px 60px rgba(17, 17, 16, 0.45);
-  transform-origin: 45% 55%;
-  will-change: transform;
-}
-/* A soft shade only behind the wordmark, so the white type reads over the
-   bright video without dimming the rest of the frame. */
-.wx-night__mask::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 62% 34% at 50% 52%,
-    rgba(17, 17, 16, 0.32) 0%,
-    rgba(17, 17, 16, 0.12) 55%,
-    rgba(17, 17, 16, 0) 100%
-  );
+/* Portrait screens: "cover" would crop the 16:9 clip to a sliver of the
+   grille. Show (almost) the whole frame instead, floated on a blurred,
+   darkened copy of the poster so the screen still feels full-bleed. */
+@media (max-aspect-ratio: 1/1) {
+  .wx-night__backdrop {
+    display: block;
+    position: absolute;
+    inset: -40px;
+    width: calc(100% + 80px);
+    height: calc(100% + 80px);
+    object-fit: cover;
+    filter: blur(28px) brightness(0.5) saturate(1.1);
+  }
+  /* The clip sits at the top (behind the header), wide enough to keep the
+     whole vehicle, and fades out underneath so the headline reads on the
+     dark backdrop below it. */
+  .wx-night__media {
+    inset: 0 auto auto 50%;
+    width: 140%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    transform: translateX(-50%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  }
 }
 .wx-night__wash {
   position: absolute;
@@ -661,14 +666,6 @@
       rgba(17, 17, 16, 0.35) 45%,
       rgba(17, 17, 16, 0.2) 100%
     );
-}
-.wx-night__intro {
-  position: absolute;
-  inset-inline: 0;
-  top: calc(50% + clamp(56px, 11vw, 190px));
-  text-align: center;
-  pointer-events: none;
-  text-shadow: 0 1px 12px rgba(17, 17, 16, 0.75);
 }
 .wx-night__end {
   position: absolute;
@@ -697,21 +694,6 @@
   max-width: 560px;
   margin: 22px 0 0;
   color: rgba(251, 248, 241, 0.9);
-}
-.wx-night__progress {
-  position: absolute;
-  top: 50%;
-  inset-inline-end: clamp(14px, 3vw, 36px);
-  transform: translateY(-50%);
-  width: 2px;
-  height: 140px;
-  background: rgba(251, 248, 241, 0.2);
-  overflow: hidden;
-  border-radius: 2px;
-}
-.wx-night__progress > div {
-  width: 100%;
-  background: var(--wx-gold);
 }
 
 /* ---------- Trust band ---------- */
@@ -786,6 +768,39 @@ a.wx-trust__card:hover {
   line-height: 1.45;
   color: var(--wx-muted);
   margin-top: 4px;
+}
+/* Phones: the four proof points are supporting detail, not the headline,
+   so they shrink to a tight 2x2 that fits under the copy in one glance. */
+@media (max-width: 639px) {
+  .wx-trust__cards {
+    gap: 14px 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212, 175, 55, 0.28);
+  }
+  .wx-trust__card {
+    padding: 0;
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    background: none;
+    border: 0;
+    border-radius: 0;
+  }
+  .wx-trust__num {
+    font-size: 24px;
+    min-width: 1.6em;
+  }
+  .wx-trust__label {
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+  }
+  [dir="rtl"] .wx-trust__label {
+    font-size: 13px;
+  }
+  .wx-trust__sub {
+    display: none;
+  }
 }
 
 /* ---------- Trail carousel ---------- */
@@ -1304,6 +1319,27 @@ a.wx-trust__card:hover {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+/* Phones: five stats in two columns left "A/C" alone on a third row with a
+   tall gap under it. Three compact columns fit them in two rows. */
+@media (max-width: 759px) {
+  .wx-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 14px;
+    row-gap: 18px;
+    padding-block: 20px 56px;
+  }
+  .wx-stat {
+    padding-top: 14px;
+  }
+  .wx-stat__num {
+    font-size: 24px;
+  }
+  .wx-stat__label {
+    font-size: 12.5px;
+    margin-top: 6px;
+    line-height: 1.35;
+  }
+}
 .wx-stat {
   position: relative;
   text-align: start;
@@ -1535,6 +1571,38 @@ a.wx-trust__card:hover {
 }
 .wx-quote blockquote[dir="ltr"] {
   text-align: left;
+}
+/* Phones: three stacked quote cards ran ~1,300px. Swipe them instead, with
+   the next card peeking in so the strip reads as swipeable. */
+@media (max-width: 639px) {
+  .wx-quotes {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 86%;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * clamp(16px, 3vw, 32px));
+    padding: 4px clamp(16px, 3vw, 32px) 24px;
+    scroll-padding-inline: clamp(16px, 3vw, 32px);
+  }
+  .wx-quotes::-webkit-scrollbar {
+    display: none;
+  }
+  .wx-quote {
+    scroll-snap-align: start;
+    padding: 22px 20px;
+    gap: 14px;
+    box-shadow: 0 6px 20px rgba(28, 28, 28, 0.06);
+  }
+  .wx-quote blockquote {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .wx-quotes__note {
+    margin-top: 4px;
+  }
 }
 .wx-quotes__note {
   margin: 16px 0 0;

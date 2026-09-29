@@ -141,7 +141,8 @@ export function Footer() {
             margin: "8px 0 0",
             display: "flex",
             flexWrap: "wrap",
-            gap: 16,
+            alignItems: "center",
+            gap: "0 20px",
           }}
         >
           <span>
