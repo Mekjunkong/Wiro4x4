@@ -27,7 +27,9 @@ describe("initial HTML available without JavaScript", () => {
   it("serves Hebrew content, reciprocal links and the Hebrew social locale", () => {
     const html = renderStaticRouteHtml(shell, "/he/kosher-tours-chiang-mai")!;
     expect(html).toContain('lang="he" dir="rtl"');
-    expect(html).toContain("<h1>טיולים כשרים בצ׳אנג מאי למשפחות</h1>");
+    expect(html).toContain(
+      "<h1>טיולי ג׳יפים ידידותיים לכשרות בצ׳יאנג מאי</h1>"
+    );
     expect(html).toContain('property="og:locale" content="he_IL"');
     expect(html).toContain(
       'hreflang="en" href="https://www.wiro4x4indochina.com/kosher-tours"'
@@ -77,7 +79,7 @@ describe("initial HTML available without JavaScript", () => {
     expect(second).not.toContain("&lt;img src=x");
   });
 
-  it("gives crawlers the full tour day: facts, price, itinerary, booking link", async () => {
+  it("gives crawlers the full tour day: facts, itinerary, booking link, no price", async () => {
     const meta = await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
       loadTourBySlug: async () => {
         throw new Error("database unavailable");
@@ -85,14 +87,14 @@ describe("initial HTML available without JavaScript", () => {
     });
     const html = injectMeta(shell, meta!);
     expect(html).toContain("The day, hour by hour");
-    expect(html).toContain("From ฿3,500 per vehicle");
+    expect(html).toContain("On request, private group");
     expect(html).toContain('href="/book?tour=mae-kampong-hidden-village"');
-    expect(html).toContain('"priceCurrency":"THB"');
-    expect(html).toContain('"price":3500');
+    // Public prices are hidden, so neither the body nor JSON-LD may state one.
+    expect(html).not.toMatch(/priceCurrency|"price"|฿/);
     expect(html).toContain('property="og:type" content="product"');
   });
 
-  it("uses the database price in both the page body and the offer", async () => {
+  it("never leaks the database price to crawlers", async () => {
     const meta = await resolveDynamicMeta("/tours/mae-kampong-hidden-village", {
       loadTourBySlug: async () =>
         ({
@@ -102,8 +104,8 @@ describe("initial HTML available without JavaScript", () => {
         }) as never,
     });
     const html = injectMeta(shell, meta!);
-    expect(html).toContain("From ฿3,900 per vehicle");
-    expect(html).toContain('"price":3900');
+    expect(html).not.toContain("3,900");
+    expect(html).not.toContain('"price":3900');
     expect(html).toContain("<strong>story</strong>");
   });
 

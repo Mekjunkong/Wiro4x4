@@ -6,6 +6,11 @@ import {
 import { COMPANY_EMAIL, COMPANY_PHONE } from "../shared/const";
 import { FAQ_ITEMS } from "../shared/faqItems";
 import {
+  TRIPADVISOR_REVIEWS,
+  TRIPADVISOR_REVIEW_SNAPSHOT,
+} from "../shared/tripadvisorReviews";
+import { COMPANY_TRIPADVISOR_URL } from "../shared/const";
+import {
   MAE_HONG_SON_HIGHLIGHTS,
   MAE_HONG_SON_PACES,
   MAE_HONG_SON_STAGES,
@@ -129,7 +134,6 @@ export function tourBody(slug: string, facts: TourFacts, lang: Lang): string {
   const catalog = WIRO_TOUR_CATALOG.find(t => t.slug === slug);
   if (!story && !catalog) return "";
   const he = lang === "he";
-  const price = facts.price ?? catalog?.price;
   const duration = facts.duration || catalog?.duration;
   const difficulty = (facts.difficulty ||
     catalog?.difficulty) as keyof typeof DIFFICULTY_LABEL;
@@ -142,16 +146,17 @@ export function tourBody(slug: string, facts: TourFacts, lang: Lang): string {
       he ? "רמת קושי" : "Difficulty",
       pick(lang, DIFFICULTY_LABEL[difficulty]),
     ],
-    price && [
+    // Public prices are hidden on the site, so crawlers get the same answer.
+    [
       he ? "מחיר" : "Price",
       he
-        ? `מ-฿${price.toLocaleString("en-US")} לרכב, קבוצה פרטית`
-        : `From ฿${price.toLocaleString("en-US")} per vehicle, private group`,
+        ? "לפי בקשה, לקבוצה פרטית ברכב משלכם"
+        : "On request, private group in your own vehicle",
     ],
     [
       he ? "כולל" : "Includes",
       he
-        ? "רכב 4x4 פרטי ונהג-מדריך, איסוף ממרכז צ׳אנג מאי או מרוב האזורים הקרובים, תכנון אוכל כשר"
+        ? "רכב 4x4 פרטי ונהג-מדריך, איסוף ממרכז צ׳יאנג מאי או מרוב האזורים הקרובים, תכנון ארוחות ידידותי לכשרות"
         : "Private 4x4 vehicle and driver-guide, pickup from Chiang Mai city centre or most nearby areas, kosher-friendly meal planning",
     ],
   ].filter(Boolean) as [string, string][];
@@ -317,4 +322,18 @@ export function maeHongSonBody(lang: Lang): string {
 export function contactBody(lang: Lang): string {
   const he = lang === "he";
   return `<section><ul><li>${he ? "וואטסאפ / טלפון" : "WhatsApp / phone"}: <a href="tel:${escapeHtml(COMPANY_PHONE.replace(/\s/g, ""))}">${escapeHtml(COMPANY_PHONE)}</a></li><li>${he ? "אימייל" : "Email"}: <a href="mailto:${escapeHtml(COMPANY_EMAIL)}">${escapeHtml(COMPANY_EMAIL)}</a></li><li>${he ? "מיקום: צ׳יאנג מאי, תאילנד" : "Location: Chiang Mai, Thailand"}</li></ul></section>`;
+}
+
+/** Reviews page: the dated Tripadvisor snapshot and verbatim excerpts. */
+export function reviewsBody(lang: Lang): string {
+  const he = lang === "he";
+  const { rating, reviewCount, checkedOn } = TRIPADVISOR_REVIEW_SNAPSHOT;
+  const intro = he
+    ? `דירוג ${rating} ב-Tripadvisor מתוך ${reviewCount} ביקורות ציבוריות (נבדק ${checkedOn}).`
+    : `Rated ${rating} on Tripadvisor from ${reviewCount} public reviews (checked ${checkedOn}).`;
+  const items = TRIPADVISOR_REVIEWS.map(
+    r =>
+      `<li><blockquote cite="${escapeHtml(r.url)}"><p>${escapeHtml(r.excerpt)}</p></blockquote><p><a href="${escapeHtml(r.url)}">${escapeHtml(r.title)}</a>, ${escapeHtml(r.author)}, ${escapeHtml(r.visited)}</p></li>`
+  ).join("");
+  return `<section><p>${escapeHtml(intro)} <a href="${escapeHtml(COMPANY_TRIPADVISOR_URL)}">${he ? "לכל הביקורות ב-Tripadvisor" : "Read every review on Tripadvisor"}</a></p><ul>${items}</ul></section>`;
 }

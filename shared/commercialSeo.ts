@@ -35,9 +35,9 @@ export const COMMERCIAL_SEO_BY_INTENT: Record<
           "Plan a private kosher-friendly 4x4 tour from Chiang Mai with realistic meal logistics, Shabbat-aware timing, and Hebrew or English support.",
       },
       he: {
-        title: "טיולים כשרים בצ׳אנג מאי למשפחות",
+        title: "טיולי ג׳יפים ידידותיים לכשרות בצ׳יאנג מאי",
         description:
-          "תכננו טיול 4x4 פרטי וידידותי לכשרות מצ׳אנג מאי, עם לוגיסטיקת אוכל מציאותית, תזמון שמתחשב בשבת ותמיכה בעברית.",
+          "תכננו טיול 4x4 פרטי וידידותי לכשרות מצ׳יאנג מאי, עם לוגיסטיקת אוכל מציאותית, תזמון שמתחשב בשבת ותמיכה בעברית.",
       },
     },
     heroImage: "kosher_meal_packages",
@@ -55,9 +55,9 @@ export const COMMERCIAL_SEO_BY_INTENT: Record<
           "Check a Hebrew-speaking guide for a private Chiang Mai 4x4 tour, with family-paced routes and kosher-aware planning when requested.",
       },
       he: {
-        title: "מדריך דובר עברית בצ׳אנג מאי לטיולים פרטיים",
+        title: "מדריך דובר עברית בצ׳יאנג מאי לטיולים פרטיים",
         description:
-          "בדקו זמינות של מדריך דובר עברית לטיול 4x4 פרטי בצ׳אנג מאי, עם מסלולים בקצב משפחתי ותכנון כשרות לפי הצורך.",
+          "בדקו זמינות של מדריך דובר עברית לטיול 4x4 פרטי בצ׳יאנג מאי, עם מסלולים בקצב משפחתי ותכנון כשרות לפי הצורך.",
       },
     },
     heroImage: "guide_wiro",
@@ -75,9 +75,9 @@ export const COMMERCIAL_SEO_BY_INTENT: Record<
           "Compare private family 4x4 routes from Chiang Mai with flexible pacing, hotel pickup, clear inclusions, and English or Hebrew planning.",
       },
       he: {
-        title: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+        title: "טיולי 4x4 פרטיים למשפחות בצ׳יאנג מאי",
         description:
-          "השוו מסלולי 4x4 פרטיים למשפחות מצ׳אנג מאי, עם קצב גמיש, איסוף מהמלון, פירוט ברור ותכנון בעברית או באנגלית.",
+          "השוו מסלולי 4x4 פרטיים למשפחות מצ׳יאנג מאי, עם קצב גמיש, איסוף מהמלון, פירוט ברור ותכנון בעברית או באנגלית.",
       },
     },
     heroImage: "tourists_with_4x4",

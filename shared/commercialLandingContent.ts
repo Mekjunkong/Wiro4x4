@@ -47,7 +47,7 @@ const sharedIncluded: LocalizedCopy[] = [
   },
   {
     en: "Route planning and pickup from Chiang Mai city centre or most nearby areas",
-    he: "תכנון מסלול ואיסוף ממרכז צ׳אנג מאי או מרוב האזורים הקרובים",
+    he: "תכנון מסלול ואיסוף ממרכז צ׳יאנג מאי או מרוב האזורים הקרובים",
   },
   {
     en: "Flexible stops and a pace agreed for your private group",
@@ -92,7 +92,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     },
     h1: {
       en: "Kosher-Friendly Tours in Chiang Mai",
-      he: "טיולים כשרים בצ׳אנג מאי",
+      he: "טיולי ג׳יפים ידידותיים לכשרות",
     },
     intro: {
       en: "A private 4x4 day for Jewish and Israeli travelers who want food, timing, and route decisions checked before booking—not improvised on the road.",
@@ -110,7 +110,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     duration: { en: "5–10 hours", he: "5–10 שעות" },
     pickup: {
       en: "Chiang Mai city-centre hotels and most nearby areas; ask us to confirm an address outside the usual zone.",
-      he: "מלונות במרכז צ׳אנג מאי ורוב האזורים הקרובים; לכתובת מחוץ לאזור הרגיל נבדוק מראש.",
+      he: "מלונות במרכז צ׳יאנג מאי ורוב האזורים הקרובים; לכתובת מחוץ לאזור הרגיל נבדוק מראש.",
     },
     groupSize: {
       en: "1–6 guests per vehicle. Larger groups can use multiple vehicles after a custom check.",
@@ -192,7 +192,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     },
     h1: {
       en: "Hebrew-Speaking Guide in Chiang Mai",
-      he: "מדריך דובר עברית בצ׳אנג מאי",
+      he: "מדריך דובר עברית בצ׳יאנג מאי",
     },
     intro: {
       en: "Plan a private Northern Thailand day with clear Hebrew communication from the first route decision to the final pickup time.",
@@ -210,7 +210,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     duration: { en: "5–10 hours", he: "5–10 שעות" },
     pickup: {
       en: "Chiang Mai city centre and most nearby hotels, with the exact time set after the route is chosen.",
-      he: "מרכז צ׳אנג מאי ורוב המלונות הקרובים; השעה המדויקת נקבעת אחרי בחירת המסלול.",
+      he: "מרכז צ׳יאנג מאי ורוב המלונות הקרובים; השעה המדויקת נקבעת אחרי בחירת המסלול.",
     },
     groupSize: {
       en: "1–6 guests per vehicle; multiple vehicles require advance coordination.",
@@ -272,7 +272,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
       },
       title: {
         en: "Plan a Private Chiang Mai Tour for Your Group",
-        he: "תכננו טיול פרטי בצ׳אנג מאי לקבוצה שלכם",
+        he: "תכננו טיול פרטי בצ׳יאנג מאי לקבוצה שלכם",
       },
       body: {
         en: "WIRO runs private tours only, with route and practical details coordinated on WhatsApp. Wiro is the founder, a fluent Hebrew speaker, and the primary guide for most tours, with extensive experience guiding Israeli travelers. Confirm Hebrew-guide availability for your date, kosher-friendly planning when needed, and Shabbat timing in advance. Mae Wang is the only tour not scheduled on Shabbat because of its remote location.",
@@ -283,7 +283,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
           href: "/tours",
           label: {
             en: "Compare all Chiang Mai 4x4 tours",
-            he: "השוו בין כל טיולי ה-4x4 בצ׳אנג מאי",
+            he: "השוו בין כל טיולי ה-4x4 בצ׳יאנג מאי",
           },
         },
         {
@@ -341,7 +341,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     },
     h1: {
       en: "Private Family 4x4 Tours in Chiang Mai",
-      he: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+      he: "טיולי 4x4 פרטיים למשפחות בצ׳יאנג מאי",
     },
     intro: {
       en: "Choose a real Northern Thailand route, then shape the walking, stops, food, and timing around your family's ages and energy.",
@@ -359,7 +359,7 @@ export const COMMERCIAL_LANDING_CONTENT: Record<
     duration: { en: "5–10 hours", he: "5–10 שעות" },
     pickup: {
       en: "Pickup and drop-off at Chiang Mai city-centre hotels and most surrounding areas.",
-      he: "איסוף והחזרה במלונות במרכז צ׳אנג מאי וברוב האזורים הסמוכים.",
+      he: "איסוף והחזרה במלונות במרכז צ׳יאנג מאי וברוב האזורים הסמוכים.",
     },
     groupSize: {
       en: "1–6 guests per vehicle. Ask for a multiple-vehicle plan for 7 or more.",

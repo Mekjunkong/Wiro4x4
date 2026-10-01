@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { ChevronLeft, ChevronRight, Calendar, Star } from "lucide-react";
 import { Link } from "wouter";
+import { WaCta } from "@/components/wiro/WaCta";
 
 interface AvailabilityCalendarProps {
   tourId: number | null;
@@ -192,6 +193,9 @@ export function AvailabilityCalendar({
               "צרו קשר בוואטסאפ לבדיקת תאריכים זמינים לטיול זה."
             )}
           </p>
+          <WaCta source="TOUR-DETAIL" tour={tourSlug}>
+            {t("Check dates on WhatsApp", "בדקו תאריכים בוואטסאפ")}
+          </WaCta>
         </div>
       </div>
     );

@@ -1253,7 +1253,7 @@ export default function TourDetail() {
       touristTrip.additionalType = "https://schema.org/FoodService";
       touristTrip.amenityFeature = {
         "@type": "LocationFeatureSpecification",
-        name: "Kosher Meals Available",
+        name: "Kosher-friendly meal planning",
         value: true,
       };
     }
@@ -1465,7 +1465,9 @@ export default function TourDetail() {
         text: `${t(item.title, item.titleHe)} — ${t(item.description, item.descriptionHe)}`,
       }));
   const featureTags = [
-    tour.isKosher === 1 ? t("Kosher-friendly meals", "תכנון אוכל כשר") : null,
+    tour.isKosher === 1
+      ? t("Kosher-friendly meals", "תכנון ארוחות ידידותי לכשרות")
+      : null,
     tour.isPrivate === 1 ? t("Private tour", "טיול פרטי") : null,
     tour.isShabbatOk === 1 ? t("Shabbat-aware", "מותאם שבת") : null,
     t(
@@ -2045,13 +2047,23 @@ export default function TourDetail() {
             {t("Price on request", "מחיר לפי בקשה")}
           </div>
         </div>
-        <Link
-          href={`/book?tour=${slug}`}
-          onClick={handleAvailabilityRequest}
-          className="wx-btn wx-btn--solid"
-        >
-          {t("Book this tour", "הזמינו את הטיול")}
-        </Link>
+        <div className="wx-mobilebar__actions">
+          <WaCta
+            source="TOUR-DETAIL"
+            tour={slug}
+            message={waMessage}
+            className="wx-btn wx-btn--gold"
+          >
+            {t("WhatsApp", "וואטסאפ")}
+          </WaCta>
+          <Link
+            href={`/book?tour=${slug}`}
+            onClick={handleAvailabilityRequest}
+            className="wx-btn wx-btn--solid"
+          >
+            {t("Book", "הזמנה")}
+          </Link>
+        </div>
       </div>
       <Footer />
     </div>

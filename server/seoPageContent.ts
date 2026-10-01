@@ -5,6 +5,7 @@ import {
   faqBody,
   maeHongSonBody,
   motorcycleToursBody,
+  reviewsBody,
   samoengBody,
   toursListBody,
 } from "./seoPageBody";
@@ -15,6 +16,7 @@ const STATIC_BODIES: Record<string, BodyBuilder> = {
   "/tours": toursListBody,
   "/book": toursListBody,
   "/faq": faqBody,
+  "/reviews": reviewsBody,
   "/contact": contactBody,
   "/motorcycle-tours": motorcycleToursBody,
   "/motorcycle-tours/samoeng-loop": samoengBody,

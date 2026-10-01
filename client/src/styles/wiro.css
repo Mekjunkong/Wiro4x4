@@ -334,15 +334,13 @@
 .wx-header.is-menu .wx-header__bar {
   background: rgba(var(--wx-paper-rgb), 0.96);
 }
-/* Phones: the logo and round buttons are large relative to the screen and
-   sat right on top of headings once the page scrolled onto light sections.
-   Give the scrolled bar a solid paper backing there. */
-@media (max-width: 959px) {
-  .wx-header.is-scrolled:not(.is-dark):not(.is-menu) .wx-header__bar {
-    background: rgba(var(--wx-paper-rgb), 0.96);
-    border-color: var(--wx-line);
-    box-shadow: 0 8px 24px -12px rgba(28, 28, 28, 0.25);
-  }
+/* Once the page scrolls onto light sections, the logo, nav and round
+   buttons sat right on top of headings and photos. Give the scrolled bar a
+   solid paper backing at every width. */
+.wx-header.is-scrolled:not(.is-dark):not(.is-menu) .wx-header__bar {
+  background: rgba(var(--wx-paper-rgb), 0.96);
+  border-color: var(--wx-line);
+  box-shadow: 0 8px 24px -12px rgba(28, 28, 28, 0.25);
 }
 .wx-header.is-dark:not(.is-menu) {
   color: var(--wx-light);
@@ -1099,7 +1097,7 @@ a.wx-trust__card:hover {
   inset-inline-start: 12px;
   background: rgba(28, 28, 28, 0.72);
   color: var(--wx-light);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1752,6 +1750,12 @@ a.wx-trust__card:hover {
 .wx-pagehead {
   padding: clamp(120px, 14vw, 168px) clamp(16px, 3vw, 32px) 8px;
 }
+/* Breadcrumb.tsx carries header clearance and side padding for the older
+   Tailwind pages; .wx-pagehead already clears the header, so the two
+   stacked into a ~200px gap and an indented crumb. */
+.wx-pagehead nav[aria-label="Breadcrumb"] {
+  padding: 0;
+}
 .wx-pagehead h1 {
   font-family: var(--wx-serif);
   font-weight: 400;
@@ -1952,7 +1956,20 @@ a.wx-trust__card:hover {
   justify-content: space-between;
   gap: 12px;
 }
-@media (min-width: 900px) {
+.wx-mobilebar__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+/* Keep the last footer links clear of the fixed bar. */
+@media (max-width: 1059px) {
+  .wx:has(.wx-mobilebar) .wx-footer {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+}
+/* Hidden only once the booking aside sits beside the content (1060px, see
+   .wx-detail__grid); between 900 and 1059px there was no booking CTA. */
+@media (min-width: 1060px) {
   .wx-mobilebar {
     display: none;
   }
@@ -2246,4 +2263,60 @@ a.wx-trust__card:hover {
 /* North–south loops in a narrow column (Mae Hong Son guide). */
 .wx-mapbox--square {
   aspect-ratio: 1 / 1;
+}
+
+/* Hebrew has no capitals, and Latin tracking pulls its letters apart. */
+[dir="rtl"] .wx,
+[dir="rtl"] .wx *,
+[dir="rtl"] .wx-header,
+[dir="rtl"] .wx-header *,
+[dir="rtl"] .wx-footer * {
+  letter-spacing: normal;
+}
+
+/* Inline text links must not rely on colour alone (WCAG 1.4.1). */
+.wx-inline-link {
+  color: var(--wx-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* Closing step at the end of a list page. */
+.wx-listend {
+  margin-top: 56px;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid var(--wx-line);
+  border-radius: 6px;
+  background: var(--wx-card);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.wx-listend__title {
+  font-family: var(--wx-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.1;
+  margin: 0;
+}
+.wx-listend__text {
+  margin: 10px 0 0;
+  max-width: 52ch;
+  color: var(--wx-ink-2);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.wx-listend__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+.wx-listend__actions .wx-inline-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }

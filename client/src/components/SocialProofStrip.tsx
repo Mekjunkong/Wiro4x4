@@ -19,7 +19,11 @@ const TRUST_BADGES = [
     he: "מענה בעברית / אנגלית",
     icon: Languages,
   },
-  { en: "Kosher meal planning", he: "תכנון אוכל כשר", icon: Utensils },
+  {
+    en: "Kosher-friendly meal planning",
+    he: "תכנון ארוחות ידידותי לכשרות",
+    icon: Utensils,
+  },
   { en: "Private tours only", he: "טיולים פרטיים בלבד", icon: Lock },
   { en: "Shabbat-aware scheduling", he: "תכנון מותאם שבת", icon: Flame },
 ];

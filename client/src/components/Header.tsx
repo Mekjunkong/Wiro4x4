@@ -314,7 +314,7 @@ export function Header() {
                 "בדיקת זמינות בוואטסאפ"
               )}
             >
-              WhatsApp
+              {t("WhatsApp", "וואטסאפ")}
             </WaCta>
           </span>
           <button

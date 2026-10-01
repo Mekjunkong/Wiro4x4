@@ -12,7 +12,12 @@ import {
   isCanonicalTourOrPackageSlug,
 } from "../shared/schemas";
 import { getTourBySlug } from "./db/tours";
-import { getPublishedBlogPostBySlug } from "./db/blog";
+import {
+  getAllPublishedBlogPosts,
+  getPublishedBlogPostBySlug,
+} from "./db/blog";
+import { getHardcodedPosts } from "../shared/blog/hardcodedPosts";
+import { getAdditionalHardcodedPosts } from "../shared/blog/additionalHardcodedPosts";
 import { getTourPackageBySlug } from "./db/packages";
 import { getFallbackBlogPost } from "../shared/seoFallbackContent";
 import { getFallbackTourBySlug } from "../shared/wiroTourCatalog";
@@ -28,6 +33,7 @@ import { blogBody, markdownToHtml, tourBody } from "./seoPageBody";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
+  COMPANY_TRIPADVISOR_URL,
   COMPANY_WHATSAPP_URL,
 } from "../shared/const";
 
@@ -222,7 +228,7 @@ function localBusinessJsonLd(): Record<string, unknown> {
       availableLanguage: ["English", "Hebrew", "Thai"],
       url: BUSINESS_WHATSAPP,
     },
-    sameAs: [BUSINESS_WHATSAPP],
+    sameAs: [BUSINESS_WHATSAPP, COMPANY_TRIPADVISOR_URL],
     potentialAction: [
       {
         "@type": "ReserveAction",
@@ -729,10 +735,64 @@ export function injectMeta(html: string, meta: PageMeta): string {
 /** Render a known static route from the same metadata used by the middleware. */
 export function renderStaticRouteHtml(
   html: string,
-  urlPath: string
+  urlPath: string,
+  bodyHtml?: string
 ): string | null {
   const meta = STATIC_ROUTES[urlPath];
-  return meta ? injectMeta(html, meta) : null;
+  if (!meta) return null;
+  return injectMeta(html, bodyHtml ? { ...meta, bodyHtml } : meta);
+}
+
+type BlogListItem = { slug: string; title: string; excerpt?: string | null };
+
+/** Crawler body for /blog: every published post, linked by its title. */
+export function blogListBody(posts: BlogListItem[]): string {
+  const items = posts
+    .map(
+      p =>
+        `<li><h3><a href="/blog/${escapeHtml(p.slug)}">${escapeHtml(p.title)}</a></h3>${p.excerpt ? `<p>${escapeHtml(p.excerpt)}</p>` : ""}</li>`
+    )
+    .join("");
+  return `<section><h2>Guides for planning Northern Thailand</h2><ul>${items}</ul></section>`;
+}
+
+/** Crawler body for /packages: each multi-day package, linked. */
+export function packagesListBody(): string {
+  const items = Object.entries(PACKAGE_META)
+    .map(
+      ([slug, p]) =>
+        `<li><h3><a href="/packages/${escapeHtml(slug)}">${escapeHtml(p.name)}</a></h3><p>${escapeHtml(p.description)}</p></li>`
+    )
+    .join("");
+  return `<section><h2>Multi-day journeys</h2><ul>${items}</ul></section>`;
+}
+
+/** DB posts first (newest), then the built-in guides, without duplicates. */
+export async function loadBlogListItems(
+  loadPosts: typeof getAllPublishedBlogPosts = getAllPublishedBlogPosts
+): Promise<BlogListItem[]> {
+  const en = (english: string) => english;
+  const builtIn = {
+    ...getHardcodedPosts(en),
+    ...getAdditionalHardcodedPosts(en),
+  };
+  let dbPosts: BlogListItem[] = [];
+  try {
+    dbPosts = (await loadPosts()).map(p => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+    }));
+  } catch {
+    // DB unavailable: the built-in guides still give crawlers a path.
+  }
+  const seen = new Set(dbPosts.map(p => p.slug));
+  return [
+    ...dbPosts,
+    ...Object.entries(builtIn)
+      .filter(([slug]) => !seen.has(slug))
+      .map(([slug, p]) => ({ slug, title: p.title })),
+  ];
 }
 
 interface DynamicMetaOptions {
@@ -812,20 +872,7 @@ export async function resolveDynamicMeta(
             description,
             inLanguage: he ? "he" : "en",
             image: coverImage ? absoluteUrl(coverImage) : DEFAULT_OG_IMAGE,
-            ...(price
-              ? {
-                  offers: {
-                    "@type": "Offer",
-                    price,
-                    priceCurrency: "THB",
-                    url: `${SITE_URL}${path}`,
-                    availability: "https://schema.org/InStock",
-                    description: he
-                      ? "לרכב, קבוצה פרטית"
-                      : "Per vehicle, private group",
-                  },
-                }
-              : {}),
+            // No Offer: public prices are hidden ("price on request").
             provider: {
               "@type": "TravelAgency",
               name: "WIRO 4x4",
@@ -1101,7 +1148,14 @@ export function seoMiddleware(options?: { html?: string }) {
     }
 
     // Static pages render through the same helper covered by raw-HTML tests.
-    const staticHtml = renderStaticRouteHtml(html, urlPath);
+    // Listing pages link every child page so crawlers can reach them.
+    const listingBody =
+      urlPath === "/blog"
+        ? blogListBody(await loadBlogListItems())
+        : urlPath === "/packages"
+          ? packagesListBody()
+          : undefined;
+    const staticHtml = renderStaticRouteHtml(html, urlPath, listingBody);
     if (staticHtml) {
       res
         .status(200)

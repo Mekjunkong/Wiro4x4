@@ -42,8 +42,8 @@ export function hebrewTourSeoMeta(
   if (!tour) return null;
   const story = WIRO_TOUR_STORIES.find(s => s.slug === slug);
   return {
-    title: `${tour.nameHe} — טיול 4x4 פרטי מצ׳יאנג מאי`,
-    description: `${story ? `${story.desc[1]} ` : ""}טיול יום פרטי ברכב 4x4 מצ׳יאנג מאי, עם איסוף ותכנון אוכל כשר.`,
+    title: `${tour.nameHe}: טיול ג׳יפים פרטי מצ׳יאנג מאי`,
+    description: `${story ? `${story.desc[1]} ` : ""}טיול ג׳יפים פרטי ברכב 4x4 מצ׳יאנג מאי, עם איסוף ותכנון ארוחות ידידותי לכשרות.`,
   };
 }
 

@@ -50,7 +50,7 @@ export function Footer() {
           >
             {t(
               "Private 4×4 day trips in Northern Thailand with kosher-friendly meal planning and Hebrew-speaking guides.",
-              "טיולי 4×4 פרטיים בצפון תאילנד עם תכנון אוכל כשר ומדריכים דוברי עברית."
+              "טיולי 4×4 פרטיים בצפון תאילנד עם תכנון ארוחות ידידותי לכשרות ומדריכים דוברי עברית."
             )}
           </p>
         </div>
