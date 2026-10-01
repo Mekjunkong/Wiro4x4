@@ -17,6 +17,7 @@ import {
   COMPANY_EMAIL,
   COMPANY_NAME,
   COMPANY_PHONE,
+  COMPANY_TRIPADVISOR_URL,
   COMPANY_WEBSITE,
   COMPANY_WHATSAPP_URL,
 } from "@/const";
@@ -39,7 +40,7 @@ const homeJsonLd = [
     },
     areaServed: ["Chiang Mai", "Northern Thailand", "Indochina"],
     availableLanguage: ["English", "Hebrew"],
-    sameAs: [COMPANY_WHATSAPP_URL],
+    sameAs: [COMPANY_WHATSAPP_URL, COMPANY_TRIPADVISOR_URL],
   },
   {
     "@context": "https://schema.org",
