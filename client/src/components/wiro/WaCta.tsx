@@ -10,6 +10,8 @@ type SourceStem =
   | "GLOBAL-HEADER"
   | "GLOBAL-FOOTER"
   | "TOUR-DETAIL"
+  | "TOURS-LIST"
+  | "PACKAGES-END"
   | "BOOKING-QUICK"
   | "TRIP-ALBUM";
 

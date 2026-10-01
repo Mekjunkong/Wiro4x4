@@ -2,6 +2,7 @@ import { eq, sql, and, lte } from "drizzle-orm";
 import { desc } from "drizzle-orm";
 import { getDb } from "./connection";
 import { blogPosts, InsertBlogPost } from "../../drizzle/schema";
+import { COMPANY_WHATSAPP, COMPANY_WHATSAPP_DISPLAY } from "../../shared/const";
 
 export async function createBlogPost(post: InsertBlogPost) {
   const db = await getDb();
@@ -49,6 +50,20 @@ export async function getBlogPostBySlug(slug: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+/** Retired WhatsApp number that older posts still link to. */
+const OLD_WHATSAPP = /(?:\+?66[\s-]?)?0?92[\s-]?989[\s-]?4495|66929894495/g;
+
+/** Points any retired WhatsApp number in post text at the current one. */
+export function withCurrentWhatsApp<T extends { content?: string | null }>(
+  post: T
+): T {
+  if (!post.content) return post;
+  const content = post.content.replace(OLD_WHATSAPP, match =>
+    /^\d+$/.test(match) ? COMPANY_WHATSAPP : COMPANY_WHATSAPP_DISPLAY
+  );
+  return content === post.content ? post : { ...post, content };
+}
+
 export async function getPublishedBlogPostBySlug(slug: string) {
   const db = await getDb();
   if (!db) return undefined;
@@ -63,7 +78,7 @@ export async function getPublishedBlogPostBySlug(slug: string) {
       )
     )
     .limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? withCurrentWhatsApp(result[0]) : undefined;
 }
 
 export async function updateBlogPost(

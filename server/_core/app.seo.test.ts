@@ -61,7 +61,7 @@ describe("createApp commercial SEO", () => {
     expect(response.status).toBe(200);
     expect(html).toContain('<html lang="he" dir="rtl">');
     expect(html).toContain(
-      "<title>טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי | WIRO 4x4</title>"
+      "<title>טיולי 4x4 פרטיים למשפחות בצ׳יאנג מאי | WIRO 4x4</title>"
     );
     expect(html).toContain(
       '<link rel="canonical" href="https://www.wiro4x4indochina.com/he/private-family-tours-chiang-mai" />'

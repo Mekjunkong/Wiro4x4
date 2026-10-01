@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { trpc } from "@/lib/trpc";
+import { WaCta } from "@/components/wiro/WaCta";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActionButtons } from "@/components/FloatingActionButtons";
@@ -22,8 +23,8 @@ const DIFFS: readonly [Diff, string, string][] = [
 ];
 const DURS: readonly [Dur, string, string][] = [
   ["all", "All durations", "כל הזמנים"],
-  ["half", "Half day (5-7h)", "חצי יום (5-7 שעות)"],
-  ["full", "Full day (7-10h)", "יום שלם (7-10 שעות)"],
+  ["half", "Shorter day (5-7h)", "יום קצר (5-7 שעות)"],
+  ["full", "Long day (7-9h)", "יום ארוך (7-9 שעות)"],
 ];
 
 export default function ToursListing() {
@@ -87,12 +88,12 @@ export default function ToursListing() {
             <h1>{t("Chiang Mai 4x4 Tours", "טיולי 4x4 בצ'יאנג מאי")}</h1>
             <p className="wx-lede" style={{ margin: "18px 0 0" }}>
               {t(
-                "Every day is private — your group, your vehicle, your guide — with kosher-friendly meal planning on all of them. Start with the high mountains of ",
-                "כל יום הוא פרטי — הקבוצה שלכם, הרכב שלכם, המדריך שלכם — עם תכנון אוכל כשר בכולם. התחילו בהרים הגבוהים של "
+                "Every day is private: your group, your vehicle and your guide, with kosher-friendly meal planning on all of them. Start with the high mountains of ",
+                "כל יום הוא פרטי: הקבוצה שלכם, הרכב שלכם והמדריך שלכם, עם תכנון ארוחות ידידותי לכשרות בכולם. התחילו בהרים הגבוהים של "
               )}
               <Link
                 href={tourPath("doi-inthanon-roof-of-thailand", language)}
-                style={{ color: "var(--wx-gold-ink)" }}
+                className="wx-inline-link"
               >
                 {t("Doi Inthanon", "דוי אינתנון")}
               </Link>
@@ -102,7 +103,7 @@ export default function ToursListing() {
               )}
               <Link
                 href={tourPath("mae-wang-jungle-wilderness", language)}
-                style={{ color: "var(--wx-gold-ink)" }}
+                className="wx-inline-link"
               >
                 {t("Mae Wang", "מאה וואנג")}
               </Link>
@@ -202,14 +203,30 @@ export default function ToursListing() {
                 </button>
               </div>
             )}
-            <p
-              style={{ marginTop: 40, fontSize: 15, color: "var(--wx-muted)" }}
-            >
-              {t("Planning several days? ", "מתכננים כמה ימים? ")}
-              <Link href="/packages" style={{ color: "var(--wx-gold-ink)" }}>
-                {t("See multi-day packages", "לחבילות רב־יומיות")}
-              </Link>
-            </p>
+            <div className="wx-listend">
+              <div>
+                <h2 className="wx-listend__title">
+                  {t("Not sure which day fits?", "לא בטוחים איזה יום מתאים?")}
+                </h2>
+                <p className="wx-listend__text">
+                  {t(
+                    "Send your dates, group size and pickup area. We reply with the route that suits your group.",
+                    "שלחו תאריכים, מספר מטיילים ואזור איסוף, ונחזור אליכם עם המסלול שמתאים לכם."
+                  )}
+                </p>
+              </div>
+              <div className="wx-listend__actions">
+                <WaCta source="TOURS-LIST">
+                  {t("Ask on WhatsApp", "שאלו בוואטסאפ")}
+                </WaCta>
+                <Link href="/packages" className="wx-inline-link">
+                  {t(
+                    "Planning several days? See packages",
+                    "מתכננים כמה ימים? לחבילות"
+                  )}
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </main>

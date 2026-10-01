@@ -4,20 +4,20 @@ const commercialRoutes = [
   {
     hebrewPath: "/he/kosher-tours-chiang-mai",
     englishPath: "/kosher-tours",
-    h1: "טיולים כשרים בצ׳אנג מאי",
-    title: "טיולים כשרים בצ׳אנג מאי למשפחות",
+    h1: "טיולי ג׳יפים ידידותיים לכשרות",
+    title: "טיולי ג׳יפים ידידותיים לכשרות בצ׳יאנג מאי",
   },
   {
     hebrewPath: "/he/hebrew-guide-chiang-mai",
     englishPath: "/hebrew-guide",
-    h1: "מדריך דובר עברית בצ׳אנג מאי",
-    title: "מדריך דובר עברית בצ׳אנג מאי לטיולים פרטיים",
+    h1: "מדריך דובר עברית בצ׳יאנג מאי",
+    title: "מדריך דובר עברית בצ׳יאנג מאי לטיולים פרטיים",
   },
   {
     hebrewPath: "/he/private-family-tours-chiang-mai",
     englishPath: "/private-family-tours",
-    h1: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
-    title: "טיולי 4x4 פרטיים למשפחות בצ׳אנג מאי",
+    h1: "טיולי 4x4 פרטיים למשפחות בצ׳יאנג מאי",
+    title: "טיולי 4x4 פרטיים למשפחות בצ׳יאנג מאי",
   },
 ] as const;
 

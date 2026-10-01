@@ -139,7 +139,7 @@ export function NightDriveHero() {
           >
             {t(
               "Private vehicle · Chiang Mai pickup · Hebrew planning · Kosher-friendly meals",
-              "רכב פרטי · איסוף מצ׳יאנג מאי · תכנון בעברית · תכנון אוכל כשר"
+              "רכב פרטי · איסוף מצ׳יאנג מאי · תכנון בעברית · תכנון ארוחות ידידותי לכשרות"
             )}
           </p>
         </div>

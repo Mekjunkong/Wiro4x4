@@ -9,6 +9,8 @@ export const COMPANY_WHATSAPP = "66816401397";
 export const COMPANY_WHATSAPP_URL = `https://wa.me/${COMPANY_WHATSAPP}`;
 export const COMPANY_WHATSAPP_DISPLAY = "+66 81 640 1397";
 export const COMPANY_PHONE = "+66 81 640 1397";
+export const COMPANY_TRIPADVISOR_URL =
+  "https://www.tripadvisor.com/Attraction_Review-g293917-d8610288-Reviews-Wiro_4x4_Indochina_Adventure_Day_Tours-Chiang_Mai.html";
 export const COMPANY_EMAIL = "wiro.adventures@gmail.com";
 export const COMPANY_SENDER_EMAIL = "bookings@wiro4x4indochina.com";
 export const COMPANY_NAME = "WIRO 4x4 - Kosher Off-Road Adventures";

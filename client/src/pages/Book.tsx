@@ -82,7 +82,7 @@ export default function Book() {
     ),
     description: t(
       "Pick a tour, a date and your group. WIRO confirms availability and kosher-friendly meal planning with you on WhatsApp.",
-      "בחרו טיול, תאריך וקבוצה. WIRO מאשרת איתכם זמינות ותכנון אוכל כשר בוואטסאפ."
+      "בחרו טיול, תאריך וקבוצה. WIRO מאשרת איתכם זמינות ותכנון ארוחות ידידותי לכשרות בוואטסאפ."
     ),
     canonicalPath: "/book",
   });

@@ -113,8 +113,8 @@ export function WiroRouteMap({
       {failed ? (
         <p className="wx-mapbox__fallback">
           {t(
-            "The 3D map needs WebGL. Every motorcycle loop starts and ends in Chiang Mai.",
-            "המפה התלת־ממדית דורשת WebGL. כל לולאת אופנועים מתחילה ומסתיימת בצ׳יאנג מאי."
+            "The 3D map needs WebGL. Every route starts and ends in Chiang Mai.",
+            "המפה התלת־ממדית דורשת WebGL. כל מסלול מתחיל ומסתיים בצ׳יאנג מאי."
           )}
         </p>
       ) : (

@@ -15,8 +15,7 @@ export {
 
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || "App";
 
-export const COMPANY_TRIPADVISOR_URL =
-  "https://www.tripadvisor.com/Attraction_Review-g293917-d8610288-Reviews-Wiro_4x4_Indochina_Adventure_Day_Tours-Chiang_Mai.html";
+export { COMPANY_TRIPADVISOR_URL } from "@shared/const";
 
 // Self-hosted logo (previously hot-linked from a temporary Manus CDN
 // session URL that could expire at any time; also 820KB vs 36KB now).

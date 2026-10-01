@@ -23,6 +23,7 @@ import { buildSelectedToursBookingUrl } from "@/lib/bookingTourContext";
 import { WiroMap } from "@/components/wiro/WiroMap";
 import { WIRO_TOUR_STORIES, type MapPlaceKey } from "@/data/wiroTours";
 import { WiroRouteMap } from "@/components/wiro/WiroRouteMap";
+import { WaCta } from "@/components/wiro/WaCta";
 import { FALLBACK_PACKAGES } from "@/data/multiDayPackages";
 import { PACKAGE_ROUTES } from "@/data/packageRoutes";
 import {
@@ -304,6 +305,13 @@ export default function Packages() {
     setSelectedDuration(pkg.days);
     setSelectedTourSlugs(pkg.tourSlugs);
     setCurrentStep(3); // skip to customize
+    // The builder sits far below the cards; on phones the step change was
+    // invisible without this scroll.
+    requestAnimationFrame(() =>
+      document
+        .getElementById("package-builder")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+    );
   };
 
   // ── Children helpers ──────────────────────────────────────
@@ -321,7 +329,10 @@ export default function Packages() {
 
     const addons = [];
     if (includesHotels) addons.push(isHebrew ? "מלונות" : "Hotels");
-    if (includesFood) addons.push(isHebrew ? "ארוחות כשרות" : "Kosher Meals");
+    if (includesFood)
+      addons.push(
+        isHebrew ? "ארוחות ידידותיות לכשרות" : "Kosher-friendly meals"
+      );
     if (includesAttractions) addons.push(isHebrew ? "אטרקציות" : "Attractions");
     if (needsShabbatHotel) addons.push(isHebrew ? "מלון שבת" : "Shabbat Hotel");
 
@@ -444,7 +455,7 @@ export default function Packages() {
         <section className="py-12 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-3">
+              <div className="inline-flex items-center gap-2 bg-accent/10 text-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-3">
                 <Sparkles className="w-4 h-4" />
                 {t("Popular Packages", "חבילות פופולריות")}
               </div>
@@ -491,10 +502,10 @@ export default function Packages() {
                       <Button
                         onClick={() => selectSuggestedPackage(pkg)}
                         variant="outline"
-                        className="w-full border-accent text-accent hover:bg-accent/10"
+                        className="w-full border-accent text-foreground hover:bg-accent/10"
                       >
                         {t("Customize This Package", "התאימו חבילה זו")}
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                        <ArrowRight className="w-4 h-4 ms-2 rtl:rotate-180" />
                       </Button>
                     </div>
                   </Card>
@@ -508,7 +519,7 @@ export default function Packages() {
         <section className="py-12" aria-labelledby="expeditions-heading">
           <div className="container mx-auto px-4">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-3">
+              <div className="inline-flex items-center gap-2 bg-accent/10 text-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-3">
                 <Mountain className="w-4 h-4" />
                 {t("Multi-day expeditions", "מסעות רב-יומיים")}
               </div>
@@ -568,7 +579,7 @@ export default function Packages() {
                     <Button
                       asChild
                       variant="outline"
-                      className="mt-auto w-full border-accent text-accent hover:bg-accent/10"
+                      className="mt-auto w-full border-accent text-foreground hover:bg-accent/10"
                     >
                       <Link href={`/packages/${pkg.slug}`}>
                         {t(
@@ -609,7 +620,7 @@ export default function Packages() {
                       onClick={() => goToStep(step.num)}
                       className={`flex items-center gap-2 transition-colors ${
                         currentStep === step.num
-                          ? "text-accent font-bold"
+                          ? "text-foreground font-bold"
                           : currentStep > step.num
                             ? "text-green-600"
                             : "text-muted-foreground"
@@ -618,7 +629,7 @@ export default function Packages() {
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 shrink-0 ${
                           currentStep === step.num
-                            ? "border-accent bg-accent text-white"
+                            ? "border-accent-cta bg-accent-cta text-white"
                             : currentStep > step.num
                               ? "border-green-600 bg-green-600 text-white"
                               : "border-muted-foreground/30"
@@ -693,10 +704,10 @@ export default function Packages() {
                     <Button
                       onClick={() => goToStep(2)}
                       disabled={!canGoToStep2}
-                      className="bg-accent hover:bg-accent-cta-hover text-white"
+                      className="bg-accent-cta hover:bg-accent-cta-hover text-white"
                     >
                       {t("Next: Select Tours", "הבא: בחרו טיולים")}
-                      <ChevronRight className="w-4 h-4 ml-1" />
+                      <ChevronRight className="w-4 h-4 ms-1 rtl:rotate-180" />
                     </Button>
                   </div>
                 </div>
@@ -710,7 +721,7 @@ export default function Packages() {
                       <Mountain className="w-5 h-5 text-accent" />
                       {t("Select Your Tours", "בחרו את הטיולים שלכם")}
                     </h3>
-                    <span className="text-sm font-medium bg-accent/10 text-accent px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium bg-accent/10 text-foreground px-3 py-1 rounded-full">
                       {totalTourDays} / {selectedDuration ?? "?"}{" "}
                       {t("days selected", "ימים נבחרו")}
                     </span>
@@ -812,7 +823,7 @@ export default function Packages() {
                               key={slug}
                               className="flex items-center gap-3 bg-background rounded-md px-3 py-2"
                             >
-                              <span className="text-xs font-bold text-accent w-6 text-center">
+                              <span className="text-xs font-bold text-foreground w-6 text-center">
                                 {t(`Day ${idx + 1}`, `יום ${idx + 1}`)}
                               </span>
                               <span className="flex-1 text-sm font-medium truncate">
@@ -863,16 +874,16 @@ export default function Packages() {
 
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => goToStep(1)}>
-                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      <ArrowLeft className="w-4 h-4 me-1 rtl:rotate-180" />
                       {t("Back", "חזרה")}
                     </Button>
                     <Button
                       onClick={() => goToStep(3)}
                       disabled={!canGoToStep3}
-                      className="bg-accent hover:bg-accent-cta-hover text-white"
+                      className="bg-accent-cta hover:bg-accent-cta-hover text-white"
                     >
                       {t("Next: Customize", "הבא: התאמה אישית")}
-                      <ChevronRight className="w-4 h-4 ml-1" />
+                      <ChevronRight className="w-4 h-4 ms-1 rtl:rotate-180" />
                     </Button>
                   </div>
                 </div>
@@ -921,7 +932,7 @@ export default function Packages() {
                         </span>
                         <button
                           onClick={addChild}
-                          className="text-sm text-accent hover:text-accent/80 font-medium flex items-center gap-1"
+                          className="text-sm text-foreground underline underline-offset-2 hover:text-foreground/80 font-medium flex items-center gap-1"
                         >
                           <Plus className="w-4 h-4" />
                           {t("Add child", "הוסיפו ילד")}
@@ -1000,7 +1011,10 @@ export default function Packages() {
                       />
                       <ServiceToggle
                         icon={Utensils}
-                        label={t("Kosher Meals", "ארוחות כשרות")}
+                        label={t(
+                          "Kosher-friendly meals",
+                          "ארוחות ידידותיות לכשרות"
+                        )}
                         detail={t("Tailored to your trip", "בהתאמה לטיול שלכם")}
                         checked={includesFood}
                         onChange={setIncludesFood}
@@ -1079,16 +1093,16 @@ export default function Packages() {
 
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => goToStep(2)}>
-                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      <ArrowLeft className="w-4 h-4 me-1 rtl:rotate-180" />
                       {t("Back", "חזרה")}
                     </Button>
                     <Button
                       onClick={() => goToStep(4)}
                       disabled={!canGoToStep4}
-                      className="bg-accent hover:bg-accent-cta-hover text-white"
+                      className="bg-accent-cta hover:bg-accent-cta-hover text-white"
                     >
                       {t("Next: Review & Quote", "הבא: סקירה והצעת מחיר")}
-                      <ChevronRight className="w-4 h-4 ml-1" />
+                      <ChevronRight className="w-4 h-4 ms-1 rtl:rotate-180" />
                     </Button>
                   </div>
                 </div>
@@ -1130,7 +1144,7 @@ export default function Packages() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-accent">
+                              <div className="text-xs font-bold text-foreground">
                                 {t(`Day ${idx + 1}`, `יום ${idx + 1}`)}
                               </div>
                               <div className="font-medium text-sm truncate">
@@ -1254,7 +1268,7 @@ export default function Packages() {
                               !quoteName || !quoteEmail || quoteSubmitting
                             }
                             variant="outline"
-                            className="w-full border-accent text-accent hover:bg-accent/10"
+                            className="w-full border-accent text-foreground hover:bg-accent/10"
                           >
                             {quoteSubmitting ? (
                               <>
@@ -1295,18 +1309,40 @@ export default function Packages() {
 
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => goToStep(3)}>
-                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      <ArrowLeft className="w-4 h-4 me-1 rtl:rotate-180" />
                       {t("Back", "חזרה")}
                     </Button>
                     <Link href={bookingUrl}>
                       <Button className="bg-accent-cta hover:bg-accent-cta-hover text-white">
                         {t("Book Now", "להזמנה")}
-                        <ArrowRight className="w-4 h-4 ml-1" />
+                        <ArrowRight className="w-4 h-4 ms-1 rtl:rotate-180" />
                       </Button>
                     </Link>
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Closing step: talk it through on WhatsApp ───── */}
+        <section className="pb-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto rounded-md border border-border bg-card p-6 md:p-10 flex flex-wrap items-center justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-bold">
+                  {t("Rather plan it together?", "מעדיפים לתכנן יחד?")}
+                </h2>
+                <p className="text-muted-foreground mt-2 max-w-xl">
+                  {t(
+                    "Tell us your dates, group size and meal needs. We reply on WhatsApp with a route and a quote.",
+                    "ספרו לנו על התאריכים, מספר המטיילים וצרכי האוכל, ונחזור אליכם בוואטסאפ עם מסלול והצעת מחיר."
+                  )}
+                </p>
+              </div>
+              <WaCta source="PACKAGES-END">
+                {t("Plan on WhatsApp", "תכננו בוואטסאפ")}
+              </WaCta>
             </div>
           </div>
         </section>
